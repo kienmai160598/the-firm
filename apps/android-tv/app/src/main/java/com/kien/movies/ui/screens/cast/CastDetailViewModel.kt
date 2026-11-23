@@ -8,14 +8,14 @@ import com.kien.movies.R
 import com.kien.movies.core.poster.withCustomPosterUrls
 import com.kien.movies.core.tmdb.TmdbMetadataService
 import com.kien.movies.data.local.TmdbSettingsDataStore
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class CastDetailViewModel @Inject constructor(
@@ -78,13 +78,21 @@ class CastDetailViewModel @Inject constructor(
                 if (detail != null) {
                     val pattern = layoutPreferenceDataStore.customPosterUrlPattern.first()
                     val enabledScreens = layoutPreferenceDataStore.customPosterEnabledScreens.first()
-                    val effectivePattern = com.kien.movies.core.poster.patternForScreen(pattern, com.kien.movies.core.poster.CustomPosterScreen.DETAILS, enabledScreens)
+                    val effectivePattern = com.kien.movies.core.poster.patternForScreen(
+                        pattern,
+                        com.kien.movies.core.poster.CustomPosterScreen.DETAILS,
+                        enabledScreens
+                    )
                     val overlaidDetail = if (effectivePattern.isNotBlank()) {
                         detail.copy(
-                            movieCredits = detail.movieCredits.withCustomPosterUrls(effectivePattern),
+                            movieCredits = detail.movieCredits.withCustomPosterUrls(
+                                effectivePattern
+                            ),
                             tvCredits = detail.tvCredits.withCustomPosterUrls(effectivePattern)
                         )
-                    } else detail
+                    } else {
+                        detail
+                    }
                     _uiState.value = CastDetailUiState.Success(overlaidDetail)
                 } else {
                     _uiState.value = CastDetailUiState.Error(

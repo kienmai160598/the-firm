@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.view.KeyEvent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,28 +37,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.TextStyle
-import com.kien.movies.R
+import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.kien.movies.R
 import com.kien.movies.core.build.AppFeaturePolicy
+import com.kien.movies.data.local.NextEpisodeThresholdMode
 import com.kien.movies.data.local.PlayerPreference
 import com.kien.movies.data.local.PlayerSettings
-import com.kien.movies.data.local.NextEpisodeThresholdMode
 import com.kien.movies.data.local.StreamAutoPlayMode
 import com.kien.movies.data.local.StreamAutoPlaySource
 import com.kien.movies.ui.components.MoviesDialog
@@ -69,8 +67,9 @@ import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.components.expressive.MoviesCardFocus
-import kotlin.math.roundToInt
+import com.kien.movies.ui.theme.MoviesTheme
 import java.util.Locale
+import kotlin.math.roundToInt
 
 @Composable
 internal fun PlaybackStreamSelectionSection(
@@ -101,7 +100,9 @@ internal fun PlaybackStreamSelectionSection(
     if (settings.streamAutoPlayMode == StreamAutoPlayMode.REGEX_MATCH) {
         SettingsActionRow(
             title = stringResource(R.string.autoplay_regex_title),
-            subtitle = settings.streamAutoPlayRegex.ifBlank { stringResource(R.string.autoplay_regex_placeholder) },
+            subtitle = settings.streamAutoPlayRegex.ifBlank {
+                stringResource(R.string.autoplay_regex_placeholder)
+            },
             onClick = { onOpenDialog(PlaybackDialog.STREAM_REGEX) }
         )
     }
@@ -109,7 +110,8 @@ internal fun PlaybackStreamSelectionSection(
     if (settings.streamAutoPlayMode != StreamAutoPlayMode.MANUAL) {
         // Excludes the engine switch on error: both react to the same failure. Only the switch
         // that is off is locked, so both stay reachable if both ended up on.
-        val blockedByEngineSwitch = settings.autoSwitchInternalPlayerOnError && !settings.streamAutoPlayFallbackOnFailure
+        val blockedByEngineSwitch =
+            settings.autoSwitchInternalPlayerOnError && !settings.streamAutoPlayFallbackOnFailure
         SettingsToggleRow(
             title = stringResource(R.string.autoplay_fallback_next_source),
             subtitle = stringResource(
@@ -120,8 +122,13 @@ internal fun PlaybackStreamSelectionSection(
                 }
             ),
             checked = settings.streamAutoPlayFallbackOnFailure,
-            onToggle = { onUpdate { setStreamAutoPlayFallbackOnFailure(!settings.streamAutoPlayFallbackOnFailure) } },
-            enabled = settings.playerPreference != PlayerPreference.EXTERNAL && !blockedByEngineSwitch
+            onToggle = {
+                onUpdate {
+                    setStreamAutoPlayFallbackOnFailure(!settings.streamAutoPlayFallbackOnFailure)
+                }
+            },
+            enabled =
+                settings.playerPreference != PlayerPreference.EXTERNAL && !blockedByEngineSwitch
         )
 
         if (settings.streamAutoPlayFallbackOnFailure && !blockedByEngineSwitch) {
@@ -149,7 +156,9 @@ internal fun PlaybackStreamSelectionSection(
                 maxValue = PlayerSettings.MAX_SOURCE_STARTUP_TIMEOUT_SECONDS,
                 step = PlayerSettings.SOURCE_STARTUP_TIMEOUT_SECONDS_STEP,
                 enabled = settings.playerPreference != PlayerPreference.EXTERNAL,
-                onValueChange = { seconds -> onUpdate { setStreamAutoPlayFallbackStartupTimeoutSeconds(seconds) } }
+                onValueChange = { seconds ->
+                    onUpdate { setStreamAutoPlayFallbackStartupTimeoutSeconds(seconds) }
+                }
             )
         }
 
@@ -158,8 +167,14 @@ internal fun PlaybackStreamSelectionSection(
             subtitle = null,
             value = when (effectiveAutoPlaySource) {
                 StreamAutoPlaySource.ALL_SOURCES -> stringResource(R.string.autoplay_scope_all)
-                StreamAutoPlaySource.INSTALLED_ADDONS_ONLY -> stringResource(R.string.autoplay_scope_addons)
-                StreamAutoPlaySource.ENABLED_PLUGINS_ONLY -> stringResource(R.string.autoplay_scope_plugins)
+
+                StreamAutoPlaySource.INSTALLED_ADDONS_ONLY -> stringResource(
+                    R.string.autoplay_scope_addons
+                )
+
+                StreamAutoPlaySource.ENABLED_PLUGINS_ONLY -> stringResource(
+                    R.string.autoplay_scope_plugins
+                )
             },
             onClick = { onOpenDialog(PlaybackDialog.STREAM_AUTO_PLAY_SOURCE) }
         )
@@ -200,7 +215,11 @@ internal fun PlaybackStreamSelectionSection(
         selected = timeoutSeconds,
         valueText = when (timeoutSeconds) {
             0 -> stringResource(R.string.autoplay_timeout_instant)
-            PlayerSettings.STREAM_AUTOPLAY_TIMEOUT_UNLIMITED -> stringResource(R.string.autoplay_timeout_unlimited)
+
+            PlayerSettings.STREAM_AUTOPLAY_TIMEOUT_UNLIMITED -> stringResource(
+                R.string.autoplay_timeout_unlimited
+            )
+
             else -> "${timeoutSeconds}s"
         },
         onValueChange = { seconds -> onUpdate { setStreamAutoPlayTimeoutSeconds(seconds) } }
@@ -210,14 +229,18 @@ internal fun PlaybackStreamSelectionSection(
         title = stringResource(R.string.autoplay_preload_next_episode),
         subtitle = stringResource(R.string.autoplay_preload_next_episode_sub),
         checked = settings.preloadNextEpisodeSources,
-        onToggle = { onUpdate { setPreloadNextEpisodeSources(!settings.preloadNextEpisodeSources) } }
+        onToggle = {
+            onUpdate { setPreloadNextEpisodeSources(!settings.preloadNextEpisodeSources) }
+        }
     )
 
     SettingsToggleRow(
         title = stringResource(R.string.autoplay_reuse_last_link),
         subtitle = stringResource(R.string.autoplay_reuse_last_link_sub),
         checked = settings.streamReuseLastLinkEnabled,
-        onToggle = { onUpdate { setStreamReuseLastLinkEnabled(!settings.streamReuseLastLinkEnabled) } }
+        onToggle = {
+            onUpdate { setStreamReuseLastLinkEnabled(!settings.streamReuseLastLinkEnabled) }
+        }
     )
 
     if (settings.streamReuseLastLinkEnabled) {
@@ -240,16 +263,26 @@ internal fun PlaybackUpNextSection(
         title = stringResource(R.string.autoplay_next_episode),
         subtitle = stringResource(R.string.autoplay_next_episode_sub),
         checked = settings.streamAutoPlayNextEpisodeEnabled,
-        onToggle = { onUpdate { setStreamAutoPlayNextEpisodeEnabled(!settings.streamAutoPlayNextEpisodeEnabled) } }
+        onToggle = {
+            onUpdate {
+                setStreamAutoPlayNextEpisodeEnabled(!settings.streamAutoPlayNextEpisodeEnabled)
+            }
+        }
     )
 
-    if (settings.streamAutoPlayNextEpisodeEnabled && settings.streamAutoPlayMode == StreamAutoPlayMode.MANUAL) {
+    if (settings.streamAutoPlayNextEpisodeEnabled &&
+        settings.streamAutoPlayMode == StreamAutoPlayMode.MANUAL
+    ) {
         SettingsToggleRow(
             title = stringResource(R.string.autoplay_next_episode_fallback),
             subtitle = stringResource(R.string.autoplay_next_episode_fallback_sub),
             checked = settings.streamAutoPlayNextEpisodeFallbackEnabled,
             onToggle = {
-                onUpdate { setStreamAutoPlayNextEpisodeFallbackEnabled(!settings.streamAutoPlayNextEpisodeFallbackEnabled) }
+                onUpdate {
+                    setStreamAutoPlayNextEpisodeFallbackEnabled(
+                        !settings.streamAutoPlayNextEpisodeFallbackEnabled
+                    )
+                }
             }
         )
     }
@@ -259,7 +292,10 @@ internal fun PlaybackUpNextSection(
         subtitle = null,
         value = when (settings.nextEpisodeThresholdMode) {
             NextEpisodeThresholdMode.PERCENTAGE -> stringResource(R.string.autoplay_threshold_pct)
-            NextEpisodeThresholdMode.MINUTES_BEFORE_END -> stringResource(R.string.autoplay_threshold_min)
+
+            NextEpisodeThresholdMode.MINUTES_BEFORE_END -> stringResource(
+                R.string.autoplay_threshold_min
+            )
         },
         onClick = { onOpenDialog(PlaybackDialog.NEXT_EPISODE_THRESHOLD_MODE) }
     )
@@ -275,6 +311,7 @@ internal fun PlaybackUpNextSection(
             step = 1,
             onValueChange = { value -> onUpdate { setNextEpisodeThresholdPercent(value / 2f) } }
         )
+
         NextEpisodeThresholdMode.MINUTES_BEFORE_END -> SliderSettingsItem(
             title = stringResource(R.string.autoplay_threshold_min_title),
             subtitle = stringResource(R.string.autoplay_threshold_pct_sub),
@@ -283,7 +320,9 @@ internal fun PlaybackUpNextSection(
             minValue = 0,
             maxValue = 7,
             step = 1,
-            onValueChange = { value -> onUpdate { setNextEpisodeThresholdMinutesBeforeEnd(value / 2f) } }
+            onValueChange = { value ->
+                onUpdate { setNextEpisodeThresholdMinutesBeforeEnd(value / 2f) }
+            }
         )
     }
 
@@ -304,7 +343,9 @@ internal fun PlaybackUpNextSection(
                 minValue = 2,
                 maxValue = 6,
                 step = 1,
-                onValueChange = { threshold -> onUpdate { setStillWatchingEpisodeThreshold(threshold) } }
+                onValueChange = { threshold ->
+                    onUpdate { setStillWatchingEpisodeThreshold(threshold) }
+                }
             )
         }
     }
@@ -315,7 +356,9 @@ internal fun PlaybackUpNextSection(
         checked = settings.streamAutoPlayPreferBingeGroupForNextEpisode,
         onToggle = {
             onUpdate {
-                setStreamAutoPlayPreferBingeGroupForNextEpisode(!settings.streamAutoPlayPreferBingeGroupForNextEpisode)
+                setStreamAutoPlayPreferBingeGroupForNextEpisode(
+                    !settings.streamAutoPlayPreferBingeGroupForNextEpisode
+                )
             }
         }
     )
@@ -325,7 +368,11 @@ internal fun PlaybackUpNextSection(
             title = stringResource(R.string.autoplay_reuse_binge_group),
             subtitle = stringResource(R.string.autoplay_reuse_binge_group_sub),
             checked = settings.streamAutoPlayReuseBingeGroup,
-            onToggle = { onUpdate { setStreamAutoPlayReuseBingeGroup(!settings.streamAutoPlayReuseBingeGroup) } }
+            onToggle = {
+                onUpdate {
+                    setStreamAutoPlayReuseBingeGroup(!settings.streamAutoPlayReuseBingeGroup)
+                }
+            }
         )
     }
 
@@ -333,7 +380,9 @@ internal fun PlaybackUpNextSection(
         title = stringResource(R.string.autoplay_post_play_recommendations),
         subtitle = stringResource(R.string.autoplay_post_play_recommendations_sub),
         checked = settings.postPlayRecommendationsEnabled,
-        onToggle = { onUpdate { setPostPlayRecommendationsEnabled(!settings.postPlayRecommendationsEnabled) } }
+        onToggle = {
+            onUpdate { setPostPlayRecommendationsEnabled(!settings.postPlayRecommendationsEnabled) }
+        }
     )
 
     if (settings.postPlayRecommendationsEnabled) {
@@ -351,8 +400,13 @@ internal fun PlaybackUpNextSection(
 }
 
 @Composable
-private fun selectionSummary(selectedCount: Int, allLabel: String): String =
-    if (selectedCount == 0) allLabel else stringResource(R.string.autoplay_selected_count, selectedCount)
+private fun selectionSummary(selectedCount: Int, allLabel: String): String = if (selectedCount ==
+    0
+) {
+    allLabel
+} else {
+    stringResource(R.string.autoplay_selected_count, selectedCount)
+}
 
 private fun formatHalfStepValue(value: Float): String {
     return if (value % 1f == 0f) {
@@ -380,6 +434,7 @@ internal fun AutoPlaySettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.STREAM_AUTO_PLAY_SOURCE -> StreamAutoPlaySourceDialog(
             selectedSource = settings.streamAutoPlaySource,
             onSourceSelected = { source ->
@@ -388,6 +443,7 @@ internal fun AutoPlaySettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.STREAM_REGEX -> StreamRegexDialog(
             initialRegex = settings.streamAutoPlayRegex,
             onSave = { regex ->
@@ -396,6 +452,7 @@ internal fun AutoPlaySettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.NEXT_EPISODE_THRESHOLD_MODE -> NextEpisodeThresholdModeDialog(
             selectedMode = settings.nextEpisodeThresholdMode,
             onModeSelected = { mode ->
@@ -404,22 +461,29 @@ internal fun AutoPlaySettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.STREAM_AUTO_PLAY_ADDONS -> StreamAutoPlayProviderSelectionDialog(
             title = stringResource(R.string.autoplay_allowed_addons),
             allLabel = stringResource(R.string.autoplay_all_addons),
             items = installedAddonNames,
             selectedItems = settings.streamAutoPlaySelectedAddons,
-            onSelectionSaved = { selected -> onUpdate { setStreamAutoPlaySelectedAddons(selected) } },
+            onSelectionSaved = { selected ->
+                onUpdate { setStreamAutoPlaySelectedAddons(selected) }
+            },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.STREAM_AUTO_PLAY_PLUGINS -> StreamAutoPlayProviderSelectionDialog(
             title = stringResource(R.string.autoplay_allowed_plugins),
             allLabel = stringResource(R.string.autoplay_all_plugins),
             items = enabledPluginNames,
             selectedItems = settings.streamAutoPlaySelectedPlugins,
-            onSelectionSaved = { selected -> onUpdate { setStreamAutoPlaySelectedPlugins(selected) } },
+            onSelectionSaved = { selected ->
+                onUpdate { setStreamAutoPlaySelectedPlugins(selected) }
+            },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.REUSE_LAST_LINK_CACHE -> StreamReuseLastLinkCacheDurationDialog(
             selectedHours = settings.streamReuseLastLinkCacheHours,
             onDurationSelected = { hours ->
@@ -428,6 +492,7 @@ internal fun AutoPlaySettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         else -> Unit
     }
 }
@@ -466,16 +531,30 @@ private fun NextEpisodeThresholdModeDialog(
 private fun formatReuseCacheDuration(hours: Int): String {
     return when {
         hours < 24 -> stringResource(
-            if (hours == 1) R.string.cache_duration_hour_one else R.string.cache_duration_hour_other,
+            if (hours ==
+                1
+            ) {
+                R.string.cache_duration_hour_one
+            } else {
+                R.string.cache_duration_hour_other
+            },
             hours
         )
+
         hours % 24 == 0 -> {
             val days = hours / 24
             stringResource(
-                if (days == 1) R.string.cache_duration_day_one else R.string.cache_duration_day_other,
+                if (days ==
+                    1
+                ) {
+                    R.string.cache_duration_day_one
+                } else {
+                    R.string.cache_duration_day_other
+                },
                 days
             )
         }
+
         else -> {
             val days = hours / 24
             val remainingHours = hours % 24
@@ -491,9 +570,21 @@ private fun StreamAutoPlayModeDialog(
     onDismiss: () -> Unit
 ) {
     val options = listOf(
-        SettingsPickerOption(StreamAutoPlayMode.MANUAL, stringResource(R.string.autoplay_mode_manual), stringResource(R.string.autoplay_mode_manual_desc)),
-        SettingsPickerOption(StreamAutoPlayMode.FIRST_STREAM, stringResource(R.string.autoplay_mode_first), stringResource(R.string.autoplay_mode_first_desc)),
-        SettingsPickerOption(StreamAutoPlayMode.REGEX_MATCH, stringResource(R.string.autoplay_mode_regex), stringResource(R.string.autoplay_mode_regex_desc))
+        SettingsPickerOption(
+            StreamAutoPlayMode.MANUAL,
+            stringResource(R.string.autoplay_mode_manual),
+            stringResource(R.string.autoplay_mode_manual_desc)
+        ),
+        SettingsPickerOption(
+            StreamAutoPlayMode.FIRST_STREAM,
+            stringResource(R.string.autoplay_mode_first),
+            stringResource(R.string.autoplay_mode_first_desc)
+        ),
+        SettingsPickerOption(
+            StreamAutoPlayMode.REGEX_MATCH,
+            stringResource(R.string.autoplay_mode_regex),
+            stringResource(R.string.autoplay_mode_regex_desc)
+        )
     )
 
     SettingsSingleChoiceDialog(
@@ -615,7 +706,15 @@ private fun StreamAutoPlayProviderSelectionDialog(
                 onClick = { selected = emptySet() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .then(if (focusedItem == null) Modifier.focusRequester(focusRequester) else Modifier)
+                    .then(
+                        if (focusedItem ==
+                            null
+                        ) {
+                            Modifier.focusRequester(focusRequester)
+                        } else {
+                            Modifier
+                        }
+                    )
                     .semantics {
                         role = Role.RadioButton
                         this.selected = selected.isEmpty()
@@ -653,7 +752,9 @@ private fun StreamAutoPlayProviderSelectionDialog(
                 LazyColumn(
                     modifier = Modifier.heightIn(max = 300.dp),
                     verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = MoviesTheme.spacing.xs)
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                        vertical = MoviesTheme.spacing.xs
+                    )
                 ) {
                     items(
                         items = items,
@@ -670,10 +771,19 @@ private fun StreamAutoPlayProviderSelectionDialog(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .then(if (item == focusedItem) Modifier.focusRequester(focusRequester) else Modifier)
+                                .then(
+                                    if (item ==
+                                        focusedItem
+                                    ) {
+                                        Modifier.focusRequester(focusRequester)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
                                 .semantics {
                                     role = Role.Checkbox
-                                    toggleableState = if (isSelected) ToggleableState.On else ToggleableState.Off
+                                    toggleableState =
+                                        if (isSelected) ToggleableState.On else ToggleableState.Off
                                 },
                             selected = isSelected
                         ) {
@@ -804,7 +914,10 @@ private fun StreamRegexDialog(
                         ) {
                             Text(
                                 text = label,
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.sm),
+                                modifier = Modifier.padding(
+                                    horizontal = 14.dp,
+                                    vertical = MoviesTheme.spacing.sm
+                                ),
                                 style = MaterialTheme.typography.labelLarge
                             )
                         }
@@ -818,7 +931,12 @@ private fun StreamRegexDialog(
                         .onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
                     focus = MoviesCardFocus.Frosted
                 ) {
-                    Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)) {
+                    Box(
+                        modifier = Modifier.padding(
+                            horizontal = 14.dp,
+                            vertical = MoviesTheme.spacing.md
+                        )
+                    ) {
                         BasicTextField(
                             value = regex,
                             onValueChange = {
@@ -840,15 +958,21 @@ private fun StreamRegexDialog(
                             keyboardActions = KeyboardActions(
                                 onDone = { keyboardController?.hide() }
                             ),
-                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = LocalContentColor.current,
-                                            textDirection = TextDirection.Content),
-                            cursorBrush = SolidColor(if (isInputFocused) MoviesTheme.colors.Primary else Color.Transparent),
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                                color = LocalContentColor.current,
+                                textDirection = TextDirection.Content
+                            ),
+                            cursorBrush = SolidColor(
+                                if (isInputFocused) MoviesTheme.colors.Primary else Color.Transparent
+                            ),
                             decorationBox = { innerTextField ->
                                 if (regex.isBlank()) {
                                     Text(
                                         text = "4K|2160p|Remux",
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = LocalContentColor.current.copy(alpha = SETTINGS_TERTIARY_TEXT_ALPHA)
+                                        color = LocalContentColor.current.copy(
+                                            alpha = SETTINGS_TERTIARY_TEXT_ALPHA
+                                        )
                                     )
                                 }
                                 innerTextField()
@@ -886,7 +1010,9 @@ private fun StreamRegexDialog(
                         onClick = {
                             val value = regex.trim()
                             if (value.isNotEmpty()) {
-                                val valid = runCatching { Regex(value, RegexOption.IGNORE_CASE) }.isSuccess
+                                val valid = runCatching {
+                                    Regex(value, RegexOption.IGNORE_CASE)
+                                }.isSuccess
                                 if (!valid) {
                                     regexError = strInvalidRegex
                                     return@MoviesButton

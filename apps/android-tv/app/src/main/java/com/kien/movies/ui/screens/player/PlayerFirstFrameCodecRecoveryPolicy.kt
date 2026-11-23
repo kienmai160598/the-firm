@@ -10,7 +10,7 @@ internal object PlayerFirstFrameCodecRecoveryPolicy {
         val playWhenReady: Boolean,
         val isManualDv81Mode2Active: Boolean,
         val dv7Mode1AlreadyForced: Boolean,
-        val currentVideoTrackIsLikelyVc1: Boolean,
+        val currentVideoTrackIsLikelyVc1: Boolean
     )
 
     sealed class RecoveryAction {

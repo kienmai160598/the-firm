@@ -15,11 +15,14 @@ internal object CustomPosterWebPage {
                 val config = Configuration(base.resources.configuration)
                 config.setLocale(Locale.forLanguageTag(tag))
                 base.createConfigurationContext(config)
-            } else base
+            } else {
+                base
+            }
         }
 
         val appName = context?.getString(R.string.app_name) ?: "Movies"
-        val pageTitle = context?.getString(R.string.web_custom_poster_title) ?: "Custom Poster Source"
+        val pageTitle =
+            context?.getString(R.string.web_custom_poster_title) ?: "Custom Poster Source"
         val pageSubtitle = context?.getString(R.string.web_custom_poster_subtitle)
             ?: "Paste a poster URL pattern below and press Save."
         val labelPattern = context?.getString(R.string.web_custom_poster_label) ?: "URL Pattern"
@@ -29,10 +32,13 @@ internal object CustomPosterWebPage {
         val clearAction = context?.getString(R.string.web_custom_poster_clear) ?: "Clear"
         val savedMsg = context?.getString(R.string.web_custom_poster_saved) ?: "Saved!"
         val clearedMsg = context?.getString(R.string.web_custom_poster_cleared) ?: "Cleared"
-        val errorEmpty = context?.getString(R.string.web_custom_poster_error_empty) ?: "Enter a URL pattern"
+        val errorEmpty =
+            context?.getString(R.string.web_custom_poster_error_empty) ?: "Enter a URL pattern"
         val errorSave = context?.getString(R.string.web_custom_poster_error_save) ?: "Save failed"
-        val errorClear = context?.getString(R.string.web_custom_poster_error_clear) ?: "Clear failed"
-        val errorConnection = context?.getString(R.string.web_custom_poster_error_connection) ?: "Connection error"
+        val errorClear =
+            context?.getString(R.string.web_custom_poster_error_clear) ?: "Clear failed"
+        val errorConnection =
+            context?.getString(R.string.web_custom_poster_error_connection) ?: "Connection error"
         val currentLabel = context?.getString(R.string.web_custom_poster_current) ?: "Current:"
         val noPatternLabel = context?.getString(R.string.web_custom_poster_none) ?: "No pattern set"
         val loadingLabel = context?.getString(R.string.web_custom_poster_loading) ?: "Loading..."
@@ -84,7 +90,10 @@ color:rgba(255,255,255,0.5);word-break:break-all;max-height:60px;overflow:auto}
   <h1>$pageTitle</h1>
   <p class="subtitle">$pageSubtitle</p>
   <label for="pattern">$labelPattern</label>
-  <textarea id="pattern" placeholder="${placeholder.replace("&", "&amp;")}" spellcheck="false"></textarea>
+  <textarea id="pattern" placeholder="${placeholder.replace(
+            "&",
+            "&amp;"
+        )}" spellcheck="false"></textarea>
   <div class="actions">
     <button onclick="save()">$saveAction</button>
     <button onclick="clear_()">$clearAction</button>
@@ -113,6 +122,6 @@ load();
 </script>
 </body>
 </html>
-""".trimIndent()
+        """.trimIndent()
     }
 }

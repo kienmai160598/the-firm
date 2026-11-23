@@ -9,7 +9,10 @@ class SubtitleMojibakeSanitizerTest {
     @Test
     fun replacesMusicalNotesMojibake() {
         assertEquals("♪ lalala ♪", SubtitleMojibakeSanitizer.sanitize("â™ª lalala â™ª").toString())
-        assertEquals("♫ song playing ♫", SubtitleMojibakeSanitizer.sanitize("â™« song playing â™«").toString())
+        assertEquals(
+            "♫ song playing ♫",
+            SubtitleMojibakeSanitizer.sanitize("â™« song playing â™«").toString()
+        )
         assertEquals("♪ melody ♪", SubtitleMojibakeSanitizer.sanitize("â™ melody â™").toString())
     }
 
@@ -19,12 +22,18 @@ class SubtitleMojibakeSanitizerTest {
         assertEquals("‘Hello’", SubtitleMojibakeSanitizer.sanitize("â€˜Helloâ€™").toString())
         assertEquals("“Quote”", SubtitleMojibakeSanitizer.sanitize("â€œQuoteâ€").toString())
         assertEquals("“Quote”", SubtitleMojibakeSanitizer.sanitize("â€œQuoteâ€\u009D").toString())
-        assertEquals("Wait – what — why…", SubtitleMojibakeSanitizer.sanitize("Wait â€“ what â€” whyâ€¦").toString())
+        assertEquals(
+            "Wait – what — why…",
+            SubtitleMojibakeSanitizer.sanitize("Wait â€“ what â€” whyâ€¦").toString()
+        )
     }
 
     @Test
     fun replacesSpanishPunctuationMojibake() {
-        assertEquals("¿Cómo estás? ¡Bien!", SubtitleMojibakeSanitizer.sanitize("Â¿Cómo estás? Â¡Bien!").toString())
+        assertEquals(
+            "¿Cómo estás? ¡Bien!",
+            SubtitleMojibakeSanitizer.sanitize("Â¿Cómo estás? Â¡Bien!").toString()
+        )
         assertEquals("«Hola»", SubtitleMojibakeSanitizer.sanitize("Â«HolaÂ»").toString())
         assertEquals("Hello world", SubtitleMojibakeSanitizer.sanitize("HelloÂ world").toString())
     }
@@ -37,7 +46,10 @@ class SubtitleMojibakeSanitizerTest {
 
     @Test
     fun stripsReplacementCharacters() {
-        assertEquals("Hello world", SubtitleMojibakeSanitizer.sanitize("Hello \uFFFDworld\uFFFD").toString())
+        assertEquals(
+            "Hello world",
+            SubtitleMojibakeSanitizer.sanitize("Hello \uFFFDworld\uFFFD").toString()
+        )
     }
 
     @Test

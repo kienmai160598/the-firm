@@ -2,21 +2,6 @@
 
 package com.kien.movies.ui.screens.account
 
-import com.kien.movies.ui.components.expressive.M3eShapes
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.ui.theme.MoviesPrimitives
-import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.bodyFloor
-import com.kien.movies.ui.theme.rowTitleFloor
-import com.kien.movies.ui.theme.tvControlHeight
-import com.kien.movies.ui.screens.settings.TenFootTypography
-import com.kien.movies.ui.screens.settings.metaFontSize
-import com.kien.movies.ui.screens.settings.buttonIconSize
-import com.kien.movies.ui.util.contentTextDirection
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,6 +36,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -60,9 +46,22 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.kien.movies.domain.model.AuthState
-import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
+import com.kien.movies.domain.model.AuthState
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.screens.settings.TenFootTypography
+import com.kien.movies.ui.screens.settings.buttonIconSize
+import com.kien.movies.ui.screens.settings.metaFontSize
+import com.kien.movies.ui.theme.ExpressiveColors
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.bodyFloor
+import com.kien.movies.ui.theme.rowTitleFloor
+import com.kien.movies.ui.theme.tvControlHeight
+import com.kien.movies.ui.util.contentTextDirection
 
 @Composable
 fun AccountSettingsContent(
@@ -127,7 +126,6 @@ fun AccountSettingsContent(
             }
 
             is AuthState.FullAccount -> Unit
-
         }
     }
 }
@@ -155,7 +153,10 @@ private fun SignedInAccountSettingsContent(
         ) {
             val authState = uiState.authState as AuthState.FullAccount
             item(key = "account_status") {
-                StatusCard(label = stringResource(R.string.account_signed_in_label), value = authState.email)
+                StatusCard(
+                    label = stringResource(R.string.account_signed_in_label),
+                    value = authState.email
+                )
             }
             item(key = "account_sync_note_signed_in") {
                 AccountInlineNote(text = stringResource(R.string.account_sync_restart_note))
@@ -236,11 +237,26 @@ private fun SyncOverviewCard(overview: SyncOverview) {
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    ProfileStatValue(overview.totalAddons, stringResource(R.string.account_stat_addons))
-                    ProfileStatValue(overview.totalPlugins, stringResource(R.string.account_stat_plugins))
-                    ProfileStatValue(overview.totalLibrary, stringResource(R.string.account_stat_library))
-                    ProfileStatValue(overview.totalWatchProgress, stringResource(R.string.account_stat_progress))
-                    ProfileStatValue(overview.totalWatchedItems, stringResource(R.string.account_stat_watched))
+                    ProfileStatValue(
+                        overview.totalAddons,
+                        stringResource(R.string.account_stat_addons)
+                    )
+                    ProfileStatValue(
+                        overview.totalPlugins,
+                        stringResource(R.string.account_stat_plugins)
+                    )
+                    ProfileStatValue(
+                        overview.totalLibrary,
+                        stringResource(R.string.account_stat_library)
+                    )
+                    ProfileStatValue(
+                        overview.totalWatchProgress,
+                        stringResource(R.string.account_stat_progress)
+                    )
+                    ProfileStatValue(
+                        overview.totalWatchedItems,
+                        stringResource(R.string.account_stat_watched)
+                    )
                 }
             }
 
@@ -339,7 +355,13 @@ private fun ProfileStatValue(count: Int, label: String) {
         Text(
             text = count.toString(),
             fontSize = metaFontSize(12.sp),
-            color = if (count > 0) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextTertiary,
+            color = if (count >
+                0
+            ) {
+                MoviesTheme.colors.TextPrimary
+            } else {
+                MoviesTheme.colors.TextTertiary
+            },
             fontWeight = FontWeight.Medium
         )
         Text(
@@ -452,10 +474,7 @@ private fun StatusCard(label: String, value: String) {
 }
 
 @Composable
-private fun SignOutSettingsButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun SignOutSettingsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     MoviesButton(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),

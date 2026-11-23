@@ -116,10 +116,7 @@ class MetaRepositoryCandidateTypeTest {
         coVerify(exactly = 0) { api.getMeta(any()) }
     }
 
-    private fun addon(
-        metaTypes: List<String>,
-        idPrefixes: List<String> = listOf("tt")
-    ) = Addon(
+    private fun addon(metaTypes: List<String>, idPrefixes: List<String> = listOf("tt")) = Addon(
         id = "test.addon",
         name = "Test Addon",
         version = "1.0.0",
@@ -153,6 +150,11 @@ class MetaRepositoryCandidateTypeTest {
         val addonRepository = mockk<AddonRepository>(relaxed = true) {
             every { getInstalledAddons() } returns flowOf(addons.toList())
         }
-        return MetaRepositoryImpl(context = context, api = api, addonRepository = addonRepository, serverCatalog = mockk(relaxed = true))
+        return MetaRepositoryImpl(
+            context = context,
+            api = api,
+            addonRepository = addonRepository,
+            serverCatalog = mockk(relaxed = true)
+        )
     }
 }

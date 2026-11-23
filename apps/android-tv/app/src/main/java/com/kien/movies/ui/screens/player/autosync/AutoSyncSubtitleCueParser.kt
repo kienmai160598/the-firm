@@ -15,17 +15,16 @@ internal object AutoSyncSubtitleCueParser {
     private val assEventsHeaderRegex =
         Regex("""^[ \t]*\[Events\][ \t]*$""", setOf(RegexOption.IGNORE_CASE, RegexOption.MULTILINE))
 
-    fun parse(text: String, sourceUrl: String? = null): List<SubtitleSyncCue> =
-        parse(
-            text = text,
-            sourceUrl = sourceUrl,
-            cancellationCheck = null,
-        )
+    fun parse(text: String, sourceUrl: String? = null): List<SubtitleSyncCue> = parse(
+        text = text,
+        sourceUrl = sourceUrl,
+        cancellationCheck = null
+    )
 
     internal fun parse(
         text: String,
         sourceUrl: String?,
-        cancellationCheck: (() -> Unit)?,
+        cancellationCheck: (() -> Unit)?
     ): List<SubtitleSyncCue> {
         cancellationCheck?.invoke()
         val cleanedText = cleanText(text)
@@ -38,17 +37,16 @@ internal object AutoSyncSubtitleCueParser {
         }
     }
 
-    private fun cleanText(rawText: String): String =
-        rawText
-            .replace("\uFEFF", "")
-            .replace("\r\n", "\n")
-            .replace('\r', '\n')
+    private fun cleanText(rawText: String): String = rawText
+        .replace("\uFEFF", "")
+        .replace("\r\n", "\n")
+        .replace('\r', '\n')
 
     private enum class SubtitleFormatHint {
         Srt,
         WebVtt,
         Ass,
-        Ttml,
+        Ttml
     }
 
     private fun detectSubtitleFormat(sourceUrl: String?, text: String): SubtitleFormatHint {
@@ -59,21 +57,26 @@ internal object AutoSyncSubtitleCueParser {
             .orEmpty()
 
         return when {
-            sourcePath.endsWith(".vtt") || sourcePath.endsWith(".webvtt") || text.trimStart().startsWith("WEBVTT") ->
+            sourcePath.endsWith(".vtt") || sourcePath.endsWith(".webvtt") ||
+                text.trimStart().startsWith("WEBVTT") ->
                 SubtitleFormatHint.WebVtt
+
             sourcePath.endsWith(".ass") || sourcePath.endsWith(".ssa") ||
                 assEventsHeaderRegex.containsMatchIn(text) ->
                 SubtitleFormatHint.Ass
-            sourcePath.endsWith(".ttml") || sourcePath.endsWith(".dfxp") || sourcePath.endsWith(".xml") ||
+
+            sourcePath.endsWith(".ttml") || sourcePath.endsWith(".dfxp") ||
+                sourcePath.endsWith(".xml") ||
                 Regex("""<tt[\s>]""", RegexOption.IGNORE_CASE).containsMatchIn(text.take(512)) ->
                 SubtitleFormatHint.Ttml
+
             else -> SubtitleFormatHint.Srt
         }
     }
 
     private fun parseSrt(
         text: String,
-        cancellationCheck: (() -> Unit)? = null,
+        cancellationCheck: (() -> Unit)? = null
     ): List<SubtitleSyncCue> {
         val blocks = text.split(Regex("""\n\s*\n"""))
         val cues = mutableListOf<SubtitleSyncCue>()
@@ -97,14 +100,15 @@ internal object AutoSyncSubtitleCueParser {
             val textLines = lines.drop(index + 1)
             val cueText = normalizeCueText(textLines.joinToString("\n"))
             if (cueText.isBlank()) continue
-            cues += SubtitleSyncCue(startTimeMs = startTimeMs, endTimeMs = endTimeMs, text = cueText)
+            cues +=
+                SubtitleSyncCue(startTimeMs = startTimeMs, endTimeMs = endTimeMs, text = cueText)
         }
         return cues
     }
 
     private fun parseVtt(
         text: String,
-        cancellationCheck: (() -> Unit)? = null,
+        cancellationCheck: (() -> Unit)? = null
     ): List<SubtitleSyncCue> {
         val lines = text
             .lines()
@@ -161,7 +165,12 @@ internal object AutoSyncSubtitleCueParser {
             }
             val cueText = normalizeCueText(textParts.joinToString("\n"))
             if (cueText.isNotBlank()) {
-                cues += SubtitleSyncCue(startTimeMs = startTimeMs, endTimeMs = endTimeMs, text = cueText)
+                cues +=
+                    SubtitleSyncCue(
+                        startTimeMs = startTimeMs,
+                        endTimeMs = endTimeMs,
+                        text = cueText
+                    )
             }
             cursor = i + 1
         }
@@ -179,13 +188,13 @@ internal object AutoSyncSubtitleCueParser {
         "MarginR",
         "MarginV",
         "Effect",
-        "Text",
+        "Text"
     )
 
     /** Dialogue only ([AutoSyncAssDialogueFilter]): signs, karaoke and titles differ between releases. */
     private fun parseAss(
         text: String,
-        cancellationCheck: (() -> Unit)? = null,
+        cancellationCheck: (() -> Unit)? = null
     ): List<SubtitleSyncCue> {
         var section = ""
         var formatFields: List<String>? = null
@@ -199,17 +208,21 @@ internal object AutoSyncSubtitleCueParser {
             val line = rawLine.trim()
             when {
                 line.startsWith("[") && line.endsWith("]") -> section = line.lowercase()
+
                 section == "[events]" && line.startsWith("Format:", ignoreCase = true) ->
                     formatFields = parseAssFormat(line)
+
                 section == "[events]" && line.startsWith("Dialogue:", ignoreCase = true) ->
                     parseAssDialogue(line.substringAfter(':'), formatFields)?.let { events += it }
+
                 section.contains("styles") && line.startsWith("Format:", ignoreCase = true) ->
                     styleFormatFields = parseAssFormat(line)
+
                 section.contains("styles") && line.startsWith("Style:", ignoreCase = true) ->
                     parseAssStyle(
                         payload = line.substringAfter(':'),
                         formatFields = styleFormatFields,
-                        legacySsa = section == "[v4 styles]",
+                        legacySsa = section == "[v4 styles]"
                     )?.let { styles += it }
             }
         }
@@ -226,21 +239,24 @@ internal object AutoSyncSubtitleCueParser {
                 if (body.isBlank()) {
                     null
                 } else {
-                    SubtitleSyncCue(startTimeMs = event.startTimeMs, endTimeMs = event.endTimeMs, text = body)
+                    SubtitleSyncCue(
+                        startTimeMs = event.startTimeMs,
+                        endTimeMs = event.endTimeMs,
+                        text = body
+                    )
                 }
             }
             .sortedBy { it.startTimeMs }
     }
 
-    private fun parseAssFormat(line: String): List<String> =
-        line.substringAfter(':')
-            .split(',')
-            .map { it.trim() }
+    private fun parseAssFormat(line: String): List<String> = line.substringAfter(':')
+        .split(',')
+        .map { it.trim() }
 
     private fun parseAssStyle(
         payload: String,
         formatFields: List<String>?,
-        legacySsa: Boolean,
+        legacySsa: Boolean
     ): AutoSyncAssDialogueFilter.Style? {
         val fields = formatFields.orEmpty()
         val parts = payload.split(',').map { it.trim() }
@@ -258,7 +274,10 @@ internal object AutoSyncSubtitleCueParser {
         return AutoSyncAssDialogueFilter.Style(name = name, alignment = numpadAlignment)
     }
 
-    private fun parseAssDialogue(payload: String, formatFields: List<String>?): AutoSyncAssDialogueFilter.Event? {
+    private fun parseAssDialogue(
+        payload: String,
+        formatFields: List<String>?
+    ): AutoSyncAssDialogueFilter.Event? {
         val fields = formatFields.orEmpty()
         val parts = payload
             .split(',', limit = fields.ifEmpty { defaultAssFormatFields }.size)
@@ -280,13 +299,13 @@ internal object AutoSyncSubtitleCueParser {
             style = parts.getOrNull(styleIndex).orEmpty(),
             name = parts.getOrNull(nameIndex).orEmpty(),
             effect = parts.getOrNull(effectIndex).orEmpty(),
-            rawText = parts[textIndex],
+            rawText = parts[textIndex]
         )
     }
 
     private fun parseTtml(
         text: String,
-        cancellationCheck: (() -> Unit)? = null,
+        cancellationCheck: (() -> Unit)? = null
     ): List<SubtitleSyncCue> {
         val frameRate = parseTtmlFrameRate(text)
         var cancellationCounter = 0
@@ -306,7 +325,15 @@ internal object AutoSyncSubtitleCueParser {
                     match.groupValues[2]
                         .replace(Regex("""<br\s*/?>""", RegexOption.IGNORE_CASE), "\n")
                 )
-                if (body.isBlank()) null else SubtitleSyncCue(startTimeMs = start, endTimeMs = end, text = body)
+                if (body.isBlank()) {
+                    null
+                } else {
+                    SubtitleSyncCue(
+                        startTimeMs = start,
+                        endTimeMs = end,
+                        text = body
+                    )
+                }
             }
             .toList()
         cancellationCheck?.invoke()
@@ -377,7 +404,7 @@ internal object AutoSyncSubtitleCueParser {
         val frameMs = frames * 1_000.0 / frameRate
         return max(
             0L,
-            (hours * 3_600_000.0 + minutes * 60_000.0 + seconds * 1_000.0 + frameMs).toLong(),
+            (hours * 3_600_000.0 + minutes * 60_000.0 + seconds * 1_000.0 + frameMs).toLong()
         )
     }
 
@@ -420,10 +447,7 @@ internal object AutoSyncSubtitleCueParser {
         return ((hours * 3600L) + (minutes * 60L) + seconds) * 1000L + millis
     }
 
-    private fun checkCancellation(
-        index: Int,
-        cancellationCheck: (() -> Unit)?,
-    ) {
+    private fun checkCancellation(index: Int, cancellationCheck: (() -> Unit)?) {
         if (
             cancellationCheck != null &&
             index % CANCELLATION_CHECK_INTERVAL == 0
@@ -432,15 +456,13 @@ internal object AutoSyncSubtitleCueParser {
         }
     }
 
-    private fun List<String>.indexOfField(name: String): Int =
-        indexOfFirst { it.equals(name, ignoreCase = true) }
+    private fun List<String>.indexOfField(name: String): Int = indexOfFirst { it.equals(name, ignoreCase = true) }
 
-    private fun String.attributeValue(name: String): String? =
-        Regex("""\b${Regex.escape(name)}\s*=\s*["']([^"']+)["']""", RegexOption.IGNORE_CASE)
-            .find(this)
-            ?.groupValues
-            ?.getOrNull(1)
-            ?.takeIf { it.isNotBlank() }
+    private fun String.attributeValue(name: String): String? = Regex("""\b${Regex.escape(name)}\s*=\s*["']([^"']+)["']""", RegexOption.IGNORE_CASE)
+        .find(this)
+        ?.groupValues
+        ?.getOrNull(1)
+        ?.takeIf { it.isNotBlank() }
 
     private fun normalizeCueText(text: String): String {
         return text

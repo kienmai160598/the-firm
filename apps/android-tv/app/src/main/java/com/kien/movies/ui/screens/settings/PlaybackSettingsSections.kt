@@ -1,7 +1,5 @@
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,6 +18,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.kien.movies.data.local.PlayerSettings
 import com.kien.movies.ui.components.P2pConsentDialog
+import com.kien.movies.ui.theme.MoviesTheme
 
 internal object PlaybackSettingsTestTags {
     fun section(section: PlaybackSection): String = "playback_section_${section.name.lowercase()}"
@@ -45,7 +44,10 @@ internal fun PlaybackSettingsSections(
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(top = MoviesTheme.spacing.xs, bottom = MoviesTheme.spacing.xxl),
+            contentPadding = PaddingValues(
+                top = MoviesTheme.spacing.xs,
+                bottom = MoviesTheme.spacing.xxl
+            ),
             verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             items(items = sections, key = { it.name }) { section ->
@@ -62,7 +64,13 @@ internal fun PlaybackSettingsSections(
                             expandedSections + section.name
                         }
                     },
-                    focusRequester = if (section == sections.first()) initialFocusRequester else null,
+                    focusRequester = if (section ==
+                        sections.first()
+                    ) {
+                        initialFocusRequester
+                    } else {
+                        null
+                    },
                     modifier = Modifier.testTag(PlaybackSettingsTestTags.section(section))
                 ) {
                     PlaybackSectionContent(
@@ -96,15 +104,46 @@ private fun PlaybackSectionContent(
     onClearTorrentCache: () -> Unit
 ) {
     when (section) {
-        PlaybackSection.PLAYER -> PlaybackPlayerSection(playerSettings, releaseDecoderOnBackground, onUpdate, onOpenDialog)
-        PlaybackSection.STREAM_SELECTION -> PlaybackStreamSelectionSection(playerSettings, onUpdate, onOpenDialog)
+        PlaybackSection.PLAYER -> PlaybackPlayerSection(
+            playerSettings,
+            releaseDecoderOnBackground,
+            onUpdate,
+            onOpenDialog
+        )
+
+        PlaybackSection.STREAM_SELECTION -> PlaybackStreamSelectionSection(
+            playerSettings,
+            onUpdate,
+            onOpenDialog
+        )
+
         PlaybackSection.UP_NEXT -> PlaybackUpNextSection(playerSettings, onUpdate, onOpenDialog)
+
         PlaybackSection.SKIP_SEGMENTS -> PlaybackSkipSegmentsSection(playerSettings, onUpdate)
+
         PlaybackSection.PLAYER_INTERFACE -> PlaybackPlayerInterfaceSection(playerSettings, onUpdate)
+
         PlaybackSection.AUDIO -> PlaybackAudioSection(playerSettings, onUpdate, onOpenDialog)
-        PlaybackSection.SUBTITLES -> PlaybackSubtitlesSection(playerSettings, onUpdate, onOpenDialog)
-        PlaybackSection.VIDEO -> PlaybackVideoSection(playerSettings, transparentLetterbox, onUpdate, onOpenDialog)
-        PlaybackSection.BUFFER_NETWORK -> PlaybackBufferNetworkSection(playerSettings, onUpdate, onMemorySettingChanged)
+
+        PlaybackSection.SUBTITLES -> PlaybackSubtitlesSection(
+            playerSettings,
+            onUpdate,
+            onOpenDialog
+        )
+
+        PlaybackSection.VIDEO -> PlaybackVideoSection(
+            playerSettings,
+            transparentLetterbox,
+            onUpdate,
+            onOpenDialog
+        )
+
+        PlaybackSection.BUFFER_NETWORK -> PlaybackBufferNetworkSection(
+            playerSettings,
+            onUpdate,
+            onMemorySettingChanged
+        )
+
         PlaybackSection.P2P -> PlaybackP2pSection(p2p, onUpdate, onOpenDialog, onClearTorrentCache)
     }
 }
@@ -121,6 +160,7 @@ internal fun PlaybackSettingsDialogs(
 ) {
     when (dialog) {
         null -> Unit
+
         PlaybackDialog.PLAYER_PREFERENCE -> PlayerPreferenceDialog(
             currentPreference = settings.playerPreference,
             onPreferenceSelected = { preference ->
@@ -129,6 +169,7 @@ internal fun PlaybackSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.INTERNAL_ENGINE -> InternalPlayerEngineDialog(
             currentEngine = settings.internalPlayerEngine,
             onEngineSelected = { engine ->
@@ -137,6 +178,7 @@ internal fun PlaybackSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.P2P_CONSENT -> P2pConsentDialog(
             onEnableP2p = {
                 onUpdate { setP2pEnabled(true) }
@@ -144,8 +186,16 @@ internal fun PlaybackSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         else -> {
-            AutoPlaySettingsDialogs(dialog, settings, installedAddonNames, enabledPluginNames, onUpdate, onDismiss)
+            AutoPlaySettingsDialogs(
+                dialog,
+                settings,
+                installedAddonNames,
+                enabledPluginNames,
+                onUpdate,
+                onDismiss
+            )
             AudioSettingsDialogs(dialog, settings, onUpdate, onDismiss)
             SubtitleSettingsDialogs(dialog, settings, onUpdate, onDismiss)
             VideoSettingsDialogs(dialog, settings, onUpdate, onDismiss)

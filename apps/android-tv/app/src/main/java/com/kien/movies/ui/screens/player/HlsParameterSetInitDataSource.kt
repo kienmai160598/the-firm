@@ -39,13 +39,21 @@ internal class HlsParameterSetInitDataSource(
         playlist = null
         playlistReadPosition = 0
         val length = upstream.open(dataSpec)
-        if (dataSpec.position != 0L || !isPlaylist(dataSpec.uri, upstream.responseHeaders)) return length
+        if (dataSpec.position != 0L ||
+            !isPlaylist(dataSpec.uri, upstream.responseHeaders)
+        ) {
+            return length
+        }
 
         val body = readAll(upstream)
         val baseUri = (upstream.uri ?: dataSpec.uri).toString()
         // Healthy streams pay for this check too, so a slow segment host must not hold up the start.
         val rewritten = resultWithin(CHECK_TIMEOUT_MS) {
-            HlsParameterSetInit.withParameterSetInit(body.toString(Charsets.UTF_8), baseUri, ::fetchSegmentHead)
+            HlsParameterSetInit.withParameterSetInit(
+                body.toString(Charsets.UTF_8),
+                baseUri,
+                ::fetchSegmentHead
+            )
         }
         if (rewritten != null) Log.i(TAG, "Added an SPS/PPS init segment to $baseUri")
         val served = rewritten?.toByteArray(Charsets.UTF_8) ?: body
@@ -86,7 +94,14 @@ internal class HlsParameterSetInitDataSource(
             val head = ByteArrayOutputStream()
             val step = ByteArray(SEGMENT_HEAD_STEP_BYTES)
             while (head.size() < HlsParameterSetInit.SEGMENT_HEAD_BYTES) {
-                val read = source.read(step, 0, minOf(step.size, HlsParameterSetInit.SEGMENT_HEAD_BYTES - head.size()))
+                val read = source.read(
+                    step,
+                    0,
+                    minOf(
+                        step.size,
+                        HlsParameterSetInit.SEGMENT_HEAD_BYTES - head.size()
+                    )
+                )
                 if (read == C.RESULT_END_OF_INPUT) break
                 head.write(step, 0, read)
                 if (HlsParameterSetInit.isSegmentHeadConclusive(head.toByteArray())) break
@@ -101,8 +116,10 @@ internal class HlsParameterSetInitDataSource(
     }
 
     class Factory(private val upstreamFactory: DataSource.Factory) : DataSource.Factory {
-        override fun createDataSource(): DataSource =
-            HlsParameterSetInitDataSource(upstreamFactory.createDataSource(), upstreamFactory::createDataSource)
+        override fun createDataSource(): DataSource = HlsParameterSetInitDataSource(
+            upstreamFactory.createDataSource(),
+            upstreamFactory::createDataSource
+        )
     }
 
     private companion object {
@@ -113,7 +130,8 @@ internal class HlsParameterSetInitDataSource(
             val path = uri.path.orEmpty().lowercase()
             if (path.endsWith(".m3u8") || path.endsWith(".m3u")) return true
             return headers.entries.any { (name, values) ->
-                name.equals("Content-Type", ignoreCase = true) && values.any { it.contains("mpegurl", ignoreCase = true) }
+                name.equals("Content-Type", ignoreCase = true) &&
+                    values.any { it.contains("mpegurl", ignoreCase = true) }
             }
         }
 

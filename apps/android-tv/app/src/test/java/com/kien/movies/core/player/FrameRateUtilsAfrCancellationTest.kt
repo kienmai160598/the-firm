@@ -1,11 +1,11 @@
 package com.kien.movies.core.player
 
+import java.net.ServerSocket
+import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.net.ServerSocket
-import java.util.concurrent.atomic.AtomicInteger
 
 // Proves the AFR probe cancellation fix: blocking OkHttp downloads must stop as soon as the
 // isCancelled signal fires, instead of draining the full advertised body in the background.
@@ -102,7 +102,11 @@ class FrameRateUtilsAfrCancellationTest {
             Thread.sleep(300)
 
             assertFalse("Pre-cancelled fetch must report failure", result.success)
-            assertEquals("Pre-cancelled fetch must not touch the network", 0, acceptedConnections.get())
+            assertEquals(
+                "Pre-cancelled fetch must not touch the network",
+                0,
+                acceptedConnections.get()
+            )
             assertEquals("Pre-cancelled fetch must not write any bytes", 0L, tempFile.length())
         } finally {
             tempFile.delete()
@@ -133,7 +137,11 @@ class FrameRateUtilsAfrCancellationTest {
             Thread.sleep(300)
 
             assertEquals("Pre-cancelled HEAD must report failure", -1L, length)
-            assertEquals("Pre-cancelled HEAD must not touch the network", 0, acceptedConnections.get())
+            assertEquals(
+                "Pre-cancelled HEAD must not touch the network",
+                0,
+                acceptedConnections.get()
+            )
         } finally {
             runCatching { serverSocket.close() }
         }
@@ -162,7 +170,11 @@ class FrameRateUtilsAfrCancellationTest {
             Thread.sleep(300)
 
             assertFalse("Pre-cancelled warmup must report false", warmed)
-            assertEquals("Pre-cancelled warmup must not touch the network", 0, acceptedConnections.get())
+            assertEquals(
+                "Pre-cancelled warmup must not touch the network",
+                0,
+                acceptedConnections.get()
+            )
         } finally {
             runCatching { serverSocket.close() }
         }

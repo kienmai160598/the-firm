@@ -35,10 +35,7 @@ internal enum class SimklCwDiagnosticItemKind {
     NEXT_UP
 }
 
-internal data class SimklCwDiagnosticEpisode(
-    val season: Int?,
-    val episode: Int
-) {
+internal data class SimklCwDiagnosticEpisode(val season: Int?, val episode: Int) {
     fun display(): String = season?.let { value -> "S${value}E$episode" } ?: "E$episode"
 }
 
@@ -114,7 +111,9 @@ internal fun buildSimklCwDisplayDiagnosticReport(
         addAll(watchedByContent.keys)
     }
     val freshKeys = freshNextUpItems.mapTo(mutableSetOf()) { item -> item.info.diagnosticKey() }
-    val olderKeys = olderResolvedNextUpItems.mapTo(mutableSetOf()) { item -> item.info.diagnosticKey() }
+    val olderKeys = olderResolvedNextUpItems.mapTo(mutableSetOf()) { item ->
+        item.info.diagnosticKey()
+    }
     val cacheKeys = cachedNextUpItems.mapTo(mutableSetOf()) { item -> item.info.diagnosticKey() }
     val records = displayedItems.mapNotNull { item ->
         val contentId = when (item) {
@@ -124,7 +123,10 @@ internal fun buildSimklCwDisplayDiagnosticReport(
         val contentKey = contentId.diagnosticKey()
         if (contentKey !in simklContentKeys) return@mapNotNull null
         val exact = watchedByContent[contentKey].orEmpty()
-            .filter { watched -> watched.season != null && watched.episode != null && watched.season != 0 }
+            .filter { watched ->
+                watched.season != null && watched.episode != null &&
+                    watched.season != 0
+            }
         val furthest = exact.maxWithOrNull(
             compareBy(
                 { watched -> watched.season ?: -1 },
@@ -203,9 +205,12 @@ internal fun logSimklAsyncNextUpResolution(
     val seedEpisode = seed.toDiagnosticEpisode()
     val finding = when {
         resolved == null -> "NO_NEXT"
+
         shownInExact -> "RESOLVED_WATCHED_EPISODE"
+
         shown != null && seedEpisode != null && shown.compareTo(seedEpisode) <= 0 ->
             "RESOLVED_NOT_AFTER_SEED"
+
         else -> "RESOLVED_UNWATCHED_EPISODE"
     }
     Log.d(
@@ -246,9 +251,13 @@ private fun buildNextUpDiagnosticRecord(
         ) -> SimklCwDiagnosticFinding.WATCHED_EPISODE_FROM_CACHE
 
         displayedInExact -> SimklCwDiagnosticFinding.RESOLVER_RETURNED_WATCHED_EPISODE
+
         seed == null -> SimklCwDiagnosticFinding.CARD_WITHOUT_ACTIVE_SEED
+
         exact.isEmpty() -> SimklCwDiagnosticFinding.NO_EXACT_HISTORY_FOR_CARD
+
         seedInExact == false -> SimklCwDiagnosticFinding.SEED_NOT_IN_EXACT_HISTORY
+
         preferFurthestEpisode && seedEpisode != furthestEpisode ->
             SimklCwDiagnosticFinding.SEED_BEHIND_FURTHEST
 
@@ -280,7 +289,10 @@ private fun buildInProgressDiagnosticRecord(
 ): SimklCwDisplayDiagnosticRecord {
     val displayed = item.progress.toDiagnosticEpisode()
     val live = liveProgress
-        .filter { progress -> progress.season == item.progress.season && progress.episode == item.progress.episode }
+        .filter { progress ->
+            progress.season == item.progress.season &&
+                progress.episode == item.progress.episode
+        }
         .maxByOrNull(WatchProgress::lastWatched)
     val effectiveProgress = live ?: item.progress
     val matchingWatched = exact
@@ -293,6 +305,7 @@ private fun buildInProgressDiagnosticRecord(
             SimklCwDiagnosticFinding.COMPLETED_PLAYBACK_VISIBLE
 
         matchingWatched == null -> SimklCwDiagnosticFinding.OPEN_PLAYBACK
+
         matchingWatched.watchedAt >= effectiveProgress.lastWatched ->
             SimklCwDiagnosticFinding.STALE_PLAYBACK_NOT_RECONCILED
 
@@ -316,27 +329,18 @@ private fun buildInProgressDiagnosticRecord(
     )
 }
 
-private fun WatchProgress.isSimklDiagnosticItem(): Boolean =
-    source == WatchProgress.SOURCE_SIMKL_PLAYBACK ||
-        trackingProviderId.equals(TrackingProviderId.SIMKL.storageId, ignoreCase = true)
-
-private fun WatchedItem.isSimklDiagnosticItem(): Boolean =
+private fun WatchProgress.isSimklDiagnosticItem(): Boolean = source == WatchProgress.SOURCE_SIMKL_PLAYBACK ||
     trackingProviderId.equals(TrackingProviderId.SIMKL.storageId, ignoreCase = true)
 
-private fun WatchProgress?.toDiagnosticEpisode(): SimklCwDiagnosticEpisode? =
-    this?.episode?.let { episode -> SimklCwDiagnosticEpisode(season, episode) }
+private fun WatchedItem.isSimklDiagnosticItem(): Boolean = trackingProviderId.equals(TrackingProviderId.SIMKL.storageId, ignoreCase = true)
 
-private fun WatchedItem?.toDiagnosticEpisode(): SimklCwDiagnosticEpisode? =
-    this?.episode?.let { episode -> SimklCwDiagnosticEpisode(season, episode) }
+private fun WatchProgress?.toDiagnosticEpisode(): SimklCwDiagnosticEpisode? = this?.episode?.let { episode -> SimklCwDiagnosticEpisode(season, episode) }
 
-private fun NextUpInfo.diagnosticKey(): SimklCwEpisodeKey =
-    SimklCwEpisodeKey(contentId.diagnosticKey(), season, episode)
+private fun WatchedItem?.toDiagnosticEpisode(): SimklCwDiagnosticEpisode? = this?.episode?.let { episode -> SimklCwDiagnosticEpisode(season, episode) }
 
-private data class SimklCwEpisodeKey(
-    val contentId: String,
-    val season: Int?,
-    val episode: Int?
-)
+private fun NextUpInfo.diagnosticKey(): SimklCwEpisodeKey = SimklCwEpisodeKey(contentId.diagnosticKey(), season, episode)
+
+private data class SimklCwEpisodeKey(val contentId: String, val season: Int?, val episode: Int?)
 
 private fun SimklCwDiagnosticEpisode.compareTo(other: SimklCwDiagnosticEpisode): Int {
     val seasonComparison = (season ?: -1).compareTo(other.season ?: -1)

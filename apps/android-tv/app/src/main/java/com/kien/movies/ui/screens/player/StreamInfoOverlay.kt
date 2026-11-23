@@ -1,18 +1,16 @@
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -34,21 +32,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onPlaced
-import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.LocalContentColor
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.keepLtr
 import com.kien.movies.ui.util.languageCodeToName
 
@@ -83,13 +82,19 @@ fun StreamInfoOverlay(
                 KeyEvent.KEYCODE_DPAD_DOWN,
                 KeyEvent.KEYCODE_DPAD_LEFT,
                 KeyEvent.KEYCODE_DPAD_RIGHT -> true
+
                 else -> false
             }
             if (!isDirection || hudFocused || !hudButtonShown) return@onPreviewKeyEvent false
             runCatching { hudFocusRequester.requestFocus() }.isSuccess
         },
         dismissOnCenter = !hudButtonShown,
-        contentPadding = PaddingValues(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = 36.dp, bottom = 36.dp)
+        contentPadding = PaddingValues(
+            start = MoviesTheme.spacing.xxxl,
+            end = MoviesTheme.spacing.xxxl,
+            top = 36.dp,
+            bottom = 36.dp
+        )
     ) {
         // Someone who never turned the overlay on has no use for a control they cannot interpret.
         if (hudButtonShown) {
@@ -170,7 +175,10 @@ private fun StreamInfoContent(data: StreamInfoData) {
         if (data.playerEngine != null || data.serverPlayback != null) {
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
             Row(horizontalArrangement = Arrangement.spacedBy(36.dp)) {
-                InfoItem(label = stringResource(R.string.stream_info_player_engine), value = data.playerEngine)
+                InfoItem(
+                    label = stringResource(R.string.stream_info_player_engine),
+                    value = data.playerEngine
+                )
                 InfoItem(
                     label = stringResource(R.string.stream_info_server),
                     value = data.serverPlayback,
@@ -187,8 +195,17 @@ private fun StreamInfoContent(data: StreamInfoData) {
         SectionLabel(stringResource(R.string.stream_info_section_file))
         Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
         Row(horizontalArrangement = Arrangement.spacedBy(36.dp)) {
-            InfoItem(label = stringResource(R.string.stream_info_filename), value = data.filename, modifier = Modifier.weight(1f))
-            InfoItem(label = stringResource(R.string.stream_info_size), value = data.fileSize?.let { formatFileSize(it) })
+            InfoItem(
+                label = stringResource(R.string.stream_info_filename),
+                value = data.filename,
+                modifier = Modifier.weight(1f)
+            )
+            InfoItem(
+                label = stringResource(R.string.stream_info_size),
+                value = data.fileSize?.let {
+                    formatFileSize(it)
+                }
+            )
         }
         Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
     }
@@ -205,7 +222,9 @@ private fun StreamInfoContent(data: StreamInfoData) {
                 label = stringResource(R.string.stream_info_resolution),
                 value = if (data.videoWidth != null && data.videoHeight != null) {
                     formatResolution(data.videoWidth, data.videoHeight)
-                } else null
+                } else {
+                    null
+                }
             )
             InfoItem(
                 label = stringResource(R.string.stream_info_frame_rate),
@@ -229,13 +248,18 @@ private fun StreamInfoContent(data: StreamInfoData) {
     }
 
     // AUDIO section
-    val hasAudioInfo = data.audioCodec != null || data.audioChannels != null || data.audioLanguage != null || data.audioSampleRate != null
+    val hasAudioInfo =
+        data.audioCodec != null || data.audioChannels != null || data.audioLanguage != null ||
+            data.audioSampleRate != null
     if (hasAudioInfo) {
         SectionLabel(stringResource(R.string.stream_info_section_audio))
         Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
         Row(horizontalArrangement = Arrangement.spacedBy(36.dp)) {
             InfoItem(label = stringResource(R.string.stream_info_codec), value = data.audioCodec)
-            InfoItem(label = stringResource(R.string.stream_info_channels), value = data.audioChannels)
+            InfoItem(
+                label = stringResource(R.string.stream_info_channels),
+                value = data.audioChannels
+            )
             InfoItem(
                 label = stringResource(R.string.stream_info_sample_rate),
                 value = data.audioSampleRate?.let { "${it / 1000} kHz" }
@@ -249,7 +273,8 @@ private fun StreamInfoContent(data: StreamInfoData) {
     }
 
     // SUBTITLE section
-    val hasSubtitleInfo = data.subtitleName != null || data.subtitleCodec != null || data.subtitleLanguage != null
+    val hasSubtitleInfo =
+        data.subtitleName != null || data.subtitleCodec != null || data.subtitleLanguage != null
     if (hasSubtitleInfo) {
         SectionLabel(stringResource(R.string.stream_info_section_subtitle))
         Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
@@ -260,7 +285,10 @@ private fun StreamInfoContent(data: StreamInfoData) {
                 label = stringResource(R.string.stream_info_language),
                 value = data.subtitleLanguage?.let { languageCodeToName(it) }
             )
-            InfoItem(label = stringResource(R.string.stream_info_source), value = data.subtitleSource)
+            InfoItem(
+                label = stringResource(R.string.stream_info_source),
+                value = data.subtitleSource
+            )
         }
     }
 }
@@ -297,9 +325,18 @@ private fun InfoItem(label: String, value: String?, modifier: Modifier = Modifie
 @Composable
 private fun formatFileSize(bytes: Long): String {
     return when {
-        bytes >= 1_073_741_824L -> stringResource(R.string.unit_size_gb, "%.1f".format(bytes / 1_073_741_824.0))
-        bytes >= 1_048_576L -> stringResource(R.string.unit_size_mb, "%.1f".format(bytes / 1_048_576.0))
+        bytes >= 1_073_741_824L -> stringResource(
+            R.string.unit_size_gb,
+            "%.1f".format(bytes / 1_073_741_824.0)
+        )
+
+        bytes >= 1_048_576L -> stringResource(
+            R.string.unit_size_mb,
+            "%.1f".format(bytes / 1_048_576.0)
+        )
+
         bytes >= 1024L -> stringResource(R.string.unit_size_kb, "%.1f".format(bytes / 1024.0))
+
         else -> stringResource(R.string.unit_size_b, bytes)
     }
 }

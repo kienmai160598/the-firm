@@ -3,9 +3,7 @@ package com.kien.movies.data.remote.dto
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class SupportersWallResponseDto(
-    val top: SupportersWallGroupDto = SupportersWallGroupDto()
-)
+data class SupportersWallResponseDto(val top: SupportersWallGroupDto = SupportersWallGroupDto())
 
 @JsonClass(generateAdapter = true)
 data class SupportersWallGroupDto(

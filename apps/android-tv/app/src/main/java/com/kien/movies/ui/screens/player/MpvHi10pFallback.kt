@@ -8,12 +8,11 @@ internal fun PlayerRuntimeController.shouldUseMpvHi10pGnextSoftwareFallback(): B
         currentFilename,
         currentStreamDescription,
         _uiState.value.currentStreamName,
-        currentStreamUrl,
+        currentStreamUrl
     )
 }
 
-internal fun mpvPlaybackHintsIndicateHi10p(vararg hints: String?): Boolean =
-    hints.filterNotNull().any(String::indicatesH264Hi10p)
+internal fun mpvPlaybackHintsIndicateHi10p(vararg hints: String?): Boolean = hints.filterNotNull().any(String::indicatesH264Hi10p)
 
 private fun String.indicatesH264Hi10p(): Boolean {
     val value = lowercase(Locale.US)

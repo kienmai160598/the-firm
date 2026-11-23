@@ -1,8 +1,5 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.accentBrush
-
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -23,9 +20,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.util.lerp
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.accentBrush
 
 @Composable
-fun LoadingIndicator(
-    modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified
-) = ExpressiveLoadingIndicator(modifier, color)
+fun LoadingIndicator(modifier: Modifier = Modifier, color: Color = Color.Unspecified) = ExpressiveLoadingIndicator(modifier, color)

@@ -9,18 +9,30 @@ import org.junit.Test
 class TrackingSourcesTest {
     @Test
     fun `MDBList is available independently for watch and library sources`() {
-        val connected = setOf(TrackingProviderId.TRAKT, TrackingProviderId.SIMKL, TrackingProviderId.MDBLIST)
+        val connected =
+            setOf(TrackingProviderId.TRAKT, TrackingProviderId.SIMKL, TrackingProviderId.MDBLIST)
         assertEquals(WatchProgressSource.MDBLIST, WatchProgressSource.fromStorage("MDBLIST"))
         assertEquals(TrackingProviderId.MDBLIST, WatchProgressSource.MDBLIST.providerId)
         assertEquals(
-            listOf(WatchProgressSource.NUVIO_SYNC, WatchProgressSource.TRAKT, WatchProgressSource.SIMKL, WatchProgressSource.MDBLIST),
+            listOf(
+                WatchProgressSource.NUVIO_SYNC,
+                WatchProgressSource.TRAKT,
+                WatchProgressSource.SIMKL,
+                WatchProgressSource.MDBLIST
+            ),
             availableWatchProgressSources(connected)
         )
         assertEquals(
-            listOf(LibrarySourceMode.LOCAL, LibrarySourceMode.TRAKT, LibrarySourceMode.SIMKL, LibrarySourceMode.MDBLIST),
+            listOf(
+                LibrarySourceMode.LOCAL,
+                LibrarySourceMode.TRAKT,
+                LibrarySourceMode.SIMKL,
+                LibrarySourceMode.MDBLIST
+            ),
             availableLibrarySourceModes(connected)
         )
-        val selection = TrackingSourceSelection(WatchProgressSource.MDBLIST, LibrarySourceMode.TRAKT)
+        val selection =
+            TrackingSourceSelection(WatchProgressSource.MDBLIST, LibrarySourceMode.TRAKT)
         assertEquals(selection, effectiveTrackingSourceSelection(selection, connected))
         assertEquals(
             selection.copy(watchProgressSource = WatchProgressSource.NUVIO_SYNC),
@@ -43,7 +55,9 @@ class TrackingSourcesTest {
         )
         assertEquals(
             WatchProgressSource.SIMKL,
-            effectiveWatchProgressSource(WatchProgressSource.SIMKL) { it == TrackingProviderId.SIMKL }
+            effectiveWatchProgressSource(WatchProgressSource.SIMKL) {
+                it == TrackingProviderId.SIMKL
+            }
         )
     }
 

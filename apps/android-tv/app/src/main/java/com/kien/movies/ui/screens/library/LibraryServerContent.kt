@@ -36,7 +36,10 @@ internal fun LazyGridScope.libraryServerContent(
 ) {
     when {
         shelves == null -> item(span = { GridItemSpan(maxLineSpan) }) {
-            Box(modifier = Modifier.fillMaxWidth().height(260.dp), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier.fillMaxWidth().height(260.dp),
+                contentAlignment = Alignment.Center
+            ) {
                 LoadingIndicator()
             }
         }
@@ -66,13 +69,16 @@ internal fun LazyGridScope.libraryServerContent(
                         isItemWatched = isWatched,
                         onItemLongPress = onItemLongPress,
                         modifier = Modifier.bleed(rowInset),
-                        focusedItemIndex = focusTarget?.takeIf { it.first == shelf.key }?.second ?: -1,
+                        focusedItemIndex =
+                            focusTarget?.takeIf { it.first == shelf.key }?.second ?: -1,
                         restorerFocusedIndex = focusedIndexes[shelf.key] ?: -1,
                         onItemFocused = { index -> onItemFocused(shelf.key, index) }
                     )
                 }
             } else if (failure != null) {
-                item(key = "server_shelf_error_${shelf.key}", span = { GridItemSpan(maxLineSpan) }) {
+                item(key = "server_shelf_error_${shelf.key}", span = {
+                    GridItemSpan(maxLineSpan)
+                }) {
                     EmptyScreenState(
                         title = stringResource(R.string.library_server_load_failed, shelf.title),
                         subtitle = stringResource(failure.messageRes()),
@@ -88,7 +94,11 @@ internal fun LazyGridScope.libraryServerContent(
 private fun Modifier.bleed(horizontal: Dp): Modifier = layout { measurable, constraints ->
     val extra = horizontal.roundToPx() * 2
     val placeable = measurable.measure(
-        constraints.copy(minWidth = constraints.minWidth + extra, maxWidth = constraints.maxWidth + extra)
+        constraints.copy(
+            minWidth = constraints.minWidth + extra,
+            maxWidth =
+                constraints.maxWidth + extra
+        )
     )
     layout(placeable.width - extra, placeable.height) { placeable.place(-extra / 2, 0) }
 }

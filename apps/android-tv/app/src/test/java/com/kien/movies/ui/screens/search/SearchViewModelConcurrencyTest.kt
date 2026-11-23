@@ -16,9 +16,10 @@ import com.kien.movies.domain.repository.AddonRepository
 import com.kien.movies.domain.repository.CatalogRepository
 import com.kien.movies.domain.repository.WatchProgressRepository
 import com.kien.movies.ui.components.posteroptions.PosterOptionsController
-import io.mockk.every
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,16 +30,15 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.coroutines.test.runCurrent
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.util.concurrent.atomic.AtomicInteger
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SearchViewModelConcurrencyTest {
@@ -115,7 +115,8 @@ class SearchViewModelConcurrencyTest {
         history: SearchHistoryDataStore = mockk(relaxed = true)
     ): SearchViewModel {
         val layoutPreferences = mockk<LayoutPreferenceDataStore>()
-        every { layoutPreferences.discoverLocation } returns flowOf(com.kien.movies.domain.model.DiscoverLocation.OFF)
+        every { layoutPreferences.discoverLocation } returns
+            flowOf(com.kien.movies.domain.model.DiscoverLocation.OFF)
         every { layoutPreferences.posterCardWidthDp } returns flowOf(126)
         every { layoutPreferences.posterLabelsEnabled } returns flowOf(true)
         every { layoutPreferences.catalogAddonNameEnabled } returns flowOf(true)
@@ -167,9 +168,7 @@ class SearchViewModelConcurrencyTest {
         override suspend fun setAddonEnabled(url: String, enabled: Boolean) = error("unused")
     }
 
-    private class ImmediateCatalogRepository(
-        private val addon: Addon
-    ) : CatalogRepository {
+    private class ImmediateCatalogRepository(private val addon: Addon) : CatalogRepository {
         val queries = mutableListOf<String>()
 
         override fun getCatalog(

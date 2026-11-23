@@ -108,10 +108,7 @@ internal fun shouldPrefetchPostPlayRecommendation(
         remaining <= POST_PLAY_RECOMMENDATION_PREFETCH_REMAINING_MS
 }
 
-internal fun postPlayRecommendationCountdownSeconds(
-    positionMs: Long,
-    durationMs: Long
-): Int? {
+internal fun postPlayRecommendationCountdownSeconds(positionMs: Long, durationMs: Long): Int? {
     if (durationMs <= 0L) return null
     val remainingMs = (durationMs - positionMs).coerceAtLeast(0L)
     if (remainingMs > POST_PLAY_RECOMMENDATION_TRAILER_COUNTDOWN_SECONDS * 1_000L) return null
@@ -129,11 +126,17 @@ internal fun shouldUsePostPlayRecommendation(
     enabled: Boolean = true
 ): Boolean = enabled && when (resolvePostPlayContentType(contentType)) {
     ContentType.MOVIE -> true
+
     ContentType.SERIES -> {
-        if (!isNextEpisodeMetadataResolved) false
-        else if (nextEpisodeHasAired != true) true
-        else nextEpisodeReleased.isNullOrBlank() && nextEpisodeAvailable == false
+        if (!isNextEpisodeMetadataResolved) {
+            false
+        } else if (nextEpisodeHasAired != true) {
+            true
+        } else {
+            nextEpisodeReleased.isNullOrBlank() && nextEpisodeAvailable == false
+        }
     }
+
     else -> false
 }
 
@@ -143,7 +146,9 @@ internal fun resolvePostPlayContentType(
 ): ContentType? {
     return when (apiType?.trim()?.lowercase()) {
         "movie", "film" -> ContentType.MOVIE
+
         "series", "tv", "show", "tvshow" -> ContentType.SERIES
+
         else -> when (fallback) {
             ContentType.MOVIE -> ContentType.MOVIE
             ContentType.SERIES, ContentType.TV -> ContentType.SERIES

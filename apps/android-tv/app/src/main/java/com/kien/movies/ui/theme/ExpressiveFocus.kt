@@ -13,9 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -86,17 +86,15 @@ internal object ExpressiveFocus {
 
     /** A frosted capsule at rest that turns white on focus: the tvOS button fill. */
     @Composable
-    fun frostedContainerColor(focused: Boolean, selected: Boolean = false): Color =
-        containerColor(
-            focused = focused,
-            selected = selected,
-            resting = ExpressiveColors.frosted
-        )
+    fun frostedContainerColor(focused: Boolean, selected: Boolean = false): Color = containerColor(
+        focused = focused,
+        selected = selected,
+        resting = ExpressiveColors.frosted
+    )
 
     /** White content at rest, black on a focused white fill. */
     @Composable
-    fun frostedContentColor(focused: Boolean): Color =
-        contentColor(focused = focused, resting = MoviesTheme.colors.TextPrimary)
+    fun frostedContentColor(focused: Boolean): Color = contentColor(focused = focused, resting = MoviesTheme.colors.TextPrimary)
 
     /** A capsule; kept as a function so callers written for the M3E corner morph still work. */
     @Composable
@@ -112,8 +110,7 @@ internal object ExpressiveFocus {
 
 /** [CornerSize] taking a Float as percent; the Float overload of CornerSize means pixels. */
 private data class FractionalCornerSize(private val percent: Float) : CornerSize {
-    override fun toPx(shapeSize: Size, density: Density): Float =
-        shapeSize.minDimension * percent / 100f
+    override fun toPx(shapeSize: Size, density: Density): Float = shapeSize.minDimension * percent / 100f
 }
 
 /** Grows a focused control on the focus lift spring; [scale] 1 leaves it still. */
@@ -176,12 +173,7 @@ internal fun Modifier.focusLiftOnFocus(
         }
 }
 
-private fun GraphicsLayerScope.applyLift(
-    lift: Float,
-    shape: Shape,
-    scale: Float,
-    elevation: Dp
-) {
+private fun GraphicsLayerScope.applyLift(lift: Float, shape: Shape, scale: Float, elevation: Dp) {
     val current = 1f + (scale - 1f) * lift
     scaleX = current
     scaleY = current

@@ -2,6 +2,8 @@ package com.kien.movies.data.simkl
 
 import android.util.Log
 import com.kien.movies.core.tracking.TRACKING_SCROBBLE_DIAGNOSTIC_TAG
+import kotlin.math.max
+import kotlin.random.Random
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
@@ -9,8 +11,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlin.math.max
-import kotlin.random.Random
 
 enum class SimklHttpMethod {
     GET,
@@ -107,7 +107,11 @@ class SimklApiClient(
                             )
                         }
                     }
-                    ?: throw SimklApiException(401, "authentication_required", "Simkl authentication is required")
+                    ?: throw SimklApiException(
+                        401,
+                        "authentication_required",
+                        "Simkl authentication is required"
+                    )
             } else {
                 null
             }
@@ -132,7 +136,12 @@ class SimklApiClient(
                     throw error
                 } catch (error: Throwable) {
                     if (attempt == maxAttempts - 1) {
-                        throw SimklApiException(null, "transport_failure", "Simkl request failed", error)
+                        throw SimklApiException(
+                            null,
+                            "transport_failure",
+                            "Simkl request failed",
+                            error
+                        )
                     }
                     sleep(retryDelayMs(attempt, null, retryJitterMs()))
                     return@repeat
@@ -157,14 +166,23 @@ class SimklApiClient(
                     return@repeat
                 }
 
-                when (classifySimklResponse(response.status, request.scrobbleStopConflictIsSuccess)) {
+                when (
+                    classifySimklResponse(
+                        response.status,
+                        request.scrobbleStopConflictIsSuccess
+                    )
+                ) {
                     SimklResponseAction.SUCCESS -> return@withLock response.toApiResponse()
+
                     SimklResponseAction.SOFT_SUCCESS -> return@withLock response.toApiResponse(true)
+
                     SimklResponseAction.REAUTHENTICATE -> {
                         requestAuthorization?.let(onUnauthorized)
                         throw response.toApiException(json)
                     }
+
                     SimklResponseAction.FAIL -> throw response.toApiException(json)
+
                     SimklResponseAction.RETRY -> {
                         if (attempt == maxAttempts - 1) throw response.toApiException(json)
                         sleep(
@@ -181,10 +199,7 @@ class SimklApiClient(
         }
     }
 
-    private suspend fun <T> executeRateLimited(
-        method: SimklHttpMethod,
-        block: suspend () -> T
-    ): T {
+    private suspend fun <T> executeRateLimited(method: SimklHttpMethod, block: suspend () -> T): T {
         awaitRateLimit(method)
         return try {
             block()
@@ -208,13 +223,18 @@ class SimklApiClient(
             SimklHttpMethod.GET -> {
                 nextGetAtEpochMs = max(nextGetAtEpochMs, completedAt + GET_INTERVAL_MS)
             }
+
             SimklHttpMethod.POST, SimklHttpMethod.DELETE -> {
                 nextPostAtEpochMs = max(nextPostAtEpochMs, completedAt + POST_INTERVAL_MS)
             }
         }
     }
 
-    private fun logSyncResponse(request: SimklApiRequest, response: SimklRawHttpResponse, attempt: Int) {
+    private fun logSyncResponse(
+        request: SimklApiRequest,
+        response: SimklRawHttpResponse,
+        attempt: Int
+    ) {
         if (request.path.startsWith("/sync/")) {
             Log.d("SimklSync", simklSyncResponseLogMessage(request, response, attempt))
         }
@@ -258,7 +278,12 @@ fun retryDelayMs(attempt: Int, retryAfterHeader: String?, jitterMs: Long): Long 
         ?.coerceAtLeast(0L)
         ?.times(1_000L)
         ?: 0L
-    return (max(exponentialDelayMs, retryAfterMs) + jitterMs.coerceIn(0L, 1_000L)).coerceAtMost(60_000L)
+    return (
+        max(
+            exponentialDelayMs,
+            retryAfterMs
+        ) + jitterMs.coerceIn(0L, 1_000L)
+        ).coerceAtMost(60_000L)
 }
 
 fun simklSyncResponseLogMessage(
@@ -273,8 +298,7 @@ fun simklSyncResponseLogMessage(
         "contentType=$contentType bodyChars=${response.body.length}"
 }
 
-private fun SimklRawHttpResponse.toApiResponse(isSoftSuccess: Boolean = false): SimklApiResponse =
-    SimklApiResponse(status, body, headers, isSoftSuccess)
+private fun SimklRawHttpResponse.toApiResponse(isSoftSuccess: Boolean = false): SimklApiResponse = SimklApiResponse(status, body, headers, isSoftSuccess)
 
 private fun SimklRawHttpResponse.toApiException(json: Json): SimklApiException {
     val envelope = errorEnvelope(json)
@@ -294,8 +318,7 @@ private fun SimklRawHttpResponse.errorEnvelope(json: Json): SimklErrorEnvelope? 
     .takeIf(String::isNotBlank)
     ?.let { runCatching { json.decodeFromString<SimklErrorEnvelope>(it) }.getOrNull() }
 
-private fun Map<String, String>.headerValue(name: String): String? =
-    entries.firstOrNull { (key, _) -> key.equals(name, ignoreCase = true) }?.value
+private fun Map<String, String>.headerValue(name: String): String? = entries.firstOrNull { (key, _) -> key.equals(name, ignoreCase = true) }?.value
 
 @Serializable
 private data class SimklErrorEnvelope(

@@ -27,16 +27,15 @@ object StreamSpeedTester {
         val clampTrips: Int = 0
     )
 
-    suspend fun runBaselineTest(
-        url: String,
-        headers: Map<String, String>
-    ): Double = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+    suspend fun runBaselineTest(url: String, headers: Map<String, String>): Double = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
         try {
             val request = Request.Builder().url(url).apply {
                 headers.forEach { (k, v) -> header(k, v) }
             }.build()
 
-            PlayerPlaybackNetworking.playbackHttpClient.newCall(request).execute().use { response ->
+            PlayerPlaybackNetworking.playbackHttpClient.newCall(
+                request
+            ).execute().use { response ->
                 if (!response.isSuccessful) return@withContext 0.0
                 val inputStream = response.body?.byteStream() ?: return@withContext 0.0
                 val buffer = ByteArray(64 * 1024)
@@ -80,9 +79,22 @@ object StreamSpeedTester {
         val totalBytesDownloaded = java.util.concurrent.atomic.AtomicLong(0L)
 
         val transferListener = object : TransferListener {
-            override fun onTransferInitializing(source: DataSource, dataSpec: DataSpec, isNetwork: Boolean) {}
-            override fun onTransferStart(source: DataSource, dataSpec: DataSpec, isNetwork: Boolean) {}
-            override fun onBytesTransferred(source: DataSource, dataSpec: DataSpec, isNetwork: Boolean, bytesTransferred: Int) {
+            override fun onTransferInitializing(
+                source: DataSource,
+                dataSpec: DataSpec,
+                isNetwork: Boolean
+            ) {}
+            override fun onTransferStart(
+                source: DataSource,
+                dataSpec: DataSpec,
+                isNetwork: Boolean
+            ) {}
+            override fun onBytesTransferred(
+                source: DataSource,
+                dataSpec: DataSpec,
+                isNetwork: Boolean,
+                bytesTransferred: Int
+            ) {
                 if (isNetwork) {
                     totalBytesDownloaded.addAndGet(bytesTransferred.toLong())
                 }
@@ -94,7 +106,9 @@ object StreamSpeedTester {
         var sampler: kotlinx.coroutines.Job? = null
         try {
             ParallelRangeDataSource.releaseRetainedSession()
-            val okHttpFactory = OkHttpDataSource.Factory(PlayerPlaybackNetworking.playbackHttpClient).apply {
+            val okHttpFactory = OkHttpDataSource.Factory(
+                PlayerPlaybackNetworking.playbackHttpClient
+            ).apply {
                 setDefaultRequestProperties(headers)
             }
             val dataSource = ParallelRangeDataSource(
@@ -142,8 +156,10 @@ object StreamSpeedTester {
             }
             sampler = samplerJob
             while (!eof &&
-                (totalBytesDownloaded.get() - networkAtMeasureStart < MEASURE_BYTES ||
-                    System.currentTimeMillis() - tStart < MEASURE_MIN_MS) &&
+                (
+                    totalBytesDownloaded.get() - networkAtMeasureStart < MEASURE_BYTES ||
+                        System.currentTimeMillis() - tStart < MEASURE_MIN_MS
+                    ) &&
                 System.currentTimeMillis() < tDeadline
             ) {
                 val read = dataSource.read(buffer, 0, buffer.size)
@@ -188,15 +204,14 @@ object StreamSpeedTester {
         ParallelPassResult(0.0, emptyList())
     }
 
-    suspend fun getStreamContentLength(
-        url: String,
-        headers: Map<String, String>
-    ): Long = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+    suspend fun getStreamContentLength(url: String, headers: Map<String, String>): Long = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
         try {
             val request = Request.Builder().url(url).head().apply {
                 headers.forEach { (k, v) -> header(k, v) }
             }.build()
-            PlayerPlaybackNetworking.playbackHttpClient.newCall(request).execute().use { response ->
+            PlayerPlaybackNetworking.playbackHttpClient.newCall(
+                request
+            ).execute().use { response ->
                 if (response.isSuccessful) {
                     val len = response.headers["Content-Length"]?.toLongOrNull()
                     if (len != null && len > 0) return@withContext len
@@ -206,7 +221,9 @@ object StreamSpeedTester {
             val getRequest = Request.Builder().url(url).apply {
                 headers.forEach { (k, v) -> header(k, v) }
             }.build()
-            PlayerPlaybackNetworking.playbackHttpClient.newCall(getRequest).execute().use { response ->
+            PlayerPlaybackNetworking.playbackHttpClient.newCall(
+                getRequest
+            ).execute().use { response ->
                 if (response.isSuccessful) {
                     val body = response.body
                     if (body != null) {

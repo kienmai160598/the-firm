@@ -4,12 +4,12 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.kien.movies.core.profile.ProfileManager
-import kotlinx.coroutines.flow.first
-import org.json.JSONArray
-import org.json.JSONObject
 import java.security.MessageDigest
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.first
+import org.json.JSONArray
+import org.json.JSONObject
 
 data class CachedStreamLink(
     val url: String,
@@ -41,8 +41,7 @@ class StreamLinkCacheDataStore @Inject constructor(
         private const val FEATURE = "stream_link_cache"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
     suspend fun save(
         contentKey: String,
@@ -138,7 +137,13 @@ class StreamLinkCacheDataStore @Inject constructor(
                 videoHash = json.optString("videoHash", "").ifBlank { null },
                 videoSize = json.optLong("videoSize", -1L).takeIf { it >= 0L },
                 infoHash = infoHash,
-                fileIdx = if (json.has("fileIdx")) json.optInt("fileIdx", -1).takeIf { it >= 0 } else null,
+                fileIdx = if (json.has("fileIdx")) {
+                    json.optInt("fileIdx", -1).takeIf {
+                        it >= 0
+                    }
+                } else {
+                    null
+                },
                 sources = sources,
                 bingeGroup = json.optString("bingeGroup", "").ifBlank { null },
                 contentLanguage = json.optString("contentLanguage", "").ifBlank { null },

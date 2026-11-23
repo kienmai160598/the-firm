@@ -68,12 +68,7 @@ object CustomPosterUrlResolver {
      * @param shape poster shape ("poster", "landscape", or "square")
      * @return resolved URL, or `null` if a required placeholder has no value
      */
-    fun resolve(
-        pattern: String,
-        ids: ContentIds,
-        type: String,
-        shape: String = "poster"
-    ): String? {
+    fun resolve(pattern: String, ids: ContentIds, type: String, shape: String = "poster"): String? {
         if (pattern.isBlank()) return null
         val prepared = preparedFor(pattern)
         if (prepared.tokens.isEmpty()) return null
@@ -130,18 +125,9 @@ object CustomPosterUrlResolver {
 
     // -- Internal --
 
-    private class Token(
-        val start: Int,
-        val end: Int,
-        val optional: Boolean,
-        val keys: List<String>,
-    )
+    private class Token(val start: Int, val end: Int, val optional: Boolean, val keys: List<String>)
 
-    private class Prepared(
-        val decoded: String,
-        val tokens: List<Token>,
-        val rpdb: Boolean,
-    )
+    private class Prepared(val decoded: String, val tokens: List<Token>, val rpdb: Boolean)
 
     private val preparedCache = ConcurrentHashMap<String, Prepared>()
 
@@ -161,7 +147,7 @@ object CustomPosterUrlResolver {
         tokens: List<Token>,
         ids: ContentIds,
         type: String,
-        shape: String,
+        shape: String
     ): String? {
         if (tokens.isEmpty()) return decoded
         val (rawId, rawIdType) = extractRawIdAndType(ids)
@@ -188,7 +174,7 @@ object CustomPosterUrlResolver {
         rawIdType: String,
         typedId: String,
         type: String,
-        shape: String,
+        shape: String
     ): Boolean {
         if (token.keys.size > 1) {
             for (key in token.keys) {
@@ -218,7 +204,7 @@ object CustomPosterUrlResolver {
         rawIdType: String,
         typedId: String,
         type: String,
-        shape: String,
+        shape: String
     ): String? = when (key) {
         "id" -> ids.id
         "id_type" -> rawIdType
@@ -277,8 +263,7 @@ object CustomPosterUrlResolver {
         return Token(open, close + 1, optional, keys)
     }
 
-    private fun isPlaceholderChar(char: Char): Boolean =
-        char in 'a'..'z' || char == '_'
+    private fun isPlaceholderChar(char: Char): Boolean = char in 'a'..'z' || char == '_'
 
     /**
      * Extracts the raw ID (without namespace prefix) and the ID type string.
@@ -289,12 +274,14 @@ object CustomPosterUrlResolver {
         val metaId = ids.id
         return when {
             metaId.startsWith("tt") -> metaId to "imdb"
+
             metaId.contains(":") -> {
                 val colonIndex = metaId.indexOf(':')
                 val prefix = metaId.substring(0, colonIndex)
                 val rawId = metaId.substring(colonIndex + 1)
                 rawId to prefix
             }
+
             else -> metaId to "unknown"
         }
     }
@@ -322,8 +309,7 @@ object CustomPosterUrlResolver {
         "btttr.cc"
     )
 
-    private fun isRpdbFamily(pattern: String): Boolean =
-        RPDB_DOMAINS.any { domain -> domain in pattern }
+    private fun isRpdbFamily(pattern: String): Boolean = RPDB_DOMAINS.any { domain -> domain in pattern }
 
     private fun decodePatternPlaceholders(pattern: String): String {
         if ('%' !in pattern) return pattern

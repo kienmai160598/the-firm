@@ -77,7 +77,9 @@ internal fun moviesButtonBorder(): ButtonBorder = ButtonDefaults.border(
 )
 
 @Composable
-internal fun moviesButtonColors(style: MoviesButtonStyle = MoviesButtonStyle.Secondary): ButtonColors {
+internal fun moviesButtonColors(
+    style: MoviesButtonStyle = MoviesButtonStyle.Secondary
+): ButtonColors {
     val restingFill = when (style) {
         MoviesButtonStyle.Primary, MoviesButtonStyle.Selected -> ExpressiveColors.frostedStrong
         MoviesButtonStyle.Secondary, MoviesButtonStyle.Destructive -> ExpressiveColors.frosted
@@ -144,7 +146,11 @@ internal fun MoviesTextButton(
         onLongClick = onLongClick
     ) {
         if (icon != null) {
-            Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(ButtonIconSize))
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(ButtonIconSize)
+            )
             Spacer(modifier = Modifier.width(ButtonIconGap))
         }
         Text(text = text, style = MoviesTheme.textStyles.button.bodyFloor())

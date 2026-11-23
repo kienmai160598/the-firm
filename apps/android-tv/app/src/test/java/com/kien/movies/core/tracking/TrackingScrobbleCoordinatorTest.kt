@@ -68,7 +68,10 @@ class TrackingScrobbleCoordinatorTest {
         val actions = mutableListOf<TrackingScrobbleAction>()
         override val seekScrobblePolicy = seekPolicy
 
-        override suspend fun scrobble(action: TrackingScrobbleAction, event: TrackingScrobbleEvent) {
+        override suspend fun scrobble(
+            action: TrackingScrobbleAction,
+            event: TrackingScrobbleEvent
+        ) {
             callCount += 1
             actions += action
             failure?.let { throw it }

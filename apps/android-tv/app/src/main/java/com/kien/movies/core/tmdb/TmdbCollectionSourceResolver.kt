@@ -20,21 +20,18 @@ import com.kien.movies.domain.model.TmdbCollectionMediaType
 import com.kien.movies.domain.model.TmdbCollectionSort
 import com.kien.movies.domain.model.TmdbCollectionSource
 import com.kien.movies.domain.model.TmdbCollectionSourceType
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.LocalDate
+import java.util.Locale
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
-import java.time.LocalDate
-import java.util.Locale
-import javax.inject.Inject
-import javax.inject.Singleton
-import dagger.hilt.android.qualifiers.ApplicationContext
 
-data class TmdbSourceImportMetadata(
-    val title: String? = null,
-    val coverImageUrl: String? = null
-)
+data class TmdbSourceImportMetadata(val title: String? = null, val coverImageUrl: String? = null)
 
 @Singleton
 class TmdbCollectionSourceResolver @Inject constructor(
@@ -51,9 +48,12 @@ class TmdbCollectionSourceResolver @Inject constructor(
                 val language = tmdbSettingsDataStore.settings.first().language
                 when (source.sourceType) {
                     TmdbCollectionSourceType.LIST -> resolveList(source, language, page)
+
                     TmdbCollectionSourceType.COLLECTION -> resolveCollection(source, language)
+
                     TmdbCollectionSourceType.PERSON,
                     TmdbCollectionSourceType.DIRECTOR -> resolvePersonCredits(source, language)
+
                     TmdbCollectionSourceType.COMPANY,
                     TmdbCollectionSourceType.NETWORK,
                     TmdbCollectionSourceType.DISCOVER -> resolveDiscover(source, language, page)
@@ -62,19 +62,28 @@ class TmdbCollectionSourceResolver @Inject constructor(
         }
         result.fold(
             onSuccess = { emit(NetworkResult.Success(it)) },
-            onFailure = { emit(NetworkResult.Error(it.message ?: string(R.string.tmdb_error_load_source))) }
+            onFailure = {
+                emit(NetworkResult.Error(it.message ?: string(R.string.tmdb_error_load_source)))
+            }
         )
     }
 
     suspend fun searchCompanies(query: String): List<TmdbCompanySearchResult> = withContext(Dispatchers.IO) {
         if (query.isBlank()) return@withContext emptyList()
-        tmdbApi.searchCompanies(BuildConfig.TMDB_API_KEY, query.trim()).body()?.results.orEmpty()
+        tmdbApi.searchCompanies(
+            BuildConfig.TMDB_API_KEY,
+            query.trim()
+        ).body()?.results.orEmpty()
     }
 
     suspend fun searchCollections(query: String): List<TmdbCollectionSearchResult> = withContext(Dispatchers.IO) {
         if (query.isBlank()) return@withContext emptyList()
         val language = tmdbSettingsDataStore.settings.first().language
-        tmdbApi.searchCollections(BuildConfig.TMDB_API_KEY, query.trim(), language).body()?.results.orEmpty()
+        tmdbApi.searchCollections(
+            BuildConfig.TMDB_API_KEY,
+            query.trim(),
+            language
+        ).body()?.results.orEmpty()
     }
 
     suspend fun listImportMetadata(id: Int): TmdbSourceImportMetadata = withContext(Dispatchers.IO) {
@@ -92,7 +101,8 @@ class TmdbCollectionSourceResolver @Inject constructor(
             ?: error(string(R.string.tmdb_error_collection_not_found))
         TmdbSourceImportMetadata(
             title = body.name?.takeIf { it.isNotBlank() },
-            coverImageUrl = imageUrl(body.posterPath, "w500") ?: imageUrl(body.backdropPath, "w1280")
+            coverImageUrl =
+                imageUrl(body.posterPath, "w500") ?: imageUrl(body.backdropPath, "w1280")
         )
     }
 
@@ -137,8 +147,15 @@ class TmdbCollectionSourceResolver @Inject constructor(
     suspend fun genres(mediaType: TmdbCollectionMediaType): Map<Int, String> = withContext(Dispatchers.IO) {
         val language = tmdbSettingsDataStore.settings.first().language
         val response = when (mediaType) {
-            TmdbCollectionMediaType.MOVIE -> tmdbApi.getMovieGenres(BuildConfig.TMDB_API_KEY, language)
-            TmdbCollectionMediaType.TV -> tmdbApi.getTvGenres(BuildConfig.TMDB_API_KEY, language)
+            TmdbCollectionMediaType.MOVIE -> tmdbApi.getMovieGenres(
+                BuildConfig.TMDB_API_KEY,
+                language
+            )
+
+            TmdbCollectionMediaType.TV -> tmdbApi.getTvGenres(
+                BuildConfig.TMDB_API_KEY,
+                language
+            )
         }
         response.body()?.genres.orEmpty().associate { it.id to it.name }
     }
@@ -158,7 +175,11 @@ class TmdbCollectionSourceResolver @Inject constructor(
                 ?.toIntOrNull()
     }
 
-    private suspend fun resolveList(source: TmdbCollectionSource, language: String, page: Int): CatalogRow {
+    private suspend fun resolveList(
+        source: TmdbCollectionSource,
+        language: String,
+        page: Int
+    ): CatalogRow {
         val id = source.tmdbId ?: error(string(R.string.tmdb_error_missing_list_id))
         val body = tmdbApi.getListDetails(id, BuildConfig.TMDB_API_KEY, language, page).body()
             ?: error(string(R.string.tmdb_error_list_not_found))
@@ -167,20 +188,29 @@ class TmdbCollectionSourceResolver @Inject constructor(
             .sortedFor(source.sortBy)
             .distinctBy { "${it.apiType}:${it.id}" }
         return row(
-            source = source.copy(title = source.title.ifBlank { body.name ?: string(R.string.collections_editor_tmdb_default_list) }),
+            source = source.copy(
+                title = source.title.ifBlank {
+                    body.name
+                        ?: string(R.string.collections_editor_tmdb_default_list)
+                }
+            ),
             page = body.page ?: page,
             hasMore = (body.page ?: page) < (body.totalPages ?: page),
             items = items
         )
     }
 
-    private suspend fun resolveCollection(source: TmdbCollectionSource, language: String): CatalogRow {
+    private suspend fun resolveCollection(
+        source: TmdbCollectionSource,
+        language: String
+    ): CatalogRow {
         val id = source.tmdbId ?: error(string(R.string.tmdb_error_missing_collection_id))
         val body = tmdbApi.getCollectionDetails(id, BuildConfig.TMDB_API_KEY, language).body()
             ?: error(string(R.string.tmdb_error_collection_not_found))
         val items = body.parts.orEmpty()
             .mapNotNull {
-                val title = it.title?.takeIf { value -> value.isNotBlank() } ?: return@mapNotNull null
+                val title =
+                    it.title?.takeIf { value -> value.isNotBlank() } ?: return@mapNotNull null
                 MetaPreview(
                     id = "tmdb:${it.id}",
                     type = ContentType.MOVIE,
@@ -200,14 +230,22 @@ class TmdbCollectionSourceResolver @Inject constructor(
             }
             .sortedFor(source.sortBy)
         return row(
-            source = source.copy(title = source.title.ifBlank { body.name ?: string(R.string.collections_editor_tmdb_collection) }),
+            source = source.copy(
+                title = source.title.ifBlank {
+                    body.name
+                        ?: string(R.string.collections_editor_tmdb_collection)
+                }
+            ),
             page = 1,
             hasMore = false,
             items = items
         )
     }
 
-    private suspend fun resolvePersonCredits(source: TmdbCollectionSource, language: String): CatalogRow {
+    private suspend fun resolvePersonCredits(
+        source: TmdbCollectionSource,
+        language: String
+    ): CatalogRow {
         val id = source.tmdbId ?: error(string(R.string.tmdb_error_missing_person_id))
         val body = tmdbApi.getPersonCombinedCredits(id, BuildConfig.TMDB_API_KEY, language).body()
             ?: error(string(R.string.tmdb_error_person_credits_not_found))
@@ -215,6 +253,7 @@ class TmdbCollectionSourceResolver @Inject constructor(
             TmdbCollectionSourceType.DIRECTOR -> body.crew.orEmpty()
                 .filter { it.job.equals("Director", ignoreCase = true) }
                 .mapNotNull { it.toPreview(source.mediaType) }
+
             else -> body.cast.orEmpty().mapNotNull { it.toPreview(source.mediaType) }
         }
             .distinctBy { "${it.apiType}:${it.id}" }
@@ -227,7 +266,11 @@ class TmdbCollectionSourceResolver @Inject constructor(
         )
     }
 
-    private suspend fun resolveDiscover(source: TmdbCollectionSource, language: String, page: Int): CatalogRow {
+    private suspend fun resolveDiscover(
+        source: TmdbCollectionSource,
+        language: String,
+        page: Int
+    ): CatalogRow {
         val mediaType = if (source.sourceType == TmdbCollectionSourceType.NETWORK) {
             TmdbCollectionMediaType.TV
         } else {
@@ -256,15 +299,20 @@ class TmdbCollectionSourceResolver @Inject constructor(
                 withKeywords = filters.withKeywords,
                 withoutKeywords = filters.withoutKeywords,
                 year = filters.year,
-                watchRegion = if (!filters.withWatchProviders.isNullOrBlank() || !filters.withoutWatchProviders.isNullOrBlank()) {
+                watchRegion = if (!filters.withWatchProviders.isNullOrBlank() ||
+                    !filters.withoutWatchProviders.isNullOrBlank()
+                ) {
                     filters.watchRegion?.takeIf { it.isNotBlank() } ?: "US"
-                } else null,
+                } else {
+                    null
+                },
                 withWatchProviders = filters.withWatchProviders,
                 withWatchMonetizationTypes = if (!filters.withWatchProviders.isNullOrBlank()) "flatrate|free|ads|rent|buy" else null,
                 withoutCompanies = filters.withoutCompanies,
                 withoutGenres = filters.withoutGenres,
                 withoutWatchProviders = filters.withoutWatchProviders
             ).body()
+
             TmdbCollectionMediaType.TV -> tmdbApi.discoverTv(
                 apiKey = BuildConfig.TMDB_API_KEY,
                 language = language,
@@ -278,8 +326,22 @@ class TmdbCollectionSourceResolver @Inject constructor(
                     TmdbCollectionSourceType.NETWORK -> source.tmdbId?.toString()
                     else -> filters.withNetworks
                 },
-                firstAirDateLte = filters.releaseDateLte ?: if (source.sourceType == TmdbCollectionSourceType.NETWORK) today else null,
-                withStatus = if (source.sourceType == TmdbCollectionSourceType.NETWORK) "0|3|4" else null,
+                firstAirDateLte =
+                    filters.releaseDateLte
+                        ?: if (source.sourceType ==
+                            TmdbCollectionSourceType.NETWORK
+                        ) {
+                            today
+                        } else {
+                            null
+                        },
+                withStatus = if (source.sourceType ==
+                    TmdbCollectionSourceType.NETWORK
+                ) {
+                    "0|3|4"
+                } else {
+                    null
+                },
                 voteCountGte = filters.voteCountGte,
                 withGenres = filters.withGenres,
                 firstAirDateGte = filters.releaseDateGte,
@@ -290,9 +352,13 @@ class TmdbCollectionSourceResolver @Inject constructor(
                 withKeywords = filters.withKeywords,
                 withoutKeywords = filters.withoutKeywords,
                 firstAirDateYear = filters.year,
-                watchRegion = if (!filters.withWatchProviders.isNullOrBlank() || !filters.withoutWatchProviders.isNullOrBlank()) {
+                watchRegion = if (!filters.withWatchProviders.isNullOrBlank() ||
+                    !filters.withoutWatchProviders.isNullOrBlank()
+                ) {
                     filters.watchRegion?.takeIf { it.isNotBlank() } ?: "US"
-                } else null,
+                } else {
+                    null
+                },
                 withWatchProviders = filters.withWatchProviders,
                 withWatchMonetizationTypes = if (!filters.withWatchProviders.isNullOrBlank()) "flatrate|free|ads|rent|buy" else null,
                 withoutCompanies = filters.withoutCompanies,
@@ -300,7 +366,9 @@ class TmdbCollectionSourceResolver @Inject constructor(
                 withoutWatchProviders = filters.withoutWatchProviders
             ).body()
         } ?: error(string(R.string.tmdb_error_discover_no_data))
-        val items = response.results.orEmpty().mapNotNull { it.toPreview(mediaType) }.distinctBy { it.id }
+        val items = response.results.orEmpty().mapNotNull {
+            it.toPreview(mediaType)
+        }.distinctBy { it.id }
         return row(
             source = source.copy(mediaType = mediaType),
             page = response.page ?: page,
@@ -309,8 +377,19 @@ class TmdbCollectionSourceResolver @Inject constructor(
         )
     }
 
-    private fun row(source: TmdbCollectionSource, page: Int, hasMore: Boolean, items: List<MetaPreview>): CatalogRow {
-        val mediaType = if (source.mediaType == TmdbCollectionMediaType.TV) "series" else source.mediaType.value
+    private fun row(
+        source: TmdbCollectionSource,
+        page: Int,
+        hasMore: Boolean,
+        items: List<MetaPreview>
+    ): CatalogRow {
+        val mediaType = if (source.mediaType ==
+            TmdbCollectionMediaType.TV
+        ) {
+            "series"
+        } else {
+            source.mediaType.value
+        }
         return CatalogRow(
             addonId = "tmdb",
             addonName = "TMDB",
@@ -331,17 +410,25 @@ class TmdbCollectionSourceResolver @Inject constructor(
     private fun List<MetaPreview>.sortedFor(sortBy: String): List<MetaPreview> {
         return when (sortBy) {
             TmdbCollectionSort.ORIGINAL.value -> this
+
             TmdbCollectionSort.VOTE_AVERAGE_DESC.value -> sortedWith(
                 compareByDescending<MetaPreview> { it.imdbRating ?: -1f }
                     .thenByDescending { it.releaseInfo ?: "" }
             )
+
             TmdbCollectionSort.VOTE_COUNT_DESC.value -> sortedWith(
                 compareByDescending<MetaPreview> { it.voteCount ?: -1 }
                     .thenByDescending { it.imdbRating ?: -1f }
             )
+
             TmdbCollectionSort.RELEASE_DATE_DESC.value,
-            TmdbCollectionSort.FIRST_AIR_DATE_DESC.value -> sortedByDescending { it.releaseInfo ?: "" }
+            TmdbCollectionSort.FIRST_AIR_DATE_DESC.value -> sortedByDescending {
+                it.releaseInfo
+                    ?: ""
+            }
+
             TmdbCollectionSort.POPULAR_DESC.value -> this
+
             else -> this
         }
     }
@@ -382,7 +469,13 @@ class TmdbCollectionSourceResolver @Inject constructor(
             ?: originalTitle?.takeIf { it.isNotBlank() }
             ?: originalName?.takeIf { it.isNotBlank() }
             ?: return null
-        val contentType = if (mediaType == TmdbCollectionMediaType.TV) ContentType.SERIES else ContentType.MOVIE
+        val contentType = if (mediaType ==
+            TmdbCollectionMediaType.TV
+        ) {
+            ContentType.SERIES
+        } else {
+            ContentType.MOVIE
+        }
         val rawType = if (mediaType == TmdbCollectionMediaType.TV) "series" else "movie"
         return MetaPreview(
             id = "tmdb:$id",
@@ -413,7 +506,13 @@ class TmdbCollectionSourceResolver @Inject constructor(
         val title = title?.takeIf { it.isNotBlank() }
             ?: name?.takeIf { it.isNotBlank() }
             ?: return null
-        val contentType = if (mediaType == TmdbCollectionMediaType.TV) ContentType.SERIES else ContentType.MOVIE
+        val contentType = if (mediaType ==
+            TmdbCollectionMediaType.TV
+        ) {
+            ContentType.SERIES
+        } else {
+            ContentType.MOVIE
+        }
         val rawType = if (mediaType == TmdbCollectionMediaType.TV) "series" else "movie"
         return MetaPreview(
             id = "tmdb:$id",
@@ -444,7 +543,13 @@ class TmdbCollectionSourceResolver @Inject constructor(
         val title = title?.takeIf { it.isNotBlank() }
             ?: name?.takeIf { it.isNotBlank() }
             ?: return null
-        val contentType = if (mediaType == TmdbCollectionMediaType.TV) ContentType.SERIES else ContentType.MOVIE
+        val contentType = if (mediaType ==
+            TmdbCollectionMediaType.TV
+        ) {
+            ContentType.SERIES
+        } else {
+            ContentType.MOVIE
+        }
         val rawType = if (mediaType == TmdbCollectionMediaType.TV) "series" else "movie"
         return MetaPreview(
             id = "tmdb:$id",

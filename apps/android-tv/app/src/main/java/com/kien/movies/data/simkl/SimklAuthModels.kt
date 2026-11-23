@@ -72,10 +72,13 @@ internal fun simklSettingsRefreshAction(
     activityWatermark: String?
 ): SimklSettingsRefreshAction = when {
     activityWatermark.isNullOrBlank() -> SimklSettingsRefreshAction.NONE
+
     activityWatermark == state.settingsActivityWatermark -> SimklSettingsRefreshAction.NONE
+
     state.settingsActivityWatermark == null && state.hasFetchedUserSettings -> {
         SimklSettingsRefreshAction.RECORD_WATERMARK
     }
+
     else -> SimklSettingsRefreshAction.FETCH
 }
 

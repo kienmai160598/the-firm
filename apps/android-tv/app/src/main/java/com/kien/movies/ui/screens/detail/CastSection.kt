@@ -1,23 +1,8 @@
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.components.posterFocusScale
-import com.kien.movies.ui.components.posterFocusLift
-import com.kien.movies.ui.components.posterFocusBorder
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.domain.model.CardDepthSurface
-import com.kien.movies.ui.components.LocalCardDepthStyle
-import com.kien.movies.ui.components.moviesCardDepth
-import com.kien.movies.ui.util.contentTextDirection
-
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
-import com.kien.movies.R
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,53 +15,71 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.relocation.BringIntoViewResponder
 import androidx.compose.foundation.relocation.bringIntoViewResponder
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.foundation.focusGroup
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import com.kien.movies.R
+import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.domain.model.MetaCastMember
+import com.kien.movies.ui.components.LocalCardDepthStyle
+import com.kien.movies.ui.components.moviesCardDepth
+import com.kien.movies.ui.components.posterFocusBorder
+import com.kien.movies.ui.components.posterFocusLift
+import com.kien.movies.ui.components.posterFocusScale
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.util.contentTextDirection
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalTvMaterial3Api::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun CastSection(
     cast: List<MetaCastMember>,
@@ -172,12 +175,15 @@ fun CastSection(
         }
         val targetRequester = when {
             leadingIndex == 0 -> firstItemFocusRequester
+
             leadingIndex >= 0 -> {
                 val member = leadingCast[leadingIndex]
                 val key = "leading:${member.tmdbId ?: member.name}:${member.character.orEmpty()}"
                 itemFocusRequesters.getOrPut(key) { FocusRequester() }
             }
+
             castIndex == 0 && leadingCast.isEmpty() -> firstItemFocusRequester
+
             else -> {
                 val member = cast[castIndex]
                 val key = "cast:${member.tmdbId ?: member.name}:${member.character.orEmpty()}"
@@ -206,7 +212,9 @@ fun CastSection(
     val currentUpFocusRequester by rememberUpdatedState(upFocusRequester)
     val currentDownFocusRequester by rememberUpdatedState(downFocusRequester)
 
-    val itemFocusPropertiesModifier = if (currentUpFocusRequester != null || currentDownFocusRequester != null) {
+    val itemFocusPropertiesModifier = if (currentUpFocusRequester != null ||
+        currentDownFocusRequester != null
+    ) {
         Modifier.focusProperties {
             if (currentUpFocusRequester != null) up = currentUpFocusRequester!!
             if (currentDownFocusRequester != null) down = currentDownFocusRequester!!
@@ -218,7 +226,10 @@ fun CastSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = if (hasTitle) 20.dp else MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.sm)
+            .padding(
+                top = if (hasTitle) 20.dp else MoviesTheme.spacing.sm,
+                bottom = MoviesTheme.spacing.sm
+            )
             .onGloballyPositioned { coords ->
                 val bounds = coords.boundsInWindow()
                 val next = bounds.top >= -1f &&
@@ -242,7 +253,15 @@ fun CastSection(
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(if (sectionFocusRequester != null) Modifier.focusRequester(sectionFocusRequester) else Modifier)
+                .then(
+                    if (sectionFocusRequester !=
+                        null
+                    ) {
+                        Modifier.focusRequester(sectionFocusRequester)
+                    } else {
+                        Modifier
+                    }
+                )
                 .onFocusChanged { state ->
                     val entered = state.hasFocus && !rowHasFocus
                     rowHasFocus = state.hasFocus
@@ -272,14 +291,22 @@ fun CastSection(
                     key = { index, member -> leadingCastLazyKey(index, member) }
                 ) { index, member ->
                     val isLastLeading = member == leadingCast.last()
-                    val endPadding = if (isLastLeading && cast.isNotEmpty()) MoviesTheme.spacing.none else standardGap
+                    val endPadding = if (isLastLeading &&
+                        cast.isNotEmpty()
+                    ) {
+                        MoviesTheme.spacing.none
+                    } else {
+                        standardGap
+                    }
                     val isRestoreTarget = member.tmdbId == restorePersonId
                     val isFirstItem = index == 0
                     val focusKey = "leading:${member.tmdbId ?: member.name}:${member.character.orEmpty()}"
                     val focusRequester = if (isFirstItem) {
                         firstItemFocusRequester
                     } else {
-                        remember(focusKey) { itemFocusRequesters.getOrPut(focusKey) { FocusRequester() } }
+                        remember(focusKey) {
+                            itemFocusRequesters.getOrPut(focusKey) { FocusRequester() }
+                        }
                     }
 
                     Box(modifier = restoreItemModifier.padding(end = endPadding)) {
@@ -330,7 +357,9 @@ fun CastSection(
                 val focusRequester = if (isFirstCastItem) {
                     firstItemFocusRequester
                 } else {
-                    remember(focusKey) { itemFocusRequesters.getOrPut(focusKey) { FocusRequester() } }
+                    remember(focusKey) {
+                        itemFocusRequesters.getOrPut(focusKey) { FocusRequester() }
+                    }
                 }
 
                 Box(modifier = restoreItemModifier.padding(end = standardGap)) {
@@ -365,7 +394,7 @@ private fun castMemberWindowId(member: MetaCastMember, leading: Boolean): String
 
 private fun castWindowIds(
     leadingCast: List<MetaCastMember>,
-    cast: List<MetaCastMember>,
+    cast: List<MetaCastMember>
 ): List<String> {
     val ids = ArrayList<String>(leadingCast.size + cast.size + 1)
     leadingCast.forEach { member -> ids += castMemberWindowId(member, leading = true) }
@@ -374,23 +403,25 @@ private fun castWindowIds(
     return ids
 }
 
-private fun leadingCastLazyKey(index: Int, member: MetaCastMember): String =
-    "leading|" + index + "|" + (member.tmdbId?.toString() ?: member.name) + "|" +
-        (member.character ?: "") + "|" + (member.photo ?: "")
+private fun leadingCastLazyKey(index: Int, member: MetaCastMember): String = "leading|" + index + "|" + (member.tmdbId?.toString() ?: member.name) + "|" +
+    (member.character ?: "") + "|" + (member.photo ?: "")
 
-private fun castMemberLazyKey(index: Int, member: MetaCastMember): String =
-    index.toString() + "|" + (member.tmdbId?.toString() ?: member.name) + "|" +
-        (member.character ?: "") + "|" + (member.photo ?: "")
+private fun castMemberLazyKey(index: Int, member: MetaCastMember): String = index.toString() + "|" + (member.tmdbId?.toString() ?: member.name) + "|" +
+    (member.character ?: "") + "|" + (member.photo ?: "")
 
 private fun castLazyKeyAt(
     index: Int,
     leadingCast: List<MetaCastMember>,
-    cast: List<MetaCastMember>,
+    cast: List<MetaCastMember>
 ): Any? {
     val hasDivider = leadingCast.isNotEmpty() && cast.isNotEmpty()
     return when {
-        index < leadingCast.size -> leadingCast.getOrNull(index)?.let { leadingCastLazyKey(index, it) }
+        index < leadingCast.size -> leadingCast.getOrNull(index)?.let {
+            leadingCastLazyKey(index, it)
+        }
+
         hasDivider && index == leadingCast.size -> CAST_ROLE_DIVIDER_ID
+
         else -> {
             val castIndex = index - leadingCast.size - if (hasDivider) 1 else 0
             cast.getOrNull(castIndex)?.let { castMemberLazyKey(castIndex, it) }
@@ -518,7 +549,10 @@ private fun CastMemberItem(
                 contentAlignment = Alignment.Center
             ) {
                 val currentBgColor = if (isFocused) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.SurfaceVariant
-                val bgPainter = remember(currentBgColor) { androidx.compose.ui.graphics.painter.ColorPainter(currentBgColor) }
+                val bgPainter =
+                    remember(currentBgColor) {
+                        androidx.compose.ui.graphics.painter.ColorPainter(currentBgColor)
+                    }
 
                 if (photoModel != null) {
                     AsyncImage(
@@ -563,9 +597,21 @@ private fun CastMemberItem(
             val character = member.character
             if (!character.isNullOrBlank()) {
                 val displayCharacter = when {
-                    character.equals("Creator", ignoreCase = true) -> stringResource(R.string.cast_role_creator)
-                    character.equals("Director", ignoreCase = true) -> stringResource(R.string.cast_role_director)
-                    character.equals("Writer", ignoreCase = true) -> stringResource(R.string.cast_role_writer)
+                    character.equals(
+                        "Creator",
+                        ignoreCase = true
+                    ) -> stringResource(R.string.cast_role_creator)
+
+                    character.equals(
+                        "Director",
+                        ignoreCase = true
+                    ) -> stringResource(R.string.cast_role_director)
+
+                    character.equals(
+                        "Writer",
+                        ignoreCase = true
+                    ) -> stringResource(R.string.cast_role_writer)
+
                     else -> character
                 }
                 Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))

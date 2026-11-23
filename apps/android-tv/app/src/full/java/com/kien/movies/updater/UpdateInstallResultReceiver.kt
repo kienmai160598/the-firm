@@ -20,31 +20,53 @@ private const val TAG = "UpdateInstall"
 class UpdateInstallResultReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)
+        val status = intent.getIntExtra(
+            PackageInstaller.EXTRA_STATUS,
+            PackageInstaller.STATUS_FAILURE
+        )
         val sessionId = intent.getIntExtra(PackageInstaller.EXTRA_SESSION_ID, -1)
         val background = intent.getBooleanExtra(EXTRA_BACKGROUND, false)
         val withDexMetadata = intent.getBooleanExtra(EXTRA_WITH_DEX_METADATA, false)
         val apkFile = intent.getStringExtra(EXTRA_APK_PATH)?.let(::File)
         val message = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-        Log.i(TAG, "Session $sessionId status=$status background=$background dm=$withDexMetadata message=$message")
+        Log.i(
+            TAG,
+            "Session $sessionId status=$status background=$background dm=$withDexMetadata message=$message"
+        )
 
         when (status) {
             PackageInstaller.STATUS_SUCCESS -> Unit
+
             PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                 if (background) {
-                    runCatching { context.packageManager.packageInstaller.abandonSession(sessionId) }
+                    runCatching {
+                        context.packageManager.packageInstaller.abandonSession(sessionId)
+                    }
                 } else {
                     confirmationIntent(intent)?.let { confirm ->
-                        runCatching { context.startActivity(confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                        runCatching {
+                            context.startActivity(confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                        }
                             .onFailure {
                                 Log.w(TAG, "Install confirmation screen unavailable", it)
-                                runCatching { context.packageManager.packageInstaller.abandonSession(sessionId) }
-                                retryAfterFailure(context, apkFile, background = false, withDexMetadata = false)
+                                runCatching {
+                                    context.packageManager.packageInstaller.abandonSession(
+                                        sessionId
+                                    )
+                                }
+                                retryAfterFailure(
+                                    context,
+                                    apkFile,
+                                    background = false,
+                                    withDexMetadata = false
+                                )
                             }
                     }
                 }
             }
+
             PackageInstaller.STATUS_FAILURE_ABORTED -> UpdateRelaunchReceiver.cancelReopen(context)
+
             else -> {
                 UpdateRelaunchReceiver.cancelReopen(context)
                 retryAfterFailure(context, apkFile, background, withDexMetadata)
@@ -52,23 +74,33 @@ class UpdateInstallResultReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun retryAfterFailure(context: Context, apkFile: File?, background: Boolean, withDexMetadata: Boolean) {
+    private fun retryAfterFailure(
+        context: Context,
+        apkFile: File?,
+        background: Boolean,
+        withDexMetadata: Boolean
+    ) {
         if (apkFile == null || !apkFile.exists()) return
         runCatching {
             when {
-                withDexMetadata -> ApkInstaller.install(context, apkFile, background, withDexMetadata = false)
+                withDexMetadata -> ApkInstaller.install(
+                    context,
+                    apkFile,
+                    background,
+                    withDexMetadata = false
+                )
+
                 !background -> ApkInstaller.launchSystemInstaller(context, apkFile)
             }
         }.onFailure { Log.w(TAG, "Update install retry failed", it) }
     }
 
-    private fun confirmationIntent(intent: Intent): Intent? =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(Intent.EXTRA_INTENT, Intent::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            intent.getParcelableExtra(Intent.EXTRA_INTENT)
-        }
+    private fun confirmationIntent(intent: Intent): Intent? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        intent.getParcelableExtra(Intent.EXTRA_INTENT, Intent::class.java)
+    } else {
+        @Suppress("DEPRECATION")
+        intent.getParcelableExtra(Intent.EXTRA_INTENT)
+    }
 
     companion object {
         private const val EXTRA_APK_PATH = "com.kien.movies.updater.APK_PATH"
@@ -87,7 +119,13 @@ class UpdateInstallResultReceiver : BroadcastReceiver() {
                 .putExtra(EXTRA_BACKGROUND, background)
                 .putExtra(EXTRA_WITH_DEX_METADATA, withDexMetadata)
             // The installer adds the status extras, so the intent has to stay mutable.
-            val mutableFlag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else 0
+            val mutableFlag = if (Build.VERSION.SDK_INT >=
+                Build.VERSION_CODES.S
+            ) {
+                PendingIntent.FLAG_MUTABLE
+            } else {
+                0
+            }
             return PendingIntent.getBroadcast(
                 context,
                 sessionId,

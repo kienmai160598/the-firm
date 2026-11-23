@@ -24,7 +24,9 @@ class ProxyHeadersProtocolTest {
 
     @Test
     fun `clients with proxy headers stay on http 1_1 and add exactly one retry interceptor`() {
-        val client = PlayerPlaybackNetworking.createHttpClient(mapOf("Referer" to "https://example.com/"))
+        val client = PlayerPlaybackNetworking.createHttpClient(
+            mapOf("Referer" to "https://example.com/")
+        )
         assertEquals(listOf(Protocol.HTTP_1_1), client.protocols)
         assertEquals(baseInterceptors + 1, client.interceptors.size)
     }

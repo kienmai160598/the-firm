@@ -12,8 +12,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.pressKey
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -101,11 +101,16 @@ class TrackingSettingsOverviewTest {
             mdbListState = MdbListTrackerUiState(isConnected = true, username = "mdb-viewer"),
             trackingState = TrackingSettingsUiState(
                 watchProgressSource = WatchProgressSource.MDBLIST,
-                connectedProviderIds = setOf(TrackingProviderId.MDBLIST), isReady = true
+                connectedProviderIds = setOf(TrackingProviderId.MDBLIST),
+                isReady = true
             )
         )
-        composeRule.onNodeWithText(context.getString(R.string.mdblist_connected_as, "mdb-viewer")).assertIsDisplayed()
-        composeRule.onAllNodesWithText(context.getString(R.string.tracking_status_connected)).assertCountEquals(1)
+        composeRule.onNodeWithText(
+            context.getString(R.string.mdblist_connected_as, "mdb-viewer")
+        ).assertIsDisplayed()
+        composeRule.onAllNodesWithText(
+            context.getString(R.string.tracking_status_connected)
+        ).assertCountEquals(1)
         composeRule.onNodeWithTag(TrackingSettingsTestTags.OVERVIEW_LIST).performScrollToIndex(1)
         composeRule.onNodeWithTag(TrackingSettingsTestTags.WATCH_PROGRESS_SOURCE).assertIsEnabled()
         composeRule.onNodeWithTag(TrackingSettingsTestTags.LIBRARY_SOURCE).assertIsEnabled()

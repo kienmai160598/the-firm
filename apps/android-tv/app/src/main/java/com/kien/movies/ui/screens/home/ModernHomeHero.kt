@@ -1,9 +1,5 @@
 package com.kien.movies.ui.screens.home
 
-import com.kien.movies.ui.theme.MoviesMotion
-
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -30,49 +26,51 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import coil3.request.transitionFactory
+import com.kien.movies.R
+import com.kien.movies.core.player.BackgroundTrailerRequest
+import com.kien.movies.core.player.LocalBackgroundTrailerController
+import com.kien.movies.ui.components.AutoScrollingText
+import com.kien.movies.ui.components.BackgroundTrailerRequestEffect
+import com.kien.movies.ui.components.ImdbRatingSourceLabel
+import com.kien.movies.ui.components.TrailerPlayer
+import com.kien.movies.ui.theme.MoviesMotion
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.metaFloor
 import com.kien.movies.ui.util.LocalRecompositionHighlighterEnabled
 import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.recompositionHighlighter
-import coil3.request.transitionFactory
-import com.kien.movies.R
 import kotlinx.coroutines.delay
-import com.kien.movies.ui.components.ImdbRatingSourceLabel
-import com.kien.movies.ui.components.TrailerPlayer
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.unit.toSize
-import com.kien.movies.core.player.BackgroundTrailerRequest
-import com.kien.movies.core.player.LocalBackgroundTrailerController
-import com.kien.movies.ui.components.BackgroundTrailerRequestEffect
-import com.kien.movies.ui.components.AutoScrollingText
-import androidx.compose.ui.res.stringResource
 
 private data class ModernHeroSecondaryMeta(
     val highlightText: String?,
@@ -145,7 +143,9 @@ internal fun ModernHeroMediaLayer(
     // during rapid nav / scroll). Only update when enrichment is not active
     val rawBackdrop by remember { derivedStateOf { heroBackdrop() } }
     val enriching by remember { derivedStateOf { enrichmentActive() } }
-    var displayedBackdrop by remember { mutableStateOf(HeroBackdropState.lastDisplayedUrl ?: heroBackdrop()) }
+    var displayedBackdrop by remember {
+        mutableStateOf(HeroBackdropState.lastDisplayedUrl ?: heroBackdrop())
+    }
     if (rawBackdrop != null && rawBackdrop != displayedBackdrop && !enriching) {
         displayedBackdrop = rawBackdrop!!
     }
@@ -196,7 +196,13 @@ internal fun ModernHeroMediaLayer(
         if (backgroundTrailerController != null) {
             val fullScreenVal = isFullScreen()
             val mediaRect = heroMediaRect
-            val trailerUrlVal = if (shouldPlay && (fullScreenVal || mediaRect != null)) heroTrailerUrl() else null
+            val trailerUrlVal = if (shouldPlay &&
+                (fullScreenVal || mediaRect != null)
+            ) {
+                heroTrailerUrl()
+            } else {
+                null
+            }
             val audioUrlVal = heroTrailerAudioUrl()
             val mutedVal = muted()
             val latestOnTrailerEnded by rememberUpdatedState(onTrailerEnded)
@@ -322,7 +328,7 @@ internal fun ModernHeroGradientLayer(
                         topLeft = Offset(rectLeft, 0f),
                         size = Size(horizontalFadeEndX, size.height)
                     )
-                    
+
                     // 2. Bottom vertical strip
                     drawRect(
                         brush = verticalGradient,
@@ -355,7 +361,7 @@ internal fun HeroTitleBlock(
     }
     val currentPreview = displayInputs.first
     val isEnriching = displayInputs.second
-    
+
     var stablePreview by remember { mutableStateOf<HeroPreview?>(null) }
 
     LaunchedEffect(Unit) {
@@ -368,9 +374,15 @@ internal fun HeroTitleBlock(
         }
     }
 
-    val displayPreview = if (!isEnriching && currentPreview != null) currentPreview else stablePreview
+    val displayPreview = if (!isEnriching &&
+        currentPreview != null
+    ) {
+        currentPreview
+    } else {
+        stablePreview
+    }
     if (displayPreview == null) return
-    
+
     Box(
         modifier = modifier,
         contentAlignment = Alignment.BottomStart
@@ -474,15 +486,42 @@ private fun HeroTitleContent(
             )
         }
 
-        val strStatusEnded = stringResource(if (preview.isSeries) R.string.series_status_ended else R.string.movie_status_ended)
-        val strStatusContinuing = stringResource(if (preview.isSeries) R.string.series_status_continuing else R.string.movie_status_continuing)
-        val strStatusCurrent = stringResource(if (preview.isSeries) R.string.series_status_current else R.string.movie_status_current)
-        val strStatusCancelled = stringResource(if (preview.isSeries) R.string.series_status_cancelled else R.string.movie_status_cancelled)
-        val strStatusReleased = stringResource(if (preview.isSeries) R.string.series_status_released else R.string.movie_status_released)
-        val strStatusPlanned = stringResource(if (preview.isSeries) R.string.series_status_planned else R.string.movie_status_planned)
-        val strStatusRumored = stringResource(if (preview.isSeries) R.string.series_status_rumored else R.string.movie_status_rumored)
-        val strStatusInProduction = stringResource(if (preview.isSeries) R.string.series_status_in_production else R.string.movie_status_in_production)
-        val strStatusPostProduction = stringResource(if (preview.isSeries) R.string.series_status_post_production else R.string.movie_status_post_production)
+        val strStatusEnded =
+            stringResource(
+                if (preview.isSeries) R.string.series_status_ended else R.string.movie_status_ended
+            )
+        val strStatusContinuing =
+            stringResource(
+                if (preview.isSeries) R.string.series_status_continuing else R.string.movie_status_continuing
+            )
+        val strStatusCurrent =
+            stringResource(
+                if (preview.isSeries) R.string.series_status_current else R.string.movie_status_current
+            )
+        val strStatusCancelled =
+            stringResource(
+                if (preview.isSeries) R.string.series_status_cancelled else R.string.movie_status_cancelled
+            )
+        val strStatusReleased =
+            stringResource(
+                if (preview.isSeries) R.string.series_status_released else R.string.movie_status_released
+            )
+        val strStatusPlanned =
+            stringResource(
+                if (preview.isSeries) R.string.series_status_planned else R.string.movie_status_planned
+            )
+        val strStatusRumored =
+            stringResource(
+                if (preview.isSeries) R.string.series_status_rumored else R.string.movie_status_rumored
+            )
+        val strStatusInProduction =
+            stringResource(
+                if (preview.isSeries) R.string.series_status_in_production else R.string.movie_status_in_production
+            )
+        val strStatusPostProduction =
+            stringResource(
+                if (preview.isSeries) R.string.series_status_post_production else R.string.movie_status_post_production
+            )
         val secondaryMeta = remember(
             preview.secondaryHighlightText,
             preview.ageRatingText,
@@ -516,10 +555,13 @@ private fun HeroTitleContent(
         val secondaryDetails = secondaryMeta.details
         val hasSecondaryBadge = ageRatingBadge != null || statusBadge != null
         val hasImdbRatingForLayout = !preview.imdbText.isNullOrBlank()
-        val hasMdbListRatings = mdbListShowOnHero && preview.mdbListRatings != null && !preview.mdbListRatings.isEmpty()
+        val hasMdbListRatings =
+            mdbListShowOnHero && preview.mdbListRatings != null && !preview.mdbListRatings.isEmpty()
         // When MDBList ratings are shown, don't reserve space for standalone IMDb badge.
-        val reserveImdbInPrimary = !hasMdbListRatings && !preview.isSeries && !hasSecondaryBadge && hasImdbRatingForLayout
-        val reserveImdbInPrimaryWithHighlight = reserveImdbInPrimary && secondaryHighlightText == null
+        val reserveImdbInPrimary =
+            !hasMdbListRatings && !preview.isSeries && !hasSecondaryBadge && hasImdbRatingForLayout
+        val reserveImdbInPrimaryWithHighlight =
+            reserveImdbInPrimary && secondaryHighlightText == null
         val reserveImdbInSecondary = !hasMdbListRatings && hasImdbRatingForLayout &&
             (preview.isSeries || hasSecondaryBadge || secondaryHighlightText != null)
         val showImdbInPrimaryWithHighlight = showImdbRatings && reserveImdbInPrimaryWithHighlight
@@ -604,7 +646,11 @@ private fun HeroTitleContent(
             }
         }
 
-        if (secondaryHighlightText != null || ageRatingBadge != null || reserveImdbInSecondary || statusBadge != null || secondaryDetails.isNotEmpty() || hasMdbListRatings) {
+        if (secondaryHighlightText != null || ageRatingBadge != null || reserveImdbInSecondary ||
+            statusBadge != null ||
+            secondaryDetails.isNotEmpty() ||
+            hasMdbListRatings
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -612,8 +658,9 @@ private fun HeroTitleContent(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(metaSpacing)
             ) {
-                val semiBoldLabelMedium = remember(labelMedium) { labelMedium.copy(fontWeight = FontWeight.SemiBold) }
-        secondaryHighlightText?.let { text ->
+                val semiBoldLabelMedium =
+                    remember(labelMedium) { labelMedium.copy(fontWeight = FontWeight.SemiBold) }
+                secondaryHighlightText?.let { text ->
                     Text(
                         text = text,
                         style = semiBoldLabelMedium,
@@ -622,10 +669,18 @@ private fun HeroTitleContent(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                if (secondaryHighlightText != null && (hasSecondaryBadge || reserveImdbInSecondary || secondaryDetails.isNotEmpty() || hasMdbListRatings)) {
+                if (secondaryHighlightText != null &&
+                    (
+                        hasSecondaryBadge || reserveImdbInSecondary || secondaryDetails.isNotEmpty() ||
+                            hasMdbListRatings
+                        )
+                ) {
                     HeroMetaDivider(
                         scale = metaScale,
-                        visible = hasSecondaryBadge || showImdbInSecondary || secondaryDetails.isNotEmpty() || hasMdbListRatings
+                        visible =
+                            hasSecondaryBadge || showImdbInSecondary ||
+                                secondaryDetails.isNotEmpty() ||
+                                hasMdbListRatings
                     )
                 }
                 if (ageRatingBadge != null && statusBadge != null) {
@@ -651,10 +706,14 @@ private fun HeroTitleContent(
                         )
                     }
                 }
-                if ((ageRatingBadge != null || statusBadge != null) && (reserveImdbInSecondary || secondaryDetails.isNotEmpty() || hasMdbListRatings)) {
+                if ((ageRatingBadge != null || statusBadge != null) &&
+                    (reserveImdbInSecondary || secondaryDetails.isNotEmpty() || hasMdbListRatings)
+                ) {
                     HeroMetaDivider(
                         scale = metaScale,
-                        visible = showImdbInSecondary || secondaryDetails.isNotEmpty() || hasMdbListRatings
+                        visible =
+                            showImdbInSecondary || secondaryDetails.isNotEmpty() ||
+                                hasMdbListRatings
                     )
                 }
                 if (reserveImdbInSecondary) {
@@ -705,7 +764,9 @@ private fun HeroTitleContent(
         preview.description?.takeIf { it.isNotBlank() }?.let { description ->
             AutoScrollingText(
                 text = description,
-                style = scaledDescriptionStyle.copy(textDirection = description.contentTextDirection()),
+                style = scaledDescriptionStyle.copy(
+                    textDirection = description.contentTextDirection()
+                ),
                 color = MoviesTheme.colors.TextPrimary,
                 maxLines = descriptionMaxLines,
                 autoScrollEnabled = descriptionAutoScrollEnabled,
@@ -800,7 +861,10 @@ private fun HeroMetaBadge(
         modifier = Modifier
             .clip(HeroBadgeShape)
             .border(
-                border = BorderStroke(MoviesTheme.spacing.hairline, contentColor.copy(alpha = 0.55f)),
+                border = BorderStroke(
+                    MoviesTheme.spacing.hairline,
+                    contentColor.copy(alpha = 0.55f)
+                ),
                 shape = HeroBadgeShape
             )
             .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs),
@@ -817,10 +881,7 @@ private fun HeroMetaBadge(
 }
 
 @Composable
-private fun HeroMetaDivider(
-    scale: Float,
-    visible: Boolean = true
-) {
+private fun HeroMetaDivider(scale: Float, visible: Boolean = true) {
     Box(
         modifier = Modifier
             .size((MoviesTheme.spacing.xs * scale).coerceAtLeast(MoviesTheme.spacing.xxs))

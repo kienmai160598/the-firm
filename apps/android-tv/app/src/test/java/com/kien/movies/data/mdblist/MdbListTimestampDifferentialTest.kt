@@ -35,10 +35,12 @@ class MdbListTimestampDifferentialTest {
             val actual = runCatching { mdbListTimestamp(value) }
             if (expected == null) {
                 if (actual.isSuccess) {
-                    mismatches += "accepted <$value> as ${actual.getOrNull()} but java time rejects it"
+                    mismatches +=
+                        "accepted <$value> as ${actual.getOrNull()} but java time rejects it"
                 }
             } else if (actual.getOrNull() != expected) {
-                mismatches += "<$value> expected $expected but was ${actual.exceptionOrNull() ?: actual.getOrNull()}"
+                mismatches +=
+                    "<$value> expected $expected but was ${actual.exceptionOrNull() ?: actual.getOrNull()}"
             }
         }
         assertTrue(
@@ -49,7 +51,9 @@ class MdbListTimestampDifferentialTest {
 
     private fun oracle(value: String): Long? {
         runCatching { Instant.parse(value).toEpochMilli() }.getOrNull()?.let { return it }
-        runCatching { OffsetDateTime.parse(value).toInstant().toEpochMilli() }.getOrNull()?.let { return it }
+        runCatching {
+            OffsetDateTime.parse(value).toInstant().toEpochMilli()
+        }.getOrNull()?.let { return it }
         return runCatching {
             LocalDateTime.parse(value, ORACLE_LOCAL).toInstant(ZoneOffset.UTC).toEpochMilli()
         }.getOrNull()
@@ -114,7 +118,9 @@ class MdbListTimestampDifferentialTest {
 
     private fun randomSuffix(random: Random): String = when (random.nextInt(4)) {
         0 -> ""
+
         1 -> if (random.nextBoolean()) "Z" else "z"
+
         else -> {
             val sign = if (random.nextBoolean()) '+' else '-'
             val hour = random.nextInt(0, 20)
@@ -143,7 +149,9 @@ class MdbListTimestampDifferentialTest {
             values += seed.replace('T', ' ').replace('t', ' ')
             seed.indices.forEach { index ->
                 values += seed.removeRange(index, index + 1)
-                values += seed.substring(0, index) + replacements[random.nextInt(replacements.size)] + seed.substring(index + 1)
+                values +=
+                    seed.substring(0, index) + replacements[random.nextInt(replacements.size)] +
+                    seed.substring(index + 1)
                 values += seed.substring(0, index) + "0" + seed.substring(index)
             }
         }

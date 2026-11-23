@@ -33,10 +33,7 @@ internal fun SettingsExpressiveChoiceChip(
     )
 }
 
-private fun SemanticsPropertyReceiver.choiceSemantics(
-    selected: Boolean,
-    multiSelect: Boolean
-) {
+private fun SemanticsPropertyReceiver.choiceSemantics(selected: Boolean, multiSelect: Boolean) {
     if (multiSelect) {
         role = Role.Checkbox
         toggleableState = if (selected) ToggleableState.On else ToggleableState.Off

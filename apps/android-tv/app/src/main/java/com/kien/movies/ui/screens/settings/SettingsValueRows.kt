@@ -2,9 +2,6 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.util.keepLtr
-
 import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -60,6 +57,8 @@ import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.components.expressive.moviesCardBorder
 import com.kien.movies.ui.components.expressive.moviesCardScale
 import com.kien.movies.ui.theme.ExpressiveColors
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.util.keepLtr
 import kotlin.math.roundToInt
 
 @Composable
@@ -185,10 +184,12 @@ private fun SliderSettingsItemLayout(
                         if (isRtl) onIncrease() else onDecrease()
                         true
                     }
+
                     KeyEvent.KEYCODE_DPAD_RIGHT -> {
                         if (isRtl) onDecrease() else onIncrease()
                         true
                     }
+
                     else -> false
                 }
             }
@@ -311,7 +312,9 @@ private fun SliderStepButton(
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = (if (isFocused) ExpressiveColors.onFocus else ink).copy(alpha = contentAlpha),
+                tint = (if (isFocused) ExpressiveColors.onFocus else ink).copy(
+                    alpha = contentAlpha
+                ),
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -371,7 +374,11 @@ internal fun ColorSettingsItem(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(brush = Brush.linearGradient(colors = listOf(Color.White, Color.Gray, Color.White)))
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(Color.White, Color.Gray, Color.White)
+                                )
+                            )
                     )
                 }
             } else {
@@ -390,5 +397,4 @@ internal fun ColorSettingsItem(
 private const val STEP_BUTTON_FILL_ALPHA = 0.14f
 
 /** A step button's content: black while its row is focused and white. */
-private fun sliderStepInk(rowFocused: Boolean): Color =
-    if (rowFocused) ExpressiveColors.onFocus else ExpressiveColors.textPrimary
+private fun sliderStepInk(rowFocused: Boolean): Color = if (rowFocused) ExpressiveColors.onFocus else ExpressiveColors.textPrimary

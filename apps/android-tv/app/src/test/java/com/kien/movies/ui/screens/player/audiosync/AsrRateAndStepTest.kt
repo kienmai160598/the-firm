@@ -39,17 +39,35 @@ class AsrRateAndStepTest {
         toMedia: (Double) -> Double,
         nearSec: IntRange,
         spotsSec: List<IntRange>,
-        seed: Int,
+        seed: Int
     ): AsrLock {
-        val media = cues.map { (a, b, t) -> Triple((toMedia(a / 1_000.0) * 1_000).toLong(), (toMedia(b / 1_000.0) * 1_000).toLong(), t) }
+        val media = cues.map { (a, b, t) ->
+            Triple(
+                (toMedia(a / 1_000.0) * 1_000).toLong(),
+                (
+                    toMedia(b / 1_000.0) *
+                        1_000
+                    ).toLong(),
+                t
+            )
+        }
         val locks = java.util.Collections.synchronizedList(ArrayList<AsrLock>())
         val engine = AsrSyncEngine(speech(media), onLock = { locks += it })
-        engine.startSession(SubtitleSpeechTrack.fromCues(cues), listOf(ReferenceSubtitle("en", cues, null)))
+        engine.startSession(
+            SubtitleSpeechTrack.fromCues(cues),
+            listOf(ReferenceSubtitle("en", cues, null))
+        )
         val frameMs = SpeechTimeline.FRAME_DURATION_MS
         fun offer(range: IntRange, spread: Boolean): Int {
             val lines = media.indices.filter { media[it].first / 1_000 in range }
             lines.forEach { line ->
-                engine.offerSegment((media[line].first / frameMs).toInt(), FloatArray(SileroVad.CHUNK_SAMPLES * 10) { line.toFloat() }, spread)
+                engine.offerSegment(
+                    (media[line].first / frameMs).toInt(),
+                    FloatArray(SileroVad.CHUNK_SAMPLES * 10) {
+                        line.toFloat()
+                    },
+                    spread
+                )
             }
             return lines.size
         }
@@ -65,12 +83,21 @@ class AsrRateAndStepTest {
             text.split(' ').let { words ->
                 words.mapIndexedNotNull { k, word ->
                     if (random.nextFloat() < 0.3f) return@mapIndexedNotNull null
-                    ((start + (end - start) * k / words.size) / 1_000.0 + random.nextDouble(-0.1, 0.1) - segmentStartSec) to word
+                    (
+                        (start + (end - start) * k / words.size) / 1_000.0 +
+                            random.nextDouble(-0.1, 0.1) -
+                            segmentStartSec
+                        ) to
+                        word
                 }
             }
         }
         val deadline = System.currentTimeMillis() + 60_000
-        while (recognised.get() < expected && System.currentTimeMillis() < deadline) Thread.sleep(20)
+        while (recognised.get() < expected &&
+            System.currentTimeMillis() < deadline
+        ) {
+            Thread.sleep(20)
+        }
         Thread.sleep(1_500)
         engine.release()
         return locks.last()
@@ -84,13 +111,25 @@ class AsrRateAndStepTest {
             val t = subSec * segment.scale + segment.shiftMs / 1_000.0
             if (t * 1_000 >= segment.fromMediaMs) result = t
         }
-        return if (result.isNaN()) subSec * lock.segments[0].scale + lock.segments[0].shiftMs / 1_000.0 else result
+        return if (result.isNaN()) {
+            subSec * lock.segments[0].scale +
+                lock.segments[0].shiftMs / 1_000.0
+        } else {
+            result
+        }
     }
 
-    private fun assertPlacedRight(lock: AsrLock, toMedia: (Double) -> Double, subSecs: List<Double>) {
+    private fun assertPlacedRight(
+        lock: AsrLock,
+        toMedia: (Double) -> Double,
+        subSecs: List<Double>
+    ) {
         for (sub in subSecs) {
             val error = shown(lock, sub) - toMedia(sub)
-            assertTrue(abs(error) < 1.0, "line at ${sub}s shown ${"%.1f".format(error)}s off; lock $lock")
+            assertTrue(
+                abs(error) < 1.0,
+                "line at ${sub}s shown ${"%.1f".format(error)}s off; lock $lock"
+            )
         }
     }
 
@@ -101,7 +140,11 @@ class AsrRateAndStepTest {
         val cues = script(Random(21), 5_100_000L)
         val toMedia = { s: Double -> if (s < 200.0) 0.95904 * s - 3.3 else 0.95904 * s + 13.8 }
         val lock = lock(cues, toMedia, nearSec = 0..120, spotsSec = SPOTS, seed = 3)
-        assertPlacedRight(lock, toMedia, listOf(60.0, 90.0, 800.0, 1_500.0, 2_300.0, 3_700.0, 4_500.0))
+        assertPlacedRight(
+            lock,
+            toMedia,
+            listOf(60.0, 90.0, 800.0, 1_500.0, 2_300.0, 3_700.0, 4_500.0)
+        )
     }
 
     @Test

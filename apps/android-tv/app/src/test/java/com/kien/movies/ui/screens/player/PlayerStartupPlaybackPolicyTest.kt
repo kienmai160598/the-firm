@@ -12,13 +12,13 @@ class PlayerStartupPlaybackPolicyTest {
         hasRenderedFirstFrame: Boolean = false,
         userPausedManually: Boolean = false,
         startPaused: Boolean = false,
-        isTunneledPlayback: Boolean = false,
+        isTunneledPlayback: Boolean = false
     ) = PlayerStartupPlaybackPolicy.ReadyState(
         shouldEnforceAutoplayOnFirstReady = shouldEnforceAutoplayOnFirstReady,
         hasRenderedFirstFrame = hasRenderedFirstFrame,
         userPausedManually = userPausedManually,
         startPaused = startPaused,
-        isTunneledPlayback = isTunneledPlayback,
+        isTunneledPlayback = isTunneledPlayback
     )
 
     @Test
@@ -57,7 +57,7 @@ class PlayerStartupPlaybackPolicyTest {
         val transition = PlayerStartupPlaybackPolicy.onStateReady(
             baseState(
                 shouldEnforceAutoplayOnFirstReady = false,
-                hasRenderedFirstFrame = false,
+                hasRenderedFirstFrame = false
             )
         )
 
@@ -71,7 +71,7 @@ class PlayerStartupPlaybackPolicyTest {
         val transition = PlayerStartupPlaybackPolicy.onStateReady(
             baseState(
                 shouldEnforceAutoplayOnFirstReady = false,
-                hasRenderedFirstFrame = true,
+                hasRenderedFirstFrame = true
             )
         )
 
@@ -85,7 +85,7 @@ class PlayerStartupPlaybackPolicyTest {
             baseState(
                 shouldEnforceAutoplayOnFirstReady = false,
                 hasRenderedFirstFrame = true,
-                userPausedManually = true,
+                userPausedManually = true
             )
         )
 

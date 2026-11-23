@@ -21,10 +21,7 @@ import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
-internal fun AccountSignOutConfirmationDialog(
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
+internal fun AccountSignOutConfirmationDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
     val cancelFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {

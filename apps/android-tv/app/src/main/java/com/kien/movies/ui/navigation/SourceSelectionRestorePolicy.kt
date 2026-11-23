@@ -9,10 +9,7 @@ internal fun shouldArmSourceSelectionRestore(
     return !autoPlayNavigation && previousRoute.orEmpty().startsWith("stream/")
 }
 
-internal fun sourceSelectionRestoreTarget(
-    focusedStreamIndex: Int,
-    streamCount: Int
-): Int? {
+internal fun sourceSelectionRestoreTarget(focusedStreamIndex: Int, streamCount: Int): Int? {
     if (streamCount <= 0) return null
     return focusedStreamIndex.coerceIn(0, streamCount - 1)
 }

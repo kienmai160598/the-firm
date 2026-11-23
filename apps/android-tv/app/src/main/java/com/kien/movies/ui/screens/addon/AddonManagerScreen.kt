@@ -1,18 +1,15 @@
 package com.kien.movies.ui.screens.addon
 
-import com.kien.movies.ui.theme.MoviesPrimitives
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,24 +23,25 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.QrCode2
-import androidx.compose.material.icons.filled.Reorder
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Reorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -54,42 +52,48 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.tv.material3.Border
 import androidx.tv.material3.Button
+import androidx.tv.material3.ButtonBorder
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -99,27 +103,13 @@ import androidx.tv.material3.LocalTextStyle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import com.kien.movies.R
 import com.kien.movies.domain.model.Addon
 import com.kien.movies.domain.model.ExperienceMode
-import com.kien.movies.ui.components.TvReorderList
-import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
-import com.kien.movies.ui.components.TrackingAddonConsentDialog
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.MoviesDialog
-import com.kien.movies.ui.components.tvReorderDisabledFocusBorder
-import com.kien.movies.ui.util.contentTextDirection
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import kotlinx.coroutines.launch
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.TextStyle
-import com.kien.movies.R
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withTimeoutOrNull
+import com.kien.movies.ui.components.TrackingAddonConsentDialog
+import com.kien.movies.ui.components.TvReorderList
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
@@ -129,14 +119,23 @@ import com.kien.movies.ui.components.expressive.MoviesSwitch
 import com.kien.movies.ui.components.expressive.moviesButtonColors
 import com.kien.movies.ui.components.expressive.moviesButtonScale
 import com.kien.movies.ui.components.expressive.moviesButtonShape
-import com.kien.movies.ui.screens.settings.buttonIconSize
+import com.kien.movies.ui.components.tvReorderDisabledFocusBorder
+import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
 import com.kien.movies.ui.screens.settings.TenFootTypography
+import com.kien.movies.ui.screens.settings.buttonIconSize
 import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.theme.tvControlHeight
-import com.kien.movies.ui.theme.bodyFloor
-import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.ExpressiveFocus
-import androidx.tv.material3.ButtonBorder
+import com.kien.movies.ui.theme.ExpressiveMotion
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.bodyFloor
+import com.kien.movies.ui.theme.tvControlHeight
+import com.kien.movies.ui.util.contentTextDirection
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 private sealed interface AddonExperienceModeState {
     data object Loading : AddonExperienceModeState
@@ -236,10 +235,8 @@ private fun AddonManagerScreenBody(
     val uiState by viewModel.uiState.collectAsState()
     val addonToggleFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     val addonRemoveFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
-    fun toggleFocusRequesterFor(baseUrl: String): FocusRequester =
-        addonToggleFocusRequesters.getOrPut(baseUrl) { FocusRequester() }
-    fun removeFocusRequesterFor(baseUrl: String): FocusRequester =
-        addonRemoveFocusRequesters.getOrPut(baseUrl) { FocusRequester() }
+    fun toggleFocusRequesterFor(baseUrl: String): FocusRequester = addonToggleFocusRequesters.getOrPut(baseUrl) { FocusRequester() }
+    fun removeFocusRequesterFor(baseUrl: String): FocusRequester = addonRemoveFocusRequesters.getOrPut(baseUrl) { FocusRequester() }
     val refreshAddonsFocusRequester = remember { FocusRequester() }
     val catalogOrderFocusRequester = remember { FocusRequester() }
     val collectionsFocusRequester = remember { FocusRequester() }
@@ -285,12 +282,16 @@ private fun AddonManagerScreenBody(
             addon.enabled && addon.catalogs.any { catalog -> !catalog.isSearchOnlyCatalog() }
         }
     }
-    val manageFromPhoneSubtitle = if (webConfigMode == com.kien.movies.core.server.AddonWebConfigMode.COLLECTIONS_ONLY) {
+    val manageFromPhoneSubtitle = if (webConfigMode ==
+        com.kien.movies.core.server.AddonWebConfigMode.COLLECTIONS_ONLY
+    ) {
         stringResource(R.string.addon_manage_collections_from_phone_subtitle)
     } else {
         stringResource(R.string.addon_manage_from_phone_subtitle)
     }
-    val qrInstruction = if (webConfigMode == com.kien.movies.core.server.AddonWebConfigMode.COLLECTIONS_ONLY) {
+    val qrInstruction = if (webConfigMode ==
+        com.kien.movies.core.server.AddonWebConfigMode.COLLECTIONS_ONLY
+    ) {
         stringResource(R.string.addon_qr_collections_scan_instruction)
     } else {
         stringResource(R.string.addon_qr_scan_instruction)
@@ -400,6 +401,7 @@ private fun AddonManagerScreenBody(
                             ?: refreshAddonsFocusRequester
                     }
                 }
+
                 is AddonDeleteFocusRestore.AfterDelete -> {
                     if (addons.any { it.baseUrl == restore.deletedUrl }) {
                         removeFocusRequesterFor(restore.deletedUrl)
@@ -494,6 +496,7 @@ private fun AddonManagerScreenBody(
             restore.addonUrl
                 .takeIf { url -> uiState.installedAddons.any { it.baseUrl == url } }
                 ?.let(::removeFocusRequesterFor)
+
         is AddonDeleteFocusRestore.AfterDelete ->
             resolveSurvivingPostDeleteAddonUrl(
                 addons = uiState.installedAddons,
@@ -502,11 +505,15 @@ private fun AddonManagerScreenBody(
                 deletedIndex = restore.deletedIndex
             )?.let(::toggleFocusRequesterFor)
                 ?: refreshAddonsFocusRequester
+
         null -> null
     }
 
     val addonOrderScrollState = rememberScrollState()
-    val addonOrderMovingIndex = uiState.installedAddons.indexOfFirst { it.baseUrl == uiState.movingAddonKey }
+    val addonOrderMovingIndex = uiState.installedAddons.indexOfFirst {
+        it.baseUrl ==
+            uiState.movingAddonKey
+    }
 
     Box(
         modifier = Modifier
@@ -541,175 +548,201 @@ private fun AddonManagerScreenBody(
             contentPadding = PaddingValues(horizontal = 36.dp, vertical = 28.dp),
             header = {
                 Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            Text(
-                text = stringResource(R.string.addon_title),
-                style = MaterialTheme.typography.headlineMedium,
-                color = if (showBuiltInHeader) MoviesTheme.colors.TextPrimary else Color.Transparent
-            )
+                    Text(
+                        text = stringResource(R.string.addon_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = if (showBuiltInHeader) MoviesTheme.colors.TextPrimary else Color.Transparent
+                    )
 
-            if (viewModel.isReadOnly) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MoviesTheme.colors.FocusBackground
-                        ),
-                        shape = M3eShapes.panel
-                    ) {
-                        Text(
-                            text = stringResource(R.string.addon_readonly_notice),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MoviesTheme.colors.TextSecondary,
-                            modifier = androidx.compose.ui.Modifier.padding(MoviesTheme.spacing.lg)
-                        )
-                    }
-            }
-
-            if (!viewModel.isReadOnly) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .animateContentSize(),
-                        colors = CardDefaults.cardColors(containerColor = MoviesTheme.colors.BackgroundCard),
-                        shape = M3eShapes.panel
-                    ) {
-                        Column(modifier = Modifier.padding(20.dp)) {
+                    if (viewModel.isReadOnly) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MoviesTheme.colors.FocusBackground
+                            ),
+                            shape = M3eShapes.panel
+                        ) {
                             Text(
-                                text = stringResource(R.string.addon_install_title),
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                                color = MoviesTheme.colors.TextPrimary,
+                                text = stringResource(R.string.addon_readonly_notice),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MoviesTheme.colors.TextSecondary,
+                                modifier = androidx.compose.ui.Modifier.padding(
+                                    MoviesTheme.spacing.lg
+                                )
                             )
-                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Surface always stays in the tree for stable D-pad focus
-                                MoviesSurface(
-                                    onClick = { isEditing = true },
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .focusRequester(surfaceFocusRequester)
+                        }
+                    }
+
+                    if (!viewModel.isReadOnly) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .animateContentSize(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MoviesTheme.colors.BackgroundCard
+                            ),
+                            shape = M3eShapes.panel
+                        ) {
+                            Column(modifier = Modifier.padding(20.dp)) {
+                                Text(
+                                    text = stringResource(R.string.addon_install_title),
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        textDirection = TextDirection.Content
+                                    ),
+                                    color = MoviesTheme.colors.TextPrimary
+                                )
+                                Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(
+                                        MoviesTheme.spacing.md
+                                    ),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Box(modifier = Modifier.padding(MoviesTheme.spacing.md)) {
-                                        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                                            BasicTextField(
-                                                value = uiState.installUrl,
-                                                onValueChange = viewModel::onInstallUrlChange,
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .focusRequester(textFieldFocusRequester)
-                                                    .onFocusChanged {
-                                                        if (!it.isFocused && isEditing) {
+                                    // Surface always stays in the tree for stable D-pad focus
+                                    MoviesSurface(
+                                        onClick = { isEditing = true },
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .focusRequester(surfaceFocusRequester)
+                                    ) {
+                                        Box(modifier = Modifier.padding(MoviesTheme.spacing.md)) {
+                                            CompositionLocalProvider(
+                                                LocalLayoutDirection provides LayoutDirection.Ltr
+                                            ) {
+                                                BasicTextField(
+                                                    value = uiState.installUrl,
+                                                    onValueChange = viewModel::onInstallUrlChange,
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .focusRequester(textFieldFocusRequester)
+                                                        .onFocusChanged {
+                                                            if (!it.isFocused && isEditing) {
+                                                                isEditing = false
+                                                                keyboardController?.hide()
+                                                            }
+                                                        },
+                                                    singleLine = true,
+                                                    keyboardOptions = KeyboardOptions(
+                                                        keyboardType = KeyboardType.Uri,
+                                                        imeAction = ImeAction.Done
+                                                    ),
+                                                    keyboardActions = KeyboardActions(
+                                                        onDone = {
+                                                            viewModel.installAddon()
                                                             isEditing = false
                                                             keyboardController?.hide()
+                                                            installButtonFocusRequester.requestFocus()
                                                         }
-                                                    },
-                                                singleLine = true,
-                                                keyboardOptions = KeyboardOptions(
-                                                    keyboardType = KeyboardType.Uri,
-                                                    imeAction = ImeAction.Done
-                                                ),
-                                                keyboardActions = KeyboardActions(
-                                                    onDone = {
-                                                        viewModel.installAddon()
-                                                        isEditing = false
-                                                        keyboardController?.hide()
-                                                        installButtonFocusRequester.requestFocus()
+                                                    ),
+                                                    textStyle = MaterialTheme.typography.bodyMedium
+                                                        .bodyFloor()
+                                                        .copy(
+                                                            color = LocalContentColor.current,
+                                                            textDirection = TextDirection.Content
+                                                        ),
+                                                    cursorBrush = SolidColor(
+                                                        if (isEditing) MoviesTheme.colors.Primary else Color.Transparent
+                                                    ),
+                                                    decorationBox = { innerTextField ->
+                                                        if (uiState.installUrl.isEmpty()) {
+                                                            Text(
+                                                                text = stringResource(
+                                                                    R.string.addon_install_placeholder
+                                                                ),
+                                                                style = MaterialTheme.typography
+                                                                    .bodyMedium.bodyFloor(),
+                                                                color = LocalContentColor.current.copy(
+                                                                    alpha = 0.64f
+                                                                )
+                                                            )
+                                                        }
+                                                        innerTextField()
                                                     }
-                                                ),
-                                                textStyle = MaterialTheme.typography.bodyMedium
-                                                    .bodyFloor()
-                                                    .copy(
-                                                    color = LocalContentColor.current,
-                                                textDirection = TextDirection.Content
-                                                ),
-                                                cursorBrush = SolidColor(if (isEditing) MoviesTheme.colors.Primary else Color.Transparent),
-                                                decorationBox = { innerTextField ->
-                                                    if (uiState.installUrl.isEmpty()) {
-                                                        Text(
-                                                            text = stringResource(R.string.addon_install_placeholder),
-                                                            style = MaterialTheme.typography
-                                                                .bodyMedium.bodyFloor(),
-                                                            color = LocalContentColor.current.copy(alpha = 0.64f)
-                                                        )
-                                                    }
-                                                    innerTextField()
-                                                }
-                                            )
+                                                )
+                                            }
                                         }
+                                    }
+
+                                    MoviesButton(
+                                        onClick = {
+                                            viewModel.installAddon()
+                                            isEditing = false
+                                            keyboardController?.hide()
+                                            installButtonFocusRequester.requestFocus()
+                                        },
+                                        enabled = !uiState.isInstalling,
+                                        modifier = Modifier
+                                            .focusRequester(installButtonFocusRequester)
+                                            .semantics { role = Role.Button },
+                                        style = MoviesButtonStyle.Primary
+                                    ) {
+                                        Text(
+                                            text = if (uiState.isInstalling) {
+                                                stringResource(
+                                                    R.string.addon_installing
+                                                )
+                                            } else {
+                                                stringResource(R.string.addon_install_btn)
+                                            }
+                                        )
                                     }
                                 }
 
-                                MoviesButton(
-                                    onClick = {
-                                        viewModel.installAddon()
-                                        isEditing = false
-                                        keyboardController?.hide()
-                                        installButtonFocusRequester.requestFocus()
-                                    },
-                                    enabled = !uiState.isInstalling,
-                                    modifier = Modifier
-                                        .focusRequester(installButtonFocusRequester)
-                                        .semantics { role = Role.Button },
-                                    style = MoviesButtonStyle.Primary
-                                ) {
-                                    Text(text = if (uiState.isInstalling) stringResource(R.string.addon_installing) else stringResource(R.string.addon_install_btn))
+                                AnimatedVisibility(visible = uiState.error != null) {
+                                    Text(
+                                        text = uiState.error.orEmpty(),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MoviesTheme.colors.Error,
+                                        modifier = Modifier.padding(top = 10.dp)
+                                    )
                                 }
                             }
-
-                            AnimatedVisibility(visible = uiState.error != null) {
-                                Text(
-                                    text = uiState.error.orEmpty(),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MoviesTheme.colors.Error,
-                                    modifier = Modifier.padding(top = 10.dp)
-                                )
-                            }
                         }
                     }
-
-            }
 
                     ManageFromPhoneCard(
-                    subtitle = manageFromPhoneSubtitle,
-                    onClick = { viewModel.startQrMode(webConfigMode) },
-                    focusRequester = manageFromPhoneFocusRequester,
-                    onFocusChanged = { isFocused ->
-                        if (
-                            !isFocused &&
-                            !uiState.isQrModeActive &&
-                            uiState.pendingChange == null
-                        ) {
-                            restoreManageFromPhoneFocus = false
+                        subtitle = manageFromPhoneSubtitle,
+                        onClick = { viewModel.startQrMode(webConfigMode) },
+                        focusRequester = manageFromPhoneFocusRequester,
+                        onFocusChanged = { isFocused ->
+                            if (
+                                !isFocused &&
+                                !uiState.isQrModeActive &&
+                                uiState.pendingChange == null
+                            ) {
+                                restoreManageFromPhoneFocus = false
+                            }
                         }
+                    )
+
+                    if (!viewModel.isReadOnly && !isEssential && hasHomeVisibleCatalogs) {
+                        CatalogOrderEntryCard(
+                            onClick = {
+                                restoreManageFromPhoneFocus = false
+                                pendingFocusRestore = AddonManagerFocusTarget.CatalogOrder
+                                onNavigateToCatalogOrder()
+                            },
+                            focusRequester = catalogOrderFocusRequester
+                        )
                     }
-                )
 
-            if (!viewModel.isReadOnly && !isEssential && hasHomeVisibleCatalogs) {
-                    CatalogOrderEntryCard(
-                        onClick = {
-                            restoreManageFromPhoneFocus = false
-                            pendingFocusRestore = AddonManagerFocusTarget.CatalogOrder
-                            onNavigateToCatalogOrder()
-                        },
-                        focusRequester = catalogOrderFocusRequester
-                    )
-            }
-
-            if (!isEssential) {
-                    CollectionsEntryCard(
-                        onClick = {
-                            restoreManageFromPhoneFocus = false
-                            pendingFocusRestore = AddonManagerFocusTarget.Collections
-                            onNavigateToCollections()
-                        },
-                        focusRequester = collectionsFocusRequester
-                    )
-            }
+                    if (!isEssential) {
+                        CollectionsEntryCard(
+                            onClick = {
+                                restoreManageFromPhoneFocus = false
+                                pendingFocusRestore = AddonManagerFocusTarget.Collections
+                                onNavigateToCollections()
+                            },
+                            focusRequester = collectionsFocusRequester
+                        )
+                    }
 
                     val firstAddonToggleRequester = if (!viewModel.isReadOnly) {
-                        uiState.installedAddons.firstOrNull()?.baseUrl?.let(::toggleFocusRequesterFor)
+                        uiState.installedAddons.firstOrNull()?.baseUrl?.let(
+                            ::toggleFocusRequesterFor
+                        )
                     } else {
                         null
                     }
@@ -738,8 +771,10 @@ private fun AddonManagerScreenBody(
                     ) {
                         Text(
                             text = stringResource(R.string.addon_installed_section),
-                            style = MaterialTheme.typography.titleLarge.copy(textDirection = TextDirection.Content),
-                            color = MoviesTheme.colors.TextPrimary,
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                textDirection = TextDirection.Content
+                            ),
+                            color = MoviesTheme.colors.TextPrimary
                         )
                         Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
                         if (uiState.isLoading && uiState.installedAddons.isEmpty()) {
@@ -756,7 +791,7 @@ private fun AddonManagerScreenBody(
                     }
                     Spacer(modifier = Modifier.height(20.dp))
                 }
-            },
+            }
         ) { addon, isMoving, onStartMove, onConfirmMove ->
             AddonCard(
                 addon = addon,
@@ -772,8 +807,20 @@ private fun AddonManagerScreenBody(
                 onEnabledChange = { enabled -> viewModel.setAddonEnabled(addon.baseUrl, enabled) },
                 isReadOnly = viewModel.isReadOnly,
                 showReorder = !isEssential,
-                toggleFocusRequester = if (viewModel.isReadOnly) null else toggleFocusRequesterFor(addon.baseUrl),
-                removeFocusRequester = if (viewModel.isReadOnly) null else removeFocusRequesterFor(addon.baseUrl)
+                toggleFocusRequester = if (viewModel.isReadOnly) {
+                    null
+                } else {
+                    toggleFocusRequesterFor(
+                        addon.baseUrl
+                    )
+                },
+                removeFocusRequester = if (viewModel.isReadOnly) {
+                    null
+                } else {
+                    removeFocusRequesterFor(
+                        addon.baseUrl
+                    )
+                }
             )
         }
 
@@ -826,7 +873,10 @@ private fun AddonManagerScreenBody(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.End)
+                    horizontalArrangement = Arrangement.spacedBy(
+                        MoviesTheme.spacing.md,
+                        Alignment.End
+                    )
                 ) {
                     MoviesButton(
                         onClick = dismissDeleteDialog,
@@ -840,7 +890,8 @@ private fun AddonManagerScreenBody(
                         onClick = {
                             val currentAddons = uiState.installedAddons
                             val deletedIndex = currentAddons.indexOfFirst { it.baseUrl == addonUrl }
-                            val targetAddonUrl = resolvePostDeleteTargetAddonUrl(currentAddons, addonUrl)
+                            val targetAddonUrl =
+                                resolvePostDeleteTargetAddonUrl(currentAddons, addonUrl)
                             pendingDeleteFocusRestore = AddonDeleteFocusRestore.AfterDelete(
                                 deletedUrl = addonUrl,
                                 deletedIndex = deletedIndex,
@@ -867,10 +918,7 @@ private fun AddonManagerScreenBody(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-internal fun AddonMessageOverlay(
-    message: String?,
-    isError: Boolean
-) {
+internal fun AddonMessageOverlay(message: String?, isError: Boolean) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -895,7 +943,10 @@ internal fun AddonMessageOverlay(
                 shape = ClickableSurfaceDefaults.shape(M3eShapes.panel)
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = MoviesTheme.spacing.md),
+                    modifier = Modifier.padding(
+                        horizontal = 20.dp,
+                        vertical = MoviesTheme.spacing.md
+                    ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
@@ -954,7 +1005,10 @@ private fun ManageFromPhoneCard(
                 Column {
                     Text(
                         text = stringResource(R.string.addon_manage_from_phone_title),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            textDirection = TextDirection.Content
+                        )
                     )
                     Text(
                         text = subtitle,
@@ -975,10 +1029,7 @@ private fun ManageFromPhoneCard(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun CatalogOrderEntryCard(
-    onClick: () -> Unit,
-    focusRequester: FocusRequester
-) {
+private fun CatalogOrderEntryCard(onClick: () -> Unit, focusRequester: FocusRequester) {
     var isFocused by remember { mutableStateOf(false) }
 
     MoviesSurface(
@@ -1007,7 +1058,10 @@ private fun CatalogOrderEntryCard(
                 Column {
                     Text(
                         text = stringResource(R.string.addon_reorder_title),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            textDirection = TextDirection.Content
+                        )
                     )
                     Text(
                         text = stringResource(R.string.addon_reorder_subtitle),
@@ -1028,10 +1082,7 @@ private fun CatalogOrderEntryCard(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun CollectionsEntryCard(
-    onClick: () -> Unit,
-    focusRequester: FocusRequester
-) {
+private fun CollectionsEntryCard(onClick: () -> Unit, focusRequester: FocusRequester) {
     var isFocused by remember { mutableStateOf(false) }
 
     MoviesSurface(
@@ -1060,7 +1111,10 @@ private fun CollectionsEntryCard(
                 Column {
                     Text(
                         text = stringResource(R.string.collections_card_title),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            textDirection = TextDirection.Content
+                        )
                     )
                     Text(
                         text = stringResource(R.string.collections_card_subtitle),
@@ -1113,7 +1167,10 @@ private fun RefreshAddonsEntryCard(
                 Column {
                     Text(
                         text = stringResource(R.string.addon_refresh_action),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            textDirection = TextDirection.Content
+                        )
                     )
                     Text(
                         text = subtitle,
@@ -1201,7 +1258,10 @@ internal fun QrCodeOverlay(
                 shape = M3eShapes.capsule
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
+                    modifier = Modifier.padding(
+                        horizontal = MoviesTheme.spacing.xl,
+                        vertical = MoviesTheme.spacing.md
+                    ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -1212,7 +1272,7 @@ internal fun QrCodeOverlay(
                     Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                     Text(
                         text = stringResource(R.string.addon_qr_close),
-                        style = LocalTextStyle.current.copy(textDirection = TextDirection.Content),
+                        style = LocalTextStyle.current.copy(textDirection = TextDirection.Content)
                     )
                 }
             }
@@ -1260,8 +1320,10 @@ internal fun ConfirmAddonChangesDialog(
             ) {
                 Text(
                     text = stringResource(R.string.addon_confirm_title),
-                    style = MaterialTheme.typography.headlineSmall.copy(textDirection = TextDirection.Content),
-                    color = MoviesTheme.colors.TextPrimary,
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        textDirection = TextDirection.Content
+                    ),
+                    color = MoviesTheme.colors.TextPrimary
                 )
 
                 Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
@@ -1306,7 +1368,10 @@ internal fun ConfirmAddonChangesDialog(
                                     color = MoviesTheme.colors.Success,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
+                                        .padding(
+                                            start = MoviesTheme.spacing.sm,
+                                            bottom = MoviesTheme.spacing.xxs
+                                        )
                                 )
                             }
                             Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
@@ -1329,7 +1394,10 @@ internal fun ConfirmAddonChangesDialog(
                                     color = MoviesTheme.colors.Error,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
+                                        .padding(
+                                            start = MoviesTheme.spacing.sm,
+                                            bottom = MoviesTheme.spacing.xxs
+                                        )
                                 )
                             }
                             Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
@@ -1362,7 +1430,10 @@ internal fun ConfirmAddonChangesDialog(
                                     color = MoviesTheme.colors.Error,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
+                                        .padding(
+                                            start = MoviesTheme.spacing.sm,
+                                            bottom = MoviesTheme.spacing.xxs
+                                        )
                                 )
                             }
                             Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
@@ -1384,7 +1455,10 @@ internal fun ConfirmAddonChangesDialog(
                                     color = MoviesTheme.colors.Success,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
+                                        .padding(
+                                            start = MoviesTheme.spacing.sm,
+                                            bottom = MoviesTheme.spacing.xxs
+                                        )
                                 )
                             }
                             Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
@@ -1400,12 +1474,18 @@ internal fun ConfirmAddonChangesDialog(
                                     .padding(bottom = MoviesTheme.spacing.xs)
                             )
                             Text(
-                                text = stringResource(R.string.addon_pending_collections_replace, pendingChange.proposedCollectionCount),
+                                text = stringResource(
+                                    R.string.addon_pending_collections_replace,
+                                    pendingChange.proposedCollectionCount
+                                ),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MoviesTheme.colors.TextSecondary,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
+                                    .padding(
+                                        start = MoviesTheme.spacing.sm,
+                                        bottom = MoviesTheme.spacing.xxs
+                                    )
                             )
                             Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                         }
@@ -1428,13 +1508,19 @@ internal fun ConfirmAddonChangesDialog(
                 }
 
                 Text(
-                    text = stringResource(R.string.addon_confirm_total_addons, pendingChange.proposedUrls.size),
+                    text = stringResource(
+                        R.string.addon_confirm_total_addons,
+                        pendingChange.proposedUrls.size
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MoviesTheme.colors.TextTertiary,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Text(
-                    text = stringResource(R.string.addon_confirm_total_catalogs, pendingChange.proposedCatalogOrderKeys.size),
+                    text = stringResource(
+                        R.string.addon_confirm_total_catalogs,
+                        pendingChange.proposedCatalogOrderKeys.size
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MoviesTheme.colors.TextTertiary,
                     modifier = Modifier.fillMaxWidth()
@@ -1454,7 +1540,10 @@ internal fun ConfirmAddonChangesDialog(
                             shape = M3eShapes.capsule
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
+                                modifier = Modifier.padding(
+                                    horizontal = MoviesTheme.spacing.xl,
+                                    vertical = MoviesTheme.spacing.md
+                                ),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
@@ -1465,7 +1554,9 @@ internal fun ConfirmAddonChangesDialog(
                                 Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                                 Text(
                                     text = stringResource(R.string.addon_confirm_reject),
-                                    style = LocalTextStyle.current.copy(textDirection = TextDirection.Content),
+                                    style = LocalTextStyle.current.copy(
+                                        textDirection = TextDirection.Content
+                                    )
                                 )
                             }
                         }
@@ -1480,7 +1571,10 @@ internal fun ConfirmAddonChangesDialog(
                         ) {
                             Text(
                                 text = stringResource(R.string.addon_confirm_confirm),
-                                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md)
+                                modifier = Modifier.padding(
+                                    horizontal = MoviesTheme.spacing.xl,
+                                    vertical = MoviesTheme.spacing.md
+                                )
                             )
                         }
                     }
@@ -1529,7 +1623,7 @@ private fun AddonCard(
                 MoviesTheme.colors.BackgroundCard
             },
             animationSpec = ExpressiveMotion.defaultEffects(),
-            label = "addonCardColor",
+            label = "addonCardColor"
         )
         Card(
             modifier = modifier
@@ -1584,8 +1678,11 @@ private fun AddonCardContent(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = addon.displayName,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                    color = MoviesTheme.colors.TextPrimary,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        textDirection = TextDirection.Content
+                    ),
+                    color = MoviesTheme.colors.TextPrimary
                 )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -1625,7 +1722,8 @@ private fun AddonCardContent(
                             .semantics {
                                 role = Role.Switch
                                 contentDescription = toggleLabel
-                                toggleableState = if (addon.enabled) ToggleableState.On else ToggleableState.Off
+                                toggleableState =
+                                    if (addon.enabled) ToggleableState.On else ToggleableState.Off
                             }
                             .onFocusChanged { isToggleFocused = it.isFocused },
                         shape = M3eShapes.capsule,
@@ -1694,7 +1792,11 @@ private fun AddonCardContent(
 
         Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
         Text(
-            text = stringResource(R.string.addon_catalogs_types, addon.catalogs.size, addon.rawTypes.joinToString()),
+            text = stringResource(
+                R.string.addon_catalogs_types,
+                addon.catalogs.size,
+                addon.rawTypes.joinToString()
+            ),
             style = MaterialTheme.typography.bodySmall,
             color = MoviesTheme.colors.TextTertiary
         )

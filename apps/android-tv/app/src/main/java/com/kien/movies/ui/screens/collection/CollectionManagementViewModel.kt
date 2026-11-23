@@ -10,6 +10,7 @@ import com.kien.movies.data.local.ValidationResult
 import com.kien.movies.domain.model.Collection
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -21,7 +22,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 enum class ImportMode { PASTE, FILE, URL }
 
@@ -205,9 +205,14 @@ class CollectionManagementViewModel @Inject constructor(
     fun showImportDialog() {
         _uiState.update {
             it.copy(
-                showImportDialog = true, importText = "", importError = null,
-                importMode = ImportMode.FILE, importUrl = "",
-                validationResult = null, validatedJson = null, isLoadingImport = false
+                showImportDialog = true,
+                importText = "",
+                importError = null,
+                importMode = ImportMode.FILE,
+                importUrl = "",
+                validationResult = null,
+                validatedJson = null,
+                isLoadingImport = false
             )
         }
     }
@@ -215,9 +220,14 @@ class CollectionManagementViewModel @Inject constructor(
     fun hideImportDialog() {
         _uiState.update {
             it.copy(
-                showImportDialog = false, importText = "", importError = null,
-                importMode = ImportMode.FILE, importUrl = "",
-                validationResult = null, validatedJson = null, isLoadingImport = false
+                showImportDialog = false,
+                importText = "",
+                importError = null,
+                importMode = ImportMode.FILE,
+                importUrl = "",
+                validationResult = null,
+                validatedJson = null,
+                isLoadingImport = false
             )
         }
     }
@@ -229,12 +239,20 @@ class CollectionManagementViewModel @Inject constructor(
     fun importCollections() {
         val json = _uiState.value.importText.trim()
         if (json.isBlank()) {
-            _uiState.update { it.copy(importError = context.getString(R.string.collections_import_paste_json_required)) }
+            _uiState.update {
+                it.copy(
+                    importError = context.getString(R.string.collections_import_paste_json_required)
+                )
+            }
             return
         }
         val imported = collectionsDataStore.importFromJson(json)
         if (imported.isEmpty()) {
-            _uiState.update { it.copy(importError = context.getString(R.string.collections_import_invalid_or_empty)) }
+            _uiState.update {
+                it.copy(
+                    importError = context.getString(R.string.collections_import_invalid_or_empty)
+                )
+            }
             return
         }
         viewModelScope.launch {
@@ -250,19 +268,31 @@ class CollectionManagementViewModel @Inject constructor(
             }
             collectionsDataStore.setCollections(current)
             collectionSyncService.triggerPush()
-            _uiState.update { it.copy(showImportDialog = false, importText = "", importError = null) }
+            _uiState.update {
+                it.copy(showImportDialog = false, importText = "", importError = null)
+            }
         }
     }
 
     fun setImportMode(mode: ImportMode) {
         _uiState.update {
-            it.copy(importMode = mode, importError = null, validationResult = null, validatedJson = null)
+            it.copy(
+                importMode = mode,
+                importError = null,
+                validationResult = null,
+                validatedJson = null
+            )
         }
     }
 
     fun updateImportUrl(url: String) {
         _uiState.update {
-            it.copy(importUrl = url, importError = null, validationResult = null, validatedJson = null)
+            it.copy(
+                importUrl = url,
+                importError = null,
+                validationResult = null,
+                validatedJson = null
+            )
         }
     }
 
@@ -289,7 +319,9 @@ class CollectionManagementViewModel @Inject constructor(
     fun fetchUrl() {
         val url = _uiState.value.importUrl.trim()
         if (url.isBlank()) {
-            _uiState.update { it.copy(importError = context.getString(R.string.web_import_enter_url)) }
+            _uiState.update {
+                it.copy(importError = context.getString(R.string.web_import_enter_url))
+            }
             return
         }
         _uiState.update { it.copy(isLoadingImport = true, importError = null) }
@@ -303,7 +335,8 @@ class CollectionManagementViewModel @Inject constructor(
                 // Read the body on IO too: execute() only returns the headers.
                 val (code, body) = withContext(Dispatchers.IO) {
                     client.newCall(request).execute().use { response ->
-                        response.code to if (response.isSuccessful) response.body?.string().orEmpty() else null
+                        response.code to
+                            if (response.isSuccessful) response.body?.string().orEmpty() else null
                     }
                 }
                 if (body == null) {
@@ -337,12 +370,18 @@ class CollectionManagementViewModel @Inject constructor(
     fun confirmImport() {
         val json = _uiState.value.validatedJson ?: _uiState.value.importText.trim()
         if (json.isBlank()) {
-            _uiState.update { it.copy(importError = context.getString(R.string.collections_import_no_data)) }
+            _uiState.update {
+                it.copy(importError = context.getString(R.string.collections_import_no_data))
+            }
             return
         }
         val imported = collectionsDataStore.importFromJson(json)
         if (imported.isEmpty()) {
-            _uiState.update { it.copy(importError = context.getString(R.string.collections_import_invalid_or_empty)) }
+            _uiState.update {
+                it.copy(
+                    importError = context.getString(R.string.collections_import_invalid_or_empty)
+                )
+            }
             return
         }
         viewModelScope.launch {
@@ -360,8 +399,12 @@ class CollectionManagementViewModel @Inject constructor(
             collectionSyncService.triggerPush()
             _uiState.update {
                 it.copy(
-                    showImportDialog = false, importText = "", importError = null,
-                    validationResult = null, validatedJson = null, importUrl = "",
+                    showImportDialog = false,
+                    importText = "",
+                    importError = null,
+                    validationResult = null,
+                    validatedJson = null,
+                    importUrl = "",
                     importMode = ImportMode.FILE
                 )
             }
@@ -383,7 +426,9 @@ class CollectionManagementViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoadingImport = false,
-                            importError = context.getString(R.string.collections_import_file_not_found_downloads)
+                            importError = context.getString(
+                                R.string.collections_import_file_not_found_downloads
+                            )
                         )
                     }
                     return@launch
@@ -417,10 +462,14 @@ class CollectionManagementViewModel @Inject constructor(
         val selectionArgs = arrayOf("movies-collections.json")
         return resolver.query(uri, projection, selection, selectionArgs, null)?.use { cursor ->
             if (cursor.moveToFirst()) {
-                val id = cursor.getLong(cursor.getColumnIndexOrThrow(android.provider.MediaStore.Downloads._ID))
+                val id = cursor.getLong(
+                    cursor.getColumnIndexOrThrow(android.provider.MediaStore.Downloads._ID)
+                )
                 val fileUri = android.content.ContentUris.withAppendedId(uri, id)
                 resolver.openInputStream(fileUri)?.bufferedReader()?.readText()
-            } else null
+            } else {
+                null
+            }
         }
     }
 

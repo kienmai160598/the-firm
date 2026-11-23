@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -72,6 +70,7 @@ import com.kien.movies.ui.components.cardDepthVisual
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.components.expressive.MoviesCardFocus
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
@@ -86,7 +85,11 @@ internal fun LayoutContinueWatchingSection(
         title = stringResource(R.string.layout_cw_enabled),
         subtitle = stringResource(R.string.layout_cw_enabled_sub),
         checked = uiState.continueWatchingEnabled,
-        onToggle = { onEvent(LayoutSettingsEvent.SetContinueWatchingEnabled(!uiState.continueWatchingEnabled)) }
+        onToggle = {
+            onEvent(
+                LayoutSettingsEvent.SetContinueWatchingEnabled(!uiState.continueWatchingEnabled)
+            )
+        }
     )
 
     if (uiState.continueWatchingEnabled) {
@@ -108,18 +111,33 @@ internal fun LayoutContinueWatchingSection(
                     onClick = { onEvent(LayoutSettingsEvent.SetContinueWatchingCardStyle(style)) },
                     modifier = Modifier
                         .weight(1f)
-                        .then(if (index == 0) Modifier.focusRequester(firstStyleFocusRequester) else Modifier)
+                        .then(
+                            if (index ==
+                                0
+                            ) {
+                                Modifier.focusRequester(firstStyleFocusRequester)
+                            } else {
+                                Modifier
+                            }
+                        )
                 )
             }
         }
 
-        val episodeThumbnailsApply = uiState.continueWatchingCardStyle != ContinueWatchingCardStyle.POSTER
+        val episodeThumbnailsApply =
+            uiState.continueWatchingCardStyle != ContinueWatchingCardStyle.POSTER
         if (episodeThumbnailsApply) {
             SettingsToggleRow(
                 title = stringResource(R.string.layout_use_episode_thumbnails_cw),
                 subtitle = stringResource(R.string.layout_use_episode_thumbnails_cw_sub),
                 checked = uiState.useEpisodeThumbnailsInCw,
-                onToggle = { onEvent(LayoutSettingsEvent.SetUseEpisodeThumbnailsInCw(!uiState.useEpisodeThumbnailsInCw)) }
+                onToggle = {
+                    onEvent(
+                        LayoutSettingsEvent.SetUseEpisodeThumbnailsInCw(
+                            !uiState.useEpisodeThumbnailsInCw
+                        )
+                    )
+                }
             )
         }
         if (episodeThumbnailsApply && uiState.useEpisodeThumbnailsInCw) {
@@ -127,28 +145,50 @@ internal fun LayoutContinueWatchingSection(
                 title = stringResource(R.string.layout_blur_cw_next_up),
                 subtitle = stringResource(R.string.layout_blur_cw_next_up_sub),
                 checked = uiState.blurContinueWatchingNextUp,
-                onToggle = { onEvent(LayoutSettingsEvent.SetBlurContinueWatchingNextUp(!uiState.blurContinueWatchingNextUp)) }
+                onToggle = {
+                    onEvent(
+                        LayoutSettingsEvent.SetBlurContinueWatchingNextUp(
+                            !uiState.blurContinueWatchingNextUp
+                        )
+                    )
+                }
             )
         }
         SettingsToggleRow(
             title = stringResource(R.string.layout_next_up_furthest_episode),
             subtitle = stringResource(R.string.layout_next_up_furthest_episode_sub),
             checked = uiState.nextUpFromFurthestEpisode,
-            onToggle = { onEvent(LayoutSettingsEvent.SetNextUpFromFurthestEpisode(!uiState.nextUpFromFurthestEpisode)) }
+            onToggle = {
+                onEvent(
+                    LayoutSettingsEvent.SetNextUpFromFurthestEpisode(
+                        !uiState.nextUpFromFurthestEpisode
+                    )
+                )
+            }
         )
         SettingsToggleRow(
             title = stringResource(R.string.layout_show_unaired_next_up),
             subtitle = stringResource(R.string.layout_show_unaired_next_up_sub),
             checked = uiState.showUnairedNextUp,
-            onToggle = { onEvent(LayoutSettingsEvent.SetShowUnairedNextUp(!uiState.showUnairedNextUp)) }
+            onToggle = {
+                onEvent(LayoutSettingsEvent.SetShowUnairedNextUp(!uiState.showUnairedNextUp))
+            }
         )
         SettingsActionRow(
             title = stringResource(R.string.layout_cw_click_action),
             subtitle = stringResource(R.string.layout_cw_click_action_sub),
             value = when (uiState.continueWatchingClickAction) {
-                ContinueWatchingClickAction.STREAM -> stringResource(R.string.layout_cw_click_stream)
-                ContinueWatchingClickAction.DETAILS -> stringResource(R.string.layout_cw_click_details)
-                ContinueWatchingClickAction.DETAILS_FOR_UPCOMING -> stringResource(R.string.layout_cw_click_details_upcoming)
+                ContinueWatchingClickAction.STREAM -> stringResource(
+                    R.string.layout_cw_click_stream
+                )
+
+                ContinueWatchingClickAction.DETAILS -> stringResource(
+                    R.string.layout_cw_click_details
+                )
+
+                ContinueWatchingClickAction.DETAILS_FOR_UPCOMING -> stringResource(
+                    R.string.layout_cw_click_details_upcoming
+                )
             },
             onClick = { showClickActionDialog = true }
         )
@@ -157,8 +197,14 @@ internal fun LayoutContinueWatchingSection(
             subtitle = stringResource(R.string.layout_cw_sort_mode_sub),
             value = when (uiState.continueWatchingSortMode) {
                 ContinueWatchingSortMode.DEFAULT -> stringResource(R.string.layout_cw_sort_default)
-                ContinueWatchingSortMode.STREAMING_STYLE -> stringResource(R.string.layout_cw_sort_streaming)
-                ContinueWatchingSortMode.SPLIT_UPCOMING -> stringResource(R.string.layout_cw_sort_split_upcoming)
+
+                ContinueWatchingSortMode.STREAMING_STYLE -> stringResource(
+                    R.string.layout_cw_sort_streaming
+                )
+
+                ContinueWatchingSortMode.SPLIT_UPCOMING -> stringResource(
+                    R.string.layout_cw_sort_split_upcoming
+                )
             },
             onClick = { showSortModeDialog = true }
         )
@@ -189,7 +235,8 @@ internal fun LayoutContinueWatchingSection(
 
 internal fun LayoutSettingsUiState.focusedPosterHasOptions(): Boolean {
     val modernLandscape = selectedLayout == HomeLayout.MODERN && modernLandscapePostersEnabled
-    return selectedLayout != HomeLayout.GRID && (!modernLandscape || AppFeaturePolicy.inAppTrailerPlaybackEnabled)
+    return selectedLayout != HomeLayout.GRID &&
+        (!modernLandscape || AppFeaturePolicy.inAppTrailerPlaybackEnabled)
 }
 
 @Composable
@@ -209,7 +256,11 @@ internal fun LayoutFocusedPosterSection(
             subtitle = stringResource(R.string.layout_expand_poster_sub),
             checked = uiState.focusedPosterBackdropExpandEnabled,
             onToggle = {
-                onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropExpandEnabled(!uiState.focusedPosterBackdropExpandEnabled))
+                onEvent(
+                    LayoutSettingsEvent.SetFocusedPosterBackdropExpandEnabled(
+                        !uiState.focusedPosterBackdropExpandEnabled
+                    )
+                )
             }
         )
         if (uiState.focusedPosterBackdropExpandEnabled) {
@@ -238,7 +289,11 @@ internal fun LayoutFocusedPosterSection(
             ),
             checked = uiState.focusedPosterBackdropTrailerEnabled,
             onToggle = {
-                onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropTrailerEnabled(!uiState.focusedPosterBackdropTrailerEnabled))
+                onEvent(
+                    LayoutSettingsEvent.SetFocusedPosterBackdropTrailerEnabled(
+                        !uiState.focusedPosterBackdropTrailerEnabled
+                    )
+                )
             }
         )
         if (uiState.focusedPosterBackdropTrailerEnabled) {
@@ -249,7 +304,11 @@ internal fun LayoutFocusedPosterSection(
                 ),
                 checked = uiState.focusedPosterBackdropTrailerMuted,
                 onToggle = {
-                    onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropTrailerMuted(!uiState.focusedPosterBackdropTrailerMuted))
+                    onEvent(
+                        LayoutSettingsEvent.SetFocusedPosterBackdropTrailerMuted(
+                            !uiState.focusedPosterBackdropTrailerMuted
+                        )
+                    )
                 }
             )
             SettingsToggleRow(
@@ -257,14 +316,22 @@ internal fun LayoutFocusedPosterSection(
                 subtitle = stringResource(R.string.layout_trailer_continue_in_details_sub),
                 checked = uiState.focusedPosterTrailerContinueInDetails,
                 onToggle = {
-                    onEvent(LayoutSettingsEvent.SetFocusedPosterTrailerContinueInDetails(!uiState.focusedPosterTrailerContinueInDetails))
+                    onEvent(
+                        LayoutSettingsEvent.SetFocusedPosterTrailerContinueInDetails(
+                            !uiState.focusedPosterTrailerContinueInDetails
+                        )
+                    )
                 }
             )
             if (isModern) {
                 ModernTrailerPlaybackTargetRow(
                     selectedTarget = uiState.focusedPosterBackdropTrailerPlaybackTarget,
                     onTargetSelected = { target ->
-                        onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropTrailerPlaybackTarget(target))
+                        onEvent(
+                            LayoutSettingsEvent.SetFocusedPosterBackdropTrailerPlaybackTarget(
+                                target
+                            )
+                        )
                     }
                 )
             }
@@ -310,14 +377,24 @@ internal fun LayoutPosterCardSection(
         subtitle = stringResource(R.string.layout_landscape_posters_sub),
         checked = uiState.modernLandscapePostersEnabled,
         onToggle = {
-            onEvent(LayoutSettingsEvent.SetModernLandscapePostersEnabled(!uiState.modernLandscapePostersEnabled))
+            onEvent(
+                LayoutSettingsEvent.SetModernLandscapePostersEnabled(
+                    !uiState.modernLandscapePostersEnabled
+                )
+            )
         }
     )
     SettingsToggleRow(
         title = stringResource(R.string.layout_always_show_landscape_clearlogo),
         subtitle = stringResource(R.string.layout_always_show_landscape_clearlogo_sub),
         checked = uiState.alwaysShowLandscapeClearlogo,
-        onToggle = { onEvent(LayoutSettingsEvent.SetAlwaysShowLandscapeClearlogo(!uiState.alwaysShowLandscapeClearlogo)) }
+        onToggle = {
+            onEvent(
+                LayoutSettingsEvent.SetAlwaysShowLandscapeClearlogo(
+                    !uiState.alwaysShowLandscapeClearlogo
+                )
+            )
+        }
     )
     SettingsResetButton(
         text = stringResource(R.string.layout_reset_default),
@@ -335,9 +412,15 @@ internal fun LayoutCardDepthSection(
     CardDepthStyleControls(
         style = uiState.cardDepthStyle,
         onEnabledChange = { enabled -> onEvent(LayoutSettingsEvent.SetCardDepthEnabled(enabled)) },
-        onEdgeStrengthChange = { strength -> onEvent(LayoutSettingsEvent.SetCardDepthEdgeStrength(strength)) },
-        onSheenStrengthChange = { strength -> onEvent(LayoutSettingsEvent.SetCardDepthSheenStrength(strength)) },
-        onEdgeCoverageChange = { coverage -> onEvent(LayoutSettingsEvent.SetCardDepthEdgeCoverage(coverage)) },
+        onEdgeStrengthChange = { strength ->
+            onEvent(LayoutSettingsEvent.SetCardDepthEdgeStrength(strength))
+        },
+        onSheenStrengthChange = { strength ->
+            onEvent(LayoutSettingsEvent.SetCardDepthSheenStrength(strength))
+        },
+        onEdgeCoverageChange = { coverage ->
+            onEvent(LayoutSettingsEvent.SetCardDepthEdgeCoverage(coverage))
+        },
         onSurfaceEnabledChange = { surface, enabled ->
             onEvent(LayoutSettingsEvent.SetCardDepthSurfaceEnabled(surface, enabled))
         },
@@ -348,13 +431,25 @@ internal fun LayoutCardDepthSection(
     if (showFineTuneDialog) {
         CardDepthFineTuneDialog(
             style = uiState.cardDepthStyle,
-            onEdgeStrengthChange = { strength -> onEvent(LayoutSettingsEvent.SetCardDepthEdgeStrength(strength)) },
-            onSheenStrengthChange = { strength -> onEvent(LayoutSettingsEvent.SetCardDepthSheenStrength(strength)) },
-            onEdgeCoverageChange = { coverage -> onEvent(LayoutSettingsEvent.SetCardDepthEdgeCoverage(coverage)) },
+            onEdgeStrengthChange = { strength ->
+                onEvent(LayoutSettingsEvent.SetCardDepthEdgeStrength(strength))
+            },
+            onSheenStrengthChange = { strength ->
+                onEvent(LayoutSettingsEvent.SetCardDepthSheenStrength(strength))
+            },
+            onEdgeCoverageChange = { coverage ->
+                onEvent(LayoutSettingsEvent.SetCardDepthEdgeCoverage(coverage))
+            },
             onReset = {
-                onEvent(LayoutSettingsEvent.SetCardDepthEdgeStrength(DEFAULT_CARD_DEPTH_EDGE_STRENGTH))
-                onEvent(LayoutSettingsEvent.SetCardDepthSheenStrength(DEFAULT_CARD_DEPTH_SHEEN_STRENGTH))
-                onEvent(LayoutSettingsEvent.SetCardDepthEdgeCoverage(DEFAULT_CARD_DEPTH_EDGE_COVERAGE))
+                onEvent(
+                    LayoutSettingsEvent.SetCardDepthEdgeStrength(DEFAULT_CARD_DEPTH_EDGE_STRENGTH)
+                )
+                onEvent(
+                    LayoutSettingsEvent.SetCardDepthSheenStrength(DEFAULT_CARD_DEPTH_SHEEN_STRENGTH)
+                )
+                onEvent(
+                    LayoutSettingsEvent.SetCardDepthEdgeCoverage(DEFAULT_CARD_DEPTH_EDGE_COVERAGE)
+                )
             },
             onDismiss = { showFineTuneDialog = false }
         )
@@ -400,19 +495,23 @@ internal fun LayoutCustomPosterSection(
         SettingsSectionLabel(text = stringResource(R.string.settings_card_depth_apply_to))
         listOf(
             CustomPosterScreen.HOME to R.string.layout_custom_poster_screen_home,
-            CustomPosterScreen.CONTINUE_WATCHING to R.string.layout_custom_poster_screen_continue_watching,
+            CustomPosterScreen.CONTINUE_WATCHING to
+                R.string.layout_custom_poster_screen_continue_watching,
             CustomPosterScreen.COLLECTIONS to R.string.layout_custom_poster_screen_collections,
             CustomPosterScreen.LIBRARY to R.string.layout_custom_poster_screen_library,
             CustomPosterScreen.SEARCH to R.string.layout_custom_poster_screen_search,
             CustomPosterScreen.DETAILS to R.string.layout_custom_poster_screen_details,
-            CustomPosterScreen.TV_RECOMMENDATIONS to R.string.layout_custom_poster_screen_tv_recommendations
+            CustomPosterScreen.TV_RECOMMENDATIONS to
+                R.string.layout_custom_poster_screen_tv_recommendations
         ).forEach { (screen, label) ->
             val enabled = screen in uiState.customPosterEnabledScreens
             SettingsToggleRow(
                 title = stringResource(label),
                 subtitle = null,
                 checked = enabled,
-                onToggle = { onEvent(LayoutSettingsEvent.SetCustomPosterScreenEnabled(screen, !enabled)) }
+                onToggle = {
+                    onEvent(LayoutSettingsEvent.SetCustomPosterScreenEnabled(screen, !enabled))
+                }
             )
         }
     }
@@ -455,9 +554,17 @@ private fun CwStyleCard(
                     .height(112.dp)
             ) {
                 when (style) {
-                    ContinueWatchingCardStyle.CARD -> CardCwStylePreview(modifier = Modifier.fillMaxSize())
-                    ContinueWatchingCardStyle.WIDE -> WideCwStylePreview(modifier = Modifier.fillMaxSize())
-                    ContinueWatchingCardStyle.POSTER -> PosterCwStylePreview(modifier = Modifier.fillMaxSize())
+                    ContinueWatchingCardStyle.CARD -> CardCwStylePreview(
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    ContinueWatchingCardStyle.WIDE -> WideCwStylePreview(
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    ContinueWatchingCardStyle.POSTER -> PosterCwStylePreview(
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
 
@@ -479,12 +586,26 @@ private fun CwStyleCard(
                 }
                 Text(
                     text = when (style) {
-                        ContinueWatchingCardStyle.CARD -> stringResource(R.string.layout_cw_card_style_card)
-                        ContinueWatchingCardStyle.WIDE -> stringResource(R.string.layout_cw_card_style_wide)
-                        ContinueWatchingCardStyle.POSTER -> stringResource(R.string.layout_cw_card_style_poster)
+                        ContinueWatchingCardStyle.CARD -> stringResource(
+                            R.string.layout_cw_card_style_card
+                        )
+
+                        ContinueWatchingCardStyle.WIDE -> stringResource(
+                            R.string.layout_cw_card_style_wide
+                        )
+
+                        ContinueWatchingCardStyle.POSTER -> stringResource(
+                            R.string.layout_cw_card_style_poster
+                        )
                     },
                     style = MaterialTheme.typography.labelLarge,
-                    color = if (isSelected || isFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary
+                    color = if (isSelected ||
+                        isFocused
+                    ) {
+                        MoviesTheme.colors.TextPrimary
+                    } else {
+                        MoviesTheme.colors.TextSecondary
+                    }
                 )
             }
         }
@@ -641,8 +762,10 @@ private fun CardDepthStyleControls(
     )
     val surfaces = listOf(
         stringResource(R.string.settings_card_depth_surface_posters) to CardDepthSurface.POSTERS,
-        stringResource(R.string.settings_card_depth_surface_continue_watching) to CardDepthSurface.CONTINUE_WATCHING,
-        stringResource(R.string.settings_card_depth_surface_episodes) to CardDepthSurface.EPISODE_CARDS,
+        stringResource(R.string.settings_card_depth_surface_continue_watching) to
+            CardDepthSurface.CONTINUE_WATCHING,
+        stringResource(R.string.settings_card_depth_surface_episodes) to
+            CardDepthSurface.EPISODE_CARDS,
         stringResource(R.string.settings_card_depth_surface_cast) to CardDepthSurface.CAST,
         stringResource(R.string.settings_card_depth_surface_trailers) to CardDepthSurface.TRAILERS
     )
@@ -779,10 +902,7 @@ private fun CardDepthFineTuneDialog(
 }
 
 @Composable
-private fun CardDepthResetButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun CardDepthResetButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     MoviesButton(
         onClick = onClick,
         modifier = modifier.tvControlHeight()
@@ -795,10 +915,7 @@ private fun CardDepthResetButton(
 }
 
 @Composable
-private fun CardDepthPreview(
-    style: CardDepthStyle,
-    modifier: Modifier = Modifier
-) {
+private fun CardDepthPreview(style: CardDepthStyle, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(MoviesTheme.radii.lg)
     Box(
         modifier = modifier
@@ -828,7 +945,9 @@ private fun OptionRow(
     options: List<PresetOption>,
     onSelected: (Int) -> Unit
 ) {
-    val selectedLabel = options.firstOrNull { it.value == selectedValue }?.label ?: stringResource(R.string.layout_custom)
+    val selectedLabel =
+        options.firstOrNull { it.value == selectedValue }?.label
+            ?: stringResource(R.string.layout_custom)
 
     Text(
         text = "$title ($selectedLabel)",
@@ -875,7 +994,4 @@ private fun ValueChip(
     )
 }
 
-private data class PresetOption(
-    val label: String,
-    val value: Int
-)
+private data class PresetOption(val label: String, val value: Int)

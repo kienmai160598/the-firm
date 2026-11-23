@@ -88,21 +88,34 @@ class TraktProgressServiceFailureTest {
                     type = "movie",
                     progress = 40f,
                     pausedAt = "2026-01-01T00:00:00.000Z",
-                    movie = TraktMovieDto(title = "Movie", ids = TraktIdsDto(trakt = 1, imdb = MOVIE_ID))
+                    movie = TraktMovieDto(
+                        title = "Movie",
+                        ids = TraktIdsDto(trakt = 1, imdb = MOVIE_ID)
+                    )
                 )
             )
         )
-        coEvery { traktApi.getPlayback(any(), "episodes", any(), any()) } returns Response.success(emptyList())
-        coEvery { traktApi.getEpisodeHistory(any(), any(), any(), any(), any()) } returns Response.success(emptyList())
-        coEvery { traktApi.getHiddenItems(any(), any(), any(), any(), any()) } returns Response.success(
-            listOf(TraktHiddenItemDto(show = TraktShowDto(ids = TraktIdsDto(trakt = 2, imdb = DROPPED_SHOW_ID))))
-        )
-        coEvery { traktApi.getWatched(any(), any(), any(), any(), any()) } returns Response.success(emptyList())
-        coEvery { traktApi.getWatchedShows(any(), any(), any(), any()) } returns Response.success(emptyList())
+        coEvery { traktApi.getPlayback(any(), "episodes", any(), any()) } returns
+            Response.success(emptyList())
+        coEvery { traktApi.getEpisodeHistory(any(), any(), any(), any(), any()) } returns
+            Response.success(emptyList())
+        coEvery { traktApi.getHiddenItems(any(), any(), any(), any(), any()) } returns
+            Response.success(
+                listOf(
+                    TraktHiddenItemDto(
+                        show = TraktShowDto(ids = TraktIdsDto(trakt = 2, imdb = DROPPED_SHOW_ID))
+                    )
+                )
+            )
+        coEvery { traktApi.getWatched(any(), any(), any(), any(), any()) } returns
+            Response.success(emptyList())
+        coEvery { traktApi.getWatchedShows(any(), any(), any(), any()) } returns
+            Response.success(emptyList())
 
         val authService = mockk<TraktAuthService>()
         every { authService.isCircuitClosed() } returns true
-        coEvery { authService.getCurrentAuthState() } returns TraktAuthState(accessToken = "access", refreshToken = "refresh")
+        coEvery { authService.getCurrentAuthState() } returns
+            TraktAuthState(accessToken = "access", refreshToken = "refresh")
         coEvery { authService.executeAuthorizedRequest<Any?>(any()) } coAnswers {
             firstArg<suspend (String) -> Response<Any?>>().invoke("Bearer test")
         }

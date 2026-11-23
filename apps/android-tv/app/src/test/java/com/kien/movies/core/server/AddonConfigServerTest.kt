@@ -113,7 +113,10 @@ class AddonConfigServerTest {
             currentState = currentState
         )
 
-        assertEquals(listOf("https://primary.example", "https://new.example"), sanitized.proposedUrls)
+        assertEquals(
+            listOf("https://primary.example", "https://new.example"),
+            sanitized.proposedUrls
+        )
         assertEquals(listOf("catalog_a"), sanitized.proposedCatalogOrderKeys)
         assertEquals(listOf("catalog_a"), sanitized.proposedDisabledCatalogKeys)
         assertEquals(null, sanitized.proposedCollectionsJson)

@@ -62,9 +62,8 @@ internal fun AnimatedVisibilityScope.TopTabBarRootFrame(
 // there is lost when the screen is disposed, so only the screen in view takes [screenFocus].
 // The blocking group exists only while leaving: a focus search rates a group by its own bounds,
 // and a full-screen group is never below the bar.
-private fun Modifier.screenFocus(leaving: Boolean, screenFocus: FocusRequester): Modifier =
-    if (leaving) {
-        focusProperties { onEnter = { cancelFocusChange() } }.focusGroup()
-    } else {
-        focusRequester(screenFocus)
-    }
+private fun Modifier.screenFocus(leaving: Boolean, screenFocus: FocusRequester): Modifier = if (leaving) {
+    focusProperties { onEnter = { cancelFocusChange() } }.focusGroup()
+} else {
+    focusRequester(screenFocus)
+}

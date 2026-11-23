@@ -46,8 +46,7 @@ internal object TvSizeFloors {
 
 internal fun Dp.atLeastOnBox(floor: Dp): Dp = max(this, floor)
 
-internal fun TextUnit.atLeastOnBox(floor: TextUnit): TextUnit =
-    if (this.isSpecified && this.value < floor.value) floor else this
+internal fun TextUnit.atLeastOnBox(floor: TextUnit): TextUnit = if (this.isSpecified && this.value < floor.value) floor else this
 
 /** Raises the font to [floor]; the line height grows by the same step. */
 internal fun TextStyle.atLeastOnBox(floor: TextUnit): TextStyle {
@@ -94,8 +93,7 @@ internal fun tonalButtonColors(resting: Color = ExpressiveColors.frosted): Butto
 
 /** A tv-material Button's own label style, raised to the TV floor. */
 @Composable
-internal fun buttonLabelStyle(): TextStyle =
-    MaterialTheme.typography.labelLarge.atLeastOnBox(TvSizeFloors.bodyText)
+internal fun buttonLabelStyle(): TextStyle = MaterialTheme.typography.labelLarge.atLeastOnBox(TvSizeFloors.bodyText)
 
 /** Focusable controls on the box are at least [TvSizeFloors.control] tall. */
 internal fun Modifier.tvControlHeight(): Modifier = heightIn(min = TvSizeFloors.control)

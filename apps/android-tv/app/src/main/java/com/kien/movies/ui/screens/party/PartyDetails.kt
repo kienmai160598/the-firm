@@ -2,9 +2,6 @@
 
 package com.kien.movies.ui.screens.party
 
-import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.screens.detail.atLeastOnBox
-import com.kien.movies.ui.screens.detail.TvSizeFloors
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -59,12 +56,14 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import com.kien.movies.core.party.ActiveParty
 import com.kien.movies.core.party.PartyMember
 import com.kien.movies.core.qr.QrCodeGenerator
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
+import com.kien.movies.ui.screens.detail.TvSizeFloors
+import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.screens.detail.formatPlaybackTime
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.screens.settings.SettingsActionRow
@@ -72,6 +71,7 @@ import com.kien.movies.ui.screens.settings.SettingsDialogActionButton
 import com.kien.movies.ui.screens.settings.SettingsDialogActionRow
 import com.kien.movies.ui.screens.settings.SettingsNote
 import com.kien.movies.ui.screens.settings.SettingsToggleRow
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
@@ -79,32 +79,36 @@ internal fun CodeSection(
     code: String,
     connected: Boolean,
     modifier: Modifier = Modifier,
-    slotHeight: Dp = 48.dp,
+    slotHeight: Dp = 48.dp
 ) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
+    ) {
         AnimatedContent(
             targetState = connected,
             transitionSpec = {
-                fadeIn(ExpressiveMotion.defaultEffects()) togetherWith fadeOut(ExpressiveMotion.defaultEffects())
+                fadeIn(ExpressiveMotion.defaultEffects()) togetherWith
+                    fadeOut(ExpressiveMotion.defaultEffects())
             },
-            label = "partyCodeLabel",
+            label = "partyCodeLabel"
         ) { isConnected ->
             if (isConnected) {
                 Text(
                     text = stringResource(R.string.party_code_label),
                     style = MaterialTheme.typography.labelLarge,
-                    color = MoviesTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary
                 )
             } else {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     PulsingDot()
                     Text(
                         text = stringResource(R.string.party_reconnecting),
                         style = MaterialTheme.typography.labelLarge,
-                        color = MoviesTheme.colors.Secondary,
+                        color = MoviesTheme.colors.Secondary
                     )
                 }
             }
@@ -119,7 +123,7 @@ internal fun MembersSection(
     ringColor: Color,
     onRemove: (PartyMember) -> Unit,
     modifier: Modifier = Modifier,
-    selfBehindMs: Long? = null,
+    selfBehindMs: Long? = null
 ) {
     val initialIds = remember { party.members.map { it.id }.toSet() }
     var memberToRemove by remember { mutableStateOf<PartyMember?>(null) }
@@ -129,22 +133,28 @@ internal fun MembersSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = MoviesTheme.spacing.sm),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = stringResource(R.string.party_seats, party.members.size, party.maxMembers),
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.labelLarge,
-                color = MoviesTheme.colors.TextTertiary,
+                color = MoviesTheme.colors.TextTertiary
             )
             SeatDots(filled = party.members.size, total = party.maxMembers)
         }
         party.members.forEach { member ->
             key(member.id) {
-                val appear = remember { MutableTransitionState(member.id in initialIds).apply { targetState = true } }
+                val appear =
+                    remember {
+                        MutableTransitionState(member.id in initialIds).apply {
+                            targetState =
+                                true
+                        }
+                    }
                 AnimatedVisibility(
                     visibleState = appear,
-                    enter = fadeIn(tween(240)) + expandVertically(tween(280)),
+                    enter = fadeIn(tween(240)) + expandVertically(tween(280))
                 ) {
                     MemberRow(
                         party = party,
@@ -155,7 +165,7 @@ internal fun MembersSection(
                         } else {
                             null
                         },
-                        selfBehindMs = selfBehindMs,
+                        selfBehindMs = selfBehindMs
                     )
                 }
             }
@@ -166,7 +176,7 @@ internal fun MembersSection(
                 Text(
                     text = stringResource(R.string.party_open_seat),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MoviesTheme.colors.TextSecondary,
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
         }
@@ -181,7 +191,7 @@ internal fun MembersSection(
                 memberToRemove = null
                 onRemove(member)
             },
-            onDismiss = { memberToRemove = null },
+            onDismiss = { memberToRemove = null }
         )
     }
     if (inviting) {
@@ -195,22 +205,22 @@ private fun MemberRow(
     member: PartyMember,
     ringColor: Color,
     onRemove: (() -> Unit)?,
-    selfBehindMs: Long?,
+    selfBehindMs: Long?
 ) {
     val content: @Composable RowScope.() -> Unit = {
         PartyAvatar(
             member = member,
             size = 44.dp,
             presence = party.presenceState(member),
-            ringColor = ringColor,
+            ringColor = ringColor
         )
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs),
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs)
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = if (member.id == party.memberId) {
@@ -223,7 +233,7 @@ private fun MemberRow(
                     fontWeight = FontWeight.Medium,
                     color = MoviesTheme.colors.TextPrimary,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
                 if (member.id == party.hostMemberId) {
                     Text(
@@ -231,7 +241,7 @@ private fun MemberRow(
                         style = MaterialTheme.typography.labelMedium
                             .atLeastOnBox(TvSizeFloors.metaText),
                         fontWeight = FontWeight.SemiBold,
-                        color = MoviesTheme.colors.Secondary,
+                        color = MoviesTheme.colors.Secondary
                     )
                 }
             }
@@ -244,18 +254,23 @@ private fun MemberRow(
             AnimatedContent(
                 targetState = status,
                 transitionSpec = {
-                    val rise = slideInVertically(ExpressiveMotion.standardDefaultSpatial()) { it / 2 }
-                    val leave = slideOutVertically(ExpressiveMotion.standardDefaultSpatial()) { -it / 2 }
+                    val rise =
+                        slideInVertically(ExpressiveMotion.standardDefaultSpatial()) { it / 2 }
+                    val leave =
+                        slideOutVertically(ExpressiveMotion.standardDefaultSpatial()) {
+                            -it /
+                                2
+                        }
                     (fadeIn(ExpressiveMotion.defaultEffects()) + rise) togetherWith
                         (fadeOut(ExpressiveMotion.defaultEffects()) + leave)
                 },
-                label = "partyMemberStatus",
+                label = "partyMemberStatus"
             ) { label ->
                 Text(
                     text = label,
                     style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
                     color = MoviesTheme.colors.TextTertiary,
-                    maxLines = 1,
+                    maxLines = 1
                 )
             }
         }
@@ -264,7 +279,7 @@ private fun MemberRow(
                 imageVector = Icons.Rounded.Close,
                 contentDescription = stringResource(R.string.party_remove),
                 tint = MoviesTheme.colors.TextTertiary,
-                modifier = Modifier.size(20.dp.atLeastOnBox(TvSizeFloors.buttonIcon)),
+                modifier = Modifier.size(20.dp.atLeastOnBox(TvSizeFloors.buttonIcon))
             )
         }
     }
@@ -277,21 +292,18 @@ private fun MemberRow(
                 .padding(horizontal = 18.dp, vertical = MoviesTheme.spacing.sm),
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically,
-            content = content,
+            content = content
         )
     }
 }
 
 /** A member row keeps white text in its status and host label, so it focuses frosted. */
 @Composable
-private fun PartyRow(
-    onClick: () -> Unit,
-    content: @Composable RowScope.() -> Unit,
-) {
+private fun PartyRow(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
     MoviesCard(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        focus = MoviesCardFocus.Frosted,
+        focus = MoviesCardFocus.Frosted
     ) {
         Row(
             modifier = Modifier
@@ -299,7 +311,7 @@ private fun PartyRow(
                 .padding(horizontal = 18.dp, vertical = MoviesTheme.spacing.sm),
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically,
-            content = content,
+            content = content
         )
     }
 }
@@ -309,15 +321,21 @@ private fun SeatDots(filled: Int, total: Int) {
     Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)) {
         repeat(total) { index ->
             val color by animateColorAsState(
-                targetValue = if (index < filled) MoviesTheme.colors.Secondary else MoviesTheme.colors.Border,
+                targetValue = if (index <
+                    filled
+                ) {
+                    MoviesTheme.colors.Secondary
+                } else {
+                    MoviesTheme.colors.Border
+                },
                 animationSpec = ExpressiveMotion.defaultEffects(),
-                label = "seatDot",
+                label = "seatDot"
             )
             Box(
                 modifier = Modifier
                     .size(width = 14.dp, height = 4.dp)
                     .clip(CircleShape)
-                    .background(color),
+                    .background(color)
             )
         }
     }
@@ -328,21 +346,21 @@ internal fun HostSettings(
     party: ActiveParty,
     onHostOnlyChange: (Boolean) -> Unit,
     onSharingChange: (Boolean) -> Unit,
-    sharingNote: String? = null,
+    sharingNote: String? = null
 ) {
     Column {
         SettingsToggleRow(
             title = stringResource(R.string.party_host_only_title),
             subtitle = stringResource(R.string.party_host_only_description),
             checked = party.hostOnly,
-            onToggle = { onHostOnlyChange(!party.hostOnly) },
+            onToggle = { onHostOnlyChange(!party.hostOnly) }
         )
         SettingsToggleRow(
             title = stringResource(R.string.party_share_title),
             subtitle = stringResource(R.string.party_share_description),
             checked = party.sharing,
             onToggle = { onSharingChange(!party.sharing) },
-            expandSubtitleOnFocus = true,
+            expandSubtitleOnFocus = true
         )
         if (party.sharing && sharingNote != null) SettingsNote(sharingNote)
     }
@@ -353,60 +371,52 @@ internal fun HostOnlyNote(modifier: Modifier = Modifier) {
     PartyHint(
         icon = Icons.Rounded.Lock,
         text = stringResource(R.string.party_host_only_note),
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
 @Composable
-private fun PartyHint(
-    icon: ImageVector,
-    text: String,
-    modifier: Modifier = Modifier,
-) {
+private fun PartyHint(icon: ImageVector, text: String, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.padding(horizontal = 18.dp, vertical = MoviesTheme.spacing.sm),
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
             tint = MoviesTheme.colors.TextSecondary,
-            modifier = Modifier.size(16.dp),
+            modifier = Modifier.size(16.dp)
         )
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = MoviesTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary
         )
     }
 }
 
 @Composable
-internal fun PartyActions(
-    party: ActiveParty,
-    onLeave: () -> Unit,
-    onEnd: () -> Unit,
-) {
+internal fun PartyActions(party: ActiveParty, onLeave: () -> Unit, onEnd: () -> Unit) {
     var confirmEnd by remember { mutableStateOf(false) }
     Column {
         SettingsActionRow(
             title = stringResource(R.string.party_leave),
             subtitle = null,
             onClick = onLeave,
-            leadingIcon = Icons.AutoMirrored.Rounded.Logout,
+            leadingIcon = Icons.AutoMirrored.Rounded.Logout
         )
         if (party.isHost && party.members.size > 1) {
             SettingsActionRow(
                 title = stringResource(R.string.party_end),
                 subtitle = null,
                 onClick = { confirmEnd = true },
-                leadingIcon = Icons.Rounded.StopCircle,
+                leadingIcon = Icons.Rounded.StopCircle
             )
         }
         PartyHint(
             icon = Icons.Rounded.Smartphone,
-            text = stringResource(R.string.party_phone_chat_note),
+            text = stringResource(R.string.party_phone_chat_note)
         )
     }
     if (confirmEnd) {
@@ -418,7 +428,7 @@ internal fun PartyActions(
                 confirmEnd = false
                 onEnd()
             },
-            onDismiss = { confirmEnd = false },
+            onDismiss = { confirmEnd = false }
         )
     }
 }
@@ -429,37 +439,33 @@ internal fun ConfirmDialog(
     message: String,
     confirmLabel: String,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     val cancelFocusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { cancelFocusRequester.requestFocusAfterFrames() }
     MoviesDialog(
         onDismiss = onDismiss,
         title = title,
-        subtitle = message,
+        subtitle = message
     ) {
         SettingsDialogActionRow {
             Box(modifier = Modifier.focusRequester(cancelFocusRequester)) {
                 SettingsDialogActionButton(
                     text = stringResource(R.string.action_cancel),
-                    onClick = onDismiss,
+                    onClick = onDismiss
                 )
             }
             SettingsDialogActionButton(
                 text = confirmLabel,
                 onClick = onConfirm,
-                primary = true,
+                primary = true
             )
         }
     }
 }
 
 @Composable
-private fun InviteDialog(
-    code: String,
-    link: String,
-    onDismiss: () -> Unit,
-) {
+private fun InviteDialog(code: String, link: String, onDismiss: () -> Unit) {
     val closeFocusRequester = remember { FocusRequester() }
     val qr = remember(link) {
         runCatching { QrCodeGenerator.generate(link, 420, margin = 1) }.getOrNull()
@@ -468,11 +474,11 @@ private fun InviteDialog(
     MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.party_open_seat),
-        width = 640.dp,
+        width = 640.dp
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             if (qr != null) {
                 Image(
@@ -480,23 +486,27 @@ private fun InviteDialog(
                     contentDescription = stringResource(R.string.party_invite_qr),
                     modifier = Modifier
                         .size(168.dp)
-                        .clip(RoundedCornerShape(MoviesTheme.radii.md)),
+                        .clip(RoundedCornerShape(MoviesTheme.radii.md))
                 )
             }
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
             ) {
                 Text(
                     text = stringResource(R.string.party_invite_scan),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MoviesTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary
                 )
-                CodeSlots(code = code, slotHeight = 52.dp, textStyle = MaterialTheme.typography.headlineMedium)
+                CodeSlots(
+                    code = code,
+                    slotHeight = 52.dp,
+                    textStyle = MaterialTheme.typography.headlineMedium
+                )
                 Text(
                     text = stringResource(R.string.party_invite_share),
                     style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-                    color = MoviesTheme.colors.TextSecondary,
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
         }
@@ -505,7 +515,7 @@ private fun InviteDialog(
                 SettingsDialogActionButton(
                     text = stringResource(R.string.action_close),
                     onClick = onDismiss,
-                    primary = true,
+                    primary = true
                 )
             }
         }

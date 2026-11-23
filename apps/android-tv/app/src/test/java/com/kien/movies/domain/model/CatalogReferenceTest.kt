@@ -91,7 +91,9 @@ class CatalogReferenceTest {
         val collection = Collection(
             id = "collection-1",
             title = "Favorites",
-            folders = listOf(CollectionFolder(id = "folder-1", title = "Shows", sources = listOf(source)))
+            folders = listOf(
+                CollectionFolder(id = "folder-1", title = "Shows", sources = listOf(source))
+            )
         )
         val addon = Addon(
             id = source.addonId,
@@ -106,12 +108,18 @@ class CatalogReferenceTest {
         )
 
         val saved = collection.withResolvedCatalogTypes(listOf(addon))
-        assertEquals("Series", (saved.folders.single().sources.single() as AddonCatalogCollectionSource).type)
+        assertEquals(
+            "Series",
+            (saved.folders.single().sources.single() as AddonCatalogCollectionSource).type
+        )
         assertEquals("Series", saved.folders.single().catalogSources.single().type)
         assertEquals("Drama", saved.folders.single().catalogSources.single().genre)
         assertEquals("series", source.type)
         assertEquals(collection, collection.withResolvedCatalogTypes(emptyList()))
-        assertEquals(collection, collection.withResolvedCatalogTypes(listOf(addon.copy(enabled = false))))
+        assertEquals(
+            collection,
+            collection.withResolvedCatalogTypes(listOf(addon.copy(enabled = false)))
+        )
     }
 
     private fun descriptor(rawType: String) = CatalogDescriptor(

@@ -30,14 +30,16 @@ class BitrateAwareLoadControl(
     retainBackBufferFromKeyframe: Boolean,
     /** Memory ceiling in bytes. */
     private val budgetBytes: Long,
-    allocator: DefaultAllocator = DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE, 64)
+    allocator: DefaultAllocator =
+        DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE, 64)
 ) : DefaultLoadControl(
     allocator,
     minBufferMs,
     maxBufferMs,
     bufferForPlaybackMs,
     bufferForPlaybackAfterRebufferMs,
-    /* targetBufferBytes= */ C.LENGTH_UNSET,
+    /* targetBufferBytes= */
+    C.LENGTH_UNSET,
     prioritizeTimeOverSizeThresholds,
     backBufferDurationMs,
     retainBackBufferFromKeyframe
@@ -106,7 +108,9 @@ class BitrateAwareLoadControl(
     private fun applyBudgetToActiveLoadingStates() {
         runCatching {
             val targetBytes = currentTargetBufferBytes()
-            val loadingStatesField = DefaultLoadControl::class.java.getDeclaredField("loadingStates").apply {
+            val loadingStatesField = DefaultLoadControl::class.java.getDeclaredField(
+                "loadingStates"
+            ).apply {
                 isAccessible = true
             }
             val statesMap = loadingStatesField.get(this) as? Map<*, *> ?: return
@@ -117,7 +121,9 @@ class BitrateAwareLoadControl(
                 }
                 targetField.setInt(state, targetBytes)
             }
-            val updateAllocatorMethod = DefaultLoadControl::class.java.getDeclaredMethod("updateAllocator").apply {
+            val updateAllocatorMethod = DefaultLoadControl::class.java.getDeclaredMethod(
+                "updateAllocator"
+            ).apply {
                 isAccessible = true
             }
             updateAllocatorMethod.invoke(this)
@@ -126,13 +132,17 @@ class BitrateAwareLoadControl(
 
     private fun applyBackBufferToInternalPlayer(player: ExoPlayer, effectiveBackBufferUs: Long) {
         runCatching {
-            val internalPlayerField = findFieldInHierarchy(player.javaClass, "internalPlayer") ?: return
+            val internalPlayerField =
+                findFieldInHierarchy(player.javaClass, "internalPlayer") ?: return
             internalPlayerField.isAccessible = true
             val internalPlayer = internalPlayerField.get(player) ?: return
-            val backBufferField = findFieldInHierarchy(internalPlayer.javaClass, "backBufferDurationUs") ?: return
+            val backBufferField =
+                findFieldInHierarchy(internalPlayer.javaClass, "backBufferDurationUs") ?: return
             backBufferField.isAccessible = true
             val looper = runCatching { player.playbackLooper }.getOrNull()
-            if (looper != null && looper.thread.isAlive && Thread.currentThread() !== looper.thread) {
+            if (looper != null && looper.thread.isAlive &&
+                Thread.currentThread() !== looper.thread
+            ) {
                 Handler(looper).post {
                     runCatching { backBufferField.setLong(internalPlayer, effectiveBackBufferUs) }
                 }

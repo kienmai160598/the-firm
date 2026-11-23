@@ -15,7 +15,7 @@ data class PartySource(
     @SerialName("video_size") val videoSize: Long? = null,
     @SerialName("binge_group") val bingeGroup: String? = null,
     @SerialName("addon_id") val addonId: String? = null,
-    val name: String? = null,
+    val name: String? = null
 )
 
 @Serializable
@@ -32,7 +32,7 @@ data class PartyMedia(
     val poster: String? = null,
     val background: String? = null,
     val logo: String? = null,
-    val source: PartySource? = null,
+    val source: PartySource? = null
 ) {
     val key: String
         get() = partyMediaKey(metaType, metaId, season, episode)
@@ -53,7 +53,7 @@ data class PartyStream(
     @SerialName("video_size") val videoSize: Long? = null,
     @SerialName("binge_group") val bingeGroup: String? = null,
     @SerialName("stream_type") val streamType: String? = null,
-    val badges: List<StreamBadge> = emptyList(),
+    val badges: List<StreamBadge> = emptyList()
 ) {
     fun toStream(): Stream = Stream(
         name = name,
@@ -70,21 +70,26 @@ data class PartyStream(
             countryWhitelist = null,
             proxyHeaders = ProxyHeaders(request = headers, response = responseHeaders),
             videoSize = videoSize,
-            filename = filename,
+            filename = filename
         ),
         addonName = addonName,
         addonLogo = addonLogo,
-        badges = badges,
+        badges = badges
     )
 }
 
 internal fun isShareableStreamUrl(url: String): Boolean = SHAREABLE_URL.containsMatchIn(url)
 
-private val SHAREABLE_URL = Regex("^https?://(?!localhost|127\\.|0\\.0\\.0\\.0|\\[::1])[^\\s/]+", RegexOption.IGNORE_CASE)
+private val SHAREABLE_URL =
+    Regex("^https?://(?!localhost|127\\.|0\\.0\\.0\\.0|\\[::1])[^\\s/]+", RegexOption.IGNORE_CASE)
 
-internal fun partyMediaKey(metaType: String, metaId: String, season: Int?, episode: Int?): String =
-    listOf(metaType.lowercase(), metaId, season?.toString().orEmpty(), episode?.toString().orEmpty())
-        .joinToString("|")
+internal fun partyMediaKey(metaType: String, metaId: String, season: Int?, episode: Int?): String = listOf(
+    metaType.lowercase(),
+    metaId,
+    season?.toString().orEmpty(),
+    episode?.toString().orEmpty()
+)
+    .joinToString("|")
 
 @Serializable
 data class PartyPlayback(
@@ -95,7 +100,7 @@ data class PartyPlayback(
     val rate: Float = 1f,
     val at: Long,
     @SerialName("media_key") val mediaKey: String? = null,
-    val waiting: Boolean = false,
+    val waiting: Boolean = false
 )
 
 @Serializable
@@ -103,7 +108,7 @@ data class PartyMember(
     val id: String,
     @SerialName("display_name") val displayName: String,
     @SerialName("avatar_url") val avatarUrl: String? = null,
-    @SerialName("avatar_color") val avatarColor: String? = null,
+    @SerialName("avatar_color") val avatarColor: String? = null
 )
 
 @Serializable
@@ -112,7 +117,7 @@ data class PartyPreview(
     val host: PartyMember? = null,
     val members: Int = 0,
     @SerialName("max_members") val maxMembers: Int = 0,
-    val error: String? = null,
+    val error: String? = null
 ) {
     val isFull: Boolean
         get() = maxMembers in 1..members
@@ -120,11 +125,20 @@ data class PartyPreview(
 
 @Serializable
 enum class PartyMemberStatus {
-    @SerialName("browsing") Browsing,
-    @SerialName("loading") Loading,
-    @SerialName("buffering") Buffering,
-    @SerialName("ready") Ready,
-    @SerialName("behind") Behind,
+    @SerialName("browsing")
+    Browsing,
+
+    @SerialName("loading")
+    Loading,
+
+    @SerialName("buffering")
+    Buffering,
+
+    @SerialName("ready")
+    Ready,
+
+    @SerialName("behind")
+    Behind
 }
 
 @Serializable
@@ -132,7 +146,7 @@ data class PartyPresence(
     @SerialName("member_id") val memberId: String,
     val status: PartyMemberStatus = PartyMemberStatus.Browsing,
     @SerialName("media_key") val mediaKey: String? = null,
-    @SerialName("behind_ms") val behindMs: Long? = null,
+    @SerialName("behind_ms") val behindMs: Long? = null
 )
 
 @Serializable
@@ -143,7 +157,7 @@ internal data class PartyInfo(
     @SerialName("host_only") val hostOnly: Boolean = false,
     val media: PartyMedia,
     val playback: PartyPlayback? = null,
-    @SerialName("max_members") val maxMembers: Int = 3,
+    @SerialName("max_members") val maxMembers: Int = 3
 )
 
 @Serializable
@@ -153,7 +167,7 @@ internal data class PartySnapshot(
     @SerialName("member_id") val memberId: String? = null,
     @SerialName("server_time_ms") val serverTimeMs: Long? = null,
     val error: String? = null,
-    val ok: Boolean? = null,
+    val ok: Boolean? = null
 )
 
 enum class PartyError {
@@ -164,7 +178,7 @@ enum class PartyError {
     RateLimited,
     SignInRequired,
     Unavailable,
-    Network,
+    Network
 }
 
 internal fun partyErrorOf(code: String?): PartyError? = when (code) {
@@ -190,7 +204,7 @@ data class ActiveParty(
     val connected: Boolean,
     val hostOnly: Boolean = false,
     val sharing: Boolean = false,
-    val inviteLink: String = "movies://party/$code",
+    val inviteLink: String = "movies://party/$code"
 ) {
     val isHost: Boolean
         get() = memberId == hostMemberId
@@ -201,10 +215,7 @@ data class ActiveParty(
     fun member(id: String?): PartyMember? = members.firstOrNull { it.id == id }
 }
 
-data class PartyUiState(
-    val party: ActiveParty? = null,
-    val busy: Boolean = false,
-)
+data class PartyUiState(val party: ActiveParty? = null, val busy: Boolean = false)
 
 sealed interface PartyEvent {
     data class MemberJoined(val name: String) : PartyEvent
@@ -219,18 +230,14 @@ enum class PartyAction {
     Paused,
     Resumed,
     Seeked,
-    Speed,
+    Speed
 }
 
 data class PartyNotice(
     val name: String,
     val action: PartyAction,
     val positionMs: Long,
-    val rate: Float,
+    val rate: Float
 )
 
-data class PartyProfile(
-    val name: String,
-    val imageUrl: String?,
-    val color: String?,
-)
+data class PartyProfile(val name: String, val imageUrl: String?, val color: String?)

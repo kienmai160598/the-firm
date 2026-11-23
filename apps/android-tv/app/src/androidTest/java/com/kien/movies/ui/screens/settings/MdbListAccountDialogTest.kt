@@ -1,5 +1,7 @@
 package com.kien.movies.ui.screens.settings
 
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
@@ -7,8 +9,6 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
@@ -34,9 +34,12 @@ class MdbListAccountDialogTest {
         setDialog(
             MdbListTrackerUiState(
                 session = MdbListDeviceSession(
-                    "ABCD-EFGH", "https://mdblist.com/oauth/device/",
+                    "ABCD-EFGH",
+                    "https://mdblist.com/oauth/device/",
                     "https://mdblist.com/oauth/device/?user_code=ABCD-EFGH",
-                    System.currentTimeMillis() + 300_000, 5, System.currentTimeMillis() + 5_000
+                    System.currentTimeMillis() + 300_000,
+                    5,
+                    System.currentTimeMillis() + 5_000
                 ),
                 isPolling = true
             ),
@@ -44,7 +47,9 @@ class MdbListAccountDialogTest {
         )
         composeRule.onNodeWithText("ABCD-EFGH").assertIsDisplayed()
         composeRule.onNodeWithText("https://mdblist.com/oauth/device/").assertIsDisplayed()
-        composeRule.onNodeWithContentDescription(context.getString(R.string.mdblist_qr_description)).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(
+            context.getString(R.string.mdblist_qr_description)
+        ).assertIsDisplayed()
         pressButton(R.string.action_cancel)
         composeRule.runOnIdle { assertEquals(1, canceled) }
     }
@@ -52,7 +57,9 @@ class MdbListAccountDialogTest {
     @Test
     fun failedAuthorizationOffersRetryAndDisplaysItsError() {
         var retries = 0
-        setDialog(MdbListTrackerUiState(errorMessage = "Connection unavailable"), onStart = { retries++ })
+        setDialog(MdbListTrackerUiState(errorMessage = "Connection unavailable"), onStart = {
+            retries++
+        })
         composeRule.onNodeWithText("Connection unavailable").assertIsDisplayed()
         pressButton(R.string.action_retry)
         composeRule.runOnIdle { assertEquals(1, retries) }
@@ -63,10 +70,17 @@ class MdbListAccountDialogTest {
         var syncs = 0
         var disconnects = 0
         setDialog(
-            MdbListTrackerUiState(isConnected = true, username = "mdblist-viewer", statusMessage = "Last synced just now"),
-            onSync = { syncs++ }, onDisconnect = { disconnects++ }
+            MdbListTrackerUiState(
+                isConnected = true,
+                username = "mdblist-viewer",
+                statusMessage = "Last synced just now"
+            ),
+            onSync = { syncs++ },
+            onDisconnect = { disconnects++ }
         )
-        composeRule.onNodeWithText(context.getString(R.string.mdblist_connected_as, "mdblist-viewer")).assertIsDisplayed()
+        composeRule.onNodeWithText(
+            context.getString(R.string.mdblist_connected_as, "mdblist-viewer")
+        ).assertIsDisplayed()
         composeRule.onNodeWithText("Last synced just now").assertIsDisplayed()
         pressButton(R.string.simkl_sync_now)
         pressButton(R.string.trakt_disconnect)
@@ -80,7 +94,9 @@ class MdbListAccountDialogTest {
     fun syncingAccountPreventsDuplicateSyncAndDisconnect() {
         setDialog(MdbListTrackerUiState(isConnected = true, isSyncing = true))
         composeRule.onNodeWithText(context.getString(R.string.simkl_sync_now)).assertIsNotEnabled()
-        composeRule.onNodeWithText(context.getString(R.string.trakt_disconnect)).assertIsNotEnabled()
+        composeRule.onNodeWithText(
+            context.getString(R.string.trakt_disconnect)
+        ).assertIsNotEnabled()
     }
 
     private fun pressButton(text: Int) {

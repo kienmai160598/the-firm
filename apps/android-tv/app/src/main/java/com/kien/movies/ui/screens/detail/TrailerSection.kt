@@ -1,7 +1,7 @@
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.theme.MoviesTheme
-
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.relocation.BringIntoViewResponder
+import androidx.compose.foundation.relocation.bringIntoViewResponder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,10 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.relocation.BringIntoViewResponder
-import androidx.compose.foundation.relocation.bringIntoViewResponder
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.res.stringResource
@@ -35,18 +33,16 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.CardDepthSurface
+import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.MetaTrailer
 import com.kien.movies.domain.model.PosterShape
 import com.kien.movies.ui.components.GridContentCard
 import com.kien.movies.ui.components.PosterCardStyle
+import com.kien.movies.ui.theme.MoviesTheme
 
-private data class TrailerListItem(
-    val trailer: MetaTrailer,
-    val preview: MetaPreview
-)
+private data class TrailerListItem(val trailer: MetaTrailer, val preview: MetaPreview)
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -108,7 +104,9 @@ fun TrailerSection(
     listState.keepDetailRowWindow(
         itemIds = trailerIds,
         lazyKeyAt = { index ->
-            trailerItems.getOrNull(index)?.let { previewRowLazyKey(index, it.preview.id, it.preview.name) }
+            trailerItems.getOrNull(index)?.let {
+                previewRowLazyKey(index, it.preview.id, it.preview.name)
+            }
         },
         resetKey = windowResetKey
     )
@@ -171,7 +169,15 @@ fun TrailerSection(
             state = listState,
             modifier = Modifier
                 .fillMaxWidth()
-                .then(if (sectionFocusRequester != null) Modifier.focusRequester(sectionFocusRequester) else Modifier)
+                .then(
+                    if (sectionFocusRequester !=
+                        null
+                    ) {
+                        Modifier.focusRequester(sectionFocusRequester)
+                    } else {
+                        Modifier
+                    }
+                )
                 .focusRestorer {
                     when {
                         restorePending -> restoreFocusRequester
@@ -184,13 +190,17 @@ fun TrailerSection(
         ) {
             itemsIndexed(
                 items = trailerItems,
-                key = { index, item -> previewRowLazyKey(index, item.preview.id, item.preview.name) }
+                key = { index, item ->
+                    previewRowLazyKey(index, item.preview.id, item.preview.name)
+                }
             ) { index, item ->
                 val isRestoreTarget = item.preview.id == restoreTrailerId
                 val isFirstItem = index == 0
                 val focusRequester = when {
                     isRestoreTarget && restoreFocusToken > 0 -> restoreFocusRequester
+
                     isFirstItem -> firstItemFocusRequester
+
                     else -> remember(item.preview.id) {
                         itemFocusRequesters.getOrPut(item.preview.id) { FocusRequester() }
                     }
@@ -240,7 +250,11 @@ fun TrailerSection(
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
                                 .width(landscapeStyle.width)
-                                .padding(start = MoviesTheme.spacing.xxs, end = MoviesTheme.spacing.xxs, top = MoviesTheme.spacing.xxs)
+                                .padding(
+                                    start = MoviesTheme.spacing.xxs,
+                                    end = MoviesTheme.spacing.xxs,
+                                    top = MoviesTheme.spacing.xxs
+                                )
                         )
                     }
                 }

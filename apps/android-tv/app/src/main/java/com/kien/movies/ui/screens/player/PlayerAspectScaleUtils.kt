@@ -34,8 +34,7 @@ internal fun nextAspectMode(current: AspectMode): AspectMode {
     return modes[nextIndex]
 }
 
-internal fun aspectModeLabel(mode: AspectMode, getString: (Int) -> String): String =
-    getString(mode.labelResId)
+internal fun aspectModeLabel(mode: AspectMode, getString: (Int) -> String): String = getString(mode.labelResId)
 
 internal data class AspectScale(val scaleX: Float, val scaleY: Float)
 
@@ -56,8 +55,12 @@ internal fun libassOverlayMargins(
     overlayHeight: Int,
     videoBounds: RectF
 ): LibassOverlayMargins? = libassOverlayMargins(
-    overlayWidth, overlayHeight,
-    videoBounds.left, videoBounds.top, videoBounds.right, videoBounds.bottom
+    overlayWidth,
+    overlayHeight,
+    videoBounds.left,
+    videoBounds.top,
+    videoBounds.right,
+    videoBounds.bottom
 )
 
 internal fun libassOverlayMargins(
@@ -127,7 +130,11 @@ internal fun readExoVideoAspectRatio(playerView: PlayerView): Float? {
     }
 }
 
-internal fun resolveAspectScale(mode: AspectMode, viewAspect: Float, videoAspect: Float?): AspectScale {
+internal fun resolveAspectScale(
+    mode: AspectMode,
+    viewAspect: Float,
+    videoAspect: Float?
+): AspectScale {
     if (viewAspect <= 0f) {
         return AspectScale(scaleX = 1.0f, scaleY = 1.0f)
     }
@@ -222,7 +229,12 @@ internal fun addExoAspectLayoutChangeListener(
     }
 }
 
-private fun applyAspectScale(targetView: View, mode: AspectMode, viewAspect: Float, videoAspect: Float?) {
+private fun applyAspectScale(
+    targetView: View,
+    mode: AspectMode,
+    viewAspect: Float,
+    videoAspect: Float?
+) {
     val scale = resolveAspectScale(
         mode = mode,
         viewAspect = viewAspect,
@@ -273,6 +285,7 @@ private fun resolveVideoSurfaceView(playerView: PlayerView): View? {
 private fun findVideoSurfaceView(view: View): View? {
     return when (view) {
         is SurfaceView, is TextureView -> view
+
         is ViewGroup -> {
             for (index in 0 until view.childCount) {
                 val child = findVideoSurfaceView(view.getChildAt(index))

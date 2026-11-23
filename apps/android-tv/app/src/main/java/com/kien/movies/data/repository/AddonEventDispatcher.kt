@@ -32,10 +32,7 @@ enum class AddonLibraryAction(val wireValue: String) {
     UNWATCHED("unwatched")
 }
 
-data class AddonPlayerEventTarget(
-    val type: String,
-    val videoId: String
-)
+data class AddonPlayerEventTarget(val type: String, val videoId: String)
 
 const val ADDON_PLAYER_RESOURCE = "player"
 const val ADDON_LIBRARY_RESOURCE = "library"
@@ -60,10 +57,9 @@ class AddonEventDispatcher @Inject constructor(
         }
     }
 
-    suspend fun hasEnabledAddonFor(resource: String): Boolean =
-        runCatching { addonRepository.getInstalledAddons().first() }
-            .getOrDefault(emptyList())
-            .any { addon -> addon.enabled && addon.resources.any { it.name == resource } }
+    suspend fun hasEnabledAddonFor(resource: String): Boolean = runCatching { addonRepository.getInstalledAddons().first() }
+        .getOrDefault(emptyList())
+        .any { addon -> addon.enabled && addon.resources.any { it.name == resource } }
 
     fun player(
         target: AddonPlayerEventTarget,
@@ -124,30 +120,37 @@ class AddonEventDispatcher @Inject constructor(
     private suspend fun route(event: AddonEvent) {
         val addons = runCatching { addonRepository.getInstalledAddons().first() }
             .getOrDefault(emptyList())
-            .filter { addon -> addon.enabled && addon.supportsResource(event.resource, event.type, event.id) }
+            .filter { addon ->
+                addon.enabled &&
+                    addon.supportsResource(event.resource, event.type, event.id)
+            }
             .distinctBy { it.baseUrl }
         addons.forEach { addon ->
-            val url = buildAddonEventUrl(addon.baseUrl, event.resource, event.type, event.id, event.extra)
+            val url =
+                buildAddonEventUrl(addon.baseUrl, event.resource, event.type, event.id, event.extra)
             queueFor(addon.baseUrl).trySend(AddonDelivery(addon.id, event.resource, url))
         }
     }
 
-    private fun queueFor(baseUrl: String): Channel<AddonDelivery> =
-        addonQueues.getOrPut(baseUrl) {
-            Channel<AddonDelivery>(Channel.UNLIMITED).also { queue ->
-                scope.launch {
-                    for (delivery in queue) {
-                        send(delivery)
-                    }
+    private fun queueFor(baseUrl: String): Channel<AddonDelivery> = addonQueues.getOrPut(baseUrl) {
+        Channel<AddonDelivery>(Channel.UNLIMITED).also { queue ->
+            scope.launch {
+                for (delivery in queue) {
+                    send(delivery)
                 }
             }
         }
+    }
 
     private suspend fun send(delivery: AddonDelivery) {
         runCatching {
             withTimeout(EVENT_TIMEOUT_MS) { api.sendEvent(delivery.url).body()?.close() }
         }.onFailure { error ->
-            if (error is CancellationException && error !is TimeoutCancellationException) throw error
+            if (error is CancellationException &&
+                error !is TimeoutCancellationException
+            ) {
+                throw error
+            }
             Log.w(TAG, "${delivery.addonId} ${delivery.resource} event failed", error)
         }
     }
@@ -160,11 +163,10 @@ class AddonEventDispatcher @Inject constructor(
 
 private const val LIBRARY_EVENT_VIDEOS_COUNT = 100
 
-internal fun libraryVideoIdChunks(videoIds: Collection<String>): List<List<String>> =
-    videoIds
-        .filter { it.isNotBlank() }
-        .distinct()
-        .chunked(LIBRARY_EVENT_VIDEOS_COUNT)
+internal fun libraryVideoIdChunks(videoIds: Collection<String>): List<List<String>> = videoIds
+    .filter { it.isNotBlank() }
+    .distinct()
+    .chunked(LIBRARY_EVENT_VIDEOS_COUNT)
 
 internal fun buildAddonEventUrl(
     baseUrl: String,
@@ -175,16 +177,23 @@ internal fun buildAddonEventUrl(
 ): String {
     val rawBaseUrl = baseUrl.trimEnd('/')
     val queryStart = rawBaseUrl.indexOf('?')
-    val basePath = if (queryStart >= 0) rawBaseUrl.substring(0, queryStart).trimEnd('/') else rawBaseUrl
+    val basePath = if (queryStart >=
+        0
+    ) {
+        rawBaseUrl.substring(0, queryStart).trimEnd('/')
+    } else {
+        rawBaseUrl
+    }
     val baseQuery = if (queryStart >= 0) rawBaseUrl.substring(queryStart) else ""
     val extraSegment = extra.joinToString("&") { (name, value) ->
         "${encodeAddonEventSegment(name)}=${encodeAddonEventSegment(value)}"
     }
-    return "$basePath/$resource/${encodeAddonEventSegment(type)}/${encodeAddonEventSegment(id)}/$extraSegment.json$baseQuery"
+    return "$basePath/$resource/${encodeAddonEventSegment(
+        type
+    )}/${encodeAddonEventSegment(id)}/$extraSegment.json$baseQuery"
 }
 
-private fun encodeAddonEventSegment(value: String): String =
-    URLEncoder.encode(value, "UTF-8").replace("+", "%20")
+private fun encodeAddonEventSegment(value: String): String = URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 
 private data class AddonEvent(
     val resource: String,
@@ -193,8 +202,4 @@ private data class AddonEvent(
     val extra: List<Pair<String, String>>
 )
 
-private data class AddonDelivery(
-    val addonId: String,
-    val resource: String,
-    val url: String
-)
+private data class AddonDelivery(val addonId: String, val resource: String, val url: String)

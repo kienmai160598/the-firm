@@ -21,7 +21,9 @@ object SentryInitializer {
         "File IO on Main Thread"
     )
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     @Volatile private var started = false
+
     @Volatile private var active = false
 
     fun start(application: Application, settings: SentrySettingsDataStore) {
@@ -53,7 +55,8 @@ object SentryInitializer {
 
         SentryAndroid.init(application) { options ->
             options.dsn = dsn
-            options.release = "${BuildConfig.APPLICATION_ID}@${BuildConfig.VERSION_NAME}+${BuildConfig.VERSION_CODE}"
+            options.release =
+                "${BuildConfig.APPLICATION_ID}@${BuildConfig.VERSION_NAME}+${BuildConfig.VERSION_CODE}"
             options.environment = BuildConfig.SENTRY_ENVIRONMENT
             options.isSendDefaultPii = false
             options.isAttachScreenshot = false

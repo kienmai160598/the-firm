@@ -5,6 +5,7 @@ import kotlinx.coroutines.sync.withLock
 
 class TrackingRefreshGate {
     private val mutex = Mutex()
+
     @Volatile private var completionSequence = 0L
     private var lastCompletedProfileGeneration: Long? = null
 
@@ -15,7 +16,11 @@ class TrackingRefreshGate {
     ) {
         val observedSequence = completionSequence
         mutex.withLock {
-            if (completionSequence != observedSequence && lastCompletedProfileGeneration == profileGeneration) return
+            if (completionSequence != observedSequence &&
+                lastCompletedProfileGeneration == profileGeneration
+            ) {
+                return
+            }
             if (!shouldRun()) return
             try {
                 block()

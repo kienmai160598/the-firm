@@ -1,6 +1,5 @@
 package com.kien.movies.ui.screens.party
 
-import com.kien.movies.ui.theme.ExpressiveMotion
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -54,6 +53,7 @@ import com.kien.movies.core.party.PartyUiState
 import com.kien.movies.ui.screens.detail.formatPlaybackTime
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.screens.player.DialogButton
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
@@ -75,30 +75,30 @@ fun PartyPanel(
     behindMs: Long?,
     onCatchUp: () -> Unit,
     onClose: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .fillMaxHeight()
             .width(520.dp)
             .clip(partyPanelShape())
-            .background(MoviesTheme.colors.BackgroundElevated),
+            .background(MoviesTheme.colors.BackgroundElevated)
     ) {
         Column(modifier = Modifier.padding(MoviesTheme.spacing.xl)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(R.string.party_title),
                     style = MaterialTheme.typography.headlineSmall,
-                    color = MoviesTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary
                 )
                 DialogButton(
                     text = stringResource(R.string.action_close),
                     onClick = onClose,
-                    isPrimary = false,
+                    isPrimary = false
                 )
             }
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
@@ -106,10 +106,11 @@ fun PartyPanel(
                 targetState = state.party,
                 contentKey = { it != null },
                 transitionSpec = {
-                    fadeIn(ExpressiveMotion.defaultEffects()) togetherWith fadeOut(ExpressiveMotion.defaultEffects())
+                    fadeIn(ExpressiveMotion.defaultEffects()) togetherWith
+                        fadeOut(ExpressiveMotion.defaultEffects())
                 },
                 label = "partyPanelContent",
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
             ) { party ->
                 if (party == null) {
                     StartContent(
@@ -117,7 +118,7 @@ fun PartyPanel(
                         busy = state.busy,
                         isSupported = isSupported,
                         canStart = canStart,
-                        onStart = onStart,
+                        onStart = onStart
                     )
                 } else {
                     PartyContent(
@@ -132,7 +133,7 @@ fun PartyPanel(
                         onEnd = onEnd,
                         onRemove = onRemove,
                         onHostOnlyChange = onHostOnlyChange,
-                        onSharingChange = onSharingChange,
+                        onSharingChange = onSharingChange
                     )
                 }
             }
@@ -146,7 +147,7 @@ private fun StartContent(
     busy: Boolean,
     isSupported: Boolean,
     canStart: Boolean,
-    onStart: () -> Unit,
+    onStart: () -> Unit
 ) {
     val startFocusRequester = remember { FocusRequester() }
     val canPress = isSupported && canStart
@@ -158,28 +159,30 @@ private fun StartContent(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(bottom = MoviesTheme.spacing.xl),
-        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         SeatsHero(
             profile = profile,
             size = 56.dp,
             ringColor = MoviesTheme.colors.BackgroundElevated,
-            modifier = Modifier.padding(bottom = MoviesTheme.spacing.sm),
+            modifier = Modifier.padding(bottom = MoviesTheme.spacing.sm)
         )
         Text(
             text = stringResource(R.string.party_start_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.SemiBold,
-            color = MoviesTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary
         )
         Text(
             text = stringResource(R.string.party_start_description),
             style = MaterialTheme.typography.bodyMedium,
-            color = MoviesTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary
         )
         when {
             !isSupported -> PartyNote(stringResource(R.string.party_unavailable))
+
             !canStart -> PartyNote(stringResource(R.string.party_sign_in_required))
+
             else -> DialogButton(
                 text = stringResource(R.string.party_start_action),
                 onClick = onStart,
@@ -188,7 +191,7 @@ private fun StartContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = MoviesTheme.spacing.sm)
-                    .focusRequester(startFocusRequester),
+                    .focusRequester(startFocusRequester)
             )
         }
         ExperimentalNote()
@@ -208,7 +211,7 @@ private fun PartyContent(
     onEnd: () -> Unit,
     onRemove: (PartyMember) -> Unit,
     onHostOnlyChange: (Boolean) -> Unit,
-    onSharingChange: (Boolean) -> Unit,
+    onSharingChange: (Boolean) -> Unit
 ) {
     val contentFocusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { contentFocusRequester.requestFocusAfterFrames() }
@@ -230,7 +233,7 @@ private fun PartyContent(
             onSharingChange = onSharingChange,
             modifier = Modifier
                 .weight(1f)
-                .focusRequester(contentFocusRequester),
+                .focusRequester(contentFocusRequester)
         )
     }
 }
@@ -249,7 +252,7 @@ private fun PartyDetailsList(
     onRemove: (PartyMember) -> Unit,
     onHostOnlyChange: (Boolean) -> Unit,
     onSharingChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     var confirmSwitch by remember { mutableStateOf(false) }
     Column(
@@ -257,52 +260,55 @@ private fun PartyDetailsList(
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
             .padding(bottom = MoviesTheme.spacing.xl),
-        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sidePanel.inner),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sidePanel.inner)
     ) {
         var lastBehindMs by remember { mutableStateOf(0L) }
         if (behindMs != null) lastBehindMs = behindMs
         AnimatedVisibility(
             visible = behindMs != null,
             enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically(),
+            exit = fadeOut() + shrinkVertically()
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
                 Text(
-                    text = stringResource(R.string.party_behind_title, formatPlaybackTime(lastBehindMs)),
+                    text = stringResource(
+                        R.string.party_behind_title,
+                        formatPlaybackTime(lastBehindMs)
+                    ),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MoviesTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary
                 )
                 DialogButton(
                     text = stringResource(R.string.party_catch_up),
                     onClick = onCatchUp,
                     isPrimary = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
         AnimatedVisibility(
             visible = playerMedia.key != party.media.key,
             enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically(),
+            exit = fadeOut() + shrinkVertically()
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
                 Text(
                     text = stringResource(R.string.party_now_watching, party.media.displayTitle()),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MoviesTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary
                 )
                 DialogButton(
                     text = stringResource(R.string.party_watch_with_party),
                     onClick = onWatchWithParty,
                     isPrimary = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
                 )
                 if (party.isHost) {
                     DialogButton(
                         text = stringResource(R.string.party_switch, playerMedia.displayTitle()),
                         onClick = { confirmSwitch = true },
                         isPrimary = false,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
@@ -311,27 +317,29 @@ private fun PartyDetailsList(
             party = party,
             ringColor = MoviesTheme.colors.BackgroundElevated,
             onRemove = onRemove,
-            selfBehindMs = behindMs,
+            selfBehindMs = behindMs
         )
         if (party.isHost) {
             HostSettings(
                 party = party,
                 onHostOnlyChange = onHostOnlyChange,
                 onSharingChange = onSharingChange,
-                sharingNote = stringResource(R.string.party_share_unavailable).takeUnless { canShareStream },
+                sharingNote = stringResource(R.string.party_share_unavailable).takeUnless {
+                    canShareStream
+                }
             )
         }
         AnimatedVisibility(
             visible = !party.isHost && party.hostOnly,
             enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically(),
+            exit = fadeOut() + shrinkVertically()
         ) {
             HostOnlyNote()
         }
         PartyActions(
             party = party,
             onLeave = onLeave,
-            onEnd = onEnd,
+            onEnd = onEnd
         )
     }
     if (confirmSwitch) {
@@ -343,7 +351,7 @@ private fun PartyDetailsList(
                 confirmSwitch = false
                 onSwitchParty()
             },
-            onDismiss = { confirmSwitch = false },
+            onDismiss = { confirmSwitch = false }
         )
     }
 }
@@ -353,48 +361,67 @@ fun PartyStatusPill(
     visible: Boolean,
     members: List<PartyMember>,
     message: String?,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(),
         exit = fadeOut(),
-        modifier = modifier,
+        modifier = modifier
     ) {
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(MoviesTheme.radii.full))
                 .background(Color.Black.copy(alpha = 0.6f))
                 .animateContentSize()
-                .padding(start = 6.dp, top = 6.dp, bottom = 6.dp, end = if (message != null) 16.dp else 6.dp),
+                .padding(
+                    start = 6.dp,
+                    top = 6.dp,
+                    bottom = 6.dp,
+                    end = if (message !=
+                        null
+                    ) {
+                        16.dp
+                    } else {
+                        6.dp
+                    }
+                ),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             AvatarStack(
                 members = members,
                 size = 30.dp,
-                ringColor = Color.Black.copy(alpha = 0.6f),
+                ringColor = Color.Black.copy(alpha = 0.6f)
             )
             AnimatedContent(
                 targetState = message,
                 transitionSpec = {
-                    val rise = slideInVertically(ExpressiveMotion.standardDefaultSpatial()) { it / 2 }
-                    val leave = slideOutVertically(ExpressiveMotion.standardDefaultSpatial()) { -it / 2 }
+                    val rise =
+                        slideInVertically(ExpressiveMotion.standardDefaultSpatial()) { it / 2 }
+                    val leave =
+                        slideOutVertically(ExpressiveMotion.standardDefaultSpatial()) {
+                            -it /
+                                2
+                        }
                     (fadeIn(ExpressiveMotion.defaultEffects()) + rise) togetherWith
                         (fadeOut(ExpressiveMotion.defaultEffects()) + leave)
                 },
-                label = "partyStatusMessage",
+                label = "partyStatusMessage"
             ) { text ->
                 if (text != null) {
                     Text(
                         text = text,
                         style = MaterialTheme.typography.bodyMedium.copy(
-                            shadow = Shadow(color = Color.Black.copy(alpha = 0.8f), blurRadius = 12f),
+                            shadow = Shadow(
+                                color = Color.Black.copy(alpha = 0.8f),
+                                blurRadius = 12f
+                            )
                         ),
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }

@@ -25,7 +25,7 @@ object DisplayCapabilities {
         val supportsResolutionSwitching: Boolean,
         val supportedModes: List<Display.Mode>,
         val currentModeId: Int,
-        val apiSupported: Boolean,
+        val apiSupported: Boolean
     ) {
         companion object {
             val Unknown = Snapshot(
@@ -33,7 +33,7 @@ object DisplayCapabilities {
                 supportsResolutionSwitching = false,
                 supportedModes = emptyList(),
                 currentModeId = -1,
-                apiSupported = false,
+                apiSupported = false
             )
         }
     }
@@ -51,7 +51,7 @@ object DisplayCapabilities {
             supportsResolutionSwitching = res,
             supportedModes = modes,
             currentModeId = current.modeId,
-            apiSupported = true,
+            apiSupported = true
         )
     }
 
@@ -89,7 +89,10 @@ object DisplayCapabilities {
      * Refresh rates are deduped at millihertz precision to avoid float-noise
      * false positives like 59.94f != 59.940002f.
      */
-    internal fun deriveSupport(modes: List<Display.Mode>, currentModeId: Int): Pair<Boolean, Boolean> {
+    internal fun deriveSupport(
+        modes: List<Display.Mode>,
+        currentModeId: Int
+    ): Pair<Boolean, Boolean> {
         if (modes.isEmpty()) return false to false
         val current = modes.firstOrNull { it.modeId == currentModeId } ?: modes.first()
         val sameResModes = modes.filter {

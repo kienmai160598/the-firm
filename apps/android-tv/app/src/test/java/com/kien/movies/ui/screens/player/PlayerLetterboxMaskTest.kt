@@ -43,7 +43,10 @@ class PlayerLetterboxMaskTest {
     @Test
     fun bars_forVideoFillingOrExceedingTheFrame_areAbsent() {
         assertEquals(emptyList<LetterboxBar>(), letterboxBars(1920f, 1080f, 0f, 0f, 1920f, 1080f))
-        assertEquals(emptyList<LetterboxBar>(), letterboxBars(1920f, 1080f, -96f, -54f, 2016f, 1134f))
+        assertEquals(
+            emptyList<LetterboxBar>(),
+            letterboxBars(1920f, 1080f, -96f, -54f, 2016f, 1134f)
+        )
     }
 
     @Test
@@ -73,8 +76,14 @@ class PlayerLetterboxMaskTest {
     @Test
     fun bars_withoutAVideoRectangleInsideTheFrame_areAbsent() {
         assertEquals(emptyList<LetterboxBar>(), letterboxBars(1920f, 1080f, 0f, 0f, 0f, 0f))
-        assertEquals(emptyList<LetterboxBar>(), letterboxBars(1920f, 1080f, 0f, 1200f, 1920f, 2000f))
+        assertEquals(
+            emptyList<LetterboxBar>(),
+            letterboxBars(1920f, 1080f, 0f, 1200f, 1920f, 2000f)
+        )
         assertEquals(emptyList<LetterboxBar>(), letterboxBars(0f, 0f, 0f, 104f, 1920f, 976f))
-        assertEquals(emptyList<LetterboxBar>(), letterboxBars(1920f, 1080f, Float.NaN, 104f, 1920f, 976f))
+        assertEquals(
+            emptyList<LetterboxBar>(),
+            letterboxBars(1920f, 1080f, Float.NaN, 104f, 1920f, 976f)
+        )
     }
 }

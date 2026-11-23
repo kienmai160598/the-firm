@@ -24,14 +24,20 @@ class SimklRatings @Inject constructor(
     override val providerId = TrackingProviderId.SIMKL
     override val changes: Flow<Any?> = sync.state
 
-    override fun supports(media: TrackingMediaReference): Boolean =
-        media.episode == null && media.hasResolvableIdentity
+    override fun supports(media: TrackingMediaReference): Boolean = media.episode == null && media.hasResolvableIdentity
 
-    override fun rating(media: TrackingMediaReference): Double? =
-        sync.state.value.snapshot.ratingEntry(media)?.userRating?.toDouble()
+    override fun rating(media: TrackingMediaReference): Double? = sync.state.value.snapshot.ratingEntry(media)?.userRating?.toDouble()
 
-    override suspend fun rate(profileId: Int, media: TrackingMediaReference, rating: Int?): TrackingMutationResult {
-        if (profileId != profiles.activeProfileId.value) return TrackingMutationResult(attemptedCount = 1, notFoundCount = 1)
+    override suspend fun rate(
+        profileId: Int,
+        media: TrackingMediaReference,
+        rating: Int?
+    ): TrackingMutationResult {
+        if (profileId !=
+            profiles.activeProfileId.value
+        ) {
+            return TrackingMutationResult(attemptedCount = 1, notFoundCount = 1)
+        }
         sync.ensureLoaded()
         val snapshot = sync.state.value.snapshot
         val response = client.execute(
@@ -90,7 +96,10 @@ internal fun buildSimklRatingBody(
         entry == null && media.kind == TrackingMediaKind.ANIME
     val bucket = when {
         anime -> if (rating == null) "shows" else "anime"
-        entry?.mediaType == SimklMediaType.MOVIES || entry == null && media.kind == TrackingMediaKind.MOVIE -> "movies"
+
+        entry?.mediaType == SimklMediaType.MOVIES ||
+            entry == null && media.kind == TrackingMediaKind.MOVIE -> "movies"
+
         else -> "shows"
     }
     val item = buildJsonObject {

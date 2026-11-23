@@ -1,16 +1,17 @@
 package com.kien.movies.data.remote.api
 
+import com.kien.movies.data.remote.dto.trakt.TraktCommentDto
+import com.kien.movies.data.remote.dto.trakt.TraktCreateOrUpdateListRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktDeviceCodeRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktDeviceCodeResponseDto
 import com.kien.movies.data.remote.dto.trakt.TraktDeviceTokenRequestDto
-import com.kien.movies.data.remote.dto.trakt.TraktLastActivitiesResponseDto
-import com.kien.movies.data.remote.dto.trakt.TraktHistoryRemoveRequestDto
-import com.kien.movies.data.remote.dto.trakt.TraktHistoryRemoveResponseDto
+import com.kien.movies.data.remote.dto.trakt.TraktHiddenItemDto
 import com.kien.movies.data.remote.dto.trakt.TraktHistoryAddRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktHistoryAddResponseDto
 import com.kien.movies.data.remote.dto.trakt.TraktHistoryItemDto
-import com.kien.movies.data.remote.dto.trakt.TraktCommentDto
-import com.kien.movies.data.remote.dto.trakt.TraktCreateOrUpdateListRequestDto
+import com.kien.movies.data.remote.dto.trakt.TraktHistoryRemoveRequestDto
+import com.kien.movies.data.remote.dto.trakt.TraktHistoryRemoveResponseDto
+import com.kien.movies.data.remote.dto.trakt.TraktLastActivitiesResponseDto
 import com.kien.movies.data.remote.dto.trakt.TraktListItemDto
 import com.kien.movies.data.remote.dto.trakt.TraktListItemsMutationRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktListItemsMutationResponseDto
@@ -18,9 +19,9 @@ import com.kien.movies.data.remote.dto.trakt.TraktListSummaryDto
 import com.kien.movies.data.remote.dto.trakt.TraktMovieDto
 import com.kien.movies.data.remote.dto.trakt.TraktPlaybackItemDto
 import com.kien.movies.data.remote.dto.trakt.TraktProminentListDto
+import com.kien.movies.data.remote.dto.trakt.TraktRefreshTokenRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktReorderListsRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktReorderListsResponseDto
-import com.kien.movies.data.remote.dto.trakt.TraktRefreshTokenRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktRevokeRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktScrobbleRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktScrobbleResponseDto
@@ -34,16 +35,15 @@ import com.kien.movies.data.remote.dto.trakt.TraktUserSettingsResponseDto
 import com.kien.movies.data.remote.dto.trakt.TraktUserStatsResponseDto
 import com.kien.movies.data.remote.dto.trakt.TraktWatchedMovieItemDto
 import com.kien.movies.data.remote.dto.trakt.TraktWatchedShowItemDto
-import com.kien.movies.data.remote.dto.trakt.TraktHiddenItemDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.HTTP
+import retrofit2.http.Header
 import retrofit2.http.POST
-import retrofit2.http.Path
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface TraktApi {
@@ -64,9 +64,7 @@ interface TraktApi {
     ): Response<TraktTokenResponseDto>
 
     @POST("oauth/revoke")
-    suspend fun revokeToken(
-        @Body body: TraktRevokeRequestDto
-    ): Response<Unit>
+    suspend fun revokeToken(@Body body: TraktRevokeRequestDto): Response<Unit>
 
     @GET("users/settings")
     suspend fun getUserSettings(

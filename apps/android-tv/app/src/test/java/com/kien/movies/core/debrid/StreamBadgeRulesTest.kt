@@ -104,8 +104,16 @@ class StreamBadgeRulesTest {
                     sourceUrl = "active",
                     isActive = true,
                     filters = listOf(
-                        StreamBadgeFilter(name = "Dolby Vision", pattern = "DV", imageURL = "https://cdn/dv.png"),
-                        StreamBadgeFilter(name = "Atmos", pattern = "Atmos", imageURL = "https://cdn/atmos.png"),
+                        StreamBadgeFilter(
+                            name = "Dolby Vision",
+                            pattern = "DV",
+                            imageURL = "https://cdn/dv.png"
+                        ),
+                        StreamBadgeFilter(
+                            name = "Atmos",
+                            pattern = "Atmos",
+                            imageURL = "https://cdn/atmos.png"
+                        ),
                         StreamBadgeFilter(name = "Disabled", pattern = "Movie", isEnabled = false)
                     )
                 )
@@ -125,8 +133,16 @@ class StreamBadgeRulesTest {
                 StreamBadgeImport(
                     sourceUrl = "https://example.com/badges.json",
                     filters = listOf(
-                        StreamBadgeFilter(name = "Dolby Vision", pattern = "DV", imageURL = "https://cdn/dv.png"),
-                        StreamBadgeFilter(name = "Atmos", pattern = "Atmos", imageURL = "https://cdn/atmos.png")
+                        StreamBadgeFilter(
+                            name = "Dolby Vision",
+                            pattern = "DV",
+                            imageURL = "https://cdn/dv.png"
+                        ),
+                        StreamBadgeFilter(
+                            name = "Atmos",
+                            pattern = "Atmos",
+                            imageURL = "https://cdn/atmos.png"
+                        )
                     )
                 )
             )
@@ -136,7 +152,11 @@ class StreamBadgeRulesTest {
             streamDescriptionTemplate = "{stream.regexMatched::join(', ')}"
         )
 
-        val formatted = formatter.format(directDebridStream(), settings, StreamBadgeMatcher.compile(rules))
+        val formatted = formatter.format(
+            directDebridStream(),
+            settings,
+            StreamBadgeMatcher.compile(rules)
+        )
 
         assertEquals("Dolby Vision + Atmos", formatted.name)
         assertEquals("Dolby Vision, Atmos", formatted.description)
@@ -163,8 +183,16 @@ class StreamBadgeRulesTest {
                 StreamBadgeImport(
                     sourceUrl = "https://example.com/badges.json",
                     filters = listOf(
-                        StreamBadgeFilter(name = "Dolby Vision", pattern = "DV", imageURL = "https://cdn/dv.png"),
-                        StreamBadgeFilter(name = "Atmos", pattern = "Atmos", imageURL = "https://cdn/atmos.png")
+                        StreamBadgeFilter(
+                            name = "Dolby Vision",
+                            pattern = "DV",
+                            imageURL = "https://cdn/dv.png"
+                        ),
+                        StreamBadgeFilter(
+                            name = "Atmos",
+                            pattern = "Atmos",
+                            imageURL = "https://cdn/atmos.png"
+                        )
                     )
                 )
             )
@@ -180,86 +208,84 @@ class StreamBadgeRulesTest {
         active: Boolean,
         name: String = "Badge",
         pattern: String = "Badge"
-    ): StreamBadgeImport =
-        StreamBadgeImport(
-            sourceUrl = sourceUrl,
-            isActive = active,
-            filters = listOf(StreamBadgeFilter(name = name, pattern = pattern))
-        )
+    ): StreamBadgeImport = StreamBadgeImport(
+        sourceUrl = sourceUrl,
+        isActive = active,
+        filters = listOf(StreamBadgeFilter(name = name, pattern = pattern))
+    )
 
-    private fun directDebridStream(): Stream =
-        Stream(
-            name = "Movie 2026 DV Atmos",
-            title = "Movie",
-            description = null,
-            url = "https://stream.example/movie.mkv",
-            ytId = null,
+    private fun directDebridStream(): Stream = Stream(
+        name = "Movie 2026 DV Atmos",
+        title = "Movie",
+        description = null,
+        url = "https://stream.example/movie.mkv",
+        ytId = null,
+        infoHash = "abc123",
+        fileIdx = 0,
+        externalUrl = null,
+        behaviorHints = StreamBehaviorHints(
+            notWebReady = null,
+            bingeGroup = null,
+            countryWhitelist = null,
+            proxyHeaders = null,
+            filename = "Movie.2026.DV.Atmos.mkv"
+        ),
+        addonName = "Fusion",
+        addonLogo = null,
+        clientResolve = StreamClientResolve(
+            type = "debrid",
             infoHash = "abc123",
             fileIdx = 0,
-            externalUrl = null,
-            behaviorHints = StreamBehaviorHints(
-                notWebReady = null,
-                bingeGroup = null,
-                countryWhitelist = null,
-                proxyHeaders = null,
-                filename = "Movie.2026.DV.Atmos.mkv"
-            ),
-            addonName = "Fusion",
-            addonLogo = null,
-            clientResolve = StreamClientResolve(
-                type = "debrid",
-                infoHash = "abc123",
-                fileIdx = 0,
-                magnetUri = null,
-                sources = null,
-                torrentName = "Movie.2026.DV.Atmos",
-                filename = "Movie.2026.DV.Atmos.mkv",
-                mediaType = "movie",
-                mediaId = "tt123",
-                mediaOnlyId = "tt123",
-                title = "Movie",
-                season = null,
-                episode = null,
-                service = DebridProviders.TORBOX_ID,
-                serviceIndex = 0,
-                serviceExtension = "TB",
-                isCached = true,
-                stream = StreamClientResolveStream(
-                    raw = StreamClientResolveRaw(
-                        torrentName = "Movie.2026.DV.Atmos",
-                        filename = "Movie.2026.DV.Atmos.mkv",
-                        size = 1_000L,
-                        folderSize = 1_000L,
-                        tracker = null,
-                        indexer = null,
+            magnetUri = null,
+            sources = null,
+            torrentName = "Movie.2026.DV.Atmos",
+            filename = "Movie.2026.DV.Atmos.mkv",
+            mediaType = "movie",
+            mediaId = "tt123",
+            mediaOnlyId = "tt123",
+            title = "Movie",
+            season = null,
+            episode = null,
+            service = DebridProviders.TORBOX_ID,
+            serviceIndex = 0,
+            serviceExtension = "TB",
+            isCached = true,
+            stream = StreamClientResolveStream(
+                raw = StreamClientResolveRaw(
+                    torrentName = "Movie.2026.DV.Atmos",
+                    filename = "Movie.2026.DV.Atmos.mkv",
+                    size = 1_000L,
+                    folderSize = 1_000L,
+                    tracker = null,
+                    indexer = null,
+                    network = null,
+                    parsed = StreamClientResolveParsed(
+                        rawTitle = "Movie",
+                        parsedTitle = "Movie",
+                        year = 2026,
+                        resolution = "2160p",
+                        seasons = emptyList(),
+                        episodes = emptyList(),
+                        quality = "WEB-DL",
+                        hdr = listOf("DV"),
+                        codec = "HEVC",
+                        audio = listOf("Atmos"),
+                        channels = listOf("5.1"),
+                        languages = listOf("en"),
+                        group = "Movies",
                         network = null,
-                        parsed = StreamClientResolveParsed(
-                            rawTitle = "Movie",
-                            parsedTitle = "Movie",
-                            year = 2026,
-                            resolution = "2160p",
-                            seasons = emptyList(),
-                            episodes = emptyList(),
-                            quality = "WEB-DL",
-                            hdr = listOf("DV"),
-                            codec = "HEVC",
-                            audio = listOf("Atmos"),
-                            channels = listOf("5.1"),
-                            languages = listOf("en"),
-                            group = "Movies",
-                            network = null,
-                            edition = null,
-                            duration = null,
-                            bitDepth = null,
-                            extended = null,
-                            theatrical = null,
-                            remastered = null,
-                            unrated = null
-                        )
+                        edition = null,
+                        duration = null,
+                        bitDepth = null,
+                        extended = null,
+                        theatrical = null,
+                        remastered = null,
+                        unrated = null
                     )
                 )
             )
         )
+    )
 
     private fun fusionPayload(): String =
         """

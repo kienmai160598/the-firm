@@ -1,12 +1,9 @@
 package com.kien.movies.ui.screens.tmdb
 
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.screens.settings.TenFootTypography
-
+import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
-import android.graphics.Bitmap
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,9 +45,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -58,17 +58,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.animation.core.AnimationSpec
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.runtime.collectAsState
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
@@ -89,6 +85,9 @@ import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.PosterCardDefaults
 import com.kien.movies.ui.components.PosterCardStyle
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
+import com.kien.movies.ui.screens.settings.TenFootTypography
+import com.kien.movies.ui.theme.ExpressiveMotion
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
@@ -109,60 +108,66 @@ fun TmdbEntityBrowseScreen(
     BackHandler { onBackPress() }
 
     TenFootTypography {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MoviesTheme.colors.Background)
-    ) {
-        Crossfade(
-            targetState = screenMode,
-            animationSpec = ExpressiveMotion.defaultEffects(),
-            label = "TmdbEntityBrowseState"
-        ) { mode ->
-            when (mode) {
-                0 -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        LoadingIndicator()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MoviesTheme.colors.Background)
+        ) {
+            Crossfade(
+                targetState = screenMode,
+                animationSpec = ExpressiveMotion.defaultEffects(),
+                label = "TmdbEntityBrowseState"
+            ) { mode ->
+                when (mode) {
+                    0 -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            LoadingIndicator()
+                        }
+                    }
+
+                    1 -> {
+                        val errorState = uiState as? TmdbEntityBrowseUiState.Error
+                        ErrorState(
+                            message =
+                                errorState?.message
+                                    ?: stringResource(R.string.tmdb_entity_error_load),
+                            onRetry = { viewModel.retry() }
+                        )
+                    }
+
+                    else -> {
+                        val successState =
+                            uiState as? TmdbEntityBrowseUiState.Success ?: return@Crossfade
+                        TmdbEntityBrowseContent(
+                            data = successState.data,
+                            sourceType = viewModel.sourceType,
+                            watchedMovieIds = watchedMovieIds,
+                            watchedSeriesIds = watchedSeriesIds,
+                            posterCardCornerRadiusDp = viewModel.posterCardCornerRadiusDp.collectAsStateWithLifecycle().value,
+                            onNavigateToDetail = onNavigateToDetail,
+                            onItemLongPress = { item ->
+                                viewModel.posterOptions.show(item, null)
+                            },
+                            onLoadMoreRail = { mediaType, railType ->
+                                viewModel.loadMoreRail(mediaType = mediaType, railType = railType)
+                            }
+                        )
                     }
                 }
-
-                1 -> {
-                    val errorState = uiState as? TmdbEntityBrowseUiState.Error
-                    ErrorState(
-                        message = errorState?.message ?: stringResource(R.string.tmdb_entity_error_load),
-                        onRetry = { viewModel.retry() }
-                    )
-                }
-
-                else -> {
-                    val successState = uiState as? TmdbEntityBrowseUiState.Success ?: return@Crossfade
-                    TmdbEntityBrowseContent(
-                        data = successState.data,
-                        sourceType = viewModel.sourceType,
-                        watchedMovieIds = watchedMovieIds,
-                        watchedSeriesIds = watchedSeriesIds,
-                        posterCardCornerRadiusDp = viewModel.posterCardCornerRadiusDp.collectAsStateWithLifecycle().value,
-                        onNavigateToDetail = onNavigateToDetail,
-                        onItemLongPress = { item ->
-                            viewModel.posterOptions.show(item, null)
-                        },
-                        onLoadMoreRail = { mediaType, railType ->
-                            viewModel.loadMoreRail(mediaType = mediaType, railType = railType)
-                        }
-                    )
-                }
             }
+
+            val posterOptionsState by viewModel.posterOptions.state.collectAsStateWithLifecycle()
+            com.kien.movies.ui.components.posteroptions.PosterOptionsHost(
+                state = posterOptionsState,
+                controller = viewModel.posterOptions,
+                onNavigateToDetail = { id, type, addonBaseUrl ->
+                    onNavigateToDetail(id, type, addonBaseUrl.takeIf { it.isNotBlank() })
+                }
+            )
         }
-
-        val posterOptionsState by viewModel.posterOptions.state.collectAsStateWithLifecycle()
-        com.kien.movies.ui.components.posteroptions.PosterOptionsHost(
-            state = posterOptionsState,
-            controller = viewModel.posterOptions,
-            onNavigateToDetail = { id, type, addonBaseUrl ->
-                onNavigateToDetail(id, type, addonBaseUrl.takeIf { it.isNotBlank() })
-            }
-        )
-    }
     }
 }
 
@@ -278,7 +283,10 @@ private fun TmdbEntityBrowseContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
-                        contentPadding = PaddingValues(top = MoviesTheme.spacing.sm, bottom = railsTailPadding),
+                        contentPadding = PaddingValues(
+                            top = MoviesTheme.spacing.sm,
+                            bottom = railsTailPadding
+                        ),
                         verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl)
                     ) {
                         itemsIndexed(
@@ -287,18 +295,31 @@ private fun TmdbEntityBrowseContent(
                         ) { railIndex, rail ->
                             val railKey = "${rail.mediaType.value}_${rail.railType.value}"
                             val rememberedFocusedIndex = focusedItemIndexByRail[railKey] ?: 0
-                            val isRestoreRail = pendingRestoreRailKey == null || pendingRestoreRailKey == railKey
+                            val isRestoreRail =
+                                pendingRestoreRailKey == null || pendingRestoreRailKey == railKey
                             EntityRailRow(
                                 rail = rail,
-                                initialFocusRequester = if (railIndex == 0) firstCardFocusRequester else null,
-                                shouldRequestInitialFocus = railIndex == 0 && !initialFocusRequested && pendingRestoreItemId == null,
+                                initialFocusRequester = if (railIndex ==
+                                    0
+                                ) {
+                                    firstCardFocusRequester
+                                } else {
+                                    null
+                                },
+                                shouldRequestInitialFocus =
+                                    railIndex == 0 && !initialFocusRequested &&
+                                        pendingRestoreItemId == null,
                                 rowListState = railListStates.getOrPut(railKey) {
                                     LazyListState(
                                         firstVisibleItemIndex = rememberedFocusedIndex,
-                                        prefetchStrategy = LazyListPrefetchStrategy(nestedPrefetchItemCount = 2)
+                                        prefetchStrategy = LazyListPrefetchStrategy(
+                                            nestedPrefetchItemCount = 2
+                                        )
                                     )
                                 },
-                                itemFocusRequesters = railFocusRequesters.getOrPut(railKey) { mutableMapOf() },
+                                itemFocusRequesters = railFocusRequesters.getOrPut(railKey) {
+                                    mutableMapOf()
+                                },
                                 rememberedFocusedIndex = rememberedFocusedIndex,
                                 posterCardStyle = posterCardStyle,
                                 watchedMovieIds = watchedMovieIds,
@@ -333,7 +354,7 @@ private fun TmdbEntityBrowseContent(
 private fun rememberBackgroundRequest(
     data: TmdbEntityBrowseData,
     sourceType: String
-) : ImageRequest? {
+): ImageRequest? {
     val context = LocalContext.current
     return remember(context, data, sourceType) {
         val backgroundItem = data.rails.firstOrNull {
@@ -342,7 +363,8 @@ private fun rememberBackgroundRequest(
             } else {
                 TmdbEntityMediaType.TV
             }
-        }?.items?.firstOrNull()?.background ?: data.rails.firstOrNull()?.items?.firstOrNull()?.background
+        }?.items?.firstOrNull()?.background
+            ?: data.rails.firstOrNull()?.items?.firstOrNull()?.background
         backgroundItem?.let {
             ImageRequest.Builder(context)
                 .data(it)
@@ -353,10 +375,7 @@ private fun rememberBackgroundRequest(
 }
 
 @Composable
-private fun TmdbEntityHero(
-    data: TmdbEntityBrowseData,
-    modifier: Modifier = Modifier
-) {
+private fun TmdbEntityHero(data: TmdbEntityBrowseData, modifier: Modifier = Modifier) {
     val hasLogo = !data.header.logo.isNullOrBlank()
 
     Row(
@@ -441,7 +460,9 @@ private fun TmdbEntityHero(
                         logoColorFilter = if (isDarkMono) {
                             // Tint all opaque pixels white, preserving transparency
                             ColorFilter.tint(Color.White, BlendMode.SrcIn)
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 }
             }
@@ -484,9 +505,15 @@ private fun EntityRailRow(
     var restorePending by remember(rail.mediaType, rail.railType) { mutableStateOf(false) }
     val firstItemFocusRequester = initialFocusRequester
         ?: itemFocusRequesters.getOrPut(0) { FocusRequester() }
-    var lastLoadMoreRequestTotal by remember(rail.mediaType, rail.railType) { mutableIntStateOf(-1) }
+    var lastLoadMoreRequestTotal by remember(rail.mediaType, rail.railType) {
+        mutableIntStateOf(-1)
+    }
 
-    LaunchedEffect(shouldRequestInitialFocus, firstItemFocusRequester, rail.items.firstOrNull()?.id) {
+    LaunchedEffect(
+        shouldRequestInitialFocus,
+        firstItemFocusRequester,
+        rail.items.firstOrNull()?.id
+    ) {
         if (!shouldRequestInitialFocus || rail.items.isEmpty()) return@LaunchedEffect
         val focused = firstItemFocusRequester.requestFocusAfterFrames(frames = 2)
         if (focused) {
@@ -551,6 +578,7 @@ private fun EntityRailRow(
         Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
         val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
         val localDensity = LocalDensity.current
+
         @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
         val rowBringIntoViewSpec = remember(localDensity, defaultBringIntoViewSpec) {
             val startPx = with(localDensity) { MoviesTheme.spacing.xxxl.roundToPx() }
@@ -566,7 +594,13 @@ private fun EntityRailRow(
                     val childSize = kotlin.math.abs(size)
                     val target = startPx.toFloat()
                     val space = containerSize - target
-                    val leading = if (childSize <= containerSize && space < childSize) containerSize - childSize else target
+                    val leading = if (childSize <= containerSize &&
+                        space < childSize
+                    ) {
+                        containerSize - childSize
+                    } else {
+                        target
+                    }
                     return offset - leading
                 }
             }

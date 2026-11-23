@@ -99,26 +99,31 @@ class DebridFileSelectorParityTest {
     @Test
     fun `premiumize requires a playable link for the requested file`() {
         val files = listOf(
-            PremiumizeDirectDownloadFileDto(path = "Show.S01E01.mkv", link = "https://example.com/1"),
-            PremiumizeDirectDownloadFileDto(path = "Show.S01E02.mkv", link = null),
+            PremiumizeDirectDownloadFileDto(
+                path = "Show.S01E01.mkv",
+                link = "https://example.com/1"
+            ),
+            PremiumizeDirectDownloadFileDto(path = "Show.S01E02.mkv", link = null)
         )
 
         assertNull(
             PremiumizeDirectDownloadFileSelector().selectFile(
-                files, resolve(filename = "Show.S01E02.mkv", fileIdx = 0), 1, 2,
+                files,
+                resolve(filename = "Show.S01E02.mkv", fileIdx = 0),
+                1,
+                2
             )
         )
     }
 
-    private fun torboxFile(id: Int, name: String, size: Long): TorboxTorrentFileDto =
-        TorboxTorrentFileDto(
-            id = id,
-            name = name,
-            shortName = null,
-            absolutePath = null,
-            mimeType = null,
-            size = size
-        )
+    private fun torboxFile(id: Int, name: String, size: Long): TorboxTorrentFileDto = TorboxTorrentFileDto(
+        id = id,
+        name = name,
+        shortName = null,
+        absolutePath = null,
+        mimeType = null,
+        size = size
+    )
 
     private fun resolve(
         fileIdx: Int? = null,
@@ -126,24 +131,23 @@ class DebridFileSelectorParityTest {
         episode: Int? = null,
         filename: String? = null,
         title: String? = null
-    ): StreamClientResolve =
-        StreamClientResolve(
-            type = "debrid",
-            infoHash = "hash",
-            fileIdx = fileIdx,
-            magnetUri = "magnet:?xt=urn:btih:hash",
-            sources = null,
-            torrentName = "show",
-            filename = filename,
-            mediaType = "series",
-            mediaId = "tt1:1:1",
-            mediaOnlyId = "tt1",
-            title = title,
-            season = season,
-            episode = episode,
-            service = DebridProviders.TORBOX_ID,
-            serviceIndex = 0,
-            serviceExtension = null,
-            isCached = true
-        )
+    ): StreamClientResolve = StreamClientResolve(
+        type = "debrid",
+        infoHash = "hash",
+        fileIdx = fileIdx,
+        magnetUri = "magnet:?xt=urn:btih:hash",
+        sources = null,
+        torrentName = "show",
+        filename = filename,
+        mediaType = "series",
+        mediaId = "tt1:1:1",
+        mediaOnlyId = "tt1",
+        title = title,
+        season = season,
+        episode = episode,
+        service = DebridProviders.TORBOX_ID,
+        serviceIndex = 0,
+        serviceExtension = null,
+        isCached = true
+    )
 }

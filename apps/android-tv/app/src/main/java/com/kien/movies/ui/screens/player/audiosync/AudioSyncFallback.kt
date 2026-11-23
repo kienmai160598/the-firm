@@ -4,8 +4,6 @@ package com.kien.movies.ui.screens.player.audiosync
 
 import android.content.Context
 import android.net.Uri
-import com.kien.movies.ui.screens.player.autosync.AutoSyncPreferences
-import kotlinx.coroutines.flow.combine
 import androidx.media3.common.C
 import androidx.media3.common.Format
 import androidx.media3.common.Player
@@ -19,36 +17,38 @@ import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.ui.screens.player.PlayerPlaybackNetworking
 import com.kien.movies.ui.screens.player.PlayerRuntimeController
 import com.kien.movies.ui.screens.player.PlayerSubtitleUtils
+import com.kien.movies.ui.screens.player.audiosync.asr.AsrModel
+import com.kien.movies.ui.screens.player.autosync.AutoSyncPreferences
+import com.kien.movies.ui.screens.player.autosync.AutoSyncState
+import com.kien.movies.ui.screens.player.autosync.AutoSyncSyncedSubtitle
+import com.kien.movies.ui.screens.player.autosync.AutomaticSubtitleSync
 import com.kien.movies.ui.screens.player.buildAddonSubtitleTrackId
+import com.kien.movies.ui.screens.player.commitPreparedSidecarSubtitle
 import com.kien.movies.ui.screens.player.currentPlaybackDurationMs
 import com.kien.movies.ui.screens.player.currentPlaybackPositionMs
+import com.kien.movies.ui.screens.player.currentSidecarGenerationFor
 import com.kien.movies.ui.screens.player.isPlaybackCurrentlyPlaying
 import com.kien.movies.ui.screens.player.isUsingMpvEngine
 import com.kien.movies.ui.screens.player.keepMpvPlayingIfNeeded
-import com.kien.movies.ui.screens.player.updateMpvAvailableTracks
-import com.kien.movies.ui.screens.player.autosync.AutomaticSubtitleSync
-import com.kien.movies.ui.screens.player.autosync.AutoSyncState
-import com.kien.movies.ui.screens.player.autosync.AutoSyncSyncedSubtitle
-import com.kien.movies.ui.screens.player.commitPreparedSidecarSubtitle
-import com.kien.movies.ui.screens.player.currentSidecarGenerationFor
 import com.kien.movies.ui.screens.player.parseSidecarTimedCuesRobust
 import com.kien.movies.ui.screens.player.rememberAddonSubtitleSelection
 import com.kien.movies.ui.screens.player.setSubtitleDelayMs
-import com.kien.movies.ui.screens.player.audiosync.asr.AsrModel
+import com.kien.movies.ui.screens.player.updateMpvAvailableTracks
+import java.io.File
+import java.util.Locale
+import java.util.WeakHashMap
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.util.Locale
-import java.util.WeakHashMap
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Audio subtitle sync as AutoSync's fallback, for one stream of one TV player.
@@ -70,7 +70,7 @@ internal class AudioSyncFallback private constructor(
     private val player: ExoPlayer?,
     /** The player object this fallback belongs to (the ExoPlayer or the mpv view). */
     private val engine: Any,
-    private val sourceUrl: String,
+    private val sourceUrl: String
 ) {
     private val isMpv = player == null
     private val appContext = runtime.context.applicationContext
@@ -80,7 +80,7 @@ internal class AudioSyncFallback private constructor(
         // Subtitles are retimed in place, so the user's delay simply adds on top.
         manualDelayMs = { 0 },
         onStatus = ::onStatus,
-        requestSwitch = ::replaceSubtitle,
+        requestSwitch = ::replaceSubtitle
     )
 
     /**
@@ -91,7 +91,7 @@ internal class AudioSyncFallback private constructor(
         val url: String,
         val cues: List<CuesWithTiming>,
         val generation: Long,
-        var mpvTrackId: Int? = null,
+        var mpvTrackId: Int? = null
     )
 
     private val target = AtomicReference<Target?>(null)
@@ -124,9 +124,12 @@ internal class AudioSyncFallback private constructor(
         controller.setSpotSource(
             forSourceKey = sourceUrl,
             url = sourceUrl,
-            dataSourceFactory = PlayerPlaybackNetworking.createDataSourceFactory(appContext, runtime.currentHeaders),
+            dataSourceFactory = PlayerPlaybackNetworking.createDataSourceFactory(
+                appContext,
+                runtime.currentHeaders
+            ),
             extractorsFactory = DefaultExtractorsFactory(),
-            localEngine = runtime._uiState.value.isTorrentStream || isLoopback(sourceUrl),
+            localEngine = runtime._uiState.value.isTorrentStream || isLoopback(sourceUrl)
         )
         if (player != null) {
             player.addListener(trackListener)
@@ -135,7 +138,10 @@ internal class AudioSyncFallback private constructor(
         }
         // Turned off in Settings mid-playback: the subtitle goes back to AutoSync's (original) timing.
         settingsJob = scope.launch {
-            combine(AudioSyncSettings.fallbackEnabled, AutoSyncPreferences.enabled) { audio, auto -> audio && auto }
+            combine(AudioSyncSettings.fallbackEnabled, AutoSyncPreferences.enabled) { audio, auto ->
+                audio &&
+                    auto
+            }
                 .collect { enabled ->
                     if (!enabled) {
                         stop()
@@ -160,7 +166,11 @@ internal class AudioSyncFallback private constructor(
             armed = true
             val type = runtime.contentType
             val videoId = runtime.videoId
-            if (!type.isNullOrBlank() && !videoId.isNullOrBlank()) controller.setContent(type, videoId)
+            if (!type.isNullOrBlank() &&
+                !videoId.isNullOrBlank()
+            ) {
+                controller.setContent(type, videoId)
+            }
         }
         // As on the phone, subtitles listed after AutoSync started join the search too.
         candidatesJob = scope.launch {
@@ -185,7 +195,7 @@ internal class AudioSyncFallback private constructor(
                 url = subtitle.url,
                 language = subtitle.lang,
                 headers = subtitle.headers.orEmpty(),
-                label = subtitle.addonName,
+                label = subtitle.addonName
             )
         }
     }
@@ -219,7 +229,9 @@ internal class AudioSyncFallback private constructor(
         }
         takeOverJob = scope.launch {
             var waitedMs = 0L
-            while (runtime.activeSidecarSubtitleKey == url && runtime.sidecarTimedCues.isEmpty() && waitedMs < CUES_WAIT_MS) {
+            while (runtime.activeSidecarSubtitleKey == url && runtime.sidecarTimedCues.isEmpty() &&
+                waitedMs < CUES_WAIT_MS
+            ) {
                 delay(CUES_POLL_MS)
                 waitedMs += CUES_POLL_MS
             }
@@ -243,7 +255,13 @@ internal class AudioSyncFallback private constructor(
     /** mpv: the subtitle's cues come from its file, as mpv shows them without the sidecar. */
     private suspend fun takeOverMpv(url: String) {
         val subtitle = runtime._uiState.value.selectedAddonSubtitle?.takeIf { it.url == url }
-        val cues = if (subtitle == null) emptyList() else downloadCues(url, subtitle.headers.orEmpty())
+        val cues = if (subtitle ==
+            null
+        ) {
+            emptyList()
+        } else {
+            downloadCues(url, subtitle.headers.orEmpty())
+        }
         if (!isMpvShowing(url)) return disarm()
         if (cues.isEmpty()) {
             AutoSyncSyncedSubtitle.fail(statusRun)
@@ -259,25 +277,30 @@ internal class AudioSyncFallback private constructor(
         controller.startSession(url, cues)
     }
 
-    private suspend fun downloadCues(url: String, headers: Map<String, String>): List<CuesWithTiming> =
-        withContext(Dispatchers.IO) {
-            runCatching {
-                val body = AutomaticSubtitleSync.downloadSubtitleBody(url = url, headers = headers)
-                parseSidecarTimedCuesRobust(body, url).cues
-            }.getOrDefault(emptyList())
-        }
+    private suspend fun downloadCues(
+        url: String,
+        headers: Map<String, String>
+    ): List<CuesWithTiming> = withContext(Dispatchers.IO) {
+        runCatching {
+            val body = AutomaticSubtitleSync.downloadSubtitleBody(url = url, headers = headers)
+            parseSidecarTimedCuesRobust(body, url).cues
+        }.getOrDefault(emptyList())
+    }
 
     /** mpv still plays this fallback's stream with [url] as the chosen add-on subtitle. */
-    private fun isMpvShowing(url: String): Boolean =
-        runtime.isUsingMpvEngine() && runtime.mpvView === engine && runtime.currentStreamUrl == sourceUrl &&
-            runtime._uiState.value.selectedAddonSubtitle?.url == url
+    private fun isMpvShowing(url: String): Boolean = runtime.isUsingMpvEngine() && runtime.mpvView === engine &&
+        runtime.currentStreamUrl == sourceUrl &&
+        runtime._uiState.value.selectedAddonSubtitle?.url == url
 
     /** The subtitle [current] was made for is still the one shown. */
-    private fun stillShown(current: Target): Boolean =
-        if (isMpv) isMpvShowing(current.url) else runtime.currentSidecarGenerationFor(current.url) == current.generation
+    private fun stillShown(current: Target): Boolean = if (isMpv) {
+        isMpvShowing(current.url)
+    } else {
+        runtime.currentSidecarGenerationFor(current.url) ==
+            current.generation
+    }
 
-    private fun mpvAudioLanguage(): String? =
-        runtime._uiState.value.audioTracks.firstOrNull { it.isSelected }?.language
+    private fun mpvAudioLanguage(): String? = runtime._uiState.value.audioTracks.firstOrNull { it.isSelected }?.language
 
     /** The user moved to another subtitle or track, or AutoSync starts over. */
     fun stop() {
@@ -299,7 +322,7 @@ internal class AudioSyncFallback private constructor(
                     expectedCurrentUrl = previous.url,
                     newUrl = previous.url,
                     cues = previous.cues,
-                    expectedGeneration = previous.generation,
+                    expectedGeneration = previous.generation
                 )
             }
         }
@@ -329,7 +352,9 @@ internal class AudioSyncFallback private constructor(
                     return@launch
                 }
                 if (isMpv) controller.spotOnlyAudioLanguage = mpvAudioLanguage()
-                val durationMs = runtime.currentPlaybackDurationMs().takeIf { it > 0L && it != C.TIME_UNSET } ?: 0L
+                val durationMs =
+                    runtime.currentPlaybackDurationMs().takeIf { it > 0L && it != C.TIME_UNSET }
+                        ?: 0L
                 controller.onPlaybackPosition(runtime.currentPlaybackPositionMs() ?: 0L, durationMs)
                 val model = controller.currentModel()
                 if (current != null && model !== appliedModel) {
@@ -341,12 +366,15 @@ internal class AudioSyncFallback private constructor(
                 if (current != null && target.get() === current && status != null) {
                     when (status) {
                         is AudioSyncStatus.Synced, is AudioSyncStatus.Adjusted -> {
-                            if (appliedModel != null && appliedModel === controller.currentModel()) {
+                            if (appliedModel != null &&
+                                appliedModel === controller.currentModel()
+                            ) {
                                 AutoSyncSyncedSubtitle.mark(current.url)
                             } else if (controller.currentModel() != null) {
                                 pendingStatus = status
                             }
                         }
+
                         AudioSyncStatus.Withdrawn -> {
                             if (controller.currentModel() == null) {
                                 statusRun = AutoSyncSyncedSubtitle.start(current.url)
@@ -354,20 +382,26 @@ internal class AudioSyncFallback private constructor(
                                 unmatchedReported = false
                             }
                         }
+
                         AudioSyncStatus.Failed -> {
                             if (controller.currentModel() == null) {
                                 AutoSyncSyncedSubtitle.mark(current.url, AutoSyncState.FAILED)
                             }
                         }
+
                         else -> Unit
                     }
                 }
                 // Still nothing after a while: log it once, and keep searching.
-                if (current != null && target.get() === current && !unmatchedReported && controller.currentModel() == null) {
+                if (current != null && target.get() === current && !unmatchedReported &&
+                    controller.currentModel() == null
+                ) {
                     if (runtime.isPlaybackCurrentlyPlaying()) unmatchedPlayedMs += TICK_MS
                     if (unmatchedPlayedMs >= UNMATCHED_REPORT_MS) {
                         unmatchedReported = true
-                        SyncLog.i("no audio match after ${unmatchedPlayedMs / 1_000}s of playback; still searching")
+                        SyncLog.i(
+                            "no audio match after ${unmatchedPlayedMs / 1_000}s of playback; still searching"
+                        )
                         AutoSyncSyncedSubtitle.fail(statusRun)
                     }
                 }
@@ -384,7 +418,7 @@ internal class AudioSyncFallback private constructor(
             expectedCurrentUrl = current.url,
             newUrl = current.url,
             cues = retimed,
-            expectedGeneration = current.generation,
+            expectedGeneration = current.generation
         )
         if (!committed) stop()
     }
@@ -410,7 +444,7 @@ internal class AudioSyncFallback private constructor(
                 path = it,
                 title = subtitle?.let(runtime::buildAddonSubtitleTrackId),
                 language = subtitle?.lang?.let(PlayerSubtitleUtils::normalizeLanguageCode),
-                replaceTrackId = current.mpvTrackId,
+                replaceTrackId = current.mpvTrackId
             )
         }
         if (trackId == null) {
@@ -435,7 +469,7 @@ internal class AudioSyncFallback private constructor(
             view.addAndSelectExternalSubtitle(
                 url = previous.url,
                 title = subtitle?.let(runtime::buildAddonSubtitleTrackId),
-                language = subtitle?.lang?.let(PlayerSubtitleUtils::normalizeLanguageCode),
+                language = subtitle?.lang?.let(PlayerSubtitleUtils::normalizeLanguageCode)
             )
         }
         view.removeSubtitleTrack(trackId)
@@ -458,7 +492,8 @@ internal class AudioSyncFallback private constructor(
     private fun replaceSubtitle(url: String) {
         scope.launch {
             val current = target.get() ?: return@launch
-            val subtitle = runtime._uiState.value.addonSubtitles.firstOrNull { it.url == url } ?: return@launch
+            val subtitle =
+                runtime._uiState.value.addonSubtitles.firstOrNull { it.url == url } ?: return@launch
             val cues = downloadCues(url, subtitle.headers.orEmpty())
             if (cues.isEmpty() || target.get() !== current) return@launch
             if (isMpv) {
@@ -467,8 +502,14 @@ internal class AudioSyncFallback private constructor(
                 // The previous copy is replaced as soon as the handed-over mapping is applied.
                 target.set(Target(url, cues, generation = 0L, mpvTrackId = current.mpvTrackId))
                 appliedModel = null
-                runtime._uiState.update { it.copy(selectedAddonSubtitle = subtitle, selectedSubtitleTrackIndex = -1) }
-                if (runtime.isUserExplicitSubtitleSelection) runtime.rememberAddonSubtitleSelection(subtitle)
+                runtime._uiState.update {
+                    it.copy(selectedAddonSubtitle = subtitle, selectedSubtitleTrackIndex = -1)
+                }
+                if (runtime.isUserExplicitSubtitleSelection) {
+                    runtime.rememberAddonSubtitleSelection(
+                        subtitle
+                    )
+                }
                 runtime.setSubtitleDelayMs(targetMs = 0, showOverlay = false)
                 controller.startSession(url, cues)
                 return@launch
@@ -477,16 +518,22 @@ internal class AudioSyncFallback private constructor(
                 expectedCurrentUrl = current.url,
                 newUrl = url,
                 cues = cues,
-                expectedGeneration = current.generation,
+                expectedGeneration = current.generation
             )
             val generation = runtime.currentSidecarGenerationFor(url)
             if (!committed || generation == null) return@launch
             statusRun = AutoSyncSyncedSubtitle.start(url)
             target.set(Target(url, cues, generation))
             appliedModel = null
-            runtime._uiState.update { it.copy(selectedAddonSubtitle = subtitle, selectedSubtitleTrackIndex = -1) }
+            runtime._uiState.update {
+                it.copy(selectedAddonSubtitle = subtitle, selectedSubtitleTrackIndex = -1)
+            }
             // Saved only over a subtitle the user chose, as AutoSync does.
-            if (runtime.isUserExplicitSubtitleSelection) runtime.rememberAddonSubtitleSelection(subtitle)
+            if (runtime.isUserExplicitSubtitleSelection) {
+                runtime.rememberAddonSubtitleSelection(
+                    subtitle
+                )
+            }
             runtime.setSubtitleDelayMs(targetMs = 0, showOverlay = false)
             // The new session adopts the mapping the switch was decided with.
             controller.startSession(url, cues)
@@ -496,7 +543,10 @@ internal class AudioSyncFallback private constructor(
     /** Only confirmed results mark the subtitle as synced; later refinements change nothing. */
     private fun onStatus(status: AudioSyncStatus) {
         if (status !is AudioSyncStatus.Synced && status !is AudioSyncStatus.Adjusted &&
-            status != AudioSyncStatus.Withdrawn && status != AudioSyncStatus.Failed) return
+            status != AudioSyncStatus.Withdrawn && status != AudioSyncStatus.Failed
+        ) {
+            return
+        }
         val current = target.get() ?: return
         scope.launch {
             if (target.get() === current) pendingStatus = status
@@ -510,26 +560,34 @@ internal class AudioSyncFallback private constructor(
         private const val UNMATCHED_REPORT_MS = 5 * 60_000L
         private val initialized = AtomicBoolean(false)
         private val fallbacks = WeakHashMap<PlayerRuntimeController, AudioSyncFallback>()
-        private val allSubtitles = WeakHashMap<PlayerRuntimeController, Pair<String?, List<Subtitle>>>()
+        private val allSubtitles =
+            WeakHashMap<PlayerRuntimeController, Pair<String?, List<Subtitle>>>()
 
         /**
          * The add-on subtitles found for [runtime]'s current title before Movies hides languages
          * the user didn't ask for; the audio sync still uses those as references.
          */
         fun offerSubtitles(runtime: PlayerRuntimeController, subtitles: List<Subtitle>) {
-            synchronized(allSubtitles) { allSubtitles[runtime] = runtime.currentVideoId to subtitles }
+            synchronized(allSubtitles) {
+                allSubtitles[runtime] = runtime.currentVideoId to subtitles
+            }
         }
 
         /** Settings persistence and the speech model. Safe to call more than once. */
         fun initialize(context: Context) {
             if (!initialized.compareAndSet(false, true)) return
             val appContext = context.applicationContext
-            val preferences = appContext.getSharedPreferences("nuvio_audio_sync_settings", Context.MODE_PRIVATE)
+            val preferences = appContext.getSharedPreferences(
+                "nuvio_audio_sync_settings",
+                Context.MODE_PRIVATE
+            )
             AudioSyncSettings.installPersistence(
-                load = { key -> if (preferences.contains(key)) preferences.getBoolean(key, false) else null },
+                load = { key ->
+                    if (preferences.contains(key)) preferences.getBoolean(key, false) else null
+                },
                 save = { key, value -> preferences.edit().putBoolean(key, value).apply() },
                 loadString = { key -> preferences.getString(key, null) },
-                saveString = { key, value -> preferences.edit().putString(key, value).apply() },
+                saveString = { key, value -> preferences.edit().putString(key, value).apply() }
             )
             AsrModel.initialize(appContext)
         }
@@ -545,11 +603,16 @@ internal class AudioSyncFallback private constructor(
             val exoPlayer = if (mpvView == null) runtime._exoPlayer else null
             val engine: Any = mpvView ?: exoPlayer ?: return null
             val existing = fallbacks[runtime]
-            if (existing != null && existing.engine === engine && existing.sourceUrl == runtime.currentStreamUrl) {
+            if (existing != null && existing.engine === engine &&
+                existing.sourceUrl == runtime.currentStreamUrl
+            ) {
                 return existing
             }
             existing?.release()
-            AudioSyncFallback(runtime, exoPlayer, engine, runtime.currentStreamUrl).also { fallbacks[runtime] = it }
+            AudioSyncFallback(runtime, exoPlayer, engine, runtime.currentStreamUrl).also {
+                fallbacks[runtime] =
+                    it
+            }
         }
 
         /** The player is closing: stop and free [runtime]'s fallback. */
@@ -573,7 +636,9 @@ internal class AudioSyncFallback private constructor(
             var index = 1
             for (entry in cues) {
                 if (entry.startTimeUs == C.TIME_UNSET) continue
-                val text = entry.cues.mapNotNull { it.text?.toString()?.trim()?.takeIf(String::isNotEmpty) }
+                val text = entry.cues.mapNotNull {
+                    it.text?.toString()?.trim()?.takeIf(String::isNotEmpty)
+                }
                     .joinToString("\n")
                 if (text.isEmpty()) continue
                 val endUs = when {
@@ -582,7 +647,9 @@ internal class AudioSyncFallback private constructor(
                     else -> entry.startTimeUs + 2_000_000L
                 }
                 append(index++).append('\n')
-                append(srtTime(entry.startTimeUs)).append(" --> ").append(srtTime(endUs)).append('\n')
+                append(
+                    srtTime(entry.startTimeUs)
+                ).append(" --> ").append(srtTime(endUs)).append('\n')
                 append(text).append("\n\n")
             }
         }
@@ -593,7 +660,10 @@ internal class AudioSyncFallback private constructor(
             return String.format(
                 Locale.ROOT,
                 "%02d:%02d:%02d,%03d",
-                totalMs / 3_600_000L, totalMs / 60_000L % 60L, totalMs / 1_000L % 60L, totalMs % 1_000L,
+                totalMs / 3_600_000L,
+                totalMs / 60_000L % 60L,
+                totalMs / 1_000L % 60L,
+                totalMs % 1_000L
             )
         }
 
@@ -602,7 +672,10 @@ internal class AudioSyncFallback private constructor(
          * original cues when there is no mapping. Lines of a scene the release cuts are dropped,
          * as a subtitle delay would never show them either.
          */
-        internal fun retime(cues: List<CuesWithTiming>, model: SubtitleSyncModel?): List<CuesWithTiming> {
+        internal fun retime(
+            cues: List<CuesWithTiming>,
+            model: SubtitleSyncModel?
+        ): List<CuesWithTiming> {
             if (model == null) return cues
             return cues.mapNotNull { entry ->
                 if (entry.startTimeUs == C.TIME_UNSET) return@mapNotNull entry
@@ -612,7 +685,16 @@ internal class AudioSyncFallback private constructor(
                     entry.endTimeUs != C.TIME_UNSET -> entry.endTimeUs - entry.startTimeUs
                     else -> C.TIME_UNSET
                 }
-                val scaledUs = if (durationUs == C.TIME_UNSET) durationUs else (durationUs * model.segmentAt(startUs / 1_000L).scale).toLong()
+                val scaledUs = if (durationUs ==
+                    C.TIME_UNSET
+                ) {
+                    durationUs
+                } else {
+                    (
+                        durationUs *
+                            model.segmentAt(startUs / 1_000L).scale
+                        ).toLong()
+                }
                 CuesWithTiming(entry.cues, startUs, scaledUs)
             }.sortedBy { it.startTimeUs }
         }
@@ -636,28 +718,43 @@ internal object AudioSyncTaps {
     }
 
     /** Copies the audio of [sourceKey]'s stream while it is demuxed (look-ahead). */
-    fun wrapExtractors(factory: ExtractorsFactory, sourceKey: String): ExtractorsFactory =
-        AudioSyncExtractorsFactory(factory, object : AudioSampleSink {
+    fun wrapExtractors(factory: ExtractorsFactory, sourceKey: String): ExtractorsFactory = AudioSyncExtractorsFactory(
+        factory,
+        object : AudioSampleSink {
             private fun current() = active?.takeIf { it.currentSourceKey == sourceKey }
 
             override fun wantsSamples(format: Format): Boolean = current()?.wantsSamples(format) == true
 
-            override fun onSample(format: Format, timeUs: Long, data: ByteArray, offset: Int, size: Int) {
+            override fun onSample(
+                format: Format,
+                timeUs: Long,
+                data: ByteArray,
+                offset: Int,
+                size: Int
+            ) {
                 current()?.onSample(format, timeUs, data, offset, size)
             }
 
             override fun onDiscontinuity() {
                 current()?.onDiscontinuity()
             }
-        })
+        }
+    )
 
     /** Hears the player's own decoded audio where the look-ahead copy can't be decoded. */
-    fun wrapAudioSink(sink: AudioSink): AudioSink = PlaybackAudioTap(sink, object : PlaybackPcmListener {
-        override fun wantsPlaybackPcm(mediaTimeUs: Long, durationUs: Long): Boolean =
-            active?.wantsPlaybackPcm(mediaTimeUs, durationUs) == true
+    fun wrapAudioSink(sink: AudioSink): AudioSink = PlaybackAudioTap(
+        sink,
+        object : PlaybackPcmListener {
+            override fun wantsPlaybackPcm(mediaTimeUs: Long, durationUs: Long): Boolean = active?.wantsPlaybackPcm(mediaTimeUs, durationUs) == true
 
-        override fun onPlaybackPcm(mono: FloatArray, frames: Int, sampleRate: Int, mediaTimeUs: Long) {
-            active?.onPlaybackPcm(mono, frames, sampleRate, mediaTimeUs)
+            override fun onPlaybackPcm(
+                mono: FloatArray,
+                frames: Int,
+                sampleRate: Int,
+                mediaTimeUs: Long
+            ) {
+                active?.onPlaybackPcm(mono, frames, sampleRate, mediaTimeUs)
+            }
         }
-    })
+    )
 }

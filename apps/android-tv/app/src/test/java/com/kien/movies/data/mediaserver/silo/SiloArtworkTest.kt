@@ -16,7 +16,10 @@ class SiloArtworkTest {
     private val fresh = "https://silo.example.com/api/v2/artwork/a.jpg?exp=2000000000&sig=new"
     private var fetches = 0
     private val refresher = SiloArtworkRefresher(
-        fetch = { fetches++; mapOf(SiloArtworkKind.POSTER to fresh) },
+        fetch = {
+            fetches++
+            mapOf(SiloArtworkKind.POSTER to fresh)
+        },
         now = { 1_500_000L }
     )
 
@@ -38,7 +41,9 @@ class SiloArtworkTest {
             .addInterceptor(SiloArtworkInterceptor({ refresher }, nowSeconds = { 1_500L }))
             .addInterceptor { chain ->
                 sent += chain.request()
-                Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("OK")
+                Response.Builder().request(
+                    chain.request()
+                ).protocol(Protocol.HTTP_1_1).code(200).message("OK")
                     .body(ByteArray(0).toResponseBody()).build()
             }
             .build()
@@ -57,7 +62,9 @@ class SiloArtworkTest {
             .addInterceptor { chain ->
                 sent += chain.request()
                 val code = if (chain.request().url.queryParameter("sig") == "old") 403 else 200
-                Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(code).message("x")
+                Response.Builder().request(
+                    chain.request()
+                ).protocol(Protocol.HTTP_1_1).code(code).message("x")
                     .body(ByteArray(0).toResponseBody()).build()
             }
             .build()

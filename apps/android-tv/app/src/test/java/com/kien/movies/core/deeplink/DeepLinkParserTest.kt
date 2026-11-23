@@ -17,7 +17,10 @@ class DeepLinkParserTest {
     @Test
     fun parsesPartyInviteDeepLink() {
         assertEquals(AppDeepLink.Party("ABC234"), DeepLinkParser.parse("movies://party/abc234"))
-        assertEquals(AppDeepLink.Party("ABC234"), DeepLinkParser.parse("movies://party?code=ABC-234"))
+        assertEquals(
+            AppDeepLink.Party("ABC234"),
+            DeepLinkParser.parse("movies://party?code=ABC-234")
+        )
         assertNull(DeepLinkParser.parse("movies://party/ABC10"))
     }
 

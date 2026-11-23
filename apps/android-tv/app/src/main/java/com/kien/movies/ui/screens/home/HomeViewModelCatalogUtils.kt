@@ -1,11 +1,11 @@
 package com.kien.movies.ui.screens.home
 
-import com.kien.movies.domain.model.catalogTypeKey
-import com.kien.movies.domain.model.catalogRowLegacyKey
 import com.kien.movies.domain.model.Addon
 import com.kien.movies.domain.model.CatalogDescriptor
 import com.kien.movies.domain.model.CatalogRow
 import com.kien.movies.domain.model.MetaPreview
+import com.kien.movies.domain.model.catalogRowLegacyKey
+import com.kien.movies.domain.model.catalogTypeKey
 import com.kien.movies.domain.model.stableKey
 import kotlinx.coroutines.Job
 
@@ -127,9 +127,13 @@ internal fun HomeViewModel.replaceCatalogRow(key: String, row: CatalogRow) {
                         mdbListRatingOrder = prev.mdbListRatingOrder,
                         imdbRating = prev.mdbListRatings.imdb?.toFloat() ?: newItem.imdbRating
                     )
-                } else newItem
+                } else {
+                    newItem
+                }
             }
-        } else row.items
+        } else {
+            row.items
+        }
         val mergedRow = if (mergedItems !== row.items) row.copy(items = mergedItems) else row
         catalogsMap.put(key, mergedRow)
         reindexCatalogRow(key, previousRow, mergedRow)
@@ -173,7 +177,9 @@ internal fun HomeViewModel.snapshotCatalogState(): Pair<List<String>, Map<String
 // A title can be in several rows with different data: prefer the row the user is on.
 internal fun HomeViewModel.findCatalogItemById(itemId: String): MetaPreview? = synchronized(catalogStateLock) {
     val rows = catalogItemKeyIndex[itemId]?.toList().orEmpty().mapNotNull { catalogsMap[it] }
-    val focusedRow = liveFocusedRowKey?.let { key -> rows.firstOrNull { it.stableKey() == key } }
+    val focusedRow = liveFocusedRowKey?.let { key ->
+        rows.firstOrNull { it.stableKey() == key }
+    }
     (listOfNotNull(focusedRow) + rows).firstNotNullOfOrNull { row ->
         row.items.firstOrNull { it.id == itemId }
     }
@@ -206,11 +212,16 @@ internal inline fun HomeViewModel.updateIndexedCatalogItem(
     }
 }
 
-internal fun HomeViewModel.getTruncatedRowCacheEntry(key: String): HomeViewModel.TruncatedRowCacheEntry? = synchronized(catalogStateLock) {
+internal fun HomeViewModel.getTruncatedRowCacheEntry(
+    key: String
+): HomeViewModel.TruncatedRowCacheEntry? = synchronized(catalogStateLock) {
     truncatedRowCache[key]
 }
 
-internal fun HomeViewModel.putTruncatedRowCacheEntry(key: String, entry: HomeViewModel.TruncatedRowCacheEntry) {
+internal fun HomeViewModel.putTruncatedRowCacheEntry(
+    key: String,
+    entry: HomeViewModel.TruncatedRowCacheEntry
+) {
     synchronized(catalogStateLock) {
         truncatedRowCache[key] = entry
     }
@@ -355,7 +366,7 @@ internal fun HomeViewModel.disableCatalogKey(
     catalogId: String,
     catalogName: String
 ): String {
-    return "${addonBaseUrl}_${catalogTypeKey(type)}_${catalogId}_${catalogName}"
+    return "${addonBaseUrl}_${catalogTypeKey(type)}_${catalogId}_$catalogName"
 }
 
 internal fun CatalogDescriptor.shouldShowOnHome(): Boolean {

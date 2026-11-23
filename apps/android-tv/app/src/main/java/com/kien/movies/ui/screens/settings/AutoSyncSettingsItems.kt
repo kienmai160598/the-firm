@@ -20,7 +20,7 @@ internal fun autoSyncSettingsItems(enabled: Boolean) {
         subtitle = stringResource(R.string.autosync_setting_description),
         checked = checked,
         onToggle = { AutoSyncPreferences.setEnabled(context, !checked) },
-        enabled = enabled,
+        enabled = enabled
     )
 
     // Tolerance and search depth only matter while AutoSync is on.
@@ -39,7 +39,7 @@ internal fun autoSyncSettingsItems(enabled: Boolean) {
                 stringResource(R.string.autosync_tolerance_off)
             },
             onValueChange = { AutoSyncPreferences.setSyncToleranceMs(context, it) },
-            enabled = enabled,
+            enabled = enabled
         )
 
         SettingsToggleRow(
@@ -47,7 +47,7 @@ internal fun autoSyncSettingsItems(enabled: Boolean) {
             subtitle = stringResource(R.string.autosync_thorough_description),
             checked = thorough,
             onToggle = { AutoSyncPreferences.setAggressiveMode(context, !thorough) },
-            enabled = enabled,
+            enabled = enabled
         )
     }
 }

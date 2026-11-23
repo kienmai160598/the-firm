@@ -22,7 +22,11 @@ object FilenameEpisodeMatcher {
         // Return on first match to avoid replacing unrelated numbers.
         for (pattern in patterns) {
             val result = pattern.replace(
-                filename, currentSeason, currentEpisode, nextSeason, nextEpisode
+                filename,
+                currentSeason,
+                currentEpisode,
+                nextSeason,
+                nextEpisode
             )
             if (result != null) return result
         }
@@ -37,7 +41,6 @@ object FilenameEpisodeMatcher {
         if (candidateFilename.isNullOrBlank() || expectedFilename.isNullOrBlank()) return false
         return candidateFilename.equals(expectedFilename, ignoreCase = true)
     }
-
 
     private interface EpisodePattern {
         fun replace(
@@ -75,7 +78,7 @@ object FilenameEpisodeMatcher {
             val nextEpisodeStr = nextEpisode.toString().padStart(episodeWidth, '0')
 
             // Reconstruct with same S/E casing and spacing
-            val replacement = "${match.groupValues[1]}${nextSeasonStr}${match.groupValues[3]}${nextEpisodeStr}"
+            val replacement = "${match.groupValues[1]}${nextSeasonStr}${match.groupValues[3]}$nextEpisodeStr"
             return filename.replaceRange(match.range, replacement)
         }
     }
@@ -99,7 +102,10 @@ object FilenameEpisodeMatcher {
             val seasonWidth = match.groupValues[1].length
             val episodeWidth = match.groupValues[2].length
             val sep = filename[match.range.first + match.groupValues[1].length]
-            val replacement = "${(nextSeason ?: currentSeason).toString().padStart(seasonWidth, '0')}${sep}${nextEpisode.toString().padStart(episodeWidth, '0')}"
+            val replacement = "${(nextSeason ?: currentSeason).toString().padStart(
+                seasonWidth,
+                '0'
+            )}${sep}${nextEpisode.toString().padStart(episodeWidth, '0')}"
             return filename.replaceRange(match.range, replacement)
         }
     }
@@ -122,9 +128,13 @@ object FilenameEpisodeMatcher {
             val prefix = match.groupValues[1]
             val separator = filename.substring(
                 match.range.first + prefix.length,
-                match.range.first + prefix.length + (match.value.length - prefix.length - match.groupValues[2].length)
+                match.range.first + prefix.length +
+                    (match.value.length - prefix.length - match.groupValues[2].length)
             )
-            val replacement = "$prefix$separator${nextEpisode.toString().padStart(episodeWidth, '0')}"
+            val replacement = "$prefix$separator${nextEpisode.toString().padStart(
+                episodeWidth,
+                '0'
+            )}"
             return filename.replaceRange(match.range, replacement)
         }
     }

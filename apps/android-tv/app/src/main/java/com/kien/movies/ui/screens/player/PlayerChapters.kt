@@ -4,10 +4,7 @@ import androidx.compose.runtime.Immutable
 
 /** A chapter of the playing file, as its container lists it. */
 @Immutable
-data class PlayerChapter(
-    val startMs: Long,
-    val title: String?
-)
+data class PlayerChapter(val startMs: Long, val title: String?)
 
 internal object PlayerChapters {
 
@@ -27,11 +24,9 @@ internal object PlayerChapters {
     }
 
     /** Index of the chapter playing at [positionMs], or -1 before the first one starts. */
-    fun indexAt(chapters: List<PlayerChapter>, positionMs: Long): Int =
-        chapters.indexOfLast { it.startMs <= positionMs }
+    fun indexAt(chapters: List<PlayerChapter>, positionMs: Long): Int = chapters.indexOfLast { it.startMs <= positionMs }
 
-    fun nextStartMs(chapters: List<PlayerChapter>, positionMs: Long): Long? =
-        chapters.firstOrNull { it.startMs > positionMs }?.startMs
+    fun nextStartMs(chapters: List<PlayerChapter>, positionMs: Long): Long? = chapters.firstOrNull { it.startMs > positionMs }?.startMs
 
     /** The current chapter's start, or the one before when [positionMs] is right after that start. */
     fun previousStartMs(chapters: List<PlayerChapter>, positionMs: Long): Long? {

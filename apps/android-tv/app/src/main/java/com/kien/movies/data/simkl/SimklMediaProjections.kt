@@ -41,7 +41,7 @@ fun SimklSyncSnapshot.toSimklWatchedProjection(): SimklWatchedProjection {
 
         var hasEpisodeHistory = false
         entry.seasons.forEach { season ->
-            season.episodes.forEach episodeLoop@ { episode ->
+            season.episodes.forEach episodeLoop@{ episode ->
                 val seasonNumber = episode.tvdb?.season ?: season.number ?: return@episodeLoop
                 val episodeNumber = episode.tvdb?.episode ?: episode.number ?: return@episodeLoop
                 val episodeWatchedAt = parseSimklUtcEpochMs(episode.watchedAt) ?: return@episodeLoop
@@ -74,8 +74,7 @@ fun SimklSyncSnapshot.toSimklWatchedProjection(): SimklWatchedProjection {
     )
 }
 
-fun SimklSyncSnapshot.toSimklProgressEntries(): List<WatchProgress> =
-    toSimklProgressEntries(entryIndex = null)
+fun SimklSyncSnapshot.toSimklProgressEntries(): List<WatchProgress> = toSimklProgressEntries(entryIndex = null)
 
 internal fun SimklSyncSnapshot.toSimklProgressEntries(
     entryIndex: SimklEntryIndex?
@@ -141,8 +140,9 @@ internal fun SimklSyncSnapshot.mediaReference(
     )
 }
 
-fun SimklSyncSnapshot.enrichMediaReference(reference: TrackingMediaReference): TrackingMediaReference =
-    enrichMediaReference(reference, entryIndex = null)
+fun SimklSyncSnapshot.enrichMediaReference(
+    reference: TrackingMediaReference
+): TrackingMediaReference = enrichMediaReference(reference, entryIndex = null)
 
 internal fun SimklSyncSnapshot.enrichMediaReference(
     reference: TrackingMediaReference,
@@ -182,8 +182,7 @@ fun SimklMedia.toTrackingExternalIds(): TrackingExternalIds = TrackingExternalId
     kitsu = ids.idValue("kitsu")?.toLongOrNull()
 )
 
-fun SimklMedia.canonicalContentId(): String? =
-    canonicalContentId(SimklAnimeIdPreferenceHolder.current)
+fun SimklMedia.canonicalContentId(): String? = canonicalContentId(SimklAnimeIdPreferenceHolder.current)
 
 /**
  * Resolves the canonical content ID for this media entry.
@@ -201,14 +200,17 @@ fun SimklMedia.canonicalContentId(preference: SimklAnimeIdPreference): String? {
                 ids.idValue("kitsu")?.takeIf(String::isNotBlank)?.let { return "kitsu:$it" }
                 ids.idValue("anidb")?.takeIf(String::isNotBlank)?.let { return "anidb:$it" }
             }
+
             SimklAnimeIdPreference.KITSU -> {
                 ids.idValue("kitsu")?.takeIf(String::isNotBlank)?.let { return "kitsu:$it" }
                 ids.idValue("mal")?.takeIf(String::isNotBlank)?.let { return "mal:$it" }
                 ids.idValue("anidb")?.takeIf(String::isNotBlank)?.let { return "anidb:$it" }
             }
+
             SimklAnimeIdPreference.TVDB -> {
                 ids.idValue("tvdb")?.takeIf(String::isNotBlank)?.let { return "tvdb:$it" }
             }
+
             SimklAnimeIdPreference.IMDB -> Unit
         }
     }
@@ -228,10 +230,11 @@ fun SimklMedia.canonicalContentId(preference: SimklAnimeIdPreference): String? {
 
 fun simklPosterUrl(path: String?): String? = path?.trim()?.trim('/')
     ?.takeIf(String::isNotBlank)
-    ?.let { normalized -> "https://wsrv.nl/?url=https://simkl.in/posters/${normalized}_m.webp&q=90" }
+    ?.let { normalized ->
+        "https://wsrv.nl/?url=https://simkl.in/posters/${normalized}_m.webp&q=90"
+    }
 
-fun SimklLibraryEntry.resolvedPosterUrl(): String? =
-    simklPosterUrl(media?.poster) ?: localPosterUrl?.trim()?.takeIf(String::isNotBlank)
+fun SimklLibraryEntry.resolvedPosterUrl(): String? = simklPosterUrl(media?.poster) ?: localPosterUrl?.trim()?.takeIf(String::isNotBlank)
 
 fun buildSimklSourceUrl(mediaType: SimklMediaType, media: SimklMedia): String? {
     val id = media.ids.simklIdValue()?.toLongOrNull()?.takeIf { it > 0L } ?: return null
@@ -241,8 +244,16 @@ fun buildSimklSourceUrl(mediaType: SimklMediaType, media: SimklMedia): String? {
         SimklMediaType.ANIME -> "anime"
     }
     val slug = media.ids.idValue("slug")?.trim()?.trim('/')
-        ?.takeIf { value -> value.isNotBlank() && value.all { it.isLetterOrDigit() || it in "-_." } }
-    return if (slug == null) "https://simkl.com/$category/$id" else "https://simkl.com/$category/$id/$slug"
+        ?.takeIf { value ->
+            value.isNotBlank() && value.all { it.isLetterOrDigit() || it in "-_." }
+        }
+    return if (slug ==
+        null
+    ) {
+        "https://simkl.com/$category/$id"
+    } else {
+        "https://simkl.com/$category/$id/$slug"
+    }
 }
 
 fun parseSimklUtcEpochMs(value: String?): Long? {
@@ -324,7 +335,7 @@ internal fun SimklPlaybackSession.toWatchProgress(
                 }
             }
         }
-    )
+        )
     val isMovie = mediaType == SimklMediaType.MOVIES ||
         (mediaType == SimklMediaType.ANIME && episode == null) ||
         isAnimeMovie
@@ -376,15 +387,14 @@ internal fun SimklMedia.simklTrackingProviderItemId(): String? = ids.simklIdValu
     ?.takeIf { it > 0L }
     ?.let { id -> "simkl:$id" }
 
-internal fun TrackingExternalIds.sharesIdentityWith(other: TrackingExternalIds): Boolean =
-    (simkl != null && simkl == other.simkl) ||
-        (!imdb.isNullOrBlank() && imdb.equals(other.imdb, ignoreCase = true)) ||
-        (tmdb != null && tmdb == other.tmdb) ||
-        (!tvdb.isNullOrBlank() && tvdb.equals(other.tvdb, ignoreCase = true)) ||
-        (mal != null && mal == other.mal) ||
-        (anidb != null && anidb == other.anidb) ||
-        (anilist != null && anilist == other.anilist) ||
-        (kitsu != null && kitsu == other.kitsu)
+internal fun TrackingExternalIds.sharesIdentityWith(other: TrackingExternalIds): Boolean = (simkl != null && simkl == other.simkl) ||
+    (!imdb.isNullOrBlank() && imdb.equals(other.imdb, ignoreCase = true)) ||
+    (tmdb != null && tmdb == other.tmdb) ||
+    (!tvdb.isNullOrBlank() && tvdb.equals(other.tvdb, ignoreCase = true)) ||
+    (mal != null && mal == other.mal) ||
+    (anidb != null && anidb == other.anidb) ||
+    (anilist != null && anilist == other.anilist) ||
+    (kitsu != null && kitsu == other.kitsu)
 
 private fun watchedKey(
     contentType: String,
@@ -454,7 +464,11 @@ fun TrackingMediaReference.resolveAnimeEpisodeForSimkl(): TrackingMediaReference
 private fun TrackingMediaReference.stripAnimeIdsIfSeasoned(): TrackingMediaReference {
     val season = episode?.season ?: return this
     if (season <= 0) return this
-    if (ids.mal == null && ids.kitsu == null && ids.anidb == null && ids.anilist == null && ids.simkl == null) return this
+    if (ids.mal == null && ids.kitsu == null && ids.anidb == null && ids.anilist == null &&
+        ids.simkl == null
+    ) {
+        return this
+    }
     return copy(
         ids = ids.copy(mal = null, kitsu = null, anidb = null, anilist = null, simkl = null)
     )
@@ -462,11 +476,7 @@ private fun TrackingMediaReference.stripAnimeIdsIfSeasoned(): TrackingMediaRefer
 
 private val SIMKL_ANIME_VIDEO_ID_PREFIXES = setOf("mal", "anidb", "anilist", "kitsu")
 
-private data class SimklAnimeVideoIdParts(
-    val prefix: String,
-    val id: Long,
-    val episodeNumber: Int?
-)
+private data class SimklAnimeVideoIdParts(val prefix: String, val id: Long, val episodeNumber: Int?)
 
 private fun parseSimklAnimeVideoId(videoId: String): SimklAnimeVideoIdParts? {
     val trimmed = videoId.trim()

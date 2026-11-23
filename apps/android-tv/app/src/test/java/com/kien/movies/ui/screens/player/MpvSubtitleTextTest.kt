@@ -50,8 +50,16 @@ class MpvSubtitleTextTest {
         assertEquals(
             listOf(
                 Triple("Top right", SubtitleVerticalPosition.TOP, SubtitleHorizontalPosition.END),
-                Triple("Middle left", SubtitleVerticalPosition.MIDDLE, SubtitleHorizontalPosition.START),
-                Triple("Dialogue", SubtitleVerticalPosition.BOTTOM, SubtitleHorizontalPosition.CENTER)
+                Triple(
+                    "Middle left",
+                    SubtitleVerticalPosition.MIDDLE,
+                    SubtitleHorizontalPosition.START
+                ),
+                Triple(
+                    "Dialogue",
+                    SubtitleVerticalPosition.BOTTOM,
+                    SubtitleHorizontalPosition.CENTER
+                )
             ),
             cues.blocks.map { Triple(it.text.text, it.vertical, it.horizontal) }
         )

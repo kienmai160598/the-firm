@@ -105,29 +105,37 @@ fun reconcileRemovedSimklEntries(
         .sortedWith(simklEntryComparator)
 }
 
-private fun hasAllItemsActivityChanged(previous: SimklActivities?, current: SimklActivities): Boolean {
+private fun hasAllItemsActivityChanged(
+    previous: SimklActivities?,
+    current: SimklActivities
+): Boolean {
     if (previous == null) return true
     return SimklMediaType.entries.any { type ->
         current.domain(type).hasAllItemsActivityChangedFrom(previous.domain(type))
     }
 }
 
-private fun SimklActivityDomain.hasAllItemsActivityChangedFrom(previous: SimklActivityDomain): Boolean =
-    ratedAt != previous.ratedAt ||
-        plantowatch != previous.plantowatch ||
-        watching != previous.watching ||
-        completed != previous.completed ||
-        hold != previous.hold ||
-        dropped != previous.dropped
+private fun SimklActivityDomain.hasAllItemsActivityChangedFrom(
+    previous: SimklActivityDomain
+): Boolean = ratedAt != previous.ratedAt ||
+    plantowatch != previous.plantowatch ||
+    watching != previous.watching ||
+    completed != previous.completed ||
+    hold != previous.hold ||
+    dropped != previous.dropped
 
-private fun hasRemovalActivityChanged(previous: SimklActivities?, current: SimklActivities): Boolean =
-    previous == null ||
+private fun hasRemovalActivityChanged(
+    previous: SimklActivities?,
+    current: SimklActivities
+): Boolean = previous == null ||
     SimklMediaType.entries.any { type ->
         previous.domain(type).removedFromList != current.domain(type).removedFromList
     }
 
-private fun hasPlaybackActivityChanged(previous: SimklActivities?, current: SimklActivities): Boolean =
-    previous == null ||
+private fun hasPlaybackActivityChanged(
+    previous: SimklActivities?,
+    current: SimklActivities
+): Boolean = previous == null ||
     SimklMediaType.entries.any { type ->
         previous.domain(type).playback != current.domain(type).playback
     }

@@ -25,7 +25,8 @@ object DirectDebridStreamFilter {
     private val tokenRegexCache = ConcurrentHashMap<String, Regex>()
     private val dolbyVisionRegex = Regex("(^|[^a-z0-9])(dv|dovi|dolby[ ._-]?vision)([^a-z0-9]|$)")
     private val hdrRegex = Regex("(^|[^a-z0-9])(hdr|hdr10|hdr10plus|hdr10\\+|hlg)([^a-z0-9]|$)")
-    private val releaseGroupRegex = Regex("-([a-z0-9][a-z0-9._]{1,24})($|\\.)", RegexOption.IGNORE_CASE)
+    private val releaseGroupRegex =
+        Regex("-([a-z0-9][a-z0-9._]{1,24})($|\\.)", RegexOption.IGNORE_CASE)
     private val nonAlphanumericRegex = Regex("[^a-z0-9]")
     private val nonAlphanumericOrPlusRegex = Regex("[^a-z0-9+]")
     private val nonAlphanumericRunRegex = Regex("[^a-z0-9]+")
@@ -95,8 +96,7 @@ object DirectDebridStreamFilter {
         return DebridProviders.all().any { addonName == DebridProviders.instantName(it.id) }
     }
 
-    fun applyPreferences(streams: List<Stream>, settings: DebridSettings): List<Stream> =
-        applyPreferencesWithFacts(streams, settings).map { it.first }
+    fun applyPreferences(streams: List<Stream>, settings: DebridSettings): List<Stream> = applyPreferencesWithFacts(streams, settings).map { it.first }
 
     /** Same as [applyPreferences], but keeps each stream's facts so callers don't recompute them. */
     fun applyPreferencesWithFacts(
@@ -118,8 +118,7 @@ object DirectDebridStreamFilter {
         return applyLimits(orderedStreams, preferences)
     }
 
-    fun facts(stream: Stream, settings: DebridSettings): StreamFacts =
-        streamFacts(stream, effectivePreferences(settings))
+    fun facts(stream: Stream, settings: DebridSettings): StreamFacts = streamFacts(stream, effectivePreferences(settings))
 
     private fun effectivePreferences(settings: DebridSettings): DebridStreamPreferences {
         val default = DebridStreamPreferences()
@@ -138,33 +137,107 @@ object DirectDebridStreamFilter {
             maxResults = settings.streamMaxResults,
             sortCriteria = when (settings.streamSortMode) {
                 DebridStreamSortMode.DEFAULT -> default.sortCriteria
+
                 DebridStreamSortMode.QUALITY_DESC -> listOf(
-                    DebridStreamSortCriterion(DebridStreamSortKey.RESOLUTION, DebridStreamSortDirection.DESC),
-                    DebridStreamSortCriterion(DebridStreamSortKey.QUALITY, DebridStreamSortDirection.DESC),
-                    DebridStreamSortCriterion(DebridStreamSortKey.SIZE, DebridStreamSortDirection.DESC)
+                    DebridStreamSortCriterion(
+                        DebridStreamSortKey.RESOLUTION,
+                        DebridStreamSortDirection.DESC
+                    ),
+                    DebridStreamSortCriterion(
+                        DebridStreamSortKey.QUALITY,
+                        DebridStreamSortDirection.DESC
+                    ),
+                    DebridStreamSortCriterion(
+                        DebridStreamSortKey.SIZE,
+                        DebridStreamSortDirection.DESC
+                    )
                 )
-                DebridStreamSortMode.SIZE_DESC -> listOf(DebridStreamSortCriterion(DebridStreamSortKey.SIZE, DebridStreamSortDirection.DESC))
-                DebridStreamSortMode.SIZE_ASC -> listOf(DebridStreamSortCriterion(DebridStreamSortKey.SIZE, DebridStreamSortDirection.ASC))
+
+                DebridStreamSortMode.SIZE_DESC -> listOf(
+                    DebridStreamSortCriterion(
+                        DebridStreamSortKey.SIZE,
+                        DebridStreamSortDirection.DESC
+                    )
+                )
+
+                DebridStreamSortMode.SIZE_ASC -> listOf(
+                    DebridStreamSortCriterion(
+                        DebridStreamSortKey.SIZE,
+                        DebridStreamSortDirection.ASC
+                    )
+                )
             },
             requiredResolutions = DebridStreamResolution.defaultOrder.filter {
-                it.value >= settings.streamMinimumQuality.minResolution && it != DebridStreamResolution.UNKNOWN
+                it.value >= settings.streamMinimumQuality.minResolution &&
+                    it != DebridStreamResolution.UNKNOWN
             }
         )
         preferences = when (settings.streamDolbyVisionFilter) {
             DebridStreamFeatureFilter.ANY -> preferences
-            DebridStreamFeatureFilter.EXCLUDE -> preferences.copy(excludedVisualTags = preferences.excludedVisualTags + listOf(DebridStreamVisualTag.DV, DebridStreamVisualTag.DV_ONLY, DebridStreamVisualTag.HDR_DV))
-            DebridStreamFeatureFilter.ONLY -> preferences.copy(requiredVisualTags = preferences.requiredVisualTags + listOf(DebridStreamVisualTag.DV, DebridStreamVisualTag.DV_ONLY, DebridStreamVisualTag.HDR_DV))
+
+            DebridStreamFeatureFilter.EXCLUDE -> preferences.copy(
+                excludedVisualTags =
+                    preferences.excludedVisualTags +
+                        listOf(
+                            DebridStreamVisualTag.DV,
+                            DebridStreamVisualTag.DV_ONLY,
+                            DebridStreamVisualTag.HDR_DV
+                        )
+            )
+
+            DebridStreamFeatureFilter.ONLY -> preferences.copy(
+                requiredVisualTags =
+                    preferences.requiredVisualTags +
+                        listOf(
+                            DebridStreamVisualTag.DV,
+                            DebridStreamVisualTag.DV_ONLY,
+                            DebridStreamVisualTag.HDR_DV
+                        )
+            )
         }
         preferences = when (settings.streamHdrFilter) {
             DebridStreamFeatureFilter.ANY -> preferences
-            DebridStreamFeatureFilter.EXCLUDE -> preferences.copy(excludedVisualTags = preferences.excludedVisualTags + listOf(DebridStreamVisualTag.HDR, DebridStreamVisualTag.HDR10, DebridStreamVisualTag.HDR10_PLUS, DebridStreamVisualTag.HLG, DebridStreamVisualTag.HDR_ONLY, DebridStreamVisualTag.HDR_DV))
-            DebridStreamFeatureFilter.ONLY -> preferences.copy(requiredVisualTags = preferences.requiredVisualTags + listOf(DebridStreamVisualTag.HDR, DebridStreamVisualTag.HDR10, DebridStreamVisualTag.HDR10_PLUS, DebridStreamVisualTag.HLG, DebridStreamVisualTag.HDR_ONLY, DebridStreamVisualTag.HDR_DV))
+
+            DebridStreamFeatureFilter.EXCLUDE -> preferences.copy(
+                excludedVisualTags =
+                    preferences.excludedVisualTags +
+                        listOf(
+                            DebridStreamVisualTag.HDR,
+                            DebridStreamVisualTag.HDR10,
+                            DebridStreamVisualTag.HDR10_PLUS,
+                            DebridStreamVisualTag.HLG,
+                            DebridStreamVisualTag.HDR_ONLY,
+                            DebridStreamVisualTag.HDR_DV
+                        )
+            )
+
+            DebridStreamFeatureFilter.ONLY -> preferences.copy(
+                requiredVisualTags =
+                    preferences.requiredVisualTags +
+                        listOf(
+                            DebridStreamVisualTag.HDR,
+                            DebridStreamVisualTag.HDR10,
+                            DebridStreamVisualTag.HDR10_PLUS,
+                            DebridStreamVisualTag.HLG,
+                            DebridStreamVisualTag.HDR_ONLY,
+                            DebridStreamVisualTag.HDR_DV
+                        )
+            )
         }
         return when (settings.streamCodecFilter) {
             DebridStreamCodecFilter.ANY -> preferences
-            DebridStreamCodecFilter.H264 -> preferences.copy(requiredEncodes = listOf(DebridStreamEncode.AVC))
-            DebridStreamCodecFilter.HEVC -> preferences.copy(requiredEncodes = listOf(DebridStreamEncode.HEVC))
-            DebridStreamCodecFilter.AV1 -> preferences.copy(requiredEncodes = listOf(DebridStreamEncode.AV1))
+
+            DebridStreamCodecFilter.H264 -> preferences.copy(
+                requiredEncodes = listOf(DebridStreamEncode.AVC)
+            )
+
+            DebridStreamCodecFilter.HEVC -> preferences.copy(
+                requiredEncodes = listOf(DebridStreamEncode.HEVC)
+            )
+
+            DebridStreamCodecFilter.AV1 -> preferences.copy(
+                requiredEncodes = listOf(DebridStreamEncode.AV1)
+            )
         }
     }
 
@@ -185,7 +258,8 @@ object DirectDebridStreamFilter {
                 val count = qualityCounts[stream.second.quality] ?: 0
                 if (count >= preferences.maxPerQuality) continue
             }
-            resolutionCounts[stream.second.resolution] = (resolutionCounts[stream.second.resolution] ?: 0) + 1
+            resolutionCounts[stream.second.resolution] =
+                (resolutionCounts[stream.second.resolution] ?: 0) + 1
             qualityCounts[stream.second.quality] = (qualityCounts[stream.second.quality] ?: 0) + 1
             result += stream
         }
@@ -193,24 +267,73 @@ object DirectDebridStreamFilter {
     }
 
     private fun StreamFacts.matchesFilters(preferences: DebridStreamPreferences): Boolean {
-        if (preferences.requiredResolutions.isNotEmpty() && resolution !in preferences.requiredResolutions) return false
+        if (preferences.requiredResolutions.isNotEmpty() &&
+            resolution !in preferences.requiredResolutions
+        ) {
+            return false
+        }
         if (resolution in preferences.excludedResolutions) return false
-        if (preferences.requiredQualities.isNotEmpty() && quality !in preferences.requiredQualities) return false
+        if (preferences.requiredQualities.isNotEmpty() &&
+            quality !in preferences.requiredQualities
+        ) {
+            return false
+        }
         if (quality in preferences.excludedQualities) return false
-        if (preferences.requiredVisualTags.isNotEmpty() && visualTags.none { it in preferences.requiredVisualTags }) return false
+        if (preferences.requiredVisualTags.isNotEmpty() &&
+            visualTags.none { it in preferences.requiredVisualTags }
+        ) {
+            return false
+        }
         if (visualTags.any { it in preferences.excludedVisualTags }) return false
-        if (preferences.requiredAudioTags.isNotEmpty() && audioTags.none { it in preferences.requiredAudioTags }) return false
+        if (preferences.requiredAudioTags.isNotEmpty() &&
+            audioTags.none { it in preferences.requiredAudioTags }
+        ) {
+            return false
+        }
         if (audioTags.any { it in preferences.excludedAudioTags }) return false
-        if (preferences.requiredAudioChannels.isNotEmpty() && audioChannels.none { it in preferences.requiredAudioChannels }) return false
+        if (preferences.requiredAudioChannels.isNotEmpty() &&
+            audioChannels.none { it in preferences.requiredAudioChannels }
+        ) {
+            return false
+        }
         if (audioChannels.any { it in preferences.excludedAudioChannels }) return false
-        if (preferences.requiredEncodes.isNotEmpty() && encode !in preferences.requiredEncodes) return false
+        if (preferences.requiredEncodes.isNotEmpty() &&
+            encode !in preferences.requiredEncodes
+        ) {
+            return false
+        }
         if (encode in preferences.excludedEncodes) return false
-        if (preferences.requiredLanguages.isNotEmpty() && languages.none { it in preferences.requiredLanguages }) return false
-        if (languages.isNotEmpty() && languages.all { it in preferences.excludedLanguages }) return false
-        if (preferences.requiredReleaseGroups.isNotEmpty() && preferences.requiredReleaseGroups.none { releaseGroup.equals(it, ignoreCase = true) }) return false
-        if (preferences.excludedReleaseGroups.any { releaseGroup.equals(it, ignoreCase = true) }) return false
-        if (preferences.sizeMinGb > 0 && size != null && size < preferences.sizeMinGb.gigabytes()) return false
-        if (preferences.sizeMaxGb > 0 && size != null && size > preferences.sizeMaxGb.gigabytes()) return false
+        if (preferences.requiredLanguages.isNotEmpty() &&
+            languages.none { it in preferences.requiredLanguages }
+        ) {
+            return false
+        }
+        if (languages.isNotEmpty() &&
+            languages.all { it in preferences.excludedLanguages }
+        ) {
+            return false
+        }
+        if (preferences.requiredReleaseGroups.isNotEmpty() &&
+            preferences.requiredReleaseGroups.none { releaseGroup.equals(it, ignoreCase = true) }
+        ) {
+            return false
+        }
+        if (preferences.excludedReleaseGroups.any {
+                releaseGroup.equals(it, ignoreCase = true)
+            }
+        ) {
+            return false
+        }
+        if (preferences.sizeMinGb > 0 && size != null &&
+            size < preferences.sizeMinGb.gigabytes()
+        ) {
+            return false
+        }
+        if (preferences.sizeMaxGb > 0 && size != null &&
+            size > preferences.sizeMaxGb.gigabytes()
+        ) {
+            return false
+        }
         return true
     }
 
@@ -233,22 +356,39 @@ object DirectDebridStreamFilter {
     ): Int {
         val direction = if (criterion.direction == DebridStreamSortDirection.ASC) 1 else -1
         return when (criterion.key) {
-            DebridStreamSortKey.RESOLUTION -> left.resolutionRank.compareTo(right.resolutionRank) * -direction
-            DebridStreamSortKey.QUALITY -> left.qualityRank.compareTo(right.qualityRank) * -direction
-            DebridStreamSortKey.VISUAL_TAG -> left.visualRank.compareTo(right.visualRank) * -direction
+            DebridStreamSortKey.RESOLUTION -> left.resolutionRank.compareTo(right.resolutionRank) *
+                -direction
+
+            DebridStreamSortKey.QUALITY -> left.qualityRank.compareTo(right.qualityRank) *
+                -direction
+
+            DebridStreamSortKey.VISUAL_TAG -> left.visualRank.compareTo(right.visualRank) *
+                -direction
+
             DebridStreamSortKey.AUDIO_TAG -> left.audioRank.compareTo(right.audioRank) * -direction
-            DebridStreamSortKey.AUDIO_CHANNEL -> left.channelRank.compareTo(right.channelRank) * -direction
+
+            DebridStreamSortKey.AUDIO_CHANNEL -> left.channelRank.compareTo(right.channelRank) *
+                -direction
+
             DebridStreamSortKey.ENCODE -> left.encodeRank.compareTo(right.encodeRank) * -direction
+
             DebridStreamSortKey.SIZE -> (left.size ?: 0L).compareTo(right.size ?: 0L) * direction
-            DebridStreamSortKey.LANGUAGE -> left.languageRank.compareTo(right.languageRank) * -direction
-            DebridStreamSortKey.RELEASE_GROUP -> left.releaseGroup.compareTo(right.releaseGroup, ignoreCase = true)
+
+            DebridStreamSortKey.LANGUAGE -> left.languageRank.compareTo(right.languageRank) *
+                -direction
+
+            DebridStreamSortKey.RELEASE_GROUP -> left.releaseGroup.compareTo(
+                right.releaseGroup,
+                ignoreCase = true
+            )
         }
     }
 
     private fun streamFacts(stream: Stream, preferences: DebridStreamPreferences): StreamFacts {
         val parsed = stream.clientResolve?.stream?.raw?.parsed
         val searchText = streamSearchText(stream)
-        val resolution = streamResolution(parsed?.resolution, parsed?.quality, stream.quality, searchText)
+        val resolution =
+            streamResolution(parsed?.resolution, parsed?.quality, stream.quality, searchText)
         val quality = streamQuality(parsed?.quality, searchText)
         val visualTags = streamVisualTags(parsed?.hdr.orEmpty(), searchText)
         val audioTags = streamAudioTags(parsed?.audio.orEmpty(), searchText)
@@ -256,9 +396,12 @@ object DirectDebridStreamFilter {
         val encode = streamEncode(parsed?.codec, searchText)
         val languages = parsed?.languages.orEmpty().mapNotNull { languageFor(it) }.ifEmpty {
             val languageText = languageSearchText(stream)
-            languageRegexes.filter { (_, regex) -> regex.containsMatchIn(languageText) }.map { it.first }
+            languageRegexes.filter { (_, regex) ->
+                regex.containsMatchIn(languageText)
+            }.map { it.first }
         }
-        val releaseGroup = parsed?.group?.takeIf { it.isNotBlank() } ?: releaseGroupFromText(searchText)
+        val releaseGroup =
+            parsed?.group?.takeIf { it.isNotBlank() } ?: releaseGroupFromText(searchText)
         return StreamFacts(
             resolution = resolution,
             quality = quality,
@@ -275,7 +418,13 @@ object DirectDebridStreamFilter {
             audioRank = rankAny(audioTags, preferences.preferredAudioTags),
             channelRank = rankAny(audioChannels, preferences.preferredAudioChannels),
             encodeRank = rank(encode, preferences.preferredEncodes),
-            languageRank = if (languages.isEmpty()) Int.MAX_VALUE else languages.minOf { rank(it, preferences.preferredLanguages) }
+            languageRank = if (languages.isEmpty()) {
+                Int.MAX_VALUE
+            } else {
+                languages.minOf {
+                    rank(it, preferences.preferredLanguages)
+                }
+            }
         )
     }
 
@@ -285,37 +434,61 @@ object DirectDebridStreamFilter {
 
     private fun resolutionValue(value: String?): DebridStreamResolution? {
         val normalized = value?.lowercase().orEmpty()
-        return resolutionTokens.firstOrNull { (regex, _) -> regex.containsMatchIn(normalized) }?.second
+        return resolutionTokens.firstOrNull { (regex, _) ->
+            regex.containsMatchIn(normalized)
+        }?.second
     }
 
     private fun streamQuality(parsedQuality: String?, searchText: String): DebridStreamQuality {
         val text = listOfNotNull(parsedQuality, searchText).joinToString(" ").lowercase()
         return when {
             text.contains("remux") -> DebridStreamQuality.BLURAY_REMUX
-            text.contains("blu-ray") || text.contains("bluray") || text.contains("bdrip") || text.contains("brrip") -> DebridStreamQuality.BLURAY
+
+            text.contains("blu-ray") || text.contains("bluray") || text.contains("bdrip") ||
+                text.contains("brrip") -> DebridStreamQuality.BLURAY
+
             text.contains("web-dl") || text.contains("webdl") -> DebridStreamQuality.WEB_DL
+
             text.contains("webrip") || text.contains("web-rip") -> DebridStreamQuality.WEBRIP
+
             text.contains("hdrip") -> DebridStreamQuality.HDRIP
+
             text.contains("hd-rip") || text.contains("hcrip") -> DebridStreamQuality.HD_RIP
+
             text.contains("dvdrip") -> DebridStreamQuality.DVDRIP
+
             text.contains("hdtv") -> DebridStreamQuality.HDTV
+
             text.hasToken("cam") -> DebridStreamQuality.CAM
+
             text.hasToken("ts") -> DebridStreamQuality.TS
+
             text.hasToken("tc") -> DebridStreamQuality.TC
+
             text.hasToken("scr") -> DebridStreamQuality.SCR
+
             else -> DebridStreamQuality.UNKNOWN
         }
     }
 
-    private fun streamVisualTags(parsedHdr: List<String>, searchText: String): List<DebridStreamVisualTag> {
+    private fun streamVisualTags(
+        parsedHdr: List<String>,
+        searchText: String
+    ): List<DebridStreamVisualTag> {
         val text = (parsedHdr + searchText).joinToString(" ").lowercase()
         val tags = mutableListOf<DebridStreamVisualTag>()
-        val hasDv = parsedHdr.any { it.isDolbyVisionToken() } || dolbyVisionRegex.containsMatchIn(searchText)
+        val hasDv =
+            parsedHdr.any { it.isDolbyVisionToken() } ||
+                dolbyVisionRegex.containsMatchIn(searchText)
         val hasHdr = parsedHdr.any { it.isHdrToken() } || hdrRegex.containsMatchIn(searchText)
         if (hasDv && hasHdr) tags += DebridStreamVisualTag.HDR_DV
         if (hasDv && !hasHdr) tags += DebridStreamVisualTag.DV_ONLY
         if (hasHdr && !hasDv) tags += DebridStreamVisualTag.HDR_ONLY
-        if (text.contains("hdr10+") || text.contains("hdr10plus")) tags += DebridStreamVisualTag.HDR10_PLUS
+        if (text.contains("hdr10+") ||
+            text.contains("hdr10plus")
+        ) {
+            tags += DebridStreamVisualTag.HDR10_PLUS
+        }
         if (text.contains("hdr10")) tags += DebridStreamVisualTag.HDR10
         if (hasDv) tags += DebridStreamVisualTag.DV
         if (hasHdr) tags += DebridStreamVisualTag.HDR
@@ -330,14 +503,29 @@ object DirectDebridStreamFilter {
         return tags.distinct().ifEmpty { listOf(DebridStreamVisualTag.UNKNOWN) }
     }
 
-    private fun streamAudioTags(parsedAudio: List<String>, searchText: String): List<DebridStreamAudioTag> {
+    private fun streamAudioTags(
+        parsedAudio: List<String>,
+        searchText: String
+    ): List<DebridStreamAudioTag> {
         val text = (parsedAudio + searchText).joinToString(" ").lowercase()
         val tags = mutableListOf<DebridStreamAudioTag>()
         if (text.hasToken("atmos")) tags += DebridStreamAudioTag.ATMOS
-        if (text.contains("dd+") || text.contains("ddp") || text.contains("dolby digital plus")) tags += DebridStreamAudioTag.DD_PLUS
-        if (text.hasToken("dd") || text.contains("ac3") || text.contains("dolby digital")) tags += DebridStreamAudioTag.DD
+        if (text.contains("dd+") || text.contains("ddp") ||
+            text.contains("dolby digital plus")
+        ) {
+            tags += DebridStreamAudioTag.DD_PLUS
+        }
+        if (text.hasToken("dd") || text.contains("ac3") ||
+            text.contains("dolby digital")
+        ) {
+            tags += DebridStreamAudioTag.DD
+        }
         if (text.contains("dts:x") || text.contains("dtsx")) tags += DebridStreamAudioTag.DTS_X
-        if (text.contains("dts-hd ma") || text.contains("dtshd ma")) tags += DebridStreamAudioTag.DTS_HD_MA
+        if (text.contains("dts-hd ma") ||
+            text.contains("dtshd ma")
+        ) {
+            tags += DebridStreamAudioTag.DTS_HD_MA
+        }
         if (text.contains("dts-hd") || text.contains("dtshd")) tags += DebridStreamAudioTag.DTS_HD
         if (text.contains("dts-es") || text.contains("dtses")) tags += DebridStreamAudioTag.DTS_ES
         if (text.hasToken("dts")) tags += DebridStreamAudioTag.DTS
@@ -348,12 +536,19 @@ object DirectDebridStreamFilter {
         return tags.distinct().ifEmpty { listOf(DebridStreamAudioTag.UNKNOWN) }
     }
 
-    private fun streamAudioChannels(parsedChannels: List<String>, searchText: String): List<DebridStreamAudioChannel> {
+    private fun streamAudioChannels(
+        parsedChannels: List<String>,
+        searchText: String
+    ): List<DebridStreamAudioChannel> {
         val text = (parsedChannels + searchText).joinToString(" ").lowercase()
         val channels = mutableListOf<DebridStreamAudioChannel>()
         if (text.hasToken("7.1")) channels += DebridStreamAudioChannel.CH_7_1
         if (text.hasToken("6.1")) channels += DebridStreamAudioChannel.CH_6_1
-        if (text.hasToken("5.1") || text.hasToken("6ch")) channels += DebridStreamAudioChannel.CH_5_1
+        if (text.hasToken("5.1") ||
+            text.hasToken("6ch")
+        ) {
+            channels += DebridStreamAudioChannel.CH_5_1
+        }
         if (text.hasToken("2.0")) channels += DebridStreamAudioChannel.CH_2_0
         return channels.distinct().ifEmpty { listOf(DebridStreamAudioChannel.UNKNOWN) }
     }
@@ -362,10 +557,19 @@ object DirectDebridStreamFilter {
         val text = listOfNotNull(parsedCodec, searchText).joinToString(" ").lowercase()
         return when {
             text.hasToken("av1") -> DebridStreamEncode.AV1
-            text.hasToken("hevc") || text.hasToken("h265") || text.hasToken("x265") -> DebridStreamEncode.HEVC
-            text.hasToken("avc") || text.hasToken("h264") || text.hasToken("x264") -> DebridStreamEncode.AVC
+
+            text.hasToken(
+                "hevc"
+            ) || text.hasToken("h265") || text.hasToken("x265") -> DebridStreamEncode.HEVC
+
+            text.hasToken(
+                "avc"
+            ) || text.hasToken("h264") || text.hasToken("x264") -> DebridStreamEncode.AVC
+
             text.hasToken("xvid") -> DebridStreamEncode.XVID
+
             text.hasToken("divx") -> DebridStreamEncode.DIVX
+
             else -> DebridStreamEncode.UNKNOWN
         }
     }
@@ -396,11 +600,9 @@ object DirectDebridStreamFilter {
         return values.minOfOrNull { rank(it, preferred) } ?: Int.MAX_VALUE
     }
 
-    private fun resolutionRegex(vararg tokens: String): Regex =
-        Regex("(^|[^a-z0-9])(${tokens.joinToString("|")})([^a-z0-9]|\$)")
+    private fun resolutionRegex(vararg tokens: String): Regex = Regex("(^|[^a-z0-9])(${tokens.joinToString("|")})([^a-z0-9]|\$)")
 
-    private fun languageRegex(tokens: List<String>): Regex =
-        Regex("(^|[^a-z0-9])(${tokens.joinToString("|") { Regex.escape(it) }})([^a-z0-9]|\$)")
+    private fun languageRegex(tokens: List<String>): Regex = Regex("(^|[^a-z0-9])(${tokens.joinToString("|") { Regex.escape(it) }})([^a-z0-9]|\$)")
 
     /** The receiver must already be lowercase: every caller builds its text with lowercase(). */
     private fun String.hasToken(token: String): Boolean {
@@ -424,8 +626,7 @@ object DirectDebridStreamFilter {
             normalized == "hlg"
     }
 
-    private fun streamSize(stream: Stream): Long? =
-        StreamTextSizeParser.effectiveSizeBytes(stream)
+    private fun streamSize(stream: Stream): Long? = StreamTextSizeParser.effectiveSizeBytes(stream)
 
     private fun streamSearchText(stream: Stream): String {
         val parsed = stream.clientResolve?.stream?.raw?.parsed
@@ -465,7 +666,9 @@ object DirectDebridStreamFilter {
             .distinctBy { it.pattern }
             .sortedByDescending { it.pattern.length }
         return streamTexts(stream).joinToString(" ") { text ->
-            titleRegexes.fold(text.lowercase()) { remaining, regex -> regex.replaceFirst(remaining, " ") }
+            titleRegexes.fold(text.lowercase()) { remaining, regex ->
+                regex.replaceFirst(remaining, " ")
+            }
         }
     }
 

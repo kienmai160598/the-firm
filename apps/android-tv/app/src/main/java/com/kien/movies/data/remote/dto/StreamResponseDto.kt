@@ -4,9 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class StreamResponseDto(
-    @Json(name = "streams") val streams: List<StreamDto>? = null
-)
+data class StreamResponseDto(@Json(name = "streams") val streams: List<StreamDto>? = null)
 
 @JsonClass(generateAdapter = true)
 data class StreamDto(
@@ -115,4 +113,3 @@ data class SubtitleDto(
     @Json(name = "label") val label: String? = null,
     @Json(name = "headers") val headers: Map<String, String>? = null
 )
-

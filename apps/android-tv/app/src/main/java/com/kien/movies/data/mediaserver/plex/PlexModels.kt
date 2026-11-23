@@ -4,11 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /** A code shown on the TV and entered at plex.tv/link. */
-class PlexPin(
-    val id: Long,
-    val code: String,
-    val expiresAtMs: Long
-) {
+class PlexPin(val id: Long, val code: String, val expiresAtMs: Long) {
     override fun toString(): String = "PlexPin(id=$id)"
 }
 
@@ -21,23 +17,14 @@ sealed interface PlexPinStatus {
 }
 
 /** A signed-in Plex account or Plex Home user, with its own token. */
-class PlexAccount(
-    val token: String,
-    val id: String,
-    val uuid: String,
-    val name: String
-) {
+class PlexAccount(val token: String, val id: String, val uuid: String, val name: String) {
     override fun toString(): String = "PlexAccount(id=$id)"
 }
 
 enum class PlexReach { LOCAL, REMOTE, RELAY, OFFLINE }
 
 /** One address of a server as plex.tv lists it. */
-data class PlexAddress(
-    val uri: String,
-    val local: Boolean,
-    val relay: Boolean
-)
+data class PlexAddress(val uri: String, val local: Boolean, val relay: Boolean)
 
 class PlexServer(
     val machineId: String,
@@ -49,8 +36,7 @@ class PlexServer(
     /** The best address that answered: home network first, then internet, then Plex Relay. */
     val address: String? = null
 ) {
-    fun reached(reach: PlexReach, address: String?) =
-        PlexServer(machineId, name, owned, accessToken, addresses, reach, address)
+    fun reached(reach: PlexReach, address: String?) = PlexServer(machineId, name, owned, accessToken, addresses, reach, address)
 
     override fun toString(): String = "PlexServer(machineId=$machineId, reach=$reach)"
 }
@@ -118,7 +104,9 @@ internal data class HomeUserWire(
 )
 
 @Serializable
-internal data class ContainerReply(@SerialName("MediaContainer") val container: MediaContainerWire = MediaContainerWire())
+internal data class ContainerReply(
+    @SerialName("MediaContainer") val container: MediaContainerWire = MediaContainerWire()
+)
 
 @Serializable
 internal data class MediaContainerWire(
@@ -184,7 +172,11 @@ internal data class MetadataWire(
 internal data class TagWire(val id: String? = null, val tag: String? = null)
 
 @Serializable
-internal data class RoleWire(val tag: String = "", val role: String? = null, val thumb: String? = null)
+internal data class RoleWire(
+    val tag: String = "",
+    val role: String? = null,
+    val thumb: String? = null
+)
 
 @Serializable
 internal data class ImageWire(val type: String = "", val url: String = "")

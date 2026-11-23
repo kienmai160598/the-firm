@@ -29,27 +29,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import com.kien.movies.R
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.kien.movies.ui.theme.MoviesComponents
+import com.kien.movies.R
 import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.theme.MoviesComponents
 import com.kien.movies.ui.theme.MoviesTheme
 
 private val NavItemIconShape = RoundedCornerShape(MoviesComponents.tokens.sidebar.panelRadius / 3)
 
-data class SidebarItem(
-    val route: String,
-    val label: String,
-    val icon: ImageVector
-)
+data class SidebarItem(val route: String, val label: String, val icon: ImageVector)
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -129,26 +125,34 @@ private fun SidebarNavItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
-        Box(
-            modifier = Modifier
-                .size(MoviesTheme.sizes.icons.xl - MoviesTheme.spacing.xs)
-                .clip(NavItemIconShape)
-                .background(MoviesTheme.colors.SurfaceVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = item.icon,
-                contentDescription = null,
-                tint = MoviesTheme.colors.TextPrimary,
-                modifier = Modifier.size(MoviesTheme.sizes.icons.sm)
+            Box(
+                modifier = Modifier
+                    .size(MoviesTheme.sizes.icons.xl - MoviesTheme.spacing.xs)
+                    .clip(NavItemIconShape)
+                    .background(MoviesTheme.colors.SurfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = item.icon,
+                    contentDescription = null,
+                    tint = MoviesTheme.colors.TextPrimary,
+                    modifier = Modifier.size(MoviesTheme.sizes.icons.sm)
+                )
+            }
+
+            Text(
+                text = item.label,
+                style = MaterialTheme.typography.titleMedium,
+                color = LocalContentColor.current.copy(
+                    alpha = if (isFocused ||
+                        isSelected
+                    ) {
+                        1f
+                    } else {
+                        0.64f
+                    }
+                )
             )
         }
-
-        Text(
-            text = item.label,
-            style = MaterialTheme.typography.titleMedium,
-            color = LocalContentColor.current.copy(alpha = if (isFocused || isSelected) 1f else 0.64f)
-        )
-    }
     }
 }

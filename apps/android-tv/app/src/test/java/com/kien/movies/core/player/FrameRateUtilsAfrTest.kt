@@ -3,6 +3,7 @@ package com.kien.movies.core.player
 import android.app.Activity
 import android.content.Context
 import io.mockk.mockk
+import kotlin.math.abs
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -12,7 +13,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import kotlin.math.abs
 
 /**
  * Regression suite for Auto Frame Rate (AFR) pure logic in [FrameRateUtils].
@@ -113,7 +113,9 @@ class FrameRateUtilsAfrTest {
         assertTrue(FrameRateUtils.hasNextLibBlockingHeaders(mapOf("Authorization" to "Bearer tok")))
         assertTrue(FrameRateUtils.hasNextLibBlockingHeaders(mapOf("Cookie" to "session=abc")))
         assertTrue(FrameRateUtils.hasNextLibBlockingHeaders(mapOf("X-Auth-Token" to "secret")))
-        assertTrue(FrameRateUtils.hasNextLibBlockingHeaders(mapOf("Proxy-Authorization" to "Basic x")))
+        assertTrue(
+            FrameRateUtils.hasNextLibBlockingHeaders(mapOf("Proxy-Authorization" to "Basic x"))
+        )
         // Auth mixed with synthetic headers still blocks
         assertTrue(
             FrameRateUtils.hasNextLibBlockingHeaders(
@@ -140,8 +142,12 @@ class FrameRateUtilsAfrTest {
         // Not necessarily ideal long-term, but this locks current behaviour so
         // accidental changes to the allowlist are caught.
         assertTrue(FrameRateUtils.hasNextLibBlockingHeaders(mapOf("Accept" to "*/*")))
-        assertTrue(FrameRateUtils.hasNextLibBlockingHeaders(mapOf("Referer" to "https://example.com")))
-        assertTrue(FrameRateUtils.hasNextLibBlockingHeaders(mapOf("Origin" to "https://example.com")))
+        assertTrue(
+            FrameRateUtils.hasNextLibBlockingHeaders(mapOf("Referer" to "https://example.com"))
+        )
+        assertTrue(
+            FrameRateUtils.hasNextLibBlockingHeaders(mapOf("Origin" to "https://example.com"))
+        )
     }
 
     @Test
@@ -312,7 +318,7 @@ class FrameRateUtilsAfrTest {
     @Test
     fun `isMkvSource and isMp4Source respect mimeType and filename for extensionless proxy URLs`() {
         val proxyUrl = "https://proxy.example.com/p/eyJ.../0?svc=0"
-        
+
         // Without mimeType or filename, extensionless URL returns false
         assertFalse(FrameRateUtils.isMkvSource(proxyUrl))
         assertFalse(FrameRateUtils.isMp4Source(proxyUrl))
@@ -347,17 +353,26 @@ class FrameRateUtilsAfrTest {
         try {
             // Exactly 8 bytes: a valid box header alone must be detected (guard allows >= 8).
             val eightByteFtyp = tempFileWith(leadingBox("ftyp")).also { files.add(it) }
-            assertTrue("8-byte ftyp header must be detected", FrameRateUtils.hasFtypAtom(eightByteFtyp))
+            assertTrue(
+                "8-byte ftyp header must be detected",
+                FrameRateUtils.hasFtypAtom(eightByteFtyp)
+            )
 
             // Extensionless fMP4/DASH and QuickTime layouts start with these boxes.
             listOf("styp", "free", "skip", "wide", "mdat").forEach { type ->
                 val f = tempFileWith(leadingBox(type) + ByteArray(8)).also { files.add(it) }
-                assertTrue("Leading '$type' box must be detected as MP4", FrameRateUtils.hasFtypAtom(f))
+                assertTrue(
+                    "Leading '$type' box must be detected as MP4",
+                    FrameRateUtils.hasFtypAtom(f)
+                )
             }
 
             // Unknown type and garbage must not match.
             val unknownBox = tempFileWith(leadingBox("abcd") + ByteArray(8)).also { files.add(it) }
-            assertFalse("Unknown box type must not be detected", FrameRateUtils.hasFtypAtom(unknownBox))
+            assertFalse(
+                "Unknown box type must not be detected",
+                FrameRateUtils.hasFtypAtom(unknownBox)
+            )
             val garbage = tempFileWith(ByteArray(16) { (it * 7).toByte() }).also { files.add(it) }
             assertFalse("Garbage must not be detected as MP4", FrameRateUtils.hasFtypAtom(garbage))
         } finally {
@@ -370,11 +385,18 @@ class FrameRateUtilsAfrTest {
         val ftypFile = java.io.File.createTempFile("ftyp_", ".tmp")
         val nonFtypFile = java.io.File.createTempFile("other_", ".tmp")
         try {
-            ftypFile.writeBytes(byteArrayOf(0, 0, 0, 32, 0x66.toByte(), 0x74.toByte(), 0x79.toByte(), 0x70.toByte(), 0x69.toByte(), 0x73.toByte(), 0x6f.toByte(), 0x6d.toByte()))
-            nonFtypFile.writeBytes(byteArrayOf(0x1A.toByte(), 0x45.toByte(), 0xDF.toByte(), 0xA3.toByte(), 0, 0, 0, 0))
+            ftypFile.writeBytes(
+                byteArrayOf(0, 0, 0, 32, 0x66.toByte(), 0x74.toByte(), 0x79.toByte(), 0x70.toByte(), 0x69.toByte(), 0x73.toByte(), 0x6f.toByte(), 0x6d.toByte())
+            )
+            nonFtypFile.writeBytes(
+                byteArrayOf(0x1A.toByte(), 0x45.toByte(), 0xDF.toByte(), 0xA3.toByte(), 0, 0, 0, 0)
+            )
 
             assertTrue("Must detect MP4 ftyp atom", FrameRateUtils.hasFtypAtom(ftypFile))
-            assertFalse("Must not detect ftyp atom in MKV EBML file", FrameRateUtils.hasFtypAtom(nonFtypFile))
+            assertFalse(
+                "Must not detect ftyp atom in MKV EBML file",
+                FrameRateUtils.hasFtypAtom(nonFtypFile)
+            )
         } finally {
             ftypFile.delete()
             nonFtypFile.delete()
@@ -402,8 +424,12 @@ class FrameRateUtilsAfrTest {
         val ebmlFile = java.io.File.createTempFile("ebml_", ".tmp")
         val ftypFile = java.io.File.createTempFile("ftyp_", ".tmp")
         try {
-            ebmlFile.writeBytes(byteArrayOf(0x1A.toByte(), 0x45.toByte(), 0xDF.toByte(), 0xA3.toByte(), 1, 0, 0, 0))
-            ftypFile.writeBytes(byteArrayOf(0, 0, 0, 32, 0x66.toByte(), 0x74.toByte(), 0x79.toByte(), 0x70.toByte(), 0, 0, 0, 0))
+            ebmlFile.writeBytes(
+                byteArrayOf(0x1A.toByte(), 0x45.toByte(), 0xDF.toByte(), 0xA3.toByte(), 1, 0, 0, 0)
+            )
+            ftypFile.writeBytes(
+                byteArrayOf(0, 0, 0, 32, 0x66.toByte(), 0x74.toByte(), 0x79.toByte(), 0x70.toByte(), 0, 0, 0, 0)
+            )
 
             assertTrue("Must detect EBML/Matroska magic", FrameRateUtils.hasEbmlHeader(ebmlFile))
             assertFalse("Must not treat MP4 ftyp as EBML", FrameRateUtils.hasEbmlHeader(ftypFile))
@@ -425,13 +451,12 @@ class FrameRateUtilsAfrTest {
     // FPS cache
     // ─────────────────────────────────────────────────────────────────────────
 
-    private fun detection(fps: Float = 23.976f, w: Int? = 1920, h: Int? = 1080) =
-        FrameRateUtils.FrameRateDetection(
-            raw = fps,
-            snapped = FrameRateUtils.snapToStandardRate(fps),
-            videoWidth = w,
-            videoHeight = h
-        )
+    private fun detection(fps: Float = 23.976f, w: Int? = 1920, h: Int? = 1080) = FrameRateUtils.FrameRateDetection(
+        raw = fps,
+        snapped = FrameRateUtils.snapToStandardRate(fps),
+        videoWidth = w,
+        videoHeight = h
+    )
 
     @Test
     fun `cache hit returns same detection for identical url and headers`() {
@@ -736,7 +761,7 @@ class FrameRateUtilsAfrTest {
             Case("dash live", "https://cdn/live.mpd", emptyMap(), false),
             Case("ism live", "https://cdn/live.ism/manifest", emptyMap(), false),
             Case("blank url", "", emptyMap(), false),
-            Case("unsupported scheme rtmp", "rtmp://cdn/stream", emptyMap(), false),
+            Case("unsupported scheme rtmp", "rtmp://cdn/stream", emptyMap(), false)
         )
 
         cases.forEach { c ->
@@ -770,7 +795,10 @@ class FrameRateUtilsAfrTest {
 
     @Test
     fun `sparse file vs concatenation layout preserves original atom offsets`() {
-        val tempDir = java.io.File(System.getProperty("java.io.tmpdir"), "mp4_atom_test_${System.currentTimeMillis()}")
+        val tempDir = java.io.File(
+            System.getProperty("java.io.tmpdir"),
+            "mp4_atom_test_${System.currentTimeMillis()}"
+        )
         tempDir.mkdirs()
         try {
             val headBytes = "ftypisom00000008".toByteArray(Charsets.US_ASCII)
@@ -803,26 +831,42 @@ class FrameRateUtilsAfrTest {
 
     @Test
     fun `parseContentRangeTotalLength extracts total file size from 206 Content-Range header`() {
-        assertEquals(5_242_880_000L, FrameRateUtils.parseContentRangeTotalLength("bytes 0-2097151/5242880000"))
-        assertEquals(100_000_000L, FrameRateUtils.parseContentRangeTotalLength("bytes 0-100/100000000"))
-        assertEquals(100_000_000L, FrameRateUtils.parseContentRangeTotalLength("BYTES 0-100/100000000"))
+        assertEquals(
+            5_242_880_000L,
+            FrameRateUtils.parseContentRangeTotalLength("bytes 0-2097151/5242880000")
+        )
+        assertEquals(
+            100_000_000L,
+            FrameRateUtils.parseContentRangeTotalLength("bytes 0-100/100000000")
+        )
+        assertEquals(
+            100_000_000L,
+            FrameRateUtils.parseContentRangeTotalLength("BYTES 0-100/100000000")
+        )
         assertNull(FrameRateUtils.parseContentRangeTotalLength(null))
         assertNull(FrameRateUtils.parseContentRangeTotalLength(""))
         assertNull(FrameRateUtils.parseContentRangeTotalLength("bytes 0-2097151/*"))
         assertNull(FrameRateUtils.parseContentRangeTotalLength("invalid header"))
     }
 
-
     @Test
     fun `detects mp4 and probe path for example movie stream`() {
         val streamUrl = "https://example.com/cdn/sample_movie_2160p.iT.WEB-DL.UNRATED.DV.HDR10%2B.MULTi%5BTest%5D.mp4"
 
         assertTrue("Must be identified as MP4 source", FrameRateUtils.isMp4Source(streamUrl))
-        assertTrue("Must pass NextLib probe eligibility", FrameRateUtils.shouldUseNextLibProbe(streamUrl, emptyMap()))
-        assertFalse("Must not be identified as live stream", FrameRateUtils.isLiveStreamUrl(streamUrl))
+        assertTrue(
+            "Must pass NextLib probe eligibility",
+            FrameRateUtils.shouldUseNextLibProbe(streamUrl, emptyMap())
+        )
+        assertFalse(
+            "Must not be identified as live stream",
+            FrameRateUtils.isLiveStreamUrl(streamUrl)
+        )
 
         val key = FrameRateUtils.buildCacheKey(streamUrl, emptyMap(), null)
-        assertTrue(key.endsWith("sample_movie_2160p.iT.WEB-DL.UNRATED.DV.HDR10%2B.MULTi%5BTest%5D.mp4"))
+        assertTrue(
+            key.endsWith("sample_movie_2160p.iT.WEB-DL.UNRATED.DV.HDR10%2B.MULTi%5BTest%5D.mp4")
+        )
     }
 
     @org.junit.Ignore("Live integration test requiring active debrid credentials")
@@ -834,29 +878,52 @@ class FrameRateUtilsAfrTest {
             // Pass 1: Head Range Probe (first 4 MB)
             val headMaxBytes = 4_194_304L + 65_536L
             val headResult = FrameRateUtils.fetchHttpRangeToFile(
-                realUrl, emptyMap(), "bytes=0-4194303", headMaxBytes, tempFile, fileOffset = 0L
+                realUrl,
+                emptyMap(),
+                "bytes=0-4194303",
+                headMaxBytes,
+                tempFile,
+                fileOffset = 0L
             )
-            println("DEBUG: headResult success=${headResult.success}, totalLength=${headResult.totalContentLength}, fileLength=${tempFile.length()}")
+            println(
+                "DEBUG: headResult success=${headResult.success}, totalLength=${headResult.totalContentLength}, fileLength=${tempFile.length()}"
+            )
             assertTrue("Pass 1 head download must succeed", headResult.success)
             assertTrue("Must detect MP4 ftyp atom in head", FrameRateUtils.hasFtypAtom(tempFile))
             println("DEBUG: head hasMoovAtom=${FrameRateUtils.hasMoovAtom(tempFile)}")
 
             // Pass 2: Tail Range Probe
             val contentLength = headResult.totalContentLength ?: 30805864407L
-            val tailStart = FrameRateUtils.findNextBoxOffsetAfterMdat(tempFile, contentLength) ?: (contentLength - 16_777_216L)
+            val tailStart =
+                FrameRateUtils.findNextBoxOffsetAfterMdat(tempFile, contentLength)
+                    ?: (contentLength - 16_777_216L)
             val tailSizeBytes = contentLength - tailStart
             val tailRange = "bytes=$tailStart-${contentLength - 1}"
             val tailMaxBytes = tailSizeBytes + 65_536L
-            println("DEBUG: Pass 2 configuration: tailSizeBytes=$tailSizeBytes, tailStart=$tailStart, tailRange=$tailRange, tailMaxBytes=$tailMaxBytes")
+            println(
+                "DEBUG: Pass 2 configuration: tailSizeBytes=$tailSizeBytes, tailStart=$tailStart, tailRange=$tailRange, tailMaxBytes=$tailMaxBytes"
+            )
 
             val tailResult = FrameRateUtils.fetchHttpRangeToFile(
-                realUrl, emptyMap(), tailRange, tailMaxBytes, tempFile, fileOffset = tailStart
+                realUrl,
+                emptyMap(),
+                tailRange,
+                tailMaxBytes,
+                tempFile,
+                fileOffset = tailStart
             )
-            println("DEBUG: tailResult success=${tailResult.success}, fileLength=${tempFile.length()}")
+            println(
+                "DEBUG: tailResult success=${tailResult.success}, fileLength=${tempFile.length()}"
+            )
             assertTrue("Pass 2 tail download must succeed", tailResult.success)
-            assertTrue("Must contain moov in combined file after tail download", FrameRateUtils.hasMoovAtom(tempFile))
+            assertTrue(
+                "Must contain moov in combined file after tail download",
+                FrameRateUtils.hasMoovAtom(tempFile)
+            )
 
-            println("SUCCESS: Real URL Head + Tail successfully downloaded. Combined size: ${tempFile.length()} bytes")
+            println(
+                "SUCCESS: Real URL Head + Tail successfully downloaded. Combined size: ${tempFile.length()} bytes"
+            )
         } finally {
             tempFile.delete()
         }
@@ -881,7 +948,9 @@ class FrameRateUtilsAfrTest {
                 assertTrue("Content length must be > 2MB", contentLength > 2_097_152L)
 
                 // Pass 2: Tail Range Probe
-                val tailStart = FrameRateUtils.findNextBoxOffsetAfterMdat(tempFile, contentLength) ?: (contentLength - 4_194_304L)
+                val tailStart =
+                    FrameRateUtils.findNextBoxOffsetAfterMdat(tempFile, contentLength)
+                        ?: (contentLength - 4_194_304L)
                 val tailRange = "bytes=$tailStart-${contentLength - 1}"
                 val tailResult = FrameRateUtils.fetchHttpRangeToFile(
                     url = streamUrl,
@@ -891,9 +960,14 @@ class FrameRateUtilsAfrTest {
                     targetFile = tempFile,
                     fileOffset = tailStart
                 )
-                println("PROBE Pass 2 tailResult: success=${tailResult.success}, tailStart=$tailStart, tempFileLength=${tempFile.length()}")
+                println(
+                    "PROBE Pass 2 tailResult: success=${tailResult.success}, tailStart=$tailStart, tempFileLength=${tempFile.length()}"
+                )
                 assertTrue("Pass 2 tail request must succeed", tailResult.success)
-                assertTrue("Temp file length must reach sparse tail offset", tempFile.length() >= tailStart)
+                assertTrue(
+                    "Temp file length must reach sparse tail offset",
+                    tempFile.length() >= tailStart
+                )
             }
         } catch (e: Exception) {
             println("Stream probe exception (offline/example url): ${e.message}")
@@ -940,11 +1014,13 @@ class FrameRateUtilsAfrTest {
                     ) {
                         moovOffsetInTail = i - 4
                         val moovSize32 = ((bytes[i - 4].toInt() and 0xFF) shl 24) or
-                                ((bytes[i - 3].toInt() and 0xFF) shl 16) or
-                                ((bytes[i - 2].toInt() and 0xFF) shl 8) or
-                                (bytes[i - 1].toInt() and 0xFF)
+                            ((bytes[i - 3].toInt() and 0xFF) shl 16) or
+                            ((bytes[i - 2].toInt() and 0xFF) shl 8) or
+                            (bytes[i - 1].toInt() and 0xFF)
                         val absoluteMoovStart = tailStart16MB + moovOffsetInTail
-                        println("FOUND MOOV ATOM! moovOffsetInTail=$moovOffsetInTail, absoluteMoovStart=$absoluteMoovStart, moovSize32=$moovSize32 bytes")
+                        println(
+                            "FOUND MOOV ATOM! moovOffsetInTail=$moovOffsetInTail, absoluteMoovStart=$absoluteMoovStart, moovSize32=$moovSize32 bytes"
+                        )
                         break
                     }
                 }
@@ -955,8 +1031,6 @@ class FrameRateUtilsAfrTest {
             tempFile.delete()
         }
     }
-
-
 
     @Test
     fun `proves end-to-end AFR probe detection produces 23_976 fps and 4K resolution mapping`() {
@@ -972,7 +1046,12 @@ class FrameRateUtilsAfrTest {
         )
 
         assertNotNull("Detection object must be valid", detection)
-        assertEquals("Snapped rate must match 23.976 NTSC film rate", 23.976025f, detection.snapped, 0.001f)
+        assertEquals(
+            "Snapped rate must match 23.976 NTSC film rate",
+            23.976025f,
+            detection.snapped,
+            0.001f
+        )
         assertEquals("Width must be 3840", 3840, detection.videoWidth)
         assertEquals("Height must be 2160", 2160, detection.videoHeight)
 
@@ -997,13 +1076,13 @@ class FrameRateUtilsAfrTest {
             dos.writeInt(32)
             dos.write("ftyp".toByteArray(Charsets.US_ASCII))
             dos.write(ByteArray(24)) // payload
-            
+
             // mdat box (size 1000)
             dos.writeInt(1000)
             dos.write("mdat".toByteArray(Charsets.US_ASCII))
-            
+
             temp.writeBytes(bos.toByteArray())
-            
+
             val offset = FrameRateUtils.findNextBoxOffsetAfterMdat(temp, 2000L)
             assertEquals(1032L, offset)
         } finally {
@@ -1021,14 +1100,14 @@ class FrameRateUtilsAfrTest {
             dos.writeInt(32)
             dos.write("ftyp".toByteArray(Charsets.US_ASCII))
             dos.write(ByteArray(24)) // payload
-            
+
             // mdat box (size 1 for 64-bit size, then 5,000,000,000L)
             dos.writeInt(1)
             dos.write("mdat".toByteArray(Charsets.US_ASCII))
             dos.writeLong(5_000_000_000L)
-            
+
             temp.writeBytes(bos.toByteArray())
-            
+
             val offset = FrameRateUtils.findNextBoxOffsetAfterMdat(temp, 6_000_000_000L)
             assertEquals(5_000_000_032L, offset)
         } finally {
@@ -1050,7 +1129,7 @@ class FrameRateUtilsAfrTest {
             dos.writeInt(16)
             dos.write("free".toByteArray(Charsets.US_ASCII))
             dos.writeInt(0)
-            
+
             temp.writeBytes(bos.toByteArray())
             val offset = FrameRateUtils.findNextBoxOffsetAfterMdat(temp, 1000L)
             assertNull(offset)
@@ -1078,7 +1157,10 @@ class FrameRateUtilsAfrTest {
             val contentLength = 10_912_513_112L
             val walk = FrameRateUtils.walkMp4BoxesForMdatEnd(temp, contentLength)
             assertTrue(walk is FrameRateUtils.Mp4MdatWalkResult.NeedHeaderAt)
-            assertEquals(32L + freeSize, (walk as FrameRateUtils.Mp4MdatWalkResult.NeedHeaderAt).offset)
+            assertEquals(
+                32L + freeSize,
+                (walk as FrameRateUtils.Mp4MdatWalkResult.NeedHeaderAt).offset
+            )
         } finally {
             temp.delete()
         }
@@ -1110,7 +1192,10 @@ class FrameRateUtilsAfrTest {
 
             val walk = FrameRateUtils.walkMp4BoxesForMdatEnd(temp, contentLength)
             assertTrue(walk is FrameRateUtils.Mp4MdatWalkResult.Found)
-            assertEquals(freeEnd + mdatSize, (walk as FrameRateUtils.Mp4MdatWalkResult.Found).mdatEnd)
+            assertEquals(
+                freeEnd + mdatSize,
+                (walk as FrameRateUtils.Mp4MdatWalkResult.Found).mdatEnd
+            )
         } finally {
             temp.delete()
         }
@@ -1124,8 +1209,14 @@ class FrameRateUtilsAfrTest {
             fileWithMoov.writeBytes("ftypisom00000008moovtrak".toByteArray(Charsets.US_ASCII))
             fileWithoutMoov.writeBytes("ftypisom00000008mdattrak".toByteArray(Charsets.US_ASCII))
 
-            assertTrue("Must detect moov atom when present", FrameRateUtils.hasMoovAtom(fileWithMoov))
-            assertFalse("Must return false when moov atom is absent", FrameRateUtils.hasMoovAtom(fileWithoutMoov))
+            assertTrue(
+                "Must detect moov atom when present",
+                FrameRateUtils.hasMoovAtom(fileWithMoov)
+            )
+            assertFalse(
+                "Must return false when moov atom is absent",
+                FrameRateUtils.hasMoovAtom(fileWithoutMoov)
+            )
         } finally {
             fileWithMoov.delete()
             fileWithoutMoov.delete()
@@ -1137,8 +1228,6 @@ class FrameRateUtilsAfrTest {
         val snapped = FrameRateUtils.snapToStandardRate(23.976025f)
         assertNear(24000f / 1001f, snapped)
     }
-
-
 
     private fun assertNear(expected: Float, actual: Float, epsilon: Float = 0.001f) {
         assertTrue(

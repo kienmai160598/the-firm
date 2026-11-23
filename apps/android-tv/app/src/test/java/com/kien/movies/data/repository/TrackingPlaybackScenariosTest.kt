@@ -38,6 +38,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.system.measureTimeMillis
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -47,7 +48,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import kotlin.system.measureTimeMillis
 
 class TrackingPlaybackScenariosTest {
 
@@ -90,7 +90,8 @@ class TrackingPlaybackScenariosTest {
                 media = showMedia,
                 episode = SimklPlaybackEpisode(season = 4, number = 1)
             )
-            simklSnapshot = simklSnapshot.applyScrobbleResult(pauseResult, System.currentTimeMillis())
+            simklSnapshot =
+                simklSnapshot.applyScrobbleResult(pauseResult, System.currentTimeMillis())
             val updated = simklProjection.withUpdatedPlayback(simklSnapshot)
 
             // Verify library index is preserved by reference (no re-indexing)
@@ -249,11 +250,14 @@ class TrackingPlaybackScenariosTest {
             lastWatched = 200L
         )
 
-        coEvery { progressPreferences.getProgress("tt_shared_movie", 1) } returns flowOf(profile1Progress)
-        coEvery { progressPreferences.getProgress("tt_shared_movie", 2) } returns flowOf(profile2Progress)
+        coEvery { progressPreferences.getProgress("tt_shared_movie", 1) } returns
+            flowOf(profile1Progress)
+        coEvery { progressPreferences.getProgress("tt_shared_movie", 2) } returns
+            flowOf(profile2Progress)
 
         val traktSettings = mockk<TraktSettingsDataStore>(relaxed = true) {
-            every { watchProgressSource } returns MutableStateFlow(WatchProgressSource.NUVIO_SYNC)
+            every { watchProgressSource } returns
+                MutableStateFlow(WatchProgressSource.NUVIO_SYNC)
         }
 
         val repository = WatchProgressRepositoryImpl(
@@ -263,7 +267,10 @@ class TrackingPlaybackScenariosTest {
             watchProgressSyncService = mockk<WatchProgressSyncService>(relaxed = true),
             watchedItemsPreferences = mockk<WatchedItemsPreferences>(relaxed = true),
             watchedItemsSyncService = mockk<WatchedItemsSyncService>(relaxed = true),
-            authManager = mockk<AuthManager>(relaxed = true) { every { isAuthenticated } returns false },
+            authManager = mockk<AuthManager>(relaxed = true) {
+                every { isAuthenticated } returns
+                    false
+            },
             metaRepository = mockk<MetaRepository>(relaxed = true),
             tmdbService = mockk<TmdbService>(relaxed = true),
             profileManager = profileManager,
@@ -276,15 +283,21 @@ class TrackingPlaybackScenariosTest {
 
         // Profile 1 saves its progress
         repository.saveProgress(profile1Progress, profileId = 1, syncRemote = false)
-        coVerify(exactly = 1) { progressPreferences.saveProgress(profile1Progress, profileId = 1) }
+        coVerify(exactly = 1) {
+            progressPreferences.saveProgress(profile1Progress, profileId = 1)
+        }
 
         // Switch to Profile 2
         activeProfile.value = 2
         repository.saveProgress(profile2Progress, profileId = 2, syncRemote = false)
-        coVerify(exactly = 1) { progressPreferences.saveProgress(profile2Progress, profileId = 2) }
+        coVerify(exactly = 1) {
+            progressPreferences.saveProgress(profile2Progress, profileId = 2)
+        }
 
         // Verify Profile 1's progress was not touched when Profile 2 saved
-        coVerify(exactly = 0) { progressPreferences.saveProgress(profile2Progress, profileId = 1) }
+        coVerify(exactly = 0) {
+            progressPreferences.saveProgress(profile2Progress, profileId = 1)
+        }
     }
 
     @Test
@@ -338,8 +351,16 @@ class TrackingPlaybackScenariosTest {
             val isMovie = i % 2 == 0
             SimklLibraryEntry(
                 mediaType = if (isMovie) SimklMediaType.MOVIES else SimklMediaType.SHOWS,
-                movie = if (isMovie) SimklMedia(title = "Movie $i", ids = mapOf("imdb" to JsonPrimitive("tt$i"))) else null,
-                show = if (!isMovie) SimklMedia(title = "Show $i", ids = mapOf("imdb" to JsonPrimitive("tt$i"))) else null
+                movie = if (isMovie) {
+                    SimklMedia(title = "Movie $i", ids = mapOf("imdb" to JsonPrimitive("tt$i")))
+                } else {
+                    null
+                },
+                show = if (!isMovie) {
+                    SimklMedia(title = "Show $i", ids = mapOf("imdb" to JsonPrimitive("tt$i")))
+                } else {
+                    null
+                }
             )
         }
         val snapshot = SimklSyncSnapshot(
@@ -354,7 +375,10 @@ class TrackingPlaybackScenariosTest {
             playbackId = 9999L,
             progress = 55.0,
             mediaType = SimklMediaType.MOVIES,
-            media = SimklMedia(title = "Movie 2500", ids = mapOf("imdb" to JsonPrimitive("tt2500"))),
+            media = SimklMedia(
+                title = "Movie 2500",
+                ids = mapOf("imdb" to JsonPrimitive("tt2500"))
+            ),
             episode = null
         )
         val updatedSnapshot = snapshot.applyScrobbleResult(pauseResult, System.currentTimeMillis())

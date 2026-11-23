@@ -55,7 +55,9 @@ internal fun PlayerRuntimeController.serverPlaybackSummary(): String? {
     return if (reasons.isEmpty()) method else "$method · $reasons"
 }
 
-internal suspend fun PlayerRuntimeController.newerServerProgress(saved: WatchProgress?): WatchProgress? {
+internal suspend fun PlayerRuntimeController.newerServerProgress(
+    saved: WatchProgress?
+): WatchProgress? {
     if (!isServerStream) return saved
     val state = try {
         withTimeoutOrNull(SERVER_RESUME_TIMEOUT_MS) { serverPlayback.resumeState(currentStreamUrl) }
@@ -70,17 +72,31 @@ internal suspend fun PlayerRuntimeController.newerServerProgress(saved: WatchPro
     if (saved != null && saved.lastWatched >= lastPlayed) return saved
     val parentContentId = contentId ?: return saved
     val base = saved ?: currentWatchProgress(parentContentId, contentType ?: "movie", 0L, 0L, 0L)
-    return base.copy(position = state.positionMs, duration = state.durationMs, lastWatched = lastPlayed, progressPercent = null)
+    return base.copy(
+        position = state.positionMs,
+        duration = state.durationMs,
+        lastWatched = lastPlayed,
+        progressPercent = null
+    )
 }
 
-internal fun PlayerRuntimeController.serverImdbId(contentId: String): String? =
-    metaRepository.getCachedMeta(contentType ?: "movie", contentId)?.imdbId?.takeIf { it.startsWith("tt") }
+internal fun PlayerRuntimeController.serverImdbId(contentId: String): String? = metaRepository.getCachedMeta(contentType ?: "movie", contentId)?.imdbId?.takeIf {
+    it.startsWith("tt")
+}
 
-internal suspend fun PlayerRuntimeController.streamAddonsFor(videoId: String): List<Addon> =
-    if (serverStreams.isNativeRequest(videoId)) emptyList() else addonRepository.getInstalledAddons().first().enabledAddons()
+internal suspend fun PlayerRuntimeController.streamAddonsFor(videoId: String): List<Addon> = if (serverStreams.isNativeRequest(
+        videoId
+    )
+) {
+    emptyList()
+} else {
+    addonRepository.getInstalledAddons().first().enabledAddons()
+}
 
-internal fun PlayerRuntimeController.serverSourceNames(type: String, videoId: String): List<String> =
-    serverStreams.sources(type, videoId, season = null, episode = null).map { it.name }
+internal fun PlayerRuntimeController.serverSourceNames(
+    type: String,
+    videoId: String
+): List<String> = serverStreams.sources(type, videoId, season = null, episode = null).map { it.name }
 
 internal suspend fun PlayerRuntimeController.prepareServerStream(stream: Stream): Stream? {
     val target = stream.serverTarget ?: return stream
@@ -89,14 +105,22 @@ internal suspend fun PlayerRuntimeController.prepareServerStream(stream: Stream)
     } catch (error: CancellationException) {
         throw error
     } catch (error: Exception) {
-        Toast.makeText(context, context.getString(error.serverPlaybackMessageRes()), Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            context,
+            context.getString(error.serverPlaybackMessageRes()),
+            Toast.LENGTH_SHORT
+        ).show()
         return null
     }
     val hints = stream.behaviorHints ?: StreamBehaviorHints(null, null, null, null)
     return stream.copy(
         url = session.url,
         subtitles = session.subtitles + stream.subtitles,
-        behaviorHints = hints.copy(proxyHeaders = session.headers.takeIf { it.isNotEmpty() }?.let { ProxyHeaders(request = it, response = null) })
+        behaviorHints = hints.copy(
+            proxyHeaders = session.headers.takeIf {
+                it.isNotEmpty()
+            }?.let { ProxyHeaders(request = it, response = null) }
+        )
     )
 }
 
@@ -135,17 +159,23 @@ internal fun PlayerRuntimeController.selectServerSubtitle(index: Int) {
     isUserExplicitSubtitleSelection = true
     persistedTrackPreference = persistedTrackPreference?.copy(subtitle = null)
     pendingRestoredAddonSubtitle = null
-    restartServerStream(R.string.servers_subtitle_switch_failed) { url -> serverPlayback.switchSubtitle(url, index) }
+    restartServerStream(R.string.servers_subtitle_switch_failed) { url ->
+        serverPlayback.switchSubtitle(url, index)
+    }
 }
 
 internal fun PlayerRuntimeController.clearServerSubtitle() {
     persistedTrackPreference = rememberedTrackPreference ?: persistedTrackPreference
-    restartServerStream(R.string.servers_subtitle_switch_failed) { url -> serverPlayback.switchSubtitle(url, null) }
+    restartServerStream(R.string.servers_subtitle_switch_failed) { url ->
+        serverPlayback.switchSubtitle(url, null)
+    }
 }
 
 private fun PlayerRuntimeController.switchServerAudio(index: Int) {
     if (_uiState.value.serverAudioTracks.any { it.isSelected && it.index == index }) return
-    restartServerStream(R.string.servers_audio_switch_failed) { url -> serverPlayback.switchAudio(url, index) }
+    restartServerStream(R.string.servers_audio_switch_failed) { url ->
+        serverPlayback.switchAudio(url, index)
+    }
 }
 
 private fun PlayerRuntimeController.restartServerStream(
@@ -168,7 +198,10 @@ private fun PlayerRuntimeController.restartServerStream(
     }
 }
 
-private fun PlayerRuntimeController.restartServerSession(session: ServerPlaybackSession, positionMs: Long) {
+private fun PlayerRuntimeController.restartServerSession(
+    session: ServerPlaybackSession,
+    positionMs: Long
+) {
     currentStreamUrl = session.url
     currentHeaders = session.headers
     currentStreamMimeType = PlayerMediaSourceFactory.inferMimeType(

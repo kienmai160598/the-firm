@@ -174,9 +174,7 @@ class LibrarySyncServiceTest {
     }
 }
 
-private class InMemoryLibrarySyncStore(
-    initialState: LibrarySyncState = LibrarySyncState()
-) : LibrarySyncLocalStore {
+private class InMemoryLibrarySyncStore(initialState: LibrarySyncState = LibrarySyncState()) : LibrarySyncLocalStore {
     var state: LibrarySyncState = initialState
 
     override suspend fun getSyncState(profileId: Int): LibrarySyncState {
@@ -211,10 +209,7 @@ private class InMemoryLibrarySyncStore(
         return state
     }
 
-    override suspend fun acknowledgePush(
-        profileId: Int,
-        expectedMutationRevision: Long
-    ): Boolean {
+    override suspend fun acknowledgePush(profileId: Int, expectedMutationRevision: Long): Boolean {
         val updated = LibrarySyncReducer.acknowledgePush(
             state = state,
             expectedMutationRevision = expectedMutationRevision
@@ -234,10 +229,7 @@ private class FakeLibrarySyncRemote(
     val pushedItems = mutableListOf<SavedLibraryItem>()
     val deletedKeys = mutableListOf<LibrarySyncKey>()
 
-    override suspend fun pullSnapshot(
-        profileId: Int,
-        pageSize: Int
-    ): List<SavedLibraryItem> {
+    override suspend fun pullSnapshot(profileId: Int, pageSize: Int): List<SavedLibraryItem> {
         calls += "snapshot:$profileId"
         return snapshot
     }
@@ -259,17 +251,11 @@ private class FakeLibrarySyncRemote(
             .take(limit)
     }
 
-    override suspend fun pushItems(
-        profileId: Int,
-        items: Collection<SavedLibraryItem>
-    ) {
+    override suspend fun pushItems(profileId: Int, items: Collection<SavedLibraryItem>) {
         pushedItems += items
     }
 
-    override suspend fun deleteItems(
-        profileId: Int,
-        keys: Collection<LibrarySyncKey>
-    ) {
+    override suspend fun deleteItems(profileId: Int, keys: Collection<LibrarySyncKey>) {
         deleteFailure?.let { throw it }
         deletedKeys += keys
     }

@@ -13,7 +13,7 @@ internal enum class AudioSamplingMode {
     LOW,
 
     /** More spots over several connections, for the fastest sync. */
-    HIGH,
+    HIGH
 }
 
 /**
@@ -43,7 +43,7 @@ internal object AudioSyncSettings {
         load: (key: String) -> Boolean?,
         save: (key: String, value: Boolean) -> Unit,
         loadString: (key: String) -> String?,
-        saveString: (key: String, value: String) -> Unit,
+        saveString: (key: String, value: String) -> Unit
     ) {
         this.save = save
         this.saveString = saveString

@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.annotation.RawRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,8 +30,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,8 +43,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -60,20 +56,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.disabled
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardBorder
 import androidx.tv.material3.CardColors
@@ -85,8 +83,8 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.SettingsUiStyle
-import com.kien.movies.ui.components.FocusMarqueeText
 import com.kien.movies.ui.components.BrandWordmark
+import com.kien.movies.ui.components.FocusMarqueeText
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesButton
@@ -99,6 +97,7 @@ import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.MoviesComponents
 import com.kien.movies.ui.theme.MoviesRadii
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.util.rememberRawSvgPainter
 
@@ -113,12 +112,11 @@ internal val SettingsHorizonGroupShape = RoundedCornerShape(16.dp)
 
 @Composable
 @androidx.compose.runtime.ReadOnlyComposable
-internal fun settingsGroupShape(): RoundedCornerShape =
-    if (isFlatSettingsStyle()) {
-        SettingsHorizonGroupShape
-    } else {
-        RoundedCornerShape(SettingsSecondaryCardRadius)
-    }
+internal fun settingsGroupShape(): RoundedCornerShape = if (isFlatSettingsStyle()) {
+    SettingsHorizonGroupShape
+} else {
+    RoundedCornerShape(SettingsSecondaryCardRadius)
+}
 
 /**
  * Marks a row that holds several options side by side. Without it, moving into the row uses a
@@ -159,8 +157,13 @@ internal fun settingsRowShape(): RoundedCornerShape = when (MoviesTheme.settings
 
 @Composable
 @androidx.compose.runtime.ReadOnlyComposable
-internal fun settingsTallRowShape(): RoundedCornerShape =
-    if (isFlatSettingsStyle()) settingsRowShape() else RoundedCornerShape(SettingsSecondaryCardRadius)
+internal fun settingsTallRowShape(): RoundedCornerShape = if (isFlatSettingsStyle()) {
+    settingsRowShape()
+} else {
+    RoundedCornerShape(
+        SettingsSecondaryCardRadius
+    )
+}
 
 @Composable
 internal fun settingsRowColors(): CardColors = moviesCardColors()
@@ -318,7 +321,10 @@ internal fun SettingsWorkspaceSurface(
         } else {
             Box(
                 modifier = modifier
-                    .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.sm),
+                    .padding(
+                        horizontal = MoviesTheme.spacing.md,
+                        vertical = MoviesTheme.spacing.sm
+                    ),
                 content = content
             )
         }
@@ -510,7 +516,13 @@ internal fun SettingsTopBarTab(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleSmall.copy(
-                    fontWeight = if (showSelected || isFocused) FontWeight.SemiBold else FontWeight.Medium
+                    fontWeight = if (showSelected ||
+                        isFocused
+                    ) {
+                        FontWeight.SemiBold
+                    } else {
+                        FontWeight.Medium
+                    }
                 ),
                 color = contentColor,
                 maxLines = 1,
@@ -521,11 +533,7 @@ internal fun SettingsTopBarTab(
 }
 
 @Composable
-internal fun SettingsDetailHeader(
-    title: String,
-    subtitle: String,
-    modifier: Modifier = Modifier
-) {
+internal fun SettingsDetailHeader(title: String, subtitle: String, modifier: Modifier = Modifier) {
     when (MoviesTheme.settingsUiStyle) {
         SettingsUiStyle.ZEN -> Column(
             modifier = modifier
@@ -535,7 +543,9 @@ internal fun SettingsDetailHeader(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold),
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
                 color = MoviesTheme.colors.TextPrimary
             )
             Text(
@@ -544,6 +554,7 @@ internal fun SettingsDetailHeader(
                 color = MoviesTheme.colors.TextTertiary
             )
         }
+
         SettingsUiStyle.HORIZON -> Column(
             modifier = modifier
                 .fillMaxWidth()
@@ -552,7 +563,9 @@ internal fun SettingsDetailHeader(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold),
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
                 color = MoviesTheme.colors.TextPrimary
             )
             Text(
@@ -561,6 +574,7 @@ internal fun SettingsDetailHeader(
                 color = MoviesTheme.colors.TextSecondary
             )
         }
+
         SettingsUiStyle.CLASSIC -> Column(
             modifier = modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -621,6 +635,7 @@ internal fun SettingsGroupCard(
                 content()
             }
         }
+
         SettingsUiStyle.CLASSIC -> SettingsExpressiveGroup(modifier, title, subtitle, content)
     }
 }
@@ -878,7 +893,15 @@ internal fun <T> SettingsSingleChoiceDialog(
                         onClick = { onOptionSelected(option.value) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .then(if (index == focusedIndex) Modifier.focusRequester(focusRequester) else Modifier)
+                            .then(
+                                if (index ==
+                                    focusedIndex
+                                ) {
+                                    Modifier.focusRequester(focusRequester)
+                                } else {
+                                    Modifier
+                                }
+                            )
                             .semantics {
                                 role = Role.RadioButton
                                 this.selected = isSelected
@@ -943,8 +966,11 @@ internal fun <T> SettingsMultiChoiceDialog(
     maxSelections: Int? = null
 ) {
     val focusRequester = remember { FocusRequester() }
-    val selected = remember(selectedValues) { mutableStateListOf<T>().also { it.addAll(selectedValues) } }
-    val firstSelectedIndex = options.indexOfFirst { option -> selectedValues.contains(option.value) }
+    val selected =
+        remember(selectedValues) { mutableStateListOf<T>().also { it.addAll(selectedValues) } }
+    val firstSelectedIndex = options.indexOfFirst { option ->
+        selectedValues.contains(option.value)
+    }
         .let { if (it >= 0) it else 0 }
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = firstSelectedIndex)
 
@@ -990,10 +1016,19 @@ internal fun <T> SettingsMultiChoiceDialog(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .then(if (index == firstSelectedIndex) Modifier.focusRequester(focusRequester) else Modifier)
+                                .then(
+                                    if (index ==
+                                        firstSelectedIndex
+                                    ) {
+                                        Modifier.focusRequester(focusRequester)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
                                 .semantics {
                                     role = Role.Checkbox
-                                    toggleableState = if (isSelected) ToggleableState.On else ToggleableState.Off
+                                    toggleableState =
+                                        if (isSelected) ToggleableState.On else ToggleableState.Off
                                 },
                             selected = isSelected
                         ) {
@@ -1038,7 +1073,9 @@ internal fun <T> SettingsMultiChoiceDialog(
                 )
                 SettingsDialogActionButton(
                     text = stringResource(R.string.action_save),
-                    onClick = { onValuesSelected(options.map { it.value }.filter { selected.contains(it) }) },
+                    onClick = {
+                        onValuesSelected(options.map { it.value }.filter { selected.contains(it) })
+                    },
                     primary = true
                 )
             }
@@ -1094,10 +1131,6 @@ internal fun SettingsChoiceChip(
 }
 
 @Composable
-internal fun SettingsTogglePill(
-    checked: Boolean,
-    enabled: Boolean,
-    focused: Boolean = false
-) {
+internal fun SettingsTogglePill(checked: Boolean, enabled: Boolean, focused: Boolean = false) {
     SettingsExpressiveSwitch(checked, enabled, focused)
 }

@@ -19,6 +19,8 @@ internal fun LayoutDiscoverLocationRow(
     DiscoverLocationRow(
         selectedLocation = uiState.discoverLocation,
         rememberedLocation = uiState.lastNonOffDiscoverLocation,
-        onLocationSelected = { location -> onEvent(LayoutSettingsEvent.SetDiscoverLocation(location)) }
+        onLocationSelected = { location ->
+            onEvent(LayoutSettingsEvent.SetDiscoverLocation(location))
+        }
     )
 }

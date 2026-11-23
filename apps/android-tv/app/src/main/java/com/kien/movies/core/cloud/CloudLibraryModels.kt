@@ -88,10 +88,7 @@ data class CloudLibraryPlaybackInfo(
     val sequenceIndex: Int
 )
 
-data class CloudLibraryPlaybackContext(
-    val item: CloudLibraryItem,
-    val currentFileKey: String
-) {
+data class CloudLibraryPlaybackContext(val item: CloudLibraryItem, val currentFileKey: String) {
     val currentIndex: Int
         get() = item.playableFiles.indexOfFirst { it.stableKey == currentFileKey }
 
@@ -101,20 +98,17 @@ data class CloudLibraryPlaybackContext(
     val nextFile: CloudLibraryFile?
         get() = item.playableFiles.getOrNull(currentIndex + 1)
 
-    fun advanceTo(file: CloudLibraryFile): CloudLibraryPlaybackContext =
-        copy(currentFileKey = file.stableKey)
+    fun advanceTo(file: CloudLibraryFile): CloudLibraryPlaybackContext = copy(currentFileKey = file.stableKey)
 
     fun videoId(file: CloudLibraryFile): String = "${item.stableKey}:${file.stableKey}"
 
-    fun fileForVideoId(videoId: String?): CloudLibraryFile? =
-        videoId?.let { requestedId ->
-            item.playableFiles.firstOrNull { file -> videoId(file) == requestedId }
-        } ?: currentFile
+    fun fileForVideoId(videoId: String?): CloudLibraryFile? = videoId?.let { requestedId ->
+        item.playableFiles.firstOrNull { file -> videoId(file) == requestedId }
+    } ?: currentFile
 
-    fun episodeNumber(file: CloudLibraryFile): Int? =
-        item.playableFiles.indexOfFirst { it.stableKey == file.stableKey }
-            .takeIf { it >= 0 }
-            ?.plus(1)
+    fun episodeNumber(file: CloudLibraryFile): Int? = item.playableFiles.indexOfFirst { it.stableKey == file.stableKey }
+        .takeIf { it >= 0 }
+        ?.plus(1)
 
     fun asVideos(): List<Video> = item.playableFiles.mapIndexed { index, file ->
         Video(
@@ -145,8 +139,7 @@ const val PremiumizeCloudLibraryPosterUrl = "https://www.premiumize.me/icon_norm
 private const val TorboxCloudLibraryPosterDataUrl =
     "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjM2NyAzMDggNzY2IDg4NCI+PHBvbHlnb24gZmlsbD0iIzAwNDQ0RCIgcG9pbnRzPSI3NDkuOTksNzQ5Ljk5IDc0OS45OSwxMTkxLjk2IDM2Ny4yNSw5NzAuOTcgMzY3LjI1LDUyOS4wMSIvPjxwb2x5Z29uIGZpbGw9IiMzNEJBOTAiIHBvaW50cz0iMTEzMi43NSw1MjkuMDEgMTEzMi43NSw5NzAuOTcgNzQ5Ljk5LDExOTEuOTYgNzQ5Ljk5LDc0OS45OSA4NzIuODcsNjc5LjA1IDk1Ni43MSw2MzAuNjYiLz48cG9seWdvbiBmaWxsPSIjNTJBMTUzIiBwb2ludHM9IjExMzIuNzUsNTI5LjAxIDc0OS45OSw3NDkuOTkgMzY3LjI1LDUyOS4wMSA3NDkuOTksMzA4LjA0Ii8+PHBvbHlnb24gZmlsbD0iI0ZGRkZGRiIgcG9pbnRzPSIxMDQzLjA0LDczOS4zNiA5NTguNjYsMTA1Ny4wOCA5NTIuNCw4NTEuODQgODM5LjcxLDkxNS4zOSA4NzIuODcsNjc5LjA1IDk1Ni43MSw2MzAuNjYgOTMxLjgxLDc5OS4yMSIvPjwvc3ZnPg=="
 
-fun cloudLibraryDisplayArtworkUrl(url: String?): String? =
-    when (url?.trim()) {
-        TorboxCloudLibraryPosterUrl -> TorboxCloudLibraryPosterDataUrl
-        else -> url?.trim()
-    }
+fun cloudLibraryDisplayArtworkUrl(url: String?): String? = when (url?.trim()) {
+    TorboxCloudLibraryPosterUrl -> TorboxCloudLibraryPosterDataUrl
+    else -> url?.trim()
+}

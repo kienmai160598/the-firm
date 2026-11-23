@@ -3,10 +3,6 @@ package com.kien.movies.ui.screens.player
 import androidx.media3.common.C
 import androidx.media3.common.audio.AudioProcessor
 import com.kien.movies.data.local.NightMode
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.PI
@@ -16,6 +12,10 @@ import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class NightModeAudioProcessorTest {
 
@@ -78,7 +78,10 @@ class NightModeAudioProcessorTest {
         val processor = activeProcessor(NightMode.MEDIUM)
         val output = process(processor, sine(peakDb = -30f, seconds = 2f))
         // Skip the first second while the gain settles.
-        val settledIn = sine(peakDb = -30f, seconds = 2f).copyOfRange(SAMPLE_RATE * CHANNELS, 2 * SAMPLE_RATE * CHANNELS)
+        val settledIn = sine(peakDb = -30f, seconds = 2f).copyOfRange(
+            SAMPLE_RATE * CHANNELS,
+            2 * SAMPLE_RATE * CHANNELS
+        )
         val settledOut = output.copyOfRange(SAMPLE_RATE * CHANNELS, 2 * SAMPLE_RATE * CHANNELS)
         assertEquals(10f, rmsDb(settledOut) - rmsDb(settledIn), 0.5f)
     }

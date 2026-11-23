@@ -2,15 +2,6 @@
 
 package com.kien.movies.ui.screens.account
 
-import com.kien.movies.ui.components.expressive.M3eShapes
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.bodyFloor
-import com.kien.movies.ui.screens.settings.TenFootTypography
-import com.kien.movies.ui.screens.settings.buttonIconSize
-
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,9 +44,16 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
 import com.kien.movies.domain.model.AuthState
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.screens.settings.TenFootTypography
+import com.kien.movies.ui.screens.settings.buttonIconSize
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.bodyFloor
 
 private const val SHOW_SYNC_CODE_FEATURES = false
 
@@ -179,7 +178,9 @@ fun AccountScreen(
                         AccountActionCard(
                             icon = Icons.Default.VpnKey,
                             title = stringResource(R.string.sync_generate_title),
-                            description = stringResource(R.string.account_generate_sync_signed_in_desc),
+                            description = stringResource(
+                                R.string.account_generate_sync_signed_in_desc
+                            ),
                             onClick = onNavigateToSyncGenerate
                         )
                     }
@@ -188,7 +189,6 @@ fun AccountScreen(
                     SignOutButton(onClick = { showSignOutConfirmation = true })
                 }
             }
-
         }
     }
 
@@ -340,7 +340,10 @@ private fun LinkedDevicesSection(
 private fun SignOutButton(onClick: () -> Unit) {
     MoviesButton(onClick = onClick, style = MoviesButtonStyle.Destructive) {
         Row(
-            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = MoviesTheme.spacing.sm),
+            modifier = Modifier.padding(
+                horizontal = MoviesTheme.spacing.lg,
+                vertical = MoviesTheme.spacing.sm
+            ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(

@@ -501,9 +501,7 @@ class WatchProgressPreferencesStorageTest {
         val activeProfile: MutableStateFlow<Int>
     )
 
-    private class TestPreferencesDataStore(
-        initial: Preferences = emptyPreferences()
-    ) : DataStore<Preferences> {
+    private class TestPreferencesDataStore(initial: Preferences = emptyPreferences()) : DataStore<Preferences> {
         private val mutex = Mutex()
         private val state = MutableStateFlow(initial)
 
@@ -515,7 +513,9 @@ class WatchProgressPreferencesStorageTest {
         val value: Preferences
             get() = state.value
 
-        override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
+        override suspend fun updateData(
+            transform: suspend (t: Preferences) -> Preferences
+        ): Preferences {
             return mutex.withLock {
                 transform(state.value).also { updated ->
                     updateCount += 1

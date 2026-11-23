@@ -10,7 +10,9 @@ internal fun decodeMdbListActivities(body: String): MdbListActivities {
         throw MdbListDecodingException()
     }
     return MdbListActivities(
-        values = payload.keys.filter { it.endsWith("_at") }.associateWith { key -> payload.timestamp(key) },
+        values = payload.keys.filter {
+            it.endsWith("_at")
+        }.associateWith { key -> payload.timestamp(key) },
         serverTime = serverTime
     )
 }
@@ -35,7 +37,9 @@ internal fun decodeMdbListPlayback(body: String): List<MdbListPlayback> {
             ?: throw MdbListDecodingException()
         val season = episode?.integer("season")
         val number = episode?.integer("number", "episode")
-        if (type == MdbListItemType.EPISODE && (season == null || season < 0 || number == null || number < 1)) {
+        if (type == MdbListItemType.EPISODE &&
+            (season == null || season < 0 || number == null || number < 1)
+        ) {
             throw MdbListDecodingException()
         }
         MdbListPlayback(
@@ -54,7 +58,10 @@ internal fun decodeMdbListPlayback(body: String): List<MdbListPlayback> {
     }
 }
 
-internal fun decodeMdbListDropped(body: String, seasons: Boolean): MdbListPage<MdbListDroppedRecord> {
+internal fun decodeMdbListDropped(
+    body: String,
+    seasons: Boolean
+): MdbListPage<MdbListDroppedRecord> {
     val payload = mdbListResponseElement(body).objectValue()
     val name = if (seasons) "season" else "show"
     if (!payload.containsKey("${name}s")) throw MdbListDecodingException()
@@ -63,8 +70,11 @@ internal fun decodeMdbListDropped(body: String, seasons: Boolean): MdbListPage<M
         val target = row.objectValue(name) ?: throw MdbListDecodingException()
         val parent = if (seasons) row.objectValue("show") ?: target.objectValue("show") else target
         val number = if (seasons) {
-            target.integer("number", "season")?.takeIf { it >= 0 } ?: throw MdbListDecodingException()
-        } else null
+            target.integer("number", "season")?.takeIf { it >= 0 }
+                ?: throw MdbListDecodingException()
+        } else {
+            null
+        }
         MdbListDroppedRecord(decodeMdbListIds(parent ?: throw MdbListDecodingException()), number)
     }
     return mdbListPage(payload, items)
@@ -73,9 +83,17 @@ internal fun decodeMdbListDropped(body: String, seasons: Boolean): MdbListPage<M
 internal fun decodeMdbListJournal(body: String): MdbListPage<MdbListJournalRecord> {
     val payload = mdbListResponseElement(body).objectValue()
     if (payload.flag("requires_full_sync") == true) {
-        return MdbListPage(emptyList(), serverTime = payload.timestamp("server_time"), requiresFullSync = true)
+        return MdbListPage(
+            emptyList(),
+            serverTime = payload.timestamp("server_time"),
+            requiresFullSync = true
+        )
     }
-    if (!payload.containsKey("journal") || payload["journal"] == JsonNull) throw MdbListDecodingException()
+    if (!payload.containsKey("journal") ||
+        payload["journal"] == JsonNull
+    ) {
+        throw MdbListDecodingException()
+    }
     val records = payload.arrayValue("journal").mapNotNull { element ->
         val row = element.objectValue()
         when (row.text("category")) {
@@ -83,14 +101,23 @@ internal fun decodeMdbListJournal(body: String): MdbListPage<MdbListJournalRecor
             "watched" -> Unit
             else -> throw MdbListDecodingException()
         }
-        val type = MdbListItemType.entries.firstOrNull { it.name.equals(row.text("item_type"), ignoreCase = true) }
-            ?: throw MdbListDecodingException()
+        val type =
+            MdbListItemType.entries.firstOrNull {
+                it.name.equals(row.text("item_type"), ignoreCase = true)
+            }
+                ?: throw MdbListDecodingException()
         val season = row.integer("season")
         val episode = row.integer("episode")
-        if (type in setOf(MdbListItemType.SEASON, MdbListItemType.EPISODE) && (season == null || season < 0)) {
+        if (type in setOf(MdbListItemType.SEASON, MdbListItemType.EPISODE) &&
+            (season == null || season < 0)
+        ) {
             throw MdbListDecodingException()
         }
-        if (type == MdbListItemType.EPISODE && (episode == null || episode < 1)) throw MdbListDecodingException()
+        if (type == MdbListItemType.EPISODE &&
+            (episode == null || episode < 1)
+        ) {
+            throw MdbListDecodingException()
+        }
         val removed = when (row.text("status")) {
             "added" -> false
             "removed" -> true

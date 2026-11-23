@@ -6,11 +6,11 @@ import android.content.pm.PackageManager
 import android.os.Build
 import com.kien.movies.domain.model.AppIconOption
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 data class AppIconSettingsState(
     val selected: AppIconOption = AppIconOption.ORIGINAL,
@@ -19,9 +19,7 @@ data class AppIconSettingsState(
 )
 
 @Singleton
-class AppIconManager @Inject constructor(
-    @param:ApplicationContext private val context: Context
-) {
+class AppIconManager @Inject constructor(@param:ApplicationContext private val context: Context) {
     private val launcherClasses = mapOf(
         AppIconOption.ORIGINAL to "com.kien.movies.launcher.AppIconDefault",
         AppIconOption.ARCTIC_BLUE to "com.kien.movies.launcher.AppIconArcticBlue",
@@ -128,6 +126,5 @@ class AppIconManager @Inject constructor(
         }.isSuccess
     }
 
-    private fun component(className: String): ComponentName =
-        ComponentName(context.packageName, className)
+    private fun component(className: String): ComponentName = ComponentName(context.packageName, className)
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.kien.movies.data.local.AmbientModeDataStore
 import com.kien.movies.domain.model.AmbientModeSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 private const val PRELOAD_DELAY_MS = 20_000L
 private const val REFRESH_INTERVAL_MS = 30L * 60_000L

@@ -1,14 +1,14 @@
 package com.kien.movies.data.mapper
 
-import com.kien.movies.data.remote.dto.AddonManifestDto
 import com.kien.movies.data.remote.dto.AddonBehaviorHintsDto
+import com.kien.movies.data.remote.dto.AddonManifestDto
 import com.kien.movies.data.remote.dto.CatalogDescriptorDto
 import com.kien.movies.data.remote.dto.StremioAddonsConfigDto
 import com.kien.movies.domain.model.Addon
 import com.kien.movies.domain.model.AddonBehaviorHints
 import com.kien.movies.domain.model.AddonResource
-import com.kien.movies.domain.model.CatalogExtra
 import com.kien.movies.domain.model.CatalogDescriptor
+import com.kien.movies.domain.model.CatalogExtra
 import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.StremioAddonsConfig
 
@@ -62,10 +62,12 @@ private fun parseResources(resources: List<Any>, defaultTypes: List<String>): Li
                     idPrefixes = null
                 )
             }
+
             is Map<*, *> -> {
                 // Complex resource format with types and idPrefixes
                 val name = resource["name"] as? String ?: return@mapNotNull null
-                val types = (resource["types"] as? List<*>)?.filterIsInstance<String>() ?: defaultTypes
+                val types =
+                    (resource["types"] as? List<*>)?.filterIsInstance<String>() ?: defaultTypes
                 val idPrefixes = (resource["idPrefixes"] as? List<*>)?.filterIsInstance<String>()
                 AddonResource(
                     name = name,
@@ -73,6 +75,7 @@ private fun parseResources(resources: List<Any>, defaultTypes: List<String>): Li
                     idPrefixes = idPrefixes
                 )
             }
+
             else -> null
         }
     }
@@ -89,6 +92,7 @@ private fun parseCatalogExtras(rawExtras: List<Any>?): List<CatalogExtra> {
                     CatalogExtra(name = name)
                 }
             }
+
             is Map<*, *> -> {
                 val name = (raw["name"] as? String)?.trim()?.lowercase().orEmpty()
                 if (name.isBlank()) return@mapNotNull null
@@ -119,6 +123,7 @@ private fun parseCatalogExtras(rawExtras: List<Any>?): List<CatalogExtra> {
                     }
                 )
             }
+
             else -> null
         }
     }.distinct()

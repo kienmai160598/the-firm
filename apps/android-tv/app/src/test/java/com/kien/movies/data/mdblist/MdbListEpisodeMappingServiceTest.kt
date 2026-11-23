@@ -86,7 +86,9 @@ class MdbListEpisodeMappingServiceTest {
     ): MdbListEpisodeMappingService {
         val addon = mockk<AddonEpisodeListService> {
             coEvery { episodes(any(), any()) } returns addonSeasons.flatMapIndexed { index, count ->
-                (1..count).map { EpisodeMappingEntry(index + 1, it, videoId = "tt1:${index + 1}:$it") }
+                (1..count).map {
+                    EpisodeMappingEntry(index + 1, it, videoId = "tt1:${index + 1}:$it")
+                }
             }
         }
         return MdbListEpisodeMappingService(addon, tmdbApi, mockk<TmdbService>())
@@ -94,7 +96,12 @@ class MdbListEpisodeMappingServiceTest {
 
     private fun tmdbApi(seasons: List<Int>) = mockk<TmdbApi> {
         coEvery { getTvDetails(1, any(), any()) } returns Response.success(
-            TmdbDetailsResponse(id = 1, seasons = seasons.mapIndexed { index, count -> TmdbSeasonSummary(index + 1, count) })
+            TmdbDetailsResponse(
+                id = 1,
+                seasons = seasons.mapIndexed { index, count ->
+                    TmdbSeasonSummary(index + 1, count)
+                }
+            )
         )
         seasons.forEachIndexed { index, count ->
             coEvery { getTvSeasonDetails(1, index + 1, any(), any()) } returns Response.success(

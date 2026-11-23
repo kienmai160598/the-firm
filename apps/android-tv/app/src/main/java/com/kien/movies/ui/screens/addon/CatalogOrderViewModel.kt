@@ -15,6 +15,7 @@ import com.kien.movies.domain.model.Collection
 import com.kien.movies.domain.model.enabledAddons
 import com.kien.movies.domain.repository.AddonRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
@@ -28,7 +29,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 private const val TAG = "CatalogOrder"
 private const val PENDING_SAVED_ORDER_TIMEOUT_MS = 2000L
@@ -89,7 +89,7 @@ class CatalogOrderViewModel @Inject constructor(
         }
         val confirmedItems = itemsInOrder(
             orderKeys = draft,
-            source = _uiState.value.items.ifEmpty { persistedItemsCache },
+            source = _uiState.value.items.ifEmpty { persistedItemsCache }
         )
         persistedItemsCache = confirmedItems
         val generation = ++persistGeneration
@@ -157,7 +157,7 @@ class CatalogOrderViewModel @Inject constructor(
     private fun applyDraftOrder(orderKeys: List<String>) {
         val reordered = itemsInOrder(
             orderKeys = orderKeys,
-            source = _uiState.value.items.ifEmpty { persistedItemsCache },
+            source = _uiState.value.items.ifEmpty { persistedItemsCache }
         )
         if (reordered.isEmpty()) return
         _uiState.update { it.copy(items = reordered) }
@@ -166,7 +166,7 @@ class CatalogOrderViewModel @Inject constructor(
     private fun itemsInOrder(
         orderKeys: List<String>,
         source: List<CatalogOrderItem>,
-        followAddonsOrder: Boolean = _uiState.value.followAddonsOrder,
+        followAddonsOrder: Boolean = _uiState.value.followAddonsOrder
     ): List<CatalogOrderItem> {
         if (source.isEmpty()) return emptyList()
         val map = source.associateBy { it.key }
@@ -194,7 +194,7 @@ class CatalogOrderViewModel @Inject constructor(
         index: Int,
         size: Int,
         firstUnpinnedIndex: Int,
-        followAddonsOrder: Boolean,
+        followAddonsOrder: Boolean
     ): CatalogOrderItem {
         val isCollection = key.startsWith("collection_")
         val canMoveUp: Boolean
@@ -217,21 +217,16 @@ class CatalogOrderViewModel @Inject constructor(
         return copy(
             canMoveUp = canMoveUp,
             canMoveDown = canMoveDown,
-            canMove = canMoveUp || canMoveDown,
+            canMove = canMoveUp || canMoveDown
         )
     }
 
-    private fun pinnedItemKeys(): Set<String> =
-        _uiState.value.items.asSequence()
-            .filter { it.isPinnedToTop }
-            .map { it.key }
-            .toSet()
+    private fun pinnedItemKeys(): Set<String> = _uiState.value.items.asSequence()
+        .filter { it.isPinnedToTop }
+        .map { it.key }
+        .toSet()
 
-    private fun reorderInDraft(
-        draft: List<String>,
-        key: String,
-        direction: Int,
-    ): List<String>? {
+    private fun reorderInDraft(draft: List<String>, key: String, direction: Int): List<String>? {
         val pinnedKeys = pinnedItemKeys()
         if (key in pinnedKeys) return null
         val currentIndex = draft.indexOf(key)
@@ -248,7 +243,7 @@ class CatalogOrderViewModel @Inject constructor(
     private fun reorderCollectionInDraft(
         draft: List<String>,
         key: String,
-        direction: Int,
+        direction: Int
     ): List<String>? {
         if (!key.startsWith("collection_")) return null
         val pinnedKeys = pinnedItemKeys()
@@ -320,7 +315,7 @@ class CatalogOrderViewModel @Inject constructor(
 
     private fun orderItemsByAddonManifest(
         current: List<CatalogOrderItem>,
-        manifestKeys: List<String>,
+        manifestKeys: List<String>
     ): List<CatalogOrderItem> {
         if (current.isEmpty() || manifestKeys.isEmpty()) return current
         val pinnedItems = current.filter { it.isPinnedToTop }
@@ -336,7 +331,7 @@ class CatalogOrderViewModel @Inject constructor(
             addonKeys = addonKeys,
             collectionKeys = collectionKeys,
             referenceOrderKeys = unpinnedItems.map { it.key },
-            addonIdForKey = { key -> byKey[key]?.addonId },
+            addonIdForKey = { key -> byKey[key]?.addonId }
         )
         return pinnedItems + orderedKeys.mapNotNull { byKey[it] }
     }
@@ -361,7 +356,7 @@ class CatalogOrderViewModel @Inject constructor(
             combine(
                 combine(
                     addonRepository.getInstalledAddons(),
-                    serverCatalog.addons,
+                    serverCatalog.addons
                 ) { installed, servers ->
                     installed.enabledAddons() + servers
                 },
@@ -369,16 +364,20 @@ class CatalogOrderViewModel @Inject constructor(
                 layoutPreferenceDataStore.homeCatalogOrderKeys,
                 layoutPreferenceDataStore.disabledHomeCatalogKeys,
                 layoutPreferenceDataStore.customCatalogTitles,
-                layoutPreferenceDataStore.followAddonsOrder,
+                layoutPreferenceDataStore.followAddonsOrder
             ) { values ->
                 @Suppress("UNCHECKED_CAST")
                 val addons = values[0] as List<Addon>
+
                 @Suppress("UNCHECKED_CAST")
                 val collections = values[1] as List<Collection>
+
                 @Suppress("UNCHECKED_CAST")
                 val savedOrderKeys = values[2] as List<String>
+
                 @Suppress("UNCHECKED_CAST")
                 val disabledKeys = (values[3] as List<String>).toSet()
+
                 @Suppress("UNCHECKED_CAST")
                 val customTitles = values[4] as Map<String, String>
                 val followAddons = values[5] as Boolean
@@ -479,7 +478,7 @@ class CatalogOrderViewModel @Inject constructor(
                 addonKeys = addonKeys,
                 collectionKeys = unpinnedCollectionKeys,
                 referenceOrderKeys = savedValidUnpinned,
-                addonIdForKey = { key -> availableMap[key]?.addonId },
+                addonIdForKey = { key -> availableMap[key]?.addonId }
             )
         } else {
             val savedValidUnpinned = savedOrderKeys
@@ -539,7 +538,7 @@ class CatalogOrderViewModel @Inject constructor(
         addonKeys: List<String>,
         collectionKeys: Set<String>,
         referenceOrderKeys: List<String>,
-        addonIdForKey: (String) -> String?,
+        addonIdForKey: (String) -> String?
     ): List<String> {
         if (referenceOrderKeys.isEmpty()) {
             return addonKeys + collectionKeys.toList()
@@ -696,7 +695,7 @@ data class CatalogOrderUiState(
     val isLoading: Boolean = true,
     val items: List<CatalogOrderItem> = emptyList(),
     val followAddonsOrder: Boolean = false,
-    val movingKey: String? = null,
+    val movingKey: String? = null
 )
 
 data class CatalogOrderItem(
@@ -710,7 +709,7 @@ data class CatalogOrderItem(
     val isPinnedToTop: Boolean = false,
     val canMoveUp: Boolean,
     val canMoveDown: Boolean,
-    val canMove: Boolean,
+    val canMove: Boolean
 )
 
 private data class CatalogOrderEntry(

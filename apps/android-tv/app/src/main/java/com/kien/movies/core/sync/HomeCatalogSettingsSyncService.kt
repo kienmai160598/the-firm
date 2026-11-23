@@ -10,6 +10,8 @@ import com.kien.movies.domain.model.AuthState
 import com.kien.movies.domain.model.enabledAddons
 import com.kien.movies.domain.repository.AddonRepository
 import io.github.jan.supabase.postgrest.Postgrest
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -25,8 +27,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.put
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "HomeCatalogSettingsSyncService"
 private const val HOME_CATALOG_SHARED_SYNC_PLATFORM = "home_catalog_shared"
@@ -42,19 +42,16 @@ data class SyncCatalogItem(
     val order: Int = 0,
     @SerialName("custom_title") val customTitle: String = "",
     @SerialName("is_collection") val isCollection: Boolean = false,
-    @SerialName("collection_id") val collectionId: String = "",
+    @SerialName("collection_id") val collectionId: String = ""
 )
 
 @Serializable
 data class SyncHomeCatalogPayload(
     @SerialName("hide_unreleased_content") val hideUnreleasedContent: Boolean = false,
-    val items: List<SyncCatalogItem> = emptyList(),
+    val items: List<SyncCatalogItem> = emptyList()
 )
 
-private data class HomeCatalogSyncScope(
-    val userId: String,
-    val profileId: Int
-)
+private data class HomeCatalogSyncScope(val userId: String, val profileId: Int)
 
 private data class CachedSharedSettings(
     val scope: HomeCatalogSyncScope,
@@ -89,6 +86,7 @@ class HomeCatalogSettingsSyncService @Inject constructor(
     var isSyncingFromRemote: Boolean = false
 
     private var pushJob: Job? = null
+
     @Volatile
     private var cachedSharedSettings: CachedSharedSettings? = null
 
@@ -135,7 +133,10 @@ class HomeCatalogSettingsSyncService @Inject constructor(
                     } finally {
                         isSyncingFromRemote = false
                     }
-                    Log.i(TAG, "Migrated legacy local keys profile=$profileId ${localPayload.summary()} (no startup push)")
+                    Log.i(
+                        TAG,
+                        "Migrated legacy local keys profile=$profileId ${localPayload.summary()} (no startup push)"
+                    )
                     return@withContext Result.success(true)
                 }
             }
@@ -150,11 +151,15 @@ class HomeCatalogSettingsSyncService @Inject constructor(
                 settingsJson = remoteBlob?.settingsJson ?: buildJsonObject { }
             )
             if (remoteBlob == null) {
-                Log.d(TAG, "No remote row profile=$profileId; preserving local (startup is pull-only)")
+                Log.d(
+                    TAG,
+                    "No remote row profile=$profileId; preserving local (startup is pull-only)"
+                )
                 return@withContext Result.success(false)
             }
 
-            val remotePayload = decodePayloadPreservingLocalDefaults(remoteBlob.settingsJson, localPayload)
+            val remotePayload =
+                decodePayloadPreservingLocalDefaults(remoteBlob.settingsJson, localPayload)
             if (remotePayload == null) {
                 Log.w(TAG, "Pull parse failure profile=$profileId")
                 return@withContext Result.success(false)
@@ -162,7 +167,10 @@ class HomeCatalogSettingsSyncService @Inject constructor(
             Log.d(TAG, "Pull remote payload profile=$profileId ${remotePayload.summary()}")
 
             if (remotePayload.items.isEmpty()) {
-                Log.d(TAG, "Remote payload empty profile=$profileId; preserving local (startup is pull-only)")
+                Log.d(
+                    TAG,
+                    "Remote payload empty profile=$profileId; preserving local (startup is pull-only)"
+                )
                 return@withContext Result.success(false)
             }
 
@@ -197,7 +205,10 @@ class HomeCatalogSettingsSyncService @Inject constructor(
         return layoutPreferenceDataStore.exportCatalogSettingsToSyncPayload(addons, collections)
     }
 
-    private suspend fun pushPayload(syncScope: HomeCatalogSyncScope, payload: SyncHomeCatalogPayload) {
+    private suspend fun pushPayload(
+        syncScope: HomeCatalogSyncScope,
+        payload: SyncHomeCatalogPayload
+    ) {
         val jsonElement = mergedSharedPayloadJson(syncScope, payload)
 
         val params = buildJsonObject {
@@ -242,7 +253,10 @@ class HomeCatalogSettingsSyncService @Inject constructor(
         syncScope: HomeCatalogSyncScope,
         payload: SyncHomeCatalogPayload
     ): JsonObject {
-        val localJson = json.encodeToJsonElement(SyncHomeCatalogPayload.serializer(), payload).jsonObject
+        val localJson = json.encodeToJsonElement(
+            SyncHomeCatalogPayload.serializer(),
+            payload
+        ).jsonObject
         val remoteJson = cachedSharedSettings
             ?.takeIf { cached -> cached.scope == syncScope }
             ?.settingsJson
@@ -254,7 +268,6 @@ class HomeCatalogSettingsSyncService @Inject constructor(
         if (profileManager.activeProfileId.value != profileId) return null
         return HomeCatalogSyncScope(userId = state.userId, profileId = profileId)
     }
-
 }
 
 private fun LocalHomeCatalogSettingsState.summary(): String {

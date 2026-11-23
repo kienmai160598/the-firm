@@ -1,15 +1,5 @@
 package com.kien.movies.ui.screens.cast
 
-import com.kien.movies.ui.components.posterFocusScale
-import com.kien.movies.ui.components.posterFocusLift
-import com.kien.movies.ui.components.posterFocusBorder
-import androidx.compose.foundation.shape.CircleShape
-import com.kien.movies.ui.screens.detail.tvButtonPadding
-import com.kien.movies.ui.screens.detail.buttonLabelStyle
-import com.kien.movies.ui.screens.detail.atLeastOnBox
-import com.kien.movies.ui.screens.detail.TvSizeFloors
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -40,6 +30,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -58,12 +49,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -73,10 +64,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextDirection
-import com.kien.movies.ui.util.contentTextDirection
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -94,24 +85,31 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.kien.movies.R
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.PersonDetail
 import com.kien.movies.ui.components.GridContentCard
-import com.kien.movies.ui.components.PosterCardStyle
-import com.kien.movies.ui.components.PosterCardDefaults
 import com.kien.movies.ui.components.LocalLandscapePosterMode
+import com.kien.movies.ui.components.PosterCardDefaults
+import com.kien.movies.ui.components.PosterCardStyle
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.posterFocusBorder
+import com.kien.movies.ui.components.posterFocusLift
+import com.kien.movies.ui.components.posterFocusScale
 import com.kien.movies.ui.components.rememberShimmerBrush
+import com.kien.movies.ui.screens.detail.TvSizeFloors
+import com.kien.movies.ui.screens.detail.atLeastOnBox
+import com.kien.movies.ui.screens.detail.buttonLabelStyle
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
+import com.kien.movies.ui.screens.detail.tvButtonPadding
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.util.contentTextDirection
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import androidx.compose.ui.res.stringResource
-import com.kien.movies.R
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import kotlinx.coroutines.launch
-
 
 private val CountBadgeShape = CircleShape
 
@@ -148,12 +146,14 @@ fun CastDetailScreen(
                 is CastDetailUiState.Loading -> {
                     CastDetailSkeleton(personName = viewModel.personName)
                 }
+
                 is CastDetailUiState.Error -> {
                     CastDetailError(
                         message = state.message,
                         onRetry = { viewModel.retry() }
                     )
                 }
+
                 is CastDetailUiState.Success -> {
                     CastDetailContent(
                         person = state.personDetail,
@@ -163,8 +163,11 @@ fun CastDetailScreen(
                         posterOptions = viewModel.posterOptions,
                         posterCardCornerRadiusDp = viewModel.posterCardCornerRadiusDp.collectAsState().value,
                         isItemWatched = { item ->
-                            if (item.apiType == "movie") item.id in watchedMovieIds
-                            else item.id in watchedSeriesIds
+                            if (item.apiType == "movie") {
+                                item.id in watchedMovieIds
+                            } else {
+                                item.id in watchedSeriesIds
+                            }
                         }
                     )
                 }
@@ -208,8 +211,11 @@ private fun CastDetailContent(
         person.tvCredits.sortedByDescending { releaseYearSortKey(it.releaseInfo) }
     }
     val showFilmographyFilter = movieCredits.isNotEmpty() && seriesCredits.isNotEmpty()
-    var filmographyFilter by rememberSaveable(person.tmdbId) { mutableStateOf(FilmographyFilter.ALL) }
-    val filterTabFocusRequesters = remember { FilmographyFilter.entries.associateWith { FocusRequester() } }
+    var filmographyFilter by rememberSaveable(person.tmdbId) {
+        mutableStateOf(FilmographyFilter.ALL)
+    }
+    val filterTabFocusRequesters =
+        remember { FilmographyFilter.entries.associateWith { FocusRequester() } }
     // Posters sit under the portrait, so geometric focus search would skip the tabs on D-pad up.
     val filmographyUpFocusRequester = if (showFilmographyFilter) {
         filterTabFocusRequesters.getValue(filmographyFilter)
@@ -266,7 +272,7 @@ private fun CastDetailContent(
         }
     }
 
-        Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
+    Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
         // Left accent gradient overlay
         val accentGradient = remember(accentColor, backgroundColor) {
             Brush.horizontalGradient(
@@ -387,7 +393,12 @@ private fun HeroSection(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = MoviesTheme.spacing.xxl, bottom = MoviesTheme.spacing.sm),
+            .padding(
+                start = MoviesTheme.spacing.xxxl,
+                end = MoviesTheme.spacing.xxxl,
+                top = MoviesTheme.spacing.xxl,
+                bottom = MoviesTheme.spacing.sm
+            ),
         verticalAlignment = Alignment.Top
     ) {
         // Avatar / Profile Photo
@@ -408,20 +419,26 @@ private fun HeroSection(
                         when (event.key) {
                             Key.DirectionDown -> {
                                 if (biographyScrollState.value < biographyScrollState.maxValue) {
-                                    coroutineScope.launch { biographyScrollState.animateScrollBy(160f) }
+                                    coroutineScope.launch {
+                                        biographyScrollState.animateScrollBy(160f)
+                                    }
                                     true
                                 } else {
                                     false
                                 }
                             }
+
                             Key.DirectionUp -> {
                                 if (biographyScrollState.value > 0) {
-                                    coroutineScope.launch { biographyScrollState.animateScrollBy(-160f) }
+                                    coroutineScope.launch {
+                                        biographyScrollState.animateScrollBy(-160f)
+                                    }
                                     true
                                 } else {
                                     false
                                 }
                             }
+
                             else -> false
                         }
                     }
@@ -437,13 +454,18 @@ private fun HeroSection(
             scale = posterFocusScale
         ) {
             val bgCardColor = MoviesTheme.colors.SurfaceVariant
-            val bgPainter = remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }
+            val bgPainter =
+                remember(bgCardColor) {
+                    androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor)
+                }
             val photo = person.profilePhoto
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(MoviesTheme.radii.xl))
-                    .then(if (photo.isNullOrBlank()) Modifier.background(bgCardColor) else Modifier),
+                    .then(
+                        if (photo.isNullOrBlank()) Modifier.background(bgCardColor) else Modifier
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 if (!photo.isNullOrBlank()) {
@@ -582,15 +604,16 @@ private fun HeroSection(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun SectionHeader(
-    title: String,
-    count: Int,
-    trailingContent: @Composable () -> Unit = {}
-) {
+private fun SectionHeader(title: String, count: Int, trailingContent: @Composable () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = MoviesTheme.spacing.md, bottom = MoviesTheme.spacing.sm),
+            .padding(
+                start = MoviesTheme.spacing.xxxl,
+                end = MoviesTheme.spacing.xxxl,
+                top = MoviesTheme.spacing.md,
+                bottom = MoviesTheme.spacing.sm
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -691,9 +714,14 @@ private fun FilmographyRow(
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .focusRestorer { if (restorePending) restoreFocusRequester else firstItemFocusRequester },
+            .focusRestorer {
+                if (restorePending) restoreFocusRequester else firstItemFocusRequester
+            },
         state = lazyListState,
-        contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xs),
+        contentPadding = PaddingValues(
+            horizontal = MoviesTheme.spacing.xxxl,
+            vertical = MoviesTheme.spacing.xs
+        ),
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         itemsIndexed(
@@ -770,7 +798,12 @@ private fun CastDetailSkeleton(personName: String) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = MoviesTheme.spacing.xxl, bottom = MoviesTheme.spacing.sm),
+                    .padding(
+                        start = MoviesTheme.spacing.xxxl,
+                        end = MoviesTheme.spacing.xxxl,
+                        top = MoviesTheme.spacing.xxl,
+                        bottom = MoviesTheme.spacing.sm
+                    ),
                 verticalAlignment = Alignment.Top
             ) {
                 Box(
@@ -790,7 +823,9 @@ private fun CastDetailSkeleton(personName: String) {
                 ) {
                     Text(
                         text = personName,
-                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
                         color = MoviesTheme.colors.TextPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -801,7 +836,15 @@ private fun CastDetailSkeleton(personName: String) {
                     repeat(3) {
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth(if (it == 0) 0.60f else if (it == 1) 0.48f else 0.72f)
+                                .fillMaxWidth(
+                                    if (it == 0) {
+                                        0.60f
+                                    } else if (it == 1) {
+                                        0.48f
+                                    } else {
+                                        0.72f
+                                    }
+                                )
                                 .height(14.dp)
                                 .clip(RoundedCornerShape(MoviesTheme.radii.xs))
                                 .background(shimmerBrush)
@@ -823,7 +866,12 @@ private fun CastDetailSkeleton(personName: String) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = MoviesTheme.spacing.md, bottom = MoviesTheme.spacing.sm),
+                    .padding(
+                        start = MoviesTheme.spacing.xxxl,
+                        end = MoviesTheme.spacing.xxxl,
+                        top = MoviesTheme.spacing.md,
+                        bottom = MoviesTheme.spacing.sm
+                    ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
@@ -847,7 +895,11 @@ private fun CastDetailSkeleton(personName: String) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = MoviesTheme.spacing.xs),
+                    .padding(
+                        start = MoviesTheme.spacing.xxxl,
+                        end = MoviesTheme.spacing.xxxl,
+                        top = MoviesTheme.spacing.xs
+                    ),
                 horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
             ) {
                 repeat(7) {
@@ -876,10 +928,7 @@ private fun CastDetailSkeleton(personName: String) {
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun CastDetailError(
-    message: String,
-    onRetry: () -> Unit
-) {
+private fun CastDetailError(message: String, onRetry: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -949,7 +998,10 @@ private fun formatDateForDisplay(date: String?): String? {
     val parsed = parseDateFlexible(date) ?: return null
     return try {
         val locale = Locale.getDefault()
-        SimpleDateFormat(android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMMy"), locale).format(parsed)
+        SimpleDateFormat(
+            android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMMy"),
+            locale
+        ).format(parsed)
     } catch (_: Exception) {
         null
     }

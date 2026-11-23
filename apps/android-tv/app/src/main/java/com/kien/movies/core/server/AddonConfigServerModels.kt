@@ -24,11 +24,7 @@ enum class AddonWebConfigMode(
     )
 }
 
-data class AddonInfo(
-    val url: String,
-    val name: String,
-    val description: String?
-)
+data class AddonInfo(val url: String, val name: String, val description: String?)
 
 data class CatalogInfo(
     val key: String,
@@ -106,20 +102,11 @@ data class TmdbFiltersInfo(
     val withWatchProviders: String? = null
 )
 
-data class TmdbSourceMetadataRequest(
-    val sourceType: String,
-    val tmdbId: Int
-)
+data class TmdbSourceMetadataRequest(val sourceType: String, val tmdbId: Int)
 
-data class TmdbSourceMetadataInfo(
-    val title: String? = null,
-    val coverImageUrl: String? = null
-)
+data class TmdbSourceMetadataInfo(val title: String? = null, val coverImageUrl: String? = null)
 
-data class TmdbSourceSearchRequest(
-    val sourceType: String,
-    val query: String
-)
+data class TmdbSourceSearchRequest(val sourceType: String, val query: String)
 
 data class TmdbSourceSearchResultInfo(
     val id: Int,
@@ -128,9 +115,7 @@ data class TmdbSourceSearchResultInfo(
     val coverImageUrl: String? = null
 )
 
-data class TraktSourceMetadataRequest(
-    val input: String
-)
+data class TraktSourceMetadataRequest(val input: String)
 
 data class TraktSourceMetadataInfo(
     val title: String? = null,
@@ -138,9 +123,7 @@ data class TraktSourceMetadataInfo(
     val traktListId: Long? = null
 )
 
-data class TraktSourceSearchRequest(
-    val query: String
-)
+data class TraktSourceSearchRequest(val query: String)
 
 data class TraktSourceSearchResultInfo(
     val id: Long,

@@ -2,22 +2,19 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Process
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,15 +23,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,9 +41,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -56,7 +55,6 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import android.widget.Toast
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -73,11 +71,12 @@ import com.kien.movies.domain.model.SettingsUiStyle
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.accentBrush
 import com.kien.movies.ui.theme.getFontFamily
-import kotlinx.coroutines.delay
 import java.util.Locale
+import kotlinx.coroutines.delay
 
 @Composable
 fun ThemeSettingsScreen(
@@ -104,7 +103,9 @@ fun ThemeSettingsContent(
     var showFontDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showAppIconDialog by remember { mutableStateOf(false) }
-    var showCustomThemeDialog by remember(uiState.customThemeGradientEnabled) { mutableStateOf(false) }
+    var showCustomThemeDialog by remember(uiState.customThemeGradientEnabled) {
+        mutableStateOf(false)
+    }
     var restoreCustomThemeFocus by remember { mutableStateOf(false) }
     var appIconConfirmation by remember { mutableStateOf<AppIconOption?>(null) }
     var pendingLanguageRestart by remember { mutableStateOf(false) }
@@ -128,7 +129,9 @@ fun ThemeSettingsContent(
                 .getString("locale_tag", null)?.takeIf { it.isNotEmpty() }
         )
     }
-    val currentLocaleName = supportedLocales.firstOrNull { it.first == selectedTag }?.second ?: stringResource(R.string.appearance_language_system)
+    val currentLocaleName =
+        supportedLocales.firstOrNull { it.first == selectedTag }?.second
+            ?: stringResource(R.string.appearance_language_system)
     val strRestartHint = stringResource(R.string.appearance_language_restart_hint)
 
     LaunchedEffect(pendingLanguageRestart, showLanguageDialog) {
@@ -141,7 +144,8 @@ fun ThemeSettingsContent(
         }
     }
 
-    val styleFocusRequesters = remember { SettingsUiStyle.entries.associateWith { FocusRequester() } }
+    val styleFocusRequesters =
+        remember { SettingsUiStyle.entries.associateWith { FocusRequester() } }
     val firstThemeFocusRequester = remember { FocusRequester() }
     val customThemeFocusRequester = remember { FocusRequester() }
     LaunchedEffect(showCustomThemeDialog, uiState.availableThemes) {
@@ -196,7 +200,10 @@ fun ThemeSettingsContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .settingsOptionRow(firstThemeFocusRequester),
-                        contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xs, vertical = MoviesTheme.spacing.xs),
+                        contentPadding = PaddingValues(
+                            horizontal = MoviesTheme.spacing.xs,
+                            vertical = MoviesTheme.spacing.xs
+                        ),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         itemsIndexed(
@@ -230,8 +237,13 @@ fun ThemeSettingsContent(
                                         Modifier
                                     }
                                 ).then(
-                                    if (theme == AppTheme.CUSTOM) Modifier.focusRequester(customThemeFocusRequester)
-                                    else Modifier
+                                    if (theme ==
+                                        AppTheme.CUSTOM
+                                    ) {
+                                        Modifier.focusRequester(customThemeFocusRequester)
+                                    } else {
+                                        Modifier
+                                    }
                                 )
                             )
                         }
@@ -249,11 +261,15 @@ fun ThemeSettingsContent(
                 if (uiState.amoledMode) {
                     SettingsToggleRow(
                         title = stringResource(R.string.appearance_amoled_surfaces_mode),
-                        subtitle = stringResource(R.string.appearance_amoled_surfaces_mode_subtitle),
+                        subtitle = stringResource(
+                            R.string.appearance_amoled_surfaces_mode_subtitle
+                        ),
                         checked = uiState.amoledSurfacesMode,
                         onToggle = {
                             viewModel.onEvent(
-                                ThemeSettingsEvent.ToggleAmoledSurfacesMode(!uiState.amoledSurfacesMode)
+                                ThemeSettingsEvent.ToggleAmoledSurfacesMode(
+                                    !uiState.amoledSurfacesMode
+                                )
                             )
                         }
                     )
@@ -271,7 +287,10 @@ fun ThemeSettingsContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(IntrinsicSize.Min)
-                        .padding(horizontal = MoviesTheme.spacing.xs, vertical = MoviesTheme.spacing.xs)
+                        .padding(
+                            horizontal = MoviesTheme.spacing.xs,
+                            vertical = MoviesTheme.spacing.xs
+                        )
                         .settingsOptionRow(styleFocusRequesters.getValue(firstAvailableStyle)),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
@@ -279,7 +298,9 @@ fun ThemeSettingsContent(
                         SettingsStyleOptionCard(
                             style = style,
                             isSelected = style == uiState.settingsUiStyle,
-                            onClick = { viewModel.onEvent(ThemeSettingsEvent.SelectSettingsUiStyle(style)) },
+                            onClick = {
+                                viewModel.onEvent(ThemeSettingsEvent.SelectSettingsUiStyle(style))
+                            },
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
@@ -548,8 +569,7 @@ private fun SettingsStyleOptionCard(
 /** An option's text inside a kit card: full content colour when [emphasized], dimmed otherwise. */
 @Composable
 @ReadOnlyComposable
-private fun optionLabelColor(emphasized: Boolean): Color =
-    LocalContentColor.current.copy(alpha = if (emphasized) 1f else SETTINGS_SECONDARY_TEXT_ALPHA)
+private fun optionLabelColor(emphasized: Boolean): Color = LocalContentColor.current.copy(alpha = if (emphasized) 1f else SETTINGS_SECONDARY_TEXT_ALPHA)
 
 @Composable
 private fun SettingsUiStyle.localizedName(): String = when (this) {

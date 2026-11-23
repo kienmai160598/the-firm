@@ -122,12 +122,10 @@ internal object AutoSyncTimelineRetimer {
         GroupShape(referenceCount = 2, targetCount = 1),
         GroupShape(referenceCount = 1, targetCount = 3),
         GroupShape(referenceCount = 3, targetCount = 1),
-        GroupShape(referenceCount = 2, targetCount = 2),
+        GroupShape(referenceCount = 2, targetCount = 2)
     )
 
-    internal fun normalizeExternalTimeline(
-        cues: List<SubtitleSyncCue>,
-    ): List<SubtitleSyncCue> {
+    internal fun normalizeExternalTimeline(cues: List<SubtitleSyncCue>): List<SubtitleSyncCue> {
         if (cues.size < 2) return cues
 
         val sorted = cues.sortedBy { it.startTimeMs }
@@ -137,7 +135,7 @@ internal object AutoSyncTimelineRetimer {
             val key = ExternalCueKey(
                 startTimeMs = cue.startTimeMs,
                 endTimeMs = cue.endTimeMs,
-                text = cue.text,
+                text = cue.text
             )
             if (seen.add(key)) normalized += cue
         }
@@ -151,19 +149,17 @@ internal object AutoSyncTimelineRetimer {
     internal fun shouldRelaxDelayOnlyMargin(
         sdhReference: Boolean,
         referenceSize: Int,
-        targetSize: Int,
+        targetSize: Int
     ): Boolean = sdhReference || referenceSize.toLong() * 2L >= targetSize.toLong() * 3L
 
-    internal fun prepareUnitActivity(
-        cues: List<SubtitleSyncCue>,
-    ): PreparedActivity? {
+    internal fun prepareUnitActivity(cues: List<SubtitleSyncCue>): PreparedActivity? {
         if (cues.size < MIN_CUES) return null
         val coarse = buildActivityTimeline(cues, 1.0, ACTIVITY_COARSE_BIN_MS) ?: return null
         val fine = buildActivityTimeline(cues, 1.0, ACTIVITY_FINE_BIN_MS) ?: return null
         return PreparedActivity(
             coarse = coarse,
             fine = fine,
-            starts = cues.map { it.startTimeMs.coerceAtLeast(0L) }.sorted().toLongArray(),
+            starts = cues.map { it.startTimeMs.coerceAtLeast(0L) }.sorted().toLongArray()
         )
     }
 
@@ -181,7 +177,7 @@ internal object AutoSyncTimelineRetimer {
         precomputedDelayOnlyEvidence: DelayOnlySearchEvidence? = null,
         allowPrecomputedDelayFastPath: Boolean = true,
         cancellationCheck: (() -> Unit)? = null,
-        timingObserver: ((AutoSyncRetimePhaseTimings) -> Unit)? = null,
+        timingObserver: ((AutoSyncRetimePhaseTimings) -> Unit)? = null
     ): AutoSyncTimelineRetimeResult? {
         val timingEnabled = timingObserver != null
         val totalMark = if (timingEnabled) TimeSource.Monotonic.markNow() else null
@@ -191,8 +187,7 @@ internal object AutoSyncTimelineRetimer {
         var dpMs = 0L
         var validationMs = 0L
 
-        fun elapsedMs(mark: TimeMark?): Long =
-            mark?.elapsedNow()?.inWholeMilliseconds ?: 0L
+        fun elapsedMs(mark: TimeMark?): Long = mark?.elapsedNow()?.inWholeMilliseconds ?: 0L
 
         fun reportTimings(path: String) {
             timingObserver?.invoke(
@@ -203,8 +198,8 @@ internal object AutoSyncTimelineRetimer {
                     activitySearchMs = activitySearchMs,
                     dpMs = dpMs,
                     validationMs = validationMs,
-                    totalMs = elapsedMs(totalMark),
-                ),
+                    totalMs = elapsedMs(totalMark)
+                )
             )
         }
 
@@ -216,7 +211,7 @@ internal object AutoSyncTimelineRetimer {
                 coarseScale = coarseScale,
                 coarseInterceptMs = coarseInterceptMs,
                 referenceEstimatedEndStartsMs = referenceEstimatedEndStartsMs,
-                cancellationCheck = cancellationCheck,
+                cancellationCheck = cancellationCheck
             ) ?: return null
             dpMs += elapsedMs(dpMark)
 
@@ -229,8 +224,8 @@ internal object AutoSyncTimelineRetimer {
                 simpleGroupRatio = structuralGroupRatio(
                     result = result,
                     referenceSize = reference.size,
-                    targetSize = target.size,
-                ),
+                    targetSize = target.size
+                )
             )
             if (finalized.confident) {
                 finalized = refineGroupedReplyTiming(
@@ -238,7 +233,7 @@ internal object AutoSyncTimelineRetimer {
                     target = target,
                     result = finalized,
                     referenceEstimatedEndStartsMs = referenceEstimatedEndStartsMs,
-                    cancellationCheck = cancellationCheck,
+                    cancellationCheck = cancellationCheck
                 )
             }
             validationMs += elapsedMs(validationMark)
@@ -272,7 +267,7 @@ internal object AutoSyncTimelineRetimer {
                 coarseScale = 1.0,
                 coarseInterceptMs = fastDelayOnly.offsetMs,
                 referenceEstimatedEndStartsMs = referenceEstimatedEndStartsMs,
-                cancellationCheck = cancellationCheck,
+                cancellationCheck = cancellationCheck
             )
             dpMs += elapsedMs(fastDpMark)
             if (fastResult != null) {
@@ -287,14 +282,14 @@ internal object AutoSyncTimelineRetimer {
                     candidateActivityScore = fastDelayOnly.score,
                     candidateActivityMargin = fastDelayOnly.margin,
                     delayOnly = true,
-                    allowAmbiguousDelayOnlyMargin = false,
+                    allowAmbiguousDelayOnlyMargin = false
                 )
                 validationMs += elapsedMs(fastValidationMark)
                 if (validatedFast.confident) {
                     reportTimings("fast-delay")
                     return validatedFast.withValidatedDelayOnlyCues(
                         target = target,
-                        alignment = fastDelayOnly,
+                        alignment = fastDelayOnly
                     )
                 }
             }
@@ -309,7 +304,7 @@ internal object AutoSyncTimelineRetimer {
             referenceActivity = referenceActivity,
             targetActivity = targetActivity,
             precomputedUnitEvidence = precomputedDelayOnlyEvidence,
-            cancellationCheck = cancellationCheck,
+            cancellationCheck = cancellationCheck
         ) ?: return null
         activitySearchMs += elapsedMs(activityMark)
 
@@ -322,7 +317,7 @@ internal object AutoSyncTimelineRetimer {
                 allowAmbiguousMargin = allowAmbiguousDelayOnlyMargin,
                 seed = alignment.delayOnlySeed,
                 allowStableSegmentMarginOverride = !allowAmbiguousDelayOnlyMargin,
-                cancellationCheck = cancellationCheck,
+                cancellationCheck = cancellationCheck
             )
         } else {
             null
@@ -341,7 +336,7 @@ internal object AutoSyncTimelineRetimer {
             coarseScale = candidateScale,
             coarseInterceptMs = candidateInterceptMs,
             referenceEstimatedEndStartsMs = referenceEstimatedEndStartsMs,
-            cancellationCheck = cancellationCheck,
+            cancellationCheck = cancellationCheck
         ) ?: return null
         dpMs += elapsedMs(dpMark)
 
@@ -357,7 +352,7 @@ internal object AutoSyncTimelineRetimer {
             delayOnly = delayOnly != null,
             allowAmbiguousDelayOnlyMargin =
                 allowAmbiguousDelayOnlyMargin ||
-                    (delayOnly?.stableSegmentMarginOverride == true),
+                    (delayOnly?.stableSegmentMarginOverride == true)
         )
         if (finalized.confident && delayOnly == null) {
             finalized = refineGroupedReplyTiming(
@@ -365,7 +360,7 @@ internal object AutoSyncTimelineRetimer {
                 target = target,
                 result = finalized,
                 referenceEstimatedEndStartsMs = referenceEstimatedEndStartsMs,
-                cancellationCheck = cancellationCheck,
+                cancellationCheck = cancellationCheck
             )
         }
         validationMs += elapsedMs(validationMark)
@@ -373,7 +368,7 @@ internal object AutoSyncTimelineRetimer {
         return if (finalized.confident && delayOnly != null) {
             finalized.withValidatedDelayOnlyCues(
                 target = target,
-                alignment = delayOnly,
+                alignment = delayOnly
             )
         } else {
             finalized
@@ -389,13 +384,13 @@ internal object AutoSyncTimelineRetimer {
         candidateActivityScore: Double,
         candidateActivityMargin: Double,
         delayOnly: Boolean,
-        allowAmbiguousDelayOnlyMargin: Boolean,
+        allowAmbiguousDelayOnlyMargin: Boolean
     ): AutoSyncTimelineRetimeResult {
         val coverageSegments = coverageSegmentsPassed(result, targetSize)
         val simpleRatio = structuralGroupRatio(
             result = result,
             referenceSize = referenceSize,
-            targetSize = targetSize,
+            targetSize = targetSize
         )
         val smallSample = targetSize < SMALL_SAMPLE_CUE_LIMIT
         val requiredActivityScore =
@@ -432,13 +427,13 @@ internal object AutoSyncTimelineRetimer {
             if (result.targetCoverage < DISCOVERED_MIN_TARGET_COVERAGE) {
                 add(
                     "targetCoverage=${round3(result.targetCoverage)}" +
-                        "<$DISCOVERED_MIN_TARGET_COVERAGE",
+                        "<$DISCOVERED_MIN_TARGET_COVERAGE"
                 )
             }
             if (result.averageGroupCost > DISCOVERED_MAX_AVERAGE_GROUP_COST) {
                 add(
                     "avgGroupCost=${round3(result.averageGroupCost)}" +
-                        ">$DISCOVERED_MAX_AVERAGE_GROUP_COST",
+                        ">$DISCOVERED_MAX_AVERAGE_GROUP_COST"
                 )
             }
             if (simpleRatio < DISCOVERED_MIN_SIMPLE_GROUP_RATIO) {
@@ -457,7 +452,7 @@ internal object AutoSyncTimelineRetimer {
             activityScore = candidateActivityScore,
             activityMargin = candidateActivityMargin,
             coverageSegmentsPassed = coverageSegments,
-            simpleGroupRatio = simpleRatio,
+            simpleGroupRatio = simpleRatio
         )
     }
 
@@ -467,7 +462,7 @@ internal object AutoSyncTimelineRetimer {
         coarseScale: Double,
         coarseInterceptMs: Double,
         referenceEstimatedEndStartsMs: Set<Long>,
-        cancellationCheck: (() -> Unit)? = null,
+        cancellationCheck: (() -> Unit)? = null
     ): AutoSyncTimelineRetimeResult? {
         if (reference.size < MIN_CUES || target.size < MIN_CUES) return null
         if (!coarseScale.isFinite() || coarseScale !in 0.85..1.15) return null
@@ -486,14 +481,14 @@ internal object AutoSyncTimelineRetimer {
             referenceEnds[index] = cue.endTimeMs.toDouble()
             estimatedEndPrefix[index + 1] =
                 estimatedEndPrefix[index] +
-                    if (
-                        referenceEstimatedEndStartsMs.isNotEmpty() &&
-                        cue.startTimeMs in referenceEstimatedEndStartsMs
-                    ) {
-                        1
-                    } else {
-                        0
-                    }
+                if (
+                    referenceEstimatedEndStartsMs.isNotEmpty() &&
+                    cue.startTimeMs in referenceEstimatedEndStartsMs
+                ) {
+                    1
+                } else {
+                    0
+                }
         }
 
         val transformedTargetStarts = DoubleArray(target.size)
@@ -520,7 +515,7 @@ internal object AutoSyncTimelineRetimer {
         val rows = BandedDpRows(
             targetSize = target.size,
             referenceSize = reference.size,
-            centers = centers,
+            centers = centers
         )
         // Preserve the legacy HashMap final-row iteration/tie behavior exactly while moving
         // the expensive full DP matrix to compact primitive storage.
@@ -536,7 +531,7 @@ internal object AutoSyncTimelineRetimer {
                 targetIndex = targetIndex,
                 targetSize = target.size,
                 referenceSize = reference.size,
-                center = centers[targetIndex],
+                center = centers[targetIndex]
             )
 
             while (referenceIndex <= rowMax) {
@@ -556,7 +551,7 @@ internal object AutoSyncTimelineRetimer {
                             previousTargetIndex = targetIndex,
                             referenceCount = 1,
                             targetCount = 0,
-                            step = Step.SKIP_REFERENCE,
+                            step = Step.SKIP_REFERENCE
                         )
                     }
 
@@ -574,15 +569,27 @@ internal object AutoSyncTimelineRetimer {
                             previousTargetIndex = targetIndex,
                             referenceCount = 0,
                             targetCount = 1,
-                            step = Step.SKIP_TARGET,
+                            step = Step.SKIP_TARGET
                         )
                     }
 
                     for (shape in groupShapes) {
                         val nextReferenceIndex = referenceIndex + shape.referenceCount
                         val nextTargetIndex = targetIndex + shape.targetCount
-                        if (nextReferenceIndex > reference.size || nextTargetIndex > target.size) continue
-                        if (!isWithinBand(nextReferenceIndex, nextTargetIndex, centers, reference.size)) continue
+                        if (nextReferenceIndex > reference.size ||
+                            nextTargetIndex > target.size
+                        ) {
+                            continue
+                        }
+                        if (!isWithinBand(
+                                nextReferenceIndex,
+                                nextTargetIndex,
+                                centers,
+                                reference.size
+                            )
+                        ) {
+                            continue
+                        }
 
                         val groupCost = groupCost(
                             referenceStarts = referenceStarts,
@@ -593,7 +600,7 @@ internal object AutoSyncTimelineRetimer {
                             transformedTargetStarts = transformedTargetStarts,
                             transformedTargetEnds = transformedTargetEnds,
                             targetIndex = targetIndex,
-                            targetCount = shape.targetCount,
+                            targetCount = shape.targetCount
                         )
                         if (!groupCost.isFinite() || groupCost > MAX_GROUP_COST) continue
 
@@ -611,7 +618,7 @@ internal object AutoSyncTimelineRetimer {
                             referenceCount = shape.referenceCount,
                             targetCount = shape.targetCount,
                             step = Step.GROUP,
-                            localGroupCost = groupCost,
+                            localGroupCost = groupCost
                         )
                     }
                 }
@@ -627,7 +634,7 @@ internal object AutoSyncTimelineRetimer {
         val steps = backtrack(
             rows = rows,
             finalReferenceIndex = finalEntry.key,
-            finalTargetIndex = target.size,
+            finalTargetIndex = target.size
         ) ?: return null
 
         val groups = steps
@@ -638,7 +645,7 @@ internal object AutoSyncTimelineRetimer {
                     referenceCount = step.referenceCount,
                     targetStartIndex = step.previousTargetIndex,
                     targetCount = step.targetCount,
-                    cost = step.localGroupCost,
+                    cost = step.localGroupCost
                 )
             }
 
@@ -652,7 +659,9 @@ internal object AutoSyncTimelineRetimer {
                 originalEndTimeMs = cue.endTimeMs,
                 startTimeMs = transformTime(cue.startTimeMs, coarseScale, coarseInterceptMs),
                 endTimeMs = transformTime(cue.endTimeMs, coarseScale, coarseInterceptMs)
-                    .coerceAtLeast(transformTime(cue.startTimeMs, coarseScale, coarseInterceptMs) + 1L),
+                    .coerceAtLeast(
+                        transformTime(cue.startTimeMs, coarseScale, coarseInterceptMs) + 1L
+                    )
             )
         }.toMutableList()
 
@@ -662,13 +671,14 @@ internal object AutoSyncTimelineRetimer {
                 val group = groups[groupIndex]
                 reference[group.referenceStartIndex].startTimeMs -
                     retimed[group.targetStartIndex].startTimeMs
-            },
+            }
         )
         groups.forEachIndexed { groupIndex, group ->
             for (index in group.targetStartIndex until group.targetStartIndex + group.targetCount) {
                 matchedTarget[index] = true
             }
-            for (index in group.referenceStartIndex until group.referenceStartIndex + group.referenceCount) {
+            for (index in group.referenceStartIndex until
+                group.referenceStartIndex + group.referenceCount) {
                 matchedReference[index] = true
             }
             transplantGroupTiming(group, retimed, groupShifts[groupIndex])
@@ -714,7 +724,7 @@ internal object AutoSyncTimelineRetimer {
             val group = groups[groupIndex]
             abs(
                 referenceStarts[group.referenceStartIndex] -
-                    transformedTargetStarts[group.targetStartIndex],
+                    transformedTargetStarts[group.targetStartIndex]
             )
         }
         groupResiduals.sort()
@@ -755,14 +765,14 @@ internal object AutoSyncTimelineRetimer {
             twoToTwoGroups = shapeCounts["2:2"] ?: 0,
             confident = confident,
             medianGroupResidualMs = groupResiduals[groupResiduals.size / 2],
-            rejectReason = rejectReasons.joinToString(",").ifEmpty { null },
+            rejectReason = rejectReasons.joinToString(",").ifEmpty { null }
         )
     }
 
     internal fun findDelayOnlyAlignment(
         reference: List<SubtitleSyncCue>,
         target: List<SubtitleSyncCue>,
-        allowAmbiguousMargin: Boolean = false,
+        allowAmbiguousMargin: Boolean = false
     ): AutoSyncDelayOnlyAlignment? {
         if (reference.size < DELAY_ONLY_MIN_CUES || target.size < DELAY_ONLY_MIN_CUES) return null
         val referenceActivity = prepareUnitActivity(reference) ?: return null
@@ -772,14 +782,14 @@ internal object AutoSyncTimelineRetimer {
             targetActivity = targetActivity,
             targetSize = target.size,
             allowAmbiguousMargin = allowAmbiguousMargin,
-            seed = null,
+            seed = null
         )
     }
 
     internal fun prepareDelayOnlySearchEvidence(
         referenceActivity: PreparedActivity,
         targetActivity: PreparedActivity,
-        cancellationCheck: (() -> Unit)? = null,
+        cancellationCheck: (() -> Unit)? = null
     ): DelayOnlySearchEvidence? {
         val offsetRange = coarseOffsetRange(referenceActivity.coarse, targetActivity.coarse)
         val scores = DoubleArray(offsetRange.last - offsetRange.first + 1) { Double.NaN }
@@ -790,13 +800,13 @@ internal object AutoSyncTimelineRetimer {
             val score = scoreActivityOffset(
                 referenceActivity.coarse,
                 targetActivity.coarse,
-                offsetBins,
+                offsetBins
             ) ?: continue
             scores[offsetBins - offsetRange.first] = score
             candidates += ActivityCandidate(
                 scale = 1.0,
                 interceptMs = offsetBins * ACTIVITY_COARSE_BIN_MS,
-                score = score,
+                score = score
             )
         }
 
@@ -805,12 +815,12 @@ internal object AutoSyncTimelineRetimer {
             referenceActivity = referenceActivity,
             targetActivity = targetActivity,
             seed = seed,
-            cancellationCheck = cancellationCheck,
+            cancellationCheck = cancellationCheck
         )
         return DelayOnlySearchEvidence(
             coarseScores = scores,
             firstOffsetBins = offsetRange.first,
-            seed = refined,
+            seed = refined
         )
     }
 
@@ -818,7 +828,7 @@ internal object AutoSyncTimelineRetimer {
         referenceActivity: PreparedActivity,
         targetActivity: PreparedActivity,
         seed: DelayOnlySearchSeed,
-        cancellationCheck: (() -> Unit)? = null,
+        cancellationCheck: (() -> Unit)? = null
     ): DelayOnlySearchSeed {
         if (seed.fine != null) return seed
         val fineBest = fineActivitySearch(
@@ -830,7 +840,7 @@ internal object AutoSyncTimelineRetimer {
             tieEndMs = seed.tieEndMs,
             referenceStarts = referenceActivity.starts,
             targetStarts = targetActivity.starts,
-            cancellationCheck = cancellationCheck,
+            cancellationCheck = cancellationCheck
         )
         return seed.copy(fine = fineBest)
     }
@@ -841,16 +851,15 @@ internal object AutoSyncTimelineRetimer {
         targetSize: Int,
         allowAmbiguousMargin: Boolean = false,
         precomputedEvidence: DelayOnlySearchEvidence? = null,
-        cancellationCheck: (() -> Unit)? = null,
-    ): AutoSyncDelayOnlyAlignment? =
-        findDelayOnlyAlignmentPrepared(
-            referenceActivity = referenceActivity,
-            targetActivity = targetActivity,
-            targetSize = targetSize,
-            allowAmbiguousMargin = allowAmbiguousMargin,
-            seed = precomputedEvidence?.seed,
-            cancellationCheck = cancellationCheck,
-        )
+        cancellationCheck: (() -> Unit)? = null
+    ): AutoSyncDelayOnlyAlignment? = findDelayOnlyAlignmentPrepared(
+        referenceActivity = referenceActivity,
+        targetActivity = targetActivity,
+        targetSize = targetSize,
+        allowAmbiguousMargin = allowAmbiguousMargin,
+        seed = precomputedEvidence?.seed,
+        cancellationCheck = cancellationCheck
+    )
 
     private fun findDelayOnlyAlignmentPrepared(
         referenceActivity: PreparedActivity,
@@ -859,7 +868,7 @@ internal object AutoSyncTimelineRetimer {
         allowAmbiguousMargin: Boolean,
         seed: DelayOnlySearchSeed?,
         allowStableSegmentMarginOverride: Boolean = false,
-        cancellationCheck: (() -> Unit)? = null,
+        cancellationCheck: (() -> Unit)? = null
     ): AutoSyncDelayOnlyAlignment? {
         val referenceCoarse = referenceActivity.coarse
         val targetCoarse = targetActivity.coarse
@@ -868,7 +877,7 @@ internal object AutoSyncTimelineRetimer {
             ?: prepareDelayOnlySearchEvidence(
                 referenceActivity = referenceActivity,
                 targetActivity = targetActivity,
-                cancellationCheck = cancellationCheck,
+                cancellationCheck = cancellationCheck
             )?.seed
             ?: return null
 
@@ -890,7 +899,7 @@ internal object AutoSyncTimelineRetimer {
                 tieEndMs = coarseSeed.tieEndMs,
                 referenceStarts = referenceActivity.starts,
                 targetStarts = targetActivity.starts,
-                cancellationCheck = cancellationCheck,
+                cancellationCheck = cancellationCheck
             )
             ?: coarse
 
@@ -912,7 +921,7 @@ internal object AutoSyncTimelineRetimer {
                     reference = referenceFine,
                     target = targetFine,
                     offsetBins = globalOffsetBins,
-                    segment = segment,
+                    segment = segment
                 ) ?: continue
                 availableSegments++
                 if (targetCoverage >= DELAY_ONLY_MIN_SEGMENT_SCORE) passedSegments++
@@ -926,7 +935,7 @@ internal object AutoSyncTimelineRetimer {
                     reference = referenceFine,
                     target = targetFine,
                     offsetBins = globalOffsetBins + delta,
-                    segment = segment,
+                    segment = segment
                 ) ?: continue
                 segmentScores[delta + localRadiusBins] = score
                 if (score > segmentBestScore) segmentBestScore = score
@@ -965,13 +974,13 @@ internal object AutoSyncTimelineRetimer {
             stableSegmentMarginOverride =
                 !marginAccepted &&
                     allowStableSegmentMarginOverride &&
-                    !allowAmbiguousMargin,
+                    !allowAmbiguousMargin
         )
     }
 
     private fun buildUniformDelayCues(
         target: List<SubtitleSyncCue>,
-        offsetMs: Long,
+        offsetMs: Long
     ): List<AutoSyncRetimedCue> = target.map { cue ->
         val start = (cue.startTimeMs + offsetMs).coerceAtLeast(0L)
         val end = (cue.endTimeMs + offsetMs).coerceAtLeast(start + 1L)
@@ -979,28 +988,27 @@ internal object AutoSyncTimelineRetimer {
             originalStartTimeMs = cue.startTimeMs,
             originalEndTimeMs = cue.endTimeMs,
             startTimeMs = start,
-            endTimeMs = end,
+            endTimeMs = end
         )
     }
 
     private fun AutoSyncTimelineRetimeResult.withValidatedDelayOnlyCues(
         target: List<SubtitleSyncCue>,
-        alignment: AutoSyncDelayOnlyAlignment,
-    ): AutoSyncTimelineRetimeResult =
-        copy(
-            cues = buildUniformDelayCues(
-                target = target,
-                offsetMs = alignment.offsetMs.roundToLong(),
-            ),
+        alignment: AutoSyncDelayOnlyAlignment
+    ): AutoSyncTimelineRetimeResult = copy(
+        cues = buildUniformDelayCues(
+            target = target,
+            offsetMs = alignment.offsetMs.roundToLong()
         )
+    )
 
     internal fun buildDelayOnlyTimeline(
         target: List<SubtitleSyncCue>,
-        alignment: AutoSyncDelayOnlyAlignment,
+        alignment: AutoSyncDelayOnlyAlignment
     ): AutoSyncTimelineRetimeResult {
         val retimed = buildUniformDelayCues(
             target = target,
-            offsetMs = alignment.offsetMs.roundToLong(),
+            offsetMs = alignment.offsetMs.roundToLong()
         )
 
         return AutoSyncTimelineRetimeResult(
@@ -1025,7 +1033,7 @@ internal object AutoSyncTimelineRetimer {
             activityScore = alignment.score,
             activityMargin = alignment.margin,
             coverageSegmentsPassed = alignment.segmentsPassed,
-            simpleGroupRatio = 1.0,
+            simpleGroupRatio = 1.0
         )
     }
 
@@ -1033,7 +1041,7 @@ internal object AutoSyncTimelineRetimer {
         reference: ActivityTimeline,
         target: ActivityTimeline,
         offsetBins: Int,
-        segment: Int,
+        segment: Int
     ): Double? {
         if (segment !in 0..2) return null
         val activeSpan = target.lastActive - target.firstActive + 1
@@ -1055,7 +1063,7 @@ internal object AutoSyncTimelineRetimer {
             target = target,
             offsetBins = offsetBins,
             sourceStart = segmentStart,
-            sourceEnd = segmentEnd,
+            sourceEnd = segmentEnd
         )
         return intersection.toDouble() / visibleTarget.toDouble()
     }
@@ -1064,7 +1072,7 @@ internal object AutoSyncTimelineRetimer {
         reference: ActivityTimeline,
         target: ActivityTimeline,
         offsetBins: Int,
-        segment: Int,
+        segment: Int
     ): Double? {
         if (segment !in 0..2) return null
         val activeSpan = target.lastActive - target.firstActive + 1
@@ -1086,7 +1094,7 @@ internal object AutoSyncTimelineRetimer {
             target = target,
             offsetBins = offsetBins,
             sourceStart = segmentStart,
-            sourceEnd = segmentEnd,
+            sourceEnd = segmentEnd
         )
 
         val referenceWindowStart = max(0, segmentStart + offsetBins)
@@ -1107,7 +1115,7 @@ internal object AutoSyncTimelineRetimer {
         referenceActivity: PreparedActivity,
         targetActivity: PreparedActivity,
         precomputedUnitEvidence: DelayOnlySearchEvidence? = null,
-        cancellationCheck: (() -> Unit)? = null,
+        cancellationCheck: (() -> Unit)? = null
     ): ActivityAlignment? {
         if (reference.size < MIN_CUES || target.size < MIN_CUES) return null
 
@@ -1128,7 +1136,7 @@ internal object AutoSyncTimelineRetimer {
                     val candidate = ActivityCandidate(
                         scale = 1.0,
                         interceptMs = offsetBins * ACTIVITY_COARSE_BIN_MS,
-                        score = score,
+                        score = score
                     )
                     coarseCandidates += candidate
                     unitScaleCandidates += candidate
@@ -1149,7 +1157,7 @@ internal object AutoSyncTimelineRetimer {
                 val candidate = ActivityCandidate(
                     scale = scale,
                     interceptMs = offsetBins * ACTIVITY_COARSE_BIN_MS,
-                    score = score,
+                    score = score
                 )
                 coarseCandidates += candidate
                 if (scale == 1.0) unitScaleCandidates += candidate
@@ -1184,7 +1192,7 @@ internal object AutoSyncTimelineRetimer {
             tieEndMs = coarseTie.last,
             referenceStarts = referenceActivity.starts,
             targetStarts = targetActivity.starts,
-            cancellationCheck = cancellationCheck,
+            cancellationCheck = cancellationCheck
         )
 
         val best = fineBest ?: coarseBest
@@ -1201,12 +1209,12 @@ internal object AutoSyncTimelineRetimer {
             interceptMs = best.interceptMs.toDouble(),
             score = best.score,
             margin = margin,
-            delayOnlySeed = unitSeed,
+            delayOnlySeed = unitSeed
         )
     }
 
     private fun buildDelayOnlySearchSeed(
-        candidates: List<ActivityCandidate>,
+        candidates: List<ActivityCandidate>
     ): DelayOnlySearchSeed? {
         val coarse = candidates.maxByOrNull { it.score } ?: return null
         val secondDistinct = candidates.asSequence()
@@ -1221,7 +1229,7 @@ internal object AutoSyncTimelineRetimer {
             margin = coarse.score - (secondDistinct?.score ?: 0.0),
             fine = null,
             tieStartMs = tie.first,
-            tieEndMs = tie.last,
+            tieEndMs = tie.last
         )
     }
 
@@ -1231,16 +1239,19 @@ internal object AutoSyncTimelineRetimer {
      */
     private fun coarseTieRun(
         candidates: List<ActivityCandidate>,
-        best: ActivityCandidate,
+        best: ActivityCandidate
     ): LongRange {
         val scoreByIntercept = HashMap<Long, Double>()
         for (candidate in candidates) {
-            if (candidate.scale == best.scale) scoreByIntercept[candidate.interceptMs] = candidate.score
+            if (candidate.scale ==
+                best.scale
+            ) {
+                scoreByIntercept[candidate.interceptMs] = candidate.score
+            }
         }
-        fun ties(interceptMs: Long): Boolean =
-            abs(interceptMs - best.interceptMs) <= ACTIVITY_TIE_MAX_SPREAD_MS &&
-                (scoreByIntercept[interceptMs] ?: return false) >=
-                best.score - ACTIVITY_TIE_SCORE_EPSILON
+        fun ties(interceptMs: Long): Boolean = abs(interceptMs - best.interceptMs) <= ACTIVITY_TIE_MAX_SPREAD_MS &&
+            (scoreByIntercept[interceptMs] ?: return false) >=
+            best.score - ACTIVITY_TIE_SCORE_EPSILON
         var start = best.interceptMs
         while (ties(start - ACTIVITY_COARSE_BIN_MS)) start -= ACTIVITY_COARSE_BIN_MS
         var end = best.interceptMs
@@ -1262,15 +1273,15 @@ internal object AutoSyncTimelineRetimer {
         tieEndMs: Long,
         referenceStarts: LongArray,
         targetStarts: LongArray,
-        cancellationCheck: (() -> Unit)?,
+        cancellationCheck: (() -> Unit)?
     ): ActivityCandidate? {
         val fromMs = max(
             tieStartMs - ACTIVITY_FINE_RADIUS_MS,
-            coarseInterceptMs - ACTIVITY_TIE_MAX_SPREAD_MS,
+            coarseInterceptMs - ACTIVITY_TIE_MAX_SPREAD_MS
         )
         val toMs = min(
             tieEndMs + ACTIVITY_FINE_RADIUS_MS,
-            coarseInterceptMs + ACTIVITY_TIE_MAX_SPREAD_MS,
+            coarseInterceptMs + ACTIVITY_TIE_MAX_SPREAD_MS
         )
         val scored = ArrayList<ActivityCandidate>()
         var offsetMs = fromMs
@@ -1282,7 +1293,7 @@ internal object AutoSyncTimelineRetimer {
                 scored += ActivityCandidate(
                     scale = scale,
                     interceptMs = offsetBins * ACTIVITY_FINE_BIN_MS,
-                    score = score,
+                    score = score
                 )
             }
             offsetMs += ACTIVITY_FINE_BIN_MS
@@ -1318,7 +1329,7 @@ internal object AutoSyncTimelineRetimer {
         referenceStarts: LongArray,
         targetStarts: LongArray,
         scale: Double,
-        interceptMs: Long,
+        interceptMs: Long
     ): Double {
         var agreement = 0.0
         for (targetStart in targetStarts) {
@@ -1330,11 +1341,18 @@ internal object AutoSyncTimelineRetimer {
                 if (referenceStarts[middle] < mapped) low = middle + 1 else high = middle
             }
             val nearest = min(
-                if (low < referenceStarts.size) abs(referenceStarts[low] - mapped) else Long.MAX_VALUE,
-                if (low > 0) abs(referenceStarts[low - 1] - mapped) else Long.MAX_VALUE,
+                if (low <
+                    referenceStarts.size
+                ) {
+                    abs(referenceStarts[low] - mapped)
+                } else {
+                    Long.MAX_VALUE
+                },
+                if (low > 0) abs(referenceStarts[low - 1] - mapped) else Long.MAX_VALUE
             )
             if (nearest <= START_AGREEMENT_TOLERANCE_MS) {
-                agreement += 1.0 - nearest.toDouble() / (START_AGREEMENT_TOLERANCE_MS + 1).toDouble()
+                agreement +=
+                    1.0 - nearest.toDouble() / (START_AGREEMENT_TOLERANCE_MS + 1).toDouble()
             }
         }
         return agreement / targetStarts.size.toDouble()
@@ -1343,7 +1361,7 @@ internal object AutoSyncTimelineRetimer {
     private fun buildActivityTimeline(
         cues: List<SubtitleSyncCue>,
         scale: Double,
-        binMs: Long,
+        binMs: Long
     ): ActivityTimeline? {
         if (!scale.isFinite() || scale !in ACTIVITY_MIN_SCALE..ACTIVITY_MAX_SCALE) return null
         if (cues.isEmpty() || binMs <= 0L) return null
@@ -1396,7 +1414,7 @@ internal object AutoSyncTimelineRetimer {
             activeIndexes = activeIndexes,
             prefix = prefix,
             firstActive = activeIndexes.first(),
-            lastActive = activeIndexes.last(),
+            lastActive = activeIndexes.last()
         )
     }
 
@@ -1405,7 +1423,7 @@ internal object AutoSyncTimelineRetimer {
         target: ActivityTimeline,
         offsetBins: Int,
         sourceStart: Int,
-        sourceEnd: Int,
+        sourceEnd: Int
     ): Int {
         if (sourceEnd < sourceStart) return 0
 
@@ -1416,7 +1434,7 @@ internal object AutoSyncTimelineRetimer {
         for (wordIndex in firstWord..lastWord) {
             val alignedReference = packedActivityWindow(
                 packed = reference.packed,
-                startBit = (wordIndex shl 6) + offsetBins,
+                startBit = (wordIndex shl 6) + offsetBins
             )
             val firstBit = if (wordIndex == firstWord) sourceStart and 63 else 0
             val lastBit = if (wordIndex == lastWord) sourceEnd and 63 else 63
@@ -1428,10 +1446,7 @@ internal object AutoSyncTimelineRetimer {
         return intersection
     }
 
-    private fun packedActivityWindow(
-        packed: LongArray,
-        startBit: Int,
-    ): Long {
+    private fun packedActivityWindow(packed: LongArray, startBit: Int): Long {
         val wordIndex = startBit shr 6
         val bitOffset = startBit and 63
         val low = if (wordIndex in packed.indices) packed[wordIndex] else 0L
@@ -1442,10 +1457,7 @@ internal object AutoSyncTimelineRetimer {
         return (low ushr bitOffset) or (high shl (64 - bitOffset))
     }
 
-    private fun activityRangeMask(
-        firstBit: Int,
-        lastBit: Int,
-    ): Long {
+    private fun activityRangeMask(firstBit: Int, lastBit: Int): Long {
         val lower = -1L shl firstBit
         val upper = if (lastBit == 63) -1L else (1L shl (lastBit + 1)) - 1L
         return lower and upper
@@ -1454,7 +1466,7 @@ internal object AutoSyncTimelineRetimer {
     private fun scoreActivityOffset(
         reference: ActivityTimeline,
         target: ActivityTimeline,
-        offsetBins: Int,
+        offsetBins: Int
     ): Double? {
         val sourceStart = max(0, -offsetBins)
         val sourceEnd = min(target.bins.lastIndex, reference.bins.lastIndex - offsetBins)
@@ -1467,7 +1479,7 @@ internal object AutoSyncTimelineRetimer {
             target = target,
             offsetBins = offsetBins,
             sourceStart = sourceStart,
-            sourceEnd = sourceEnd,
+            sourceEnd = sourceEnd
         )
 
         val referenceWindowStart = max(0, target.firstActive + offsetBins)
@@ -1486,7 +1498,7 @@ internal object AutoSyncTimelineRetimer {
 
     private fun activityScaleCandidates(
         reference: List<SubtitleSyncCue>,
-        target: List<SubtitleSyncCue>,
+        target: List<SubtitleSyncCue>
     ): List<Double> {
         val candidates = mutableListOf(
             1.0,
@@ -1495,7 +1507,7 @@ internal object AutoSyncTimelineRetimer {
             25.0 / 24.0,
             24.0 / 25.0,
             24.0 / 23.976,
-            23.976 / 24.0,
+            23.976 / 24.0
         )
         val referenceSpan = reference.last().startTimeMs - reference.first().startTimeMs
         val targetSpan = target.last().startTimeMs - target.first().startTimeMs
@@ -1518,36 +1530,32 @@ internal object AutoSyncTimelineRetimer {
      * Coarse offsets searched for one pair: ±[ACTIVITY_MAX_OFFSET_MS] normally, widened to every
      * placement inside the reference when the target covers only part of it (CD1/CD2 subtitles).
      */
-    private fun coarseOffsetRange(
-        reference: ActivityTimeline,
-        target: ActivityTimeline,
-    ): IntRange {
+    private fun coarseOffsetRange(reference: ActivityTimeline, target: ActivityTimeline): IntRange {
         val baseBins = (ACTIVITY_MAX_OFFSET_MS / ACTIVITY_COARSE_BIN_MS).toInt()
         val referenceSpan = reference.lastActive - reference.firstActive
         val targetSpan = target.lastActive - target.firstActive
         if (targetSpan >= referenceSpan * PARTIAL_TARGET_SPAN_RATIO) return -baseBins..baseBins
 
-        return min(-baseBins, reference.firstActive - target.firstActive - baseBins)..
-            max(baseBins, reference.lastActive - target.lastActive + baseBins)
+        return min(
+            -baseBins,
+            reference.firstActive - target.firstActive - baseBins
+        )..max(baseBins, reference.lastActive - target.lastActive + baseBins)
     }
 
     private fun isDistinctActivityTransform(
         first: ActivityCandidate,
         second: ActivityCandidate,
-        targetEndMs: Double,
+        targetEndMs: Double
     ): Boolean {
         val startDifference = abs(first.interceptMs - second.interceptMs).toDouble()
         val endDifference = abs(
             targetEndMs * first.scale + first.interceptMs -
-                (targetEndMs * second.scale + second.interceptMs),
+                (targetEndMs * second.scale + second.interceptMs)
         )
         return max(startDifference, endDifference) >= ACTIVITY_DISTINCT_TRANSFORM_MS
     }
 
-    private fun coverageSegmentsPassed(
-        result: AutoSyncTimelineRetimeResult,
-        targetSize: Int,
-    ): Int {
+    private fun coverageSegmentsPassed(result: AutoSyncTimelineRetimeResult, targetSize: Int): Int {
         if (targetSize < MIN_CUES || result.groups.isEmpty()) return 0
         val matched = BooleanArray(targetSize)
         val costs = Array(3) { mutableListOf<Double>() }
@@ -1586,7 +1594,7 @@ internal object AutoSyncTimelineRetimer {
     private fun structuralGroupRatio(
         result: AutoSyncTimelineRetimeResult,
         referenceSize: Int,
-        targetSize: Int,
+        targetSize: Int
     ): Double {
         if (result.groups.isEmpty()) return 0.0
 
@@ -1617,11 +1625,7 @@ internal object AutoSyncTimelineRetimer {
         return compatible.toDouble() / result.groups.size
     }
 
-    private data class ExternalCueKey(
-        val startTimeMs: Long,
-        val endTimeMs: Long,
-        val text: String,
-    )
+    private data class ExternalCueKey(val startTimeMs: Long, val endTimeMs: Long, val text: String)
 
     internal data class ActivityTimeline(
         val bins: BooleanArray,
@@ -1629,20 +1633,20 @@ internal object AutoSyncTimelineRetimer {
         val activeIndexes: IntArray,
         val prefix: IntArray,
         val firstActive: Int,
-        val lastActive: Int,
+        val lastActive: Int
     )
 
     internal data class PreparedActivity(
         val coarse: ActivityTimeline,
         val fine: ActivityTimeline,
         /** Sorted cue start times, for breaking ties between equally overlapping delays. */
-        val starts: LongArray = LongArray(0),
+        val starts: LongArray = LongArray(0)
     )
 
     internal data class ActivityCandidate(
         val scale: Double,
         val interceptMs: Long,
-        val score: Double,
+        val score: Double
     )
 
     internal data class DelayOnlySearchSeed(
@@ -1651,14 +1655,14 @@ internal object AutoSyncTimelineRetimer {
         val fine: ActivityCandidate?,
         /** Ends of the run of coarse delays that tie with [coarse]. */
         val tieStartMs: Long = coarse.interceptMs,
-        val tieEndMs: Long = coarse.interceptMs,
+        val tieEndMs: Long = coarse.interceptMs
     )
 
     internal data class DelayOnlySearchEvidence(
         /** Coarse score per offset, where index 0 is [firstOffsetBins]; NaN when unscorable. */
         val coarseScores: DoubleArray,
         val firstOffsetBins: Int,
-        val seed: DelayOnlySearchSeed,
+        val seed: DelayOnlySearchSeed
     )
 
     private data class ActivityAlignment(
@@ -1666,7 +1670,7 @@ internal object AutoSyncTimelineRetimer {
         val interceptMs: Double,
         val score: Double,
         val margin: Double,
-        val delayOnlySeed: DelayOnlySearchSeed?,
+        val delayOnlySeed: DelayOnlySearchSeed?
     )
 
     private fun refineGroupedReplyTiming(
@@ -1674,7 +1678,7 @@ internal object AutoSyncTimelineRetimer {
         target: List<SubtitleSyncCue>,
         result: AutoSyncTimelineRetimeResult,
         referenceEstimatedEndStartsMs: Set<Long>,
-        cancellationCheck: (() -> Unit)?,
+        cancellationCheck: (() -> Unit)?
     ): AutoSyncTimelineRetimeResult {
         if (!result.confident || result.twoToTwoGroups == 0 || result.cues.size != target.size) {
             return result
@@ -1692,7 +1696,9 @@ internal object AutoSyncTimelineRetimer {
             val secondReferenceIndex = firstReferenceIndex + 1
             val firstTargetIndex = group.targetStartIndex
             val secondTargetIndex = firstTargetIndex + 1
-            if (secondReferenceIndex !in reference.indices || secondTargetIndex !in target.indices) {
+            if (secondReferenceIndex !in reference.indices ||
+                secondTargetIndex !in target.indices
+            ) {
                 continue
             }
 
@@ -1723,7 +1729,7 @@ internal object AutoSyncTimelineRetimer {
                 hasAmbiguousReferenceGap(
                     reference = reference,
                     firstReferenceIndex = firstReferenceIndex,
-                    secondReferenceIndex = secondReferenceIndex,
+                    secondReferenceIndex = secondReferenceIndex
                 )
             ) {
                 continue
@@ -1732,10 +1738,14 @@ internal object AutoSyncTimelineRetimer {
             if (
                 firstTarget.startTimeMs >= secondTarget.startTimeMs ||
                 firstTarget.endTimeMs > secondTarget.startTimeMs ||
-                (firstTargetIndex > 0 &&
-                    target[firstTargetIndex - 1].endTimeMs > firstTarget.startTimeMs) ||
-                (secondTargetIndex < target.lastIndex &&
-                    secondTarget.endTimeMs > target[secondTargetIndex + 1].startTimeMs)
+                (
+                    firstTargetIndex > 0 &&
+                        target[firstTargetIndex - 1].endTimeMs > firstTarget.startTimeMs
+                    ) ||
+                (
+                    secondTargetIndex < target.lastIndex &&
+                        secondTarget.endTimeMs > target[secondTargetIndex + 1].startTimeMs
+                    )
             ) {
                 continue
             }
@@ -1757,9 +1767,9 @@ internal object AutoSyncTimelineRetimer {
 
             if (
                 abs(firstOutput.startTimeMs - firstReference.startTimeMs) >
-                    GROUPED_REPLY_ENDPOINT_TOLERANCE_MS ||
+                GROUPED_REPLY_ENDPOINT_TOLERANCE_MS ||
                 abs(secondOutput.endTimeMs - secondReference.endTimeMs) >
-                    GROUPED_REPLY_ENDPOINT_TOLERANCE_MS
+                GROUPED_REPLY_ENDPOINT_TOLERANCE_MS
             ) {
                 continue
             }
@@ -1777,7 +1787,7 @@ internal object AutoSyncTimelineRetimer {
                     transformTime(
                         firstTarget.startTimeMs,
                         result.alignmentScale,
-                        result.alignmentInterceptMs,
+                        result.alignmentInterceptMs
                     )
             if (
                 !hasSupportingSimpleGroup(
@@ -1788,7 +1798,7 @@ internal object AutoSyncTimelineRetimer {
                     direction = -1,
                     expectedShiftMs = localGroupShiftMs,
                     scale = result.alignmentScale,
-                    interceptMs = result.alignmentInterceptMs,
+                    interceptMs = result.alignmentInterceptMs
                 ) ||
                 !hasSupportingSimpleGroup(
                     reference = reference,
@@ -1798,7 +1808,7 @@ internal object AutoSyncTimelineRetimer {
                     direction = 1,
                     expectedShiftMs = localGroupShiftMs,
                     scale = result.alignmentScale,
-                    interceptMs = result.alignmentInterceptMs,
+                    interceptMs = result.alignmentInterceptMs
                 )
             ) {
                 continue
@@ -1808,8 +1818,10 @@ internal object AutoSyncTimelineRetimer {
             if (
                 proposedStartMs < firstOutput.endTimeMs ||
                 proposedStartMs >= secondOutput.endTimeMs ||
-                (secondTargetIndex < currentCues.lastIndex &&
-                    proposedStartMs >= currentCues[secondTargetIndex + 1].startTimeMs)
+                (
+                    secondTargetIndex < currentCues.lastIndex &&
+                        proposedStartMs >= currentCues[secondTargetIndex + 1].startTimeMs
+                    )
             ) {
                 continue
             }
@@ -1839,7 +1851,7 @@ internal object AutoSyncTimelineRetimer {
         direction: Int,
         expectedShiftMs: Long,
         scale: Double,
-        interceptMs: Double,
+        interceptMs: Double
     ): Boolean {
         for (distance in 1..GROUPED_REPLY_CONTEXT_GROUP_RADIUS) {
             val neighborIndex = groupIndex + direction * distance
@@ -1867,7 +1879,7 @@ internal object AutoSyncTimelineRetimer {
     private fun hasAmbiguousReferenceGap(
         reference: List<SubtitleSyncCue>,
         firstReferenceIndex: Int,
-        secondReferenceIndex: Int,
+        secondReferenceIndex: Int
     ): Boolean {
         val first = reference[firstReferenceIndex]
         val second = reference[secondReferenceIndex]
@@ -1876,7 +1888,7 @@ internal object AutoSyncTimelineRetimer {
         val startIndex = max(0, firstReferenceIndex - GROUPED_REPLY_REFERENCE_NEIGHBOR_RADIUS)
         val endIndex = min(
             reference.lastIndex,
-            secondReferenceIndex + GROUPED_REPLY_REFERENCE_NEIGHBOR_RADIUS,
+            secondReferenceIndex + GROUPED_REPLY_REFERENCE_NEIGHBOR_RADIUS
         )
 
         for (index in startIndex..endIndex) {
@@ -1886,7 +1898,7 @@ internal object AutoSyncTimelineRetimer {
             if (cue.startTimeMs < gapEndMs && cue.endTimeMs > gapStartMs) return true
             if (
                 abs(cue.startTimeMs - second.startTimeMs) <=
-                    GROUPED_REPLY_ENDPOINT_TOLERANCE_MS
+                GROUPED_REPLY_ENDPOINT_TOLERANCE_MS
             ) {
                 return true
             }
@@ -1894,11 +1906,9 @@ internal object AutoSyncTimelineRetimer {
         return false
     }
 
-    private fun isValidCueInterval(cue: SubtitleSyncCue): Boolean =
-        cue.startTimeMs >= 0L && cue.endTimeMs > cue.startTimeMs
+    private fun isValidCueInterval(cue: SubtitleSyncCue): Boolean = cue.startTimeMs >= 0L && cue.endTimeMs > cue.startTimeMs
 
-    private fun isValidRetimedCue(cue: AutoSyncRetimedCue): Boolean =
-        cue.startTimeMs >= 0L && cue.endTimeMs > cue.startTimeMs
+    private fun isValidRetimedCue(cue: AutoSyncRetimedCue): Boolean = cue.startTimeMs >= 0L && cue.endTimeMs > cue.startTimeMs
 
     /**
      * Replaces each group shift further than [LOCAL_SHIFT_MAX_DEVIATION_MS] from the median shift
@@ -1917,14 +1927,20 @@ internal object AutoSyncTimelineRetimer {
             shifts.copyInto(window, 0, from, to + 1)
             window.sort(0, count)
             val median = window[count / 2]
-            if (abs(shifts[index] - median) <= LOCAL_SHIFT_MAX_DEVIATION_MS) shifts[index] else median
+            if (abs(shifts[index] - median) <=
+                LOCAL_SHIFT_MAX_DEVIATION_MS
+            ) {
+                shifts[index]
+            } else {
+                median
+            }
         }
     }
 
     private fun transplantGroupTiming(
         group: AutoSyncCueGroup,
         output: MutableList<AutoSyncRetimedCue>,
-        groupShiftMs: Long,
+        groupShiftMs: Long
     ) {
         val targetStartIndex = group.targetStartIndex
         val targetEndIndex = group.targetStartIndex + group.targetCount - 1
@@ -1938,7 +1954,7 @@ internal object AutoSyncTimelineRetimer {
             val newStart = (cue.startTimeMs + groupShiftMs).coerceAtLeast(0L)
             output[index] = cue.copy(
                 startTimeMs = newStart,
-                endTimeMs = newStart + durationMs,
+                endTimeMs = newStart + durationMs
             )
         }
     }
@@ -1952,7 +1968,7 @@ internal object AutoSyncTimelineRetimer {
         transformedTargetStarts: DoubleArray,
         transformedTargetEnds: DoubleArray,
         targetIndex: Int,
-        targetCount: Int,
+        targetCount: Int
     ): Double {
         val referenceStart = referenceStarts[referenceIndex]
         val referenceEnd = referenceEnds[referenceIndex + referenceCount - 1]
@@ -1990,7 +2006,7 @@ internal object AutoSyncTimelineRetimer {
     private fun backtrack(
         rows: BandedDpRows,
         finalReferenceIndex: Int,
-        finalTargetIndex: Int,
+        finalTargetIndex: Int
     ): List<BacktrackStep>? {
         val reversed = ArrayList<BacktrackStep>()
         var referenceIndex = finalReferenceIndex
@@ -2014,7 +2030,7 @@ internal object AutoSyncTimelineRetimer {
                 previousTargetIndex = previousTargetIndex,
                 referenceCount = rows.referenceCounts[cellIndex].toInt(),
                 targetCount = rows.targetCounts[cellIndex].toInt(),
-                localGroupCost = rows.localGroupCosts[cellIndex],
+                localGroupCost = rows.localGroupCosts[cellIndex]
             )
             referenceIndex = previousReferenceIndex
             targetIndex = previousTargetIndex
@@ -2036,7 +2052,7 @@ internal object AutoSyncTimelineRetimer {
         referenceCount: Int,
         targetCount: Int,
         step: Step,
-        localGroupCost: Double = 0.0,
+        localGroupCost: Double = 0.0
     ) {
         val cellIndex = rows.indexOf(toTargetIndex, toReferenceIndex)
         if (cellIndex < 0) return
@@ -2053,7 +2069,7 @@ internal object AutoSyncTimelineRetimer {
                 referenceCount = referenceCount,
                 targetCount = targetCount,
                 step = step,
-                localGroupCost = localGroupCost,
+                localGroupCost = localGroupCost
             )
             if (toTargetIndex == finalTargetIndex) {
                 finalRowCosts[toReferenceIndex] = candidateCost
@@ -2065,7 +2081,7 @@ internal object AutoSyncTimelineRetimer {
         targetIndex: Int,
         targetSize: Int,
         referenceSize: Int,
-        center: Int,
+        center: Int
     ): Int {
         if (targetIndex == 0) {
             return min(referenceSize, center + BAND_RADIUS_CUES)
@@ -2080,7 +2096,7 @@ internal object AutoSyncTimelineRetimer {
         referenceIndex: Int,
         targetIndex: Int,
         centers: IntArray,
-        referenceSize: Int,
+        referenceSize: Int
     ): Boolean {
         if (referenceIndex !in 0..referenceSize) return false
         val center = centers[targetIndex.coerceIn(0, centers.lastIndex)]
@@ -2101,11 +2117,9 @@ internal object AutoSyncTimelineRetimer {
         return low.coerceIn(0, reference.size)
     }
 
-    private fun transformTime(timeMs: Long, scale: Double, interceptMs: Double): Long =
-        transformTimeDouble(timeMs, scale, interceptMs).roundToLong().coerceAtLeast(0L)
+    private fun transformTime(timeMs: Long, scale: Double, interceptMs: Double): Long = transformTimeDouble(timeMs, scale, interceptMs).roundToLong().coerceAtLeast(0L)
 
-    private fun transformTimeDouble(timeMs: Long, scale: Double, interceptMs: Double): Double =
-        timeMs.toDouble() * scale + interceptMs
+    private fun transformTimeDouble(timeMs: Long, scale: Double, interceptMs: Double): Double = timeMs.toDouble() * scale + interceptMs
 
     private fun round3(value: Double): Double = (value * 1_000.0).roundToLong() / 1_000.0
 
@@ -2123,10 +2137,7 @@ internal object AutoSyncTimelineRetimer {
         return longest
     }
 
-    private data class GroupShape(
-        val referenceCount: Int,
-        val targetCount: Int,
-    )
+    private data class GroupShape(val referenceCount: Int, val targetCount: Int)
 
     private const val DP_STEP_UNREACHABLE: Byte = 0
     private const val DP_STEP_START: Byte = 1
@@ -2138,14 +2149,10 @@ internal object AutoSyncTimelineRetimer {
         START,
         GROUP,
         SKIP_REFERENCE,
-        SKIP_TARGET,
+        SKIP_TARGET
     }
 
-    private class BandedDpRows(
-        targetSize: Int,
-        referenceSize: Int,
-        centers: IntArray,
-    ) {
+    private class BandedDpRows(targetSize: Int, referenceSize: Int, centers: IntArray) {
         val rowCount = targetSize + 1
         private val rowStarts = IntArray(rowCount)
         private val rowEnds = IntArray(rowCount)
@@ -2210,8 +2217,7 @@ internal object AutoSyncTimelineRetimer {
             return if (value == Int.MAX_VALUE) -1 else value
         }
 
-        fun isReachable(cellIndex: Int): Boolean =
-            stepCodes[cellIndex] != DP_STEP_UNREACHABLE
+        fun isReachable(cellIndex: Int): Boolean = stepCodes[cellIndex] != DP_STEP_UNREACHABLE
 
         fun write(
             cellIndex: Int,
@@ -2223,7 +2229,7 @@ internal object AutoSyncTimelineRetimer {
             referenceCount: Int,
             targetCount: Int,
             step: Step,
-            localGroupCost: Double,
+            localGroupCost: Double
         ) {
             costs[cellIndex] = cost
             previousReferenceIndices[cellIndex] = previousReferenceIndex
@@ -2238,22 +2244,20 @@ internal object AutoSyncTimelineRetimer {
         }
     }
 
-    private fun encodeStep(step: Step): Byte =
-        when (step) {
-            Step.START -> DP_STEP_START
-            Step.GROUP -> DP_STEP_GROUP
-            Step.SKIP_REFERENCE -> DP_STEP_SKIP_REFERENCE
-            Step.SKIP_TARGET -> DP_STEP_SKIP_TARGET
-        }
+    private fun encodeStep(step: Step): Byte = when (step) {
+        Step.START -> DP_STEP_START
+        Step.GROUP -> DP_STEP_GROUP
+        Step.SKIP_REFERENCE -> DP_STEP_SKIP_REFERENCE
+        Step.SKIP_TARGET -> DP_STEP_SKIP_TARGET
+    }
 
-    private fun decodeStep(code: Byte): Step? =
-        when (code) {
-            DP_STEP_START -> Step.START
-            DP_STEP_GROUP -> Step.GROUP
-            DP_STEP_SKIP_REFERENCE -> Step.SKIP_REFERENCE
-            DP_STEP_SKIP_TARGET -> Step.SKIP_TARGET
-            else -> null
-        }
+    private fun decodeStep(code: Byte): Step? = when (code) {
+        DP_STEP_START -> Step.START
+        DP_STEP_GROUP -> Step.GROUP
+        DP_STEP_SKIP_REFERENCE -> Step.SKIP_REFERENCE
+        DP_STEP_SKIP_TARGET -> Step.SKIP_TARGET
+        else -> null
+    }
 
     private data class BacktrackStep(
         val step: Step,
@@ -2261,10 +2265,9 @@ internal object AutoSyncTimelineRetimer {
         val previousTargetIndex: Int,
         val referenceCount: Int,
         val targetCount: Int,
-        val localGroupCost: Double,
+        val localGroupCost: Double
     )
 }
-
 
 internal data class AutoSyncRetimePhaseTimings(
     val path: String,
@@ -2273,21 +2276,21 @@ internal data class AutoSyncRetimePhaseTimings(
     val activitySearchMs: Long,
     val dpMs: Long,
     val validationMs: Long,
-    val totalMs: Long,
+    val totalMs: Long
 )
 internal data class AutoSyncCueGroup(
     val referenceStartIndex: Int,
     val referenceCount: Int,
     val targetStartIndex: Int,
     val targetCount: Int,
-    val cost: Double,
+    val cost: Double
 )
 
 internal data class AutoSyncRetimedCue(
     val originalStartTimeMs: Long,
     val originalEndTimeMs: Long,
     val startTimeMs: Long,
-    val endTimeMs: Long,
+    val endTimeMs: Long
 )
 
 internal data class AutoSyncDelayOnlyAlignment(
@@ -2295,7 +2298,7 @@ internal data class AutoSyncDelayOnlyAlignment(
     val score: Double,
     val margin: Double,
     val segmentsPassed: Int,
-    val stableSegmentMarginOverride: Boolean = false,
+    val stableSegmentMarginOverride: Boolean = false
 )
 
 internal data class AutoSyncTimelineRetimeResult(
@@ -2325,7 +2328,7 @@ internal data class AutoSyncTimelineRetimeResult(
     /** Median |offset| matched groups still needed after the alignment transform. */
     val medianGroupResidualMs: Double = 0.0,
     /** Failed confidence gates; null when confident. */
-    val rejectReason: String? = null,
+    val rejectReason: String? = null
 )
 
 /**
@@ -2333,8 +2336,7 @@ internal data class AutoSyncTimelineRetimeResult(
  * transform is linear, so the extremes are at the first and last cue.
  */
 internal fun AutoSyncTimelineRetimeResult.maxAlignmentShiftMs(): Double {
-    fun shiftAt(timeMs: Long): Double =
-        abs((alignmentScale - 1.0) * timeMs + alignmentInterceptMs)
+    fun shiftAt(timeMs: Long): Double = abs((alignmentScale - 1.0) * timeMs + alignmentInterceptMs)
     val first = cues.firstOrNull()?.originalStartTimeMs ?: return abs(alignmentInterceptMs)
     return max(shiftAt(first), shiftAt(cues.last().originalStartTimeMs))
 }
@@ -2349,7 +2351,7 @@ private const val TRANSFORM_DISAGREEMENT_MS = 300.0
  */
 internal fun preferTighterFitOnDisagreement(
     candidate: AutoSyncTimelineRetimeResult,
-    current: AutoSyncTimelineRetimeResult,
+    current: AutoSyncTimelineRetimeResult
 ): Boolean? {
     if (!candidate.confident || !current.confident) return null
     val firstStartMs = candidate.cues.firstOrNull()?.originalStartTimeMs ?: return null
@@ -2357,7 +2359,7 @@ internal fun preferTighterFitOnDisagreement(
 
     fun gapAt(timeMs: Long): Double = abs(
         (candidate.alignmentScale - current.alignmentScale) * timeMs +
-            candidate.alignmentInterceptMs - current.alignmentInterceptMs,
+            candidate.alignmentInterceptMs - current.alignmentInterceptMs
     )
     if (max(gapAt(firstStartMs), gapAt(lastStartMs)) <= TRANSFORM_DISAGREEMENT_MS) return null
     if (candidate.medianGroupResidualMs == current.medianGroupResidualMs) return null

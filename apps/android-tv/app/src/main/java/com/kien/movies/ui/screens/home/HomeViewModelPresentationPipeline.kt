@@ -1,7 +1,6 @@
 package com.kien.movies.ui.screens.home
 
 import android.util.Log
-import kotlinx.coroutines.CancellationException
 import androidx.lifecycle.viewModelScope
 import com.kien.movies.LocaleCache
 import com.kien.movies.core.build.AppFeaturePolicy
@@ -11,13 +10,14 @@ import com.kien.movies.core.poster.patternForScreen
 import com.kien.movies.core.poster.withCustomPosterUrls
 import com.kien.movies.core.tmdb.TmdbEnrichment
 import com.kien.movies.data.mediaserver.ServerItemRef
+import com.kien.movies.domain.model.DetailImdbRatingsVisibility
 import com.kien.movies.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.kien.movies.domain.model.HomeImdbRatingsVisibility
-import com.kien.movies.domain.model.DetailImdbRatingsVisibility
 import com.kien.movies.domain.model.HomeLayout
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.TmdbSettings
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
@@ -83,7 +83,7 @@ private data class ModernLayoutPrefs(
     val fullScreenBackdrop: Boolean,
     val homeImdbRatingsVisibility: HomeImdbRatingsVisibility,
     val alwaysShowLandscapeClearlogo: Boolean,
-    val detailImdbRatingsVisibility: DetailImdbRatingsVisibility = DetailImdbRatingsVisibility.SHOW_ALL,
+    val detailImdbRatingsVisibility: DetailImdbRatingsVisibility = DetailImdbRatingsVisibility.SHOW_ALL
 )
 
 @OptIn(FlowPreview::class)
@@ -95,7 +95,13 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
             layoutPreferenceDataStore.heroSectionEnabled,
             layoutPreferenceDataStore.posterLabelsEnabled,
             layoutPreferenceDataStore.catalogAddonNameEnabled
-        ) { layout, heroCatalogKeys, heroSectionEnabled, posterLabelsEnabled, catalogAddonNameEnabled ->
+        ) {
+                layout,
+                heroCatalogKeys,
+                heroSectionEnabled,
+                posterLabelsEnabled,
+                catalogAddonNameEnabled
+            ->
             CoreLayoutPrefs(
                 layout = layout,
                 heroCatalogKeys = heroCatalogKeys,
@@ -112,7 +118,13 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
         layoutPreferenceDataStore.hideUnreleasedContent,
         layoutPreferenceDataStore.showFullReleaseDate,
         layoutPreferenceDataStore.classicFocusGradientEnabled
-    ) { corePrefs, catalogTypeSuffixEnabled, hideUnreleasedContent, showFullReleaseDate, classicFocusGradientEnabled ->
+    ) {
+            corePrefs,
+            catalogTypeSuffixEnabled,
+            hideUnreleasedContent,
+            showFullReleaseDate,
+            classicFocusGradientEnabled
+        ->
         corePrefs.copy(
             catalogTypeSuffixEnabled = catalogTypeSuffixEnabled,
             classicFocusGradientEnabled = classicFocusGradientEnabled,
@@ -143,13 +155,19 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
         layoutPreferenceDataStore.homeImdbRatingsVisibility,
         layoutPreferenceDataStore.alwaysShowLandscapeClearlogo,
         layoutPreferenceDataStore.detailImdbRatingsVisibility
-    ) { landscapePosters, fullScreenBackdrop, homeImdbRatingsVisibility, alwaysShowLandscapeClearlogo, detailImdbRatingsVisibility ->
+    ) {
+            landscapePosters,
+            fullScreenBackdrop,
+            homeImdbRatingsVisibility,
+            alwaysShowLandscapeClearlogo,
+            detailImdbRatingsVisibility
+        ->
         ModernLayoutPrefs(
             landscapePosters = landscapePosters,
             fullScreenBackdrop = fullScreenBackdrop,
             homeImdbRatingsVisibility = homeImdbRatingsVisibility,
             alwaysShowLandscapeClearlogo = alwaysShowLandscapeClearlogo,
-            detailImdbRatingsVisibility = detailImdbRatingsVisibility,
+            detailImdbRatingsVisibility = detailImdbRatingsVisibility
         )
     }
 
@@ -159,7 +177,13 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
         layoutPreferenceDataStore.posterCardWidthDp,
         layoutPreferenceDataStore.posterCardHeightDp,
         layoutPreferenceDataStore.posterCardCornerRadiusDp
-    ) { corePrefs, focusedBackdropPrefs, posterCardWidthDp, posterCardHeightDp, posterCardCornerRadiusDp ->
+    ) {
+            corePrefs,
+            focusedBackdropPrefs,
+            posterCardWidthDp,
+            posterCardHeightDp,
+            posterCardCornerRadiusDp
+        ->
         LayoutUiPrefs(
             layout = corePrefs.layout,
             heroCatalogKeys = corePrefs.heroCatalogKeys,
@@ -197,7 +221,7 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
                 homeImdbRatingsVisibility = modernPrefs.homeImdbRatingsVisibility,
                 alwaysShowLandscapeClearlogo = modernPrefs.alwaysShowLandscapeClearlogo,
                 detailImdbRatingsVisibility = modernPrefs.detailImdbRatingsVisibility,
-                heroDescriptionAutoScrollEnabled = heroDescriptionAutoScrollEnabled,
+                heroDescriptionAutoScrollEnabled = heroDescriptionAutoScrollEnabled
             )
         }
             .distinctUntilChanged()
@@ -222,7 +246,9 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
                 // layout's onDispose doesn't poison the incoming layout
                 // (e.g., Modern dispose saves hasSavedFocus=true right
                 // before Classic composes, preventing hero initial focus).
-                if (previousState.layoutPreferencesReady && previousState.homeLayout != prefs.layout) {
+                if (previousState.layoutPreferencesReady &&
+                    previousState.homeLayout != prefs.layout
+                ) {
                     // Suppress the outgoing layout's onDispose from saving
                     // stale focus state before the incoming layout composes.
                     suppressFocusSave = true
@@ -237,7 +263,8 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
                         posterLabelsEnabled = effectivePosterLabelsEnabled,
                         catalogAddonNameEnabled = prefs.catalogAddonNameEnabled,
                         catalogTypeSuffixEnabled = prefs.catalogTypeSuffixEnabled,
-                        classicFocusGradientEnabled = prefs.classicFocusGradientEnabled && prefs.layout == HomeLayout.CLASSIC,
+                        classicFocusGradientEnabled =
+                            prefs.classicFocusGradientEnabled && prefs.layout == HomeLayout.CLASSIC,
                         hideUnreleasedContent = prefs.hideUnreleasedContent,
                         showFullReleaseDate = prefs.showFullReleaseDate,
                         modernLandscapePostersEnabled = prefs.modernLandscapePostersEnabled,
@@ -280,12 +307,12 @@ private data class ContinueWatchingPosterInput(
     val pattern: String,
     val screens: Set<CustomPosterScreen>,
     val continueWatchingItems: List<ContinueWatchingItem>,
-    val upcomingItems: List<ContinueWatchingItem>,
+    val upcomingItems: List<ContinueWatchingItem>
 )
 
 private data class ContinueWatchingPosterOverlay(
     val continueWatchingItems: List<ContinueWatchingItem>,
-    val upcomingItems: List<ContinueWatchingItem>,
+    val upcomingItems: List<ContinueWatchingItem>
 )
 
 @OptIn(FlowPreview::class)
@@ -301,7 +328,7 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
                     pattern = state.customPosterUrlPattern,
                     screens = state.customPosterEnabledScreens,
                     continueWatchingItems = state.continueWatchingItems,
-                    upcomingItems = state.upcomingItems,
+                    upcomingItems = state.upcomingItems
                 )
             }
             .distinctUntilChanged()
@@ -312,44 +339,46 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
                     val pattern = patternForScreen(
                         input.pattern,
                         CustomPosterScreen.CONTINUE_WATCHING,
-                        input.screens,
+                        input.screens
                     )
                     ContinueWatchingPosterOverlay(
-                        continueWatchingItems = input.continueWatchingItems.withCustomPosterUrls(pattern),
-                        upcomingItems = input.upcomingItems.withCustomPosterUrls(pattern),
+                        continueWatchingItems = input.continueWatchingItems.withCustomPosterUrls(
+                            pattern
+                        ),
+                        upcomingItems = input.upcomingItems.withCustomPosterUrls(pattern)
                     )
                 }
             }
             .distinctUntilChanged()
 
         combine(uiState, _currentLocaleTag, posterOverlay) { state, localeTag, overlay ->
-                ModernHomePresentationInput(
-                    homeRows = state.homeRows,
-                    catalogRows = state.catalogRows,
-                    continueWatchingItems = overlay.continueWatchingItems,
-                    upcomingItems = overlay.upcomingItems,
-                    useLandscapePosters = state.modernLandscapePostersEnabled,
-                    showCatalogTypeSuffix = state.catalogTypeSuffixEnabled,
-                    showFullReleaseDate = state.showFullReleaseDate,
-                    showImdbRatings = state.homeImdbRatingsVisibility.showRatings,
-                    detailImdbRatingsVisibility = state.detailImdbRatingsVisibility,
-                    localeTag = localeTag
-                )
-            }
+            ModernHomePresentationInput(
+                homeRows = state.homeRows,
+                catalogRows = state.catalogRows,
+                continueWatchingItems = overlay.continueWatchingItems,
+                upcomingItems = overlay.upcomingItems,
+                useLandscapePosters = state.modernLandscapePostersEnabled,
+                showCatalogTypeSuffix = state.catalogTypeSuffixEnabled,
+                showFullReleaseDate = state.showFullReleaseDate,
+                showImdbRatings = state.homeImdbRatingsVisibility.showRatings,
+                detailImdbRatingsVisibility = state.detailImdbRatingsVisibility,
+                localeTag = localeTag
+            )
+        }
             // Compare by row structure only (keys + item counts), not by
             // item content.  TMDB/meta enrichment changes item fields but
             // not the row structure — the hero section reads enriched data
             // via lastEnrichedPreview instead.
             .distinctUntilChanged { old, new ->
-                old.homeRows === new.homeRows
-                    && old.continueWatchingItems == new.continueWatchingItems
-                    && old.upcomingItems == new.upcomingItems
-                    && old.useLandscapePosters == new.useLandscapePosters
-                    && old.showCatalogTypeSuffix == new.showCatalogTypeSuffix
-                    && old.showFullReleaseDate == new.showFullReleaseDate
-                    && old.showImdbRatings == new.showImdbRatings
-                    && old.localeTag == new.localeTag
-                    && old.catalogRows.size == new.catalogRows.size
+                old.homeRows === new.homeRows &&
+                    old.continueWatchingItems == new.continueWatchingItems &&
+                    old.upcomingItems == new.upcomingItems &&
+                    old.useLandscapePosters == new.useLandscapePosters &&
+                    old.showCatalogTypeSuffix == new.showCatalogTypeSuffix &&
+                    old.showFullReleaseDate == new.showFullReleaseDate &&
+                    old.showImdbRatings == new.showImdbRatings &&
+                    old.localeTag == new.localeTag &&
+                    old.catalogRows.size == new.catalogRows.size
             }
             .debounce {
                 // Use a longer debounce while catalogs are still loading to
@@ -426,7 +455,8 @@ internal fun HomeViewModel.requestTrailerPreviewPipeline(
     if (ServerItemRef.isServerId(itemId)) return
 
     // Resolve fallbackYtId from catalog item if not provided
-    val resolvedFallbackYtId = fallbackYtId ?: findCatalogItemById(itemId)?.trailerYtIds?.firstOrNull()
+    val resolvedFallbackYtId =
+        fallbackYtId ?: findCatalogItemById(itemId)?.trailerYtIds?.firstOrNull()
 
     // Always bump version — only the latest request (highest version) will proceed after debounce
     activeTrailerPreviewItemId = itemId
@@ -522,6 +552,7 @@ internal fun HomeViewModel.requestTrailerPreviewPipeline(
  */
 private sealed interface ExternalMetaOutcome {
     data class Resolved(val meta: Meta) : ExternalMetaOutcome
+
     /**
      * The addons answered and there is nothing more to fetch: either the catalog item is already
      * sufficient, or no addon carries this item. Both are final, so neither is retried.
@@ -534,32 +565,38 @@ private sealed interface ExternalMetaOutcome {
  * Whether an external meta fetch is still outstanding. A TMDB success must not stand in for one
  * that has not resolved, and both gates ask this rather than keeping their own copy of the rule.
  */
-private fun HomeViewModel.externalEnrichmentOutstanding(itemId: String): Boolean =
-    externalMetaPrefetchEnabled && itemId !in prefetchedExternalMetaIds
+private fun HomeViewModel.externalEnrichmentOutstanding(itemId: String): Boolean = externalMetaPrefetchEnabled && itemId !in prefetchedExternalMetaIds
 
-private suspend fun HomeViewModel.fetchExternalMetaOutcome(item: MetaPreview): ExternalMetaOutcome =
-    try {
-        val result = metaRepository.getMetaFromAllAddons(item.apiType, item.id, item.sourceAddonBaseUrl)
-            .first { it is NetworkResult.Success || it is NetworkResult.Error }
-        when {
-            result is NetworkResult.Success -> ExternalMetaOutcome.Resolved(result.data)
-            result is NetworkResult.Error &&
-                (result.code == NetworkResult.SOURCE_SUFFICIENT_CODE ||
-                    result.code == NetworkResult.META_NOT_FOUND_CODE) ->
-                ExternalMetaOutcome.Final
-            else -> ExternalMetaOutcome.Failed
-        }
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: Exception) {
-        // The repository reports request failures as NetworkResult.Error, so this is the path it
-        // does not promise: anything thrown outside its own per-addon handling. It used to leave
-        // the launched enrichment coroutine to fail with it, which loses the focus pipeline for
-        // that item. Treating it as Failed keeps the outcome exhaustive and lets the next focus
-        // retry, which is what any other failure does.
-        Log.w(HomeViewModel.TAG, "External meta fetch threw for ${item.id}: ${e.message}")
-        ExternalMetaOutcome.Failed
+private suspend fun HomeViewModel.fetchExternalMetaOutcome(item: MetaPreview): ExternalMetaOutcome = try {
+    val result = metaRepository.getMetaFromAllAddons(
+        item.apiType,
+        item.id,
+        item.sourceAddonBaseUrl
+    )
+        .first { it is NetworkResult.Success || it is NetworkResult.Error }
+    when {
+        result is NetworkResult.Success -> ExternalMetaOutcome.Resolved(result.data)
+
+        result is NetworkResult.Error &&
+            (
+                result.code == NetworkResult.SOURCE_SUFFICIENT_CODE ||
+                    result.code == NetworkResult.META_NOT_FOUND_CODE
+                ) ->
+            ExternalMetaOutcome.Final
+
+        else -> ExternalMetaOutcome.Failed
     }
+} catch (e: CancellationException) {
+    throw e
+} catch (e: Exception) {
+    // The repository reports request failures as NetworkResult.Error, so this is the path it
+    // does not promise: anything thrown outside its own per-addon handling. It used to leave
+    // the launched enrichment coroutine to fail with it, which loses the focus pipeline for
+    // that item. Treating it as Failed keeps the outcome exhaustive and lets the next focus
+    // retry, which is what any other failure does.
+    Log.w(HomeViewModel.TAG, "External meta fetch threw for ${item.id}: ${e.message}")
+    ExternalMetaOutcome.Failed
+}
 
 internal fun HomeViewModel.onItemFocusPipeline(item: MetaPreview) {
     if (startupGracePeriodActive) {
@@ -587,7 +624,8 @@ internal fun HomeViewModel.onItemFocusPipeline(item: MetaPreview) {
                         enriched = enriched.copy(
                             mdbListRatings = existing.mdbListRatings,
                             mdbListRatingOrder = existing.mdbListRatingOrder,
-                            imdbRating = existing.mdbListRatings.imdb?.toFloat() ?: enriched.imdbRating
+                            imdbRating =
+                                existing.mdbListRatings.imdb?.toFloat() ?: enriched.imdbRating
                         )
                     }
                 }
@@ -653,18 +691,25 @@ internal fun HomeViewModel.onItemFocusPipeline(item: MetaPreview) {
             // - tmdbEnabledForCurrentLayout: controls TMDB enrichment
             // - externalMetaPrefetchEnabled: controls external meta addon fetch
             val tmdbDeferred = if (tmdbEnabledForCurrentLayout && item.id !in prefetchedTmdbIds) {
-                val tmdbId = runCatching { tmdbService.ensureTmdbId(item.id, item.apiType) }.getOrNull()
-                if (tmdbId != null) async {
-                    runCatching {
-                        tmdbMetadataService.fetchEnrichment(
-                            tmdbId = tmdbId,
-                            contentType = item.type,
-                            language = currentTmdbSettings.language
-                        )
-                    }.getOrNull()
-                } else null
-            } else null
-
+                val tmdbId = runCatching {
+                    tmdbService.ensureTmdbId(item.id, item.apiType)
+                }.getOrNull()
+                if (tmdbId != null) {
+                    async {
+                        runCatching {
+                            tmdbMetadataService.fetchEnrichment(
+                                tmdbId = tmdbId,
+                                contentType = item.type,
+                                language = currentTmdbSettings.language
+                            )
+                        }.getOrNull()
+                    }
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
 
             val externalMetaDeferred = if (externalMetaPrefetchEnabled &&
                 item.id !in prefetchedExternalMetaIds &&
@@ -676,8 +721,12 @@ internal fun HomeViewModel.onItemFocusPipeline(item: MetaPreview) {
                 // never reaches its own finally, which would strand the id in the in-flight set
                 // and block every later fetch for that item.
                 async { fetchExternalMetaOutcome(item) }
-                    .also { d -> d.invokeOnCompletion { externalMetaPrefetchInFlightIds.remove(item.id) } }
-            } else null
+                    .also { d ->
+                        d.invokeOnCompletion { externalMetaPrefetchInFlightIds.remove(item.id) }
+                    }
+            } else {
+                null
+            }
 
             // Await both results
             val tmdbEnrichment = tmdbDeferred?.await()
@@ -711,11 +760,16 @@ internal fun HomeViewModel.onItemFocusPipeline(item: MetaPreview) {
                         preview = preview.copy(
                             mdbListRatings = existing.mdbListRatings,
                             mdbListRatingOrder = existing.mdbListRatingOrder,
-                            imdbRating = existing.mdbListRatings.imdb?.toFloat() ?: preview.imdbRating
+                            imdbRating =
+                                existing.mdbListRatings.imdb?.toFloat() ?: preview.imdbRating
                         )
                     }
                 }
-                if (_enrichedPreviews.value[item.id] != preview) addEnrichedPreview(item.id, preview)
+                if (_enrichedPreviews.value[item.id] !=
+                    preview
+                ) {
+                    addEnrichedPreview(item.id, preview)
+                }
             }
 
             // Always prefetch full meta in background for instant detail screen loading.
@@ -733,7 +787,6 @@ internal fun HomeViewModel.onItemFocusPipeline(item: MetaPreview) {
             viewModelScope.launch {
                 watchProgressRepository.getAllEpisodeProgress(item.id.substringBefore(":")).first()
             }
-
         } finally {
             // Release the claim only if it is still ours: a later focus may have claimed another item.
             if (pendingTmdbEnrichItemId == item.id) pendingTmdbEnrichItemId = null
@@ -743,7 +796,8 @@ internal fun HomeViewModel.onItemFocusPipeline(item: MetaPreview) {
                 // mark it as failed so the UI can show addon data immediately.
                 if (item.id !in _enrichedPreviews.value &&
                     item.id !in prefetchedExternalMetaIds &&
-                    item.id !in prefetchedTmdbIds) {
+                    item.id !in prefetchedTmdbIds
+                ) {
                     markEnrichmentFailed(item.id)
                 }
             }
@@ -774,17 +828,25 @@ internal fun HomeViewModel.preloadAdjacentItemPipeline(item: MetaPreview) {
         try {
             // Launch TMDB and external meta addon fetch in parallel (same as focused pipeline).
             val tmdbDeferred = if (tmdbEnabledForCurrentLayout) {
-                val tmdbId = runCatching { tmdbService.ensureTmdbId(item.id, item.apiType) }.getOrNull()
-                if (tmdbId != null) async {
-                    runCatching {
-                        tmdbMetadataService.fetchEnrichment(
-                            tmdbId = tmdbId,
-                            contentType = item.type,
-                            language = currentTmdbSettings.language
-                        )
-                    }.getOrNull()
-                } else null
-            } else null
+                val tmdbId = runCatching {
+                    tmdbService.ensureTmdbId(item.id, item.apiType)
+                }.getOrNull()
+                if (tmdbId != null) {
+                    async {
+                        runCatching {
+                            tmdbMetadataService.fetchEnrichment(
+                                tmdbId = tmdbId,
+                                contentType = item.type,
+                                language = currentTmdbSettings.language
+                            )
+                        }.getOrNull()
+                    }
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
 
             val externalMetaDeferred = if (externalMetaPrefetchEnabled &&
                 item.id !in prefetchedExternalMetaIds &&
@@ -796,8 +858,12 @@ internal fun HomeViewModel.preloadAdjacentItemPipeline(item: MetaPreview) {
                 // never reaches its own finally, which would strand the id in the in-flight set
                 // and block every later fetch for that item.
                 async { fetchExternalMetaOutcome(item) }
-                    .also { d -> d.invokeOnCompletion { externalMetaPrefetchInFlightIds.remove(item.id) } }
-            } else null
+                    .also { d ->
+                        d.invokeOnCompletion { externalMetaPrefetchInFlightIds.remove(item.id) }
+                    }
+            } else {
+                null
+            }
 
             val tmdbEnrichment = tmdbDeferred?.await()
             val externalOutcome = externalMetaDeferred?.await()
@@ -832,7 +898,6 @@ internal fun HomeViewModel.preloadAdjacentItemPipeline(item: MetaPreview) {
                     ).first { it !is NetworkResult.Loading }
                 }
             }
-
         } finally {
             if (pendingAdjacentPrefetchItemId == item.id) {
                 pendingAdjacentPrefetchItemId = null
@@ -855,7 +920,9 @@ private fun HomeViewModel.applyEnrichmentToDisplayedRows(
         if (state.homeLayout == HomeLayout.MODERN) return@update state
         var changed = false
 
-        fun patch(row: com.kien.movies.domain.model.CatalogRow): com.kien.movies.domain.model.CatalogRow {
+        fun patch(
+            row: com.kien.movies.domain.model.CatalogRow
+        ): com.kien.movies.domain.model.CatalogRow {
             val index = row.items.indexOfFirst { it.id == itemId }
             if (index < 0) return row
             val merged = transform(row.items[index])
@@ -943,12 +1010,11 @@ internal fun HomeViewModel.updateCatalogItemMdbListRatings(
     ratings: com.kien.movies.domain.model.MDBListRatings
 ) {
     val order = currentMdbListSettings.ratingOrder
-    fun mergeItem(currentItem: MetaPreview): MetaPreview =
-        currentItem.copy(
-            mdbListRatings = ratings,
-            mdbListRatingOrder = order,
-            imdbRating = ratings.imdb?.toFloat() ?: currentItem.imdbRating
-        )
+    fun mergeItem(currentItem: MetaPreview): MetaPreview = currentItem.copy(
+        mdbListRatings = ratings,
+        mdbListRatingOrder = order,
+        imdbRating = ratings.imdb?.toFloat() ?: currentItem.imdbRating
+    )
 
     updateIndexedCatalogItem(itemId, ::mergeItem)
     // Apply to _uiState.catalogRows for ALL layouts including MODERN.
@@ -958,11 +1024,13 @@ internal fun HomeViewModel.updateCatalogItemMdbListRatings(
         var changed = false
         val updatedRows = state.catalogRows.map { row ->
             val idx = row.items.indexOfFirst { it.id == itemId }
-            if (idx < 0) row
-            else {
+            if (idx < 0) {
+                row
+            } else {
                 val merged = mergeItem(row.items[idx])
-                if (merged == row.items[idx]) row
-                else {
+                if (merged == row.items[idx]) {
+                    row
+                } else {
                     changed = true
                     row.copy(items = row.items.toMutableList().apply { set(idx, merged) })
                 }
@@ -989,11 +1057,13 @@ internal fun HomeViewModel.updateCatalogItemImdbRating(itemId: String, rating: F
         var changed = false
         val updatedRows = state.catalogRows.map { row ->
             val idx = row.items.indexOfFirst { it.id == itemId }
-            if (idx < 0) row
-            else {
+            if (idx < 0) {
+                row
+            } else {
                 val updated = row.items[idx].copy(imdbRating = rating)
-                if (updated == row.items[idx]) row
-                else {
+                if (updated == row.items[idx]) {
+                    row
+                } else {
                     changed = true
                     val mutableItems = row.items.toMutableList()
                     mutableItems[idx] = updated
@@ -1042,7 +1112,9 @@ private fun HomeViewModel.updateCatalogItemWithMeta(itemId: String, meta: Meta) 
 
     // If external meta brought new trailerYtIds and the item has no trailer resolved yet, retry.
     // Only retry if this item is currently focused — avoid prefetching trailers for adjacent items.
-    if (incomingTrailerYtIds.isNotEmpty() && !trailerPreviewUrlsState.containsKey(itemId) && activeTrailerPreviewItemId == itemId) {
+    if (incomingTrailerYtIds.isNotEmpty() && !trailerPreviewUrlsState.containsKey(itemId) &&
+        activeTrailerPreviewItemId == itemId
+    ) {
         trailerPreviewNegativeCache.remove(itemId)
         trailerPreviewLoadingIds.remove(itemId)
         // Bump version so any in-flight pipeline for this item treats itself as stale

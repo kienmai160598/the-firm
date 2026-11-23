@@ -38,12 +38,21 @@ class SimklMutationServiceTest {
         val anime = body.getValue("shows").jsonArray.single().jsonObject
         assertEquals("plantowatch", movie.getValue("to").jsonPrimitive.content)
         assertEquals("plantowatch", anime.getValue("to").jsonPrimitive.content)
-        assertEquals(53536L, movie.getValue("ids").jsonObject.getValue("simkl").jsonPrimitive.content.toLong())
-        assertEquals("tt0181852", movie.getValue("ids").jsonObject.getValue("imdb").jsonPrimitive.content)
+        assertEquals(
+            53536L,
+            movie.getValue("ids").jsonObject.getValue("simkl").jsonPrimitive.content.toLong()
+        )
+        assertEquals(
+            "tt0181852",
+            movie.getValue("ids").jsonObject.getValue("imdb").jsonPrimitive.content
+        )
         assertNull(movie.getValue("ids").jsonObject["trakt"])
         assertNull(movie["poster"])
         assertNull(movie["posterUrl"])
-        assertEquals(16498L, anime.getValue("ids").jsonObject.getValue("mal").jsonPrimitive.content.toLong())
+        assertEquals(
+            16498L,
+            anime.getValue("ids").jsonObject.getValue("mal").jsonPrimitive.content.toLong()
+        )
     }
 
     @Test
@@ -63,8 +72,14 @@ class SimklMutationServiceTest {
             .getValue("episodes").jsonArray
         assertEquals(2, episodes.size)
         assertNull(episodes[0].jsonObject["season"])
-        assertEquals("2023-11-14T22:13:20Z", episodes[0].jsonObject.getValue("watched_at").jsonPrimitive.content)
-        assertEquals("2023-11-14T23:13:20Z", episodes[1].jsonObject.getValue("watched_at").jsonPrimitive.content)
+        assertEquals(
+            "2023-11-14T22:13:20Z",
+            episodes[0].jsonObject.getValue("watched_at").jsonPrimitive.content
+        )
+        assertEquals(
+            "2023-11-14T23:13:20Z",
+            episodes[1].jsonObject.getValue("watched_at").jsonPrimitive.content
+        )
         assertEquals(
             "2023-11-14T22:13:20Z",
             body.getValue("movies").jsonArray.single().jsonObject
@@ -98,8 +113,11 @@ class SimklMutationServiceTest {
 
         assertNull(item["watched_at"])
         assertNull(item["status"])
-        assertEquals(4, item.getValue("episodes").jsonArray.single().jsonObject
-            .getValue("number").jsonPrimitive.content.toInt())
+        assertEquals(
+            4,
+            item.getValue("episodes").jsonArray.single().jsonObject
+                .getValue("number").jsonPrimitive.content.toInt()
+        )
 
         val seasonal = buildSimklHistoryRemovalBody(
             listOf(anime(TrackingEpisode(2, 4)))
@@ -119,16 +137,27 @@ class SimklMutationServiceTest {
         val earlyPauseBody = buildSimklScrobbleBody(
             TrackingScrobbleEvent(movie(), 0.42984203)
         ).asObject()
-        assertEquals(0.43, earlyPauseBody.getValue("progress").jsonPrimitive.content.toDouble(), 0.0)
+        assertEquals(
+            0.43,
+            earlyPauseBody.getValue("progress").jsonPrimitive.content.toDouble(),
+            0.0
+        )
 
         val seasonalAnime = buildSimklScrobbleBody(
             TrackingScrobbleEvent(anime(TrackingEpisode(2, 4)), 42.236)
         ).asObject()
-        assertEquals(42.24, seasonalAnime.getValue("progress").jsonPrimitive.content.toDouble(), 0.0)
+        assertEquals(
+            42.24,
+            seasonalAnime.getValue("progress").jsonPrimitive.content.toDouble(),
+            0.0
+        )
         assertTrue("show" in seasonalAnime)
         assertFalse("anime" in seasonalAnime)
-        assertEquals(2, seasonalAnime.getValue("episode").jsonObject
-            .getValue("season").jsonPrimitive.content.toInt())
+        assertEquals(
+            2,
+            seasonalAnime.getValue("episode").jsonObject
+                .getValue("season").jsonPrimitive.content.toInt()
+        )
 
         val flatAnime = buildSimklScrobbleBody(
             TrackingScrobbleEvent(anime(TrackingEpisode(number = 4)), 42.236)
@@ -141,8 +170,14 @@ class SimklMutationServiceTest {
     @Test
     fun `service reports partial not found and duplicate stop as scrobbled`() = runBlocking {
         val engine = RecordingEngine(
-            response(201, """{"added":{"movies":[{"to":"completed"}]},"not_found":{"movies":[{"title":"Missing"}],"shows":[]}}"""),
-            response(409, """{"watched_at":"2026-05-14T23:46:29Z","expires_at":"2026-05-15T00:46:29Z"}""")
+            response(
+                201,
+                """{"added":{"movies":[{"to":"completed"}]},"not_found":{"movies":[{"title":"Missing"}],"shows":[]}}"""
+            ),
+            response(
+                409,
+                """{"watched_at":"2026-05-14T23:46:29Z","expires_at":"2026-05-15T00:46:29Z"}"""
+            )
         )
         var now = 0L
         var committed = 0
@@ -265,16 +300,15 @@ class SimklMutationServiceTest {
         assertTrue(engine.paths.isEmpty())
     }
 
-    private fun client(engine: RecordingEngine, now: () -> Long = { 0L }): SimklApiClient =
-        SimklApiClient(
-            engine = engine,
-            configuration = configuration,
-            authorization = { testSimklAuthorization() },
-            onUnauthorized = {},
-            nowEpochMs = now,
-            sleep = {},
-            retryJitterMs = { 0L }
-        )
+    private fun client(engine: RecordingEngine, now: () -> Long = { 0L }): SimklApiClient = SimklApiClient(
+        engine = engine,
+        configuration = configuration,
+        authorization = { testSimklAuthorization() },
+        onUnauthorized = {},
+        nowEpochMs = now,
+        sleep = {},
+        retryJitterMs = { 0L }
+    )
 
     private fun String.asObject() = json.parseToJsonElement(this).jsonObject
 

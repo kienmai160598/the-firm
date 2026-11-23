@@ -9,6 +9,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -20,8 +22,6 @@ import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import java.io.ByteArrayOutputStream
-import java.nio.ByteBuffer
 
 class RedirectReportingDataSourceTest {
 
@@ -51,7 +51,9 @@ class RedirectReportingDataSourceTest {
                     return MockResponse().setResponseCode(307).setHeader("Location", target)
                 }
                 if (path == "/subtitle") {
-                    return MockResponse().setResponseCode(307).setHeader("Location", "/cdn/subtitle")
+                    return MockResponse().setResponseCode(
+                        307
+                    ).setHeader("Location", "/cdn/subtitle")
                 }
                 return serveFile(request.getHeader("Range"))
             }
@@ -80,10 +82,18 @@ class RedirectReportingDataSourceTest {
 
     private fun url(path: String) = server.url(path).toString()
 
-    private fun reportingFactory(upstream: DataSource.Factory = OkHttpDataSource.Factory(OkHttpClient())) =
-        RedirectReportingDataSource.Factory(upstream, url("/play")) { resolvedUrl -> reported += resolvedUrl }
+    private fun reportingFactory(
+        upstream: DataSource.Factory = OkHttpDataSource.Factory(OkHttpClient())
+    ) = RedirectReportingDataSource.Factory(upstream, url("/play")) { resolvedUrl ->
+        reported +=
+            resolvedUrl
+    }
 
-    private fun readAll(factory: DataSource.Factory, path: String = "/play", position: Long = 0L): ByteArray {
+    private fun readAll(
+        factory: DataSource.Factory,
+        path: String = "/play",
+        position: Long = 0L
+    ): ByteArray {
         val source = factory.createDataSource()
         val spec = DataSpec.Builder().setUri(uriOf(url(path))).setPosition(position).build()
         val out = ByteArrayOutputStream()

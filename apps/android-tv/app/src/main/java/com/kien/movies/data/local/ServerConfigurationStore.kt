@@ -53,11 +53,10 @@ class ServerConfigurationStore @Inject constructor(
             .commit()
     }
 
-    fun useOfficial(): Boolean =
-        context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .clear()
-            .commit()
+    fun useOfficial(): Boolean = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+        .edit()
+        .clear()
+        .commit()
 
     private fun officialConfiguration() = ServerConfiguration(
         backendUrl = BuildConfig.SUPABASE_URL.trimEnd('/'),
@@ -68,10 +67,14 @@ class ServerConfigurationStore @Inject constructor(
             watchParty = true
         ),
         isCustom = false,
-        fallbackBackendUrl = BuildConfig.SUPABASE_FALLBACK_URL.trim().trimEnd('/').takeIf { it.isNotBlank() },
+        fallbackBackendUrl = BuildConfig.SUPABASE_FALLBACK_URL.trim().trimEnd('/').takeIf {
+            it.isNotBlank()
+        },
         tvLoginWebBaseUrl = BuildConfig.TV_LOGIN_WEB_BASE_URL,
         deviceLoginWebBaseUrl = BuildConfig.DEVICE_LOGIN_WEB_BASE_URL,
-        avatarPublicBaseUrl = BuildConfig.AVATAR_PUBLIC_BASE_URL.trimEnd('/').takeIf { it.isNotBlank() }
+        avatarPublicBaseUrl = BuildConfig.AVATAR_PUBLIC_BASE_URL.trimEnd('/').takeIf {
+            it.isNotBlank()
+        }
     )
 
     private companion object {

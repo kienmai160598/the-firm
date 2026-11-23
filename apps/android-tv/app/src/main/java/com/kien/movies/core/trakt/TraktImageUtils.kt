@@ -14,9 +14,16 @@ internal fun String.toTraktImageUrl(): String {
     val normalized = trim()
     return when {
         normalized.startsWith("https://", ignoreCase = true) -> normalized
-        normalized.startsWith("http://", ignoreCase = true) -> "https://${normalized.substringAfter("://")}"
+
+        normalized.startsWith(
+            "http://",
+            ignoreCase = true
+        ) -> "https://${normalized.substringAfter("://")}"
+
         normalized.startsWith("//") -> "https:$normalized"
+
         traktHostPattern.containsMatchIn(normalized) -> "https://$normalized"
+
         else -> normalized
     }
 }

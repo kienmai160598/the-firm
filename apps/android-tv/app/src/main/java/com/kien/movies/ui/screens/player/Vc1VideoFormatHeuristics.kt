@@ -14,7 +14,7 @@ internal object Vc1VideoFormatHeuristics {
         sampleMimeType: String? = null,
         codecs: String? = null,
         label: String? = null,
-        streamName: String? = null,
+        streamName: String? = null
     ): Boolean {
         if (sampleMimeType?.equals(MimeTypes.VIDEO_VC1, ignoreCase = true) == true ||
             sampleMimeType?.equals("video/vc1", ignoreCase = true) == true ||

@@ -2,9 +2,6 @@
 
 package com.kien.movies.ui.screens.party
 
-import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.screens.detail.atLeastOnBox
-import com.kien.movies.ui.screens.detail.TvSizeFloors
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -45,12 +42,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -61,7 +58,10 @@ import com.kien.movies.core.party.PARTY_CODE_ALPHABET
 import com.kien.movies.core.party.PARTY_CODE_LENGTH
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.screens.detail.TvSizeFloors
+import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.screens.settings.settingsOptionRow
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
@@ -70,12 +70,12 @@ internal fun CodeSlots(
     modifier: Modifier = Modifier,
     activeIndex: Int? = null,
     textStyle: TextStyle = MaterialTheme.typography.headlineSmall,
-    slotHeight: Dp = 48.dp,
+    slotHeight: Dp = 48.dp
 ) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(
             modifier = modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             repeat(PARTY_CODE_LENGTH) { index ->
                 CodeSlot(
@@ -84,7 +84,7 @@ internal fun CodeSlots(
                     textStyle = textStyle,
                     modifier = Modifier
                         .weight(1f)
-                        .height(slotHeight),
+                        .height(slotHeight)
                 )
             }
         }
@@ -96,7 +96,7 @@ private fun CodeSlot(
     char: Char?,
     active: Boolean,
     textStyle: TextStyle,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val lineColor by animateColorAsState(
         targetValue = when {
@@ -105,7 +105,7 @@ private fun CodeSlot(
             else -> MoviesTheme.colors.Border
         },
         animationSpec = ExpressiveMotion.defaultEffects(),
-        label = "codeSlotLine",
+        label = "codeSlotLine"
     )
     val lineHeight by animateDpAsState(
         targetValue = if (active) MoviesTheme.strokes.heavy else MoviesTheme.strokes.medium,
@@ -114,13 +114,13 @@ private fun CodeSlot(
     )
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.Center
         ) {
             AnimatedContent(
                 targetState = char,
@@ -130,14 +130,14 @@ private fun CodeSlot(
                     (enterFade + scaleIn(pop, initialScale = 0.5f)) togetherWith
                         fadeOut(ExpressiveMotion.defaultEffects())
                 },
-                label = "codeSlotChar",
+                label = "codeSlotChar"
             ) { value ->
                 if (value != null) {
                     Text(
                         text = value.toString(),
                         style = textStyle,
                         fontWeight = FontWeight.SemiBold,
-                        color = MoviesTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary
                     )
                 } else if (active) {
                     Caret()
@@ -149,7 +149,7 @@ private fun CodeSlot(
                 .fillMaxWidth()
                 .height(lineHeight)
                 .clip(CircleShape)
-                .background(lineColor),
+                .background(lineColor)
         )
     }
 }
@@ -161,14 +161,14 @@ private fun Caret() {
         initialValue = 1f,
         targetValue = 0f,
         animationSpec = infiniteRepeatable(tween(520), RepeatMode.Reverse),
-        label = "codeCaretAlpha",
+        label = "codeCaretAlpha"
     )
     Box(
         modifier = Modifier
             .width(MoviesTheme.strokes.medium)
             .height(26.dp)
             .alpha(alpha)
-            .background(MoviesTheme.colors.Secondary),
+            .background(MoviesTheme.colors.Secondary)
     )
 }
 
@@ -182,30 +182,36 @@ internal fun CodeKeypad(
     onSubmit: () -> Unit,
     firstKeyFocusRequester: FocusRequester,
     submitFocusRequester: FocusRequester,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.onPreviewKeyEvent { event ->
             val native = event.nativeKeyEvent
-            if (!enabled || native.isCtrlPressed || native.isAltPressed || native.isMetaPressed) return@onPreviewKeyEvent false
+            if (!enabled || native.isCtrlPressed || native.isAltPressed ||
+                native.isMetaPressed
+            ) {
+                return@onPreviewKeyEvent false
+            }
             val character = native.unicodeChar.toChar().uppercaseChar()
             when {
                 character in PARTY_CODE_ALPHABET -> {
                     if (native.action == KeyEvent.ACTION_DOWN) onKey(character)
                     true
                 }
+
                 native.keyCode == KeyEvent.KEYCODE_DEL -> {
                     if (native.action == KeyEvent.ACTION_DOWN) onDelete()
                     true
                 }
+
                 else -> false
             }
         },
-        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         Column(
             modifier = Modifier.settingsOptionRow(firstKeyFocusRequester),
-            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
         ) {
             PARTY_CODE_ALPHABET.chunked(KEYPAD_COLUMNS).forEachIndexed { rowIndex, row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
@@ -216,14 +222,19 @@ internal fun CodeKeypad(
                             modifier = Modifier
                                 .weight(1f)
                                 .then(
-                                    if (rowIndex == 0 && columnIndex == 0) Modifier.focusRequester(firstKeyFocusRequester)
-                                    else Modifier
-                                ),
+                                    if (rowIndex == 0 &&
+                                        columnIndex == 0
+                                    ) {
+                                        Modifier.focusRequester(firstKeyFocusRequester)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
                         ) {
                             Text(
                                 text = character.toString(),
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     }
@@ -234,12 +245,12 @@ internal fun CodeKeypad(
             KeypadButton(
                 onClick = onDelete,
                 enabled = enabled,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Rounded.Backspace,
                     contentDescription = stringResource(R.string.action_delete),
-                    modifier = Modifier.size(20.dp.atLeastOnBox(TvSizeFloors.buttonIcon)),
+                    modifier = Modifier.size(20.dp.atLeastOnBox(TvSizeFloors.buttonIcon))
                 )
             }
             KeypadButton(
@@ -248,12 +259,12 @@ internal fun CodeKeypad(
                 primary = true,
                 modifier = Modifier
                     .weight(3f)
-                    .focusRequester(submitFocusRequester),
+                    .focusRequester(submitFocusRequester)
             ) {
                 Text(
                     text = stringResource(R.string.party_join_action),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
@@ -266,7 +277,7 @@ private fun KeypadButton(
     enabled: Boolean,
     modifier: Modifier = Modifier,
     primary: Boolean = false,
-    content: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
     MoviesButton(
         onClick = onClick,
@@ -275,7 +286,7 @@ private fun KeypadButton(
             .height(44.dp.atLeastOnBox(TvSizeFloors.control))
             .focusProperties { canFocus = enabled },
         style = if (primary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary,
-        contentPadding = PaddingValues(0.dp),
+        contentPadding = PaddingValues(0.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             content()

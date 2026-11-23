@@ -85,7 +85,10 @@ class MdbListAuthStoreTest {
         val harness = MdbListTestHarness()
         harness.connected()
         val original = requireNotNull(harness.store.authorization())
-        harness.store.refreshTokens(MdbListTokens("new", "new-refresh", harness.now + 600_000L), original)
+        harness.store.refreshTokens(
+            MdbListTokens("new", "new-refresh", harness.now + 600_000L),
+            original
+        )
 
         assertFalse(harness.store.clearAuth(original.scope, expectedAccessToken = "access-one"))
         assertEquals("new", harness.store.authorization()?.tokens?.accessToken)

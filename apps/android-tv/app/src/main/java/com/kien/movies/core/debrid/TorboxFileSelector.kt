@@ -11,7 +11,7 @@ class TorboxFileSelector @Inject constructor() {
         files: List<TorboxTorrentFileDto>,
         resolve: StreamClientResolve,
         season: Int?,
-        episode: Int?,
+        episode: Int?
     ): TorboxTorrentFileDto? = selectDebridFile(
         files = files,
         resolve = resolve,
@@ -22,8 +22,9 @@ class TorboxFileSelector @Inject constructor() {
                 .firstOrNull { it.isNotBlank() }.orEmpty()
         },
         isPlayable = {
-            it.mimeType.orEmpty().startsWith("video/", ignoreCase = true) || it.displayName().hasDebridVideoExtension()
+            it.mimeType.orEmpty().startsWith("video/", ignoreCase = true) ||
+                it.displayName().hasDebridVideoExtension()
         },
-        size = { it.size ?: 0L },
+        size = { it.size ?: 0L }
     )
 }

@@ -8,7 +8,11 @@ import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Buffer
 
-internal class TestHttp(private val responder: (Request) -> String = { error("Unexpected request ${it.url}") }) {
+internal class TestHttp(
+    private val responder: (Request) -> String = {
+        error("Unexpected request ${it.url}")
+    }
+) {
     private val recorded = mutableListOf<Request>()
 
     val requests: List<Request>
@@ -29,7 +33,8 @@ internal class TestHttp(private val responder: (Request) -> String = { error("Un
         .build()
 }
 
-internal val testIdentity = ServerClientIdentity(device = "Test TV", version = "1.0.0", deviceId = { "device-1" })
+internal val testIdentity =
+    ServerClientIdentity(device = "Test TV", version = "1.0.0", deviceId = { "device-1" })
 
 internal val Request.text: String
     get() = Buffer().also { buffer -> body?.writeTo(buffer) }.readUtf8()

@@ -39,42 +39,38 @@ data class Stream(
     /**
      * Returns the primary stream source URL
      */
-    fun getStreamUrl(): String? =
-        listOfNotNull(url, externalUrl)
-            .firstOrNull { !it.isMagnetLink() && !it.isTorrentUrl() }
+    fun getStreamUrl(): String? = listOfNotNull(url, externalUrl)
+        .firstOrNull { !it.isMagnetLink() && !it.isTorrentUrl() }
 
-    fun torrentMagnetUri(): String? =
-        listOfNotNull(url, externalUrl)
-            .firstOrNull { it.isMagnetLink() }
+    fun torrentMagnetUri(): String? = listOfNotNull(url, externalUrl)
+        .firstOrNull { it.isMagnetLink() }
 
     /**
      * Returns true if this is a torrent-only stream (no HTTP URL available).
      * When both infoHash and url are present (e.g. debrid cached torrents),
      * the HTTP url is preferred and this returns false.
      */
-    fun isTorrent(): Boolean =
-        !isDirectDebrid() &&
-            getStreamUrl().isNullOrBlank() &&
-            (!infoHash.isNullOrBlank() || !torrentMagnetUri().isNullOrBlank() || hasTorrentUrl())
+    fun isTorrent(): Boolean = !isDirectDebrid() &&
+        getStreamUrl().isNullOrBlank() &&
+        (!infoHash.isNullOrBlank() || !torrentMagnetUri().isNullOrBlank() || hasTorrentUrl())
 
-    fun needsLocalDebridResolve(): Boolean =
-        isTorrent() && getStreamUrl().isNullOrBlank()
+    fun needsLocalDebridResolve(): Boolean = isTorrent() && getStreamUrl().isNullOrBlank()
 
-    fun getEffectiveInfoHash(): String? =
-        infoHash?.takeIf { it.isNotBlank() }
-            ?: clientResolve?.infoHash?.takeIf { it.isNotBlank() }
-            ?: url?.let { extractInfoHashFromTorrentUrl(it) ?: extractInfoHashFromMagnetLink(it) }
-            ?: externalUrl?.let { extractInfoHashFromTorrentUrl(it) ?: extractInfoHashFromMagnetLink(it) }
+    fun getEffectiveInfoHash(): String? = infoHash?.takeIf { it.isNotBlank() }
+        ?: clientResolve?.infoHash?.takeIf { it.isNotBlank() }
+        ?: url?.let { extractInfoHashFromTorrentUrl(it) ?: extractInfoHashFromMagnetLink(it) }
+        ?: externalUrl?.let {
+            extractInfoHashFromTorrentUrl(it)
+                ?: extractInfoHashFromMagnetLink(it)
+        }
 
-    fun getEffectiveFileIdx(): Int? =
-        fileIdx ?: clientResolve?.fileIdx
-            ?: url?.let { extractFileIdxFromTorrentUrl(it) } ?: externalUrl?.let { extractFileIdxFromTorrentUrl(it) }
+    fun getEffectiveFileIdx(): Int? = fileIdx ?: clientResolve?.fileIdx
+        ?: url?.let { extractFileIdxFromTorrentUrl(it) }
+        ?: externalUrl?.let { extractFileIdxFromTorrentUrl(it) }
 
-    private fun String.isTorrentUrl(): Boolean =
-        this.trimStart().startsWith("torrent:", ignoreCase = true)
+    private fun String.isTorrentUrl(): Boolean = this.trimStart().startsWith("torrent:", ignoreCase = true)
 
-    private fun hasTorrentUrl(): Boolean =
-        url?.isTorrentUrl() == true || externalUrl?.isTorrentUrl() == true
+    private fun hasTorrentUrl(): Boolean = url?.isTorrentUrl() == true || externalUrl?.isTorrentUrl() == true
 
     private fun extractInfoHashFromTorrentUrl(url: String): String? {
         if (!url.startsWith("torrent:", ignoreCase = true)) return null
@@ -118,10 +114,9 @@ data class Stream(
      * Returns the YouTube video id when [ytId] is the only way to play this stream,
      * so the video has to be resolved on the device before playback.
      */
-    fun youTubeIdToResolve(): String? =
-        ytId?.trim()
-            ?.takeIf { it.isNotEmpty() }
-            ?.takeIf { getStreamUrl() == null && !isTorrent() && !isDirectDebrid() }
+    fun youTubeIdToResolve(): String? = ytId?.trim()
+        ?.takeIf { it.isNotEmpty() }
+        ?.takeIf { getStreamUrl() == null && !isTorrent() && !isDirectDebrid() }
 
     /**
      * Returns true if this is an external URL (opens in browser)
@@ -153,7 +148,10 @@ data class Stream(
     fun stableKey(occurrence: Int = 0): String = buildString {
         append(addonName)
         append('\u0000')
-        append(url ?: infoHash ?: clientResolve?.infoHash ?: ytId ?: externalUrl ?: serverTarget?.key() ?: "")
+        append(
+            url ?: infoHash ?: clientResolve?.infoHash ?: ytId ?: externalUrl ?: serverTarget?.key()
+                ?: ""
+        )
         append('\u0000')
         append(getEffectiveFileIdx() ?: "")
         append('\u0000')
@@ -202,15 +200,13 @@ const val AUDIO_DELAY_MIN_MS = -60000
 const val AUDIO_DELAY_MAX_MS = 60000
 
 /** Normalizes a `behaviorHints.audioDelayMs` value: whole ms, NaN/Infinity dropped, clamped to ±60 s. */
-fun Number?.toStreamAudioDelayMs(): Int? =
-    this?.toDouble()
-        ?.takeIf { it.isFinite() }
-        ?.roundToInt()
-        ?.coerceIn(AUDIO_DELAY_MIN_MS, AUDIO_DELAY_MAX_MS)
+fun Number?.toStreamAudioDelayMs(): Int? = this?.toDouble()
+    ?.takeIf { it.isFinite() }
+    ?.roundToInt()
+    ?.coerceIn(AUDIO_DELAY_MIN_MS, AUDIO_DELAY_MAX_MS)
 
 /** Normalizes a `behaviorHints.audioDelayLanguage` value: trimmed language code, blank or oversized values dropped. */
-fun String?.toStreamAudioDelayLanguage(): String? =
-    this?.trim()?.takeIf { it.isNotEmpty() && it.length <= 35 }
+fun String?.toStreamAudioDelayLanguage(): String? = this?.trim()?.takeIf { it.isNotEmpty() && it.length <= 35 }
 
 @Immutable
 data class StreamBehaviorHints(
@@ -250,9 +246,7 @@ data class StreamClientResolve(
 )
 
 @Immutable
-data class StreamClientResolveStream(
-    val raw: StreamClientResolveRaw?
-)
+data class StreamClientResolveStream(val raw: StreamClientResolveRaw?)
 
 @Immutable
 data class StreamClientResolveRaw(
@@ -292,20 +286,12 @@ data class StreamClientResolveParsed(
 )
 
 @Immutable
-data class ProxyHeaders(
-    val request: Map<String, String>?,
-    val response: Map<String, String>?
-)
+data class ProxyHeaders(val request: Map<String, String>?, val response: Map<String, String>?)
 
 /**
  * Represents streams grouped by addon source
  */
 @Immutable
-data class AddonStreams(
-    val addonName: String,
-    val addonLogo: String?,
-    val streams: List<Stream>
-)
+data class AddonStreams(val addonName: String, val addonLogo: String?, val streams: List<Stream>)
 
-private fun String?.isMagnetLink(): Boolean =
-    this?.trimStart()?.startsWith("magnet:", ignoreCase = true) == true
+private fun String?.isMagnetLink(): Boolean = this?.trimStart()?.startsWith("magnet:", ignoreCase = true) == true

@@ -11,9 +11,7 @@ import javax.inject.Inject
  * feature's ViewModel as their primary). Obtain via `hiltViewModel<PosterOptionsViewModel>()`.
  */
 @HiltViewModel
-class PosterOptionsViewModel @Inject constructor(
-    val controller: PosterOptionsController
-) : ViewModel() {
+class PosterOptionsViewModel @Inject constructor(val controller: PosterOptionsController) : ViewModel() {
 
     init {
         controller.bind(viewModelScope)

@@ -38,8 +38,12 @@ class P2pStreamDeviceFitTest {
     fun `an unknown runtime leaves the stream unmarked`() {
         val stream = torrent(videoSize = 60L * GIBIBYTE)
 
-        assertNull(p2pStreamBitsPerSecond(stream, TitleDuration(runtimeMinutes = null, isEpisode = false)))
-        assertFalse(exceedsP2pBitrateBudget(stream, TitleDuration(runtimeMinutes = 0, isEpisode = false)))
+        assertNull(
+            p2pStreamBitsPerSecond(stream, TitleDuration(runtimeMinutes = null, isEpisode = false))
+        )
+        assertFalse(
+            exceedsP2pBitrateBudget(stream, TitleDuration(runtimeMinutes = 0, isEpisode = false))
+        )
     }
 
     @Test
@@ -49,14 +53,17 @@ class P2pStreamDeviceFitTest {
 
     @Test
     fun `a stream that is not P2P is never marked`() {
-        val direct = torrent(videoSize = 60L * GIBIBYTE).copy(infoHash = null, url = "https://example.com/film.mkv")
+        val direct = torrent(
+            videoSize = 60L * GIBIBYTE
+        ).copy(infoHash = null, url = "https://example.com/film.mkv")
 
         assertFalse(exceedsP2pBitrateBudget(direct, twoHourFilm))
     }
 
     @Test
     fun `a season pack size in the text is not read as one episode`() {
-        val seasonPack = torrent(title = "Show.S01.1080p.BluRay\n👤 40 💾 38 GB ⚙️ Source", fileIdx = null)
+        val seasonPack =
+            torrent(title = "Show.S01.1080p.BluRay\n👤 40 💾 38 GB ⚙️ Source", fileIdx = null)
 
         assertNull(p2pVideoSizeBytes(seasonPack, isEpisode = true))
         assertFalse(exceedsP2pBitrateBudget(seasonPack, fortyFiveMinuteEpisode))
@@ -64,7 +71,11 @@ class P2pStreamDeviceFitTest {
 
     @Test
     fun `an episode stream that names its file uses the size in its text`() {
-        val episodeFile = torrent(title = "Show.S01\nShow.S01E02.2160p.mkv\n👤 40 💾 12 GB ⚙️ Source", fileIdx = 2)
+        val episodeFile =
+            torrent(
+                title = "Show.S01\nShow.S01E02.2160p.mkv\n👤 40 💾 12 GB ⚙️ Source",
+                fileIdx = 2
+            )
 
         assertEquals(12L * GIBIBYTE, p2pVideoSizeBytes(episodeFile, isEpisode = true))
         assertTrue(exceedsP2pBitrateBudget(episodeFile, fortyFiveMinuteEpisode))

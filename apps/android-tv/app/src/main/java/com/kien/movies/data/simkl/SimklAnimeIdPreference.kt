@@ -24,7 +24,6 @@ enum class SimklAnimeIdPreference {
     companion object {
         val DEFAULT = IMDB
 
-        fun fromStorage(value: String?): SimklAnimeIdPreference =
-            entries.firstOrNull { it.name == value } ?: DEFAULT
+        fun fromStorage(value: String?): SimklAnimeIdPreference = entries.firstOrNull { it.name == value } ?: DEFAULT
     }
 }

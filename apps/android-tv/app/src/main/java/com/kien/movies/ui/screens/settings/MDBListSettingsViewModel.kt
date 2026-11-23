@@ -7,6 +7,7 @@ import com.kien.movies.data.mdblist.MdbListAuthStore
 import com.kien.movies.data.remote.api.MDBListApi
 import com.kien.movies.domain.model.MDBListSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
@@ -21,7 +22,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 private const val PENDING_RATING_ORDER_TIMEOUT_MS = 2_500L
 
@@ -79,15 +79,34 @@ class MDBListSettingsViewModel @Inject constructor(
     fun onEvent(event: MDBListSettingsEvent) {
         when (event) {
             is MDBListSettingsEvent.ToggleEnabled -> update { dataStore.setEnabled(event.enabled) }
+
             is MDBListSettingsEvent.ToggleTrakt -> update { dataStore.setShowTrakt(event.enabled) }
+
             is MDBListSettingsEvent.ToggleImdb -> update { dataStore.setShowImdb(event.enabled) }
+
             is MDBListSettingsEvent.ToggleTmdb -> update { dataStore.setShowTmdb(event.enabled) }
-            is MDBListSettingsEvent.ToggleLetterboxd -> update { dataStore.setShowLetterboxd(event.enabled) }
-            is MDBListSettingsEvent.ToggleTomatoes -> update { dataStore.setShowTomatoes(event.enabled) }
-            is MDBListSettingsEvent.ToggleAudience -> update { dataStore.setShowAudience(event.enabled) }
-            is MDBListSettingsEvent.ToggleMetacritic -> update { dataStore.setShowMetacritic(event.enabled) }
+
+            is MDBListSettingsEvent.ToggleLetterboxd -> update {
+                dataStore.setShowLetterboxd(event.enabled)
+            }
+
+            is MDBListSettingsEvent.ToggleTomatoes -> update {
+                dataStore.setShowTomatoes(event.enabled)
+            }
+
+            is MDBListSettingsEvent.ToggleAudience -> update {
+                dataStore.setShowAudience(event.enabled)
+            }
+
+            is MDBListSettingsEvent.ToggleMetacritic -> update {
+                dataStore.setShowMetacritic(event.enabled)
+            }
+
             is MDBListSettingsEvent.ToggleMal -> update { dataStore.setShowMal(event.enabled) }
-            is MDBListSettingsEvent.ToggleShowOnHero -> update { dataStore.setShowOnHero(event.enabled) }
+
+            is MDBListSettingsEvent.ToggleShowOnHero -> update {
+                dataStore.setShowOnHero(event.enabled)
+            }
         }
     }
 
@@ -176,7 +195,9 @@ class MDBListSettingsViewModel @Inject constructor(
             _validating.value = true
             val valid = try {
                 mdbListApi.getUser(trimmed).isSuccessful
-            } catch (e: Exception) { false }
+            } catch (e: Exception) {
+                false
+            }
             _validating.value = false
             if (valid) {
                 dataStore.setApiKey(trimmed)
@@ -205,10 +226,7 @@ class MDBListSettingsViewModel @Inject constructor(
         return observed
     }
 
-    private fun orderRatingsByKeys(
-        observed: List<String>,
-        orderKeys: List<String>
-    ): List<String> {
+    private fun orderRatingsByKeys(observed: List<String>, orderKeys: List<String>): List<String> {
         val available = observed.toSet()
         val seen = LinkedHashSet<String>()
         val ordered = ArrayList<String>(observed.size)

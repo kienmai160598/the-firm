@@ -12,8 +12,8 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -81,15 +81,15 @@ import com.kien.movies.domain.model.EpisodeOptionsOverlayStyle
 import com.kien.movies.domain.model.Video
 import com.kien.movies.ui.components.ImdbRatingSourceLabel
 import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
 import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.BlurTransformation
 import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.localizeEpisodeTitle
 import com.kien.movies.ui.util.toAbsoluteAlignment
-import kotlinx.coroutines.launch
 import java.util.Locale
-import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
+import kotlinx.coroutines.launch
 
 private data class EpisodeOverlayAction(
     val label: String,
@@ -197,9 +197,11 @@ internal fun EpisodeOptionsOverlay(
         episode.season != null && episode.episode != null -> {
             stringResource(R.string.season_episode_format, episode.season, episode.episode)
         }
+
         episode.episode != null -> {
             "${stringResource(R.string.episodes_episode)} ${episode.episode}"
         }
+
         else -> stringResource(R.string.episodes_dialog_subtitle)
     }
     val actions = buildList {
@@ -333,7 +335,9 @@ internal fun EpisodeOptionsOverlay(
                 .onPreviewKeyEvent { event ->
                     val native = event.nativeKeyEvent
                     if (isSelectKey(native.keyCode)) {
-                        if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0) {
+                        if (native.action == AndroidKeyEvent.ACTION_DOWN &&
+                            native.repeatCount == 0
+                        ) {
                             acceptsSelectKey = true
                         }
                         if (!acceptsSelectKey) {
@@ -415,31 +419,43 @@ internal fun EpisodeOptionsOverlay(
                                     .onFocusChanged { descriptionFocused = it.isFocused }
                                     .semantics { contentDescription = title }
                                     .onPreviewKeyEvent { event ->
-                                        val step = episodeStepForKey(event.nativeKeyEvent.keyCode, isRtl)
+                                        val step =
+                                            episodeStepForKey(event.nativeKeyEvent.keyCode, isRtl)
                                         when {
                                             event.type != KeyEventType.KeyDown -> false
+
                                             onNavigateEpisode != null && !ratingPageVisible &&
                                                 (step == -1 || (step == 1 && !hasEnabledAction)) -> {
                                                 onNavigateEpisode(step)
                                                 true
                                             }
-                                            event.key == Key.DirectionDown && detailsScrollState.value < detailsScrollState.maxValue -> {
+
+                                            event.key == Key.DirectionDown &&
+                                                detailsScrollState.value <
+                                                detailsScrollState.maxValue -> {
                                                 coroutineScope.launch {
                                                     detailsScrollState.animateScrollTo(
                                                         (detailsScrollState.value + 260)
-                                                            .coerceAtMost(detailsScrollState.maxValue)
+                                                            .coerceAtMost(
+                                                                detailsScrollState.maxValue
+                                                            )
                                                     )
                                                 }
                                                 true
                                             }
-                                            event.key == Key.DirectionUp && detailsScrollState.value > 0 -> {
+
+                                            event.key == Key.DirectionUp &&
+                                                detailsScrollState.value > 0 -> {
                                                 coroutineScope.launch {
                                                     detailsScrollState.animateScrollTo(
-                                                        (detailsScrollState.value - 260).coerceAtLeast(0)
+                                                        (detailsScrollState.value - 260).coerceAtLeast(
+                                                            0
+                                                        )
                                                     )
                                                 }
                                                 true
                                             }
+
                                             else -> false
                                         }
                                     }
@@ -457,13 +473,17 @@ internal fun EpisodeOptionsOverlay(
                     ) {
                         Text(
                             text = episodeLabel,
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.SemiBold
+                            ),
                             color = MoviesTheme.colors.Primary
                         )
 
                         ratingLabel?.let { rating ->
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs),
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    MoviesTheme.spacing.xs
+                                ),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 ImdbRatingSourceLabel(
@@ -482,7 +502,9 @@ internal fun EpisodeOptionsOverlay(
 
                     Text(
                         text = title,
-                        modifier = Modifier.align(title.contentTextDirection().toAbsoluteAlignment()),
+                        modifier = Modifier.align(
+                            title.contentTextDirection().toAbsoluteAlignment()
+                        ),
                         style = if (isNoneStyle) MaterialTheme.typography.displayLarge else titleStyle,
                         color = Color.White,
                         maxLines = if (isNoneStyle) 3 else Int.MAX_VALUE,
@@ -492,11 +514,15 @@ internal fun EpisodeOptionsOverlay(
                     if (description.isNotBlank()) {
                         Text(
                             text = description,
-                            style = (if (isNoneStyle) {
-                                MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Normal)
-                            } else {
-                                descriptionStyle
-                            }).copy(textDirection = description.contentTextDirection()),
+                            style = (
+                                if (isNoneStyle) {
+                                    MaterialTheme.typography.headlineMedium.copy(
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                } else {
+                                    descriptionStyle
+                                }
+                                ).copy(textDirection = description.contentTextDirection()),
                             color = Color.White.copy(alpha = 0.72f),
                             maxLines = if (isNoneStyle) 8 else Int.MAX_VALUE,
                             overflow = TextOverflow.Ellipsis
@@ -509,7 +535,11 @@ internal fun EpisodeOptionsOverlay(
                     modifier = Modifier.width(actionsWidth),
                     transitionSpec = {
                         val forward = targetState
-                        val motion = spring<IntOffset>(dampingRatio = 0.85f, stiffness = Spring.StiffnessMediumLow)
+                        val motion =
+                            spring<IntOffset>(
+                                dampingRatio = 0.85f,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
                         val enterFade = fadeIn(ExpressiveMotion.defaultEffects())
                         val exitFade = fadeOut(ExpressiveMotion.defaultEffects())
                         val shift = { width: Int -> if (forward) width / 3 else -width / 3 }
@@ -532,10 +562,13 @@ internal fun EpisodeOptionsOverlay(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .onPreviewKeyEvent { event ->
-                                    if (event.type != KeyEventType.KeyDown || onNavigateEpisode == null) {
+                                    if (event.type != KeyEventType.KeyDown ||
+                                        onNavigateEpisode == null
+                                    ) {
                                         return@onPreviewKeyEvent false
                                     }
-                                    val step = episodeStepForKey(event.nativeKeyEvent.keyCode, isRtl)
+                                    val step =
+                                        episodeStepForKey(event.nativeKeyEvent.keyCode, isRtl)
                                     if (step == 1 || (step == -1 && isNoneStyle)) {
                                         onNavigateEpisode(step)
                                         true
@@ -609,12 +642,15 @@ private fun episodeOverlayDescriptionStyle(length: Int): TextStyle {
     val typography = MaterialTheme.typography
     return when {
         length <= 240 -> typography.headlineMedium.copy(fontWeight = FontWeight.Normal)
+
         length <= 420 -> typography.titleLarge.copy(fontWeight = FontWeight.Normal)
+
         length <= 700 -> typography.titleMedium.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 18.sp,
             lineHeight = 24.sp
         )
+
         else -> typography.bodyLarge.copy(
             fontSize = 16.sp,
             lineHeight = 22.sp

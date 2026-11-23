@@ -7,10 +7,10 @@ import com.kien.movies.data.remote.dto.trakt.TraktSearchResultDto
 import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.TraktCommentReview
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 private const val COMMENTS_SORT = "likes"
 private const val COMMENTS_LIMIT = 100
@@ -138,16 +138,24 @@ class TraktCommentsService @Inject constructor(
                     limit = COMMENTS_LIMIT
                 )
             }
-        } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_comments_error_request_failed))
+        }
+            ?: throw IllegalStateException(
+                appContext.getString(com.kien.movies.R.string.trakt_comments_error_request_failed)
+            )
 
         val comments = when {
             response.code() == 404 -> emptyList()
-            !response.isSuccessful -> throw IllegalStateException("Failed to load Trakt reviews (${response.code()})")
+
+            !response.isSuccessful -> throw IllegalStateException(
+                "Failed to load Trakt reviews (${response.code()})"
+            )
+
             else -> response.body().orEmpty()
         }
 
         val pageCount = response.headers()["X-Pagination-Page-Count"]?.toIntOrNull() ?: page
-        val itemCount = response.headers()["X-Pagination-Item-Count"]?.toIntOrNull() ?: comments.size
+        val itemCount =
+            response.headers()["X-Pagination-Item-Count"]?.toIntOrNull() ?: comments.size
         val selected = filterDisplayableComments(comments).map { toReviewModel(it, appContext) }
 
         cacheMutex.withLock {
@@ -189,7 +197,8 @@ class TraktCommentsService @Inject constructor(
             )
         }
 
-        val tmdbId = resolveTmdbCandidate(meta = meta, fallbackItemId = fallbackItemId) ?: return null
+        val tmdbId =
+            resolveTmdbCandidate(meta = meta, fallbackItemId = fallbackItemId) ?: return null
         val searchResponse = traktAuthService.executeAuthorizedRequest { authHeader ->
             traktApi.searchById(
                 authorization = authHeader,
@@ -227,6 +236,7 @@ class TraktCommentsService @Inject constructor(
         if (targetEpisode?.season != null && targetEpisode.episode != null) {
             return when (meta.type) {
                 ContentType.SERIES, ContentType.TV -> TraktCommentsType.EPISODE
+
                 else -> when (meta.apiType.trim().lowercase()) {
                     "series", "show", "tv" -> TraktCommentsType.EPISODE
                     else -> null
@@ -241,7 +251,9 @@ class TraktCommentsService @Inject constructor(
 
         return when (meta.type) {
             ContentType.MOVIE -> TraktCommentsType.MOVIE
+
             ContentType.SERIES, ContentType.TV -> TraktCommentsType.SHOW
+
             else -> when (normalizedType) {
                 "movie" -> TraktCommentsType.MOVIE
                 "series", "show", "tv" -> TraktCommentsType.SHOW
@@ -309,7 +321,10 @@ internal fun TraktIdsDto?.toBestCommentsPathId(): String? {
     }
 }
 
-private fun toReviewModel(dto: TraktCommentDto, appContext: android.content.Context): TraktCommentReview {
+private fun toReviewModel(
+    dto: TraktCommentDto,
+    appContext: android.content.Context
+): TraktCommentReview {
     val authorDisplayName = dto.user?.name
         ?.takeIf { it.isNotBlank() }
         ?: dto.user?.username

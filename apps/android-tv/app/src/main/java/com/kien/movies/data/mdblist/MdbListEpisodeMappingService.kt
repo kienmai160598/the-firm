@@ -51,13 +51,19 @@ class MdbListEpisodeMappingService @Inject constructor(
      * TMDB id lookup when MDBList already reported it. Returns null when either side's episodes
      * could not be loaded, so the caller keeps the numbering it has.
      */
-    internal suspend fun resolve(contentId: String, tmdbShowId: Long? = null): MdbListEpisodeMapping? {
+    internal suspend fun resolve(
+        contentId: String,
+        tmdbShowId: Long? = null
+    ): MdbListEpisodeMapping? {
         val key = contentId.trim().takeIf(String::isNotBlank) ?: return null
         resolved[key]?.let { return it }
         val (deferred, owner) = inFlightMutex.withLock {
             resolved[key]?.let { return it }
             inFlight[key]?.let { it to false }
-                ?: CompletableDeferred<MdbListEpisodeMapping?>().also { inFlight[key] = it }.let { it to true }
+                ?: CompletableDeferred<MdbListEpisodeMapping?>().also { inFlight[key] = it }.let {
+                    it to
+                        true
+                }
         }
         if (!owner) return deferred.await()
         return try {
@@ -101,7 +107,9 @@ class MdbListEpisodeMappingService @Inject constructor(
     private suspend fun load(contentId: String, tmdbShowId: Long?): MdbListEpisodeMapping? {
         val addon = addonEpisodes.episodes(contentId, "series")
         if (addon.isEmpty()) return null
-        val tmdbId = tmdbShowId?.takeIf { it in 1..Int.MAX_VALUE }?.toInt() ?: lookupTmdbShowId(contentId) ?: return null
+        val tmdbId =
+            tmdbShowId?.takeIf { it in 1..Int.MAX_VALUE }?.toInt() ?: lookupTmdbShowId(contentId)
+                ?: return null
         val seasons = tmdbApi.getTvDetails(tmdbId, BuildConfig.TMDB_API_KEY, TMDB_LANGUAGE).body()
             ?.seasons.orEmpty()
             .mapNotNull { season ->
@@ -120,11 +128,22 @@ class MdbListEpisodeMappingService @Inject constructor(
             seasons.keys.sorted().map { season ->
                 async {
                     semaphore.withPermit {
-                        tmdbApi.getTvSeasonDetails(tmdbId, season, BuildConfig.TMDB_API_KEY, TMDB_LANGUAGE).body()
+                        tmdbApi.getTvSeasonDetails(
+                            tmdbId,
+                            season,
+                            BuildConfig.TMDB_API_KEY,
+                            TMDB_LANGUAGE
+                        ).body()
                             ?.episodes.orEmpty()
                             .mapNotNull { episode ->
-                                val number = episode.episodeNumber?.takeIf { it > 0 } ?: return@mapNotNull null
-                                EpisodeMappingEntry(season = season, episode = number, title = episode.name)
+                                val number =
+                                    episode.episodeNumber?.takeIf { it > 0 }
+                                        ?: return@mapNotNull null
+                                EpisodeMappingEntry(
+                                    season = season,
+                                    episode = number,
+                                    title = episode.name
+                                )
                             }
                     }
                 }
@@ -132,7 +151,10 @@ class MdbListEpisodeMappingService @Inject constructor(
         }
         if (tmdbEpisodes.isEmpty()) return null
         if (hasSameSeasonStructure(addon, tmdbEpisodes)) return MdbListEpisodeMapping.Unchanged
-        Log.d(TAG, "remapping $contentId: addon=${addon.seasonCounts()} tmdb=${tmdbEpisodes.seasonCounts()}")
+        Log.d(
+            TAG,
+            "remapping $contentId: addon=${addon.seasonCounts()} tmdb=${tmdbEpisodes.seasonCounts()}"
+        )
         return MdbListEpisodeMapping(addon, tmdbEpisodes)
     }
 
@@ -147,8 +169,7 @@ class MdbListEpisodeMappingService @Inject constructor(
         return null
     }
 
-    private fun List<EpisodeMappingEntry>.seasonCounts(): Map<Int, Int> =
-        groupBy { it.season }.mapValues { it.value.size }
+    private fun List<EpisodeMappingEntry>.seasonCounts(): Map<Int, Int> = groupBy { it.season }.mapValues { it.value.size }
 
     private companion object {
         const val TAG = "MdbListEpMap"
@@ -183,7 +204,12 @@ internal class MdbListEpisodeMapping(
     }
 
     /** TMDB's episode for the addon's [season]/[episode], or null when nothing needs remapping. */
-    fun toTmdb(season: Int, episode: Int, videoId: String? = null, title: String? = null): EpisodeMappingEntry? {
+    fun toTmdb(
+        season: Int,
+        episode: Int,
+        videoId: String? = null,
+        title: String? = null
+    ): EpisodeMappingEntry? {
         if (!remaps) return null
         val key = "$season:$episode:${videoId.orEmpty()}"
         toTmdbCache[key]?.let { return it }

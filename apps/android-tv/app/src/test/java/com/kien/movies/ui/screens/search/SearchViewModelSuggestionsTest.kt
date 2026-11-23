@@ -59,7 +59,8 @@ private val SLO_CATALOGS = linkedMapOf(
 )
 
 /** One title from each catalog in turn, the duplicate dropped, the substring match last. */
-private val SLO_STRIP = listOf("Slow West", "Slow Horses", "Slotherhouse", "Slo Pitch", "Slo Light", "Miss Sloane")
+private val SLO_STRIP =
+    listOf("Slow West", "Slow Horses", "Slotherhouse", "Slo Pitch", "Slo Light", "Miss Sloane")
 
 /**
  * Suggestions are pushed to the keyboard's own suggestion strip while the user types, so they
@@ -125,7 +126,11 @@ class SearchViewModelSuggestionsTest {
         listOf("wo", "wol", "wolf").forEach { typed ->
             viewModel.onEvent(SearchEvent.QueryChanged(typed))
             advanceUntilIdle()
-            assertEquals("cleared while typing \"$typed\"", listOf(TITLE), viewModel.uiState.value.suggestions)
+            assertEquals(
+                "cleared while typing \"$typed\"",
+                listOf(TITLE),
+                viewModel.uiState.value.suggestions
+            )
         }
     }
 
@@ -335,7 +340,13 @@ class SearchViewModelSuggestionsTest {
     fun `titles of the same rank keep the addon's order`() = runTest {
         val viewModel = newViewModel(
             catalogTitles = mapOf(
-                "top" to listOf("The Lost World: Jurassic Park", "Jurassic Park", "Jurassic World", "Jurassic Fight Club")
+                "top" to
+                    listOf(
+                        "The Lost World: Jurassic Park",
+                        "Jurassic Park",
+                        "Jurassic World",
+                        "Jurassic Fight Club"
+                    )
             )
         )
 
@@ -344,7 +355,12 @@ class SearchViewModelSuggestionsTest {
 
         // Prefix matches still come before the title that only contains the query.
         assertEquals(
-            listOf("Jurassic Park", "Jurassic World", "Jurassic Fight Club", "The Lost World: Jurassic Park"),
+            listOf(
+                "Jurassic Park",
+                "Jurassic World",
+                "Jurassic Fight Club",
+                "The Lost World: Jurassic Park"
+            ),
             viewModel.uiState.value.suggestions
         )
     }
@@ -362,7 +378,8 @@ class SearchViewModelSuggestionsTest {
     /** The series catalog answers first here. The movie catalog still leads once it lands. */
     @Test
     fun `the strip order does not depend on which catalog answers first`() = runTest {
-        val viewModel = newViewModel(catalogTitles = SLO_CATALOGS, slowCatalogs = setOf(MOVIE_CATALOG))
+        val viewModel =
+            newViewModel(catalogTitles = SLO_CATALOGS, slowCatalogs = setOf(MOVIE_CATALOG))
 
         viewModel.onEvent(SearchEvent.QueryChanged("slo"))
         // Past SUGGESTION_DEBOUNCE_MS, short of the movie catalog's pause.
@@ -420,7 +437,8 @@ class SearchViewModelSuggestionsTest {
         }
 
         val layoutPreferences = mockk<LayoutPreferenceDataStore>()
-        every { layoutPreferences.discoverLocation } returns flowOf(com.kien.movies.domain.model.DiscoverLocation.OFF)
+        every { layoutPreferences.discoverLocation } returns
+            flowOf(com.kien.movies.domain.model.DiscoverLocation.OFF)
         every { layoutPreferences.posterCardWidthDp } returns flowOf(126)
         every { layoutPreferences.posterLabelsEnabled } returns flowOf(true)
         every { layoutPreferences.catalogAddonNameEnabled } returns flowOf(true)
@@ -441,8 +459,14 @@ class SearchViewModelSuggestionsTest {
         return SearchViewModel(
             addonRepository = SingleAddonRepository(addon),
             catalogRepository = when {
-                catalogTitles != null -> OrderedCatalogRepository(addon, catalogTitles, slowCatalogs)
+                catalogTitles != null -> OrderedCatalogRepository(
+                    addon,
+                    catalogTitles,
+                    slowCatalogs
+                )
+
                 staged -> StagedCatalogRepository(addon)
+
                 else -> TitleCatalogRepository(addon, catalogIgnoresQuery)
             },
             metaRepository = mockk(relaxed = true),
@@ -488,7 +512,8 @@ class SearchViewModelSuggestionsTest {
             posterScreen: com.kien.movies.core.poster.CustomPosterScreen
         ): Flow<NetworkResult<CatalogRow>> = flow {
             val query = extraArgs["search"].orEmpty()
-            val matches = ignoresQuery || (query.isNotBlank() && TITLE.contains(query, ignoreCase = true))
+            val matches =
+                ignoresQuery || (query.isNotBlank() && TITLE.contains(query, ignoreCase = true))
             emit(NetworkResult.Loading)
             emit(NetworkResult.Success(row(matches)))
         }
@@ -500,20 +525,24 @@ class SearchViewModelSuggestionsTest {
             catalogId = addon.catalogs.single().id,
             catalogName = addon.catalogs.single().name,
             type = ContentType.MOVIE,
-            items = if (!matches) emptyList() else (if (ignoresQuery) CATALOG else listOf(TITLE)).map { title ->
-                MetaPreview(
-                    id = "id_${title.hashCode()}",
-                    type = ContentType.MOVIE,
-                    name = title,
-                    poster = null,
-                    posterShape = PosterShape.POSTER,
-                    background = null,
-                    logo = null,
-                    description = null,
-                    releaseInfo = null,
-                    imdbRating = null,
-                    genres = emptyList()
-                )
+            items = if (!matches) {
+                emptyList()
+            } else {
+                (if (ignoresQuery) CATALOG else listOf(TITLE)).map { title ->
+                    MetaPreview(
+                        id = "id_${title.hashCode()}",
+                        type = ContentType.MOVIE,
+                        name = title,
+                        poster = null,
+                        posterShape = PosterShape.POSTER,
+                        background = null,
+                        logo = null,
+                        description = null,
+                        releaseInfo = null,
+                        imdbRating = null,
+                        genres = emptyList()
+                    )
+                }
             }
         )
     }

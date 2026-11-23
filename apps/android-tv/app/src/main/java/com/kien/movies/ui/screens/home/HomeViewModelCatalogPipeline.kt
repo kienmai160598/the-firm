@@ -4,21 +4,25 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.kien.movies.R
 import com.kien.movies.core.network.NetworkResult
+import com.kien.movies.core.util.filterReleasedItems
 import com.kien.movies.domain.model.Addon
 import com.kien.movies.domain.model.CatalogDescriptor
 import com.kien.movies.domain.model.CatalogRow
 import com.kien.movies.domain.model.Collection
 import com.kien.movies.domain.model.HomeLayout
+import com.kien.movies.domain.model.MetaPreview
+import com.kien.movies.domain.model.PLACEHOLDER_IMAGE_URL
+import com.kien.movies.domain.model.WatchedItem
 import com.kien.movies.domain.model.catalogRowStableKey
 import com.kien.movies.domain.model.enabledAddons
+import com.kien.movies.domain.model.isSeriesLikeType
 import com.kien.movies.domain.model.legacyKey
 import com.kien.movies.domain.model.mergeCatalogPage
 import com.kien.movies.domain.model.nextCatalogSkip
 import com.kien.movies.domain.model.skipStep
 import com.kien.movies.domain.model.stableKey
-import com.kien.movies.domain.model.WatchedItem
-import com.kien.movies.domain.model.isSeriesLikeType
 import com.kien.movies.domain.model.supportsExtra
+import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
@@ -28,13 +32,9 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
-import com.kien.movies.domain.model.MetaPreview
-import com.kien.movies.domain.model.PLACEHOLDER_IMAGE_URL
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withPermit
-import com.kien.movies.core.util.filterReleasedItems
 import kotlinx.coroutines.withContext
-import java.time.LocalDate
 
 private data class CatalogUpdateResult(
     val displayRows: List<CatalogRow>,
@@ -146,7 +146,8 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
     forceReload: Boolean = false
 ) {
     val signature = buildHomeCatalogLoadSignature(addons)
-    val hasActiveLoads = synchronized(activeCatalogLoadJobs) { activeCatalogLoadJobs.any { it.isActive } }
+    val hasActiveLoads =
+        synchronized(activeCatalogLoadJobs) { activeCatalogLoadJobs.any { it.isActive } }
     if (!forceReload &&
         signature == activeCatalogLoadSignature &&
         (hasActiveLoads || hasAnyCatalogRows())
@@ -166,7 +167,9 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
     // catalogs load in the background to avoid a flash of empty content.
     val isReload = _uiState.value.catalogRows.isNotEmpty() || _uiState.value.homeRows.isNotEmpty()
     if (!isReload) {
-        _uiState.update { it.copy(isLoading = true, error = null, installedAddonsCount = addons.size) }
+        _uiState.update {
+            it.copy(isLoading = true, error = null, installedAddonsCount = addons.size)
+        }
         synchronized(catalogStateLock) {
             catalogOrder.clear()
         }
@@ -200,7 +203,12 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
     try {
         if (addons.isEmpty()) {
             catalogsLoadInProgress = false
-            _uiState.update { it.copy(isLoading = false, error = appContext.getString(R.string.home_empty_no_sources_title)) }
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    error = appContext.getString(R.string.home_empty_no_sources_title)
+                )
+            }
             return
         }
 
@@ -217,7 +225,12 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
 
         if (isCatalogOrderEmpty() && !hasHeroSelections) {
             catalogsLoadInProgress = false
-            _uiState.update { it.copy(isLoading = false, error = appContext.getString(R.string.home_error_no_catalog_addons)) }
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    error = appContext.getString(R.string.home_error_no_catalog_addons)
+                )
+            }
             return
         }
 
@@ -244,8 +257,14 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
             addons.flatMap { addon ->
                 addon.catalogs
                     .filter { catalog ->
-                        val key = catalogKey(addonId = addon.id, type = catalog.apiType, catalogId = catalog.id)
-                        key in heroCatalogSet && key !in alreadyLoadingKeys && !catalog.isSearchOnlyCatalog()
+                        val key =
+                            catalogKey(
+                                addonId = addon.id,
+                                type = catalog.apiType,
+                                catalogId = catalog.id
+                            )
+                        key in heroCatalogSet && key !in alreadyLoadingKeys &&
+                            !catalog.isSearchOnlyCatalog()
                     }
                     .map { catalog -> addon to catalog }
             }
@@ -261,7 +280,12 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
             if (hasCatalogOrderEntries()) {
                 scheduleUpdateCatalogRows()
             } else {
-                _uiState.update { it.copy(isLoading = false, error = appContext.getString(R.string.home_error_no_catalog_addons)) }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = appContext.getString(R.string.home_error_no_catalog_addons)
+                    )
+                }
             }
             return
         }
@@ -283,8 +307,14 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
             val catalogName = baseName.replaceFirstChar { it.uppercase() }
             if (!showTypeSuffix) return catalogName
             val typeLabel = when (catalog.apiType.lowercase()) {
-                "movie" -> strTypeMovie.ifBlank { catalog.apiType.replaceFirstChar { it.uppercase() } }
-                "series" -> strTypeSeries.ifBlank { catalog.apiType.replaceFirstChar { it.uppercase() } }
+                "movie" -> strTypeMovie.ifBlank {
+                    catalog.apiType.replaceFirstChar { it.uppercase() }
+                }
+
+                "series" -> strTypeSeries.ifBlank {
+                    catalog.apiType.replaceFirstChar { it.uppercase() }
+                }
+
                 else -> catalog.apiType.replaceFirstChar { it.uppercase() }
             }
             return "$catalogName - $typeLabel"
@@ -298,8 +328,20 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
             _uiState.first { it.layoutPreferencesReady }
         }
         val isGridLayout = _uiState.value.homeLayout == HomeLayout.GRID
-        val eagerHomeCatalogs = if (isGridLayout) catalogsToLoad else catalogsToLoad.take(eagerCatalogLoadCount)
-        val lazyHomeCatalogs = if (isGridLayout) emptyList() else catalogsToLoad.drop(eagerCatalogLoadCount)
+        val eagerHomeCatalogs = if (isGridLayout) {
+            catalogsToLoad
+        } else {
+            catalogsToLoad.take(
+                eagerCatalogLoadCount
+            )
+        }
+        val lazyHomeCatalogs = if (isGridLayout) {
+            emptyList()
+        } else {
+            catalogsToLoad.drop(
+                eagerCatalogLoadCount
+            )
+        }
 
         // Build placeholder descriptors for lazy catalogs
         synchronized(catalogStateLock) {
@@ -333,7 +375,8 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
             }
         }
 
-        Log.d(HomeViewModel.TAG,
+        Log.d(
+            HomeViewModel.TAG,
             "Lazy loading: eager=${eagerHomeCatalogs.size} lazy=${lazyHomeCatalogs.size}"
         )
 
@@ -354,7 +397,10 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
             viewModelScope.launch {
                 delay(800L)
                 if (pendingCatalogLoads > 0 && hasAnyCatalogRows()) {
-                    Log.d(HomeViewModel.TAG, "Safety flush: pending=$pendingCatalogLoads — forcing UI update")
+                    Log.d(
+                        HomeViewModel.TAG,
+                        "Safety flush: pending=$pendingCatalogLoads — forcing UI update"
+                    )
                     scheduleUpdateCatalogRows()
                 }
             }
@@ -389,7 +435,8 @@ internal fun HomeViewModel.loadHeroCatalogsPipeline() {
     val heroToLoad = addonsCache.flatMap { addon ->
         addon.catalogs
             .filter { catalog ->
-                val key = catalogKey(addonId = addon.id, type = catalog.apiType, catalogId = catalog.id)
+                val key =
+                    catalogKey(addonId = addon.id, type = catalog.apiType, catalogId = catalog.id)
                 key in missingHeroKeys && !catalog.isSearchOnlyCatalog()
             }
             .map { catalog -> addon to catalog }
@@ -445,7 +492,14 @@ internal fun HomeViewModel.loadCatalogPipeline(
                             type = catalog.apiType,
                             catalogId = catalog.id
                         )
-                        if (!isRefresh || !mergeRefreshedCatalogRow(key, result.data, requestedByUser, forceReplace)) {
+                        if (!isRefresh ||
+                            !mergeRefreshedCatalogRow(
+                                key,
+                                result.data,
+                                requestedByUser,
+                                forceReplace
+                            )
+                        ) {
                             replaceCatalogRow(key, result.data)
                         }
                         // Trigger MDBList batch for newly loaded catalog data.
@@ -479,6 +533,7 @@ internal fun HomeViewModel.loadCatalogPipeline(
                         // Otherwise, let the next completion or the final
                         // pendingCatalogLoads==0 trigger the update.
                     }
+
                     is NetworkResult.Error -> {
                         val errorKey = catalogKey(
                             addonId = addon.id,
@@ -505,6 +560,7 @@ internal fun HomeViewModel.loadCatalogPipeline(
                             scheduleUpdateCatalogRows()
                         }
                     }
+
                     NetworkResult.Loading -> {
                         /* Handled by individual row */
                     }
@@ -515,7 +571,11 @@ internal fun HomeViewModel.loadCatalogPipeline(
     registerCatalogLoadJob(loadJob)
 }
 
-internal fun HomeViewModel.loadMoreCatalogItemsPipeline(catalogId: String, addonId: String, type: String) {
+internal fun HomeViewModel.loadMoreCatalogItemsPipeline(
+    catalogId: String,
+    addonId: String,
+    type: String
+) {
     val key = catalogKey(addonId = addonId, type = type, catalogId = catalogId)
     val currentRow = readCatalogRow(key)
 
@@ -561,11 +621,13 @@ internal fun HomeViewModel.loadMoreCatalogItemsPipeline(catalogId: String, addon
                     scheduleUpdateCatalogRows()
                     onCatalogRowItemsChanged(key)
                 }
+
                 is NetworkResult.Error -> {
                     updateCatalogRow(key) { it.copy(isLoading = false) }
                     _loadingCatalogs.update { it - key }
                     scheduleUpdateCatalogRows()
                 }
+
                 NetworkResult.Loading -> { }
             }
         }
@@ -582,7 +644,9 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
     val hideUnreleased = _uiState.value.hideUnreleasedContent
     val titlesSnapshot = customCatalogTitles
 
-    val (displayRows, baseHeroItems, baseGridItems, fullRowsFiltered) = withContext(Dispatchers.Default) {
+    val (displayRows, baseHeroItems, baseGridItems, fullRowsFiltered) = withContext(
+        Dispatchers.Default
+    ) {
         val rawRows = orderedKeys.mapNotNull { key ->
             val row = catalogSnapshot[key] ?: return@mapNotNull null
             val custom = titlesSnapshot[key]
@@ -617,13 +681,20 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
         } else {
             emptyList()
         }
-        fun stableHeroCandidates(row: CatalogRow, candidates: kotlin.collections.Collection<MetaPreview>): List<MetaPreview> {
+        fun stableHeroCandidates(
+            row: CatalogRow,
+            candidates: kotlin.collections.Collection<MetaPreview>
+        ): List<MetaPreview> {
             return candidates.sortedWith(
                 compareBy<MetaPreview> { stableHeroSortKey(row, it) }
                     .thenBy { it.id }
             )
         }
-        fun slotShuffled(rows: List<CatalogRow>, filter: (MetaPreview) -> Boolean, currentOrder: List<String>): List<MetaPreview> {
+        fun slotShuffled(
+            rows: List<CatalogRow>,
+            filter: (MetaPreview) -> Boolean,
+            currentOrder: List<String>
+        ): List<MetaPreview> {
             val totalCatalogs = rows.size.coerceAtLeast(1)
             val baseSlot = 7 / totalCatalogs
             val remainder = 7 % totalCatalogs
@@ -648,10 +719,14 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
         val currentHeroOrder = heroItemOrder
 
         val heroItemsFromSelectedCatalogs = slotShuffled(
-            selectedHeroRows, { it.hasHeroArtwork() }, currentHeroOrder
+            selectedHeroRows,
+            { it.hasHeroArtwork() },
+            currentHeroOrder
         )
         val fallbackHeroItemsFromSelectedCatalogs = slotShuffled(
-            selectedHeroRows, { true }, currentHeroOrder
+            selectedHeroRows,
+            { true },
+            currentHeroOrder
         )
         // When orderedRows is empty (all catalogs disabled), include any
         // hero-only loaded catalogs as fallback hero sources.
@@ -669,7 +744,9 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
             }
         }
         val fallbackHeroItemsWithArtwork = slotShuffled(
-            allHeroFallbackRows, { it.hasHeroArtwork() }, currentHeroOrder
+            allHeroFallbackRows,
+            { it.hasHeroArtwork() },
+            currentHeroOrder
         )
 
         val computedHeroItems = when {
@@ -728,158 +805,183 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
             val addedCollectionIds = mutableSetOf<String>()
             collectionsCache.forEach { collection ->
                 val key = "collection_${collection.id}"
-            if (collection.pinToTop && key !in disabledHomeCatalogKeys && addedCollectionIds.add(collection.id)) {
-                add(HomeRow.CollectionRow(collection))
-            }
-        }
-        for (key in orderedKeys) {
-            if (key in disabledHomeCatalogKeys) continue
-            val collectionEntry = collectionsSnapshot[key]
-            if (collectionEntry != null) {
-                if (!collectionEntry.pinToTop && addedCollectionIds.add(collectionEntry.id)) {
-                    add(HomeRow.CollectionRow(collectionEntry))
+                if (collection.pinToTop && key !in disabledHomeCatalogKeys &&
+                    addedCollectionIds.add(collection.id)
+                ) {
+                    add(HomeRow.CollectionRow(collection))
                 }
-            } else {
+            }
+            for (key in orderedKeys) {
+                if (key in disabledHomeCatalogKeys) continue
+                val collectionEntry = collectionsSnapshot[key]
+                if (collectionEntry != null) {
+                    if (!collectionEntry.pinToTop && addedCollectionIds.add(collectionEntry.id)) {
+                        add(HomeRow.CollectionRow(collectionEntry))
+                    }
+                } else {
                     val catalogRow = displayRowsByKey[key]
                     if (catalogRow != null && catalogRow.items.isNotEmpty()) {
                         add(HomeRow.Catalog(catalogRow))
                     } else {
                         val placeholder = placeholdersByKey[key]
                         if (placeholder != null) {
-                        if (currentLayout == HomeLayout.MODERN) {
-                            add(HomeRow.PlaceholderCatalog(
-                                catalogKey = placeholder.catalogKey,
-                                stableCatalogKey = catalogRowStableKey(
-                                    placeholder.addonId,
-                                    placeholder.addonBaseUrl,
-                                    placeholder.apiType,
-                                    placeholder.catalogId
-                                ),
-                                addonId = placeholder.addonId,
-                                addonName = placeholder.addonName,
-                                addonBaseUrl = placeholder.addonBaseUrl,
-                                catalogId = placeholder.catalogId,
-                                catalogName = placeholder.catalogName,
-                                apiType = placeholder.apiType,
-                                displayTitle = placeholder.displayTitle
-                            ))
-                        } else {
-                            val fakeItems = (0 until 8).map { i ->
-                                MetaPreview(
-                                    id = "__placeholder_${placeholder.catalogKey}_$i",
-                                    type = com.kien.movies.domain.model.ContentType.fromString(placeholder.apiType),
-                                    rawType = placeholder.apiType,
-                                    name = " ",
-                                    poster = PLACEHOLDER_IMAGE_URL,
-                                    posterShape = com.kien.movies.domain.model.PosterShape.POSTER,
-                                    background = null,
-                                    logo = null,
-                                    description = null,
-                                    releaseInfo = " ",
-                                    imdbRating = null,
-                                    genres = emptyList()
+                            if (currentLayout == HomeLayout.MODERN) {
+                                add(
+                                    HomeRow.PlaceholderCatalog(
+                                        catalogKey = placeholder.catalogKey,
+                                        stableCatalogKey = catalogRowStableKey(
+                                            placeholder.addonId,
+                                            placeholder.addonBaseUrl,
+                                            placeholder.apiType,
+                                            placeholder.catalogId
+                                        ),
+                                        addonId = placeholder.addonId,
+                                        addonName = placeholder.addonName,
+                                        addonBaseUrl = placeholder.addonBaseUrl,
+                                        catalogId = placeholder.catalogId,
+                                        catalogName = placeholder.catalogName,
+                                        apiType = placeholder.apiType,
+                                        displayTitle = placeholder.displayTitle
+                                    )
+                                )
+                            } else {
+                                val fakeItems = (0 until 8).map { i ->
+                                    MetaPreview(
+                                        id = "__placeholder_${placeholder.catalogKey}_$i",
+                                        type = com.kien.movies.domain.model.ContentType.fromString(
+                                            placeholder.apiType
+                                        ),
+                                        rawType = placeholder.apiType,
+                                        name = " ",
+                                        poster = PLACEHOLDER_IMAGE_URL,
+                                        posterShape = com.kien.movies.domain.model.PosterShape.POSTER,
+                                        background = null,
+                                        logo = null,
+                                        description = null,
+                                        releaseInfo = " ",
+                                        imdbRating = null,
+                                        genres = emptyList()
+                                    )
+                                }
+                                add(
+                                    HomeRow.Catalog(
+                                        CatalogRow(
+                                            addonId = placeholder.addonId,
+                                            addonName = placeholder.addonName,
+                                            addonBaseUrl = placeholder.addonBaseUrl,
+                                            catalogId = placeholder.catalogId,
+                                            catalogName = placeholder.catalogName,
+                                            type = com.kien.movies.domain.model.ContentType.fromString(
+                                                placeholder.apiType
+                                            ),
+                                            rawType = placeholder.apiType,
+                                            items = fakeItems,
+                                            isLoading = true,
+                                            hasMore = false
+                                        )
+                                    )
                                 )
                             }
-                            add(HomeRow.Catalog(CatalogRow(
-                                addonId = placeholder.addonId,
-                                addonName = placeholder.addonName,
-                                addonBaseUrl = placeholder.addonBaseUrl,
-                                catalogId = placeholder.catalogId,
-                                catalogName = placeholder.catalogName,
-                                type = com.kien.movies.domain.model.ContentType.fromString(placeholder.apiType),
-                                rawType = placeholder.apiType,
-                                items = fakeItems,
-                                isLoading = true,
-                                hasMore = false
-                            )))
                         }
                     }
                 }
             }
         }
-    }
 
-    val nextGridItems = if (currentLayout == HomeLayout.GRID) {
-        val posterCardWidthDp = _uiState.value.posterCardWidthDp
-        val rowCount = if (posterCardWidthDp <= 104) 2 else 3
-        // Provide generous upper bound of items — the Composable layer will trim
-        // based on the actual column count from GridCells.Adaptive layout info.
-        // We use 8 as safe max columns (widest known config) to avoid cutting too early.
-        val safeMaxColumns = 8
-        val maxDisplaySlots = safeMaxColumns * rowCount
-        buildList {
-            if (heroSectionEnabled && baseHeroItems.isNotEmpty()) {
-                add(GridItem.Hero(baseHeroItems))
-            }
-            computedHomeRows.forEach { homeRow ->
-                when (homeRow) {
-                    is HomeRow.Catalog -> {
-                        val row = homeRow.row
-                        val isPlaceholderRow = row.isLoading &&
-                            row.items.firstOrNull()?.id?.startsWith("__placeholder_") == true
-                        if (row.items.isNotEmpty() && !isPlaceholderRow) {
-                            add(GridItem.SectionDivider(
-                                catalogName = row.catalogName,
-                                catalogId = row.catalogId,
-                                addonBaseUrl = row.addonBaseUrl,
-                                addonId = row.addonId,
-                                type = row.apiType
-                            ))
-                            // Show "See All" if there are more items than fit in the
-                            // displayed rows, or the API indicates more pages exist.
-                            val showSeeAll = row.hasMore || row.items.size > maxDisplaySlots
-                            val rawMax = if (showSeeAll) maxDisplaySlots - 1 else maxDisplaySlots
-                            val displayItems = row.items.take(rawMax)
-                            displayItems.forEach { item ->
-                                add(GridItem.Content(
-                                    item = item,
-                                    addonBaseUrl = row.addonBaseUrl,
-                                    catalogId = row.catalogId,
-                                    catalogName = row.catalogName,
-                                    addonId = row.addonId
-                                ))
-                            }
-                            if (showSeeAll) {
-                                add(GridItem.SeeAll(
-                                    catalogId = row.catalogId,
-                                    addonId = row.addonId,
-                                    addonBaseUrl = row.addonBaseUrl,
-                                    type = row.apiType
-                                ))
+        val nextGridItems = if (currentLayout == HomeLayout.GRID) {
+            val posterCardWidthDp = _uiState.value.posterCardWidthDp
+            val rowCount = if (posterCardWidthDp <= 104) 2 else 3
+            // Provide generous upper bound of items — the Composable layer will trim
+            // based on the actual column count from GridCells.Adaptive layout info.
+            // We use 8 as safe max columns (widest known config) to avoid cutting too early.
+            val safeMaxColumns = 8
+            val maxDisplaySlots = safeMaxColumns * rowCount
+            buildList {
+                if (heroSectionEnabled && baseHeroItems.isNotEmpty()) {
+                    add(GridItem.Hero(baseHeroItems))
+                }
+                computedHomeRows.forEach { homeRow ->
+                    when (homeRow) {
+                        is HomeRow.Catalog -> {
+                            val row = homeRow.row
+                            val isPlaceholderRow = row.isLoading &&
+                                row.items.firstOrNull()?.id?.startsWith("__placeholder_") == true
+                            if (row.items.isNotEmpty() && !isPlaceholderRow) {
+                                add(
+                                    GridItem.SectionDivider(
+                                        catalogName = row.catalogName,
+                                        catalogId = row.catalogId,
+                                        addonBaseUrl = row.addonBaseUrl,
+                                        addonId = row.addonId,
+                                        type = row.apiType
+                                    )
+                                )
+                                // Show "See All" if there are more items than fit in the
+                                // displayed rows, or the API indicates more pages exist.
+                                val showSeeAll = row.hasMore || row.items.size > maxDisplaySlots
+                                val rawMax = if (showSeeAll) maxDisplaySlots - 1 else maxDisplaySlots
+                                val displayItems = row.items.take(rawMax)
+                                displayItems.forEach { item ->
+                                    add(
+                                        GridItem.Content(
+                                            item = item,
+                                            addonBaseUrl = row.addonBaseUrl,
+                                            catalogId = row.catalogId,
+                                            catalogName = row.catalogName,
+                                            addonId = row.addonId
+                                        )
+                                    )
+                                }
+                                if (showSeeAll) {
+                                    add(
+                                        GridItem.SeeAll(
+                                            catalogId = row.catalogId,
+                                            addonId = row.addonId,
+                                            addonBaseUrl = row.addonBaseUrl,
+                                            type = row.apiType
+                                        )
+                                    )
+                                }
                             }
                         }
-                    }
-                    is HomeRow.CollectionRow -> {
-                        val col = homeRow.collection
-                        add(GridItem.CollectionHeader(
-                            collectionId = col.id,
-                            title = col.title
-                        ))
-                        col.folders.forEach { folder ->
-                            add(GridItem.CollectionFolder(
-                                collectionId = col.id,
-                                collectionTitle = col.title,
-                                focusGlowEnabled = col.focusGlowEnabled,
-                                folder = folder
-                            ))
+
+                        is HomeRow.CollectionRow -> {
+                            val col = homeRow.collection
+                            add(
+                                GridItem.CollectionHeader(
+                                    collectionId = col.id,
+                                    title = col.title
+                                )
+                            )
+                            col.folders.forEach { folder ->
+                                add(
+                                    GridItem.CollectionFolder(
+                                        collectionId = col.id,
+                                        collectionTitle = col.title,
+                                        focusGlowEnabled = col.focusGlowEnabled,
+                                        folder = folder
+                                    )
+                                )
+                            }
                         }
-                    }
-                    is HomeRow.PlaceholderCatalog -> {
-                        // Grid layout: skip placeholders (grid loads all at once)
+
+                        is HomeRow.PlaceholderCatalog -> {
+                            // Grid layout: skip placeholders (grid loads all at once)
+                        }
                     }
                 }
-            }
-        }.let { replaceGridHeroItemsPipeline(it, baseHeroItems) }
-    } else {
-        currentGridItems
-    }
+            }.let { replaceGridHeroItemsPipeline(it, baseHeroItems) }
+        } else {
+            currentGridItems
+        }
 
         computedHomeRows to nextGridItems
     }
 
     // Clear any stale error when content is now available (e.g., hero
     // catalogs loaded after the initial startup race set an error).
-    val hasContent = computedHomeRows.isNotEmpty() || baseHeroItems.isNotEmpty() || displayRows.isNotEmpty()
+    val hasContent =
+        computedHomeRows.isNotEmpty() || baseHeroItems.isNotEmpty() || displayRows.isNotEmpty()
 
     _uiState.update { state ->
         state.copy(
@@ -910,7 +1012,9 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
                         gridItems = if (currentLayout == HomeLayout.GRID) {
                             val enrichedGrid = replaceGridHeroItemsPipeline(state.gridItems, cached)
                             if (state.gridItems == enrichedGrid) state.gridItems else enrichedGrid
-                        } else state.gridItems
+                        } else {
+                            state.gridItems
+                        }
                     )
                 }
             } else {
@@ -919,11 +1023,20 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
                 lastHeroEnrichedItems = enrichedItems
                 _uiState.update { state ->
                     state.copy(
-                        heroItems = if (state.heroItems == enrichedItems) state.heroItems else enrichedItems,
+                        heroItems = if (state.heroItems ==
+                            enrichedItems
+                        ) {
+                            state.heroItems
+                        } else {
+                            enrichedItems
+                        },
                         gridItems = if (currentLayout == HomeLayout.GRID) {
-                            val enrichedGrid = replaceGridHeroItemsPipeline(state.gridItems, enrichedItems)
+                            val enrichedGrid =
+                                replaceGridHeroItemsPipeline(state.gridItems, enrichedItems)
                             if (state.gridItems == enrichedGrid) state.gridItems else enrichedGrid
-                        } else state.gridItems
+                        } else {
+                            state.gridItems
+                        }
                     )
                 }
             }
@@ -937,10 +1050,7 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
     schedulePosterStatusReconcilePipeline(displayRows)
 }
 
-private fun stableHeroSortKey(
-    row: CatalogRow,
-    item: MetaPreview
-): Int {
+private fun stableHeroSortKey(row: CatalogRow, item: MetaPreview): Int {
     return "${row.addonId}|${row.apiType}|${row.catalogId}|${item.id}".hashCode()
 }
 
@@ -973,14 +1083,16 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
     val allSeriesItemsByKey = linkedMapOf<String, String>()
     rows.asSequence()
         .flatMap { row -> row.items.asSequence() }
-        .filter { it.apiType.equals("series", ignoreCase = true) || it.apiType.equals("tv", ignoreCase = true) }
+        .filter {
+            it.apiType.equals("series", ignoreCase = true) ||
+                it.apiType.equals("tv", ignoreCase = true)
+        }
         .forEach { item ->
             val key = homeItemStatusKey(item.id, item.apiType)
             if (key !in allSeriesItemsByKey) {
                 allSeriesItemsByKey[key] = item.id
             }
         }
-
 
     if (desiredMovieKeys != lastMovieWatchedItemKeys) {
         lastMovieWatchedItemKeys = desiredMovieKeys
@@ -1042,8 +1154,11 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
                 _uiState.update { state ->
                     val merged = state.movieWatchedStatus
                         .filterKeys { it !in allSeriesItemsByKey.keys } + seriesStatus
-                    if (state.movieWatchedStatus == merged) state
-                    else state.copy(movieWatchedStatus = merged)
+                    if (state.movieWatchedStatus == merged) {
+                        state
+                    } else {
+                        state.copy(movieWatchedStatus = merged)
+                    }
                 }
             }
         }
@@ -1100,6 +1215,7 @@ private fun HomeViewModel.reconcileFullyWatchedFromLocalItems(
  * its order and the loading placeholders untouched, so the vertical layout never reflows
  * and focus stays on the card the user left it on.
  */
+
 /**
  * Merges a freshly fetched page 1 into the row that is already on screen.
  *
@@ -1130,7 +1246,9 @@ internal fun HomeViewModel.mergeRefreshedCatalogRow(
     if (fresh.items.isEmpty()) return true
     if (forceReplace) return false
 
-    val identity = { item: com.kien.movies.domain.model.MetaPreview -> item.apiType + ":" + item.id }
+    val identity = { item: com.kien.movies.domain.model.MetaPreview ->
+        item.apiType + ":" + item.id
+    }
     val currentIds = current.items.map(identity)
     val freshIds = fresh.items.map(identity)
 
@@ -1175,8 +1293,10 @@ internal fun HomeViewModel.mergeRefreshedCatalogRow(
     return rowHasFocus && !requestedByUser
 }
 
-
-internal fun HomeViewModel.refreshVisibleCatalogsPipeline(requestedByUser: Boolean = false, forceReplace: Boolean = false) {
+internal fun HomeViewModel.refreshVisibleCatalogsPipeline(
+    requestedByUser: Boolean = false,
+    forceReplace: Boolean = false
+) {
     val loadedKeys = synchronized(catalogStateLock) { catalogsMap.keys.toSet() }
     if (loadedKeys.isEmpty()) return
 
@@ -1197,6 +1317,13 @@ internal fun HomeViewModel.refreshVisibleCatalogsPipeline(requestedByUser: Boole
     val generation = catalogLoadGeneration
     pendingCatalogLoads += toRefresh.size
     toRefresh.forEach { (addon, catalog) ->
-        loadCatalogPipeline(addon, catalog, generation, isRefresh = true, requestedByUser = requestedByUser, forceReplace = forceReplace)
+        loadCatalogPipeline(
+            addon,
+            catalog,
+            generation,
+            isRefresh = true,
+            requestedByUser = requestedByUser,
+            forceReplace = forceReplace
+        )
     }
 }

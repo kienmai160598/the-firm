@@ -1,8 +1,5 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.util.contentTextDirection
-
 import android.os.SystemClock
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.background
@@ -39,6 +36,8 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
 import com.kien.movies.ui.theme.ExpressiveColors
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.util.contentTextDirection
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -60,7 +59,9 @@ fun MoviesDialog(
     content: @Composable ColumnScope.() -> Unit
 ) {
     var isReady by remember { mutableStateOf(!suppressFirstKeyUp) }
-    val maxDialogHeight = (LocalConfiguration.current.screenHeightDp.dp - MoviesTheme.spacing.xxxl).coerceAtLeast(320.dp)
+    val maxDialogHeight = (LocalConfiguration.current.screenHeightDp.dp - MoviesTheme.spacing.xxxl).coerceAtLeast(
+        320.dp
+    )
     val containerShape = RoundedCornerShape(containerCornerRadius)
     val backgroundModifier = if (containerBrush == null) {
         Modifier.background(dialogPanelColor(), containerShape)
@@ -86,8 +87,12 @@ fun MoviesDialog(
                 )
                 .onPreviewKeyEvent { event ->
                     val native = event.nativeKeyEvent
-                    if (isSelectKey(native.keyCode) || native.keyCode == AndroidKeyEvent.KEYCODE_MENU) {
-                        if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0) {
+                    if (isSelectKey(native.keyCode) ||
+                        native.keyCode == AndroidKeyEvent.KEYCODE_MENU
+                    ) {
+                        if (native.action == AndroidKeyEvent.ACTION_DOWN &&
+                            native.repeatCount == 0
+                        ) {
                             isReady = true
                         }
                         if (!isReady) {

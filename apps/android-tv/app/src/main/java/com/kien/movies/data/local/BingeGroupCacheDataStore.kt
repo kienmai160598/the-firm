@@ -3,9 +3,9 @@ package com.kien.movies.data.local
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.kien.movies.core.profile.ProfileManager
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.first
 
 /**
  * Persists the last-used binge group per content ID (series).
@@ -24,8 +24,7 @@ class BingeGroupCacheDataStore @Inject constructor(
         private const val FEATURE = "binge_group_cache"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
     private fun prefKey(contentId: String) = stringPreferencesKey("bg_$contentId")
     private fun filenamePrefKey(contentId: String) = stringPreferencesKey("bg_fn_$contentId")
@@ -37,7 +36,12 @@ class BingeGroupCacheDataStore @Inject constructor(
         }
     }
 
-    suspend fun replace(contentId: String, bingeGroup: String?, filename: String? = null, infoHash: String? = null) {
+    suspend fun replace(
+        contentId: String,
+        bingeGroup: String?,
+        filename: String? = null,
+        infoHash: String? = null
+    ) {
         store().edit { prefs ->
             val value = bingeGroup?.takeIf { it.isNotBlank() }
             if (value == null) {

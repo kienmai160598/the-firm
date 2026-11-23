@@ -9,12 +9,12 @@ import kotlinx.coroutines.flow.flowOf
  * Repository for managing watch progress data.
  */
 interface WatchProgressRepository {
-    
+
     /**
      * Get all watch progress items sorted by last watched (most recent first)
      */
     val allProgress: Flow<List<WatchProgress>>
-    
+
     /**
      * Get items currently in progress (not completed, suitable for "Continue Watching")
      */
@@ -22,15 +22,14 @@ interface WatchProgressRepository {
 
     val watchedItems: Flow<List<WatchedItem>>
         get() = flowOf(emptyList())
-    
+
     /**
      * Get watch progress for a specific content item (movie or series)
      */
     fun getProgress(contentId: String): Flow<WatchProgress?>
 
-    fun getProgress(contentId: String, profileId: Int): Flow<WatchProgress?> =
-        getProgress(contentId)
-    
+    fun getProgress(contentId: String, profileId: Int): Flow<WatchProgress?> = getProgress(contentId)
+
     /**
      * Get watch progress for a specific episode
      */
@@ -42,7 +41,7 @@ interface WatchProgressRepository {
         episode: Int,
         profileId: Int
     ): Flow<WatchProgress?> = getEpisodeProgress(contentId, season, episode)
-    
+
     /**
      * Get all episode progress for a series as a map of (season, episode) to progress
      */
@@ -76,13 +75,17 @@ interface WatchProgressRepository {
 
     suspend fun prepareNextUpSeed(progress: WatchProgress): WatchProgress
 
-
     /**
      * Returns whether the item is marked as watched/completed.
      * For series episodes pass both [season] and [episode].
      */
-    fun isWatched(contentId: String, videoId: String? = null, season: Int? = null, episode: Int? = null): Flow<Boolean>
-    
+    fun isWatched(
+        contentId: String,
+        videoId: String? = null,
+        season: Int? = null,
+        episode: Int? = null
+    ): Flow<Boolean>
+
     fun observeWatchedMovieIds(): Flow<Set<String>>
 
     /**
@@ -117,20 +120,21 @@ interface WatchProgressRepository {
      */
     suspend fun saveProgress(progress: WatchProgress, syncRemote: Boolean = true)
 
-    suspend fun saveProgress(
-        progress: WatchProgress,
-        profileId: Int,
-        syncRemote: Boolean = true
-    ) = saveProgress(progress, syncRemote)
+    suspend fun saveProgress(progress: WatchProgress, profileId: Int, syncRemote: Boolean = true) = saveProgress(progress, syncRemote)
 
     /**
      * Save or update multiple watch progress entries in a single batch.
      */
     suspend fun saveProgressBatch(progressList: List<WatchProgress>, syncRemote: Boolean = true)
-    
+
     suspend fun removeProgress(contentId: String, season: Int? = null, episode: Int? = null)
 
-    suspend fun removeFromHistory(contentId: String, videoId: String? = null, season: Int? = null, episode: Int? = null)
+    suspend fun removeFromHistory(
+        contentId: String,
+        videoId: String? = null,
+        season: Int? = null,
+        episode: Int? = null
+    )
 
     /**
      * Mark content as completed
@@ -157,7 +161,7 @@ interface WatchProgressRepository {
         videoId: String?,
         episodes: List<Triple<Int, Int, String?>>
     )
-    
+
     /**
      * Clear all watch progress
      */

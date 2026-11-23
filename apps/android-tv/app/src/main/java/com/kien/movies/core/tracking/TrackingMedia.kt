@@ -13,7 +13,10 @@ data class TrackingExternalIds(
     val mdblist: String? = null
 ) {
     val hasAny: Boolean
-        get() = listOf(imdb, tmdb, tvdb, trakt, simkl, mal, anidb, anilist, kitsu, mdblist).any { it != null }
+        get() = listOf(imdb, tmdb, tvdb, trakt, simkl, mal, anidb, anilist, kitsu, mdblist).any {
+            it !=
+                null
+        }
 
     fun mergeMissing(other: TrackingExternalIds): TrackingExternalIds = TrackingExternalIds(
         imdb = imdb ?: other.imdb,
@@ -105,9 +108,13 @@ fun parseTrackingExternalIds(rawValue: String?): TrackingExternalIds {
     }
 }
 
-fun trackingMediaKind(contentType: String, ids: TrackingExternalIds = TrackingExternalIds()): TrackingMediaKind {
+fun trackingMediaKind(
+    contentType: String,
+    ids: TrackingExternalIds = TrackingExternalIds()
+): TrackingMediaKind {
     val normalized = contentType.trim().lowercase()
-    val hasAnimeIds = ids.mal != null || ids.anidb != null || ids.anilist != null || ids.kitsu != null
+    val hasAnimeIds =
+        ids.mal != null || ids.anidb != null || ids.anilist != null || ids.kitsu != null
     return when {
         hasAnimeIds || normalized == "anime" -> TrackingMediaKind.ANIME
         normalized in setOf("movie", "film") -> TrackingMediaKind.MOVIE

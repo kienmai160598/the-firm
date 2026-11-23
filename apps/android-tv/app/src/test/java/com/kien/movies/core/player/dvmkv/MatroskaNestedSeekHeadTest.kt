@@ -16,8 +16,8 @@ class MatroskaNestedSeekHeadTest {
                 true,
                 UNSET,
                 pendingTrailingSeekHead,
-                0,
-            ),
+                0
+            )
         )
     }
 
@@ -28,8 +28,8 @@ class MatroskaNestedSeekHeadTest {
                 true,
                 2_837_048_772L,
                 2_837_202_547L,
-                0,
-            ),
+                0
+            )
         )
     }
 
@@ -40,8 +40,8 @@ class MatroskaNestedSeekHeadTest {
                 true,
                 UNSET,
                 UNSET,
-                0,
-            ),
+                0
+            )
         )
     }
 
@@ -52,8 +52,8 @@ class MatroskaNestedSeekHeadTest {
                 true,
                 UNSET,
                 100L,
-                4,
-            ),
+                4
+            )
         )
     }
 
@@ -68,7 +68,7 @@ class MatroskaNestedSeekHeadTest {
                 trailingSeekHead,
                 UNSET,
                 UNSET,
-                UNSET,
+                UNSET
             )
         assertEquals(trailingSeekHead, afterFirst)
 
@@ -77,7 +77,7 @@ class MatroskaNestedSeekHeadTest {
                 firstSeekHead,
                 UNSET,
                 trailingSeekHead,
-                cluster,
+                cluster
             )
         assertEquals(trailingSeekHead, afterTrailingPointsBack)
     }

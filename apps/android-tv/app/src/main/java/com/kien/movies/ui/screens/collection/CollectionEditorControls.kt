@@ -1,13 +1,6 @@
 package com.kien.movies.ui.screens.collection
 
-import androidx.tv.material3.LocalContentColor
-import com.kien.movies.ui.components.expressive.MoviesSurface
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.components.expressive.MoviesButton
 import androidx.activity.compose.BackHandler
-import com.kien.movies.ui.components.buttonLabelStyle
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
@@ -42,10 +35,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -53,8 +46,15 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,12 +64,14 @@ import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Switch
 import androidx.tv.material3.SwitchDefaults
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
+import com.kien.movies.R
 import com.kien.movies.domain.model.AddonCatalogCollectionSource
 import com.kien.movies.domain.model.CollectionFolder
 import com.kien.movies.domain.model.CollectionSource
@@ -83,23 +85,17 @@ import com.kien.movies.domain.model.TmdbCollectionSourceType
 import com.kien.movies.domain.model.TraktCollectionSource
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.MoviesDialog
-import com.kien.movies.R
-import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.TextStyle
+import com.kien.movies.ui.components.buttonLabelStyle
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesSurface
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
 
 private const val PLACEHOLDER_ALPHA = 0.4f
 internal const val SECONDARY_CONTENT_ALPHA = 0.64f
 
-internal suspend fun requestFocusWhenReady(
-    requester: FocusRequester,
-    maxFrames: Int = 8
-): Boolean {
+internal suspend fun requestFocusWhenReady(requester: FocusRequester, maxFrames: Int = 8): Boolean {
     repeat(maxFrames) {
         val focused = runCatching { requester.requestFocus() }.getOrDefault(false)
         if (focused) return true
@@ -126,9 +122,7 @@ internal fun Modifier.blockHorizontalFocus(): Modifier = this
         right = FocusRequester.Cancel
     }
 
-internal fun Modifier.focusEntryTarget(
-    target: FocusRequester
-): Modifier = this
+internal fun Modifier.focusEntryTarget(target: FocusRequester): Modifier = this
     .focusProperties {
         onEnter = {
             if (requestedFocusDirection == FocusDirection.Up ||
@@ -203,9 +197,11 @@ fun MoviesTextField(
                 ),
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
                     color = LocalContentColor.current,
-                                            textDirection = TextDirection.Content
+                    textDirection = TextDirection.Content
                 ),
-                cursorBrush = SolidColor(if (isEditing) MoviesTheme.colors.Primary else Color.Transparent),
+                cursorBrush = SolidColor(
+                    if (isEditing) MoviesTheme.colors.Primary else Color.Transparent
+                ),
                 decorationBox = { innerTextField ->
                     if (value.isEmpty() && placeholder.isNotEmpty()) {
                         Text(
@@ -253,7 +249,15 @@ internal fun UnsavedChangesDialog(
             MoviesButton(
                 onClick = onDiscard,
                 enabled = !isSaving,
-                modifier = (if (canSave) Modifier else Modifier.focusRequester(primaryFocusRequester))
+                modifier = (
+                    if (canSave) {
+                        Modifier
+                    } else {
+                        Modifier.focusRequester(
+                            primaryFocusRequester
+                        )
+                    }
+                    )
                     .semantics { role = Role.Button }
                     .tvControlHeight()
             ) {
@@ -304,22 +308,65 @@ fun tmdbSourceSubtitle(source: TmdbCollectionSource): String {
         TmdbCollectionMediaType.TV -> stringResource(R.string.type_series_plural)
     }
     val sort = when (source.sortBy) {
-        TmdbCollectionSort.ORIGINAL.value -> stringResource(R.string.collections_editor_sort_original)
+        TmdbCollectionSort.ORIGINAL.value -> stringResource(
+            R.string.collections_editor_sort_original
+        )
+
         TmdbCollectionSort.POPULAR_DESC.value -> stringResource(R.string.tmdb_entity_rail_popular)
-        TmdbCollectionSort.VOTE_AVERAGE_DESC.value -> stringResource(R.string.tmdb_entity_rail_top_rated)
-        TmdbCollectionSort.VOTE_COUNT_DESC.value -> stringResource(R.string.tmdb_entity_rail_most_voted)
+
+        TmdbCollectionSort.VOTE_AVERAGE_DESC.value -> stringResource(
+            R.string.tmdb_entity_rail_top_rated
+        )
+
+        TmdbCollectionSort.VOTE_COUNT_DESC.value -> stringResource(
+            R.string.tmdb_entity_rail_most_voted
+        )
+
         TmdbCollectionSort.RELEASE_DATE_DESC.value,
-        TmdbCollectionSort.FIRST_AIR_DATE_DESC.value -> stringResource(R.string.tmdb_entity_rail_recent)
+        TmdbCollectionSort.FIRST_AIR_DATE_DESC.value -> stringResource(
+            R.string.tmdb_entity_rail_recent
+        )
+
         else -> source.sortBy
     }
     return when (source.sourceType) {
-        TmdbCollectionSourceType.LIST -> stringResource(R.string.collections_editor_tmdb_default_list)
-        TmdbCollectionSourceType.COLLECTION -> stringResource(R.string.collections_editor_tmdb_movie_collection)
-        TmdbCollectionSourceType.COMPANY -> listOf(stringResource(R.string.collections_editor_tmdb_mode_production), media, sort).joinToString(" • ")
-        TmdbCollectionSourceType.NETWORK -> listOf(stringResource(R.string.collections_editor_tmdb_mode_network), stringResource(R.string.type_series_plural), sort).joinToString(" • ")
-        TmdbCollectionSourceType.PERSON -> listOf(stringResource(R.string.collections_editor_tmdb_person_credits), media, sort).joinToString(" • ")
-        TmdbCollectionSourceType.DIRECTOR -> listOf(stringResource(R.string.collections_editor_tmdb_director_credits), media, sort).joinToString(" • ")
-        TmdbCollectionSourceType.DISCOVER -> listOf(stringResource(R.string.collections_editor_tmdb_default_discover), media, sort).joinToString(" • ")
+        TmdbCollectionSourceType.LIST -> stringResource(
+            R.string.collections_editor_tmdb_default_list
+        )
+
+        TmdbCollectionSourceType.COLLECTION -> stringResource(
+            R.string.collections_editor_tmdb_movie_collection
+        )
+
+        TmdbCollectionSourceType.COMPANY -> listOf(
+            stringResource(R.string.collections_editor_tmdb_mode_production),
+            media,
+            sort
+        ).joinToString(" • ")
+
+        TmdbCollectionSourceType.NETWORK -> listOf(
+            stringResource(R.string.collections_editor_tmdb_mode_network),
+            stringResource(R.string.type_series_plural),
+            sort
+        ).joinToString(" • ")
+
+        TmdbCollectionSourceType.PERSON -> listOf(
+            stringResource(R.string.collections_editor_tmdb_person_credits),
+            media,
+            sort
+        ).joinToString(" • ")
+
+        TmdbCollectionSourceType.DIRECTOR -> listOf(
+            stringResource(R.string.collections_editor_tmdb_director_credits),
+            media,
+            sort
+        ).joinToString(" • ")
+
+        TmdbCollectionSourceType.DISCOVER -> listOf(
+            stringResource(R.string.collections_editor_tmdb_default_discover),
+            media,
+            sort
+        ).joinToString(" • ")
     }
 }
 
@@ -343,5 +390,9 @@ fun traktSourceSubtitle(source: TraktCollectionSource): String {
     } else {
         stringResource(R.string.collections_editor_direction_asc_short)
     }
-    return listOf(stringResource(R.string.collections_editor_trakt_list), media, "$sort $direction").joinToString(" • ")
+    return listOf(
+        stringResource(R.string.collections_editor_trakt_list),
+        media,
+        "$sort $direction"
+    ).joinToString(" • ")
 }

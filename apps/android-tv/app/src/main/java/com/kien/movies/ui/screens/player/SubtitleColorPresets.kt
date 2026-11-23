@@ -35,8 +35,15 @@ internal const val SUBTITLE_BACKGROUND_DEFAULT_OPACITY = 0.75f
 
 internal fun subtitleBackgroundColorFor(color: Color, currentBackground: Int): Int {
     val currentAlpha = Color(currentBackground).alpha
-    return color.copy(alpha = if (currentAlpha > 0f) currentAlpha else SUBTITLE_BACKGROUND_DEFAULT_OPACITY).toArgb()
+    return color.copy(
+        alpha = if (currentAlpha >
+            0f
+        ) {
+            currentAlpha
+        } else {
+            SUBTITLE_BACKGROUND_DEFAULT_OPACITY
+        }
+    ).toArgb()
 }
 
-internal fun selectedSubtitleBackgroundPreset(background: Int): Int =
-    if ((background ushr 24) > 0) background or 0xFF000000.toInt() else 0
+internal fun selectedSubtitleBackgroundPreset(background: Int): Int = if ((background ushr 24) > 0) background or 0xFF000000.toInt() else 0

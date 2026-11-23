@@ -1,8 +1,5 @@
 package com.kien.movies.ui.screens
 
-import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +24,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.kien.movies.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -35,10 +31,13 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.kien.movies.R
 import com.kien.movies.data.local.ExperienceModeDataStore
 import com.kien.movies.data.local.LayoutPreferenceDataStore
 import com.kien.movies.domain.model.ExperienceMode
 import com.kien.movies.domain.model.HomeLayout
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.theme.MoviesTheme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.launch

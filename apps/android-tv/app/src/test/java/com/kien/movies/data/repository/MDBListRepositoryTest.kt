@@ -17,10 +17,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.TestScope
+import java.io.IOException
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -28,7 +29,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import retrofit2.Response
-import java.io.IOException
 
 class MDBListRepositoryTest {
     private val api = mockk<MDBListApi>()
@@ -59,7 +59,11 @@ class MDBListRepositoryTest {
     )
     private val account = MdbListTestHarness()
     private val preferences = MutableStateFlow(settings)
-    private val imdbSettings = settings.copy(showTomatoes = false, showAudience = false, showImdb = true)
+    private val imdbSettings = settings.copy(
+        showTomatoes = false,
+        showAudience = false,
+        showImdb = true
+    )
 
     @Test
     fun `ratings availability includes connected accounts and explicit keys`() = runTest {
@@ -90,7 +94,8 @@ class MDBListRepositoryTest {
     fun `api key overrides connected account and clearing it restores account ratings`() = runTest {
         account.connected()
         account.reply(body = """{"ratings":[{"source":"imdb","value":8.1}]}""")
-        coEvery { api.getMedia("imdb", "movie", "tt1234567", "separate-key", "keyword") } returns imdbResponse(7.2)
+        coEvery { api.getMedia("imdb", "movie", "tt1234567", "separate-key", "keyword") } returns
+            imdbResponse(7.2)
         val repository = repository(imdbSettings.copy(apiKey = ""))
 
         assertEquals(8.1, repository.getRatingsForMeta(meta(), "tt1234567", "movie")?.ratings?.imdb)
@@ -100,7 +105,9 @@ class MDBListRepositoryTest {
         assertEquals(8.1, repository.getRatingsForMeta(meta(), "tt1234567", "movie")?.ratings?.imdb)
 
         assertEquals(1, account.engine.requests.size)
-        coVerify(exactly = 1) { api.getMedia("imdb", "movie", "tt1234567", "separate-key", "keyword") }
+        coVerify(exactly = 1) {
+            api.getMedia("imdb", "movie", "tt1234567", "separate-key", "keyword")
+        }
     }
 
     @Test
@@ -121,7 +128,12 @@ class MDBListRepositoryTest {
         account.connected("profile-two")
         account.reply(body = """{"ratings":[{"source":"imdb","value":6.3}]}""")
         assertEquals(6.3, repository.getImdbRatingForItem("tt1234567", "movie"))
-        assertEquals(listOf("access-one", "reconnected", "profile-two"), account.engine.requests.map { it.accessToken })
+        assertEquals(
+            listOf("access-one", "reconnected", "profile-two"),
+            account.engine.requests.map {
+                it.accessToken
+            }
+        )
     }
 
     @Test
@@ -140,7 +152,8 @@ class MDBListRepositoryTest {
 
     @Test
     fun `both rotten tomatoes scores share one lookup and are cached`() = runTest {
-        coEvery { api.getMedia("imdb", "movie", "tt1234567", "test-key", "keyword") } returns Response.success(media)
+        coEvery { api.getMedia("imdb", "movie", "tt1234567", "test-key", "keyword") } returns
+            Response.success(media)
         val repository = repository(settings.copy(showImdb = true))
 
         val first = repository.getRatingsForMeta(meta(), "tt1234567", "movie")
@@ -157,7 +170,8 @@ class MDBListRepositoryTest {
 
     @Test
     fun `audience only uses one show lookup and respects disabled critics`() = runTest {
-        coEvery { api.getMedia("imdb", "show", "tt1234567", "test-key", "keyword") } returns Response.success(media)
+        coEvery { api.getMedia("imdb", "show", "tt1234567", "test-key", "keyword") } returns
+            Response.success(media)
 
         val result = repository(settings.copy(showTomatoes = false))
             .getRatingsForMeta(meta("series"), "tt1234567", "series")
@@ -173,7 +187,8 @@ class MDBListRepositoryTest {
 
     @Test
     fun `imdb only selects its rating from one full media response`() = runTest {
-        coEvery { api.getMedia("imdb", "movie", "tt1234567", "test-key", "keyword") } returns Response.success(media)
+        coEvery { api.getMedia("imdb", "movie", "tt1234567", "test-key", "keyword") } returns
+            Response.success(media)
 
         val result = repository(imdbSettings).getRatingsForMeta(meta(), "tt1234567", "movie")
 
@@ -186,7 +201,8 @@ class MDBListRepositoryTest {
 
     @Test
     fun `failed metadata can be retried without individual provider fallback requests`() = runTest {
-        coEvery { api.getMedia(any(), any(), any(), any(), any()) } throws IOException("Unavailable")
+        coEvery { api.getMedia(any(), any(), any(), any(), any()) } throws
+            IOException("Unavailable")
         val repository = repository()
 
         assertNull(repository.getRatingsForMeta(meta(), "tt1234567", "movie"))
@@ -222,12 +238,24 @@ class MDBListRepositoryTest {
 
         assertEquals(8.1, repository.getImdbRatingForItem("tt1234567", "movie"))
         preferences.value = MDBListSettings(enabled = true, apiKey = "test-key")
-        val ratings = requireNotNull(repository.getRatingsForMeta(meta(), "tt1234567", "movie")).ratings
-        assertEquals(listOf(8.1, 81.0, 78.0, 4.2, 72.0, 85.0, 75.0, 8.5), listOf(
-            ratings.imdb, ratings.trakt, ratings.tmdb, ratings.letterboxd,
-            ratings.tomatoes, ratings.audience, ratings.metacritic, ratings.mal
-        ))
-        preferences.value = settings.copy(showTomatoes = false, showAudience = false, showMal = true)
+        val ratings = requireNotNull(
+            repository.getRatingsForMeta(meta(), "tt1234567", "movie")
+        ).ratings
+        assertEquals(
+            listOf(8.1, 81.0, 78.0, 4.2, 72.0, 85.0, 75.0, 8.5),
+            listOf(
+                ratings.imdb,
+                ratings.trakt,
+                ratings.tmdb,
+                ratings.letterboxd,
+                ratings.tomatoes,
+                ratings.audience,
+                ratings.metacritic,
+                ratings.mal
+            )
+        )
+        preferences.value =
+            settings.copy(showTomatoes = false, showAudience = false, showMal = true)
         val filtered = requireNotNull(repository.getRatingsForMeta(meta(), "tt1234567", "movie"))
         assertEquals(8.5, filtered.ratings.mal)
         assertNull(filtered.ratings.imdb)
@@ -260,14 +288,24 @@ class MDBListRepositoryTest {
         coVerify(exactly = 0) { api.getMediaBatch(any(), any(), any(), any()) }
     }
 
-    private fun TestScope.repository(initialSettings: MDBListSettings = settings): MDBListRepository {
+    private fun TestScope.repository(
+        initialSettings: MDBListSettings = settings
+    ): MDBListRepository {
         val store = mockk<MDBListSettingsDataStore>()
         preferences.value = initialSettings
         every { store.settings } returns preferences
         val client = MdbListRatingsClient(
-            api, account.api, account.store, Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+            api,
+            account.api,
+            account.store,
+            Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
         )
-        return MDBListRepository(client, store, mockk<TmdbService>(), MdbListRatingsLoader(client, scope = backgroundScope))
+        return MDBListRepository(
+            client,
+            store,
+            mockk<TmdbService>(),
+            MdbListRatingsLoader(client, scope = backgroundScope)
+        )
     }
 
     private fun meta(mediaType: String = "movie"): Meta = mockk {

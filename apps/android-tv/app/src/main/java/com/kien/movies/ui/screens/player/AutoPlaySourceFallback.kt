@@ -45,9 +45,11 @@ internal suspend fun <T : Any, F : Any> resolveWithSourceFallback(
             is AutoPlayResolveAttempt.Resolved -> {
                 return AutoPlayFallbackRun(attempt.value, failure = null, triedKeys, attempts)
             }
+
             AutoPlayResolveAttempt.Ended -> {
                 return AutoPlayFallbackRun(resolved = null, failure = null, triedKeys, attempts)
             }
+
             is AutoPlayResolveAttempt.Failed -> attempt.failure
         }
         val next = if (attempts < maxSources) nextCandidate(candidate, triedKeys) else null

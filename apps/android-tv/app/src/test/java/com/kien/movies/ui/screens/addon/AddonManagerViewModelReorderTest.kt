@@ -48,12 +48,12 @@ class AddonManagerViewModelReorderTest {
         baseUrl = url,
         catalogs = emptyList(),
         types = emptyList(),
-        resources = emptyList(),
+        resources = emptyList()
     )
 
     private fun createViewModel(
         addonsFlow: MutableStateFlow<List<Addon>>,
-        addonRepository: AddonRepository = mockk(relaxed = true),
+        addonRepository: AddonRepository = mockk(relaxed = true)
     ): Pair<AddonManagerViewModel, AddonRepository> {
         every { addonRepository.getInstalledAddons() } returns addonsFlow
         val layoutPrefs = mockk<LayoutPreferenceDataStore>(relaxed = true) {
@@ -151,10 +151,15 @@ class AddonManagerViewModelReorderTest {
         }
         val (vm, _) = createViewModel(addonsFlow, repo)
         val store = ViewModelStore()
-        ViewModelProvider(store, object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T = vm as T
-        })[AddonManagerViewModel::class.java]
+        ViewModelProvider(
+            store,
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : androidx.lifecycle.ViewModel> create(
+                    modelClass: Class<T>
+                ): T = vm as T
+            }
+        )[AddonManagerViewModel::class.java]
         runCurrent()
 
         vm.enterAddonMoveMode("a")
@@ -166,7 +171,10 @@ class AddonManagerViewModelReorderTest {
         writeGate.complete(Unit)
         runCurrent()
 
-        assertTrue("setAddonOrder should finish uncancellably after ViewModel clear", writeCompleted)
+        assertTrue(
+            "setAddonOrder should finish uncancellably after ViewModel clear",
+            writeCompleted
+        )
     }
 
     @Test

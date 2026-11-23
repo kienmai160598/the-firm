@@ -39,7 +39,8 @@ internal fun splitWatchProgressEntries(
     )
     val boundedLimit = recentLimit.coerceAtLeast(0)
     val recent = LinkedHashMap<String, WatchProgress>(minOf(sorted.size, boundedLimit))
-    val archive = LinkedHashMap<String, WatchProgress>((sorted.size - boundedLimit).coerceAtLeast(0))
+    val archive =
+        LinkedHashMap<String, WatchProgress>((sorted.size - boundedLimit).coerceAtLeast(0))
     sorted.forEachIndexed { index, entry ->
         if (index < boundedLimit) {
             recent[entry.key] = entry.value

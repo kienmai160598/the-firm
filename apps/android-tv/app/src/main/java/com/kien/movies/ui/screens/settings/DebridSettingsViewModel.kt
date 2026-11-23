@@ -17,12 +17,12 @@ import com.kien.movies.core.server.DebridFormatterSettings
 import com.kien.movies.core.server.DeviceIpAddress
 import com.kien.movies.core.util.readAppLogoBytes
 import com.kien.movies.data.local.DebridSettingsDataStore
+import com.kien.movies.data.remote.api.PremiumizeApi
+import com.kien.movies.data.remote.api.TorboxApi
 import com.kien.movies.data.remote.dto.PremiumizeDeviceTokenDto
 import com.kien.movies.data.remote.dto.TorboxDeviceTokenDto
 import com.kien.movies.data.remote.dto.TorboxDeviceTokenRequestDto
 import com.kien.movies.data.remote.dto.TorboxEnvelopeDto
-import com.kien.movies.data.remote.api.PremiumizeApi
-import com.kien.movies.data.remote.api.TorboxApi
 import com.kien.movies.domain.model.DEBRID_PREPARE_INSTANT_PLAYBACK_DEFAULT_LIMIT
 import com.kien.movies.domain.model.DebridSettings
 import com.kien.movies.domain.model.DebridStreamCodecFilter
@@ -32,6 +32,7 @@ import com.kien.movies.domain.model.DebridStreamPreferences
 import com.kien.movies.domain.model.DebridStreamSortMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -41,7 +42,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class DebridSettingsViewModel @Inject constructor(
@@ -90,7 +90,9 @@ class DebridSettingsViewModel @Inject constructor(
     fun startFormatterQrMode() {
         val ip = DeviceIpAddress.get(context)
         if (ip == null) {
-            _uiState.update { it.copy(serverError = context.getString(R.string.error_network_required)) }
+            _uiState.update {
+                it.copy(serverError = context.getString(R.string.error_network_required))
+            }
             return
         }
         stopFormatterServer()
@@ -104,11 +106,13 @@ class DebridSettingsViewModel @Inject constructor(
                 )
             },
             onSettingsChanged = { settings ->
-                _uiState.update { it.copy(
-                    streamNameTemplate = settings.nameTemplate,
-                    streamDescriptionTemplate = settings.descriptionTemplate,
-                    streamPreferences = settings.streamPreferences
-                ) }
+                _uiState.update {
+                    it.copy(
+                        streamNameTemplate = settings.nameTemplate,
+                        streamDescriptionTemplate = settings.descriptionTemplate,
+                        streamPreferences = settings.streamPreferences
+                    )
+                }
                 viewModelScope.launch {
                     dataStore.setStreamTemplates(
                         nameTemplate = settings.nameTemplate,
@@ -122,7 +126,9 @@ class DebridSettingsViewModel @Inject constructor(
         )
         val server = formatterServer
         if (server == null) {
-            _uiState.update { it.copy(serverError = context.getString(R.string.error_server_ports_unavailable)) }
+            _uiState.update {
+                it.copy(serverError = context.getString(R.string.error_server_ports_unavailable))
+            }
             return
         }
         val url = "http://$ip:${server.listeningPort}"
@@ -229,11 +235,14 @@ class DebridSettingsViewModel @Inject constructor(
                     response.errorBody()?.close()
                     response.isSuccessful
                 }
+
                 DebridProviders.PREMIUMIZE_ID -> {
                     val response = premiumizeApi.accountInfo("Bearer $apiKey")
                     response.errorBody()?.close()
-                    response.isSuccessful && !response.body()?.status.equals("error", ignoreCase = true)
+                    response.isSuccessful &&
+                        !response.body()?.status.equals("error", ignoreCase = true)
                 }
+
                 else -> false
             }
         } catch (error: Exception) {
@@ -245,50 +254,63 @@ class DebridSettingsViewModel @Inject constructor(
         return when (DebridProviders.byId(providerId)?.id) {
             DebridProviders.TORBOX_ID -> {
                 val response = torboxApi.startDeviceAuthorization("Movies")
-                val data = response.body()?.takeIf { response.isSuccessful && it.success != false }?.data
-                    ?: return null
+                val data =
+                    response.body()?.takeIf { response.isSuccessful && it.success != false }?.data
+                        ?: return null
                 val deviceCode = data.deviceCode?.takeIf { it.isNotBlank() } ?: return null
                 val userCode = data.code?.takeIf { it.isNotBlank() } ?: return null
-                val verificationUrl = data.verificationUrl?.takeIf { it.isNotBlank() } ?: return null
+                val verificationUrl =
+                    data.verificationUrl?.takeIf { it.isNotBlank() } ?: return null
                 DebridDeviceAuthorization(
                     providerId = DebridProviders.TORBOX_ID,
                     deviceCode = deviceCode,
                     userCode = userCode,
                     verificationUrl = verificationUrl,
-                    friendlyVerificationUrl = data.friendlyVerificationUrl?.takeIf { it.isNotBlank() } ?: verificationUrl,
+                    friendlyVerificationUrl =
+                        data.friendlyVerificationUrl?.takeIf { it.isNotBlank() } ?: verificationUrl,
                     intervalSeconds = data.interval?.coerceAtLeast(1) ?: 5,
                     expiresAt = data.expiresAt?.takeIf { it.isNotBlank() }
                 )
             }
+
             DebridProviders.PREMIUMIZE_ID -> {
                 val clientId = premiumizeClientIdOrThrow()
                 val response = premiumizeApi.startDeviceAuthorization(clientId = clientId)
                 val data = response.body()?.takeIf { response.isSuccessful } ?: return null
                 val deviceCode = data.deviceCode?.takeIf { it.isNotBlank() } ?: return null
                 val userCode = data.userCode?.takeIf { it.isNotBlank() } ?: return null
-                val verificationUrl = data.verificationUri?.takeIf { it.isNotBlank() } ?: return null
+                val verificationUrl =
+                    data.verificationUri?.takeIf { it.isNotBlank() } ?: return null
                 DebridDeviceAuthorization(
                     providerId = DebridProviders.PREMIUMIZE_ID,
                     deviceCode = deviceCode,
                     userCode = userCode,
                     verificationUrl = verificationUrl,
-                    friendlyVerificationUrl = data.verificationUriComplete?.takeIf { it.isNotBlank() } ?: verificationUrl,
+                    friendlyVerificationUrl =
+                        data.verificationUriComplete?.takeIf { it.isNotBlank() } ?: verificationUrl,
                     intervalSeconds = data.interval?.coerceAtLeast(1) ?: 5,
                     expiresAt = data.expiresIn?.takeIf { it > 0 }?.let { "${it}s" }
                 )
             }
+
             else -> null
         }
     }
 
-    suspend fun redeemDeviceAuthorization(providerId: String, deviceCode: String): DebridDeviceAuthorizationTokenResult {
+    suspend fun redeemDeviceAuthorization(
+        providerId: String,
+        deviceCode: String
+    ): DebridDeviceAuthorizationTokenResult {
         val normalized = deviceCode.trim()
         if (normalized.isBlank()) return DebridDeviceAuthorizationTokenResult.Failed(null)
         return when (DebridProviders.byId(providerId)?.id) {
             DebridProviders.TORBOX_ID -> {
-                val response = torboxApi.redeemDeviceAuthorization(TorboxDeviceTokenRequestDto(normalized))
+                val response = torboxApi.redeemDeviceAuthorization(
+                    TorboxDeviceTokenRequestDto(normalized)
+                )
                 torboxDeviceAuthorizationTokenResult(response)
             }
+
             DebridProviders.PREMIUMIZE_ID -> {
                 val clientId = premiumizeClientIdOrThrow()
                 val response = premiumizeApi.redeemDeviceAuthorization(
@@ -297,13 +319,13 @@ class DebridSettingsViewModel @Inject constructor(
                 )
                 premiumizeDeviceAuthorizationTokenResult(response)
             }
+
             else -> DebridDeviceAuthorizationTokenResult.Unsupported
         }
     }
 
-    private fun premiumizeClientIdOrThrow(): String =
-        BuildConfig.PREMIUMIZE_CLIENT_ID.trim().takeIf { it.isNotBlank() }
-            ?: throw IllegalStateException("Premiumize sign-in is missing PREMIUMIZE_CLIENT_ID.")
+    private fun premiumizeClientIdOrThrow(): String = BuildConfig.PREMIUMIZE_CLIENT_ID.trim().takeIf { it.isNotBlank() }
+        ?: throw IllegalStateException("Premiumize sign-in is missing PREMIUMIZE_CLIENT_ID.")
 
     private fun torboxDeviceAuthorizationTokenResult(
         response: retrofit2.Response<TorboxEnvelopeDto<TorboxDeviceTokenDto>>
@@ -317,7 +339,11 @@ class DebridSettingsViewModel @Inject constructor(
         if (accessToken != null) {
             return DebridDeviceAuthorizationTokenResult.Authorized(accessToken)
         }
-        val message = listOfNotNull(envelope?.error, envelope?.detail, response.errorBody()?.string())
+        val message = listOfNotNull(
+            envelope?.error,
+            envelope?.detail,
+            response.errorBody()?.string()
+        )
             .joinToString(" ")
             .lowercase()
         return when {
@@ -327,12 +353,16 @@ class DebridSettingsViewModel @Inject constructor(
                 message.contains("not used yet") ||
                 message.contains("scan the code") ->
                 DebridDeviceAuthorizationTokenResult.Pending
+
             message.contains("expired") ->
                 DebridDeviceAuthorizationTokenResult.Expired
+
             response.code() == 404 || response.code() == 409 || response.code() == 425 ->
                 DebridDeviceAuthorizationTokenResult.Pending
+
             response.code() == 410 ->
                 DebridDeviceAuthorizationTokenResult.Expired
+
             else ->
                 DebridDeviceAuthorizationTokenResult.Failed(envelope?.detail ?: envelope?.error)
         }
@@ -347,13 +377,18 @@ class DebridSettingsViewModel @Inject constructor(
         }
         return when (body?.error?.lowercase()) {
             "authorization_pending", "slow_down" -> DebridDeviceAuthorizationTokenResult.Pending
+
             "invalid_grant", "expired_token" -> DebridDeviceAuthorizationTokenResult.Expired
+
             "access_denied" -> DebridDeviceAuthorizationTokenResult.Failed(body.errorDescription)
+
             else -> {
                 if (response.code() == 400 && body?.error.isNullOrBlank()) {
                     DebridDeviceAuthorizationTokenResult.Pending
                 } else {
-                    DebridDeviceAuthorizationTokenResult.Failed(body?.errorDescription ?: body?.error ?: response.errorBody()?.string())
+                    DebridDeviceAuthorizationTokenResult.Failed(
+                        body?.errorDescription ?: body?.error ?: response.errorBody()?.string()
+                    )
                 }
             }
         }
@@ -410,8 +445,10 @@ data class DebridSettingsUiState(
         get() = DebridProviders.visible()
             .filter { provider ->
                 apiKeyFor(provider.id).isNotBlank() &&
-                    (provider.supports(DebridProviderCapability.ClientResolve) ||
-                        provider.supports(DebridProviderCapability.LocalTorrentResolve))
+                    (
+                        provider.supports(DebridProviderCapability.ClientResolve) ||
+                            provider.supports(DebridProviderCapability.LocalTorrentResolve)
+                        )
             }
 
     val activeResolverProvider: com.kien.movies.core.debrid.DebridProvider?
@@ -437,8 +474,7 @@ data class DebridSettingsUiState(
     val canUseCloudLibrary: Boolean
         get() = cloudLibraryEnabled && hasCloudLibraryProvider
 
-    fun apiKeyFor(providerId: String): String =
-        providerApiKeys[providerId].orEmpty()
+    fun apiKeyFor(providerId: String): String = providerApiKeys[providerId].orEmpty()
 
     fun fromSettings(settings: DebridSettings): DebridSettingsUiState = copy(
         enabled = settings.enabled,

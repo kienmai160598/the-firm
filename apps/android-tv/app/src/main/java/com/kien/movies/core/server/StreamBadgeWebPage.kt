@@ -15,42 +15,72 @@ object StreamBadgeWebPage {
                 val config = Configuration(base.resources.configuration)
                 config.setLocale(Locale.forLanguageTag(tag))
                 base.createConfigurationContext(config)
-            } else base
+            } else {
+                base
+            }
         }
         val appName = context?.getString(R.string.app_name) ?: "Movies"
         val title = context?.getString(R.string.settings_stream_badges_section) ?: "Fusion Style"
-        val urlsTitle = context?.getString(R.string.settings_stream_badge_urls_title) ?: "Fusion badge URLs"
-        val badgePositionTitle = context?.getString(R.string.settings_stream_badge_position_title) ?: "Badge position"
-        val badgePositionDescription = context?.getString(R.string.settings_stream_badge_position_description)
-            ?: "Choose whether Fusion and size badges appear above or below stream cards."
-        val badgePositionTop = context?.getString(R.string.settings_stream_badge_position_top) ?: "Top"
-        val badgePositionBottom = context?.getString(R.string.settings_stream_badge_position_bottom) ?: "Bottom"
+        val urlsTitle =
+            context?.getString(R.string.settings_stream_badge_urls_title) ?: "Fusion badge URLs"
+        val badgePositionTitle =
+            context?.getString(R.string.settings_stream_badge_position_title) ?: "Badge position"
+        val badgePositionDescription =
+            context?.getString(R.string.settings_stream_badge_position_description)
+                ?: "Choose whether Fusion and size badges appear above or below stream cards."
+        val badgePositionTop =
+            context?.getString(R.string.settings_stream_badge_position_top) ?: "Top"
+        val badgePositionBottom =
+            context?.getString(R.string.settings_stream_badge_position_bottom) ?: "Bottom"
         val description = context?.getString(
             R.string.settings_stream_badge_urls_description,
             STREAM_BADGE_IMPORT_LIMIT
-        ) ?: "Import up to $STREAM_BADGE_IMPORT_LIMIT Fusion-style stream badge JSON URLs. Each URL can be updated or deleted separately."
-        val urlLabel = context?.getString(R.string.settings_fusion_badge_url_label) ?: "Fusion badge JSON URL"
+        )
+            ?: "Import up to $STREAM_BADGE_IMPORT_LIMIT Fusion-style stream badge JSON URLs. Each URL can be updated or deleted separately."
+        val urlLabel =
+            context?.getString(R.string.settings_fusion_badge_url_label) ?: "Fusion badge JSON URL"
         val importAction = context?.getString(R.string.action_import) ?: "Import"
-        val closeEmpty = context?.getString(R.string.settings_fusion_badges_empty) ?: "No Fusion badge URLs imported."
+        val closeEmpty =
+            context?.getString(R.string.settings_fusion_badges_empty)
+                ?: "No Fusion badge URLs imported."
         val active = context?.getString(R.string.settings_fusion_badge_url_active) ?: "Active"
         val inactive = context?.getString(R.string.settings_fusion_badge_url_inactive) ?: "Inactive"
         val preview = context?.getString(R.string.settings_fusion_badge_preview_action) ?: "Preview"
         val delete = context?.getString(R.string.action_delete) ?: "Delete"
         val select = context?.getString(R.string.action_select) ?: "Select"
-        val previewTitle = context?.getString(R.string.settings_fusion_badge_preview_title) ?: "Fusion badge preview"
-        val previewEmpty = context?.getString(R.string.settings_fusion_badge_preview_empty) ?: "No Fusion-style badge images in this URL."
-        val otherBadges = context?.getString(R.string.settings_fusion_badge_other_group_title) ?: "Other Fusion badges"
+        val previewTitle =
+            context?.getString(R.string.settings_fusion_badge_preview_title)
+                ?: "Fusion badge preview"
+        val previewEmpty =
+            context?.getString(R.string.settings_fusion_badge_preview_empty)
+                ?: "No Fusion-style badge images in this URL."
+        val otherBadges =
+            context?.getString(R.string.settings_fusion_badge_other_group_title)
+                ?: "Other Fusion badges"
         val importing = context?.getString(R.string.web_stream_badge_importing) ?: "Importing…"
-        val imported = context?.getString(R.string.web_stream_badge_imported) ?: "Imported badge URL."
-        val importError = context?.getString(R.string.web_stream_badge_import_error) ?: "Badge import failed."
-        val saved = context?.getString(R.string.web_status_saved_streams) ?: "Saved. New streams will use these settings."
+        val imported =
+            context?.getString(R.string.web_stream_badge_imported) ?: "Imported badge URL."
+        val importError =
+            context?.getString(R.string.web_stream_badge_import_error) ?: "Badge import failed."
+        val saved =
+            context?.getString(R.string.web_status_saved_streams)
+                ?: "Saved. New streams will use these settings."
         val deleted = context?.getString(R.string.web_stream_badge_deleted) ?: "Deleted badge URL."
         val saveError = context?.getString(R.string.web_status_could_not_save) ?: "Could not save"
-        val loadError = context?.getString(R.string.web_stream_badge_load_error) ?: "Could not load stream badge settings"
-        val summaryTemplate = context?.getString(R.string.settings_fusion_badges_summary) ?: "%1\$d/%2\$d URLs, %3\$d active Fusion badges"
-        val groupTitleTemplate = context?.getString(R.string.settings_fusion_badge_group_title) ?: "Group %1\$d"
-        val statusSummaryTemplate = context?.getString(R.string.settings_fusion_badge_url_status_summary) ?: "%1\$s, %2\$d enabled badges, %3\$d groups"
-        val previewCountTemplate = context?.getString(R.string.settings_fusion_badge_preview_count) ?: "%1\$d Fusion-style badges from this URL"
+        val loadError =
+            context?.getString(R.string.web_stream_badge_load_error)
+                ?: "Could not load stream badge settings"
+        val summaryTemplate =
+            context?.getString(R.string.settings_fusion_badges_summary)
+                ?: "%1\$d/%2\$d URLs, %3\$d active Fusion badges"
+        val groupTitleTemplate =
+            context?.getString(R.string.settings_fusion_badge_group_title) ?: "Group %1\$d"
+        val statusSummaryTemplate =
+            context?.getString(R.string.settings_fusion_badge_url_status_summary)
+                ?: "%1\$s, %2\$d enabled badges, %3\$d groups"
+        val previewCountTemplate =
+            context?.getString(R.string.settings_fusion_badge_preview_count)
+                ?: "%1\$d Fusion-style badges from this URL"
         return """
 <!DOCTYPE html>
 <html lang="en">
@@ -322,18 +352,16 @@ load().catch(()=>{statusBox.textContent=labels.loadError;statusBox.className='st
 </script>
 </body>
 </html>
-""".trimIndent()
+        """.trimIndent()
     }
 
-    private fun String.html(): String =
-        replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace("\"", "&quot;")
-            .replace("'", "&#39;")
+    private fun String.html(): String = replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\"", "&quot;")
+        .replace("'", "&#39;")
 
-    private fun String.js(): String =
-        replace("\\", "\\\\")
-            .replace("'", "\\'")
-            .replace("\n", "\\n")
+    private fun String.js(): String = replace("\\", "\\\\")
+        .replace("'", "\\'")
+        .replace("\n", "\\n")
 }

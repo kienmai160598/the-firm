@@ -3,21 +3,21 @@
 package com.kien.movies.ui.screens.settings
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -114,7 +114,9 @@ internal fun ServerSignInDialog(
                 enabled = !state.connecting
             )
             SettingsDialogActionButton(
-                text = stringResource(if (state.connecting) R.string.servers_connecting else R.string.servers_connect),
+                text = stringResource(
+                    if (state.connecting) R.string.servers_connecting else R.string.servers_connect
+                ),
                 onClick = connect,
                 primary = true,
                 enabled = canConnect
@@ -141,11 +143,23 @@ private fun SignInField(label: String, field: @Composable () -> Unit) {
 @Composable
 private fun ServerFailure.signInMessage(provider: ServerProvider): String = when (this) {
     ServerFailure.AUTH_REQUIRED -> stringResource(R.string.servers_error_auth)
+
     ServerFailure.NOT_FOUND -> stringResource(R.string.servers_error_address)
+
     ServerFailure.UNREACHABLE -> stringResource(R.string.servers_error_unreachable)
-    ServerFailure.UNSUPPORTED -> stringResource(R.string.servers_error_unsupported, provider.displayName, provider.minimumVersion)
+
+    ServerFailure.UNSUPPORTED -> stringResource(
+        R.string.servers_error_unsupported,
+        provider.displayName,
+        provider.minimumVersion
+    )
+
     ServerFailure.FORBIDDEN -> stringResource(R.string.servers_error_forbidden)
-    ServerFailure.REMOTE_PLAYBACK_BLOCKED -> stringResource(R.string.servers_failure_remote_playback)
+
+    ServerFailure.REMOTE_PLAYBACK_BLOCKED -> stringResource(
+        R.string.servers_failure_remote_playback
+    )
+
     ServerFailure.INCOMPLETE,
     ServerFailure.FAILED -> stringResource(R.string.servers_error_failed)
 }

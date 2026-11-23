@@ -85,8 +85,18 @@ class SimklProjectionsTest {
             .toSimklWatchedProjection()
 
         assertEquals(3, projection.items.size)
-        assertEquals("simkl", projection.items.single { it.contentType == "movie" }.trackingProviderId)
-        assertTrue(projection.items.any { it.contentId == "tt1520211" && it.season == 1 && it.episode == 1 })
+        assertEquals(
+            "simkl",
+            projection.items.single {
+                it.contentType == "movie"
+            }.trackingProviderId
+        )
+        assertTrue(
+            projection.items.any {
+                it.contentId == "tt1520211" && it.season == 1 &&
+                    it.episode == 1
+            }
+        )
         assertFalse(projection.items.any { it.episode == 2 })
         assertTrue(projection.items.any { it.contentId == "tt2560140" && it.season == null })
         assertTrue(projection.fullyWatchedSeriesKeys.any { "tt2560140" in it })
@@ -134,7 +144,9 @@ class SimklProjectionsTest {
             )
         )
 
-        val watched = SimklSyncSnapshot(entries = listOf(anime)).toSimklWatchedProjection().items.single()
+        val watched = SimklSyncSnapshot(
+            entries = listOf(anime)
+        ).toSimklWatchedProjection().items.single()
 
         assertEquals(2, watched.season)
         assertEquals(4, watched.episode)
@@ -249,7 +261,9 @@ class SimklProjectionsTest {
             show = media(39687, "tt4574334", runtime = 50)
         )
 
-        val progress = SimklSyncSnapshot(playback = listOf(session)).toSimklProgressEntries().single()
+        val progress = SimklSyncSnapshot(
+            playback = listOf(session)
+        ).toSimklProgressEntries().single()
 
         assertEquals("tt4574334", progress.contentId)
         assertEquals(1, progress.season)

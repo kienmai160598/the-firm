@@ -15,7 +15,7 @@ internal class ReferenceFetcher<T : Any>(
     private val parsed: ConcurrentHashMap<String, List<T>>,
     /** Blocking download and parse; returns an empty list on failure. */
     private val download: (url: String) -> List<T>,
-    private val log: (String) -> Unit = {},
+    private val log: (String) -> Unit = {}
 ) {
     private class Pending<T> {
         val waiters = ArrayList<(List<T>) -> Unit>()

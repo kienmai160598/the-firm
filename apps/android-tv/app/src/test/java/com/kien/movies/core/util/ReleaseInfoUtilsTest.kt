@@ -89,6 +89,6 @@ class ReleaseInfoUtilsTest {
         releaseInfo = releaseInfo,
         imdbRating = null,
         genres = emptyList(),
-        released = released,
+        released = released
     )
 }

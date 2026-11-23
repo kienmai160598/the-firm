@@ -2,13 +2,6 @@
 
 package com.kien.movies.ui.screens.settings
 
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
-
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -29,12 +22,19 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,19 +48,16 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
@@ -83,17 +80,18 @@ import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.tvControlHeight
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import com.kien.movies.ui.theme.tvControlHeight
 
 private val SUPPORT_URL: String
     get() = BuildConfig.SUPPORT_URL
         .takeIf { it.isNotBlank() }
         ?: error("SUPPORT_URL is missing. Set it in local.properties or local.dev.properties.")
-        .removeSuffix("/")
+            .removeSuffix("/")
 
 @Composable
 fun SupportersContributorsScreen(
@@ -118,24 +116,30 @@ fun SupportersContributorsScreen(
     BackHandler {
         when {
             showMembershipQr -> showMembershipQr = false
+
             uiState.selectedContributor != null -> {
                 pendingContributorRestoreKey = uiState.selectedContributor?.id
                 viewModel.dismissContributorDetails()
             }
+
             uiState.selectedSupporter != null -> {
                 pendingSupporterRestoreKey = uiState.selectedSupporter?.key
                 viewModel.dismissSupporterDetails()
             }
+
             uiState.selectedSponsor != null -> {
                 pendingSponsorRestoreKey = uiState.selectedSponsor?.id
                 viewModel.dismissSponsorDetails()
             }
+
             else -> onBackPress()
         }
     }
 
     LaunchedEffect(Unit) {
-        tabFocusRequesters.getValue(SupportersContributorsTab.Contributors).requestFocusAfterFrames()
+        tabFocusRequesters.getValue(
+            SupportersContributorsTab.Contributors
+        ).requestFocusAfterFrames()
     }
 
     LaunchedEffect(uiState.supporters) {
@@ -272,7 +276,11 @@ private fun SupportersContentPanel(
             .fillMaxSize()
             .clip(RoundedCornerShape(28.dp))
             .background(MoviesTheme.colors.BackgroundElevated)
-            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, RoundedCornerShape(28.dp))
+            .border(
+                MoviesTheme.spacing.hairline,
+                MoviesTheme.colors.Border,
+                RoundedCornerShape(28.dp)
+            )
             .padding(MoviesTheme.spacing.xl),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
@@ -300,7 +308,9 @@ private fun SupportersContentPanel(
                 label = stringResource(R.string.contributors_tab),
                 selected = uiState.selectedTab == SupportersContributorsTab.Contributors,
                 leftFocusRequester = null,
-                focusRequester = tabFocusRequesters.getValue(SupportersContributorsTab.Contributors),
+                focusRequester = tabFocusRequesters.getValue(
+                    SupportersContributorsTab.Contributors
+                ),
                 onClick = { onSelectTab(SupportersContributorsTab.Contributors) }
             )
         }
@@ -315,6 +325,7 @@ private fun SupportersContentPanel(
                 onSupporterClick = onSupporterClick,
                 modifier = Modifier.weight(1f)
             )
+
             SupportersContributorsTab.Sponsors -> SponsorsTabContent(
                 uiState = uiState,
                 leftFocusRequester = leftFocusRequester,
@@ -324,6 +335,7 @@ private fun SupportersContentPanel(
                 onSponsorClick = onSponsorClick,
                 modifier = Modifier.weight(1f)
             )
+
             SupportersContributorsTab.Contributors -> ContributorsTabContent(
                 uiState = uiState,
                 leftFocusRequester = leftFocusRequester,
@@ -352,7 +364,11 @@ private fun SupportersTabContent(
             .fillMaxWidth()
             .clip(RoundedCornerShape(MoviesTheme.spacing.xl))
             .background(MoviesTheme.colors.Background)
-            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, RoundedCornerShape(MoviesTheme.spacing.xl))
+            .border(
+                MoviesTheme.spacing.hairline,
+                MoviesTheme.colors.Border,
+                RoundedCornerShape(MoviesTheme.spacing.xl)
+            )
     ) {
         when {
             uiState.isSupportersLoading -> CenterStatusText(
@@ -423,7 +439,11 @@ private fun SponsorsTabContent(
             .fillMaxWidth()
             .clip(RoundedCornerShape(MoviesTheme.spacing.xl))
             .background(MoviesTheme.colors.Background)
-            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, RoundedCornerShape(MoviesTheme.spacing.xl))
+            .border(
+                MoviesTheme.spacing.hairline,
+                MoviesTheme.colors.Border,
+                RoundedCornerShape(MoviesTheme.spacing.xl)
+            )
     ) {
         when {
             uiState.isSponsorsLoading -> CenterStatusText(
@@ -494,7 +514,11 @@ private fun ContributorsTabContent(
             .fillMaxWidth()
             .clip(RoundedCornerShape(MoviesTheme.spacing.xl))
             .background(MoviesTheme.colors.Background)
-            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, RoundedCornerShape(MoviesTheme.spacing.xl))
+            .border(
+                MoviesTheme.spacing.hairline,
+                MoviesTheme.colors.Border,
+                RoundedCornerShape(MoviesTheme.spacing.xl)
+            )
     ) {
         when {
             uiState.isContributorsLoading -> CenterStatusText(
@@ -551,10 +575,7 @@ private fun ContributorsTabContent(
 }
 
 @Composable
-private fun CenterStatusText(
-    text: String,
-    modifier: Modifier = Modifier
-) {
+private fun CenterStatusText(text: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
@@ -670,7 +691,9 @@ private fun SupporterCard(
                     Text(
                         text = stringResource(R.string.supporters_since, date),
                         style = MaterialTheme.typography.bodySmall,
-                        color = LocalContentColor.current.copy(alpha = SETTINGS_SECONDARY_TEXT_ALPHA),
+                        color = LocalContentColor.current.copy(
+                            alpha = SETTINGS_SECONDARY_TEXT_ALPHA
+                        ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -814,7 +837,11 @@ private fun ContributorRoleBadge(role: String) {
         modifier = Modifier
             .clip(RoundedCornerShape(MoviesTheme.radii.sm))
             .background(MoviesTheme.colors.Background)
-            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, RoundedCornerShape(MoviesTheme.radii.sm))
+            .border(
+                MoviesTheme.spacing.hairline,
+                MoviesTheme.colors.Border,
+                RoundedCornerShape(MoviesTheme.radii.sm)
+            )
             .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs),
         contentAlignment = Alignment.Center
     ) {
@@ -828,10 +855,7 @@ private fun ContributorRoleBadge(role: String) {
 }
 
 @Composable
-private fun NameAvatar(
-    label: String,
-    modifier: Modifier = Modifier
-) {
+private fun NameAvatar(label: String, modifier: Modifier = Modifier) {
     val initial = label.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "?"
 
     Box(
@@ -851,11 +875,7 @@ private fun NameAvatar(
 }
 
 @Composable
-private fun PersonAvatar(
-    label: String,
-    avatarUrl: String?,
-    modifier: Modifier = Modifier
-) {
+private fun PersonAvatar(label: String, avatarUrl: String?, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(context)
@@ -871,7 +891,9 @@ private fun PersonAvatar(
             .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, CircleShape),
         contentAlignment = Alignment.Center
     ) {
-        if (avatarUrl.isNullOrBlank() || painter.state.collectAsState().value is AsyncImagePainter.State.Error) {
+        if (avatarUrl.isNullOrBlank() ||
+            painter.state.collectAsState().value is AsyncImagePainter.State.Error
+        ) {
             Text(
                 text = label.take(1).uppercase(),
                 style = MaterialTheme.typography.titleMedium,
@@ -946,10 +968,7 @@ private fun RowScope.SupportersTabButton(
 }
 
 @Composable
-private fun SponsorDetailsDialog(
-    sponsor: DevelopmentSponsor,
-    onDismiss: () -> Unit
-) {
+private fun SponsorDetailsDialog(sponsor: DevelopmentSponsor, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val primaryFocusRequester = remember { FocusRequester() }
 
@@ -1017,10 +1036,7 @@ private fun SponsorDetailsDialog(
 }
 
 @Composable
-private fun SupporterDetailsDialog(
-    supporter: SupporterMember,
-    onDismiss: () -> Unit
-) {
+private fun SupporterDetailsDialog(supporter: SupporterMember, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val primaryFocusRequester = remember { FocusRequester() }
 
@@ -1078,10 +1094,7 @@ private fun SupporterDetailsDialog(
 }
 
 @Composable
-private fun ContributorDetailsDialog(
-    contributor: GitHubContributor,
-    onDismiss: () -> Unit
-) {
+private fun ContributorDetailsDialog(contributor: GitHubContributor, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val primaryFocusRequester = remember { FocusRequester() }
     val contributorSupportKey = contributor.githubLogin ?: contributor.name
@@ -1120,7 +1133,9 @@ private fun ContributorDetailsDialog(
                     ContributorRoleBadge(role = role)
                 }
                 Text(
-                    text = contributor.profileUrl ?: stringResource(R.string.contributors_profile_unavailable),
+                    text =
+                        contributor.profileUrl
+                            ?: stringResource(R.string.contributors_profile_unavailable),
                     style = MaterialTheme.typography.bodySmall,
                     color = MoviesTheme.colors.TextSecondary
                 )
@@ -1202,9 +1217,7 @@ private fun contributorRoleLabel(login: String): String? = when (login.lowercase
     else -> null
 }
 
-private data class ContributorSupportLink(
-    val kofiUrl: String? = null
-)
+private data class ContributorSupportLink(val kofiUrl: String? = null)
 
 private val contributorSupportLinks = mapOf(
     "skoruppa" to ContributorSupportLink(
@@ -1221,8 +1234,7 @@ private val contributorSupportLinks = mapOf(
     )
 )
 
-private fun contributorSupportLink(login: String): ContributorSupportLink? =
-    contributorSupportLinks[login.lowercase(Locale.ROOT)]
+private fun contributorSupportLink(login: String): ContributorSupportLink? = contributorSupportLinks[login.lowercase(Locale.ROOT)]
 
 @Composable
 private fun supporterTierLabel(tier: MemberTier): String = stringResource(

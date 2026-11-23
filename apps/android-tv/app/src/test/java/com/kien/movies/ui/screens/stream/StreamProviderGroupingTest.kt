@@ -24,7 +24,10 @@ class StreamProviderGroupingTest {
         val one = stream(null, "one", "Addon")
         val two = stream(null, "two", "Addon")
         val blank = stream(" ", "blank", "Addon")
-        assertEquals(listOf(one, two, one, blank), groupStreamsByProvider(listOf(one, two, one, blank)))
+        assertEquals(
+            listOf(one, two, one, blank),
+            groupStreamsByProvider(listOf(one, two, one, blank))
+        )
         assertEquals(emptyList<Stream>(), groupStreamsByProvider(emptyList()))
     }
 
@@ -35,7 +38,10 @@ class StreamProviderGroupingTest {
         assertEquals("Alpha", streamProviderHeader(first))
         assertNull(streamProviderHeader(second, first))
         assertEquals("Beta", streamProviderHeader(third, second))
-        assertEquals("Alpha", streamProviderHeader(first.copy(addonName = "Other repository"), second))
+        assertEquals(
+            "Alpha",
+            streamProviderHeader(first.copy(addonName = "Other repository"), second)
+        )
     }
 
     @Test fun `empty and addon-equivalent provider names have no header`() {

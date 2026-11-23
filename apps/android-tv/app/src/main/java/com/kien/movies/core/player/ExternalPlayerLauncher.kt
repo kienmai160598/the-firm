@@ -37,7 +37,9 @@ object ExternalPlayerLauncher {
 
                 headers?.let { hdrs ->
                     if (hdrs.isNotEmpty()) {
-                        val headerArray = hdrs.entries.map { "${it.key}: ${it.value}" }.toTypedArray()
+                        val headerArray = hdrs.entries.map {
+                            "${it.key}: ${it.value}"
+                        }.toTypedArray()
                         putExtra("headers", headerArray)
                     }
                 }
@@ -51,7 +53,7 @@ object ExternalPlayerLauncher {
                 } else if (resumePositionMs > 0L) {
                     putExtra("position", resumePositionMs.toInt())
                     putExtra("startfrom", resumePositionMs.toInt())
-                    putExtra("forceresume", true)  // Vimu: enable resume for network streams
+                    putExtra("forceresume", true) // Vimu: enable resume for network streams
                     putExtra("from_start", false)
                 }
 
@@ -59,7 +61,9 @@ object ExternalPlayerLauncher {
                 if (!subtitles.isNullOrEmpty()) {
                     val subtitleUris = subtitles.map { Uri.parse(it.url) }.toTypedArray()
                     val subtitleNames = subtitles.map { it.name }.toTypedArray()
-                    val subtitleFilenames = subtitles.map { "${it.lang}_${it.name}.srt" }.toTypedArray()
+                    val subtitleFilenames = subtitles.map {
+                        "${it.lang}_${it.name}.srt"
+                    }.toTypedArray()
 
                     // Grant read permission for content:// URIs via ClipData.
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

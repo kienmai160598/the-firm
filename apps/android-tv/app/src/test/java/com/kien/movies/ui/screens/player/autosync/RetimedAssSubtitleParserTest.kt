@@ -17,7 +17,7 @@ class RetimedAssSubtitleParserTest {
             offset: Int,
             length: Int,
             outputOptions: SubtitleParser.OutputOptions,
-            output: Consumer<CuesWithTiming>,
+            output: Consumer<CuesWithTiming>
         ) {
             parsed = data.copyOfRange(offset, offset + length)
         }

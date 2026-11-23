@@ -19,15 +19,23 @@ class TraktTrackingScrobbler @Inject constructor(
     override val providerId = TrackingProviderId.TRAKT
     override val seekScrobblePolicy = TrackingSeekScrobblePolicy.STOP_AND_RESTART
 
-    override suspend fun scrobble(
-        action: TrackingScrobbleAction,
-        event: TrackingScrobbleEvent
-    ) {
+    override suspend fun scrobble(action: TrackingScrobbleAction, event: TrackingScrobbleEvent) {
         val item = event.media.toTraktScrobbleItem() ?: return
         when (action) {
-            TrackingScrobbleAction.START -> service.scrobbleStart(item, event.progressPercent.toFloat())
-            TrackingScrobbleAction.PAUSE -> service.scrobbleStop(item, event.progressPercent.toFloat())
-            TrackingScrobbleAction.STOP -> service.scrobbleStop(item, event.progressPercent.toFloat())
+            TrackingScrobbleAction.START -> service.scrobbleStart(
+                item,
+                event.progressPercent.toFloat()
+            )
+
+            TrackingScrobbleAction.PAUSE -> service.scrobbleStop(
+                item,
+                event.progressPercent.toFloat()
+            )
+
+            TrackingScrobbleAction.STOP -> service.scrobbleStop(
+                item,
+                event.progressPercent.toFloat()
+            )
         }
     }
 
@@ -65,4 +73,6 @@ class TraktTrackingScrobbler @Inject constructor(
     }
 }
 
-private fun Long?.toIntExactOrNull(): Int? = this?.takeIf { it in Int.MIN_VALUE..Int.MAX_VALUE }?.toInt()
+private fun Long?.toIntExactOrNull(): Int? = this?.takeIf {
+    it in Int.MIN_VALUE..Int.MAX_VALUE
+}?.toInt()

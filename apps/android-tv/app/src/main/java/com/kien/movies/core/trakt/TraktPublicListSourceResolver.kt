@@ -20,15 +20,15 @@ import com.kien.movies.domain.model.TmdbCollectionMediaType
 import com.kien.movies.domain.model.TraktCollectionSource
 import com.kien.movies.domain.model.TraktListSort
 import com.kien.movies.domain.model.TraktSortHow
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.Locale
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import retrofit2.Response
-import java.util.Locale
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
 data class TraktPublicListImportMetadata(
     val title: String? = null,
@@ -72,7 +72,14 @@ class TraktPublicListSourceResolver @Inject constructor(
                     )
                 }
                 val pageCountHeader = response.headers()["X-Pagination-Page-Count"]
-                if (!response.isSuccessful) error(errorMessageFor(response.code(), string(R.string.collections_editor_error_load_trakt_list)))
+                if (!response.isSuccessful) {
+                    error(
+                        errorMessageFor(
+                            response.code(),
+                            string(R.string.collections_editor_error_load_trakt_list)
+                        )
+                    )
+                }
                 val rawItems = response.body().orEmpty()
                 val items = rawItems
                     .mapNotNull { it.toPreview(source.mediaType) }
@@ -91,15 +98,32 @@ class TraktPublicListSourceResolver @Inject constructor(
         }
         result.fold(
             onSuccess = { emit(NetworkResult.Success(it)) },
-            onFailure = { emit(NetworkResult.Error(it.message ?: string(R.string.collections_editor_error_load_trakt_list))) }
+            onFailure = {
+                emit(
+                    NetworkResult.Error(
+                        it.message ?: string(R.string.collections_editor_error_load_trakt_list)
+                    )
+                )
+            }
         )
     }
 
     suspend fun listImportMetadata(input: String): TraktPublicListImportMetadata = withContext(Dispatchers.IO) {
-        val idPath = parseTraktListPath(input) ?: error(string(R.string.collections_editor_error_trakt_list_id_or_url))
+        val idPath =
+            parseTraktListPath(input)
+                ?: error(string(R.string.collections_editor_error_trakt_list_id_or_url))
         val response = publicRequest { traktApi.getPublicList(id = idPath) }
-        if (!response.isSuccessful) error(errorMessageFor(response.code(), string(R.string.collections_editor_error_trakt_list_not_found)))
-        val list = response.body() ?: error(string(R.string.collections_editor_error_trakt_list_not_found))
+        if (!response.isSuccessful) {
+            error(
+                errorMessageFor(
+                    response.code(),
+                    string(R.string.collections_editor_error_trakt_list_not_found)
+                )
+            )
+        }
+        val list =
+            response.body()
+                ?: error(string(R.string.collections_editor_error_trakt_list_not_found))
         val id = list.ids?.trakt ?: idPath.toLongOrNull()
             ?: error(string(R.string.collections_editor_error_trakt_list_missing_numeric_id))
         TraktPublicListImportMetadata(
@@ -116,7 +140,14 @@ class TraktPublicListSourceResolver @Inject constructor(
                 query = query.trim()
             )
         }
-        if (!response.isSuccessful) error(errorMessageFor(response.code(), string(R.string.collections_editor_error_search_trakt_lists)))
+        if (!response.isSuccessful) {
+            error(
+                errorMessageFor(
+                    response.code(),
+                    string(R.string.collections_editor_error_search_trakt_lists)
+                )
+            )
+        }
         response.body().orEmpty().mapNotNull { it.toPublicListResult() }
     }
 
@@ -136,7 +167,14 @@ class TraktPublicListSourceResolver @Inject constructor(
         call: suspend () -> Response<List<TraktProminentListDto>>
     ): List<TraktPublicListSearchResult> = withContext(Dispatchers.IO) {
         val response = publicRequest(call)
-        if (!response.isSuccessful) error(errorMessageFor(response.code(), string(R.string.collections_editor_error_load_trakt_lists)))
+        if (!response.isSuccessful) {
+            error(
+                errorMessageFor(
+                    response.code(),
+                    string(R.string.collections_editor_error_load_trakt_lists)
+                )
+            )
+        }
         response.body().orEmpty().mapNotNull { item ->
             item.list?.toPublicListResult(
                 likeCount = item.likeCount
@@ -145,10 +183,16 @@ class TraktPublicListSourceResolver @Inject constructor(
     }
 
     private suspend fun <T> publicRequest(call: suspend () -> Response<T>): Response<T> {
-        return traktAuthService.executePublicRequest(call) ?: error(string(R.string.trakt_error_public_request_failed))
+        return traktAuthService.executePublicRequest(call)
+            ?: error(string(R.string.trakt_error_public_request_failed))
     }
 
-    private fun row(source: TraktCollectionSource, page: Int, hasMore: Boolean, items: List<MetaPreview>): CatalogRow {
+    private fun row(
+        source: TraktCollectionSource,
+        page: Int,
+        hasMore: Boolean,
+        items: List<MetaPreview>
+    ): CatalogRow {
         val rawType = source.mediaType.toCollectionRawType()
         return CatalogRow(
             addonId = "trakt",
@@ -249,14 +293,18 @@ class TraktPublicListSourceResolver @Inject constructor(
         return list?.toPublicListResult()
     }
 
-    private fun TraktListSummaryDto.toPublicListResult(likeCount: Int? = null): TraktPublicListSearchResult? {
+    private fun TraktListSummaryDto.toPublicListResult(
+        likeCount: Int? = null
+    ): TraktPublicListSearchResult? {
         val id = ids?.trakt ?: return null
         val listTitle = name?.takeIf { it.isNotBlank() }
             ?: string(R.string.collections_editor_trakt_list_with_id, id)
         val owner = user?.username?.takeIf { it.isNotBlank() }
         val stats = buildList {
             itemCount?.let { add(string(R.string.collections_editor_trakt_items_count, it)) }
-            (likeCount ?: likes)?.let { add(string(R.string.collections_editor_trakt_likes_count, it)) }
+            (likeCount ?: likes)?.let {
+                add(string(R.string.collections_editor_trakt_likes_count, it))
+            }
         }
         val subtitle = (listOfNotNull(owner) + stats).joinToString(" • ")
             .ifBlank { string(R.string.collections_editor_trakt_public_list) }

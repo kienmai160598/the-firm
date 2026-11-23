@@ -1,8 +1,8 @@
 package com.kien.movies.core.player.dvmkv
 
 import androidx.media3.common.C
-import androidx.media3.common.Format
 import androidx.media3.common.DataReader
+import androidx.media3.common.Format
 import androidx.media3.extractor.DefaultExtractorInput
 import java.io.ByteArrayOutputStream
 import org.junit.Assert.assertEquals
@@ -58,7 +58,10 @@ class HevcAlternativeTransferSeiTest {
     fun `handles short NAL length fields`() {
         val sample = accessUnit(2, alternativeTransferSei, idrSlice)
 
-        assertEquals(18, HevcAlternativeTransferSei.peekPreferredTransfer(input(sample), sample.size, 2))
+        assertEquals(
+            18,
+            HevcAlternativeTransferSei.peekPreferredTransfer(input(sample), sample.size, 2)
+        )
     }
 
     @Test
@@ -71,8 +74,7 @@ class HevcAlternativeTransferSeiTest {
         )
     }
 
-    private fun parse(nalUnit: ByteArray): Int =
-        HevcAlternativeTransferSei.parsePreferredTransfer(nalUnit, nalUnit.size)
+    private fun parse(nalUnit: ByteArray): Int = HevcAlternativeTransferSei.parsePreferredTransfer(nalUnit, nalUnit.size)
 
     private fun accessUnit(lengthFieldSize: Int, vararg nalUnits: ByteArray): ByteArray {
         val out = ByteArrayOutputStream()

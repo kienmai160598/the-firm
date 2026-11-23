@@ -1,9 +1,9 @@
 package com.kien.movies.core.image
 
 import coil3.intercept.Interceptor
-import coil3.request.ImageResult
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
+import coil3.request.ImageResult
 
 /**
  * Coil interceptor that detects failed custom poster loads and retries with the

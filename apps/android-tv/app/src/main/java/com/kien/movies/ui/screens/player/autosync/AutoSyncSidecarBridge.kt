@@ -23,13 +23,13 @@ private const val DIRECT_INDEX_TOLERANCE_MS = 50L
 internal suspend fun applyAutoSyncSidecarTimeline(
     sidecar: PlayerRuntimeController,
     url: String,
-    timeline: AutoSyncTimelineRetimeResult,
+    timeline: AutoSyncTimelineRetimeResult
 ): Boolean {
     if (!timeline.confident || sidecar.activeSidecarSubtitleKey != url) return false
     val expectedGeneration = sidecar.currentSidecarGenerationFor(url) ?: return false
 
     val current = sidecar.sidecarTimedCues.takeIf { it.isNotEmpty() } ?: withTimeoutOrNull(
-        SIDECAR_WAIT_MS,
+        SIDECAR_WAIT_MS
     ) {
         while (
             sidecar.activeSidecarSubtitleKey == url &&
@@ -53,7 +53,7 @@ internal suspend fun applyAutoSyncSidecarTimeline(
         expectedCurrentUrl = url,
         newUrl = url,
         cues = retimed,
-        expectedGeneration = expectedGeneration,
+        expectedGeneration = expectedGeneration
     )
 }
 
@@ -64,7 +64,7 @@ internal suspend fun replaceAutoSyncSidecarSubtitle(
     headers: Map<String, String>,
     rawBody: String? = null,
     useLibass: Boolean,
-    timeline: AutoSyncTimelineRetimeResult,
+    timeline: AutoSyncTimelineRetimeResult
 ): Boolean {
     if (!timeline.confident) return false
     if (!sidecar.canAttachAddonSubtitleViaSidecar(url, useLibass)) return false
@@ -98,7 +98,7 @@ internal suspend fun replaceAutoSyncSidecarSubtitle(
         Log.w(
             TAG,
             "replacement preparation failed url=$url: ${error.message}; " +
-                "keeping $expectedCurrentUrl",
+                "keeping $expectedCurrentUrl"
         )
         return false
     }
@@ -114,13 +114,13 @@ internal suspend fun replaceAutoSyncSidecarSubtitle(
         expectedCurrentUrl = expectedCurrentUrl,
         newUrl = url,
         cues = retimed,
-        expectedGeneration = expectedGeneration,
+        expectedGeneration = expectedGeneration
     )
 }
 
 private fun retimeSidecarTimedCuesByIndexIfCompatible(
     source: List<CuesWithTiming>,
-    timeline: AutoSyncTimelineRetimeResult,
+    timeline: AutoSyncTimelineRetimeResult
 ): List<CuesWithTiming>? {
     if (source.size != timeline.cues.size || source.isEmpty()) return null
 
@@ -138,8 +138,10 @@ private fun retimeSidecarTimedCuesByIndexIfCompatible(
 
         val retimedCue = timeline.cues[index]
         if (
-            kotlin.math.abs(originalStartMs - retimedCue.originalStartTimeMs) > DIRECT_INDEX_TOLERANCE_MS ||
-            kotlin.math.abs(originalEndMs - retimedCue.originalEndTimeMs) > DIRECT_INDEX_TOLERANCE_MS
+            kotlin.math.abs(originalStartMs - retimedCue.originalStartTimeMs) >
+            DIRECT_INDEX_TOLERANCE_MS ||
+            kotlin.math.abs(originalEndMs - retimedCue.originalEndTimeMs) >
+            DIRECT_INDEX_TOLERANCE_MS
         ) {
             return null
         }
@@ -149,7 +151,7 @@ private fun retimeSidecarTimedCuesByIndexIfCompatible(
         out += CuesWithTiming(
             entry.cues,
             startMs * 1_000L,
-            (endMs - startMs) * 1_000L,
+            (endMs - startMs) * 1_000L
         )
     }
 
@@ -159,16 +161,24 @@ private fun retimeSidecarTimedCuesByIndexIfCompatible(
 
 private fun clampIntroducedSidecarOverlaps(
     source: List<CuesWithTiming>,
-    out: MutableList<CuesWithTiming>,
+    out: MutableList<CuesWithTiming>
 ) {
     for (index in 0 until out.lastIndex) {
         val sourceCurrent = source[index]
         val sourceNext = source[index + 1]
-        if (sourceCurrent.startTimeUs == C.TIME_UNSET || sourceNext.startTimeUs == C.TIME_UNSET) continue
+        if (sourceCurrent.startTimeUs == C.TIME_UNSET ||
+            sourceNext.startTimeUs == C.TIME_UNSET
+        ) {
+            continue
+        }
 
         val sourceCurrentEndUs = when {
             sourceCurrent.endTimeUs != C.TIME_UNSET -> sourceCurrent.endTimeUs
-            sourceCurrent.durationUs != C.TIME_UNSET -> sourceCurrent.startTimeUs + sourceCurrent.durationUs
+
+            sourceCurrent.durationUs != C.TIME_UNSET ->
+                sourceCurrent.startTimeUs +
+                    sourceCurrent.durationUs
+
             else -> continue
         }
         if (sourceCurrentEndUs > sourceNext.startTimeUs) continue
@@ -185,7 +195,7 @@ private fun clampIntroducedSidecarOverlaps(
             out[index] = CuesWithTiming(
                 current.cues,
                 current.startTimeUs,
-                (next.startTimeUs - current.startTimeUs).coerceAtLeast(1L),
+                (next.startTimeUs - current.startTimeUs).coerceAtLeast(1L)
             )
         }
     }
@@ -193,7 +203,7 @@ private fun clampIntroducedSidecarOverlaps(
 
 private fun retimeSidecarTimedCues(
     source: List<CuesWithTiming>,
-    timeline: AutoSyncTimelineRetimeResult,
+    timeline: AutoSyncTimelineRetimeResult
 ): List<CuesWithTiming> {
     retimeSidecarTimedCuesByIndexIfCompatible(source, timeline)?.let { direct ->
         Log.d(TAG, "retime mapped sidecar=${source.size} mapping=direct-index")
@@ -212,8 +222,10 @@ private fun retimeSidecarTimedCues(
         val originalStartMs = entry.startTimeUs / 1_000L
         val originalEndMs = when {
             entry.endTimeUs != C.TIME_UNSET -> entry.endTimeUs / 1_000L
+
             entry.durationUs != C.TIME_UNSET ->
                 originalStartMs + entry.durationUs / 1_000L
+
             else -> originalStartMs + 1L
         }.coerceAtLeast(originalStartMs + 1L)
 
@@ -222,7 +234,7 @@ private fun retimeSidecarTimedCues(
         out += CuesWithTiming(
             entry.cues,
             startMs * 1_000L,
-            (endMs - startMs) * 1_000L,
+            (endMs - startMs) * 1_000L
         )
     }
 
@@ -231,7 +243,7 @@ private fun retimeSidecarTimedCues(
     Log.d(
         TAG,
         "retime mapped sidecar=${source.size} " +
-            "boundaryMapped=${mapper.boundaryMapped} affineFallback=${mapper.affineFallback}",
+            "boundaryMapped=${mapper.boundaryMapped} affineFallback=${mapper.affineFallback}"
     )
     return out
 }

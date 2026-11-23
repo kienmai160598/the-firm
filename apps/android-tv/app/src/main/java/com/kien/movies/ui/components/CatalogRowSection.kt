@@ -1,12 +1,11 @@
 package com.kien.movies.ui.components
 
-import androidx.compose.ui.semantics.clearAndSetSemantics
-
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.boxRowTitle
-
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.gestures.BringIntoViewSpec
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -38,27 +38,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.BringIntoViewSpec
-import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextDirection
-import com.kien.movies.R
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
@@ -67,23 +62,28 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.kien.movies.domain.model.CatalogRow
-import com.kien.movies.domain.model.stableKey
-import com.kien.movies.domain.model.stableItemKeys
+import com.kien.movies.R
 import com.kien.movies.domain.model.CardDepthSurface
+import com.kien.movies.domain.model.CatalogRow
 import com.kien.movies.domain.model.MetaPreview
-import com.kien.movies.domain.model.stableItemKey
-import com.kien.movies.domain.model.stableItemKeys
 import com.kien.movies.domain.model.PLACEHOLDER_IMAGE_URL
 import com.kien.movies.domain.model.PosterShape
+import com.kien.movies.domain.model.stableItemKey
+import com.kien.movies.domain.model.stableItemKeys
+import com.kien.movies.domain.model.stableKey
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.boxRowTitle
 import com.kien.movies.ui.theme.rememberBodyFloor
 import com.kien.movies.ui.theme.rememberMetaFloor
+import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.formatAddonTypeLabel
 import com.kien.movies.ui.util.localizedContentType
-import com.kien.movies.ui.util.contentTextDirection
-import androidx.compose.ui.platform.LocalContext
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalTvMaterial3Api::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun CatalogRowSection(
     catalogRow: CatalogRow,
@@ -123,7 +123,8 @@ fun CatalogRowSection(
      *  Wide elements above (CW, collections) can point their D-pad down here. */
     entryFocusRequester: FocusRequester? = null,
     upFocusRequester: FocusRequester? = null,
-    listState: LazyListState = rememberLazyListState(initialFirstVisibleItemIndex = initialScrollIndex)
+    listState: LazyListState =
+        rememberLazyListState(initialFirstVisibleItemIndex = initialScrollIndex)
 ) {
     val catalogRowKey = remember(catalogRow) { catalogRow.stableKey() }
     val rowItemIdentities = remember(catalogRow.items) { catalogRow.stableItemKeys() }
@@ -135,7 +136,8 @@ fun CatalogRowSection(
     // Armed from the item id, not a loading flag: a lazily loaded catalog composes its row
     // before loading starts and would never see the flag go up.
     val firstCardKey = remember(catalogRowKey) { catalogRowKey + "__first" }
-    val firstIsPlaceholder = catalogRow.items.firstOrNull()?.id?.startsWith("__placeholder_") == true
+    val firstIsPlaceholder =
+        catalogRow.items.firstOrNull()?.id?.startsWith("__placeholder_") == true
     val pinFirstCard = remember(catalogRowKey) { mutableStateOf(firstIsPlaceholder) }
     val pinSpent = remember(catalogRowKey) { mutableStateOf(false) }
     // Lent to the card, not the slot: slot 0 would hand the key to whatever lands there.
@@ -188,7 +190,8 @@ fun CatalogRowSection(
     val blockingFocusExit = remember { mutableStateOf(false) }
     val rowHasFocusRef = remember { mutableStateOf(false) }
     val firstItemId = catalogRow.items.firstOrNull()?.id
-    val wasPlaceholderRef = remember { mutableStateOf(firstItemId?.startsWith("__placeholder_") == true) }
+    val wasPlaceholderRef =
+        remember { mutableStateOf(firstItemId?.startsWith("__placeholder_") == true) }
     val isNowReal = firstItemId?.startsWith("__placeholder_") != true
 
     if (wasPlaceholderRef.value && isNowReal && rowHasFocusRef.value) {
@@ -205,15 +208,24 @@ fun CatalogRowSection(
 
     LaunchedEffect(blockingFocusExit.value) {
         if (!blockingFocusExit.value) return@LaunchedEffect
-        val targetKey = rowItemFocusKey(0, catalogRow.items.firstOrNull() ?: run {
-            blockingFocusExit.value = false
-            return@LaunchedEffect
-        })
+        val targetKey = rowItemFocusKey(
+            0,
+            catalogRow.items.firstOrNull() ?: run {
+                blockingFocusExit.value = false
+                return@LaunchedEffect
+            }
+        )
         repeat(15) {
             val req = itemFocusRequestersByKey[targetKey]
             if (req != null) {
-                val ok = runCatching { req.requestFocus(); true }.getOrDefault(false)
-                if (ok) { blockingFocusExit.value = false; return@LaunchedEffect }
+                val ok = runCatching {
+                    req.requestFocus()
+                    true
+                }.getOrDefault(false)
+                if (ok) {
+                    blockingFocusExit.value = false
+                    return@LaunchedEffect
+                }
             }
             withFrameNanos { }
         }
@@ -277,22 +289,37 @@ fun CatalogRowSection(
     }
     val catalogTitle = remember(catalogRow.catalogName, typeLabel, showCatalogTypeSuffix) {
         val formattedName = catalogRow.catalogName.replaceFirstChar { it.uppercase() }
-        if (formattedName.isBlank()) ""
-        else if (showCatalogTypeSuffix && typeLabel.isNotEmpty()) "$formattedName - $typeLabel" else formattedName
+        if (formattedName.isBlank()) {
+            ""
+        } else if (showCatalogTypeSuffix &&
+            typeLabel.isNotEmpty()
+        ) {
+            "$formattedName - $typeLabel"
+        } else {
+            formattedName
+        }
     }
 
-    Column(modifier = modifier.fillMaxWidth().then(
-        if (blockingFocusExit.value) {
-            Modifier.focusProperties {
-                up = FocusRequester.Cancel
-                down = FocusRequester.Cancel
+    Column(
+        modifier = modifier.fillMaxWidth().then(
+            if (blockingFocusExit.value) {
+                Modifier.focusProperties {
+                    up = FocusRequester.Cancel
+                    down = FocusRequester.Cancel
+                }
+            } else {
+                Modifier
             }
-        } else Modifier
-    )) {
+        )
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.md),
+                .padding(
+                    start = MoviesTheme.spacing.xxxl,
+                    end = MoviesTheme.spacing.xxxl,
+                    bottom = MoviesTheme.spacing.md
+                ),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -307,7 +334,14 @@ fun CatalogRowSection(
                     overflow = TextOverflow.Clip
                 )
                 if (showAddonName) {
-                    val addonText = if (catalogTitle.isBlank()) " " else stringResource(R.string.catalog_from_addon, catalogRow.addonName)
+                    val addonText = if (catalogTitle.isBlank()) {
+                        " "
+                    } else {
+                        stringResource(
+                            R.string.catalog_from_addon,
+                            catalogRow.addonName
+                        )
+                    }
                     Text(
                         text = addonText,
                         style = MaterialTheme.typography.labelMedium.rememberMetaFloor().copy(
@@ -329,7 +363,11 @@ fun CatalogRowSection(
             object : BringIntoViewSpec {
                 override val scrollAnimationSpec: AnimationSpec<Float> =
                     defaultBringIntoViewSpec.scrollAnimationSpec
-                override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
+                override fun calculateScrollDistance(
+                    offset: Float,
+                    size: Float,
+                    containerSize: Float
+                ): Float {
                     val childSize = kotlin.math.abs(size)
                     if (isRtl) {
                         val childSmallerThanParent = childSize <= containerSize
@@ -344,7 +382,13 @@ fun CatalogRowSection(
                     } else {
                         val target = startPx.toFloat()
                         val space = containerSize - target
-                        val leading = if (childSize <= containerSize && space < childSize) containerSize - childSize else target
+                        val leading = if (childSize <= containerSize &&
+                            space < childSize
+                        ) {
+                            containerSize - childSize
+                        } else {
+                            target
+                        }
                         return offset - leading
                     }
                 }
@@ -360,196 +404,224 @@ fun CatalogRowSection(
         }
 
         CompositionLocalProvider(LocalBringIntoViewSpec provides horizontalBringIntoViewSpec) {
-        LazyRow(
-            state = listState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged { rowHasFocusRef.value = it.hasFocus }
-                .focusRequester(resolvedRowFocusRequester)
-                .focusRestorer {
-                    if (enableRowFocusRestorer) {
-                        val visibleIndices = listState.layoutInfo.visibleItemsInfo
-                            .map { it.index }
-                            .filter { it in catalogRow.items.indices }
-                        val preferredIndex = if (lastFocusedItemIndex.intValue >= 0) {
-                            lastFocusedItemIndex.intValue
+            LazyRow(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged { rowHasFocusRef.value = it.hasFocus }
+                    .focusRequester(resolvedRowFocusRequester)
+                    .focusRestorer {
+                        if (enableRowFocusRestorer) {
+                            val visibleIndices = listState.layoutInfo.visibleItemsInfo
+                                .map { it.index }
+                                .filter { it in catalogRow.items.indices }
+                            val preferredIndex = if (lastFocusedItemIndex.intValue >= 0) {
+                                lastFocusedItemIndex.intValue
+                            } else {
+                                restorerFocusedIndex
+                            }
+                            val idx = preferredIndex.takeIf { it in visibleIndices }
+                                ?: visibleIndices.firstOrNull()
+                            idx?.let { visibleIndex ->
+                                catalogRow.items.getOrNull(visibleIndex)?.let { item ->
+                                    itemFocusRequestersByKey[rowItemFocusKey(visibleIndex, item)]
+                                }
+                            }
+                                ?: FocusRequester.Default
                         } else {
-                            restorerFocusedIndex
+                            FocusRequester.Default
                         }
-                        val idx = preferredIndex.takeIf { it in visibleIndices }
-                            ?: visibleIndices.firstOrNull()
-                        idx?.let { visibleIndex ->
-                            catalogRow.items.getOrNull(visibleIndex)?.let { item ->
-                                itemFocusRequestersByKey[rowItemFocusKey(visibleIndex, item)]
+                    }
+                    .focusGroup(),
+                contentPadding = PaddingValues(start = MoviesTheme.spacing.xxxl, end = 200.dp),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
+            ) {
+                itemsIndexed(
+                    items = catalogRow.items,
+                    key = { index, item ->
+                        rowItemFocusKey(index, item)
+                    },
+                    contentType = { _, item -> item.apiType } // Group items by apiType for better recycling
+                ) { index, item ->
+                    val isEntryTarget by remember(entryFocusRequester, index) {
+                        derivedStateOf {
+                            val targetIndex = if (lastFocusedItemIndex.intValue >= 0) {
+                                lastFocusedItemIndex.intValue
+                            } else {
+                                0
+                            }
+                            entryFocusRequester != null && index == targetIndex
+                        }
+                    }
+                    val cardFocusRequester = itemFocusRequestersByKey.getOrPut(
+                        rowItemFocusKey(index, item)
+                    ) { FocusRequester() }
+
+                    val isPlaceholder = item.id.startsWith("__placeholder_")
+                    val isNonFirstPlaceholder = isPlaceholder && index > 0
+                    val onItemClickStable = remember(item.id, catalogRow.addonBaseUrl) {
+                        {
+                            if (!isPlaceholder) {
+                                latestOnItemClick(
+                                    item.id,
+                                    item.apiType,
+                                    catalogRow.addonBaseUrl
+                                )
                             }
                         }
-                            ?: FocusRequester.Default
-                    } else {
-                        FocusRequester.Default
                     }
+                    val onItemLongPressStable = remember(item.id, catalogRow.addonBaseUrl) {
+                        { if (!isPlaceholder) latestOnItemLongPress(item, catalogRow.addonBaseUrl) }
+                    }
+                    val onFocusStable = remember(index) {
+                        { focusedItem: MetaPreview ->
+                            latestOnItemFocus(focusedItem)
+                            lastFocusedItemIndex.intValue = index
+                            latestOnItemFocused(index)
+                        }
+                    }
+
+                    ContentCard(
+                        item = item,
+                        posterCardStyle = posterCardStyle,
+                        showLabels = showPosterLabels,
+                        showImdbRatings = showImdbRatings,
+                        placeholderShimmerOffsetState = placeholderShimmerOffsetState,
+                        focusedPosterBackdropExpandEnabled = focusedPosterBackdropExpandEnabled,
+                        focusedPosterBackdropExpandDelaySeconds = focusedPosterBackdropExpandDelaySeconds,
+                        focusedPosterBackdropTrailerEnabled = focusedPosterBackdropTrailerEnabled,
+                        focusedPosterBackdropTrailerMuted = focusedPosterBackdropTrailerMuted,
+                        trailerPreviewUrl = trailerPreviewUrls[item.id],
+                        trailerPreviewAudioUrl = trailerPreviewAudioUrls[item.id],
+                        onRequestTrailerPreview = latestOnRequestTrailerPreview,
+                        isWatched = latestIsItemWatched(item),
+                        onFocus = onFocusStable,
+                        onBackdropExpandedChanged = null,
+                        onClick = onItemClickStable,
+                        onLongPress = onItemLongPressStable,
+                        modifier = Modifier
+                            .then(directionalFocusModifier)
+                            .then(
+                                if (isNonFirstPlaceholder) {
+                                    Modifier.focusProperties { canFocus = false }
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            .then(
+                                if (isEntryTarget) {
+                                    Modifier.focusRequester(
+                                        entryFocusRequester!!
+                                    )
+                                } else {
+                                    Modifier
+                                }
+                            ),
+                        focusRequester = cardFocusRequester
+                    )
                 }
-                .focusGroup(),
-            contentPadding = PaddingValues(start = MoviesTheme.spacing.xxxl, end = 200.dp),
-            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
-        ) {
-            itemsIndexed(
-                items = catalogRow.items,
-                key = { index, item ->
-                    rowItemFocusKey(index, item)
-                },
-                contentType = { _, item -> item.apiType } // Group items by apiType for better recycling
-            ) { index, item ->
-                val isEntryTarget by remember(entryFocusRequester, index) {
-                    derivedStateOf {
-                        val targetIndex = if (lastFocusedItemIndex.intValue >= 0) {
-                            lastFocusedItemIndex.intValue
+
+                if (!showSeeAll && catalogRow.isLoading) {
+                    item(key = "${catalogRow.type}_${catalogRow.catalogId}_loading") {
+                        val cardDepthStyle = LocalCardDepthStyle.current
+                        val globalLandscape = LocalLandscapePosterMode.current
+                        val loadingCardWidth = if (globalLandscape) posterCardStyle.height else posterCardStyle.width
+                        val loadingCardHeight = if (globalLandscape) {
+                            posterCardStyle.height /
+                                PosterShape.LANDSCAPE.aspectRatio()
                         } else {
-                            0
+                            posterCardStyle.height
                         }
-                        entryFocusRequester != null && index == targetIndex
-                    }
-                }
-                val cardFocusRequester = itemFocusRequestersByKey.getOrPut(
-                    rowItemFocusKey(index, item)
-                ) { FocusRequester() }
-
-                val isPlaceholder = item.id.startsWith("__placeholder_")
-                val isNonFirstPlaceholder = isPlaceholder && index > 0
-                val onItemClickStable = remember(item.id, catalogRow.addonBaseUrl) {
-                    { if (!isPlaceholder) latestOnItemClick(item.id, item.apiType, catalogRow.addonBaseUrl) }
-                }
-                val onItemLongPressStable = remember(item.id, catalogRow.addonBaseUrl) {
-                    { if (!isPlaceholder) latestOnItemLongPress(item, catalogRow.addonBaseUrl) }
-                }
-                val onFocusStable = remember(index) {
-                    { focusedItem: MetaPreview ->
-                        latestOnItemFocus(focusedItem)
-                        lastFocusedItemIndex.intValue = index
-                        latestOnItemFocused(index)
-                    }
-                }
-
-                ContentCard(
-                    item = item,
-                    posterCardStyle = posterCardStyle,
-                    showLabels = showPosterLabels,
-                    showImdbRatings = showImdbRatings,
-                    placeholderShimmerOffsetState = placeholderShimmerOffsetState,
-                    focusedPosterBackdropExpandEnabled = focusedPosterBackdropExpandEnabled,
-                    focusedPosterBackdropExpandDelaySeconds = focusedPosterBackdropExpandDelaySeconds,
-                    focusedPosterBackdropTrailerEnabled = focusedPosterBackdropTrailerEnabled,
-                    focusedPosterBackdropTrailerMuted = focusedPosterBackdropTrailerMuted,
-                    trailerPreviewUrl = trailerPreviewUrls[item.id],
-                    trailerPreviewAudioUrl = trailerPreviewAudioUrls[item.id],
-                    onRequestTrailerPreview = latestOnRequestTrailerPreview,
-                    isWatched = latestIsItemWatched(item),
-                    onFocus = onFocusStable,
-                    onBackdropExpandedChanged = null,
-                    onClick = onItemClickStable,
-                    onLongPress = onItemLongPressStable,
-                    modifier = Modifier
-                        .then(directionalFocusModifier)
-                        .then(
-                            if (isNonFirstPlaceholder) Modifier.focusProperties { canFocus = false }
-                            else Modifier
-                        )
-                        .then(
-                            if (isEntryTarget) Modifier.focusRequester(entryFocusRequester!!) else Modifier
-                        ),
-                    focusRequester = cardFocusRequester
-                )
-            }
-
-            if (!showSeeAll && catalogRow.isLoading) {
-                item(key = "${catalogRow.type}_${catalogRow.catalogId}_loading") {
-                    val cardDepthStyle = LocalCardDepthStyle.current
-                    val globalLandscape = LocalLandscapePosterMode.current
-                    val loadingCardWidth = if (globalLandscape) posterCardStyle.height else posterCardStyle.width
-                    val loadingCardHeight = if (globalLandscape) posterCardStyle.height / PosterShape.LANDSCAPE.aspectRatio() else posterCardStyle.height
-                    Card(
-                        onClick = {},
-                        modifier = Modifier
-                            .width(loadingCardWidth)
-                            .height(loadingCardHeight)
-                              .clearAndSetSemantics {}
-                              .focusProperties { canFocus = false },
-                        shape = CardDefaults.shape(shape = seeAllCardShape),
-                        colors = CardDefaults.colors(
-                            containerColor = MoviesTheme.colors.BackgroundCard,
-                            focusedContainerColor = MoviesTheme.colors.BackgroundCard
-                        )
-                    ) {
-                        Box(
+                        Card(
+                            onClick = {},
                             modifier = Modifier
-                                .fillMaxSize()
-                                .clip(seeAllCardShape)
-                                .moviesCardDepth(
-                                    shape = seeAllCardShape,
-                                    surface = CardDepthSurface.POSTERS,
-                                    style = cardDepthStyle
-                                ),
-                            contentAlignment = Alignment.Center
+                                .width(loadingCardWidth)
+                                .height(loadingCardHeight)
+                                .clearAndSetSemantics {}
+                                .focusProperties { canFocus = false },
+                            shape = CardDefaults.shape(shape = seeAllCardShape),
+                            colors = CardDefaults.colors(
+                                containerColor = MoviesTheme.colors.BackgroundCard,
+                                focusedContainerColor = MoviesTheme.colors.BackgroundCard
+                            )
                         ) {
-                            LoadingIndicator()
-                        }
-                    }
-                }
-            }
-            if (showSeeAll) {
-                item(key = "${catalogRow.type}_${catalogRow.catalogId}_see_all") {
-                    val cardDepthStyle = LocalCardDepthStyle.current
-                    val globalLandscape = LocalLandscapePosterMode.current
-                    val seeAllCardWidth = if (globalLandscape) posterCardStyle.height else posterCardStyle.width
-                    val seeAllCardHeight = if (globalLandscape) posterCardStyle.height / PosterShape.LANDSCAPE.aspectRatio() else posterCardStyle.height
-                    Card(
-                        onClick = onSeeAll,
-                        modifier = Modifier
-                            .width(seeAllCardWidth)
-                            .height(seeAllCardHeight)
-                            .posterFocusLift(seeAllCardShape, posterCardStyle.focusedScale)
-                            .then(directionalFocusModifier),
-                        shape = CardDefaults.shape(shape = seeAllCardShape),
-                        colors = CardDefaults.colors(
-                            containerColor = MoviesTheme.colors.BackgroundCard,
-                            focusedContainerColor = MoviesTheme.colors.BackgroundCard
-                        ),
-                        border = posterFocusBorder(),
-                        scale = posterFocusScale
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(seeAllCardShape)
-                                .moviesCardDepth(
-                                    shape = seeAllCardShape,
-                                    surface = CardDepthSurface.POSTERS,
-                                    style = cardDepthStyle
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(seeAllCardShape)
+                                    .moviesCardDepth(
+                                        shape = seeAllCardShape,
+                                        surface = CardDepthSurface.POSTERS,
+                                        style = cardDepthStyle
+                                    ),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(MoviesTheme.spacing.xxl),
-                                    tint = MoviesTheme.colors.TextSecondary
-                                )
-                                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                                Text(
-                                    text = seeAllLabel ?: stringResource(R.string.action_see_all),
-                                    style = MaterialTheme.typography.titleSmall
-                                        .rememberBodyFloor(),
-                                    color = MoviesTheme.colors.TextSecondary
-                                )
+                                LoadingIndicator()
+                            }
+                        }
+                    }
+                }
+                if (showSeeAll) {
+                    item(key = "${catalogRow.type}_${catalogRow.catalogId}_see_all") {
+                        val cardDepthStyle = LocalCardDepthStyle.current
+                        val globalLandscape = LocalLandscapePosterMode.current
+                        val seeAllCardWidth = if (globalLandscape) posterCardStyle.height else posterCardStyle.width
+                        val seeAllCardHeight = if (globalLandscape) {
+                            posterCardStyle.height /
+                                PosterShape.LANDSCAPE.aspectRatio()
+                        } else {
+                            posterCardStyle.height
+                        }
+                        Card(
+                            onClick = onSeeAll,
+                            modifier = Modifier
+                                .width(seeAllCardWidth)
+                                .height(seeAllCardHeight)
+                                .posterFocusLift(seeAllCardShape, posterCardStyle.focusedScale)
+                                .then(directionalFocusModifier),
+                            shape = CardDefaults.shape(shape = seeAllCardShape),
+                            colors = CardDefaults.colors(
+                                containerColor = MoviesTheme.colors.BackgroundCard,
+                                focusedContainerColor = MoviesTheme.colors.BackgroundCard
+                            ),
+                            border = posterFocusBorder(),
+                            scale = posterFocusScale
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(seeAllCardShape)
+                                    .moviesCardDepth(
+                                        shape = seeAllCardShape,
+                                        surface = CardDepthSurface.POSTERS,
+                                        style = cardDepthStyle
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(MoviesTheme.spacing.xxl),
+                                        tint = MoviesTheme.colors.TextSecondary
+                                    )
+                                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                                    Text(
+                                        text =
+                                            seeAllLabel ?: stringResource(R.string.action_see_all),
+                                        style = MaterialTheme.typography.titleSmall
+                                            .rememberBodyFloor(),
+                                        color = MoviesTheme.colors.TextSecondary
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
-        }
         } // CompositionLocalProvider
     }
 }

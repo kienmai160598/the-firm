@@ -128,7 +128,9 @@ object LibrarySyncReducer {
                     remoteItemsByKey[identity] = localItem
                 }
             }
-            localItems.filterValues { ServerItemRef.isServerId(it.id) }.forEach(remoteItemsByKey::putIfAbsent)
+            localItems.filterValues {
+                ServerItemRef.isServerId(it.id)
+            }.forEach(remoteItemsByKey::putIfAbsent)
             remoteItemsByKey
         }
 
@@ -175,6 +177,7 @@ object LibrarySyncReducer {
                     items[identity] = event.item.withPreservedLogo(items[identity])
                     appliedUpserts += 1
                 }
+
                 "delete" -> {
                     items.remove(identity)
                     appliedDeletes += 1

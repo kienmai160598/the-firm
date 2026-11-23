@@ -22,17 +22,27 @@ class RefusedServerTypesTest {
         token = "token-$id"
     )
 
-    private fun snapshot(vararg servers: SyncedServer) =
-        ServerSyncSnapshot(profileId = 2, version = 7, servers = servers.toList(), pendingPush = true, syncedKeys = null)
+    private fun snapshot(vararg servers: SyncedServer) = ServerSyncSnapshot(
+        profileId = 2,
+        version = 7,
+        servers = servers.toList(),
+        pendingPush = true,
+        syncedKeys = null
+    )
 
     private val jellyfin = server("jellyfin", "a")
     private val plex = server("plex", "b")
     private val silo = server("silo", "c")
 
-    private fun backendRefusing(vararg providers: String, sent: MutableList<List<String>>): suspend (ServerSyncSnapshot) -> Unit = { upload ->
+    private fun backendRefusing(
+        vararg providers: String,
+        sent: MutableList<List<String>>
+    ): suspend (ServerSyncSnapshot) -> Unit = { upload ->
         sent += upload.servers.map { it.providerId }
         upload.servers.firstOrNull { it.providerId in providers }?.let {
-            throw RuntimeException("Unsupported media server provider: ${it.providerId}\nURL: https://api.example")
+            throw RuntimeException(
+                "Unsupported media server provider: ${it.providerId}\nURL: https://api.example"
+            )
         }
     }
 
@@ -50,10 +60,17 @@ class RefusedServerTypesTest {
     fun aRefusedTypeIsLeftOutAndTheRestStillUpload() = runTest {
         val sent = mutableListOf<List<String>>()
 
-        val uploaded = refused.upload(snapshot(jellyfin, plex, silo), backendRefusing("plex", "silo", sent = sent))
+        val uploaded = refused.upload(
+            snapshot(jellyfin, plex, silo),
+            backendRefusing("plex", "silo", sent = sent)
+        )
 
         assertEquals(
-            listOf(listOf("jellyfin", "plex", "silo"), listOf("jellyfin", "silo"), listOf("jellyfin")),
+            listOf(
+                listOf("jellyfin", "plex", "silo"),
+                listOf("jellyfin", "silo"),
+                listOf("jellyfin")
+            ),
             sent
         )
         assertEquals(listOf(jellyfin), uploaded.servers)
@@ -84,7 +101,9 @@ class RefusedServerTypesTest {
     fun otherFailuresAreLeftForTheCaller() = runTest {
         val failure = RuntimeException("Too many media servers")
 
-        val thrown = runCatching { refused.upload(snapshot(jellyfin, plex)) { throw failure } }.exceptionOrNull()
+        val thrown = runCatching {
+            refused.upload(snapshot(jellyfin, plex)) { throw failure }
+        }.exceptionOrNull()
 
         assertEquals(failure, thrown)
         assertFalse(refused.isRefused("plex"))
@@ -94,7 +113,9 @@ class RefusedServerTypesTest {
     fun aRefusalNamingATypeNotInTheListIsNotSwallowed() {
         assertThrows(RuntimeException::class.java) {
             kotlinx.coroutines.runBlocking {
-                refused.upload(snapshot(jellyfin)) { throw RuntimeException("Unsupported media server provider: plex") }
+                refused.upload(snapshot(jellyfin)) {
+                    throw RuntimeException("Unsupported media server provider: plex")
+                }
             }
         }
     }
@@ -106,7 +127,10 @@ class RefusedServerTypesTest {
         refused.upload(snapshot(jellyfin, plex)) { upload ->
             sent += upload.servers.joinToString { it.providerId }
             if (upload.servers.any { it.providerId == "plex" }) {
-                throw RuntimeException("Request failed", RuntimeException("Unsupported media server provider: plex"))
+                throw RuntimeException(
+                    "Request failed",
+                    RuntimeException("Unsupported media server provider: plex")
+                )
             }
         }
 

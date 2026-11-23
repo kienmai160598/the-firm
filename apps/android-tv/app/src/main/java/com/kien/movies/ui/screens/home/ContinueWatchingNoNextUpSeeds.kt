@@ -18,5 +18,4 @@ internal fun noNextUpRecheckAt(nextReleaseMs: Long?, nowMs: Long): Long {
  * has no next episode and its recheck time has not come yet. The key holds the episode last
  * watched, so watching on is never skipped.
  */
-internal fun isNoNextUpStillConfirmed(recheckAt: Long?, nowMs: Long): Boolean =
-    recheckAt != null && nowMs < recheckAt
+internal fun isNoNextUpStillConfirmed(recheckAt: Long?, nowMs: Long): Boolean = recheckAt != null && nowMs < recheckAt

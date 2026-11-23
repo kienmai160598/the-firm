@@ -1,11 +1,5 @@
 package com.kien.movies.ui.screens.search
 
-import com.kien.movies.ui.components.posterFocusBorder
-import com.kien.movies.ui.components.posterFocusLift
-import com.kien.movies.ui.components.posterFocusScale
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.screens.home.HeroBackdropState
-
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -16,14 +10,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
@@ -53,22 +52,13 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.draw.clip
-import com.kien.movies.ui.screens.detail.TvSizeFloors
-import com.kien.movies.ui.screens.detail.atLeastOnBox
-import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
-import kotlinx.coroutines.delay
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
-import com.kien.movies.ui.util.contentTextDirection
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
@@ -77,24 +67,33 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
-import com.kien.movies.ui.navigation.toptabbar.ReportTopTabBarScroll
+import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.ui.components.EmptyScreenState
-import com.kien.movies.ui.components.expressive.M3eShapes
-import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.components.GridContentCard
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.LocalCardDepthStyle
 import com.kien.movies.ui.components.PosterCardStyle
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.components.moviesCardDepth
-import com.kien.movies.domain.model.CardDepthSurface
+import com.kien.movies.ui.components.posterFocusBorder
+import com.kien.movies.ui.components.posterFocusLift
+import com.kien.movies.ui.components.posterFocusScale
+import com.kien.movies.ui.navigation.toptabbar.ReportTopTabBarScroll
+import com.kien.movies.ui.screens.detail.TvSizeFloors
+import com.kien.movies.ui.screens.detail.atLeastOnBox
+import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
+import com.kien.movies.ui.screens.home.HeroBackdropState
+import com.kien.movies.ui.theme.ExpressiveColors
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.dpadVerticalFastScroll
 import com.kien.movies.ui.util.formatAddonTypeLabel
 import com.kien.movies.ui.util.localizedContentType
 import com.kien.movies.ui.util.localizedGenreLabel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -119,15 +118,22 @@ internal fun DiscoverSection(
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier
 ) {
-    val selectedCatalog = uiState.discoverCatalogs.firstOrNull { it.key == uiState.selectedDiscoverCatalogKey }
-    val filteredCatalogs = uiState.discoverCatalogs.filter { it.type == uiState.selectedDiscoverType }
+    val selectedCatalog = uiState.discoverCatalogs.firstOrNull {
+        it.key ==
+            uiState.selectedDiscoverCatalogKey
+    }
+    val filteredCatalogs = uiState.discoverCatalogs.filter {
+        it.type == uiState.selectedDiscoverType
+    }
     val genres = selectedCatalog?.genres.orEmpty()
     var expandedPicker by remember { mutableStateOf<String?>(null) }
     val filterFocusRequester = remember { FocusRequester() }
     var gridHasFocus by remember { mutableStateOf(false) }
 
     androidx.activity.compose.BackHandler(enabled = gridHasFocus) {
-        try { filterFocusRequester.requestFocus() } catch (_: Exception) {}
+        try {
+            filterFocusRequester.requestFocus()
+        } catch (_: Exception) {}
     }
 
     val localContext = LocalContext.current
@@ -137,8 +143,11 @@ internal fun DiscoverSection(
         uiState.discoverCatalogs.map { it.type }.distinct()
     }
     val selectedTypeLabel = localizedTypeLabel(uiState.selectedDiscoverType)
-    val selectedCatalogLabel = selectedCatalog?.catalogName ?: stringResource(R.string.discover_select_catalog)
-    val selectedGenreLabel = uiState.selectedDiscoverGenre?.let { localizedGenreLabel(it) } ?: stringResource(R.string.discover_genre_default)
+    val selectedCatalogLabel =
+        selectedCatalog?.catalogName ?: stringResource(R.string.discover_select_catalog)
+    val selectedGenreLabel =
+        uiState.selectedDiscoverGenre?.let { localizedGenreLabel(it) }
+            ?: stringResource(R.string.discover_genre_default)
 
     Column(
         modifier = modifier
@@ -201,7 +210,12 @@ internal fun DiscoverSection(
                 selectedValue = uiState.selectedDiscoverGenre ?: "__default__",
                 expanded = expandedPicker == "genre",
                 options = buildList {
-                    add(DiscoverOption(stringResource(R.string.discover_genre_default), "__default__"))
+                    add(
+                        DiscoverOption(
+                            stringResource(R.string.discover_genre_default),
+                            "__default__"
+                        )
+                    )
                     addAll(genres.map { DiscoverOption(localizedGenreLabel(it), it) })
                 },
                 onExpandedChange = { shouldExpand ->
@@ -246,34 +260,34 @@ internal fun DiscoverSection(
 
             uiState.discoverResults.isNotEmpty() -> {
                 Box(modifier = Modifier.onFocusChanged { gridHasFocus = it.hasFocus }) {
-                DiscoverGrid(
-                    items = uiState.discoverResults,
-                    posterCardStyle = posterCardStyle,
-                    watchedMovieIds = watchedMovieIds,
-                    watchedSeriesIds = watchedSeriesIds,
-                    focusResults = focusResults,
-                    firstItemFocusRequester = firstItemFocusRequester,
-                    focusedItemIndex = focusedItemIndex,
-                    shouldRestoreFocusedItem = shouldRestoreFocusedItem,
-                    onRestoreFocusedItemHandled = onRestoreFocusedItemHandled,
-                    onItemFocused = onDiscoverItemFocused,
-                    pendingCount = uiState.pendingDiscoverResults.size,
-                    canLoadMore = uiState.discoverHasMore,
-                    isLoadingMore = uiState.discoverLoadingMore,
-                    onLoadMore = onLoadMore,
-                    onItemClick = { _, item ->
-                        HeroBackdropState.update(item.backdropUrl)
-                        onNavigateToDetail(
-                            item.id,
-                            item.apiType,
-                            selectedCatalog?.addonBaseUrl ?: ""
-                        )
-                    },
-                    onItemLongPress = { item ->
-                        onItemLongPress(item, selectedCatalog?.addonBaseUrl ?: "")
-                    },
-                    filterKey = "${uiState.selectedDiscoverType}|${uiState.selectedDiscoverCatalogKey}|${uiState.selectedDiscoverGenre}"
-                )
+                    DiscoverGrid(
+                        items = uiState.discoverResults,
+                        posterCardStyle = posterCardStyle,
+                        watchedMovieIds = watchedMovieIds,
+                        watchedSeriesIds = watchedSeriesIds,
+                        focusResults = focusResults,
+                        firstItemFocusRequester = firstItemFocusRequester,
+                        focusedItemIndex = focusedItemIndex,
+                        shouldRestoreFocusedItem = shouldRestoreFocusedItem,
+                        onRestoreFocusedItemHandled = onRestoreFocusedItemHandled,
+                        onItemFocused = onDiscoverItemFocused,
+                        pendingCount = uiState.pendingDiscoverResults.size,
+                        canLoadMore = uiState.discoverHasMore,
+                        isLoadingMore = uiState.discoverLoadingMore,
+                        onLoadMore = onLoadMore,
+                        onItemClick = { _, item ->
+                            HeroBackdropState.update(item.backdropUrl)
+                            onNavigateToDetail(
+                                item.id,
+                                item.apiType,
+                                selectedCatalog?.addonBaseUrl ?: ""
+                            )
+                        },
+                        onItemLongPress = { item ->
+                            onItemLongPress(item, selectedCatalog?.addonBaseUrl ?: "")
+                        },
+                        filterKey = "${uiState.selectedDiscoverType}|${uiState.selectedDiscoverCatalogKey}|${uiState.selectedDiscoverGenre}"
+                    )
                 }
             }
 
@@ -346,8 +360,11 @@ private fun DiscoverDropdownPicker(
                 .fillMaxWidth()
                 .onSizeChanged { anchorSize = it }
                 .then(
-                    if (blockFocus) Modifier.focusProperties { canFocus = false }
-                    else Modifier
+                    if (blockFocus) {
+                        Modifier.focusProperties { canFocus = false }
+                    } else {
+                        Modifier
+                    }
                 ),
             shape = DiscoverFieldShape
         ) {
@@ -377,7 +394,14 @@ private fun DiscoverDropdownPicker(
                     )
                     Icon(
                         imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (expanded) stringResource(R.string.cd_collapse, title) else stringResource(R.string.cd_expand, title),
+                        contentDescription = if (expanded) {
+                            stringResource(
+                                R.string.cd_collapse,
+                                title
+                            )
+                        } else {
+                            stringResource(R.string.cd_expand, title)
+                        },
                         modifier = Modifier.size(20.dp.atLeastOnBox(TvSizeFloors.buttonIcon))
                     )
                 }
@@ -461,10 +485,7 @@ private fun DiscoverDropdownPicker(
 
 private const val FIELD_LABEL_ALPHA = 0.64f
 
-private data class DiscoverOption(
-    val label: String,
-    val value: String
-)
+private data class DiscoverOption(val label: String, val value: String)
 
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -508,7 +529,8 @@ internal fun DiscoverGrid(
     } else {
         focusedItemIndex
     }
-    val effectiveShouldRestoreFocusedItem = shouldRestoreFocusedItem || localShouldRestoreFocusedItem
+    val effectiveShouldRestoreFocusedItem =
+        shouldRestoreFocusedItem || localShouldRestoreFocusedItem
     val actionType = when {
         pendingCount > 0 -> DiscoverGridAction.ShowMore
         isLoadingMore -> DiscoverGridAction.Loading
@@ -567,7 +589,8 @@ internal fun DiscoverGrid(
     val shouldAutoLoad = canLoadMore && !isLoadingMore && items.isNotEmpty()
     LaunchedEffect(gridState.firstVisibleItemIndex, items.size, shouldAutoLoad) {
         if (!shouldAutoLoad) return@LaunchedEffect
-        val lastVisible = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return@LaunchedEffect
+        val lastVisible =
+            gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return@LaunchedEffect
         if (lastVisible >= items.size - 6) {
             onLoadMore()
         }
@@ -650,7 +673,8 @@ internal fun DiscoverGrid(
             key = { index, item -> item.id.ifEmpty { "discover_$index" } },
             contentType = { _, _ -> "content_card" }
         ) { index, item ->
-            val itemFocusReq = remember(index) { itemFocusRequesters.getOrPut(index) { FocusRequester() } }
+            val itemFocusReq =
+                remember(index) { itemFocusRequesters.getOrPut(index) { FocusRequester() } }
             val focusReq = when {
                 effectiveShouldRestoreFocusedItem && index == effectiveFocusedItemIndex -> restoreFocusRequester
                 focusResults && index == 0 -> firstItemFocusRequester
@@ -662,7 +686,9 @@ internal fun DiscoverGrid(
                 onLongPress = { onItemLongPress(item) },
                 posterCardStyle = adaptiveStyle,
                 isWatched = run {
-                    val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
+                    val isSeries =
+                        item.apiType.equals("series", ignoreCase = true) ||
+                            item.apiType.equals("tv", ignoreCase = true)
                     if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
                 },
                 modifier = Modifier
@@ -700,11 +726,14 @@ internal fun DiscoverGrid(
                                 pendingFocusOnNewItemIndex = items.size
                                 onLoadMore()
                             }
+
                             DiscoverGridAction.LoadMore -> {
                                 pendingFocusOnNewItemIndex = items.size
                                 onLoadMore()
                             }
+
                             DiscoverGridAction.Loading -> Unit
+
                             DiscoverGridAction.None -> Unit
                         }
                     }
@@ -742,14 +771,21 @@ private fun DiscoverActionCard(
     val globalLandscape = com.kien.movies.ui.components.LocalLandscapePosterMode.current
 
     Column(
-        modifier = modifier.then(if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width))
+        modifier = modifier.then(
+            if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width)
+        )
     ) {
         Card(
             onClick = onClick,
             modifier = Modifier
                 .then(
-                    if (globalLandscape) Modifier.fillMaxWidth().aspectRatio(com.kien.movies.domain.model.PosterShape.LANDSCAPE.aspectRatio())
-                    else Modifier.width(posterCardStyle.width).height(posterCardStyle.height)
+                    if (globalLandscape) {
+                        Modifier.fillMaxWidth().aspectRatio(
+                            com.kien.movies.domain.model.PosterShape.LANDSCAPE.aspectRatio()
+                        )
+                    } else {
+                        Modifier.width(posterCardStyle.width).height(posterCardStyle.height)
+                    }
                 )
                 .focusProperties { canFocus = actionType != DiscoverGridAction.Loading }
                 .onPreviewKeyEvent { event ->
@@ -760,8 +796,11 @@ private fun DiscoverActionCard(
                 .posterFocusLift(cardShape, posterCardStyle.focusedScale)
                 .onFocusChanged { state -> if (state.isFocused) onFocused() }
                 .then(
-                    if (focusRequester != null) Modifier.focusRequester(focusRequester)
-                    else Modifier
+                    if (focusRequester != null) {
+                        Modifier.focusRequester(focusRequester)
+                    } else {
+                        Modifier
+                    }
                 ),
             shape = CardDefaults.shape(shape = cardShape),
             colors = CardDefaults.colors(
@@ -797,7 +836,15 @@ private fun DiscoverActionCard(
         // Reserve space for label to match GridContentCard height
         Spacer(
             modifier = Modifier
-                .then(if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width))
+                .then(
+                    if (globalLandscape) {
+                        Modifier.fillMaxWidth()
+                    } else {
+                        Modifier.width(
+                            posterCardStyle.width
+                        )
+                    }
+                )
                 .padding(top = MoviesTheme.spacing.sm)
                 .height(MaterialTheme.typography.titleMedium.lineHeight.value.dp)
         )

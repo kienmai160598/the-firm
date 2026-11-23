@@ -35,16 +35,19 @@ import org.junit.Test
 class WatchProgressRepositoryProviderMarksTest {
 
     @Test
-    fun `a single item marked with a provider as the source stays watched though the provider never reports it`() =
-        runBlocking {
-            val harness = harness()
-            harness.awaitProvider(harness.repository)
+    fun `a single item marked with a provider as the source stays watched though the provider never reports it`() = runBlocking {
+        val harness = harness()
+        harness.awaitProvider(harness.repository)
 
-            harness.repository.markAsCompleted(progress(VIDEO, "youtube"))
+        harness.repository.markAsCompleted(progress(VIDEO, "youtube"))
 
-            assertTrue(harness.repository.watchedIdsSoon { VIDEO in it })
-            assertTrue(withTimeoutOrNull(TIMEOUT_MS) { harness.repository.isWatched(VIDEO, null).first { it } } == true)
-        }
+        assertTrue(harness.repository.watchedIdsSoon { VIDEO in it })
+        assertTrue(
+            withTimeoutOrNull(TIMEOUT_MS) {
+                harness.repository.isWatched(VIDEO, null).first { it }
+            } == true
+        )
+    }
 
     @Test
     fun `the mark is still there after the app restarts`() = runBlocking {
@@ -67,7 +70,10 @@ class WatchProgressRepositoryProviderMarksTest {
 
         harness.repository.markAsCompleted(progress(VIDEO, "youtube"))
         delay(500)
-        assertEquals(setOf(VIDEO), harness.watchedPreferences.observePendingProviderMarks(1).first())
+        assertEquals(
+            setOf(VIDEO),
+            harness.watchedPreferences.observePendingProviderMarks(1).first()
+        )
 
         harness.providerWatched.value = setOf(SENTINEL)
         assertTrue(harness.repository.watchedIdsSoon { VIDEO in it })
@@ -102,7 +108,10 @@ class WatchProgressRepositoryProviderMarksTest {
         harness.repository.removeFromHistory(VIDEO)
 
         assertTrue(harness.repository.watchedIdsSoon { VIDEO !in it })
-        assertEquals(emptySet<String>(), harness.watchedPreferences.observePendingProviderMarks(1).first())
+        assertEquals(
+            emptySet<String>(),
+            harness.watchedPreferences.observePendingProviderMarks(1).first()
+        )
     }
 
     @Test
@@ -111,7 +120,10 @@ class WatchProgressRepositoryProviderMarksTest {
 
         harness.repository.markAsCompleted(progress(VIDEO, "youtube"))
 
-        assertEquals(emptySet<String>(), harness.watchedPreferences.observePendingProviderMarks(1).first())
+        assertEquals(
+            emptySet<String>(),
+            harness.watchedPreferences.observePendingProviderMarks(1).first()
+        )
         assertTrue(harness.repository.watchedIdsSoon { VIDEO in it })
     }
 
@@ -125,7 +137,13 @@ class WatchProgressRepositoryProviderMarksTest {
 
         /** The provider's sentinel id shows once the repository reads from the provider. */
         suspend fun awaitProvider(repository: WatchProgressRepositoryImpl) {
-            assertTrue("the provider never became the source", repository.watchedIdsSoon { SENTINEL in it })
+            assertTrue(
+                "the provider never became the source",
+                repository.watchedIdsSoon {
+                    SENTINEL in
+                        it
+                }
+            )
         }
     }
 
@@ -195,8 +213,9 @@ class WatchProgressRepositoryProviderMarksTest {
     )
 
     private companion object {
-        suspend fun WatchProgressRepositoryImpl.watchedIdsSoon(predicate: (Set<String>) -> Boolean): Boolean =
-            withTimeoutOrNull(TIMEOUT_MS) { observeWatchedMovieIds().first(predicate) } != null
+        suspend fun WatchProgressRepositoryImpl.watchedIdsSoon(
+            predicate: (Set<String>) -> Boolean
+        ): Boolean = withTimeoutOrNull(TIMEOUT_MS) { observeWatchedMovieIds().first(predicate) } != null
 
         const val VIDEO = "yt_id:abc123"
         const val MOVIE = "tt0000001"

@@ -3,13 +3,13 @@ package com.kien.movies.ui.screens.settings
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil3.SingletonImageLoader
 import com.kien.movies.core.runtime.AppRestarter
 import com.kien.movies.data.local.DeviceLocalPlayerPreferences
 import com.kien.movies.data.local.ImagePerformancePreferences
 import com.kien.movies.data.local.LayoutPreferenceDataStore
 import com.kien.movies.data.local.PlayerSettingsDataStore
 import com.kien.movies.data.local.SentrySettingsDataStore
-import coil3.SingletonImageLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -79,7 +79,9 @@ class AdvancedSettingsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             playerSettingsDataStore.playerSettings.collectLatest { settings ->
-                _uiState.update { it.copy(playbackIssueReportsEnabled = settings.playbackIssueReportsEnabled) }
+                _uiState.update {
+                    it.copy(playbackIssueReportsEnabled = settings.playbackIssueReportsEnabled)
+                }
             }
         }
         viewModelScope.launch {
@@ -101,38 +103,45 @@ class AdvancedSettingsViewModel @Inject constructor(
                     layoutPreferenceDataStore.setFastHorizontalNavigationEnabled(event.enabled)
                 }
             }
+
             is AdvancedSettingsEvent.SetSmoothBringIntoViewEnabled -> {
                 viewModelScope.launch {
                     layoutPreferenceDataStore.setSmoothBringIntoViewEnabled(event.enabled)
                 }
             }
+
             is AdvancedSettingsEvent.SetComposeHighlighterEnabled -> {
                 viewModelScope.launch {
                     layoutPreferenceDataStore.setComposeHighlighterEnabled(event.enabled)
                 }
             }
+
             is AdvancedSettingsEvent.SetPlaybackIssueReportsEnabled -> {
                 viewModelScope.launch {
                     playerSettingsDataStore.setPlaybackIssueReportsEnabled(event.enabled)
                 }
             }
+
             is AdvancedSettingsEvent.SetPlayerStatsHudEnabled -> {
                 viewModelScope.launch {
                     deviceLocalPlayerPreferences.setPlayerStatsHudEnabled(event.enabled)
                 }
             }
+
             is AdvancedSettingsEvent.SetRgb565Enabled -> {
                 if (imagePerformancePreferences.setRgb565Enabled(event.enabled)) {
                     _uiState.update { it.copy(rgb565Enabled = event.enabled) }
                     appRestarter.restart()
                 }
             }
+
             is AdvancedSettingsEvent.SetHardwareBitmapsEnabled -> {
                 if (imagePerformancePreferences.setHardwareBitmapsEnabled(event.enabled)) {
                     _uiState.update { it.copy(hardwareBitmapsEnabled = event.enabled) }
                     SingletonImageLoader.get(appContext).memoryCache?.clear()
                 }
             }
+
             is AdvancedSettingsEvent.SetSentryEnabled -> {
                 viewModelScope.launch {
                     sentrySettingsDataStore.setEnabled(event.enabled)

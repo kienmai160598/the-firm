@@ -10,6 +10,8 @@ import com.kien.movies.data.remote.supabase.MemberAccessRemoteDataSource
 import com.kien.movies.domain.model.AuthState
 import com.kien.movies.domain.model.MemberAccess
 import com.kien.movies.domain.model.MemberTier
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,8 +27,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val MemberAccessTag = "MemberAccess"
 internal const val MemberAccessStaleAfterMs = 15 * 60 * 1000L
@@ -167,10 +167,7 @@ internal fun memberAccessRetryDelayMs(failedAttempt: Int): Long? = when (failedA
     else -> null
 }
 
-internal fun resolveMemberAccess(
-    isDebugBuild: Boolean,
-    memberTier: MemberTier?
-): MemberAccess {
+internal fun resolveMemberAccess(isDebugBuild: Boolean, memberTier: MemberTier?): MemberAccess {
     return if (isDebugBuild && memberTier != null) {
         MemberAccess.preview(memberTier)
     } else {

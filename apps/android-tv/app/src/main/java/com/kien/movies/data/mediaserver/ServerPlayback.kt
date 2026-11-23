@@ -30,8 +30,18 @@ class ServerPlayback internal constructor(
     private val active = mutableMapOf<String, ActivePlayback>()
 
     suspend fun prepare(target: ServerPlaybackTarget): ServerPlaybackSession {
-        val (provider, session, playback) = repository.call(target.item.connectionId) { provider, session ->
-            Triple(provider, session, provider.preparePlayback(session, ServerPlaybackRequest(target, ServerPlayerCapabilities())))
+        val (provider, session, playback) = repository.call(target.item.connectionId) {
+                provider,
+                session
+            ->
+            Triple(
+                provider,
+                session,
+                provider.preparePlayback(
+                    session,
+                    ServerPlaybackRequest(target, ServerPlayerCapabilities())
+                )
+            )
         }
         val orphans = synchronized(lock) {
             val unstarted = active.filterValues { !it.started }.keys.toList()
@@ -42,8 +52,8 @@ class ServerPlayback internal constructor(
         return playback
     }
 
-    fun canFallback(url: String?): Boolean =
-        url?.let { synchronized(lock) { active[it] } }?.playback?.playMethod == ServerPlayMethod.DIRECT_PLAY
+    fun canFallback(url: String?): Boolean = url?.let { synchronized(lock) { active[it] } }?.playback?.playMethod ==
+        ServerPlayMethod.DIRECT_PLAY
 
     suspend fun fallback(url: String?): ServerPlaybackSession? {
         val failed = url?.let { synchronized(lock) { active[it] } } ?: return null
@@ -54,18 +64,32 @@ class ServerPlayback internal constructor(
     suspend fun switchAudio(url: String?, audioStreamIndex: Int): ServerPlaybackSession? {
         val current = url?.let { synchronized(lock) { active[it] } } ?: return null
         if (current.playback.playMethod == ServerPlayMethod.DIRECT_PLAY) return null
-        return restart(url, current, audioStreamIndex, current.playback.burnInSubtitles.selectedIndex())
+        return restart(
+            url,
+            current,
+            audioStreamIndex,
+            current.playback.burnInSubtitles.selectedIndex()
+        )
     }
 
     suspend fun switchSubtitle(url: String?, subtitleStreamIndex: Int?): ServerPlaybackSession? {
         val current = url?.let { synchronized(lock) { active[it] } } ?: return null
         if (current.playback.playMethod == ServerPlayMethod.DIRECT_PLAY) return null
-        return restart(url, current, current.playback.audioTracks.selectedIndex(), subtitleStreamIndex)
+        return restart(
+            url,
+            current,
+            current.playback.audioTracks.selectedIndex(),
+            subtitleStreamIndex
+        )
     }
 
     fun audioTracks(url: String?): List<ServerTrack> {
         val playback = session(url) ?: return emptyList()
-        if (playback.playMethod == ServerPlayMethod.DIRECT_PLAY || playback.audioTracks.size < 2) return emptyList()
+        if (playback.playMethod == ServerPlayMethod.DIRECT_PLAY ||
+            playback.audioTracks.size < 2
+        ) {
+            return emptyList()
+        }
         return playback.audioTracks
     }
 
@@ -75,7 +99,9 @@ class ServerPlayback internal constructor(
         return playback.burnInSubtitles
     }
 
-    fun session(url: String?): ServerPlaybackSession? = url?.let { synchronized(lock) { active[it] } }?.playback
+    fun session(url: String?): ServerPlaybackSession? = url?.let {
+        synchronized(lock) { active[it] }
+    }?.playback
 
     suspend fun resumeState(url: String?): ServerUserState? {
         val current = url?.let { synchronized(lock) { active[it] } } ?: return null
@@ -86,7 +112,13 @@ class ServerPlayback internal constructor(
 
     fun isServerSource(url: String?): Boolean = url != null && synchronized(lock) { url in active }
 
-    fun onPlaybackSnapshot(url: String?, positionMs: Long, isPlaying: Boolean, isLoading: Boolean, isEnded: Boolean) {
+    fun onPlaybackSnapshot(
+        url: String?,
+        positionMs: Long,
+        isPlaying: Boolean,
+        isLoading: Boolean,
+        isEnded: Boolean
+    ) {
         val playback = url?.let { synchronized(lock) { active[it] } } ?: return
         if (isEnded) {
             playback.lastPositionMs = positionMs
@@ -114,15 +146,23 @@ class ServerPlayback internal constructor(
             subtitleStreamIndex = subtitleStreamIndex
         )
         val playback = try {
-            repository.callForPlayback(current.session) { provider, session -> provider.preparePlayback(session, request) }
+            repository.callForPlayback(current.session) { provider, session ->
+                provider.preparePlayback(session, request)
+            }
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {
-            Log.w(TAG, "Playback restart for ${current.label} failed: ${error.serverFailure()} (${error.message})")
+            Log.w(
+                TAG,
+                "Playback restart for ${current.label} failed: ${error.serverFailure()} (${error.message})"
+            )
             return null
         }
         stop(url)
-        synchronized(lock) { active[playback.url] = ActivePlayback(current.provider, current.session, playback) }
+        synchronized(lock) {
+            active[playback.url] =
+                ActivePlayback(current.provider, current.session, playback)
+        }
         return playback
     }
 
@@ -148,18 +188,30 @@ class ServerPlayback internal constructor(
                 for (event in events) {
                     try {
                         val sent = withTimeoutOrNull(REPORT_TIMEOUT_MS) {
-                            repository.callForPlayback(session) { provider, session -> provider.report(session, playback, event) }
+                            repository.callForPlayback(session) { provider, session ->
+                                provider.report(session, playback, event)
+                            }
                         }
                         when {
-                            sent == null -> Log.w(TAG, "Playback report ${event.type} for $label timed out")
+                            sent == null -> Log.w(
+                                TAG,
+                                "Playback report ${event.type} for $label timed out"
+                            )
+
                             event.type != ServerPlaybackEventType.PROGRESS -> {
-                                Log.i(TAG, "Playback report ${event.type} for $label sent at ${event.positionMs}ms")
+                                Log.i(
+                                    TAG,
+                                    "Playback report ${event.type} for $label sent at ${event.positionMs}ms"
+                                )
                             }
                         }
                     } catch (error: CancellationException) {
                         throw error
                     } catch (error: Exception) {
-                        Log.w(TAG, "Playback report ${event.type} for $label failed: ${error.serverFailure()} (${error.message})")
+                        Log.w(
+                            TAG,
+                            "Playback report ${event.type} for $label failed: ${error.serverFailure()} (${error.message})"
+                        )
                     }
                 }
             }
@@ -181,8 +233,13 @@ class ServerPlayback internal constructor(
             when {
                 paused == isPlaying -> {
                     paused = !isPlaying
-                    send(if (paused) ServerPlaybackEventType.PAUSE else ServerPlaybackEventType.RESUME, positionMs, paused)
+                    send(
+                        if (paused) ServerPlaybackEventType.PAUSE else ServerPlaybackEventType.RESUME,
+                        positionMs,
+                        paused
+                    )
                 }
+
                 abs(positionMs - expected) > SEEK_THRESHOLD_MS ||
                     (isPlaying && elapsed >= PROGRESS_INTERVAL_MS) -> {
                     send(ServerPlaybackEventType.PROGRESS, positionMs, paused)

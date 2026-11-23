@@ -71,11 +71,9 @@ internal fun SettingsExpressiveSlider(
 }
 
 /** White, black while the row behind it is focused and white. */
-private fun sliderActiveColor(focused: Boolean): Color =
-    if (focused) ExpressiveColors.onFocus else ExpressiveColors.focus
+private fun sliderActiveColor(focused: Boolean): Color = if (focused) ExpressiveColors.onFocus else ExpressiveColors.focus
 
-private fun sliderInactiveColor(focused: Boolean, contentAlpha: Float): Color =
-    sliderActiveColor(focused).copy(alpha = INACTIVE_TRACK_ALPHA * contentAlpha)
+private fun sliderInactiveColor(focused: Boolean, contentAlpha: Float): Color = sliderActiveColor(focused).copy(alpha = INACTIVE_TRACK_ALPHA * contentAlpha)
 
 private fun DrawScope.drawTrack(
     path: Path,

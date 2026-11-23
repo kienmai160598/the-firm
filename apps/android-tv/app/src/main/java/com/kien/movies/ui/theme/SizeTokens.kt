@@ -5,13 +5,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Immutable
-data class MoviesIconSizes(
-    val xs: Dp,
-    val sm: Dp,
-    val md: Dp,
-    val lg: Dp,
-    val xl: Dp
-)
+data class MoviesIconSizes(val xs: Dp, val sm: Dp, val md: Dp, val lg: Dp, val xl: Dp)
 
 @Immutable
 data class MoviesButtonSizes(

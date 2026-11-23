@@ -50,11 +50,7 @@ import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
 
 @Composable
-fun TrackingAddonConsentDialog(
-    addonName: String,
-    onInstall: () -> Unit,
-    onDismiss: () -> Unit
-) {
+fun TrackingAddonConsentDialog(addonName: String, onInstall: () -> Unit, onDismiss: () -> Unit) {
     var accepted by rememberSaveable(addonName) { mutableStateOf(false) }
     val checkboxFocusRequester = remember { FocusRequester() }
 
@@ -117,7 +113,10 @@ fun TrackingAddonConsentDialog(
                             }
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp),
+                            modifier = Modifier.padding(
+                                horizontal = MoviesTheme.spacing.lg,
+                                vertical = 14.dp
+                            ),
                             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -125,7 +124,9 @@ fun TrackingAddonConsentDialog(
                                 imageVector = if (accepted) Icons.Filled.CheckBox else Icons.Filled.CheckBoxOutlineBlank,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp),
-                                tint = LocalContentColor.current.copy(alpha = if (accepted) 1f else 0.64f)
+                                tint = LocalContentColor.current.copy(
+                                    alpha = if (accepted) 1f else 0.64f
+                                )
                             )
                             Text(
                                 text = stringResource(R.string.addon_tracking_consent_checkbox),

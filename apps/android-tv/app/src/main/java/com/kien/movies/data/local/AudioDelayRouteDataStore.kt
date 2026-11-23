@@ -3,9 +3,9 @@ package com.kien.movies.data.local
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import com.kien.movies.core.profile.ProfileManager
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.first
 
 @Singleton
 class AudioDelayRouteDataStore @Inject constructor(

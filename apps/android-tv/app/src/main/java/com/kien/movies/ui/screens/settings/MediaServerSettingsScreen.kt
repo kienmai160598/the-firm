@@ -65,7 +65,10 @@ internal fun MediaServerSettingsContent(
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         SettingsDetailHeader(
             title = connection.name,
-            subtitle = "${connection.statusText(providerName, uiState.failures[connection.id])} · ${connection.address}"
+            subtitle = "${connection.statusText(
+                providerName,
+                uiState.failures[connection.id]
+            )} · ${connection.address}"
         )
         SettingsGroupCard(
             modifier = Modifier
@@ -86,17 +89,27 @@ internal fun MediaServerSettingsContent(
                             subtitle = stringResource(R.string.servers_enabled_description),
                             checked = connection.enabled,
                             onToggle = { viewModel.setEnabled(connection.id, !connection.enabled) },
-                            modifier = initialFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier
+                            modifier =
+                                initialFocusRequester?.let { Modifier.focusRequester(it) }
+                                    ?: Modifier
                         )
                     }
                     if (provider?.supports(ServerCapability.EXTERNAL_ID_LOOKUP) == true) {
                         item(key = "server_catalog_metadata") {
                             SettingsToggleRow(
                                 title = stringResource(R.string.servers_catalog_metadata),
-                                subtitle = stringResource(R.string.servers_catalog_metadata_description, providerName),
+                                subtitle = stringResource(
+                                    R.string.servers_catalog_metadata_description,
+                                    providerName
+                                ),
                                 checked = connection.useCatalogMetadata,
                                 enabled = connection.enabled,
-                                onToggle = { viewModel.setCatalogMetadata(connection.id, !connection.useCatalogMetadata) }
+                                onToggle = {
+                                    viewModel.setCatalogMetadata(
+                                        connection.id,
+                                        !connection.useCatalogMetadata
+                                    )
+                                }
                             )
                         }
                     }
@@ -104,10 +117,18 @@ internal fun MediaServerSettingsContent(
                         item(key = "server_import_watch_state") {
                             SettingsToggleRow(
                                 title = stringResource(R.string.servers_import_watch_state),
-                                subtitle = stringResource(R.string.servers_import_watch_state_description, providerName),
+                                subtitle = stringResource(
+                                    R.string.servers_import_watch_state_description,
+                                    providerName
+                                ),
                                 checked = connection.importWatchState,
                                 enabled = connection.enabled,
-                                onToggle = { viewModel.setImportWatchState(connection.id, !connection.importWatchState) }
+                                onToggle = {
+                                    viewModel.setImportWatchState(
+                                        connection.id,
+                                        !connection.importWatchState
+                                    )
+                                }
                             )
                         }
                     }
@@ -130,7 +151,13 @@ internal fun MediaServerSettingsContent(
                             subtitle = null,
                             checked = library.selected,
                             enabled = connection.enabled,
-                            onToggle = { viewModel.setLibrarySelected(connection.id, library.id, !library.selected) }
+                            onToggle = {
+                                viewModel.setLibrarySelected(
+                                    connection.id,
+                                    library.id,
+                                    !library.selected
+                                )
+                            }
                         )
                     }
                     item(key = "server_refresh") {
@@ -142,7 +169,11 @@ internal fun MediaServerSettingsContent(
                             leadingIcon = Icons.Default.Sync,
                             onClick = {
                                 viewModel.refreshLibraries(connection.id) { failure ->
-                                    Toast.makeText(context, context.getString(failure.messageRes()), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(failure.messageRes()),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                         )
@@ -154,7 +185,12 @@ internal fun MediaServerSettingsContent(
                                 subtitle = null,
                                 leadingIcon = Icons.Default.Lock,
                                 onClick = {
-                                    signIn = ServerSignInRequest(provider, address = connection.address, username = connection.userName)
+                                    signIn =
+                                        ServerSignInRequest(
+                                            provider,
+                                            address = connection.address,
+                                            username = connection.userName
+                                        )
                                 }
                             )
                         }

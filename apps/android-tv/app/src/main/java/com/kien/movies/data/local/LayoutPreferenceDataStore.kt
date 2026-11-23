@@ -1,14 +1,15 @@
 package com.kien.movies.data.local
 
 import android.util.Log
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.kien.movies.core.build.BoxBuild
 import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.core.sync.LocalHomeCatalogSettingsState
 import com.kien.movies.core.sync.SyncHomeCatalogPayload
@@ -18,7 +19,6 @@ import com.kien.movies.core.sync.homeCollectionKey
 import com.kien.movies.core.sync.withLocalServerKeys
 import com.kien.movies.data.mediaserver.ServerCatalog
 import com.kien.movies.domain.model.Addon
-import com.kien.movies.core.build.BoxBuild
 import com.kien.movies.domain.model.CardDepthStyle
 import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.domain.model.Collection
@@ -28,12 +28,14 @@ import com.kien.movies.domain.model.ContinueWatchingSortMode
 import com.kien.movies.domain.model.DEFAULT_CARD_DEPTH_EDGE_COVERAGE
 import com.kien.movies.domain.model.DEFAULT_CARD_DEPTH_EDGE_STRENGTH
 import com.kien.movies.domain.model.DEFAULT_CARD_DEPTH_SHEEN_STRENGTH
+import com.kien.movies.domain.model.DetailImdbRatingsVisibility
 import com.kien.movies.domain.model.DiscoverLocation
 import com.kien.movies.domain.model.EpisodeOptionsOverlayStyle
 import com.kien.movies.domain.model.FocusedPosterTrailerPlaybackTarget
-import com.kien.movies.domain.model.DetailImdbRatingsVisibility
-import com.kien.movies.domain.model.HomeLayout
 import com.kien.movies.domain.model.HomeImdbRatingsVisibility
+import com.kien.movies.domain.model.HomeLayout
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -44,8 +46,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -65,8 +65,7 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
     private val gson = Gson()
 
@@ -81,17 +80,24 @@ class LayoutPreferenceDataStore @Inject constructor(
     private val modernSidebarEnabledKey = booleanPreferencesKey("modern_sidebar_enabled")
     private val legacyModernSidebarEnabledKey = booleanPreferencesKey("glass_sidepanel_enabled")
     private val modernSidebarBlurEnabledKey = booleanPreferencesKey("modern_sidebar_blur_enabled")
-    private val modernLandscapePostersEnabledKey = booleanPreferencesKey("modern_landscape_posters_enabled")
+    private val modernLandscapePostersEnabledKey =
+        booleanPreferencesKey("modern_landscape_posters_enabled")
     private val heroSectionEnabledKey = booleanPreferencesKey("hero_section_enabled")
     private val posterLabelsEnabledKey = booleanPreferencesKey("poster_labels_enabled")
     private val catalogAddonNameEnabledKey = booleanPreferencesKey("catalog_addon_name_enabled")
     private val catalogTypeSuffixEnabledKey = booleanPreferencesKey("catalog_type_suffix_enabled")
-    private val classicFocusGradientEnabledKey = booleanPreferencesKey("classic_focus_gradient_enabled")
-    private val focusedPosterBackdropExpandEnabledKey = booleanPreferencesKey("focused_poster_backdrop_expand_enabled")
-    private val focusedPosterBackdropExpandDelaySecondsKey = intPreferencesKey("focused_poster_backdrop_expand_delay_seconds")
-    private val focusedPosterBackdropTrailerEnabledKey = booleanPreferencesKey("focused_poster_backdrop_trailer_enabled")
-    private val focusedPosterBackdropTrailerMutedKey = booleanPreferencesKey("focused_poster_backdrop_trailer_muted")
-    private val focusedPosterTrailerContinueInDetailsKey = booleanPreferencesKey("focused_poster_trailer_continue_in_details")
+    private val classicFocusGradientEnabledKey =
+        booleanPreferencesKey("classic_focus_gradient_enabled")
+    private val focusedPosterBackdropExpandEnabledKey =
+        booleanPreferencesKey("focused_poster_backdrop_expand_enabled")
+    private val focusedPosterBackdropExpandDelaySecondsKey =
+        intPreferencesKey("focused_poster_backdrop_expand_delay_seconds")
+    private val focusedPosterBackdropTrailerEnabledKey =
+        booleanPreferencesKey("focused_poster_backdrop_trailer_enabled")
+    private val focusedPosterBackdropTrailerMutedKey =
+        booleanPreferencesKey("focused_poster_backdrop_trailer_muted")
+    private val focusedPosterTrailerContinueInDetailsKey =
+        booleanPreferencesKey("focused_poster_trailer_continue_in_details")
     private val focusedPosterBackdropTrailerPlaybackTargetKey =
         stringPreferencesKey("focused_poster_backdrop_trailer_playback_target")
     private val posterCardWidthDpKey = intPreferencesKey("poster_card_width_dp")
@@ -102,54 +108,78 @@ class LayoutPreferenceDataStore @Inject constructor(
     private val cardDepthSheenStrengthKey = intPreferencesKey("card_depth_sheen_strength")
     private val cardDepthEdgeCoverageKey = intPreferencesKey("card_depth_edge_coverage")
     private val cardDepthPostersEnabledKey = booleanPreferencesKey("card_depth_posters_enabled")
-    private val cardDepthContinueWatchingEnabledKey = booleanPreferencesKey("card_depth_continue_watching_enabled")
-    private val cardDepthEpisodeCardsEnabledKey = booleanPreferencesKey("card_depth_episode_cards_enabled")
+    private val cardDepthContinueWatchingEnabledKey =
+        booleanPreferencesKey("card_depth_continue_watching_enabled")
+    private val cardDepthEpisodeCardsEnabledKey =
+        booleanPreferencesKey("card_depth_episode_cards_enabled")
     private val cardDepthCastEnabledKey = booleanPreferencesKey("card_depth_cast_enabled")
     private val cardDepthTrailersEnabledKey = booleanPreferencesKey("card_depth_trailers_enabled")
     private val blurUnwatchedEpisodesKey = booleanPreferencesKey("blur_unwatched_episodes")
-    private val detailSeasonPostersEnabledKey = booleanPreferencesKey("detail_season_posters_enabled")
+    private val detailSeasonPostersEnabledKey =
+        booleanPreferencesKey("detail_season_posters_enabled")
     private val randomEpisodeEnabledKey = booleanPreferencesKey("random_episode_enabled")
     private val startupSplashEnabledKey = booleanPreferencesKey("startup_splash_enabled")
-    private val alwaysShowLandscapeClearlogoKey = booleanPreferencesKey("always_show_landscape_clearlogo")
-    private val heroDescriptionAutoScrollEnabledKey = booleanPreferencesKey("hero_description_auto_scroll_enabled")
-    private val episodeOptionsOverlayStyleKey = stringPreferencesKey("episode_options_overlay_style")
+    private val alwaysShowLandscapeClearlogoKey =
+        booleanPreferencesKey("always_show_landscape_clearlogo")
+    private val heroDescriptionAutoScrollEnabledKey =
+        booleanPreferencesKey("hero_description_auto_scroll_enabled")
+    private val episodeOptionsOverlayStyleKey =
+        stringPreferencesKey("episode_options_overlay_style")
     private val homeImdbRatingsVisibilityKey = stringPreferencesKey("home_imdb_ratings_visibility")
-    private val detailImdbRatingsVisibilityKey = stringPreferencesKey("detail_imdb_ratings_visibility")
+    private val detailImdbRatingsVisibilityKey =
+        stringPreferencesKey("detail_imdb_ratings_visibility")
     private val useEpisodeThumbnailsInCwKey = booleanPreferencesKey("use_episode_thumbnails_in_cw")
     private val continueWatchingEnabledKey = booleanPreferencesKey("continue_watching_enabled")
     private val continueWatchingCardStyleKey = stringPreferencesKey("continue_watching_card_style")
     private val showUnairedNextUpKey = booleanPreferencesKey("show_unaired_next_up")
-    private val nextUpFromFurthestEpisodeKey = booleanPreferencesKey("next_up_from_furthest_episode")
-    private val blurContinueWatchingNextUpKey = booleanPreferencesKey("blur_continue_watching_next_up")
+    private val nextUpFromFurthestEpisodeKey =
+        booleanPreferencesKey("next_up_from_furthest_episode")
+    private val blurContinueWatchingNextUpKey =
+        booleanPreferencesKey("blur_continue_watching_next_up")
     private val continueWatchingSortModeKey = stringPreferencesKey("continue_watching_sort_mode")
-    private val continueWatchingClickActionKey = stringPreferencesKey("continue_watching_click_action")
-    private val detailPageTrailerButtonEnabledKey = booleanPreferencesKey("detail_page_trailer_button_enabled")
-    private val preferExternalMetaAddonDetailKey = booleanPreferencesKey("prefer_external_meta_addon_detail")
-    private val modernHeroFullScreenBackdropKey = booleanPreferencesKey("modern_hero_full_screen_backdrop")
+    private val continueWatchingClickActionKey =
+        stringPreferencesKey("continue_watching_click_action")
+    private val detailPageTrailerButtonEnabledKey =
+        booleanPreferencesKey("detail_page_trailer_button_enabled")
+    private val preferExternalMetaAddonDetailKey =
+        booleanPreferencesKey("prefer_external_meta_addon_detail")
+    private val modernHeroFullScreenBackdropKey =
+        booleanPreferencesKey("modern_hero_full_screen_backdrop")
     private val hideUnreleasedContentKey = booleanPreferencesKey("hide_unreleased_content")
     private val showFullReleaseDateKey = booleanPreferencesKey("show_full_release_date")
     private val memoryOnlyVerticalScrollKey = booleanPreferencesKey("memory_only_vertical_scroll")
-    private val smoothBringIntoViewEnabledKey = booleanPreferencesKey("smooth_bring_into_view_enabled")
-    private val fastHorizontalNavigationEnabledKey = booleanPreferencesKey("fast_horizontal_navigation_enabled")
+    private val smoothBringIntoViewEnabledKey =
+        booleanPreferencesKey("smooth_bring_into_view_enabled")
+    private val fastHorizontalNavigationEnabledKey =
+        booleanPreferencesKey("fast_horizontal_navigation_enabled")
     private val followAddonsOrderKey = booleanPreferencesKey("follow_addons_order")
     private val composeHighlighterEnabledKey = booleanPreferencesKey("compose_highlighter_enabled")
 
     private val customPosterUrlPatternKey = stringPreferencesKey("custom_poster_url_pattern")
-    private val customPosterEnabledScreensKey = stringPreferencesKey("custom_poster_enabled_screens")
+    private val customPosterEnabledScreensKey =
+        stringPreferencesKey("custom_poster_enabled_screens")
 
-    private fun <T> profileFlow(extract: (prefs: androidx.datastore.preferences.core.Preferences) -> T): Flow<T> =
-        profileManager.activeProfileId.flatMapLatest { pid ->
-            factory.get(pid, FEATURE).data.map { prefs -> extract(prefs) }
-        }
+    private fun <T> profileFlow(
+        extract: (prefs: androidx.datastore.preferences.core.Preferences) -> T
+    ): Flow<T> = profileManager.activeProfileId.flatMapLatest { pid ->
+        factory.get(pid, FEATURE).data.map { prefs -> extract(prefs) }
+    }
 
     private fun Preferences.getStringOrMigrateSet(key: Preferences.Key<String>): String? {
         return try {
             this[key]
         } catch (e: ClassCastException) {
             val setKey = stringSetPreferencesKey(key.name)
-            val legacySet = try { this[setKey] } catch (_: Exception) { null }
+            val legacySet = try {
+                this[setKey]
+            } catch (_: Exception) {
+                null
+            }
             if (legacySet != null) {
-                Log.w(TAG, "Key '${key.name}' stored as Set instead of String (${legacySet.size} items), converting")
+                Log.w(
+                    TAG,
+                    "Key '${key.name}' stored as Set instead of String (${legacySet.size} items), converting"
+                )
                 gson.toJson(legacySet.toList())
             } else {
                 Log.e(TAG, "ClassCastException for key '${key.name}' but no Set value found", e)
@@ -158,8 +188,7 @@ class LayoutPreferenceDataStore @Inject constructor(
         }
     }
 
-    private fun positiveOrDefault(value: Int?, defaultValue: Int): Int =
-        value?.takeIf { it > 0 } ?: defaultValue
+    private fun positiveOrDefault(value: Int?, defaultValue: Int): Int = value?.takeIf { it > 0 } ?: defaultValue
 
     val selectedLayout: Flow<HomeLayout> = profileFlow { prefs ->
         val layoutName = prefs[layoutKey] ?: HomeLayout.MODERN.name
@@ -204,7 +233,9 @@ class LayoutPreferenceDataStore @Inject constructor(
         selections.firstOrNull()
     }
 
-    val homeCatalogOrderKeys: Flow<List<String>> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val homeCatalogOrderKeys: Flow<List<String>> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         val profile = profileManager.profiles.value.find { it.id == pid }
         val usePrimary = profile != null && !profile.isPrimary && profile.usesPrimaryAddons
         val effectivePid = if (usePrimary) 1 else pid
@@ -213,7 +244,9 @@ class LayoutPreferenceDataStore @Inject constructor(
         }
     }
 
-    val disabledHomeCatalogKeys: Flow<List<String>> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val disabledHomeCatalogKeys: Flow<List<String>> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         val profile = profileManager.profiles.value.find { it.id == pid }
         val usePrimary = profile != null && !profile.isPrimary && profile.usesPrimaryAddons
         val effectivePid = if (usePrimary) 1 else pid
@@ -222,7 +255,9 @@ class LayoutPreferenceDataStore @Inject constructor(
         }
     }
 
-    val customCatalogTitles: Flow<Map<String, String>> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val customCatalogTitles: Flow<Map<String, String>> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         val profile = profileManager.profiles.value.find { it.id == pid }
         val usePrimary = profile != null && !profile.isPrimary && profile.usesPrimaryAddons
         val effectivePid = if (usePrimary) 1 else pid
@@ -292,8 +327,10 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     val focusedPosterBackdropExpandDelaySeconds: Flow<Int> = profileFlow { prefs ->
-        (prefs[focusedPosterBackdropExpandDelaySecondsKey]
-            ?: DEFAULT_FOCUSED_POSTER_BACKDROP_EXPAND_DELAY_SECONDS)
+        (
+            prefs[focusedPosterBackdropExpandDelaySecondsKey]
+                ?: DEFAULT_FOCUSED_POSTER_BACKDROP_EXPAND_DELAY_SECONDS
+            )
             .coerceAtLeast(MIN_FOCUSED_POSTER_BACKDROP_EXPAND_DELAY_SECONDS)
     }
 
@@ -332,12 +369,18 @@ class LayoutPreferenceDataStore @Inject constructor(
     val cardDepthStyle: Flow<CardDepthStyle> = profileFlow { prefs ->
         CardDepthStyle(
             enabled = prefs[cardDepthEnabledKey] ?: false,
-            edgeStrength = (prefs[cardDepthEdgeStrengthKey]
-                ?: DEFAULT_CARD_DEPTH_EDGE_STRENGTH).coerceIn(0, 100),
-            sheenStrength = (prefs[cardDepthSheenStrengthKey]
-                ?: DEFAULT_CARD_DEPTH_SHEEN_STRENGTH).coerceIn(0, 100),
-            edgeCoverage = (prefs[cardDepthEdgeCoverageKey]
-                ?: DEFAULT_CARD_DEPTH_EDGE_COVERAGE).coerceIn(0, 100),
+            edgeStrength = (
+                prefs[cardDepthEdgeStrengthKey]
+                    ?: DEFAULT_CARD_DEPTH_EDGE_STRENGTH
+                ).coerceIn(0, 100),
+            sheenStrength = (
+                prefs[cardDepthSheenStrengthKey]
+                    ?: DEFAULT_CARD_DEPTH_SHEEN_STRENGTH
+                ).coerceIn(0, 100),
+            edgeCoverage = (
+                prefs[cardDepthEdgeCoverageKey]
+                    ?: DEFAULT_CARD_DEPTH_EDGE_COVERAGE
+                ).coerceIn(0, 100),
             postersEnabled = prefs[cardDepthPostersEnabledKey] ?: true,
             continueWatchingEnabled = prefs[cardDepthContinueWatchingEnabledKey] ?: true,
             episodeCardsEnabled = prefs[cardDepthEpisodeCardsEnabledKey] ?: true,
@@ -358,8 +401,7 @@ class LayoutPreferenceDataStore @Inject constructor(
         prefs[randomEpisodeEnabledKey] ?: false
     }
 
-    fun randomEpisodeEnabledForProfile(profileId: Int): Flow<Boolean> =
-        factory.get(profileId, FEATURE).data.map { it[randomEpisodeEnabledKey] ?: false }
+    fun randomEpisodeEnabledForProfile(profileId: Int): Flow<Boolean> = factory.get(profileId, FEATURE).data.map { it[randomEpisodeEnabledKey] ?: false }
 
     val startupSplashEnabled: Flow<Boolean> = profileFlow { prefs ->
         prefs[startupSplashEnabledKey] ?: true
@@ -386,7 +428,8 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     val detailImdbRatingsVisibility: Flow<DetailImdbRatingsVisibility> = profileFlow { prefs ->
-        val stored = prefs[detailImdbRatingsVisibilityKey] ?: DetailImdbRatingsVisibility.SHOW_ALL.name
+        val stored =
+            prefs[detailImdbRatingsVisibilityKey] ?: DetailImdbRatingsVisibility.SHOW_ALL.name
         runCatching { DetailImdbRatingsVisibility.valueOf(stored) }
             .getOrDefault(DetailImdbRatingsVisibility.SHOW_ALL)
             .asEpisodeVisibility()
@@ -415,7 +458,8 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     val continueWatchingClickAction: Flow<ContinueWatchingClickAction> = profileFlow { prefs ->
-        val stored = prefs[continueWatchingClickActionKey] ?: ContinueWatchingClickAction.STREAM.name
+        val stored =
+            prefs[continueWatchingClickActionKey] ?: ContinueWatchingClickAction.STREAM.name
         runCatching { ContinueWatchingClickAction.valueOf(stored) }
             .getOrDefault(ContinueWatchingClickAction.STREAM)
     }
@@ -461,9 +505,12 @@ class LayoutPreferenceDataStore @Inject constructor(
         prefs[customPosterUrlPatternKey] ?: ""
     }
 
-    val customPosterEnabledScreens: Flow<Set<com.kien.movies.core.poster.CustomPosterScreen>> = profileFlow { prefs ->
-        com.kien.movies.core.poster.CustomPosterScreen.fromStorageValue(prefs[customPosterEnabledScreensKey])
-    }
+    val customPosterEnabledScreens: Flow<Set<com.kien.movies.core.poster.CustomPosterScreen>> =
+        profileFlow { prefs ->
+            com.kien.movies.core.poster.CustomPosterScreen.fromStorageValue(
+                prefs[customPosterEnabledScreensKey]
+            )
+        }
 
     suspend fun setMemoryOnlyVerticalScroll(enabled: Boolean) {
         store().edit { prefs ->
@@ -512,7 +559,9 @@ class LayoutPreferenceDataStore @Inject constructor(
         }
     }
 
-    suspend fun setCustomPosterEnabledScreens(screens: Set<com.kien.movies.core.poster.CustomPosterScreen>) {
+    suspend fun setCustomPosterEnabledScreens(
+        screens: Set<com.kien.movies.core.poster.CustomPosterScreen>
+    ) {
         store().edit { prefs ->
             val stored = com.kien.movies.core.poster.CustomPosterScreen.toStorageValue(screens)
             if (stored == null) {
@@ -703,7 +752,8 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     suspend fun setPosterCardHeightDp(heightDp: Int) {
         store().edit { prefs ->
-            prefs[posterCardHeightDpKey] = positiveOrDefault(heightDp, DEFAULT_POSTER_CARD_HEIGHT_DP)
+            prefs[posterCardHeightDpKey] =
+                positiveOrDefault(heightDp, DEFAULT_POSTER_CARD_HEIGHT_DP)
         }
     }
 
@@ -948,23 +998,33 @@ class LayoutPreferenceDataStore @Inject constructor(
     suspend fun applyCatalogSettingsFromRemote(payload: SyncHomeCatalogPayload) {
         val sortedItems = payload.items.sortedBy { it.order }
         val remoteOrderKeys = sortedItems.map { item ->
-            if (item.isCollection) homeCollectionKey(item.collectionId)
-            else homeCatalogKey(item.addonId, item.type, item.catalogId)
+            if (item.isCollection) {
+                homeCollectionKey(item.collectionId)
+            } else {
+                homeCatalogKey(item.addonId, item.type, item.catalogId)
+            }
         }
         val remoteDisabledKeys = sortedItems.filter { !it.enabled }.map { item ->
-            if (item.isCollection) homeCollectionKey(item.collectionId)
-            else homeCatalogKey(item.addonId, item.type, item.catalogId)
+            if (item.isCollection) {
+                homeCollectionKey(item.collectionId)
+            } else {
+                homeCatalogKey(item.addonId, item.type, item.catalogId)
+            }
         }
         val remoteTitles = sortedItems.associate { item ->
-            val key = if (item.isCollection) homeCollectionKey(item.collectionId)
-            else homeCatalogKey(item.addonId, item.type, item.catalogId)
+            val key = if (item.isCollection) {
+                homeCollectionKey(item.collectionId)
+            } else {
+                homeCatalogKey(item.addonId, item.type, item.catalogId)
+            }
             key to item.customTitle
         }.filterValues { it.isNotBlank() }
 
         store().edit { prefs ->
             val local = readHomeCatalogSettingsState(prefs)
             val orderKeys = remoteOrderKeys.withLocalServerKeys(local.orderKeys)
-            val disabledKeys = remoteDisabledKeys + local.disabledKeys.filter(ServerCatalog::isServerKey)
+            val disabledKeys =
+                remoteDisabledKeys + local.disabledKeys.filter(ServerCatalog::isServerKey)
             val titles = remoteTitles + local.customTitles.filterKeys(ServerCatalog::isServerKey)
             prefs[hideUnreleasedContentKey] = payload.hideUnreleasedContent
             if (orderKeys.isNotEmpty()) {
@@ -988,7 +1048,9 @@ class LayoutPreferenceDataStore @Inject constructor(
     private fun readHomeCatalogSettingsState(prefs: Preferences): LocalHomeCatalogSettingsState {
         return LocalHomeCatalogSettingsState(
             orderKeys = parseCatalogKeys(prefs.getStringOrMigrateSet(homeCatalogOrderKeysKey)),
-            disabledKeys = parseCatalogKeys(prefs.getStringOrMigrateSet(disabledHomeCatalogKeysKey)).toSet(),
+            disabledKeys = parseCatalogKeys(
+                prefs.getStringOrMigrateSet(disabledHomeCatalogKeysKey)
+            ).toSet(),
             customTitles = parseCustomTitles(prefs.getStringOrMigrateSet(customCatalogTitlesKey)),
             hideUnreleasedContent = prefs[hideUnreleasedContentKey] ?: false
         )

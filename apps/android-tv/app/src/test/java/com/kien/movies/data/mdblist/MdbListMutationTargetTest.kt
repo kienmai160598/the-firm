@@ -17,17 +17,28 @@ class MdbListMutationTargetTest {
 
     @Test
     fun `native MDBList identifiers survive the provider-neutral media boundary`() {
-        val ids = parseTrackingExternalIds("mdblist:public:1:2").mergeMissing(TrackingExternalIds(tmdb = 50))
+        val ids = parseTrackingExternalIds(
+            "mdblist:public:1:2"
+        ).mergeMissing(TrackingExternalIds(tmdb = 50))
         assertEquals("public", ids.mdblist)
         assertTrue(ids.hasAny)
         assertEquals("public", ids.toMdbListIds()?.mdblist)
         val target = snapshot.mutationTarget(movie().copy(ids = ids))!!
-        assertEquals("public", target.scrobbleBody(10.0).objectValue("movie")?.objectValue("ids")?.text("mdblist"))
+        assertEquals(
+            "public",
+            target.scrobbleBody(10.0).objectValue("movie")?.objectValue("ids")?.text("mdblist")
+        )
     }
 
     @Test
     fun `unresolved anime identifiers are rejected instead of guessed from title`() {
-        val reference = TrackingMediaReference(TrackingMediaKind.ANIME, "Series", ids = TrackingExternalIds(mal = 100), episode = TrackingEpisode(null, 1))
+        val reference =
+            TrackingMediaReference(
+                TrackingMediaKind.ANIME,
+                "Series",
+                ids = TrackingExternalIds(mal = 100),
+                episode = TrackingEpisode(null, 1)
+            )
         assertNull(snapshot.mutationTarget(reference))
         assertNull(snapshot.mutationTarget(reference.copy(ids = TrackingExternalIds(imdb = "tt1"))))
     }
@@ -62,8 +73,12 @@ class MdbListMutationTargetTest {
 
     @Test
     fun `episode history sends episode IDs separately from parent show IDs`() {
-        val target = snapshot.mutationTarget(series().copy(episode = TrackingEpisode(1, 2, tvdbId = 700, tmdbId = 600)))!!
-        val payload = mdbListResponseElement(mdbListHistoryPayload(listOf(MdbListHistoryChange(target, MDBLIST_TEST_TIME)))).jsonObject
+        val target = snapshot.mutationTarget(
+            series().copy(episode = TrackingEpisode(1, 2, tvdbId = 700, tmdbId = 600))
+        )!!
+        val payload = mdbListResponseElement(
+            mdbListHistoryPayload(listOf(MdbListHistoryChange(target, MDBLIST_TEST_TIME)))
+        ).jsonObject
         assertEquals(setOf("episodes"), payload.keys)
         val item = payload.arrayValue("episodes").single().objectValue()
         assertEquals(600L, item.objectValue("ids")?.number("tmdb"))
@@ -74,7 +89,9 @@ class MdbListMutationTargetTest {
     @Test
     fun `unresolved episode IDs use exact nested coordinates and never expand the whole season`() {
         val target = snapshot.mutationTarget(series())!!
-        val payload = mdbListResponseElement(mdbListHistoryPayload(listOf(MdbListHistoryChange(target, MDBLIST_TEST_TIME)))).jsonObject
+        val payload = mdbListResponseElement(
+            mdbListHistoryPayload(listOf(MdbListHistoryChange(target, MDBLIST_TEST_TIME)))
+        ).jsonObject
         val show = payload.arrayValue("shows").single().objectValue()
         val season = show.arrayValue("seasons").single().objectValue()
         val episode = season.arrayValue("episodes").single().objectValue()
@@ -89,7 +106,9 @@ class MdbListMutationTargetTest {
     @Test
     fun `known episode mapping resolves TVDB coordinates to MDBList coordinates`() {
         val known = mdbListTestEpisode(2, 4).copy(episodeTmdbId = 600, episodeTvdbId = 700)
-        val reference = series().copy(episode = TrackingEpisode(1, 15, tvdbId = 700, usesTvdbSeasonMapping = true))
+        val reference = series().copy(
+            episode = TrackingEpisode(1, 15, tvdbId = 700, usesTvdbSeasonMapping = true)
+        )
         val target = snapshot.copy(watched = listOf(known)).mutationTarget(reference)!!
         assertEquals(2, target.season)
         assertEquals(4, target.episode)
@@ -99,5 +118,9 @@ class MdbListMutationTargetTest {
     }
 
     private fun movie() = TrackingMediaReference(TrackingMediaKind.MOVIE, ids = TrackingExternalIds(imdb = "tt1"))
-    private fun series() = TrackingMediaReference(TrackingMediaKind.SHOW, ids = TrackingExternalIds(imdb = "tt1"), episode = TrackingEpisode(1, 2))
+    private fun series() = TrackingMediaReference(
+        TrackingMediaKind.SHOW,
+        ids = TrackingExternalIds(imdb = "tt1"),
+        episode = TrackingEpisode(1, 2)
+    )
 }

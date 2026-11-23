@@ -27,10 +27,7 @@ class SimklTrackingScrobbler @Inject constructor(
 ) : TrackingScrobbler {
     override val providerId = TrackingProviderId.SIMKL
 
-    override suspend fun scrobble(
-        action: TrackingScrobbleAction,
-        event: TrackingScrobbleEvent
-    ) {
+    override suspend fun scrobble(action: TrackingScrobbleAction, event: TrackingScrobbleEvent) {
         val authenticated = authRepository.state.value.isAuthenticated
         Log.d(
             TRACKING_SCROBBLE_DIAGNOSTIC_TAG,

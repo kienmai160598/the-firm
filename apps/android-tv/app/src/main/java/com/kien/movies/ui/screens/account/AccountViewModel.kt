@@ -19,16 +19,16 @@ import com.kien.movies.core.qr.QrCodeGenerator
 import com.kien.movies.core.sync.AddonSyncService
 import com.kien.movies.core.sync.LibrarySyncService
 import com.kien.movies.core.sync.PluginSyncService
-import com.kien.movies.data.local.PluginSyncProfile
-import com.kien.movies.data.local.effectivePluginProfileId
-import com.kien.movies.core.sync.WatchProgressSyncService
-import com.kien.movies.core.sync.WatchedItemsSyncService
 import com.kien.movies.core.sync.ProfileSettingsSyncService
 import com.kien.movies.core.sync.ProviderCredentialSyncService
+import com.kien.movies.core.sync.WatchProgressSyncService
+import com.kien.movies.core.sync.WatchedItemsSyncService
 import com.kien.movies.data.local.LibraryPreferences
-import com.kien.movies.data.local.WatchedItemsPreferences
+import com.kien.movies.data.local.PluginSyncProfile
 import com.kien.movies.data.local.TraktAuthDataStore
 import com.kien.movies.data.local.WatchProgressPreferences
+import com.kien.movies.data.local.WatchedItemsPreferences
+import com.kien.movies.data.local.effectivePluginProfileId
 import com.kien.movies.data.repository.AddonRepositoryImpl
 import com.kien.movies.data.repository.AuthDiagnosticReportRepository
 import com.kien.movies.data.repository.LibraryRepositoryImpl
@@ -36,26 +36,26 @@ import com.kien.movies.data.repository.WatchProgressRepositoryImpl
 import com.kien.movies.domain.model.AuthState
 import com.kien.movies.domain.model.ServerConfiguration
 import com.kien.movies.domain.repository.SyncRepository
-import io.github.jan.supabase.postgrest.Postgrest
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import io.github.jan.supabase.postgrest.Postgrest
 import java.security.SecureRandom
 import java.time.OffsetDateTime
 import java.util.Base64
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 private const val TAG = "AccountViewModel"
 private const val QR_ENDPOINT_START = "/rest/v1/rpc/start_device_login_session"
@@ -111,7 +111,13 @@ class AccountViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         authState = state,
-                        effectiveOwnerId = if (state is AuthState.SignedOut || state is AuthState.Loading) null else it.effectiveOwnerId,
+                        effectiveOwnerId = if (state is AuthState.SignedOut ||
+                            state is AuthState.Loading
+                        ) {
+                            null
+                        } else {
+                            it.effectiveOwnerId
+                        },
                         connectedStats = if (state is AuthState.FullAccount) it.connectedStats else null,
                         isStatsLoading = if (state is AuthState.FullAccount) it.isStatsLoading else false
                     )
@@ -133,8 +139,13 @@ class AccountViewModel @Inject constructor(
                     perProfile = current.perProfile.map { stat ->
                         val local = profiles.firstOrNull { it.id == stat.profileId }
                         if (local != null) {
-                            stat.copy(profileName = local.name, avatarColorHex = local.avatarColorHex)
-                        } else stat
+                            stat.copy(
+                                profileName = local.name,
+                                avatarColorHex = local.avatarColorHex
+                            )
+                        } else {
+                            stat
+                        }
                     }
                 )
                 _uiState.update { it.copy(syncOverview = updated) }
@@ -163,7 +174,11 @@ class AccountViewModel @Inject constructor(
             authManager.signInWithEmail(email, password).fold(
                 onSuccess = {
                     pullRemoteData().onFailure { e ->
-                        Log.e("AccountViewModel", "signIn: pullRemoteData failed, continuing signed-in flow", e)
+                        Log.e(
+                            "AccountViewModel",
+                            "signIn: pullRemoteData failed, continuing signed-in flow",
+                            e
+                        )
                     }
                     loadConnectedStats()
                     _uiState.update { it.copy(isLoading = false) }
@@ -179,7 +194,12 @@ class AccountViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             if (!authManager.isAuthenticated) {
-                _uiState.update { it.copy(isLoading = false, error = context.getString(R.string.account_error_signin_required)) }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = context.getString(R.string.account_error_signin_required)
+                    )
+                }
                 return@launch
             }
             pushLocalDataToRemote()
@@ -212,7 +232,12 @@ class AccountViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             if (!authManager.isAuthenticated) {
-                _uiState.update { it.copy(isLoading = false, error = context.getString(R.string.account_error_signin_required)) }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = context.getString(R.string.account_error_signin_required)
+                    )
+                }
                 return@launch
             }
             syncRepository.claimSyncCode(code, pin, Build.MODEL).fold(
@@ -220,7 +245,11 @@ class AccountViewModel @Inject constructor(
                     if (result.success) {
                         authManager.clearEffectiveUserIdCache()
                         pullRemoteData().onFailure { e ->
-                            Log.e("AccountViewModel", "claimSyncCode: pullRemoteData failed, continuing", e)
+                            Log.e(
+                                "AccountViewModel",
+                                "claimSyncCode: pullRemoteData failed, continuing",
+                                e
+                            )
                         }
                         updateEffectiveOwnerId(_uiState.value.authState)
                         _uiState.update { it.copy(isLoading = false, syncClaimSuccess = true) }
@@ -299,7 +328,8 @@ class AccountViewModel @Inject constructor(
                     "redirectBaseUrl" to serverConfiguration.deviceLoginWebBaseUrl,
                     "legacyRedirectBaseUrl" to serverConfiguration.tvLoginWebBaseUrl,
                     "supabaseUrl" to serverConfiguration.backendUrl,
-                    "anonKeyConfigured" to serverConfiguration.publishableKey.isNotBlank().toString(),
+                    "anonKeyConfigured" to
+                        serverConfiguration.publishableKey.isNotBlank().toString(),
                     "nonce" to nonce
                 )
             )
@@ -333,15 +363,30 @@ class AccountViewModel @Inject constructor(
             ).fold(
                 onSuccess = { result ->
                     val expiresAtMillis = parseTimestampMillis(result.expiresAt)
-                    if (result.deviceCode.isBlank() || result.userCode.isBlank() || result.verificationUriComplete.isBlank()) {
-                        Log.w(TAG, "QR_LOGIN[$traceId] start_device_login_session returned incomplete data deviceCodeBlank=${result.deviceCode.isBlank()} userCodeBlank=${result.userCode.isBlank()} urlBlank=${result.verificationUriComplete.isBlank()}")
+                    if (result.deviceCode.isBlank() || result.userCode.isBlank() ||
+                        result.verificationUriComplete.isBlank()
+                    ) {
+                        Log.w(
+                            TAG,
+                            "QR_LOGIN[$traceId] start_device_login_session returned incomplete data deviceCodeBlank=${result.deviceCode.isBlank()} userCodeBlank=${result.userCode.isBlank()} urlBlank=${result.verificationUriComplete.isBlank()}"
+                        )
                     }
                     val qrStartedAtMs = SystemClock.elapsedRealtime()
                     val qrBitmap = withContext(Dispatchers.Default) {
-                        runCatching { QrCodeGenerator.generate(result.verificationUriComplete, 420, margin = 1) }
+                        runCatching {
+                            QrCodeGenerator.generate(
+                                result.verificationUriComplete,
+                                420,
+                                margin = 1
+                            )
+                        }
                     }
                         .onFailure { e ->
-                            Log.e(TAG, "QR_LOGIN[$traceId] QR bitmap generation failed url=${result.verificationUriComplete.urlForLog()} urlLength=${result.verificationUriComplete.length} error=${e.diagnosticSummary()}", e)
+                            Log.e(
+                                TAG,
+                                "QR_LOGIN[$traceId] QR bitmap generation failed url=${result.verificationUriComplete.urlForLog()} urlLength=${result.verificationUriComplete.length} error=${e.diagnosticSummary()}",
+                                e
+                            )
                         }
                         .getOrNull()
                     // The session can be cleared or replaced while the bitmap is built off the main thread.
@@ -366,8 +411,16 @@ class AccountViewModel @Inject constructor(
                     startQrLoginPolling()
                 },
                 onFailure = { e ->
-                    Log.e(TAG, "QR_LOGIN[$traceId] start_device_login_session failed totalElapsedMs=${SystemClock.elapsedRealtime() - startedAtMs} error=${e.diagnosticSummary()}", e)
-                    diagnostics.finishFailure("start_device_login_session_failed", QR_ENDPOINT_START, error = e)
+                    Log.e(
+                        TAG,
+                        "QR_LOGIN[$traceId] start_device_login_session failed totalElapsedMs=${SystemClock.elapsedRealtime() - startedAtMs} error=${e.diagnosticSummary()}",
+                        e
+                    )
+                    diagnostics.finishFailure(
+                        "start_device_login_session_failed",
+                        QR_ENDPOINT_START,
+                        error = e
+                    )
                     activeQrLoginDiagnostics = null
                     _uiState.update {
                         it.copy(
@@ -396,33 +449,81 @@ class AccountViewModel @Inject constructor(
             val code = current.qrLoginCode
             val nonce = current.qrLoginNonce
             if (code == null || nonce == null) {
-                Log.w(TAG, "QR_LOGIN[${traceId ?: "-"}] exchange skipped missing code=${code != null} nonce=${nonce != null}")
+                Log.w(
+                    TAG,
+                    "QR_LOGIN[${traceId ?: "-"}] exchange skipped missing code=${code != null} nonce=${nonce != null}"
+                )
                 return@launch
             }
             if (qrLoginExchangeInFlight) {
-                Log.d(TAG, "QR_LOGIN[${traceId ?: "-"}] exchange skipped because another exchange is in flight")
+                Log.d(
+                    TAG,
+                    "QR_LOGIN[${traceId ?: "-"}] exchange skipped because another exchange is in flight"
+                )
                 return@launch
             }
             qrLoginExchangeInFlight = true
             val startedAtMs = SystemClock.elapsedRealtime()
-            Log.d(TAG, "QR_LOGIN[${traceId ?: "-"}] exchange begin code=${code.rawForLog()} nonce=${nonce.rawForLog()} auth=${current.authState.nameForLog()}")
-            _uiState.update { it.copy(isLoading = true, error = null, qrLoginStatus = context.getString(R.string.qr_login_signing_in)) }
+            Log.d(
+                TAG,
+                "QR_LOGIN[${traceId ?: "-"}] exchange begin code=${code.rawForLog()} nonce=${nonce.rawForLog()} auth=${current.authState.nameForLog()}"
+            )
+            _uiState.update {
+                it.copy(
+                    isLoading = true,
+                    error = null,
+                    qrLoginStatus = context.getString(R.string.qr_login_signing_in)
+                )
+            }
             try {
-                authManager.exchangeTvLoginSession(code = code, deviceNonce = nonce, traceId = traceId, diagnostics = diagnostics).fold(
+                authManager.exchangeTvLoginSession(
+                    code = code,
+                    deviceNonce = nonce,
+                    traceId = traceId,
+                    diagnostics = diagnostics
+                ).fold(
                     onSuccess = {
-                        Log.d(TAG, "QR_LOGIN[${traceId ?: "-"}] exchange ok elapsedMs=${SystemClock.elapsedRealtime() - startedAtMs}")
+                        Log.d(
+                            TAG,
+                            "QR_LOGIN[${traceId ?: "-"}] exchange ok elapsedMs=${SystemClock.elapsedRealtime() - startedAtMs}"
+                        )
                         diagnostics?.finishSuccess("qr_login_completed")
-                        if (activeQrLoginDiagnostics === diagnostics) activeQrLoginDiagnostics = null
+                        if (activeQrLoginDiagnostics ===
+                            diagnostics
+                        ) {
+                            activeQrLoginDiagnostics = null
+                        }
                         pullRemoteData().onFailure { e ->
-                            Log.e(TAG, "QR_LOGIN[${traceId ?: "-"}] exchange pullRemoteData failed, continuing error=${e.diagnosticSummary()}", e)
+                            Log.e(
+                                TAG,
+                                "QR_LOGIN[${traceId ?: "-"}] exchange pullRemoteData failed, continuing error=${e.diagnosticSummary()}",
+                                e
+                            )
                         }
                         loadConnectedStats()
-                        _uiState.update { it.copy(isLoading = false, qrLoginStatus = context.getString(R.string.qr_login_success)) }
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                qrLoginStatus = context.getString(R.string.qr_login_success)
+                            )
+                        }
                     },
                     onFailure = { e ->
-                        Log.e(TAG, "QR_LOGIN[${traceId ?: "-"}] exchange failed elapsedMs=${SystemClock.elapsedRealtime() - startedAtMs} error=${e.diagnosticSummary()}", e)
-                        diagnostics?.finishFailure("exchange_tv_login_session_failed", QR_ENDPOINT_EXCHANGE, error = e)
-                        if (activeQrLoginDiagnostics === diagnostics) activeQrLoginDiagnostics = null
+                        Log.e(
+                            TAG,
+                            "QR_LOGIN[${traceId ?: "-"}] exchange failed elapsedMs=${SystemClock.elapsedRealtime() - startedAtMs} error=${e.diagnosticSummary()}",
+                            e
+                        )
+                        diagnostics?.finishFailure(
+                            "exchange_tv_login_session_failed",
+                            QR_ENDPOINT_EXCHANGE,
+                            error = e
+                        )
+                        if (activeQrLoginDiagnostics ===
+                            diagnostics
+                        ) {
+                            activeQrLoginDiagnostics = null
+                        }
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
@@ -439,12 +540,19 @@ class AccountViewModel @Inject constructor(
     }
 
     fun clearQrLoginSession() {
-        Log.d(TAG, "QR_LOGIN[${activeQrLoginTraceId ?: "-"}] clearing session code=${_uiState.value.qrLoginCode.rawForLog()} pollAttempts=$qrLoginPollAttempt exchangeInFlight=$qrLoginExchangeInFlight")
+        Log.d(
+            TAG,
+            "QR_LOGIN[${activeQrLoginTraceId ?: "-"}] clearing session code=${_uiState.value.qrLoginCode.rawForLog()} pollAttempts=$qrLoginPollAttempt exchangeInFlight=$qrLoginExchangeInFlight"
+        )
         val diagnostics = activeQrLoginDiagnostics
         activeQrLoginDiagnostics = null
         if (diagnostics != null && !diagnostics.isFinished()) {
             viewModelScope.launch {
-                diagnostics.finishTerminal(status = "cancelled", reason = "qr_login_cleared", failingEndpoint = null)
+                diagnostics.finishTerminal(
+                    status = "cancelled",
+                    reason = "qr_login_cleared",
+                    failingEndpoint = null
+                )
             }
         }
         cancelQrLoginPolling()
@@ -520,10 +628,7 @@ class AccountViewModel @Inject constructor(
         val profiles: Map<String, ProfileInfo> = emptyMap()
     ) {
         @Serializable
-        data class ProfileInfo(
-            val name: String,
-            val color: String
-        )
+        data class ProfileInfo(val name: String, val color: String)
     }
 
     fun loadSyncOverview() {
@@ -534,9 +639,11 @@ class AccountViewModel @Inject constructor(
                 val response = postgrest.rpc("get_sync_overview")
                     .decodeAs<SyncOverviewResponse>()
 
-                val allProfileIds = (response.addons.keys + response.plugins.keys +
-                    response.libraryItems.keys + response.watchProgress.keys +
-                    response.watchedItems.keys + response.profiles.keys)
+                val allProfileIds = (
+                    response.addons.keys + response.plugins.keys +
+                        response.libraryItems.keys + response.watchProgress.keys +
+                        response.watchedItems.keys + response.profiles.keys
+                    )
                     .mapNotNull { it.toIntOrNull() }
                     .distinct()
                     .sorted()
@@ -549,7 +656,10 @@ class AccountViewModel @Inject constructor(
                     ProfileSyncStats(
                         profileId = pid,
                         profileName = local?.name ?: remote?.name
-                            ?: context.getString(com.kien.movies.R.string.profile_default_name, pid),
+                            ?: context.getString(
+                                com.kien.movies.R.string.profile_default_name,
+                                pid
+                            ),
                         avatarColorHex = local?.avatarColorHex ?: remote?.color ?: "#1E88E5",
                         addons = response.addons[pidStr] ?: 0,
                         plugins = response.plugins[pidStr] ?: 0,
@@ -587,47 +697,100 @@ class AccountViewModel @Inject constructor(
 
         val resId = when {
             // PIN errors (from PG RAISE EXCEPTION or any wrapper)
-            message.contains("incorrect pin") || message.contains("invalid pin") || message.contains("wrong pin") -> R.string.account_error_incorrect_pin
+            message.contains("incorrect pin") || message.contains("invalid pin") ||
+                message.contains("wrong pin") -> R.string.account_error_incorrect_pin
 
             // Sync code errors
             message.contains("expired") -> R.string.account_error_sync_code_expired
-            message.contains("invalid") && message.contains("code") -> R.string.account_error_invalid_sync_code
-            message.contains("not found") || message.contains("no sync code") -> R.string.account_error_sync_code_not_found
+
+            message.contains(
+                "invalid"
+            ) && message.contains("code") -> R.string.account_error_invalid_sync_code
+
+            message.contains(
+                "not found"
+            ) || message.contains("no sync code") -> R.string.account_error_sync_code_not_found
+
             message.contains("already linked") -> R.string.account_error_device_already_linked
+
             message.contains("empty response") -> R.string.account_error_generic_retry
 
             // Auth errors
-            message.contains("invalid login credentials") -> R.string.account_error_invalid_credentials
+            message.contains(
+                "invalid login credentials"
+            ) -> R.string.account_error_invalid_credentials
+
             message.contains("email not confirmed") -> R.string.account_error_email_not_confirmed
-            message.contains("user already registered") -> R.string.account_error_email_already_registered
+
+            message.contains(
+                "user already registered"
+            ) -> R.string.account_error_email_already_registered
+
             message.contains("invalid email") -> R.string.account_error_invalid_email
-            message.contains("password") && message.contains("short") -> R.string.account_error_password_too_short
-            message.contains("password") && message.contains("weak") -> R.string.account_error_password_too_weak
+
+            message.contains(
+                "password"
+            ) && message.contains("short") -> R.string.account_error_password_too_short
+
+            message.contains(
+                "password"
+            ) && message.contains("weak") -> R.string.account_error_password_too_weak
+
             message.contains("signup is disabled") -> R.string.account_error_signup_disabled
-            message.contains("rate limit") || message.contains("too many requests") -> R.string.account_error_rate_limited
-            message.contains("tv login") && message.contains("expired") -> R.string.account_error_qr_login_expired
-            message.contains("tv login") && message.contains("invalid") -> R.string.account_error_invalid_qr_login
-            message.contains("tv login") && message.contains("nonce") -> R.string.account_error_qr_login_other_device
-            message.contains("start_tv_login_session") && message.contains("could not find the function") ->
+
+            message.contains(
+                "rate limit"
+            ) || message.contains("too many requests") -> R.string.account_error_rate_limited
+
+            message.contains(
+                "tv login"
+            ) && message.contains("expired") -> R.string.account_error_qr_login_expired
+
+            message.contains(
+                "tv login"
+            ) && message.contains("invalid") -> R.string.account_error_invalid_qr_login
+
+            message.contains(
+                "tv login"
+            ) && message.contains("nonce") -> R.string.account_error_qr_login_other_device
+
+            message.contains("start_tv_login_session") &&
+                message.contains("could not find the function") ->
                 R.string.account_error_qr_login_outdated
+
             message.contains("gen_random_bytes") && message.contains("does not exist") ->
                 R.string.account_error_qr_login_missing_setup
+
             message.contains("invalid tv login redirect base url") ->
                 R.string.account_error_qr_login_misconfigured
+
             message.contains("invalid device nonce") ->
                 R.string.account_error_qr_login_invalid_request
 
             // Network errors
-            message.contains("unable to resolve host") || message.contains("no address associated") -> R.string.account_error_no_internet
-            message.contains("timeout") || message.contains("timed out") -> R.string.account_error_connection_timeout
-            message.contains("connection refused") || message.contains("connect failed") -> R.string.account_error_connection_refused
+            message.contains(
+                "unable to resolve host"
+            ) || message.contains("no address associated") -> R.string.account_error_no_internet
+
+            message.contains(
+                "timeout"
+            ) || message.contains("timed out") -> R.string.account_error_connection_timeout
+
+            message.contains(
+                "connection refused"
+            ) || message.contains("connect failed") -> R.string.account_error_connection_refused
 
             // Auth state
             message.contains("not authenticated") -> R.string.account_error_not_authenticated
 
             // Supabase HTTP errors (e.g. 404 for missing RPC, 400 for bad params)
-            message.contains("404") || message.contains("could not find") -> R.string.account_error_service_unavailable
-            message.contains("400") || message.contains("bad request") -> R.string.account_error_invalid_request
+            message.contains(
+                "404"
+            ) || message.contains("could not find") -> R.string.account_error_service_unavailable
+
+            message.contains(
+                "400"
+            ) || message.contains("bad request") -> R.string.account_error_invalid_request
 
             // Fallback
             else -> R.string.account_error_unexpected
@@ -639,11 +802,19 @@ class AccountViewModel @Inject constructor(
         cancelQrLoginPolling()
         val traceId = activeQrLoginTraceId
         qrLoginPollAttempt = 0
-        Log.d(TAG, "QR_LOGIN[${traceId ?: "-"}] polling started intervalSeconds=${_uiState.value.qrLoginPollIntervalSeconds.coerceAtLeast(2)} code=${_uiState.value.qrLoginCode.rawForLog()}")
+        Log.d(
+            TAG,
+            "QR_LOGIN[${traceId ?: "-"}] polling started intervalSeconds=${_uiState.value.qrLoginPollIntervalSeconds.coerceAtLeast(
+                2
+            )} code=${_uiState.value.qrLoginCode.rawForLog()}"
+        )
         qrLoginPollJob = viewModelScope.launch {
             while (isActive) {
                 val interval = _uiState.value.qrLoginPollIntervalSeconds.coerceAtLeast(2)
-                Log.d(TAG, "QR_LOGIN[${activeQrLoginTraceId ?: "-"}] polling delay intervalSeconds=$interval nextAttempt=${qrLoginPollAttempt + 1}")
+                Log.d(
+                    TAG,
+                    "QR_LOGIN[${activeQrLoginTraceId ?: "-"}] polling delay intervalSeconds=$interval nextAttempt=${qrLoginPollAttempt + 1}"
+                )
                 delay(interval * 1000L)
                 pollQrLoginOnce()
             }
@@ -652,7 +823,10 @@ class AccountViewModel @Inject constructor(
 
     private fun cancelQrLoginPolling() {
         if (qrLoginPollJob != null) {
-            Log.d(TAG, "QR_LOGIN[${activeQrLoginTraceId ?: "-"}] polling cancelled attempts=$qrLoginPollAttempt")
+            Log.d(
+                TAG,
+                "QR_LOGIN[${activeQrLoginTraceId ?: "-"}] polling cancelled attempts=$qrLoginPollAttempt"
+            )
         }
         qrLoginPollJob?.cancel()
         qrLoginPollJob = null
@@ -671,17 +845,32 @@ class AccountViewModel @Inject constructor(
         val code = current.qrLoginCode
         val nonce = current.qrLoginNonce
         if (code == null || nonce == null) {
-            Log.w(TAG, "QR_LOGIN[${traceId ?: "-"}] poll skipped missing code=${code != null} nonce=${nonce != null}")
+            Log.w(
+                TAG,
+                "QR_LOGIN[${traceId ?: "-"}] poll skipped missing code=${code != null} nonce=${nonce != null}"
+            )
             return
         }
         val attempt = ++qrLoginPollAttempt
         val startedAtMs = SystemClock.elapsedRealtime()
-        Log.d(TAG, "QR_LOGIN[${traceId ?: "-"}] poll attempt=$attempt begin code=${code.rawForLog()} nonce=${nonce.rawForLog()}")
-        authManager.pollTvLoginSession(code = code, deviceNonce = nonce, traceId = traceId, attempt = attempt, diagnostics = diagnostics).fold(
+        Log.d(
+            TAG,
+            "QR_LOGIN[${traceId ?: "-"}] poll attempt=$attempt begin code=${code.rawForLog()} nonce=${nonce.rawForLog()}"
+        )
+        authManager.pollTvLoginSession(
+            code = code,
+            deviceNonce = nonce,
+            traceId = traceId,
+            attempt = attempt,
+            diagnostics = diagnostics
+        ).fold(
             onSuccess = { result ->
                 val normalizedStatus = result.status.lowercase()
                 val expiresAtMillis = result.expiresAt?.let(::parseTimestampMillis)
-                Log.d(TAG, "QR_LOGIN[${traceId ?: "-"}] poll attempt=$attempt ok status=${result.status} normalized=$normalizedStatus expiresAt=${result.expiresAt ?: "-"} expiresAtMs=${expiresAtMillis ?: "-"} nextInterval=${result.pollIntervalSeconds ?: current.qrLoginPollIntervalSeconds} elapsedMs=${SystemClock.elapsedRealtime() - startedAtMs}")
+                Log.d(
+                    TAG,
+                    "QR_LOGIN[${traceId ?: "-"}] poll attempt=$attempt ok status=${result.status} normalized=$normalizedStatus expiresAt=${result.expiresAt ?: "-"} expiresAtMs=${expiresAtMillis ?: "-"} nextInterval=${result.pollIntervalSeconds ?: current.qrLoginPollIntervalSeconds} elapsedMs=${SystemClock.elapsedRealtime() - startedAtMs}"
+                )
                 _uiState.update {
                     it.copy(
                         qrLoginStatus = when (normalizedStatus) {
@@ -691,27 +880,53 @@ class AccountViewModel @Inject constructor(
                             else -> "Status: ${result.status}"
                         },
                         qrLoginExpiresAtMillis = expiresAtMillis ?: it.qrLoginExpiresAtMillis,
-                        qrLoginPollIntervalSeconds = (result.pollIntervalSeconds ?: it.qrLoginPollIntervalSeconds).coerceAtLeast(2)
+                        qrLoginPollIntervalSeconds = (
+                            result.pollIntervalSeconds
+                                ?: it.qrLoginPollIntervalSeconds
+                            ).coerceAtLeast(2)
                     )
                 }
                 when (normalizedStatus) {
                     "approved" -> {
-                        Log.d(TAG, "QR_LOGIN[${traceId ?: "-"}] poll attempt=$attempt approved; starting exchange")
+                        Log.d(
+                            TAG,
+                            "QR_LOGIN[${traceId ?: "-"}] poll attempt=$attempt approved; starting exchange"
+                        )
                         cancelQrLoginPolling()
                         exchangeQrLogin()
                     }
+
                     "expired", "used", "cancelled" -> {
-                        Log.w(TAG, "QR_LOGIN[${traceId ?: "-"}] poll attempt=$attempt terminal status=$normalizedStatus")
+                        Log.w(
+                            TAG,
+                            "QR_LOGIN[${traceId ?: "-"}] poll attempt=$attempt terminal status=$normalizedStatus"
+                        )
                         cancelQrLoginPolling()
-                        diagnostics?.finishTerminal(status = normalizedStatus, reason = "qr_login_$normalizedStatus", failingEndpoint = QR_ENDPOINT_POLL)
-                        if (activeQrLoginDiagnostics === diagnostics) activeQrLoginDiagnostics = null
+                        diagnostics?.finishTerminal(
+                            status = normalizedStatus,
+                            reason = "qr_login_$normalizedStatus",
+                            failingEndpoint = QR_ENDPOINT_POLL
+                        )
+                        if (activeQrLoginDiagnostics ===
+                            diagnostics
+                        ) {
+                            activeQrLoginDiagnostics = null
+                        }
                     }
                 }
             },
             onFailure = { e ->
-                Log.e(TAG, "QR_LOGIN[${traceId ?: "-"}] poll attempt=$attempt failed elapsedMs=${SystemClock.elapsedRealtime() - startedAtMs} error=${e.diagnosticSummary()}", e)
+                Log.e(
+                    TAG,
+                    "QR_LOGIN[${traceId ?: "-"}] poll attempt=$attempt failed elapsedMs=${SystemClock.elapsedRealtime() - startedAtMs} error=${e.diagnosticSummary()}",
+                    e
+                )
                 cancelQrLoginPolling()
-                diagnostics?.finishFailure("poll_tv_login_session_failed", QR_ENDPOINT_POLL, error = e)
+                diagnostics?.finishFailure(
+                    "poll_tv_login_session_failed",
+                    QR_ENDPOINT_POLL,
+                    error = e
+                )
                 if (activeQrLoginDiagnostics === diagnostics) activeQrLoginDiagnostics = null
                 _uiState.update { it.copy(error = userFriendlyError(e)) }
             }
@@ -750,18 +965,30 @@ class AccountViewModel @Inject constructor(
             addonRepository.isSyncingFromRemote = false
 
             val isTraktConnected = traktAuthDataStore.isEffectivelyAuthenticated.first()
-            val shouldUseSupabaseWatchProgressSync = watchProgressSyncService.shouldUseSupabaseWatchProgressSync(profileId)
+            val shouldUseSupabaseWatchProgressSync = watchProgressSyncService.shouldUseSupabaseWatchProgressSync(
+                profileId
+            )
             Log.d(
                 "AccountViewModel",
                 "pullRemoteData: isTraktConnected=$isTraktConnected shouldUseSupabaseWatchProgressSync=$shouldUseSupabaseWatchProgressSync"
             )
             if (!isTraktConnected) {
                 watchProgressRepository.isSyncingFromRemote = true
-                val progressResult = watchProgressSyncService.syncDeltaFromRemote(profileId).getOrElse { throw it }
+                val progressResult = watchProgressSyncService.syncDeltaFromRemote(
+                    profileId
+                ).getOrElse {
+                    throw it
+                }
                 watchProgressRepository.hasCompletedInitialPull = true
-                Log.d("AccountViewModel", "pullRemoteData: watch progress sync applied ${progressResult.upsertedEntries} upserts and ${progressResult.deletedEntries} deletes (snapshot=${progressResult.usedSnapshot})")
+                Log.d(
+                    "AccountViewModel",
+                    "pullRemoteData: watch progress sync applied ${progressResult.upsertedEntries} upserts and ${progressResult.deletedEntries} deletes (snapshot=${progressResult.usedSnapshot})"
+                )
                 if (progressResult.preservedLocalItems) {
-                    Log.d("AccountViewModel", "pullRemoteData: detected unsynced watch progress, pushing")
+                    Log.d(
+                        "AccountViewModel",
+                        "pullRemoteData: detected unsynced watch progress, pushing"
+                    )
                     watchProgressSyncService.pushToRemote(profileId)
                 }
                 watchProgressRepository.isSyncingFromRemote = false
@@ -782,25 +1009,52 @@ class AccountViewModel @Inject constructor(
                 libraryRepository.hasCompletedInitialPull = true
                 libraryRepository.isSyncingFromRemote = false
 
-                val watchedItemsResult = watchedItemsSyncService.syncDeltaFromRemote(profileId).getOrElse { throw it }
+                val watchedItemsResult = watchedItemsSyncService.syncDeltaFromRemote(
+                    profileId
+                ).getOrElse {
+                    throw it
+                }
                 watchProgressRepository.hasCompletedInitialWatchedItemsPull = true
-                Log.d("AccountViewModel", "pullRemoteData: watched items sync applied ${watchedItemsResult.upsertedItems} upserts and ${watchedItemsResult.deletedItems} deletes (snapshot=${watchedItemsResult.usedSnapshot})")
+                Log.d(
+                    "AccountViewModel",
+                    "pullRemoteData: watched items sync applied ${watchedItemsResult.upsertedItems} upserts and ${watchedItemsResult.deletedItems} deletes (snapshot=${watchedItemsResult.usedSnapshot})"
+                )
                 if (watchedItemsResult.preservedLocalItems) {
-                    Log.d("AccountViewModel", "pullRemoteData: detected unsynced watched items, pushing")
+                    Log.d(
+                        "AccountViewModel",
+                        "pullRemoteData: detected unsynced watched items, pushing"
+                    )
                     watchedItemsSyncService.pushToRemote(profileId)
                 }
             } else if (shouldUseSupabaseWatchProgressSync) {
                 watchProgressRepository.isSyncingFromRemote = true
-                val progressResult = watchProgressSyncService.syncDeltaFromRemote(profileId).getOrElse { throw it }
+                val progressResult = watchProgressSyncService.syncDeltaFromRemote(
+                    profileId
+                ).getOrElse {
+                    throw it
+                }
                 watchProgressRepository.hasCompletedInitialPull = true
-                Log.d("AccountViewModel", "pullRemoteData: watch progress sync applied ${progressResult.upsertedEntries} upserts and ${progressResult.deletedEntries} deletes in Trakt mode (snapshot=${progressResult.usedSnapshot})")
+                Log.d(
+                    "AccountViewModel",
+                    "pullRemoteData: watch progress sync applied ${progressResult.upsertedEntries} upserts and ${progressResult.deletedEntries} deletes in Trakt mode (snapshot=${progressResult.usedSnapshot})"
+                )
                 watchProgressRepository.isSyncingFromRemote = false
 
-                val watchedItemsResult = watchedItemsSyncService.syncDeltaFromRemote(profileId).getOrElse { throw it }
+                val watchedItemsResult = watchedItemsSyncService.syncDeltaFromRemote(
+                    profileId
+                ).getOrElse {
+                    throw it
+                }
                 watchProgressRepository.hasCompletedInitialWatchedItemsPull = true
-                Log.d("AccountViewModel", "pullRemoteData: watched items sync applied ${watchedItemsResult.upsertedItems} upserts and ${watchedItemsResult.deletedItems} deletes in Trakt mode (snapshot=${watchedItemsResult.usedSnapshot})")
+                Log.d(
+                    "AccountViewModel",
+                    "pullRemoteData: watched items sync applied ${watchedItemsResult.upsertedItems} upserts and ${watchedItemsResult.deletedItems} deletes in Trakt mode (snapshot=${watchedItemsResult.usedSnapshot})"
+                )
                 if (watchedItemsResult.preservedLocalItems) {
-                    Log.d("AccountViewModel", "pullRemoteData: detected unsynced watched items in Trakt mode, pushing")
+                    Log.d(
+                        "AccountViewModel",
+                        "pullRemoteData: detected unsynced watched items in Trakt mode, pushing"
+                    )
                     watchedItemsSyncService.pushToRemote(profileId)
                 }
             }
@@ -830,12 +1084,10 @@ class AccountViewModel @Inject constructor(
     }
 }
 
-private fun AuthState.nameForLog(): String =
-    when (this) {
-        is AuthState.FullAccount -> "FullAccount(${userId.rawForLog()})"
-        AuthState.Loading -> "Loading"
-        AuthState.SignedOut -> "SignedOut"
-    }
+private fun AuthState.nameForLog(): String = when (this) {
+    is AuthState.FullAccount -> "FullAccount(${userId.rawForLog()})"
+    AuthState.Loading -> "Loading"
+    AuthState.SignedOut -> "SignedOut"
+}
 
-private fun parseTimestampMillis(value: String): Long? =
-    runCatching { OffsetDateTime.parse(value.trim()).toInstant().toEpochMilli() }.getOrNull()
+private fun parseTimestampMillis(value: String): Long? = runCatching { OffsetDateTime.parse(value.trim()).toInstant().toEpochMilli() }.getOrNull()

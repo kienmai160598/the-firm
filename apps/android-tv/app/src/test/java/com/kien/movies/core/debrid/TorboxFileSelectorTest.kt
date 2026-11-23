@@ -73,13 +73,21 @@ class TorboxFileSelectorTest {
     @Test
     fun `matches absolute path when full name is missing`() {
         val files = listOf(
-            TorboxTorrentFileDto(id = 1, absolutePath = "/Show/Season 1/Episode.mkv", shortName = "Episode.mkv"),
-            TorboxTorrentFileDto(id = 2, absolutePath = "/Show/Season 2/Episode.mkv", shortName = "Episode.mkv"),
+            TorboxTorrentFileDto(
+                id = 1,
+                absolutePath = "/Show/Season 1/Episode.mkv",
+                shortName = "Episode.mkv"
+            ),
+            TorboxTorrentFileDto(
+                id = 2,
+                absolutePath = "/Show/Season 2/Episode.mkv",
+                shortName = "Episode.mkv"
+            )
         )
 
         assertEquals(
             2,
-            selector.selectFile(files, resolve(null, "Season 2/Episode.mkv"), null, null)?.id,
+            selector.selectFile(files, resolve(null, "Season 2/Episode.mkv"), null, null)?.id
         )
     }
 
@@ -87,10 +95,13 @@ class TorboxFileSelectorTest {
     fun `supports short name only and video mime without extension`() {
         val files = listOf(
             TorboxTorrentFileDto(id = 1, shortName = "Show.S01E01.mkv"),
-            TorboxTorrentFileDto(id = 2, name = "Show.S01E02", mimeType = "VIDEO/MATROSKA"),
+            TorboxTorrentFileDto(id = 2, name = "Show.S01E02", mimeType = "VIDEO/MATROSKA")
         )
 
-        assertEquals(1, selector.selectFile(files, resolve(null, "Show.S01E01.mkv"), null, null)?.id)
+        assertEquals(
+            1,
+            selector.selectFile(files, resolve(null, "Show.S01E01.mkv"), null, null)?.id
+        )
         assertEquals(2, selector.selectFile(files, resolve(null), 1, 2)?.id)
     }
 
@@ -103,10 +114,7 @@ class TorboxFileSelectorTest {
         size = size
     )
 
-    private fun resolve(
-        fileIdx: Int?,
-        filename: String? = null
-    ): StreamClientResolve = StreamClientResolve(
+    private fun resolve(fileIdx: Int?, filename: String? = null): StreamClientResolve = StreamClientResolve(
         type = "debrid",
         infoHash = "hash",
         fileIdx = fileIdx,

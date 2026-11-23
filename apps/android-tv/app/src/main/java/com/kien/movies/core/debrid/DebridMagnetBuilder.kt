@@ -33,6 +33,5 @@ object DebridMagnetBuilder {
         return value.removePrefix("tracker:").trim().takeIf { it.isNotBlank() }
     }
 
-    private fun encode(value: String): String =
-        URLEncoder.encode(value, "UTF-8")
+    private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8")
 }

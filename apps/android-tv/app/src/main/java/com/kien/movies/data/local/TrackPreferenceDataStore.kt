@@ -5,9 +5,9 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.kien.movies.core.profile.ProfileManager
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.first
 
 @Singleton
 class TrackPreferenceDataStore @Inject constructor(
@@ -27,6 +27,7 @@ class TrackPreferenceDataStore @Inject constructor(
         private const val AUDIO_LANG = "audio_lang"
         private const val AUDIO_NAME = "audio_name"
         private const val AUDIO_TRACK_ID = "audio_track_id"
+
         // Keyed per-videoId (not per-contentId) so that a delay calibrated for
         // one episode is not blindly reapplied to the next episode where it is
         // almost certainly wrong.
@@ -36,14 +37,11 @@ class TrackPreferenceDataStore @Inject constructor(
 
     private fun store() = factory.get(profileManager.activeProfileId.value, FEATURE)
 
-    private fun key(field: String, contentId: String) =
-        stringPreferencesKey("$field|$contentId")
+    private fun key(field: String, contentId: String) = stringPreferencesKey("$field|$contentId")
 
-    private fun intKey(field: String, id: String) =
-        intPreferencesKey("$field|$id")
+    private fun intKey(field: String, id: String) = intPreferencesKey("$field|$id")
 
-    private fun floatKey(field: String, id: String) =
-        floatPreferencesKey("$field|$id")
+    private fun floatKey(field: String, id: String) = floatPreferencesKey("$field|$id")
 
     suspend fun save(contentId: String, pref: PersistedTrackPreference) {
         store().edit { prefs ->
@@ -76,7 +74,9 @@ class TrackPreferenceDataStore @Inject constructor(
             audioLang == null &&
             audioName == null &&
             audioTrackId == null
-        ) return null
+        ) {
+            return null
+        }
         return PersistedTrackPreference(
             subtitleType = subType,
             subtitleLanguage = prefs[key(SUB_LANG, contentId)],
@@ -118,7 +118,14 @@ class TrackPreferenceDataStore @Inject constructor(
     }
 
     suspend fun loadPlaybackSpeed(contentId: String): Float? {
-        return (store().data.first().asMap()[floatKey(PLAYBACK_SPEED, contentId)] as? Number)?.toFloat()
+        return (
+            store().data.first().asMap()[
+                floatKey(
+                    PLAYBACK_SPEED,
+                    contentId
+                )
+            ] as? Number
+            )?.toFloat()
     }
 }
 
@@ -143,7 +150,9 @@ internal fun PersistedTrackPreference.toTrackPreference(): com.kien.movies.ui.sc
             name = audioName,
             trackId = audioTrackId
         )
-    } else null
+    } else {
+        null
+    }
 
     val subtitle = when (subtitleType) {
         "INTERNAL" -> com.kien.movies.ui.screens.player.PlayerRuntimeController.RememberedSubtitleSelection.Internal(
@@ -154,13 +163,16 @@ internal fun PersistedTrackPreference.toTrackPreference(): com.kien.movies.ui.sc
                 isForcedHint = subtitleIsForced
             )
         )
+
         "ADDON" -> com.kien.movies.ui.screens.player.PlayerRuntimeController.RememberedSubtitleSelection.Addon(
             id = addonSubtitleId ?: "",
             url = addonSubtitleUrl ?: "",
             language = subtitleLanguage ?: "",
             addonName = addonSubtitleAddonName ?: ""
         )
+
         "DISABLED" -> com.kien.movies.ui.screens.player.PlayerRuntimeController.RememberedSubtitleSelection.Disabled
+
         else -> null
     }
 

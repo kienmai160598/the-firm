@@ -2,20 +2,36 @@ package com.kien.movies.ui.screens.player.autosync
 
 internal object SubtitleLanguageMatching {
     internal val BRAZILIAN_TAGS = listOf(
-        "pt-br", "pt_br", "pob", "brazilian", "brazil", "brasil", "brasileiro", " br", "(br)",
+        "pt-br", "pt_br", "pob", "brazilian", "brazil", "brasil", "brasileiro", " br", "(br)"
     )
     internal val EUROPEAN_PT_TAGS = listOf(
-        "pt-pt", "pt_pt", "iberian", "european", "portugal", "europeu", " eu", "(eu)",
+        "pt-pt",
+        "pt_pt",
+        "iberian",
+        "european",
+        "portugal",
+        "europeu",
+        " eu",
+        "(eu)"
     )
     internal val LATINO_TAGS = listOf(
         "es-419", "es_419", "es-la", "es-lat", "latino", "latinoamerica",
-        "latinoamericano", "latam", "lat am", "latin america",
+        "latinoamericano", "latam", "lat am", "latin america"
     )
     internal val CASTILIAN_TAGS = listOf(
-        "es-es", "es_es", "castilian", "castellano", "spain", "españa", "espana", "iberian",
+        "es-es",
+        "es_es",
+        "castilian",
+        "castellano",
+        "spain",
+        "españa",
+        "espana",
+        "iberian"
     )
     internal val INDONESIAN_TAGS = listOf(
-        "indonesia", "indonesian", "bahasa indonesia",
+        "indonesia",
+        "indonesian",
+        "bahasa indonesia"
     )
 
     private val LANGUAGE_OVERRIDES = mapOf(
@@ -143,7 +159,7 @@ internal object SubtitleLanguageMatching {
         "sin" to "si",
         "nep" to "ne",
         "tgl" to "tl",
-        "fil" to "tl",
+        "fil" to "tl"
     )
 
     private val LANGUAGE_NAMES = mapOf(
@@ -226,7 +242,7 @@ internal object SubtitleLanguageMatching {
         "uz" to "uzbek",
         "vi" to "vietnamese",
         "cy" to "welsh",
-        "zu" to "zulu",
+        "zu" to "zulu"
     )
 
     fun normalizeLanguageCode(lang: String): String {
@@ -247,10 +263,21 @@ internal object SubtitleLanguageMatching {
 
         if (containsAny("portuguese", "portugues")) {
             return when {
-                containsAny("brazil", "brasil", "brazilian", "brasileiro", "pt br", "ptbr", "pob", "(br)") ->
+                containsAny(
+                    "brazil",
+                    "brasil",
+                    "brazilian",
+                    "brasileiro",
+                    "pt br",
+                    "ptbr",
+                    "pob",
+                    "(br)"
+                ) ->
                     "pt-br"
+
                 containsAny("portugal", "european", "europeu", "iberian", "pt pt", "ptpt") ->
                     "pt"
+
                 else -> "pt"
             }
         }
@@ -266,7 +293,7 @@ internal object SubtitleLanguageMatching {
                     "es 419",
                     "es419",
                     "la",
-                    "(419)",
+                    "(419)"
                 )
             ) {
                 "es-419"
@@ -311,7 +338,7 @@ internal object SubtitleLanguageMatching {
 
     private fun matchesNormalizedLanguage(
         normalizedLanguage: String,
-        normalizedTarget: String,
+        normalizedTarget: String
     ): Boolean {
         if (normalizedTarget == "pt") return normalizedLanguage == "pt"
         if (normalizedTarget == "es") return normalizedLanguage == "es"
@@ -355,7 +382,8 @@ internal object SubtitleLanguageMatching {
         val normalized = normalizeLanguageCode(code)
         if (normalized == "none") return "none"
         if (normalized == "und" || normalized == "unknown" || normalized == "unk") return "unknown"
-        return LANGUAGE_NAMES[normalized] ?: LANGUAGE_NAMES[normalized.substringBefore('-')] ?: normalized
+        return LANGUAGE_NAMES[normalized] ?: LANGUAGE_NAMES[normalized.substringBefore('-')]
+            ?: normalized
     }
 
     fun languageCodeAppearsInHaystack(haystack: String, normalizedTarget: String): Boolean {
@@ -380,7 +408,7 @@ internal object SubtitleLanguageMatching {
         name: String?,
         language: String?,
         trackId: String?,
-        target: String,
+        target: String
     ): Boolean {
         if (matchesLanguageCode(language, target)) return true
         val normalizedTarget = normalizeLanguageCode(target)
@@ -392,7 +420,12 @@ internal object SubtitleLanguageMatching {
             (targetName.isNotBlank() && haystack.contains(targetName))
     }
 
-    fun subtitleHasAnyTag(name: String?, language: String?, trackId: String?, tags: List<String>): Boolean {
+    fun subtitleHasAnyTag(
+        name: String?,
+        language: String?,
+        trackId: String?,
+        tags: List<String>
+    ): Boolean {
         val haystack = listOfNotNull(name, language, trackId)
             .joinToString(" ")
             .lowercase()

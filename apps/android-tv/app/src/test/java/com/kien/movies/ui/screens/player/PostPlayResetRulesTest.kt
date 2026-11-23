@@ -15,7 +15,7 @@ class PostPlayResetRulesTest {
         overview = null,
         released = null,
         hasAired = true,
-        unairedMessage = null,
+        unairedMessage = null
     )
 
     @Test
@@ -23,7 +23,7 @@ class PostPlayResetRulesTest {
         val state = PlayerUiState(
             postPlayMode = PostPlayMode.AutoPlay(
                 nextEpisode = nextInfo,
-                searching = true,
+                searching = true
             )
         )
 
@@ -40,7 +40,7 @@ class PostPlayResetRulesTest {
         val state = PlayerUiState(
             postPlayMode = PostPlayMode.AutoPlay(
                 nextEpisode = nextInfo,
-                countdownSec = 2,
+                countdownSec = 2
             )
         )
 

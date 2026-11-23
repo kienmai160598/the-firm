@@ -3,7 +3,7 @@ package com.kien.movies.ui.screens.player.autosync
 internal data class AutoSyncSubtitleCandidate(
     val url: String,
     val language: String,
-    val name: String? = null,
+    val name: String? = null
 )
 
 /**
@@ -14,8 +14,5 @@ internal interface AutoSyncPlayerController {
     fun setAutoSyncSubtitleCandidates(candidates: List<AutoSyncSubtitleCandidate>)
     fun setSubtitleUriWithAutoSync(url: String)
     fun setSubtitleUriWithSelectedAutoSync(url: String)
-    fun setAutoSyncAppliedListener(
-        listener: ((subtitleUrl: String, delayMs: Int) -> Unit)?,
-    )
+    fun setAutoSyncAppliedListener(listener: ((subtitleUrl: String, delayMs: Int) -> Unit)?)
 }
-

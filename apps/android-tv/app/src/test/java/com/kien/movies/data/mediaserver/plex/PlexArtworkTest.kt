@@ -35,17 +35,40 @@ class PlexArtworkTest {
 
     @Test
     fun linksNameTheConnectionButCarryNoToken() {
-        val link = PlexArtworkLink.picture("https://media.example:32400", "c1", "/library/metadata/1/thumb/2", 400, 600)!!
+        val link = PlexArtworkLink.picture(
+            "https://media.example:32400",
+            "c1",
+            "/library/metadata/1/thumb/2",
+            400,
+            600
+        )!!
 
-        assertTrue(link.startsWith("https://media.example:32400/photo/:/transcode?width=400&height=600"))
+        assertTrue(
+            link.startsWith("https://media.example:32400/photo/:/transcode?width=400&height=600")
+        )
         assertTrue(link.endsWith("#nuvio-plex=c1"))
-        assertEquals("https://image.tmdb.org/a.jpg", PlexArtworkLink.picture("https://media.example", "c1", "https://image.tmdb.org/a.jpg", 1, 1))
+        assertEquals(
+            "https://image.tmdb.org/a.jpg",
+            PlexArtworkLink.picture(
+                "https://media.example",
+                "c1",
+                "https://image.tmdb.org/a.jpg",
+                1,
+                1
+            )
+        )
         assertNull(PlexArtworkLink.picture("https://media.example", "c1", "relative/path", 1, 1))
     }
 
     @Test
     fun signsMarkedLinksForTheConnectionsServer() {
-        val link = PlexArtworkLink.picture("https://media.example:32400", "c1", "/library/metadata/1/thumb/2", 400, 600)!!
+        val link = PlexArtworkLink.picture(
+            "https://media.example:32400",
+            "c1",
+            "/library/metadata/1/thumb/2",
+            400,
+            600
+        )!!
 
         fetch(client(PlexArtworkAccess("https://media.example:32400", "server-token")), link)
 
@@ -54,9 +77,18 @@ class PlexArtworkTest {
 
     @Test
     fun followsTheServerToItsCurrentAddress() {
-        val link = PlexArtworkLink.picture("http://192.168.1.20:32400", "c1", "/library/metadata/1/thumb/2", 400, 600)!!
+        val link = PlexArtworkLink.picture(
+            "http://192.168.1.20:32400",
+            "c1",
+            "/library/metadata/1/thumb/2",
+            400,
+            600
+        )!!
 
-        fetch(client(PlexArtworkAccess("https://203-0-113-5.abc.plex.direct:32400", "server-token")), link)
+        fetch(
+            client(PlexArtworkAccess("https://203-0-113-5.abc.plex.direct:32400", "server-token")),
+            link
+        )
 
         val request = sent.single()
         assertEquals("203-0-113-5.abc.plex.direct", request.url.host)
@@ -66,8 +98,14 @@ class PlexArtworkTest {
 
     @Test
     fun leavesOtherLinksAlone() {
-        fetch(client(PlexArtworkAccess("https://media.example", "server-token")), "https://image.tmdb.org/a.jpg")
-        fetch(client(null), PlexArtworkLink.picture("https://media.example", "c1", "/thumb", 1, 1)!!)
+        fetch(
+            client(PlexArtworkAccess("https://media.example", "server-token")),
+            "https://image.tmdb.org/a.jpg"
+        )
+        fetch(
+            client(null),
+            PlexArtworkLink.picture("https://media.example", "c1", "/thumb", 1, 1)!!
+        )
 
         assertTrue(sent.none { it.header("X-Plex-Token") != null })
     }

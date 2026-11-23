@@ -25,11 +25,13 @@ internal fun SimklSyncSnapshot.applyScrobbleResultWithIndex(
             snapshot = this.reconcileWatchedPlayback(entryIndex),
             entryIndex = entryIndex
         )
+
         SimklScrobbleOutcome.PAUSE -> SimklIndexedSnapshotUpdate(
             snapshot = withPausedScrobble(result, localCommittedAt, entryIndex)
                 .reconcileWatchedPlayback(entryIndex),
             entryIndex = entryIndex
         )
+
         SimklScrobbleOutcome.SCROBBLE -> withCompletedScrobble(
             result = result,
             committedAt = result.watchedAt
@@ -92,13 +94,18 @@ private fun SimklSyncSnapshot.withCompletedScrobble(
     val existing = updatedEntries.getOrNull(index)
     val updated = when {
         result.mediaType == SimklMediaType.MOVIES ||
-            (result.mediaType == SimklMediaType.ANIME &&
-                (existing?.animeType == "movie" || result.episode == null)) -> existing
-            ?.withWatchedMovie(result, committedAt)
-            ?: result.toWatchedMovieEntry(committedAt)
-        else -> existing
-            ?.withWatchedEpisode(result, committedAt)
-            ?: result.toWatchedSeriesEntry(committedAt)
+            (
+                result.mediaType == SimklMediaType.ANIME &&
+                    (existing?.animeType == "movie" || result.episode == null)
+                ) ->
+            existing
+                ?.withWatchedMovie(result, committedAt)
+                ?: result.toWatchedMovieEntry(committedAt)
+
+        else ->
+            existing
+                ?.withWatchedEpisode(result, committedAt)
+                ?: result.toWatchedSeriesEntry(committedAt)
     }
     if (index >= 0) {
         updatedEntries[index] = updated
@@ -137,14 +144,13 @@ private fun SimklLibraryEntry.withWatchedMovie(
     show = null
 )
 
-private fun SimklScrobbleResult.toWatchedMovieEntry(committedAt: String): SimklLibraryEntry =
-    SimklLibraryEntry(
-        mediaType = mediaType,
-        animeType = if (mediaType == SimklMediaType.ANIME) "movie" else null,
-        lastWatchedAt = committedAt,
-        status = SimklListStatus.COMPLETED,
-        movie = media
-    )
+private fun SimklScrobbleResult.toWatchedMovieEntry(committedAt: String): SimklLibraryEntry = SimklLibraryEntry(
+    mediaType = mediaType,
+    animeType = if (mediaType == SimklMediaType.ANIME) "movie" else null,
+    lastWatchedAt = committedAt,
+    status = SimklListStatus.COMPLETED,
+    movie = media
+)
 
 private fun SimklLibraryEntry.withWatchedEpisode(
     result: SimklScrobbleResult,
@@ -178,10 +184,7 @@ private fun SimklScrobbleResult.toWatchedSeriesEntry(committedAt: String): Simkl
     )
 }
 
-private data class EpisodeUpdate(
-    val seasons: List<SimklSeason>,
-    val wasAlreadyWatched: Boolean
-)
+private data class EpisodeUpdate(val seasons: List<SimklSeason>, val wasAlreadyWatched: Boolean)
 
 private fun List<SimklSeason>.withWatchedEpisode(
     target: SimklPlaybackEpisode,
@@ -277,9 +280,7 @@ private fun List<SimklLibraryEntry>.indexOfMatchingEntry(
     entryIndex: SimklEntryIndex? = null
 ): Int = entryIndex?.indexOfMatchingEntry(this, result) ?: indexOfMatchingEntryLinear(result)
 
-internal fun List<SimklLibraryEntry>.indexOfMatchingEntryLinear(
-    result: SimklScrobbleResult
-): Int {
+internal fun List<SimklLibraryEntry>.indexOfMatchingEntryLinear(result: SimklScrobbleResult): Int {
     val target = result.media
     val targetIds = target.toTrackingExternalIds()
     var fallbackIndex = -1
@@ -294,8 +295,7 @@ internal fun List<SimklLibraryEntry>.indexOfMatchingEntryLinear(
     return fallbackIndex
 }
 
-internal fun SimklMedia.matchesTarget(target: SimklMedia): Boolean =
-    matchesTargetWithIds(toTrackingExternalIds(), target, target.toTrackingExternalIds())
+internal fun SimklMedia.matchesTarget(target: SimklMedia): Boolean = matchesTargetWithIds(toTrackingExternalIds(), target, target.toTrackingExternalIds())
 
 internal fun SimklMedia.matchesTargetWithIds(
     candidateIds: TrackingExternalIds,

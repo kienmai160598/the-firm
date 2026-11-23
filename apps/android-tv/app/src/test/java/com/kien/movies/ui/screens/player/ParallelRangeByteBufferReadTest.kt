@@ -8,6 +8,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -18,8 +20,6 @@ import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Before
 import org.junit.Test
-import java.io.ByteArrayOutputStream
-import java.nio.ByteBuffer
 
 class ParallelRangeByteBufferReadTest {
 
@@ -70,7 +70,7 @@ class ParallelRangeByteBufferReadTest {
         val source = ParallelRangeDataSource(
             OkHttpDataSource.Factory(OkHttpClient()),
             parallelConnections = 2,
-            chunkSize = 128L * 1024L,
+            chunkSize = 128L * 1024L
         )
         val spec = DataSpec.Builder().setUri(uriOf(server.url("/file").toString())).build()
         val out = ByteArrayOutputStream()

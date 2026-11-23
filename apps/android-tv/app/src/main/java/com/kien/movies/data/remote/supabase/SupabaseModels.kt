@@ -39,9 +39,7 @@ data class SupabaseAddon(
 )
 
 @Serializable
-data class SyncCodeResult(
-    val code: String
-)
+data class SyncCodeResult(val code: String)
 
 @Serializable
 data class ClaimSyncResult(

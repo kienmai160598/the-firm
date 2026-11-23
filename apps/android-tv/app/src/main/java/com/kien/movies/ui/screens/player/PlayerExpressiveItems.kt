@@ -31,8 +31,7 @@ internal object PlayerListItemStyle {
 
     /** The row's own content colour: white at rest, black on the focused fill. Read inside it. */
     @Composable
-    fun labelColor(@Suppress("UNUSED_PARAMETER") selected: Boolean = false): Color =
-        LocalContentColor.current
+    fun labelColor(@Suppress("UNUSED_PARAMETER") selected: Boolean = false): Color = LocalContentColor.current
 
     /** Secondary lines of a row, dimmed from the row's content colour. */
     @Composable

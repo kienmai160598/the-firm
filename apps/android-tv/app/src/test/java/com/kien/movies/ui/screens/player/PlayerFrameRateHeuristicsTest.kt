@@ -1,10 +1,10 @@
 package com.kien.movies.ui.screens.player
 
 import com.kien.movies.core.player.FrameRateUtils
+import kotlin.math.abs
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import kotlin.math.abs
 
 /**
  * Tests for cinema 24 / 23.976 ambiguity handling used when track metadata
@@ -104,11 +104,7 @@ class PlayerFrameRateHeuristicsTest {
         assertTrue(PlayerFrameRateHeuristics.shouldProbeOverrideTrack(state, detection))
     }
 
-    private fun baseState(
-        source: FrameRateSource?,
-        raw: Float,
-        snapped: Float
-    ) = PlayerUiState(
+    private fun baseState(source: FrameRateSource?, raw: Float, snapped: Float) = PlayerUiState(
         detectedFrameRateSource = source,
         detectedFrameRateRaw = raw,
         detectedFrameRate = snapped

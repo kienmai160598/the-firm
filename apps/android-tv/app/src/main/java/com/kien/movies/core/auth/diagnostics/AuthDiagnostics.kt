@@ -18,17 +18,6 @@ import com.kien.movies.data.remote.dto.AuthDiagnosticResponseDto
 import com.kien.movies.data.remote.dto.AuthDiagnosticTerminalDto
 import com.kien.movies.data.repository.AuthDiagnosticReportRepository
 import com.kien.movies.domain.model.ServerConfiguration
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import okhttp3.Call
-import okhttp3.EventListener
-import okhttp3.Handshake
-import okhttp3.Protocol
-import okhttp3.Request
-import okhttp3.Response
 import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -41,11 +30,30 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.UUID
 import javax.net.ssl.SSLException
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import okhttp3.Call
+import okhttp3.EventListener
+import okhttp3.Handshake
+import okhttp3.Protocol
+import okhttp3.Request
+import okhttp3.Response
 
 private const val TAG = "AuthDiagnostics"
 private const val EXCLUDED_CREDENTIAL = "[excluded-credential]"
-private val credentialKeyRegex = Regex("(authorization|cookie|token|secret|password|apikey|api_key|accesskey|session|refresh|bearer)", RegexOption.IGNORE_CASE)
-private val credentialJsonValueRegex = Regex("(\"[^\"]*(?:authorization|cookie|token|secret|password|apikey|api_key|accesskey|session|refresh|bearer)[^\"]*\"\\s*:\\s*)(\"(?:\\\\.|[^\"])*\"|[^,}\\]]+)", setOf(RegexOption.IGNORE_CASE))
+private val credentialKeyRegex =
+    Regex(
+        "(authorization|cookie|token|secret|password|apikey|api_key|accesskey|session|refresh|bearer)",
+        RegexOption.IGNORE_CASE
+    )
+private val credentialJsonValueRegex =
+    Regex(
+        "(\"[^\"]*(?:authorization|cookie|token|secret|password|apikey|api_key|accesskey|session|refresh|bearer)[^\"]*\"\\s*:\\s*)(\"(?:\\\\.|[^\"])*\"|[^,}\\]]+)",
+        setOf(RegexOption.IGNORE_CASE)
+    )
 private val authDiagnosticsJson = Json { ignoreUnknownKeys = true }
 
 class AuthDiagnosticsSession(
@@ -62,7 +70,13 @@ class AuthDiagnosticsSession(
     private val rawLogs = mutableListOf<String>()
     private var finished = false
 
-    fun recordRequest(endpoint: String, method: String, url: String, headers: Map<String, String>, body: String?) {
+    fun recordRequest(
+        endpoint: String,
+        method: String,
+        url: String,
+        headers: Map<String, String>,
+        body: String?
+    ) {
         append(
             AuthDiagnosticEventDto(
                 type = "request",
@@ -79,7 +93,16 @@ class AuthDiagnosticsSession(
         )
     }
 
-    fun recordResponse(endpoint: String, method: String, url: String, statusCode: Int?, isSuccessful: Boolean?, headers: Map<String, String>, body: String?, contentType: String?) {
+    fun recordResponse(
+        endpoint: String,
+        method: String,
+        url: String,
+        statusCode: Int?,
+        isSuccessful: Boolean?,
+        headers: Map<String, String>,
+        body: String?,
+        contentType: String?
+    ) {
         append(
             AuthDiagnosticEventDto(
                 type = "response",
@@ -100,7 +123,16 @@ class AuthDiagnosticsSession(
         )
     }
 
-    fun recordNetwork(endpoint: String, phase: String, host: String? = null, inetAddresses: List<String> = emptyList(), proxy: String? = null, protocol: String? = null, durationMs: Long? = null, message: String? = null) {
+    fun recordNetwork(
+        endpoint: String,
+        phase: String,
+        host: String? = null,
+        inetAddresses: List<String> = emptyList(),
+        proxy: String? = null,
+        protocol: String? = null,
+        durationMs: Long? = null,
+        message: String? = null
+    ) {
         append(
             AuthDiagnosticEventDto(
                 type = "network",
@@ -143,13 +175,34 @@ class AuthDiagnosticsSession(
         )
     }
 
-    suspend fun finishSuccess(reason: String = "completed"): Result<String> =
-        finishTerminal(status = "success", reason = reason, failingEndpoint = null, httpStatus = null, error = null)
+    suspend fun finishSuccess(reason: String = "completed"): Result<String> = finishTerminal(
+        status = "success",
+        reason = reason,
+        failingEndpoint = null,
+        httpStatus = null,
+        error = null
+    )
 
-    suspend fun finishFailure(reason: String, failingEndpoint: String?, httpStatus: Int? = null, error: Throwable? = null): Result<String> =
-        finishTerminal(status = "failed", reason = reason, failingEndpoint = failingEndpoint, httpStatus = httpStatus, error = error)
+    suspend fun finishFailure(
+        reason: String,
+        failingEndpoint: String?,
+        httpStatus: Int? = null,
+        error: Throwable? = null
+    ): Result<String> = finishTerminal(
+        status = "failed",
+        reason = reason,
+        failingEndpoint = failingEndpoint,
+        httpStatus = httpStatus,
+        error = error
+    )
 
-    suspend fun finishTerminal(status: String, reason: String, failingEndpoint: String?, httpStatus: Int? = null, error: Throwable? = null): Result<String> {
+    suspend fun finishTerminal(
+        status: String,
+        reason: String,
+        failingEndpoint: String?,
+        httpStatus: Int? = null,
+        error: Throwable? = null
+    ): Result<String> {
         val payload = synchronized(lock) {
             if (finished) return@synchronized null
             error?.let {
@@ -225,15 +278,28 @@ class AuthDiagnosticsSession(
                 rawLogs = rawLogs.toList()
             )
         }
-        if (payload == null) return Result.failure(IllegalStateException("Auth diagnostics session already finished"))
+        if (payload ==
+            null
+        ) {
+            return Result.failure(
+                IllegalStateException("Auth diagnostics session already finished")
+            )
+        }
         if (serverConfiguration.isCustom) {
             Log.d(TAG, "attempt=$attemptId flow=$flowType upload=disabled")
             return Result.success("disabled")
         }
         val result = repository.submit(payload)
         result.fold(
-            onSuccess = { reportId -> Log.d(TAG, "attempt=$attemptId flow=$flowType upload=success reportId=$reportId") },
-            onFailure = { uploadError -> Log.w(TAG, "attempt=$attemptId flow=$flowType upload=queued error=${uploadError.javaClass.simpleName}: ${uploadError.message}") }
+            onSuccess = { reportId ->
+                Log.d(TAG, "attempt=$attemptId flow=$flowType upload=success reportId=$reportId")
+            },
+            onFailure = { uploadError ->
+                Log.w(
+                    TAG,
+                    "attempt=$attemptId flow=$flowType upload=queued error=${uploadError.javaClass.simpleName}: ${uploadError.message}"
+                )
+            }
         )
         return result
     }
@@ -332,7 +398,12 @@ private class AuthDiagnosticEventListener(
         )
     }
 
-    override fun connectEnd(call: Call, inetSocketAddress: InetSocketAddress, proxy: Proxy, protocol: Protocol?) {
+    override fun connectEnd(
+        call: Call,
+        inetSocketAddress: InetSocketAddress,
+        proxy: Proxy,
+        protocol: Protocol?
+    ) {
         session.recordNetwork(
             endpoint = endpoint,
             phase = "connectEnd",
@@ -343,7 +414,13 @@ private class AuthDiagnosticEventListener(
         )
     }
 
-    override fun connectFailed(call: Call, inetSocketAddress: InetSocketAddress, proxy: Proxy, protocol: Protocol?, ioe: IOException) {
+    override fun connectFailed(
+        call: Call,
+        inetSocketAddress: InetSocketAddress,
+        proxy: Proxy,
+        protocol: Protocol?,
+        ioe: IOException
+    ) {
         session.recordNetwork(
             endpoint = endpoint,
             phase = "connectFailed",
@@ -386,7 +463,11 @@ private class AuthDiagnosticEventListener(
     }
 
     override fun callEnd(call: Call) {
-        session.recordNetwork(endpoint = endpoint, phase = "callEnd", durationMs = callStartMs.durationSinceNow())
+        session.recordNetwork(
+            endpoint = endpoint,
+            phase = "callEnd",
+            durationMs = callStartMs.durationSinceNow()
+        )
     }
 
     override fun callFailed(call: Call, ioe: IOException) {
@@ -399,20 +480,26 @@ private class AuthDiagnosticEventListener(
     }
 }
 
-fun authDiagnosticFilteredHeaders(headers: Map<String, String>): Map<String, String> =
-    headers.mapValues { (key, value) -> if (key.isCredentialKey()) EXCLUDED_CREDENTIAL else value }
+fun authDiagnosticFilteredHeaders(headers: Map<String, String>): Map<String, String> = headers.mapValues { (key, value) -> if (key.isCredentialKey()) EXCLUDED_CREDENTIAL else value }
 
 fun authDiagnosticFilteredBody(body: String?): String? {
     if (body == null) return null
     if (body.isBlank()) return body
     val parsed = runCatching { authDiagnosticsJson.parseToJsonElement(body) }.getOrNull()
     if (parsed != null) return filterJsonElement(parsed).toString()
-    return credentialJsonValueRegex.replace(body) { match -> "${match.groupValues[1]}\"$EXCLUDED_CREDENTIAL\"" }
+    return credentialJsonValueRegex.replace(body) { match ->
+        "${match.groupValues[1]}\"$EXCLUDED_CREDENTIAL\""
+    }
 }
 
 fun authNetworkErrorFamily(error: Throwable?): String? {
     if (error == null) return null
-    if (error.causeChain().any { it.startsWith("com.kien.movies.core.auth.AuthHttpException:") }) return null
+    if (error.causeChain().any {
+            it.startsWith("com.kien.movies.core.auth.AuthHttpException:")
+        }
+    ) {
+        return null
+    }
     return when {
         error.hasCause<UnknownHostException>() -> "dns"
         error.hasCause<SocketTimeoutException>() -> "timeout"
@@ -424,16 +511,27 @@ fun authNetworkErrorFamily(error: Throwable?): String? {
     }
 }
 
-private fun authDiagnosticFilteredDetail(detail: Map<String, String?>): Map<String, String> =
-    detail.mapNotNull { (key, value) ->
-        if (value == null) null else key to if (key.isCredentialKey()) EXCLUDED_CREDENTIAL else value
-    }.toMap()
+private fun authDiagnosticFilteredDetail(detail: Map<String, String?>): Map<String, String> = detail.mapNotNull { (key, value) ->
+    if (value ==
+        null
+    ) {
+        null
+    } else {
+        key to if (key.isCredentialKey()) EXCLUDED_CREDENTIAL else value
+    }
+}.toMap()
 
 private fun filterJsonElement(element: JsonElement, key: String? = null): JsonElement {
     if (key?.isCredentialKey() == true) return JsonPrimitive(EXCLUDED_CREDENTIAL)
     return when (element) {
-        is JsonObject -> JsonObject(element.mapValues { (childKey, childValue) -> filterJsonElement(childValue, childKey) })
+        is JsonObject -> JsonObject(
+            element.mapValues { (childKey, childValue) ->
+                filterJsonElement(childValue, childKey)
+            }
+        )
+
         is JsonArray -> JsonArray(element.map { child -> filterJsonElement(child) })
+
         else -> element
     }
 }
@@ -442,16 +540,14 @@ private fun String.isCredentialKey(): Boolean = credentialKeyRegex.containsMatch
 
 private fun Long?.durationSinceNow(): Long? = this?.let { SystemClock.elapsedRealtime() - it }
 
-private fun String.hostOrNull(): String? =
-    runCatching { Uri.parse(this).host }.getOrNull()?.takeIf { it.isNotBlank() }
+private fun String.hostOrNull(): String? = runCatching { Uri.parse(this).host }.getOrNull()?.takeIf { it.isNotBlank() }
 
-private fun Throwable.toAuthDiagnosticExceptionDto(): AuthDiagnosticExceptionDto =
-    AuthDiagnosticExceptionDto(
-        className = javaClass.name,
-        message = message,
-        causeChain = causeChain(),
-        stackTrace = stackTraceString()
-    )
+private fun Throwable.toAuthDiagnosticExceptionDto(): AuthDiagnosticExceptionDto = AuthDiagnosticExceptionDto(
+    className = javaClass.name,
+    message = message,
+    causeChain = causeChain(),
+    stackTrace = stackTraceString()
+)
 
 private fun Throwable.causeChain(): List<String> {
     val chain = mutableListOf<String>()

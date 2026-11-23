@@ -1,8 +1,8 @@
 package com.kien.movies.data.mdblist
 
 import com.kien.movies.data.remote.api.MDBListApi
-import com.kien.movies.data.remote.dto.mdblist.MDBListMediaResponseDto
 import com.kien.movies.data.remote.dto.mdblist.MDBListMediaRequestDto
+import com.kien.movies.data.remote.dto.mdblist.MDBListMediaResponseDto
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import javax.inject.Inject
@@ -46,7 +46,13 @@ class MdbListRatingsClient @Inject constructor(
         mediaId: String,
         credential: MdbListRatingsCredential
     ): MDBListMediaResponseDto? = when (credential) {
-        is MdbListRatingsCredential.ApiKey -> api.getMedia(mediaProvider, mediaType, mediaId, credential.value).bodyOrThrow()
+        is MdbListRatingsCredential.ApiKey -> api.getMedia(
+            mediaProvider,
+            mediaType,
+            mediaId,
+            credential.value
+        ).bodyOrThrow()
+
         is MdbListRatingsCredential.Account -> mediaAdapter.fromJson(
             accountApi.get(
                 "/$mediaProvider/$mediaType/$mediaId/",
@@ -64,7 +70,13 @@ class MdbListRatingsClient @Inject constructor(
     ): List<MDBListMediaResponseDto>? {
         val body = MDBListMediaRequestDto(mediaIds)
         return when (credential) {
-            is MdbListRatingsCredential.ApiKey -> api.getMediaBatch(mediaProvider, mediaType, credential.value, body).bodyOrThrow()
+            is MdbListRatingsCredential.ApiKey -> api.getMediaBatch(
+                mediaProvider,
+                mediaType,
+                credential.value,
+                body
+            ).bodyOrThrow()
+
             is MdbListRatingsCredential.Account -> batchAdapter.fromJson(
                 accountApi.post(
                     "/$mediaProvider/$mediaType/",

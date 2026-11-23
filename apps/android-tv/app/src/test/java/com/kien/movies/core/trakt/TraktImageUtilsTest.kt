@@ -31,10 +31,22 @@ class TraktImageUtilsTest {
             thumb = listOf("media.trakt.tv/images/movies/thumb.jpg.webp")
         )
 
-        assertEquals("https://media.trakt.tv/images/movies/fanart.jpg.webp", images.traktBestPosterUrl())
-        assertEquals("https://media.trakt.tv/images/movies/fanart.jpg.webp", images.traktBestBackdropUrl())
-        assertEquals("https://media.trakt.tv/images/movies/thumb.jpg.webp", images.traktBestLandscapeUrl())
-        assertEquals("https://media.trakt.tv/images/movies/logo.png.webp", images.traktBestLogoUrl())
+        assertEquals(
+            "https://media.trakt.tv/images/movies/fanart.jpg.webp",
+            images.traktBestPosterUrl()
+        )
+        assertEquals(
+            "https://media.trakt.tv/images/movies/fanart.jpg.webp",
+            images.traktBestBackdropUrl()
+        )
+        assertEquals(
+            "https://media.trakt.tv/images/movies/thumb.jpg.webp",
+            images.traktBestLandscapeUrl()
+        )
+        assertEquals(
+            "https://media.trakt.tv/images/movies/logo.png.webp",
+            images.traktBestLogoUrl()
+        )
     }
 
     @Test

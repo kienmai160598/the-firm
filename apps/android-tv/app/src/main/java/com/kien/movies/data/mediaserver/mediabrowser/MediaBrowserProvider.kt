@@ -26,18 +26,15 @@ import com.kien.movies.data.mediaserver.verifiedTitleMatches
 import com.kien.movies.domain.model.Subtitle
 import java.net.URLDecoder
 import java.util.concurrent.ConcurrentHashMap
-import okhttp3.OkHttpClient
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.DeserializationStrategy
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.OkHttpClient
 
-internal data class Endpoint(
-    val path: String,
-    val query: Map<String, String> = emptyMap()
-)
+internal data class Endpoint(val path: String, val query: Map<String, String> = emptyMap())
 
 internal abstract class MediaBrowserProvider(
     authorizationHeader: String,
@@ -64,7 +61,9 @@ internal abstract class MediaBrowserProvider(
     internal open fun isSupported(info: PublicInfo): Boolean = isSupportedVersion(info.version)
 
     override suspend fun signIn(address: String, username: String, password: String): ServerSignIn {
-        val normalized = normalizeServerAddress(address, apiPath) ?: throw ServerException(ServerFailure.NOT_FOUND)
+        val normalized =
+            normalizeServerAddress(address, apiPath)
+                ?: throw ServerException(ServerFailure.NOT_FOUND)
         val (baseUrl, info) = publicInfo(normalized)
         if (!isSupported(info)) throw ServerException(ServerFailure.UNSUPPORTED)
         val response = client.execute(
@@ -72,11 +71,16 @@ internal abstract class MediaBrowserProvider(
             baseUrl = baseUrl + apiPath,
             path = "/Users/AuthenticateByName",
             token = null,
-            body = client.json.encodeToString(AuthRequest.serializer(), AuthRequest(username, password))
+            body = client.json.encodeToString(
+                AuthRequest.serializer(),
+                AuthRequest(username, password)
+            )
         )
         val result = client.json.decodeFromString(AuthResult.serializer(), response.body)
         val user = result.user ?: throw ServerException(ServerFailure.AUTH_REQUIRED)
-        val token = result.accessToken?.takeIf { it.isNotBlank() } ?: throw ServerException(ServerFailure.AUTH_REQUIRED)
+        val token =
+            result.accessToken?.takeIf { it.isNotBlank() }
+                ?: throw ServerException(ServerFailure.AUTH_REQUIRED)
         val serverId = result.serverId ?: info.id ?: throw ServerException(ServerFailure.FAILED)
         return ServerSignIn(
             address = baseUrl,
@@ -90,7 +94,13 @@ internal abstract class MediaBrowserProvider(
 
     private suspend fun publicInfo(baseUrl: String): Pair<String, PublicInfo> {
         val path = "/System/Info/Public"
-        val response = client.execute("GET", baseUrl + apiPath, path, token = null, allowRedirect = true)
+        val response = client.execute(
+            "GET",
+            baseUrl + apiPath,
+            path,
+            token = null,
+            allowRedirect = true
+        )
         if (response.status in 300..399) {
             val redirected = response.location
                 ?.substringBefore(apiPath + path)
@@ -107,13 +117,12 @@ internal abstract class MediaBrowserProvider(
         client.execute("POST", session.apiRoot, "/Sessions/Logout", session.token)
     }
 
-    override suspend fun libraries(session: ServerSession): List<ServerLibrary> =
-        get(session, viewsEndpoint(session.userId), ItemsResult.serializer())
-            .items
-            .mapNotNull { view ->
-                val kind = libraryKind(view.collectionType, view.type) ?: return@mapNotNull null
-                ServerLibrary(id = view.id, name = view.name.orEmpty(), kind = kind)
-            }
+    override suspend fun libraries(session: ServerSession): List<ServerLibrary> = get(session, viewsEndpoint(session.userId), ItemsResult.serializer())
+        .items
+        .mapNotNull { view ->
+            val kind = libraryKind(view.collectionType, view.type) ?: return@mapNotNull null
+            ServerLibrary(id = view.id, name = view.name.orEmpty(), kind = kind)
+        }
 
     override suspend fun libraryPage(
         session: ServerSession,
@@ -123,7 +132,9 @@ internal abstract class MediaBrowserProvider(
     ): ServerPage<ServerTitle> {
         val key = "${session.connection.id}:${library.id}"
         var result = libraryItems(session, library, start, limit, libraryGenres[key])
-        if (result.items.isEmpty() && start == 0 && !libraryGenres.containsKey(key) && library.kind != ServerMediaKind.COLLECTION) {
+        if (result.items.isEmpty() && start == 0 && !libraryGenres.containsKey(key) &&
+            library.kind != ServerMediaKind.COLLECTION
+        ) {
             val genre = firstGenre(session, library).orEmpty()
             libraryGenres[key] = genre
             if (genre.isNotEmpty()) result = libraryItems(session, library, start, limit, genre)
@@ -144,21 +155,28 @@ internal abstract class MediaBrowserProvider(
         ItemsResult.serializer(),
         itemQuery(library) + mapOf(
             "genreIds" to genreId?.takeIf { it.isNotEmpty() },
-            "sortBy" to if (library.kind == ServerMediaKind.COLLECTION) "SortName" else "DateCreated,SortName",
-            "sortOrder" to if (library.kind == ServerMediaKind.COLLECTION) "Ascending" else "Descending",
+            "sortBy" to
+                if (library.kind ==
+                    ServerMediaKind.COLLECTION
+                ) {
+                    "SortName"
+                } else {
+                    "DateCreated,SortName"
+                },
+            "sortOrder" to
+                if (library.kind == ServerMediaKind.COLLECTION) "Ascending" else "Descending",
             "startIndex" to start.toString(),
             "limit" to limit.toString(),
             "enableTotalRecordCount" to "true"
         )
     )
 
-    private suspend fun firstGenre(session: ServerSession, library: ServerLibrary): String? =
-        get(
-            session,
-            Endpoint("/Genres"),
-            ItemsResult.serializer(),
-            mapOf("parentId" to library.id, "userId" to session.userId, "limit" to "1")
-        ).items.firstOrNull()?.id
+    private suspend fun firstGenre(session: ServerSession, library: ServerLibrary): String? = get(
+        session,
+        Endpoint("/Genres"),
+        ItemsResult.serializer(),
+        mapOf("parentId" to library.id, "userId" to session.userId, "limit" to "1")
+    ).items.firstOrNull()?.id
 
     override suspend fun collectionPage(
         session: ServerSession,
@@ -271,12 +289,19 @@ internal abstract class MediaBrowserProvider(
         return ServerItemDetails(
             meta = mapper.details(item, episodes),
             externalIds = item.externalIds(),
-            userStates = (if (episodes.isEmpty()) listOf(item) else episodes).mapNotNull(mapper::userState)
+            userStates = (
+                if (episodes.isEmpty()) {
+                    listOf(
+                        item
+                    )
+                } else {
+                    episodes
+                }
+                ).mapNotNull(mapper::userState)
         )
     }
 
-    override suspend fun candidates(session: ServerSession, itemId: String): List<ServerCandidate> =
-        mapper(session).candidates(item(session, itemId, "MediaSources"))
+    override suspend fun candidates(session: ServerSession, itemId: String): List<ServerCandidate> = mapper(session).candidates(item(session, itemId, "MediaSources"))
 
     override suspend fun setPlayed(session: ServerSession, itemId: String, played: Boolean) {
         val endpoint = playedEndpoint(session.userId, itemId)
@@ -354,7 +379,9 @@ internal abstract class MediaBrowserProvider(
                 "limit" to TITLE_LOOKUP_LIMIT.toString()
             ) + filter
         )
-        return result.items.map { ServerIndexEntry(itemId = it.id, ids = it.externalIds(), year = it.productionYear) }
+        return result.items.map {
+            ServerIndexEntry(itemId = it.id, ids = it.externalIds(), year = it.productionYear)
+        }
     }
 
     override suspend fun findEpisode(
@@ -380,7 +407,9 @@ internal abstract class MediaBrowserProvider(
                 (item.indexNumberEnd == null || item.indexNumberEnd == episode) &&
                 !item.isMissing
         }
-        return matches.singleOrNull()?.let { ServerEpisode(itemId = it.id, premiereDate = it.premiereDate) }
+        return matches.singleOrNull()?.let {
+            ServerEpisode(itemId = it.id, premiereDate = it.premiereDate)
+        }
     }
 
     override suspend fun preparePlayback(
@@ -445,13 +474,19 @@ internal abstract class MediaBrowserProvider(
                 )
             ) to ServerPlayMethod.DIRECT_PLAY
 
-            source.transcodingUrl != null -> withApiKey(session.resolve(source.transcodingUrl), session.token) to
+            source.transcodingUrl != null -> withApiKey(
+                session.resolve(source.transcodingUrl),
+                session.token
+            ) to
                 if (source.supportsDirectStream) ServerPlayMethod.DIRECT_STREAM else ServerPlayMethod.TRANSCODE
 
             else -> throw ServerException(ServerFailure.UNSUPPORTED)
         }
         val subtitles = source.mediaStreams
-            .filter { it.type.equals("Subtitle", ignoreCase = true) && it.deliveryMethod.equals("External", ignoreCase = true) }
+            .filter {
+                it.type.equals("Subtitle", ignoreCase = true) &&
+                    it.deliveryMethod.equals("External", ignoreCase = true)
+            }
             .mapNotNull { stream ->
                 val deliveryUrl = stream.deliveryUrl ?: return@mapNotNull null
                 Subtitle(
@@ -477,8 +512,14 @@ internal abstract class MediaBrowserProvider(
         )
     }
 
-    private fun audioTracks(source: MediaSource, url: String, requestedIndex: Int?): List<ServerTrack> {
-        val selected = queryValue(url, "AudioStreamIndex")?.toIntOrNull() ?: requestedIndex ?: source.defaultAudioStreamIndex
+    private fun audioTracks(
+        source: MediaSource,
+        url: String,
+        requestedIndex: Int?
+    ): List<ServerTrack> {
+        val selected =
+            queryValue(url, "AudioStreamIndex")?.toIntOrNull() ?: requestedIndex
+                ?: source.defaultAudioStreamIndex
         return source.mediaStreams
             .filter { it.type.equals("Audio", ignoreCase = true) }
             .mapNotNull { it.track(selected) }
@@ -487,7 +528,10 @@ internal abstract class MediaBrowserProvider(
     private fun burnInSubtitles(source: MediaSource, url: String): List<ServerTrack> {
         val selected = queryValue(url, "SubtitleStreamIndex")?.toIntOrNull()
         return source.mediaStreams
-            .filter { it.type.equals("Subtitle", ignoreCase = true) && it.deliveryMethod.equals("Encode", ignoreCase = true) }
+            .filter {
+                it.type.equals("Subtitle", ignoreCase = true) &&
+                    it.deliveryMethod.equals("Encode", ignoreCase = true)
+            }
             .mapNotNull { it.track(selected) }
     }
 
@@ -501,13 +545,12 @@ internal abstract class MediaBrowserProvider(
         )
     }
 
-    private fun transcodeReasons(url: String): List<String> =
-        queryValue(url, "TranscodeReasons")
-            ?.let { URLDecoder.decode(it, "UTF-8") }
-            ?.split(',')
-            ?.map(String::trim)
-            ?.filter(String::isNotEmpty)
-            .orEmpty()
+    private fun transcodeReasons(url: String): List<String> = queryValue(url, "TranscodeReasons")
+        ?.let { URLDecoder.decode(it, "UTF-8") }
+        ?.split(',')
+        ?.map(String::trim)
+        ?.filter(String::isNotEmpty)
+        .orEmpty()
 
     override suspend fun report(
         session: ServerSession,
@@ -543,7 +586,8 @@ internal abstract class MediaBrowserProvider(
     }
 
     internal fun isSupportedVersion(version: String?): Boolean {
-        val actual = version?.split('.')?.map { it.takeWhile(Char::isDigit).toIntOrNull() } ?: return false
+        val actual =
+            version?.split('.')?.map { it.takeWhile(Char::isDigit).toIntOrNull() } ?: return false
         if (actual.firstOrNull() == null) return false
         for ((index, minimum) in minimumVersion.split('.').map(String::toInt).withIndex()) {
             val part = actual.getOrNull(index) ?: 0
@@ -552,22 +596,33 @@ internal abstract class MediaBrowserProvider(
         return true
     }
 
-    private suspend fun item(session: ServerSession, itemId: String, fields: String): BaseItem =
-        get(session, itemEndpoint(session.userId, itemId), BaseItem.serializer(), mapOf("fields" to fields))
+    private suspend fun item(session: ServerSession, itemId: String, fields: String): BaseItem = get(
+        session,
+        itemEndpoint(session.userId, itemId),
+        BaseItem.serializer(),
+        mapOf("fields" to fields)
+    )
 
     private suspend fun <T> get(
         session: ServerSession,
         endpoint: Endpoint,
         deserializer: DeserializationStrategy<T>,
         query: Map<String, String?> = emptyMap()
-    ): T = client.get(session.apiRoot, endpoint.path, deserializer, session.token, endpoint.query + query)
+    ): T = client.get(
+        session.apiRoot,
+        endpoint.path,
+        deserializer,
+        session.token,
+        endpoint.query + query
+    )
 
     private fun mapper(session: ServerSession) = MediaBrowserMapper(session.apiRoot, session.connection.id)
 
     private fun itemQuery(library: ServerLibrary): Map<String, String?> = mapOf(
         "parentId" to library.id,
         "recursive" to (library.kind != ServerMediaKind.COLLECTION).toString(),
-        "includeItemTypes" to library.kind.itemType().takeUnless { library.kind == ServerMediaKind.COLLECTION },
+        "includeItemTypes" to
+            library.kind.itemType().takeUnless { library.kind == ServerMediaKind.COLLECTION },
         "fields" to LIST_FIELDS,
         "imageTypeLimit" to "1",
         "enableImageTypes" to "Primary,Backdrop,Logo"
@@ -579,12 +634,11 @@ internal abstract class MediaBrowserProvider(
     private val ServerSession.apiRoot: String
         get() = connection.address + apiPath
 
-    private fun ServerSession.resolve(serverUrl: String): String =
-        if (apiPath.isNotEmpty() && serverUrl.startsWith(apiPath, ignoreCase = true)) {
-            connection.address + serverUrl
-        } else {
-            apiRoot + serverUrl
-        }
+    private fun ServerSession.resolve(serverUrl: String): String = if (apiPath.isNotEmpty() && serverUrl.startsWith(apiPath, ignoreCase = true)) {
+        connection.address + serverUrl
+    } else {
+        apiRoot + serverUrl
+    }
 
     private fun ServerMediaKind.itemType(): String = when (this) {
         ServerMediaKind.MOVIE -> "Movie"
@@ -615,9 +669,10 @@ internal abstract class MediaBrowserProvider(
                 protocol = "hls"
             )
         ),
-        subtitleProfiles = EMBEDDED_SUBTITLES.map { SubtitleProfile(format = it, method = "Embed") } +
-            TEXT_SUBTITLES.map { SubtitleProfile(format = it, method = "External") } +
-            IMAGE_SUBTITLES.map { SubtitleProfile(format = it, method = "Encode") }
+        subtitleProfiles =
+            EMBEDDED_SUBTITLES.map { SubtitleProfile(format = it, method = "Embed") } +
+                TEXT_SUBTITLES.map { SubtitleProfile(format = it, method = "External") } +
+                IMAGE_SUBTITLES.map { SubtitleProfile(format = it, method = "Encode") }
     )
 
     private fun withApiKey(url: String, token: String): String {
@@ -625,11 +680,10 @@ internal abstract class MediaBrowserProvider(
         return url + (if ('?' in url) "&" else "?") + "$API_KEY=$token"
     }
 
-    private fun queryValue(url: String, name: String): String? =
-        url.substringAfter('?', "")
-            .split('&')
-            .firstOrNull { it.substringBefore('=').equals(name, ignoreCase = true) }
-            ?.substringAfter('=', "")
+    private fun queryValue(url: String, name: String): String? = url.substringAfter('?', "")
+        .split('&')
+        .firstOrNull { it.substringBefore('=').equals(name, ignoreCase = true) }
+        ?.substringAfter('=', "")
 
     private companion object {
         const val API_KEY = "api_key"

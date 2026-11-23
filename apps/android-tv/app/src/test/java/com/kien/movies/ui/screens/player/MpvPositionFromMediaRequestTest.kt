@@ -10,7 +10,13 @@ class MpvPositionFromMediaRequestTest {
 
     @Test
     fun `previous file is not from the request after an episode switch`() {
-        assertFalse(isMpvPositionFromMediaRequest("https://h/e15.mkv", "https://h/e14.mkv", "https://h/e14.mkv"))
+        assertFalse(
+            isMpvPositionFromMediaRequest(
+                "https://h/e15.mkv",
+                "https://h/e14.mkv",
+                "https://h/e14.mkv"
+            )
+        )
     }
 
     @Test
@@ -20,18 +26,36 @@ class MpvPositionFromMediaRequestTest {
 
     @Test
     fun `requested url counts`() {
-        assertTrue(isMpvPositionFromMediaRequest("https://h/e15.mkv", "https://h/e14.mkv", "https://h/e15.mkv"))
+        assertTrue(
+            isMpvPositionFromMediaRequest(
+                "https://h/e15.mkv",
+                "https://h/e14.mkv",
+                "https://h/e15.mkv"
+            )
+        )
         assertTrue(isMpvPositionFromMediaRequest("https://h/e15.mkv", null, "https://h/e15.mkv"))
     }
 
     @Test
     fun `reload of the same url counts`() {
-        assertTrue(isMpvPositionFromMediaRequest("https://h/e15.mkv", "https://h/e15.mkv", "https://h/e15.mkv"))
+        assertTrue(
+            isMpvPositionFromMediaRequest(
+                "https://h/e15.mkv",
+                "https://h/e15.mkv",
+                "https://h/e15.mkv"
+            )
+        )
     }
 
     @Test
     fun `playlist entry path counts once it differs from the old path`() {
-        assertTrue(isMpvPositionFromMediaRequest("https://h/list.m3u", "https://h/e14.mkv", "https://h/e15.mkv"))
+        assertTrue(
+            isMpvPositionFromMediaRequest(
+                "https://h/list.m3u",
+                "https://h/e14.mkv",
+                "https://h/e15.mkv"
+            )
+        )
     }
 
     @Test
@@ -51,17 +75,40 @@ class MpvPositionFromMediaRequestTest {
 
     @Test
     fun `new request records the current path`() {
-        assertEquals("https://h/e14.mkv", mpvPathBaselineForRequest("https://h/e15.mkv", "https://h/e14.mkv", null, "https://h/e14.mkv"))
+        assertEquals(
+            "https://h/e14.mkv",
+            mpvPathBaselineForRequest(
+                "https://h/e15.mkv",
+                "https://h/e14.mkv",
+                null,
+                "https://h/e14.mkv"
+            )
+        )
         assertNull(mpvPathBaselineForRequest("https://h/e15.mkv", null, null, ""))
     }
 
     @Test
     fun `repeat of a pending request keeps its baseline`() {
-        assertEquals("https://h/e14.mkv", mpvPathBaselineForRequest("https://h/e15.mkv", "https://h/e15.mkv", "https://h/e14.mkv", "https://h/e14.mkv"))
+        assertEquals(
+            "https://h/e14.mkv",
+            mpvPathBaselineForRequest(
+                "https://h/e15.mkv",
+                "https://h/e15.mkv",
+                "https://h/e14.mkv",
+                "https://h/e14.mkv"
+            )
+        )
     }
 
     @Test
     fun `repeat of a loaded request drops its baseline`() {
-        assertNull(mpvPathBaselineForRequest("https://h/list.m3u", "https://h/list.m3u", "https://h/e13.mkv", "https://h/e14.mkv"))
+        assertNull(
+            mpvPathBaselineForRequest(
+                "https://h/list.m3u",
+                "https://h/list.m3u",
+                "https://h/e13.mkv",
+                "https://h/e14.mkv"
+            )
+        )
     }
 }

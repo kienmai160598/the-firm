@@ -10,7 +10,7 @@ package com.kien.movies.ui.screens.player.autosync
  * unsuitable source cannot end the search on their own.
  */
 internal class AutoSyncNoFitTracker(
-    private val stopAfterSources: Int = DEFAULT_STOP_AFTER_SOURCES,
+    private val stopAfterSources: Int = DEFAULT_STOP_AFTER_SOURCES
 ) {
     private val noFitSources = ArrayList<AutoSyncTimelineRetimer.PreparedActivity>(stopAfterSources)
 
@@ -31,9 +31,8 @@ internal class AutoSyncNoFitTracker(
         // weak match (e.g. a margin just under the 0.02 acceptance gate) does not count.
         private const val NO_FIT_MAX_ACTIVITY_MARGIN = 0.01
 
-        fun isNoFit(result: AutoSyncTimelineRetimeResult?): Boolean =
-            result == null ||
-                (!result.confident && result.activityMargin < NO_FIT_MAX_ACTIVITY_MARGIN)
+        fun isNoFit(result: AutoSyncTimelineRetimeResult?): Boolean = result == null ||
+            (!result.confident && result.activityMargin < NO_FIT_MAX_ACTIVITY_MARGIN)
 
         /**
          * Whether one pair is evidence that the subtitle is out of sync with the video, which the
@@ -41,8 +40,10 @@ internal class AutoSyncNoFitTracker(
          * transform) and a sampled reference, which covers only the minutes already played, prove
          * nothing about the subtitle.
          */
-        fun confirmsNoFit(result: AutoSyncTimelineRetimeResult?, sampledReference: Boolean): Boolean =
-            result != null && !sampledReference && isNoFit(result)
+        fun confirmsNoFit(
+            result: AutoSyncTimelineRetimeResult?,
+            sampledReference: Boolean
+        ): Boolean = result != null && !sampledReference && isNoFit(result)
 
         /**
          * Whether a subtitle is confirmed out of sync: it was tried against every reference it was
@@ -52,10 +53,9 @@ internal class AutoSyncNoFitTracker(
             evaluatedPairs: Int,
             noFitPairs: Int,
             rankedReferences: Int,
-            abandoned: Boolean,
-        ): Boolean =
-            evaluatedPairs > 0 &&
-                noFitPairs == evaluatedPairs &&
-                (abandoned || evaluatedPairs >= rankedReferences)
+            abandoned: Boolean
+        ): Boolean = evaluatedPairs > 0 &&
+            noFitPairs == evaluatedPairs &&
+            (abandoned || evaluatedPairs >= rankedReferences)
     }
 }

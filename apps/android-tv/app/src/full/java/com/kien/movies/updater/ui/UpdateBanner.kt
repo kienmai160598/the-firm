@@ -53,10 +53,10 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.MoviesIconButton
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.accentBrush
 import com.kien.movies.updater.UpdateUiState
@@ -93,25 +93,34 @@ internal fun UpdateBanner(
     var bannerHasFocus by remember { mutableStateOf(false) }
     val subtitle = when {
         isInstalledUpdate -> stringResource(R.string.update_installed_automatically)
+
         state.errorMessage != null -> state.errorMessage
+
         state.isDownloading && state.downloadProgress != null -> stringResource(
             R.string.update_downloading_progress,
             (state.downloadProgress * 100).toInt().coerceIn(0, 100)
         )
+
         state.isDownloading -> stringResource(R.string.update_preparing_download)
+
         // An optimized install closes the app with no installer screen left up, which reads as a crash unless said.
-        state.downloadedApkPath != null && state.optimizeDuringInstall && state.optimizeDuringInstallSupported ->
+        state.downloadedApkPath != null && state.optimizeDuringInstall &&
+            state.optimizeDuringInstallSupported ->
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                 stringResource(R.string.update_ready_closes_and_reopens)
             } else {
                 stringResource(R.string.update_ready_closes)
             }
+
         state.downloadedApkPath != null -> stringResource(R.string.update_download_complete)
+
         else -> stringResource(R.string.update_available)
     }
     val updateLabel = listOfNotNull(
         update.tag,
-        update.assetSizeBytes?.takeUnless { isInstalledUpdate }?.let { Formatter.formatShortFileSize(context, it) }
+        update.assetSizeBytes?.takeUnless {
+            isInstalledUpdate
+        }?.let { Formatter.formatShortFileSize(context, it) }
     ).joinToString(separator = " • ")
 
     Box(
@@ -219,9 +228,16 @@ internal fun UpdateBanner(
                 ) {
                     Text(
                         text = when {
-                            state.isDownloading -> stringResource(R.string.update_downloading_ellipsis)
-                            state.downloadedApkPath != null -> stringResource(R.string.update_install)
+                            state.isDownloading -> stringResource(
+                                R.string.update_downloading_ellipsis
+                            )
+
+                            state.downloadedApkPath != null -> stringResource(
+                                R.string.update_install
+                            )
+
                             state.errorMessage != null -> stringResource(R.string.action_retry)
+
                             else -> stringResource(R.string.update_download)
                         },
                         fontWeight = FontWeight.SemiBold
@@ -280,17 +296,19 @@ private fun AutoDismissCloseButton(paused: Boolean, onDismiss: () -> Unit) {
             onClick = onDismiss
         )
         // The focused button grows and changes colour, and the timer is paused then, so the ring steps aside.
-        if (!closeFocused) Canvas(modifier = Modifier.matchParentSize()) {
-            val stroke = 3.dp.toPx()
-            drawArc(
-                color = ringColor,
-                startAngle = -90f,
-                sweepAngle = 360f * remaining.value,
-                useCenter = false,
-                topLeft = Offset(stroke / 2, stroke / 2),
-                size = Size(this.size.width - stroke, this.size.height - stroke),
-                style = Stroke(width = stroke, cap = StrokeCap.Round)
-            )
+        if (!closeFocused) {
+            Canvas(modifier = Modifier.matchParentSize()) {
+                val stroke = 3.dp.toPx()
+                drawArc(
+                    color = ringColor,
+                    startAngle = -90f,
+                    sweepAngle = 360f * remaining.value,
+                    useCenter = false,
+                    topLeft = Offset(stroke / 2, stroke / 2),
+                    size = Size(this.size.width - stroke, this.size.height - stroke),
+                    style = Stroke(width = stroke, cap = StrokeCap.Round)
+                )
+            }
         }
     }
 }

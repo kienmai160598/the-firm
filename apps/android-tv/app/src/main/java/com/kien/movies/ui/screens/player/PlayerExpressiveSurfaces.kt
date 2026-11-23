@@ -34,8 +34,7 @@ private val ProgressInactiveColor = Color.White.copy(alpha = 0.24f)
  */
 internal object PlayerSurfaceStyle {
     @Composable
-    fun floatingContainer(): Color =
-        MoviesTheme.colors.Surface.copy(alpha = FLOATING_CONTAINER_ALPHA)
+    fun floatingContainer(): Color = MoviesTheme.colors.Surface.copy(alpha = FLOATING_CONTAINER_ALPHA)
 
     /** A one-line indicator becomes a full pill. */
     fun pillShape(): Shape = CircleShape
@@ -137,11 +136,10 @@ private fun DrawScope.drawRoundedSegment(
 }
 
 /** Grows to [fraction] of [full] height, read while measuring so the growth recomposes nothing. */
-internal fun Modifier.growingHeight(full: Dp, fraction: () -> Float): Modifier =
-    layout { measurable, constraints ->
-        val height = (full * fraction().coerceIn(0f, 1f)).roundToPx()
-        val placeable = measurable.measure(
-            constraints.copy(minHeight = height, maxHeight = height)
-        )
-        layout(placeable.width, height) { placeable.place(0, 0) }
-    }
+internal fun Modifier.growingHeight(full: Dp, fraction: () -> Float): Modifier = layout { measurable, constraints ->
+    val height = (full * fraction().coerceIn(0f, 1f)).roundToPx()
+    val placeable = measurable.measure(
+        constraints.copy(minHeight = height, maxHeight = height)
+    )
+    layout(placeable.width, height) { placeable.place(0, 0) }
+}

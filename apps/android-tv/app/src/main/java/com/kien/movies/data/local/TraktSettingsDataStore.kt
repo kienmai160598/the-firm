@@ -9,6 +9,8 @@ import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.core.tracking.TrackingProviderId
 import com.kien.movies.data.simkl.SimklAnimeIdPreference
 import com.kien.movies.domain.model.LibrarySourceMode
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,8 +22,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
-import javax.inject.Singleton
 
 enum class WatchProgressSource {
     TRAKT,
@@ -61,20 +61,22 @@ class TraktSettingsDataStore @Inject constructor(
         const val MAX_CONTINUE_WATCHING_DAYS_CAP = 365
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val continueWatchingDaysCapKey = intPreferencesKey("continue_watching_days_cap")
     private val dismissedNextUpKeysKey = stringSetPreferencesKey("dismissed_next_up_keys")
     private val showUnairedNextUpKey = booleanPreferencesKey("show_unaired_next_up")
-    private val nextUpFromFurthestEpisodeKey = booleanPreferencesKey("next_up_from_furthest_episode")
+    private val nextUpFromFurthestEpisodeKey =
+        booleanPreferencesKey("next_up_from_furthest_episode")
     private val showMetaCommentsKey = booleanPreferencesKey("show_meta_comments")
     private val watchProgressSourceKey = stringPreferencesKey("watch_progress_source")
     private val librarySourceModeKey = stringPreferencesKey("library_source_mode")
-    private val rememberedWatchProgressSourceKey = stringPreferencesKey("remembered_watch_progress_source")
-    private val rememberedLibrarySourceModeKey = stringPreferencesKey("remembered_library_source_mode")
+    private val rememberedWatchProgressSourceKey =
+        stringPreferencesKey("remembered_watch_progress_source")
+    private val rememberedLibrarySourceModeKey =
+        stringPreferencesKey("remembered_library_source_mode")
     private val moreLikeThisSourceKey = stringPreferencesKey("more_like_this_source")
     private val simklAnimeIdPreferenceKey = stringPreferencesKey("simkl_anime_id_preference")
     private val ratingSourceKey = stringPreferencesKey("rating_source")
@@ -87,7 +89,9 @@ class TraktSettingsDataStore @Inject constructor(
         }
     }
 
-    val dismissedNextUpKeys: Flow<Set<String>> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val dismissedNextUpKeys: Flow<Set<String>> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         factory.get(pid, FEATURE).data.map { prefs ->
             val raw = prefs[dismissedNextUpKeysKey] ?: emptySet()
             // Normalize: extract contentId from legacy "contentId|season|episode" keys
@@ -102,7 +106,9 @@ class TraktSettingsDataStore @Inject constructor(
         }
     }
 
-    val nextUpFromFurthestEpisode: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val nextUpFromFurthestEpisode: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         factory.get(pid, FEATURE).data.map { prefs ->
             prefs[nextUpFromFurthestEpisodeKey] ?: true
         }
@@ -114,18 +120,20 @@ class TraktSettingsDataStore @Inject constructor(
         }
     }
 
-    val watchProgressSource: StateFlow<WatchProgressSource> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val watchProgressSource: StateFlow<WatchProgressSource> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         factory.get(pid, FEATURE).data.map { prefs ->
             WatchProgressSource.fromStorage(prefs[watchProgressSourceKey])
         }
     }.stateIn(scope, SharingStarted.Eagerly, DEFAULT_WATCH_PROGRESS_SOURCE)
 
-    suspend fun getWatchProgressSource(profileId: Int): WatchProgressSource =
-        WatchProgressSource.fromStorage(store(profileId).data.first()[watchProgressSourceKey])
+    suspend fun getWatchProgressSource(profileId: Int): WatchProgressSource = WatchProgressSource.fromStorage(store(profileId).data.first()[watchProgressSourceKey])
 
     suspend fun getLibrarySourceMode(profileId: Int): LibrarySourceMode {
         val stored = store(profileId).data.first()[librarySourceModeKey]
-        return LibrarySourceMode.entries.firstOrNull { it.name == stored } ?: DEFAULT_LIBRARY_SOURCE_MODE
+        return LibrarySourceMode.entries.firstOrNull { it.name == stored }
+            ?: DEFAULT_LIBRARY_SOURCE_MODE
     }
 
     suspend fun setContinueWatchingDaysCap(days: Int) {
@@ -197,10 +205,13 @@ class TraktSettingsDataStore @Inject constructor(
         }
     }
 
-    val librarySourceMode: Flow<LibrarySourceMode> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val librarySourceMode: Flow<LibrarySourceMode> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         factory.get(pid, FEATURE).data.map { prefs ->
             val stored = prefs[librarySourceModeKey]
-            LibrarySourceMode.entries.firstOrNull { it.name == stored } ?: DEFAULT_LIBRARY_SOURCE_MODE
+            LibrarySourceMode.entries.firstOrNull { it.name == stored }
+                ?: DEFAULT_LIBRARY_SOURCE_MODE
         }
     }
 
@@ -220,8 +231,11 @@ class TraktSettingsDataStore @Inject constructor(
 
     suspend fun setRememberedWatchProgressSource(source: WatchProgressSource?, profileId: Int) {
         store(profileId).edit { prefs ->
-            if (source == null) prefs.remove(rememberedWatchProgressSourceKey)
-            else prefs[rememberedWatchProgressSourceKey] = source.name
+            if (source == null) {
+                prefs.remove(rememberedWatchProgressSourceKey)
+            } else {
+                prefs[rememberedWatchProgressSourceKey] = source.name
+            }
         }
     }
 
@@ -232,12 +246,17 @@ class TraktSettingsDataStore @Inject constructor(
 
     suspend fun setRememberedLibrarySourceMode(mode: LibrarySourceMode?, profileId: Int) {
         store(profileId).edit { prefs ->
-            if (mode == null) prefs.remove(rememberedLibrarySourceModeKey)
-            else prefs[rememberedLibrarySourceModeKey] = mode.name
+            if (mode == null) {
+                prefs.remove(rememberedLibrarySourceModeKey)
+            } else {
+                prefs[rememberedLibrarySourceModeKey] = mode.name
+            }
         }
     }
 
-    val moreLikeThisSource: Flow<MoreLikeThisSourcePreference> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val moreLikeThisSource: Flow<MoreLikeThisSourcePreference> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         factory.get(pid, FEATURE).data.map { prefs ->
             val stored = prefs[moreLikeThisSourceKey]
             MoreLikeThisSourcePreference.entries.firstOrNull { it.name == stored }
@@ -251,7 +270,9 @@ class TraktSettingsDataStore @Inject constructor(
         }
     }
 
-    val simklAnimeIdPreference: Flow<SimklAnimeIdPreference> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val simklAnimeIdPreference: Flow<SimklAnimeIdPreference> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         factory.get(pid, FEATURE).data.map { prefs ->
             SimklAnimeIdPreference.fromStorage(prefs[simklAnimeIdPreferenceKey])
         }
@@ -263,7 +284,9 @@ class TraktSettingsDataStore @Inject constructor(
         }
     }
 
-    val ratingSource: StateFlow<TrackingProviderId?> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val ratingSource: StateFlow<TrackingProviderId?> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         factory.get(pid, FEATURE).data.map { prefs ->
             TrackingProviderId.fromStorage(prefs[ratingSourceKey])
         }

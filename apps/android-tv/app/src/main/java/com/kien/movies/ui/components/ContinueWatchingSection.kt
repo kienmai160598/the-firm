@@ -1,27 +1,34 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.screens.home.continueWatchingItemKey
-
 import android.view.KeyEvent as AndroidKeyEvent
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.gestures.BringIntoViewSpec
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,69 +37,61 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
-import com.kien.movies.R
-import com.kien.movies.domain.model.CardDepthSurface
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.gestures.BringIntoViewSpec
-import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.kien.movies.ui.screens.home.ContinueWatchingItem
-import com.kien.movies.ui.screens.home.canMarkWatched
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.theme.MoviesTheme
-import androidx.compose.ui.platform.LocalContext
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
-import coil3.request.transformations
 import coil3.request.crossfade
+import coil3.request.transformations
+import com.kien.movies.R
+import com.kien.movies.domain.model.CardDepthStyle
+import com.kien.movies.domain.model.CardDepthSurface
+import com.kien.movies.domain.model.ContinueWatchingCardStyle
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.screens.home.ContinueWatchingItem
+import com.kien.movies.ui.screens.home.canMarkWatched
+import com.kien.movies.ui.screens.home.continueWatchingItemKey
+import com.kien.movies.ui.theme.ExpressiveColors
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.theme.rememberMetaFloor
-import kotlin.math.roundToInt
-import java.util.concurrent.TimeUnit
-import com.kien.movies.ui.util.recompositionHighlighter
-import com.kien.movies.ui.util.localizeEpisodeTitle
-import com.kien.movies.ui.util.rememberLongPressKeyTracker
 import com.kien.movies.ui.util.computeAirDateBadgeText
 import com.kien.movies.ui.util.computeAirDateBadgeTextShort
-import com.kien.movies.domain.model.ContinueWatchingCardStyle
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.text.TextStyle
-import com.kien.movies.domain.model.CardDepthStyle
+import com.kien.movies.ui.util.localizeEpisodeTitle
+import com.kien.movies.ui.util.recompositionHighlighter
+import com.kien.movies.ui.util.rememberLongPressKeyTracker
+import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 
 private val BadgeShape = RoundedCornerShape(MoviesTheme.radii.sm)
@@ -128,9 +127,19 @@ internal fun continueWatchingArtworkWidth(
     cardStyle: ContinueWatchingCardStyle,
     cardWidth: Dp,
     cardHeight: Dp
-): Dp = if (cardStyle == ContinueWatchingCardStyle.WIDE) cardHeight * WIDE_POSTER_ASPECT else cardWidth
+): Dp = if (cardStyle ==
+    ContinueWatchingCardStyle.WIDE
+) {
+    cardHeight * WIDE_POSTER_ASPECT
+} else {
+    cardWidth
+}
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalTvMaterial3Api::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun ContinueWatchingSection(
     items: List<ContinueWatchingItem>,
@@ -185,13 +194,25 @@ fun ContinueWatchingSection(
         }
     }
 
-    Column(modifier = modifier.then(
-        if (entryFocusRequester != null) Modifier.focusRequester(entryFocusRequester) else Modifier
-    )) {
+    Column(
+        modifier = modifier.then(
+            if (entryFocusRequester !=
+                null
+            ) {
+                Modifier.focusRequester(entryFocusRequester)
+            } else {
+                Modifier
+            }
+        )
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.lg),
+                .padding(
+                    start = MoviesTheme.spacing.xxxl,
+                    end = MoviesTheme.spacing.xxxl,
+                    bottom = MoviesTheme.spacing.lg
+                ),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -212,7 +233,11 @@ fun ContinueWatchingSection(
             object : BringIntoViewSpec {
                 override val scrollAnimationSpec: AnimationSpec<Float> =
                     defaultBringIntoViewSpec.scrollAnimationSpec
-                override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
+                override fun calculateScrollDistance(
+                    offset: Float,
+                    size: Float,
+                    containerSize: Float
+                ): Float {
                     val childSize = kotlin.math.abs(size)
                     if (isRtl) {
                         val childSmallerThanParent = childSize <= containerSize
@@ -227,7 +252,13 @@ fun ContinueWatchingSection(
                     } else {
                         val target = startPx.toFloat()
                         val space = containerSize - target
-                        val leading = if (childSize <= containerSize && space < childSize) containerSize - childSize else target
+                        val leading = if (childSize <= containerSize &&
+                            space < childSize
+                        ) {
+                            containerSize - childSize
+                        } else {
+                            target
+                        }
                         return offset - leading
                     }
                 }
@@ -235,65 +266,67 @@ fun ContinueWatchingSection(
         }
 
         CompositionLocalProvider(LocalBringIntoViewSpec provides horizontalBringIntoViewSpec) {
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(rowFocusRequester)
-                .focusRestorer {
-                    val visibleIndices = listState.layoutInfo.visibleItemsInfo
-                        .map { it.index }
-                        .filter { it in items.indices }
-                    val idx = lastFocusedIndex.takeIf { it in visibleIndices }
-                        ?: visibleIndices.firstOrNull()
-                    idx?.let { focusRequesters[it] }
-                        ?: FocusRequester.Default
-                }
-                .focusGroup(),
-            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl),
-            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
-            state = listState
-        ) {
-            itemsIndexed(
-                items = items,
-                key = { _, progress -> continueWatchingItemKey(progress) }
-            ) { index, progress ->
-                val requester = focusRequesters.getOrPut(index) { FocusRequester() }
-                val focusModifier = Modifier.focusRequester(requester)
-                val stableOnClick = remember(progress) { { onItemClick(progress) } }
-                val stableOnLongPress = remember(progress) { { optionsItem = progress } }
-                var isCardFocused by remember { mutableStateOf(false) }
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(rowFocusRequester)
+                    .focusRestorer {
+                        val visibleIndices = listState.layoutInfo.visibleItemsInfo
+                            .map { it.index }
+                            .filter { it in items.indices }
+                        val idx = lastFocusedIndex.takeIf { it in visibleIndices }
+                            ?: visibleIndices.firstOrNull()
+                        idx?.let { focusRequesters[it] }
+                            ?: FocusRequester.Default
+                    }
+                    .focusGroup(),
+                contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
+                state = listState
+            ) {
+                itemsIndexed(
+                    items = items,
+                    key = { _, progress -> continueWatchingItemKey(progress) }
+                ) { index, progress ->
+                    val requester = focusRequesters.getOrPut(index) { FocusRequester() }
+                    val focusModifier = Modifier.focusRequester(requester)
+                    val stableOnClick = remember(progress) { { onItemClick(progress) } }
+                    val stableOnLongPress = remember(progress) { { optionsItem = progress } }
+                    var isCardFocused by remember { mutableStateOf(false) }
 
                     ContinueWatchingCard(
-                    item = progress,
-                    onClick = stableOnClick,
-                    onLongPress = stableOnLongPress,
-                    blurUnwatchedEpisodes = blurUnwatchedEpisodes,
-                    useEpisodeThumbnails = useEpisodeThumbnails,
-                    cardWidth = cardWidth,
-                    imageHeight = imageHeight,
-                    cardStyle = cardStyle,
-                    cornerRadius = cornerRadius,
-                    isFocused = isCardFocused,
-                    posterTitleOverride = posterTitleOverride,
-                    modifier = Modifier
-                        .onFocusChanged { focusState ->
-                            isCardFocused = focusState.isFocused
-                            if (focusState.isFocused) {
-                                if (lastFocusedIndex != index) {
-                                    lastFocusedIndex = index
+                        item = progress,
+                        onClick = stableOnClick,
+                        onLongPress = stableOnLongPress,
+                        blurUnwatchedEpisodes = blurUnwatchedEpisodes,
+                        useEpisodeThumbnails = useEpisodeThumbnails,
+                        cardWidth = cardWidth,
+                        imageHeight = imageHeight,
+                        cardStyle = cardStyle,
+                        cornerRadius = cornerRadius,
+                        isFocused = isCardFocused,
+                        posterTitleOverride = posterTitleOverride,
+                        modifier = Modifier
+                            .onFocusChanged { focusState ->
+                                isCardFocused = focusState.isFocused
+                                if (focusState.isFocused) {
+                                    if (lastFocusedIndex != index) {
+                                        lastFocusedIndex = index
+                                    }
+                                    onItemFocused(index)
                                 }
-                                onItemFocused(index)
                             }
-                        }
-                        .then(
-                            if (downFocusRequester != null) {
-                                Modifier.focusProperties { down = downFocusRequester }
-                            } else Modifier
-                        )
-                        .then(focusModifier)
-                )
+                            .then(
+                                if (downFocusRequester != null) {
+                                    Modifier.focusProperties { down = downFocusRequester }
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            .then(focusModifier)
+                    )
+                }
             }
-        }
         } // CompositionLocalProvider
     }
 
@@ -303,7 +336,13 @@ fun ContinueWatchingSection(
             item = menuItem,
             onDismiss = { optionsItem = null },
             onRemove = {
-                val targetIndex = if (items.size <= 1) null else minOf(lastFocusedIndex, items.size - 2)
+                val targetIndex = if (items.size <=
+                    1
+                ) {
+                    null
+                } else {
+                    minOf(lastFocusedIndex, items.size - 2)
+                }
                 pendingFocusIndex = targetIndex
                 onRemoveItem(menuItem)
                 optionsItem = null
@@ -322,7 +361,8 @@ fun ContinueWatchingSection(
                 optionsItem = null
             },
             onMarkWatched = {
-                pendingFocusIndex = if (items.size <= 1) null else minOf(lastFocusedIndex, items.lastIndex)
+                pendingFocusIndex =
+                    if (items.size <= 1) null else minOf(lastFocusedIndex, items.lastIndex)
                 onMarkWatched(menuItem)
                 optionsItem = null
             }
@@ -373,8 +413,7 @@ internal fun continueWatchingImageModel(
         val backdrop = posterNextUp?.backdrop ?: posterProgress?.backdrop
         val thumbnail = posterNextUp?.thumbnail
             ?: (item as? ContinueWatchingItem.InProgress)?.episodeThumbnail
-        fun firstUsable(vararg candidates: String?): String? =
-            candidates.firstOrNull { !it.isNullOrBlank() && it !in brokenImageUrls }?.trim()
+        fun firstUsable(vararg candidates: String?): String? = candidates.firstOrNull { !it.isNullOrBlank() && it !in brokenImageUrls }?.trim()
         // Movies carry no episode thumbnail, so they keep their poster without needing a content type check.
         // A thumbnail that is switched off leaves the chain entirely, because Trakt rows hydrate their artwork late and a demoted thumbnail would show until it lands.
         return if (useEpisodeThumbnails) {
@@ -385,8 +424,7 @@ internal fun continueWatchingImageModel(
     }
     val progress = (item as? ContinueWatchingItem.InProgress)?.progress
     val nextUp = (item as? ContinueWatchingItem.NextUp)?.info
-    fun firstNonBroken(vararg candidates: String?): String? =
-        candidates.firstOrNull { !it.isNullOrBlank() && it !in brokenImageUrls }?.trim()
+    fun firstNonBroken(vararg candidates: String?): String? = candidates.firstOrNull { !it.isNullOrBlank() && it !in brokenImageUrls }?.trim()
     return when {
         nextUp != null && !nextUp.hasAired ->
             firstNonBroken(
@@ -395,16 +433,20 @@ internal fun continueWatchingImageModel(
                 nextUp.poster,
                 nextUp.thumbnail.takeIf { useEpisodeThumbnails }
             )
+
         nextUp != null && useEpisodeThumbnails ->
             firstNonBroken(nextUp.thumbnail, customLandscape, nextUp.backdrop, nextUp.poster)
+
         nextUp != null ->
             firstNonBroken(customLandscape, nextUp.backdrop, nextUp.poster)
+
         useEpisodeThumbnails -> firstNonBroken(
             (item as? ContinueWatchingItem.InProgress)?.episodeThumbnail,
             customLandscape,
             progress?.backdrop,
             progress?.poster
         )
+
         else -> firstNonBroken(
             customLandscape,
             progress?.backdrop,
@@ -436,7 +478,7 @@ internal fun continueWatchingImageCacheKey(
     widthPx: Int,
     heightPx: Int,
     shouldBlur: Boolean
-): String = "${model}_${widthPx}x${heightPx}_blur${shouldBlur}"
+): String = "${model}_${widthPx}x${heightPx}_blur$shouldBlur"
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -550,11 +592,15 @@ fun ContinueWatchingCard(
     val effectiveImageModel = if (usesFallbackImage) fallbackImageModel else imageModel
     val titleText = remember(progress, nextUp) { progress?.name ?: nextUp?.name.orEmpty() }
     val context = LocalContext.current
-    val strAirsDateForEpisode = computeAirDateBadgeText(context, nextUp?.released, nextUp?.airDateLabel)
+    val strAirsDateForEpisode =
+        computeAirDateBadgeText(context, nextUp?.released, nextUp?.airDateLabel)
     val episodeTitle = remember(progress, nextUp, context, strAirsDateForEpisode) {
         when {
             progress != null -> progress.episodeTitle?.localizeEpisodeTitle(context)
-            nextUp != null && !nextUp.hasAired -> nextUp.episodeTitle?.localizeEpisodeTitle(context) ?: strAirsDateForEpisode
+
+            nextUp != null && !nextUp.hasAired -> nextUp.episodeTitle?.localizeEpisodeTitle(context)
+                ?: strAirsDateForEpisode
+
             else -> nextUp?.episodeTitle?.localizeEpisodeTitle(context)
         }
     }
@@ -567,7 +613,12 @@ fun ContinueWatchingCard(
         with(density) { imageHeight.roundToPx() }.coerceAtLeast(1)
     }
     val shouldBlur =
-        continueWatchingShouldBlur(item, blurUnwatchedEpisodes, effectiveEpisodeThumbnails, usePosterArtwork)
+        continueWatchingShouldBlur(
+            item,
+            blurUnwatchedEpisodes,
+            effectiveEpisodeThumbnails,
+            usePosterArtwork
+        )
 
     val baseTitleStyle = MaterialTheme.typography.titleSmall
     val titleStyle = remember(baseTitleStyle, isPosterStyle, posterTitleOverride) {
@@ -597,7 +648,10 @@ fun ContinueWatchingCard(
             .crossfade(true)
             .memoryCacheKey(
                 continueWatchingImageCacheKey(
-                    effectiveImageModel, requestWidthPx, requestHeightPx, shouldBlur
+                    effectiveImageModel,
+                    requestWidthPx,
+                    requestHeightPx,
+                    shouldBlur
                 )
             )
             .size(width = requestWidthPx, height = requestHeightPx)
@@ -610,7 +664,10 @@ fun ContinueWatchingCard(
         }
         if (!fallbackUrl.isNullOrBlank() && fallbackUrl != effectiveImageModel) {
             builder.memoryCacheKeyExtras(
-                mapOf(com.kien.movies.core.image.CustomPosterFallbackInterceptor.FALLBACK_URL_KEY to fallbackUrl)
+                mapOf(
+                    com.kien.movies.core.image.CustomPosterFallbackInterceptor.FALLBACK_URL_KEY to
+                        fallbackUrl
+                )
             )
         }
         builder.build()
@@ -625,9 +682,10 @@ fun ContinueWatchingCard(
             else -> bgColor.copy(alpha = 0.8f)
         }
     }
-    
+
     val bgCardColor = MoviesTheme.colors.BackgroundCard
-    val backgroundPainter = remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }
+    val backgroundPainter =
+        remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }
 
     LightweightCard(
         onClick = {
@@ -706,7 +764,9 @@ fun ContinueWatchingCard(
                 onImageError = {
                     if (!usesFallbackImage && effectiveImageModel != null) {
                         brokenImageUrls.add(effectiveImageModel)
-                        if (fallbackImageModel != null && fallbackImageModel != effectiveImageModel) {
+                        if (fallbackImageModel != null &&
+                            fallbackImageModel != effectiveImageModel
+                        ) {
                             usesFallbackImage = true
                         }
                     }
@@ -757,7 +817,6 @@ fun ContinueWatchingCard(
                                     CompositingStrategy.Offscreen
                             }
                             .clip(cwClipShape)
-
                             // Gradient overlay for text legibility, only needed when text sits on the artwork.
                             .drawWithContent {
                                 drawContent()
@@ -788,7 +847,9 @@ fun ContinueWatchingCard(
                             // Primary image failed (e.g. broken thumbnail URL): remember and try fallback.
                             if (!usesFallbackImage && effectiveImageModel != null) {
                                 brokenImageUrls.add(effectiveImageModel)
-                                if (fallbackImageModel != null && fallbackImageModel != effectiveImageModel) {
+                                if (fallbackImageModel != null &&
+                                    fallbackImageModel != effectiveImageModel
+                                ) {
                                     usesFallbackImage = true
                                 }
                             }
@@ -825,7 +886,10 @@ fun ContinueWatchingCard(
                             .padding(MoviesTheme.spacing.sm)
                             .clip(BadgeShape)
                             .background(badgeBackground)
-                            .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs)
+                            .padding(
+                                horizontal = MoviesTheme.spacing.sm,
+                                vertical = MoviesTheme.spacing.xs
+                            )
                     ) {
                         Text(
                             text = badgeText,
@@ -848,7 +912,9 @@ fun ContinueWatchingCard(
                                 if (isPosterStyle) {
                                     Modifier
                                         .clip(RoundedCornerShape(999.dp))
-                                        .background(MoviesTheme.colors.Background.copy(alpha = 0.7f))
+                                        .background(
+                                            MoviesTheme.colors.Background.copy(alpha = 0.7f)
+                                        )
                                         .padding(MoviesTheme.spacing.xxs)
                                 } else {
                                     Modifier
@@ -877,7 +943,13 @@ fun ContinueWatchingCard(
             if (textBelowArtwork) {
                 // The title wraps to two lines beside the episode code like the mobile poster card, and the
                 // row height is fixed so a one line title does not make its card shorter than the rest.
-                val titleBlockHeight = if (posterTitleOverride != null) 46.dp else POSTER_TITLE_BLOCK_HEIGHT
+                val titleBlockHeight = if (posterTitleOverride !=
+                    null
+                ) {
+                    46.dp
+                } else {
+                    POSTER_TITLE_BLOCK_HEIGHT
+                }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

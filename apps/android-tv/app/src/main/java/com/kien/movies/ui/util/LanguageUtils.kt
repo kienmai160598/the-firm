@@ -291,8 +291,11 @@ private fun resolveLanguageCodeToName(code: String): String {
         } else {
             locale.getDisplayLanguage(Locale.getDefault())
         }
-        if (name.isNotBlank() && name != bcp47) name.replaceFirstChar { it.uppercase() }
-        else code.uppercase()
+        if (name.isNotBlank() && name != bcp47) {
+            name.replaceFirstChar { it.uppercase() }
+        } else {
+            code.uppercase()
+        }
     } catch (_: Exception) {
         code.uppercase()
     }

@@ -56,11 +56,7 @@ class ProfileBackgroundTest {
         assertNull(resolveProfileBackgroundSelection(profile, CosmeticEntitlements.None))
     }
 
-    private fun profile(
-        id: Int,
-        backgroundId: String? = null,
-        backgroundUrl: String? = null
-    ) = UserProfile(
+    private fun profile(id: Int, backgroundId: String? = null, backgroundUrl: String? = null) = UserProfile(
         id = id,
         name = "Profile $id",
         avatarColorHex = "#1E88E5",

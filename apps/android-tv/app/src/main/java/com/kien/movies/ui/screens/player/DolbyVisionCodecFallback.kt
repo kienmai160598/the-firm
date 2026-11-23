@@ -101,15 +101,24 @@ object DolbyVisionCodecFallback {
                 // uses 7 parameters, remove the last two (forceDisableAdaptive,
                 // forceSecure) arguments.
                 val media3Info = MediaCodecInfo.newInstance(
-                    /* name= */ info.name,
-                    /* mimeType= */ DV_MIME,
-                    /* codecMimeType= */ DV_MIME,
-                    /* capabilities= */ caps,
-                    /* hardwareAccelerated= */ isHardwareAccelerated,
-                    /* softwareOnly= */ isSoftwareOnly,
-                    /* vendor= */ isVendor,
-                    /* forceDisableAdaptive= */ false,
-                    /* forceSecure= */ false
+                    /* name= */
+                    info.name,
+                    /* mimeType= */
+                    DV_MIME,
+                    /* codecMimeType= */
+                    DV_MIME,
+                    /* capabilities= */
+                    caps,
+                    /* hardwareAccelerated= */
+                    isHardwareAccelerated,
+                    /* softwareOnly= */
+                    isSoftwareOnly,
+                    /* vendor= */
+                    isVendor,
+                    /* forceDisableAdaptive= */
+                    false,
+                    /* forceSecure= */
+                    false
                 )
 
                 Log.i(TAG, "Found hidden DV decoder: ${info.name} (hw=$isHardwareAccelerated)")

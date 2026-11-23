@@ -1,13 +1,13 @@
 package androidx.media3.exoplayer.source
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.nio.ByteBuffer
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.nio.ByteBuffer
 
 @RunWith(AndroidJUnit4::class)
 class SampleDataQueueNativeTest {

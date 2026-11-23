@@ -5,14 +5,12 @@ import com.kien.movies.domain.model.CosmeticEntitlements
 import com.kien.movies.domain.model.MemberAccess
 import com.kien.movies.domain.model.MemberTier
 import io.github.jan.supabase.postgrest.Postgrest
-import kotlinx.serialization.Serializable
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.serialization.Serializable
 
 @Singleton
-class MemberAccessRemoteDataSource @Inject constructor(
-    private val postgrest: Postgrest
-) {
+class MemberAccessRemoteDataSource @Inject constructor(private val postgrest: Postgrest) {
     suspend fun getMemberAccess(): MemberAccess {
         val remote = postgrest.rpc("get_my_member_access")
             .decodeList<MemberAccessResponse>()
@@ -32,7 +30,4 @@ class MemberAccessRemoteDataSource @Inject constructor(
 }
 
 @Serializable
-private data class MemberAccessResponse(
-    val tier: String,
-    val entitlements: List<String>
-)
+private data class MemberAccessResponse(val tier: String, val entitlements: List<String>)

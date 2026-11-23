@@ -155,11 +155,18 @@ private fun UiDevice.playerJourney(): JourneyResult {
     var inPlayer = false
     // Prefer the real playback button, fall back to the trailer player. Both buttons carry
     // their label as content-desc on the emulator (no text node), so both accessors are checked.
-    if (awaitExactText(Labels.PLAY, timeoutMs = 2_000) || awaitExactDesc(Labels.PLAY, timeoutMs = 1_500)) {
+    if (awaitExactText(Labels.PLAY, timeoutMs = 2_000) ||
+        awaitExactDesc(Labels.PLAY, timeoutMs = 1_500)
+    ) {
         focusAndSelect(Labels.PLAY, maxSteps = 8, requireGone = false)
         inPlayer = awaitPlayerSurface()
     }
-    if (!inPlayer && (awaitExactText(Labels.PLAY_TRAILER, timeoutMs = 2_000) || awaitExactDesc(Labels.PLAY_TRAILER, timeoutMs = 1_500))) {
+    if (!inPlayer &&
+        (
+            awaitExactText(Labels.PLAY_TRAILER, timeoutMs = 2_000) ||
+                awaitExactDesc(Labels.PLAY_TRAILER, timeoutMs = 1_500)
+            )
+    ) {
         focusAndSelect(Labels.PLAY_TRAILER, maxSteps = 12, requireGone = false)
         inPlayer = awaitPlayerSurface()
     }
@@ -179,7 +186,10 @@ private fun UiDevice.playerJourney(): JourneyResult {
         val hasPlayDesc = findObject(By.desc("Play")) != null
         val hasPlayText = findObject(By.text("Play")) != null
         val hasUnavailable = findObject(By.textContains("navailable")) != null
-        Log.w(LOG_TAG, "Player diag: playDesc=$hasPlayDesc playText=$hasPlayText unavailable=$hasUnavailable")
+        Log.w(
+            LOG_TAG,
+            "Player diag: playDesc=$hasPlayDesc playText=$hasPlayText unavailable=$hasUnavailable"
+        )
     }
     return JourneyResult(
         journey = Journey.PLAYER,
@@ -297,8 +307,7 @@ private fun UiDevice.openDrawerItem(label: String): Boolean {
 }
 
 /** True when the focus currently sits on one of the drawer entries. */
-private fun UiDevice.isFocusOnSidebar(): Boolean =
-    isFocusOn("Home") || isFocusOn("Search") || isFocusOn("Library") || isFocusOn("Settings")
+private fun UiDevice.isFocusOnSidebar(): Boolean = isFocusOn("Home") || isFocusOn("Search") || isFocusOn("Library") || isFocusOn("Settings")
 
 /** True when the currently focused node carries [label] as its text. */
 private fun UiDevice.focusedTextEquals(label: String): Boolean = isFocusOn(label)

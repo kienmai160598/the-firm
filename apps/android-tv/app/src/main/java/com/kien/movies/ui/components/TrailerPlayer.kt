@@ -1,5 +1,10 @@
 package com.kien.movies.ui.components
 
+import android.graphics.Typeface
+import android.net.Uri
+import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.TextureView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -10,6 +15,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -19,18 +25,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalView
-import kotlin.math.max
-import kotlin.math.min
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.compose.ui.viewinterop.AndroidView
-import android.net.Uri
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
@@ -39,6 +42,11 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.MergingMediaSource
+import androidx.media3.ui.AspectRatioFrameLayout
+import androidx.media3.ui.CaptionStyleCompat
+import androidx.media3.ui.PlayerView
+import androidx.media3.ui.SubtitleView
+import com.kien.movies.R
 import com.kien.movies.core.player.LetterboxDetector
 import com.kien.movies.core.player.LetterboxSampler
 import com.kien.movies.core.player.LetterboxTracker
@@ -46,39 +54,30 @@ import com.kien.movies.core.player.LocalTrailerPlayerPool
 import com.kien.movies.core.player.TrailerPlayerPool
 import com.kien.movies.data.local.SubtitleStyleSettings
 import com.kien.movies.data.trailer.TrailerSubtitleTrack
+import com.kien.movies.data.trailer.YoutubeChunkedDataSourceFactory
 import com.kien.movies.ui.screens.player.SUBTITLE_BASE_TEXT_SP
 import com.kien.movies.ui.screens.player.rememberSubtitleTypeface
-import android.graphics.Typeface
-import android.util.TypedValue
-import androidx.compose.runtime.collectAsState
-import kotlinx.coroutines.flow.MutableStateFlow
-import com.kien.movies.data.trailer.YoutubeChunkedDataSourceFactory
-import androidx.media3.ui.AspectRatioFrameLayout
-import androidx.media3.ui.CaptionStyleCompat
-import androidx.media3.ui.PlayerView
-import androidx.media3.ui.SubtitleView
-import android.view.LayoutInflater
-import android.view.TextureView
-import com.kien.movies.R
+import kotlin.math.max
+import kotlin.math.min
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 
-private fun buildTrailerMediaItem(videoUrl: String, subtitle: TrailerSubtitleTrack?): MediaItem =
-    MediaItem.Builder()
-        .setUri(videoUrl)
-        .apply {
-            if (subtitle != null) {
-                setSubtitleConfigurations(
-                    listOf(
-                        MediaItem.SubtitleConfiguration.Builder(Uri.parse(subtitle.url))
-                            .setMimeType(MimeTypes.TEXT_VTT)
-                            .setLanguage(subtitle.languageCode)
-                            .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
-                            .build()
-                    )
+private fun buildTrailerMediaItem(videoUrl: String, subtitle: TrailerSubtitleTrack?): MediaItem = MediaItem.Builder()
+    .setUri(videoUrl)
+    .apply {
+        if (subtitle != null) {
+            setSubtitleConfigurations(
+                listOf(
+                    MediaItem.SubtitleConfiguration.Builder(Uri.parse(subtitle.url))
+                        .setMimeType(MimeTypes.TEXT_VTT)
+                        .setLanguage(subtitle.languageCode)
+                        .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+                        .build()
                 )
-            }
+            )
         }
-        .build()
+    }
+    .build()
 
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
@@ -106,7 +105,10 @@ fun TrailerPlayer(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val activityLifecycleOwner = remember(context) { context as? androidx.lifecycle.LifecycleOwner ?: lifecycleOwner }
+    val activityLifecycleOwner = remember(context) {
+        context as? androidx.lifecycle.LifecycleOwner
+            ?: lifecycleOwner
+    }
     val currentIsPlaying by rememberUpdatedState(isPlaying)
     val currentTrailerUrl by rememberUpdatedState(trailerUrl)
     val currentTrailerAudioUrl by rememberUpdatedState(trailerAudioUrl)
@@ -119,7 +121,8 @@ fun TrailerPlayer(
     val resolvedPool = trailerPlayerPool ?: LocalTrailerPlayerPool.current
     val ownerToken = remember { Any() }
     val rootView = LocalView.current
-    val incomingHandoff = remember(trailerUrl, resolvedPool) { resolvedPool?.pendingHandoffFor(trailerUrl) }
+    val incomingHandoff =
+        remember(trailerUrl, resolvedPool) { resolvedPool?.pendingHandoffFor(trailerUrl) }
     val seamlessHandoff = remember(incomingHandoff, rootView) {
         incomingHandoff?.sourceBounds?.coversView(rootView.width, rootView.height) == true
     }
@@ -136,8 +139,12 @@ fun TrailerPlayer(
         label = "trailerFirstFrameAlpha"
     )
     val playerViewRef = remember { mutableStateOf<PlayerView?>(null) }
-    var letterboxZoom by remember(trailerUrl) { mutableFloatStateOf(incomingHandoff?.letterboxZoom ?: 1f) }
-    var letterboxZoomLocked by remember(trailerUrl) { mutableStateOf(incomingHandoff?.letterboxZoom != null) }
+    var letterboxZoom by remember(trailerUrl) {
+        mutableFloatStateOf(incomingHandoff?.letterboxZoom ?: 1f)
+    }
+    var letterboxZoomLocked by remember(trailerUrl) {
+        mutableStateOf(incomingHandoff?.letterboxZoom != null)
+    }
     val letterboxZoomState = animateFloatAsState(
         targetValue = if (autoCropLetterbox) letterboxZoom else 1f,
         animationSpec = tween(durationMillis = 400),
@@ -171,7 +178,9 @@ fun TrailerPlayer(
         val player = trailerPlayer ?: return@LaunchedEffect
         player.volume = if (muted) 0f else 1f
         if (isPlaying && trailerUrl != null) {
-            if (resolvedPool?.isLoadedBy(ownerToken, trailerUrl) == true && player.currentMediaItem != null) {
+            if (resolvedPool?.isLoadedBy(ownerToken, trailerUrl) == true &&
+                player.currentMediaItem != null
+            ) {
                 player.playWhenReady = true
                 return@LaunchedEffect
             }
@@ -189,9 +198,14 @@ fun TrailerPlayer(
                 .setPreferredTextLanguage(subtitle?.languageCode)
                 .build()
             if (!trailerAudioUrl.isNullOrBlank()) {
-                val mediaSourceFactory = DefaultMediaSourceFactory(YoutubeChunkedDataSourceFactory())
-                val videoSource = mediaSourceFactory.createMediaSource(buildTrailerMediaItem(trailerUrl, subtitle))
-                val audioSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(trailerAudioUrl))
+                val mediaSourceFactory =
+                    DefaultMediaSourceFactory(YoutubeChunkedDataSourceFactory())
+                val videoSource = mediaSourceFactory.createMediaSource(
+                    buildTrailerMediaItem(trailerUrl, subtitle)
+                )
+                val audioSource = mediaSourceFactory.createMediaSource(
+                    MediaItem.fromUri(trailerAudioUrl)
+                )
                 player.setMediaSource(MergingMediaSource(videoSource, audioSource))
             } else {
                 player.setMediaItem(buildTrailerMediaItem(trailerUrl, subtitle))
@@ -235,7 +249,13 @@ fun TrailerPlayer(
         try {
             while (true) {
                 delay(LetterboxDetector.SAMPLE_INTERVAL_MS)
-                if (LetterboxDetector.isSampleWindowOver(player.currentPosition, player.duration)) break
+                if (LetterboxDetector.isSampleWindowOver(
+                        player.currentPosition,
+                        player.duration
+                    )
+                ) {
+                    break
+                }
                 if (!player.isPlaying) continue
                 val textureView = playerViewRef.value?.videoSurfaceView as? TextureView ?: continue
                 val bar = sampler.sample(textureView) ?: continue
@@ -308,12 +328,19 @@ fun TrailerPlayer(
                     if (currentIsPlaying && !currentTrailerUrl.isNullOrBlank()) {
                         if (player.currentMediaItem == null && stoppedByLifecycle) {
                             if (!currentTrailerAudioUrl.isNullOrBlank()) {
-                                val mediaSourceFactory = DefaultMediaSourceFactory(YoutubeChunkedDataSourceFactory())
-                                val videoSource = mediaSourceFactory.createMediaSource(buildTrailerMediaItem(currentTrailerUrl!!, currentSubtitleTrack))
-                                val audioSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(currentTrailerAudioUrl!!))
+                                val mediaSourceFactory =
+                                    DefaultMediaSourceFactory(YoutubeChunkedDataSourceFactory())
+                                val videoSource = mediaSourceFactory.createMediaSource(
+                                    buildTrailerMediaItem(currentTrailerUrl!!, currentSubtitleTrack)
+                                )
+                                val audioSource = mediaSourceFactory.createMediaSource(
+                                    MediaItem.fromUri(currentTrailerAudioUrl!!)
+                                )
                                 player.setMediaSource(MergingMediaSource(videoSource, audioSource))
                             } else {
-                                player.setMediaItem(buildTrailerMediaItem(currentTrailerUrl!!, currentSubtitleTrack))
+                                player.setMediaItem(
+                                    buildTrailerMediaItem(currentTrailerUrl!!, currentSubtitleTrack)
+                                )
                             }
                             player.prepare()
                             resolvedPool?.onMediaLoaded(ownerToken, currentTrailerUrl!!)
@@ -321,6 +348,7 @@ fun TrailerPlayer(
                         player.playWhenReady = true
                     }
                 }
+
                 Lifecycle.Event.ON_PAUSE,
                 Lifecycle.Event.ON_STOP -> {
                     stoppedByLifecycle = true
@@ -329,6 +357,7 @@ fun TrailerPlayer(
                     player.stop()
                     player.clearMediaItems()
                 }
+
                 // Do NOT release on destroy — the pool owns the lifecycle.
                 else -> Unit
             }
@@ -351,7 +380,11 @@ fun TrailerPlayer(
         ) {
             AndroidView(
                 factory = { ctx ->
-                    (LayoutInflater.from(ctx).inflate(R.layout.trailer_player_view, null) as PlayerView).apply {
+                    (
+                        LayoutInflater.from(
+                            ctx
+                        ).inflate(R.layout.trailer_player_view, null) as PlayerView
+                        ).apply {
                         playerViewRef.value = this
                         player = trailerPlayer
                         isFocusable = false
@@ -410,14 +443,19 @@ fun TrailerPlayer(
 }
 
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
-private fun SubtitleView.applyTrailerSubtitleStyle(style: SubtitleStyleSettings, typeface: Typeface?) {
+private fun SubtitleView.applyTrailerSubtitleStyle(
+    style: SubtitleStyleSettings,
+    typeface: Typeface?
+) {
     val metrics = resources.displayMetrics
     val textSizePx = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_SP,
         SUBTITLE_BASE_TEXT_SP * style.size / 100f,
         metrics
     )
-    setFractionalTextSize(textSizePx / min(metrics.widthPixels, metrics.heightPixels).coerceAtLeast(1))
+    setFractionalTextSize(
+        textSizePx / min(metrics.widthPixels, metrics.heightPixels).coerceAtLeast(1)
+    )
     val edgeType = when {
         style.outlineEnabled -> CaptionStyleCompat.EDGE_TYPE_OUTLINE
         style.shadowEnabled -> CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW
@@ -435,7 +473,10 @@ private fun SubtitleView.applyTrailerSubtitleStyle(style: SubtitleStyleSettings,
             android.graphics.Color.TRANSPARENT,
             edgeType,
             edgeColor,
-            Typeface.create(typeface ?: Typeface.DEFAULT, if (style.bold) Typeface.BOLD else Typeface.NORMAL)
+            Typeface.create(
+                typeface ?: Typeface.DEFAULT,
+                if (style.bold) Typeface.BOLD else Typeface.NORMAL
+            )
         )
     )
 }

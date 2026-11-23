@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.addon
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -22,8 +20,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.filled.Reorder
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
@@ -38,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -54,21 +53,21 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
+import com.kien.movies.R
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.TvReorderList
-import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
-import androidx.compose.ui.res.stringResource
-import com.kien.movies.R
-import kotlinx.coroutines.delay
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.MoviesSurface
 import com.kien.movies.ui.components.expressive.moviesButtonColors
 import com.kien.movies.ui.components.expressive.moviesButtonScale
 import com.kien.movies.ui.components.expressive.moviesButtonShape
+import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
 import com.kien.movies.ui.screens.settings.TenFootTypography
-import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.theme.ExpressiveMotion
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.tvControlHeight
+import kotlinx.coroutines.delay
 
 @Composable
 fun CatalogOrderScreen(
@@ -81,10 +80,7 @@ fun CatalogOrderScreen(
 }
 
 @Composable
-private fun CatalogOrderScreenBody(
-    viewModel: CatalogOrderViewModel,
-    onBackPress: () -> Unit
-) {
+private fun CatalogOrderScreenBody(viewModel: CatalogOrderViewModel, onBackPress: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
     val pinToMoveNotice = stringResource(R.string.catalog_order_pin_to_move_toast)
     var pinnedNoticeMessage by remember { mutableStateOf<String?>(null) }
@@ -104,25 +100,28 @@ private fun CatalogOrderScreenBody(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MoviesTheme.colors.Background),
+            .background(MoviesTheme.colors.Background)
     ) {
         when {
             uiState.isLoading -> {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xl),
+                        .padding(
+                            horizontal = MoviesTheme.spacing.xxxl,
+                            vertical = MoviesTheme.spacing.xl
+                        )
                 ) {
                     CatalogOrderHeader(
                         followAddonsOrder = uiState.followAddonsOrder,
                         movingKey = uiState.movingKey,
-                        onToggleFollowAddons = viewModel::toggleFollowAddonsOrder,
+                        onToggleFollowAddons = viewModel::toggleFollowAddonsOrder
                     )
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
-                        contentAlignment = Alignment.Center,
+                        contentAlignment = Alignment.Center
                     ) {
                         LoadingIndicator()
                     }
@@ -133,17 +132,20 @@ private fun CatalogOrderScreenBody(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xl),
+                        .padding(
+                            horizontal = MoviesTheme.spacing.xxxl,
+                            vertical = MoviesTheme.spacing.xl
+                        )
                 ) {
                     CatalogOrderHeader(
                         followAddonsOrder = uiState.followAddonsOrder,
                         movingKey = uiState.movingKey,
-                        onToggleFollowAddons = viewModel::toggleFollowAddonsOrder,
+                        onToggleFollowAddons = viewModel::toggleFollowAddonsOrder
                     )
                     Text(
                         text = stringResource(R.string.catalog_order_empty),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MoviesTheme.colors.TextSecondary,
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
             }
@@ -154,53 +156,53 @@ private fun CatalogOrderScreenBody(
                     uiState.items.firstOrNull { it.key == movingKey }
                 }
                 Box(modifier = Modifier.fillMaxSize()) {
-                TvReorderList(
-                    items = uiState.items,
-                    key = { it.key },
-                    canMove = { it.canMove && uiState.movingKey == null },
-                    movingKey = uiState.movingKey,
-                    onStartMove = viewModel::enterMoveMode,
-                    onMoveBy = viewModel::moveDuringDrag,
-                    onConfirmMove = { viewModel.confirmMove() },
-                    onCancelMove = { viewModel.cancelMove() },
-                    modifier = Modifier.fillMaxSize(),
-                    scrollState = reorderScrollState,
-                    contentPadding = PaddingValues(
-                        start = MoviesTheme.spacing.xxxl,
-                        end = MoviesTheme.spacing.xxxl,
-                        top = MoviesTheme.spacing.xl,
-                        bottom = MoviesTheme.spacing.xxxl,
-                    ),
-                    header = {
-                        CatalogOrderHeader(
-                            followAddonsOrder = uiState.followAddonsOrder,
-                            movingKey = uiState.movingKey,
-                            onToggleFollowAddons = viewModel::toggleFollowAddonsOrder,
-                        )
-                    },
-                    useHeaderAwareBringIntoView = true,
-                    scrollToTopOnEdgeItem = true,
-                ) { item, isMoving, onStartMove, onConfirmMove ->
-                    CatalogOrderCard(
-                        item = item,
-                        isMoving = isMoving,
-                        onStartMove = onStartMove,
-                        onConfirmMove = onConfirmMove,
-                        onPinnedMoveAttempt = {
-                            pinnedNoticeMessage = pinToMoveNotice
-                            pinnedNoticeNonce++
+                    TvReorderList(
+                        items = uiState.items,
+                        key = { it.key },
+                        canMove = { it.canMove && uiState.movingKey == null },
+                        movingKey = uiState.movingKey,
+                        onStartMove = viewModel::enterMoveMode,
+                        onMoveBy = viewModel::moveDuringDrag,
+                        onConfirmMove = { viewModel.confirmMove() },
+                        onCancelMove = { viewModel.cancelMove() },
+                        modifier = Modifier.fillMaxSize(),
+                        scrollState = reorderScrollState,
+                        contentPadding = PaddingValues(
+                            start = MoviesTheme.spacing.xxxl,
+                            end = MoviesTheme.spacing.xxxl,
+                            top = MoviesTheme.spacing.xl,
+                            bottom = MoviesTheme.spacing.xxxl
+                        ),
+                        header = {
+                            CatalogOrderHeader(
+                                followAddonsOrder = uiState.followAddonsOrder,
+                                movingKey = uiState.movingKey,
+                                onToggleFollowAddons = viewModel::toggleFollowAddonsOrder
+                            )
                         },
-                        onToggleEnabled = { viewModel.toggleCatalogEnabled(item.disableKey) },
-                        actionsEnabled = uiState.movingKey == null || isMoving,
+                        useHeaderAwareBringIntoView = true,
+                        scrollToTopOnEdgeItem = true
+                    ) { item, isMoving, onStartMove, onConfirmMove ->
+                        CatalogOrderCard(
+                            item = item,
+                            isMoving = isMoving,
+                            onStartMove = onStartMove,
+                            onConfirmMove = onConfirmMove,
+                            onPinnedMoveAttempt = {
+                                pinnedNoticeMessage = pinToMoveNotice
+                                pinnedNoticeNonce++
+                            },
+                            onToggleEnabled = { viewModel.toggleCatalogEnabled(item.disableKey) },
+                            actionsEnabled = uiState.movingKey == null || isMoving
+                        )
+                    }
+                    SettingsVerticalScrollIndicators(
+                        state = reorderScrollState,
+                        suppressBackward = movingItem != null && !movingItem.canMoveUp,
+                        suppressForward = movingItem != null && !movingItem.canMoveDown,
+                        forceBackward = movingItem?.canMoveUp == true,
+                        forceForward = movingItem?.canMoveDown == true
                     )
-                }
-                SettingsVerticalScrollIndicators(
-                    state = reorderScrollState,
-                    suppressBackward = movingItem != null && !movingItem.canMoveUp,
-                    suppressForward = movingItem != null && !movingItem.canMoveDown,
-                    forceBackward = movingItem?.canMoveUp == true,
-                    forceForward = movingItem?.canMoveDown == true
-                )
                 }
             }
         }
@@ -211,27 +213,32 @@ private fun CatalogOrderScreenBody(
             exit = fadeOut(),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xl),
+                .padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xl)
         ) {
             val visibleMessage = pinnedNoticeMessage ?: return@AnimatedVisibility
             Surface(
                 shape = M3eShapes.panel,
-                colors = SurfaceDefaults.colors(containerColor = MoviesTheme.colors.BackgroundElevated),
+                colors = SurfaceDefaults.colors(
+                    containerColor = MoviesTheme.colors.BackgroundElevated
+                )
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = MoviesTheme.spacing.md),
+                    modifier = Modifier.padding(
+                        horizontal = 20.dp,
+                        vertical = MoviesTheme.spacing.md
+                    ),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Lock,
                         contentDescription = null,
-                        tint = MoviesTheme.colors.Secondary,
+                        tint = MoviesTheme.colors.Secondary
                     )
                     Text(
                         text = visibleMessage,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MoviesTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary
                     )
                 }
             }
@@ -243,67 +250,68 @@ private fun CatalogOrderScreenBody(
 private fun CatalogOrderHeader(
     followAddonsOrder: Boolean,
     movingKey: String?,
-    onToggleFollowAddons: (Boolean) -> Unit,
+    onToggleFollowAddons: (Boolean) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-    Text(
-        text = stringResource(R.string.catalog_order_title),
-        style = MaterialTheme.typography.headlineLarge,
-        color = MoviesTheme.colors.TextPrimary,
-    )
-    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-    Text(
-        text = stringResource(R.string.catalog_order_subtitle),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MoviesTheme.colors.TextSecondary,
-    )
-    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
-    var isToggleFocused by remember { mutableStateOf(false) }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = stringResource(R.string.catalog_order_follow_addons),
-                style = MaterialTheme.typography.titleMedium,
-                color = MoviesTheme.colors.TextPrimary,
-            )
-            Text(
-                text = stringResource(R.string.catalog_order_follow_addons_desc),
-                style = MaterialTheme.typography.bodySmall,
-                color = MoviesTheme.colors.TextSecondary,
-            )
-        }
-        MoviesSurface(
-            onClick = {
-                if (movingKey == null) {
-                    onToggleFollowAddons(!followAddonsOrder)
-                }
-            },
-            modifier = Modifier
-                .semantics {
-                    role = Role.Switch
-                    toggleableState = if (followAddonsOrder) ToggleableState.On else ToggleableState.Off
-                }
-                .onFocusChanged { isToggleFocused = it.isFocused },
-            shape = M3eShapes.capsule,
-            resting = Color.Transparent
+        Text(
+            text = stringResource(R.string.catalog_order_title),
+            style = MaterialTheme.typography.headlineLarge,
+            color = MoviesTheme.colors.TextPrimary
+        )
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+        Text(
+            text = stringResource(R.string.catalog_order_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MoviesTheme.colors.TextSecondary
+        )
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
+        var isToggleFocused by remember { mutableStateOf(false) }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                ListToggleSwitch(
-                    checked = followAddonsOrder,
-                    focused = isToggleFocused,
-                    enabled = movingKey == null
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.catalog_order_follow_addons),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MoviesTheme.colors.TextPrimary
+                )
+                Text(
+                    text = stringResource(R.string.catalog_order_follow_addons_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
+            MoviesSurface(
+                onClick = {
+                    if (movingKey == null) {
+                        onToggleFollowAddons(!followAddonsOrder)
+                    }
+                },
+                modifier = Modifier
+                    .semantics {
+                        role = Role.Switch
+                        toggleableState =
+                            if (followAddonsOrder) ToggleableState.On else ToggleableState.Off
+                    }
+                    .onFocusChanged { isToggleFocused = it.isFocused },
+                shape = M3eShapes.capsule,
+                resting = Color.Transparent
+            ) {
+                Box(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ListToggleSwitch(
+                        checked = followAddonsOrder,
+                        focused = isToggleFocused,
+                        enabled = movingKey == null
+                    )
+                }
+            }
         }
-    }
-    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
     }
 }
 
@@ -315,7 +323,7 @@ private fun CatalogOrderCard(
     onConfirmMove: () -> Unit,
     onPinnedMoveAttempt: () -> Unit,
     onToggleEnabled: () -> Unit,
-    actionsEnabled: Boolean,
+    actionsEnabled: Boolean
 ) {
     val cardColor by animateColorAsState(
         targetValue = if (isMoving) {
@@ -324,13 +332,13 @@ private fun CatalogOrderCard(
             MoviesTheme.colors.BackgroundCard
         },
         animationSpec = ExpressiveMotion.defaultEffects(),
-        label = "catalogOrderCardColor",
+        label = "catalogOrderCardColor"
     )
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = cardColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        shape = M3eShapes.panel,
+        shape = M3eShapes.panel
     ) {
         Row(
             modifier = Modifier
@@ -342,17 +350,21 @@ private fun CatalogOrderCard(
             Row(
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
             ) {
                 Column {
                     Text(
                         text = "${item.catalogName} - ${item.typeLabel.toDisplayTypeLabel()}",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
                         color = if (item.isDisabled) MoviesTheme.colors.TextSecondary else MoviesTheme.colors.TextPrimary
                     )
                     Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                     val subtitle = if (item.isPinnedToTop) {
-                        "${item.addonName} • ${stringResource(R.string.catalog_order_pinned_to_top)}"
+                        "${item.addonName} • ${stringResource(
+                            R.string.catalog_order_pinned_to_top
+                        )}"
                     } else {
                         item.addonName
                     }
@@ -388,7 +400,8 @@ private fun CatalogOrderCard(
                         .semantics {
                             role = Role.Switch
                             contentDescription = toggleLabel
-                            toggleableState = if (item.isDisabled) ToggleableState.Off else ToggleableState.On
+                            toggleableState =
+                                if (item.isDisabled) ToggleableState.Off else ToggleableState.On
                         }
                         .onFocusChanged { isToggleFocused = it.isFocused },
                     shape = M3eShapes.capsule,
@@ -413,7 +426,7 @@ private fun CatalogOrderCard(
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Lock,
-                            contentDescription = stringResource(R.string.catalog_order_pinned),
+                            contentDescription = stringResource(R.string.catalog_order_pinned)
                         )
                     }
                 } else {
@@ -434,7 +447,6 @@ private fun CatalogOrderCard(
                         )
                     }
                 }
-
             }
         }
     }

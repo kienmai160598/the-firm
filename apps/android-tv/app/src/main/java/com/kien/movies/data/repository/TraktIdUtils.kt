@@ -81,7 +81,8 @@ internal fun toTraktIds(ids: ParsedContentIds): TraktIdsDto {
 }
 
 internal fun TraktIdsDto.hasAnyId(): Boolean {
-    return trakt != null || !imdb.isNullOrBlank() || tmdb != null || tvdb != null || !slug.isNullOrBlank()
+    return trakt != null || !imdb.isNullOrBlank() || tmdb != null || tvdb != null ||
+        !slug.isNullOrBlank()
 }
 
 /**

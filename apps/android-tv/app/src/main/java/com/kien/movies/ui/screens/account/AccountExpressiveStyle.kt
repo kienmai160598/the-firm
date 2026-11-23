@@ -49,8 +49,7 @@ internal fun accountScreenBase(): Color = MoviesTheme.colors.Background
 /** The gradient's lit corner: the accent's container, faded into the base. */
 @Composable
 @ReadOnlyComposable
-internal fun accountGradientAccent(): Color =
-    MoviesTheme.colors.SecondaryVariant.copy(alpha = GRADIENT_ACCENT_ALPHA)
+internal fun accountGradientAccent(): Color = MoviesTheme.colors.SecondaryVariant.copy(alpha = GRADIENT_ACCENT_ALPHA)
 
 @Composable
 @ReadOnlyComposable
@@ -62,38 +61,34 @@ internal fun accountErrorContent(): Color = MoviesTheme.colors.Error
 
 @Composable
 @ReadOnlyComposable
-internal fun accountErrorContainer(): Color =
-    MoviesTheme.colors.Error.copy(alpha = ERROR_CONTAINER_ALPHA)
+internal fun accountErrorContainer(): Color = MoviesTheme.colors.Error.copy(alpha = ERROR_CONTAINER_ALPHA)
 
 @Composable
 @ReadOnlyComposable
-internal fun accountFocusedErrorContainer(): Color =
-    MoviesTheme.colors.Error.copy(alpha = FOCUSED_ERROR_CONTAINER_ALPHA)
+internal fun accountFocusedErrorContainer(): Color = MoviesTheme.colors.Error.copy(alpha = FOCUSED_ERROR_CONTAINER_ALPHA)
 
 @Composable
 @ReadOnlyComposable
-internal fun accountWarningContainer(): Color =
-    MoviesTheme.colors.Warning.copy(alpha = ERROR_CONTAINER_ALPHA)
+internal fun accountWarningContainer(): Color = MoviesTheme.colors.Warning.copy(alpha = ERROR_CONTAINER_ALPHA)
 
 @Composable
 @ReadOnlyComposable
 internal fun accountWarningContent(): Color = MoviesTheme.colors.Warning
 
 /** The sign-in backdrop: [accent] in the top corner, fading into [base] along the diagonal. */
-internal fun Modifier.accountGradientBackground(accent: Color, base: Color): Modifier =
-    drawWithCache {
-        val brush = Brush.linearGradient(
-            colorStops = arrayOf(
-                0f to accent,
-                GRADIENT_ACCENT_STOP to accent,
-                GRADIENT_FADE_STOP to base,
-                1f to base
-            ),
-            start = Offset.Zero,
-            end = Offset(size.width, size.height)
-        )
-        onDrawBehind { drawRect(brush = brush) }
-    }
+internal fun Modifier.accountGradientBackground(accent: Color, base: Color): Modifier = drawWithCache {
+    val brush = Brush.linearGradient(
+        colorStops = arrayOf(
+            0f to accent,
+            GRADIENT_ACCENT_STOP to accent,
+            GRADIENT_FADE_STOP to base,
+            1f to base
+        ),
+        start = Offset.Zero,
+        end = Offset(size.width, size.height)
+    )
+    onDrawBehind { drawRect(brush = brush) }
+}
 
 /** One line on the box, where larger text could crowd a column. */
 internal val tvSingleLineMax: Int = 1

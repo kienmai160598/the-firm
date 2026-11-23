@@ -2,12 +2,12 @@ package com.kien.movies.ui.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kien.movies.core.build.BoxBuild
 import com.kien.movies.data.local.ThemeDataStore
 import com.kien.movies.data.repository.MemberAccessRepository
 import com.kien.movies.domain.model.AppFont
 import com.kien.movies.domain.model.AppIconOption
 import com.kien.movies.domain.model.AppTheme
-import com.kien.movies.core.build.BoxBuild
 import com.kien.movies.domain.model.CosmeticEntitlements
 import com.kien.movies.domain.model.CustomThemeColors
 import com.kien.movies.domain.model.SettingsUiStyle
@@ -16,6 +16,7 @@ import com.kien.movies.domain.model.resolveAppTheme
 import com.kien.movies.domain.model.resolveCustomThemeColors
 import com.kien.movies.launcher.AppIconManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,12 +25,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class ThemeSettingsUiState(
     val themesLoaded: Boolean = false,
     val selectedTheme: AppTheme = AppTheme.WHITE,
-    val customThemeColors: CustomThemeColors = CustomThemeColors.solid(CustomThemeColors.Default.second),
+    val customThemeColors: CustomThemeColors = CustomThemeColors.solid(
+        CustomThemeColors.Default.second
+    ),
     val customThemeGradientEnabled: Boolean = false,
     val availableThemes: List<AppTheme> = availableAppThemes(CosmeticEntitlements.None),
     val selectedFont: AppFont = AppFont.INTER,
@@ -79,7 +81,10 @@ class ThemeSettingsViewModel @Inject constructor(
                 Triple(
                     selection.copy(
                         theme = resolveAppTheme(selection.theme, entitlements),
-                        customColors = resolveCustomThemeColors(selection.customColors, memberAccess.tier)
+                        customColors = resolveCustomThemeColors(
+                            selection.customColors,
+                            memberAccess.tier
+                        )
                     ),
                     availableAppThemes(entitlements),
                     memberAccess.tier != null
@@ -121,7 +126,13 @@ class ThemeSettingsViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .collectLatest { enabled ->
                     _uiState.update { state ->
-                        if (state.amoledSurfacesMode == enabled) state else state.copy(amoledSurfacesMode = enabled)
+                        if (state.amoledSurfacesMode ==
+                            enabled
+                        ) {
+                            state
+                        } else {
+                            state.copy(amoledSurfacesMode = enabled)
+                        }
                     }
                 }
         }
@@ -130,7 +141,13 @@ class ThemeSettingsViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .collectLatest { style ->
                     _uiState.update { state ->
-                        if (state.settingsUiStyle == style) state else state.copy(settingsUiStyle = style)
+                        if (state.settingsUiStyle ==
+                            style
+                        ) {
+                            state
+                        } else {
+                            state.copy(settingsUiStyle = style)
+                        }
                     }
                 }
         }

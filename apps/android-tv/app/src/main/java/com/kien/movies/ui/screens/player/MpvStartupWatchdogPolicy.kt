@@ -18,14 +18,14 @@ internal object MpvStartupWatchdogPolicy {
         SurfaceTimeout,
         IdleError,
         StallTimeout,
-        AbsoluteTimeout,
+        AbsoluteTimeout
     }
 
     data class Counters(
         val surfaceWaitTicks: Int = 0,
         val idleTicks: Int = 0,
         val stallTicks: Int = 0,
-        val absoluteTicks: Int = 0,
+        val absoluteTicks: Int = 0
     )
 
     data class Input(
@@ -33,13 +33,10 @@ internal object MpvStartupWatchdogPolicy {
         val waitingForSurface: Boolean,
         val idleActive: Boolean,
         val cacheProgressing: Boolean,
-        val counters: Counters,
+        val counters: Counters
     )
 
-    data class Step(
-        val action: Action,
-        val counters: Counters,
-    )
+    data class Step(val action: Action, val counters: Counters)
 
     fun cacheIsProgressing(previousSec: Double, currentSec: Double): Boolean {
         return currentSec > previousSec + MIN_CACHE_GROWTH_SEC

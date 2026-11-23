@@ -22,7 +22,12 @@ class SupportersRepository @Inject constructor(
     suspend fun getSupporters(): Result<List<SupporterMember>> = runCatching {
         val response = supportersApi.getSupportersWall()
         if (!response.isSuccessful) {
-            error(appContext.getString(com.kien.movies.R.string.supporters_error_api_http, response.code()))
+            error(
+                appContext.getString(
+                    com.kien.movies.R.string.supporters_error_api_http,
+                    response.code()
+                )
+            )
         }
 
         response.body()

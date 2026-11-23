@@ -16,7 +16,7 @@ internal object PlayerStallWatchdogPolicy {
         val durationMs: Long,
         val stalledForMs: Long,
         val thresholdMs: Long = PlayerRuntimeController.STALL_WATCHDOG_THRESHOLD_MS,
-        val skipPastBufferedMs: Long = SKIP_PAST_BUFFERED_MS,
+        val skipPastBufferedMs: Long = SKIP_PAST_BUFFERED_MS
     )
 
     sealed class Decision {

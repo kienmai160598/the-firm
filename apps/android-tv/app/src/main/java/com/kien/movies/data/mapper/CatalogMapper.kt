@@ -5,7 +5,10 @@ import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.PosterShape
 
-fun MetaPreviewDto.toDomainOrNull(catalogType: String, sourceAddonBaseUrl: String? = null): MetaPreview? {
+fun MetaPreviewDto.toDomainOrNull(
+    catalogType: String,
+    sourceAddonBaseUrl: String? = null
+): MetaPreview? {
     val resolvedId = id?.takeIf { it.isNotBlank() } ?: return null
     val resolvedName = name?.takeIf { it.isNotBlank() } ?: return null
     val resolvedType = type?.takeIf { it.isNotBlank() } ?: catalogType

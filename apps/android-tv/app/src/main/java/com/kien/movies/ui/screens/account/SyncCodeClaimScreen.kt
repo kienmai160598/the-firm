@@ -2,9 +2,6 @@
 
 package com.kien.movies.ui.screens.account
 
-import com.kien.movies.ui.theme.MoviesPrimitives
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -25,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -34,12 +32,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.screens.settings.TenFootTypography
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 fun SyncCodeClaimScreen(
@@ -115,7 +114,10 @@ fun SyncCodeClaimScreen(
                     modifier = Modifier.fillMaxWidth(),
                     style = MoviesButtonStyle.Primary
                 ) {
-                    Text(stringResource(R.string.sync_claim_done), modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs))
+                    Text(
+                        stringResource(R.string.sync_claim_done),
+                        modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs)
+                    )
                 }
             } else {
                 // Code input
@@ -178,7 +180,13 @@ fun SyncCodeClaimScreen(
                     style = MoviesButtonStyle.Primary
                 ) {
                     Text(
-                        text = if (uiState.isLoading) stringResource(R.string.sync_claim_linking) else stringResource(R.string.sync_claim_title),
+                        text = if (uiState.isLoading) {
+                            stringResource(
+                                R.string.sync_claim_linking
+                            )
+                        } else {
+                            stringResource(R.string.sync_claim_title)
+                        },
                         modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs),
                         fontWeight = FontWeight.Medium
                     )

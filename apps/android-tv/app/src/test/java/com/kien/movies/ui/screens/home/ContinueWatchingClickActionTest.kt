@@ -60,8 +60,12 @@ class ContinueWatchingClickActionTest {
 
     @Test
     fun `details for upcoming opens details only for unaired episodes`() {
-        assertTrue(ContinueWatchingClickAction.DETAILS_FOR_UPCOMING.opensDetails(nextUp(hasAired = false)))
-        assertFalse(ContinueWatchingClickAction.DETAILS_FOR_UPCOMING.opensDetails(nextUp(hasAired = true)))
+        assertTrue(
+            ContinueWatchingClickAction.DETAILS_FOR_UPCOMING.opensDetails(nextUp(hasAired = false))
+        )
+        assertFalse(
+            ContinueWatchingClickAction.DETAILS_FOR_UPCOMING.opensDetails(nextUp(hasAired = true))
+        )
         assertFalse(ContinueWatchingClickAction.DETAILS_FOR_UPCOMING.opensDetails(inProgress))
     }
 }

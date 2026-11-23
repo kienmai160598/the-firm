@@ -9,6 +9,11 @@ import com.kien.movies.domain.model.AuthState
 import com.kien.movies.domain.model.ServerConfiguration
 import io.github.jan.supabase.realtime.Presence
 import io.github.jan.supabase.realtime.Realtime
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeMark
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,11 +47,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.put
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.TimeMark
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
@@ -57,7 +57,7 @@ class PartyRepository @Inject constructor(
     private val profileManager: ProfileManager,
     private val avatarRepository: AvatarRepository,
     private val syncClientIdentity: SyncClientIdentity,
-    private val serverConfiguration: ServerConfiguration,
+    private val serverConfiguration: ServerConfiguration
 ) {
     private val dispatcher = Dispatchers.Default.limitedParallelism(1)
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
@@ -86,18 +86,33 @@ class PartyRepository @Inject constructor(
         available && auth is AuthState.FullAccount
     }.stateIn(scope, SharingStarted.Eagerly, false)
 
-    val profile: StateFlow<PartyProfile> = combine(profileManager.profiles, profileManager.activeProfileId) { profiles, activeId ->
+    val profile: StateFlow<PartyProfile> = combine(
+        profileManager.profiles,
+        profileManager.activeProfileId
+    ) {
+            profiles,
+            activeId
+        ->
         profiles.firstOrNull { it.id == activeId }
     }.mapLatest { profile ->
         PartyProfile(
             name = profile?.name.orEmpty(),
             imageUrl = profile?.avatarUrl?.takeIf { it.isNotBlank() }
                 ?: profile?.avatarId?.let { id ->
-                    avatarRepository.getAvatarImageUrl(id, runCatching { avatarRepository.getAvatarCatalog() }.getOrDefault(emptyList()))
+                    avatarRepository.getAvatarImageUrl(
+                        id,
+                        runCatching {
+                            avatarRepository.getAvatarCatalog()
+                        }.getOrDefault(emptyList())
+                    )
                 },
-            color = profile?.avatarColorHex,
+            color = profile?.avatarColorHex
         )
-    }.stateIn(scope, SharingStarted.WhileSubscribed(5_000), PartyProfile(name = "", imageUrl = null, color = null))
+    }.stateIn(
+        scope,
+        SharingStarted.WhileSubscribed(5_000),
+        PartyProfile(name = "", imageUrl = null, color = null)
+    )
 
     private val storageUrl = "${serverConfiguration.backendUrl.trimEnd('/')}/storage/v1/object/"
 
@@ -115,7 +130,9 @@ class PartyRepository @Inject constructor(
     init {
         scope.launch {
             authManager.authState.collect { auth ->
-                if (auth !is AuthState.FullAccount && auth !is AuthState.Loading && _state.value.party != null) {
+                if (auth !is AuthState.FullAccount && auth !is AuthState.Loading &&
+                    _state.value.party != null
+                ) {
                     mutex.withLock { stopSession() }
                 }
             }
@@ -133,23 +150,20 @@ class PartyRepository @Inject constructor(
         }
     }
 
-    suspend fun create(media: PartyMedia): PartyError? =
-        start { identity -> api.create(identity, media, null) }
+    suspend fun create(media: PartyMedia): PartyError? = start { identity -> api.create(identity, media, null) }
 
-    suspend fun join(code: String): PartyError? =
-        start { identity -> api.join(normalizePartyCode(code), identity) }
+    suspend fun join(code: String): PartyError? = start { identity -> api.join(normalizePartyCode(code), identity) }
 
-    suspend fun preview(code: String): PartyPreview =
-        withContext(dispatcher) {
-            try {
-                api.preview(normalizePartyCode(code))
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                Log.w(TAG, "Watch party preview failed", error)
-                PartyPreview(error = "network")
-            }
+    suspend fun preview(code: String): PartyPreview = withContext(dispatcher) {
+        try {
+            api.preview(normalizePartyCode(code))
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Throwable) {
+            Log.w(TAG, "Watch party preview failed", error)
+            PartyPreview(error = "network")
         }
+    }
 
     fun leave() {
         scope.launch {
@@ -174,7 +188,8 @@ class PartyRepository @Inject constructor(
     fun removeMember(memberId: String) {
         scope.launch {
             val party = _state.value.party ?: return@launch
-            val snapshot = runRemote { api.removeMember(party.id, deviceId(), memberId) } ?: return@launch
+            val snapshot =
+                runRemote { api.removeMember(party.id, deviceId(), memberId) } ?: return@launch
             applySnapshot(snapshot)
         }
     }
@@ -209,7 +224,9 @@ class PartyRepository @Inject constructor(
 
     fun publishPlayback(paused: Boolean, positionMs: Long, rate: Float) {
         val at = clock.nowMs()
-        scope.launch { publish(paused = paused, positionMs = positionMs, rate = rate, waiting = false, at = at) }
+        scope.launch {
+            publish(paused = paused, positionMs = positionMs, rate = rate, waiting = false, at = at)
+        }
     }
 
     fun publishMedia(media: PartyMedia, positionMs: Long) {
@@ -221,7 +238,15 @@ class PartyRepository @Inject constructor(
             val next = if (sameContent) {
                 _playback.value
             } else {
-                nextPlayback(party, paused = false, positionMs = positionMs, rate = 1f, waiting = false, mediaKey = media.key, at = clock.nowMs())
+                nextPlayback(
+                    party,
+                    paused = false,
+                    positionMs = positionMs,
+                    rate = 1f,
+                    waiting = false,
+                    mediaKey = media.key,
+                    at = clock.nowMs()
+                )
                     .also { _playback.value = it }
             }
             persistJob?.cancel()
@@ -233,7 +258,13 @@ class PartyRepository @Inject constructor(
     fun setLocalStatus(status: PartyMemberStatus, mediaKey: String?, behindMs: Long? = null) {
         scope.launch {
             val party = _state.value.party ?: return@launch
-            val next = PartyPresence(memberId = party.memberId, status = status, mediaKey = mediaKey, behindMs = behindMs)
+            val next =
+                PartyPresence(
+                    memberId = party.memberId,
+                    status = status,
+                    mediaKey = mediaKey,
+                    behindMs = behindMs
+                )
             if (next == localPresence) return@launch
             localPresence = next
             if (status == PartyMemberStatus.Ready) ignoredWaiting.remove(party.memberId)
@@ -296,7 +327,7 @@ class PartyRepository @Inject constructor(
                     scope = session,
                     onMessage = { event, payload -> session.launch { onMessage(event, payload) } },
                     onPresence = { joins, leaves -> session.launch { onPresence(joins, leaves) } },
-                    onConnected = { connected -> session.launch { onConnection(connected) } },
+                    onConnected = { connected -> session.launch { onConnection(connected) } }
                 )
             }.onFailure { Log.w(TAG, "Watch party channel failed", it) }
         }
@@ -333,7 +364,15 @@ class PartyRepository @Inject constructor(
 
     private suspend fun onConnection(connected: Boolean) {
         if (!connected) {
-            updateParty { current -> current.copy(connected = false, presence = current.presence.filterKeys { it == current.memberId }) }
+            updateParty { current ->
+                current.copy(
+                    connected = false,
+                    presence = current.presence.filterKeys {
+                        it ==
+                            current.memberId
+                    }
+                )
+            }
             return
         }
         updateParty { it.copy(connected = true) }
@@ -341,7 +380,9 @@ class PartyRepository @Inject constructor(
         val presence = encodePresence(ownPresence(party))
         runCatching { channel?.track(presence) }
         runCatching { channel?.send("status", presence) }
-        _playback.value?.let { current -> runCatching { channel?.send("state", encodePlayback(current)) } }
+        _playback.value?.let { current ->
+            runCatching { channel?.send("state", encodePlayback(current)) }
+        }
         if (party.isHost && party.sharing) _sharedStream.value?.let { sendStream(it) }
         requestState(party)
     }
@@ -350,6 +391,7 @@ class PartyRepository @Inject constructor(
         val party = _state.value.party ?: return
         when (event) {
             "state" -> decode(payload, PartyPlayback.serializer())?.let(::accept)
+
             "state_request" -> {
                 if (payload.string("member_id") == party.memberId) return
                 runCatching { channel?.send("status", encodePresence(ownPresence(party))) }
@@ -357,28 +399,37 @@ class PartyRepository @Inject constructor(
                 val current = _playback.value ?: return
                 runCatching { channel?.send("state", encodePlayback(current)) }
             }
+
             "status" -> decode(payload, PartyPresence.serializer())?.let(::applyStatus)
+
             "control" -> {
                 val hostOnly = (payload["host_only"] as? JsonPrimitive)?.booleanOrNull ?: return
                 if (party.hostOnly == hostOnly) return
                 updateParty { it.copy(hostOnly = hostOnly) }
                 if (!party.isHost) _events.tryEmit(PartyEvent.ControlChanged(hostOnly))
             }
+
             "member_joined" -> refreshMembers(announceMemberId = payload.string("member_id"))
+
             "member_left" -> onMemberLeft(
                 memberId = payload.string("member_id"),
                 reason = payload.string("reason"),
-                hostMemberId = payload.string("host_member_id"),
+                hostMemberId = payload.string("host_member_id")
             )
+
             "ended" -> {
                 if (payload.string("reason") == "disabled") _available.value = false
                 finish(PartyEvent.Ended)
             }
+
             "media" -> {
                 val media = payload["media"]?.let { decode(it, PartyMedia.serializer()) } ?: return
-                val playback = payload["playback"]?.takeIf { it !is JsonNull }?.let { decode(it, PartyPlayback.serializer()) }
+                val playback = payload["playback"]?.takeIf {
+                    it !is JsonNull
+                }?.let { decode(it, PartyPlayback.serializer()) }
                 applyMedia(media, playback)
             }
+
             "stream" -> {
                 if (party.isHost || payload.string("member_id") != party.hostMemberId) return
                 _sharedStream.value = payload["stream"]
@@ -396,7 +447,8 @@ class PartyRepository @Inject constructor(
         presence -= left.toSet()
         joins.forEach { (key, value) ->
             if (key == party.memberId || key in presence) return@forEach
-            val decoded = decode(value.state, PartyPresence.serializer()) ?: PartyPresence(memberId = key)
+            val decoded =
+                decode(value.state, PartyPresence.serializer()) ?: PartyPresence(memberId = key)
             presence[key] = decoded.copy(memberId = key)
             if (decoded.status == PartyMemberStatus.Ready) ignoredWaiting.remove(key)
         }
@@ -405,7 +457,9 @@ class PartyRepository @Inject constructor(
     }
 
     private suspend fun requestState(party: ActiveParty) {
-        runCatching { channel?.send("state_request", buildJsonObject { put("member_id", party.memberId) }) }
+        runCatching {
+            channel?.send("state_request", buildJsonObject { put("member_id", party.memberId) })
+        }
     }
 
     private fun applyStatus(status: PartyPresence) {
@@ -415,8 +469,7 @@ class PartyRepository @Inject constructor(
         updateParty { it.copy(presence = it.presence + (status.memberId to status)) }
     }
 
-    private fun ownPresence(party: ActiveParty): PartyPresence =
-        localPresence ?: PartyPresence(memberId = party.memberId)
+    private fun ownPresence(party: ActiveParty): PartyPresence = localPresence ?: PartyPresence(memberId = party.memberId)
 
     private fun onMemberLeft(memberId: String?, reason: String?, hostMemberId: String?) {
         val party = _state.value.party ?: return
@@ -431,7 +484,7 @@ class PartyRepository @Inject constructor(
             current.copy(
                 members = current.members.filterNot { it.id == memberId },
                 presence = current.presence - memberId,
-                hostMemberId = hostMemberId ?: current.hostMemberId,
+                hostMemberId = hostMemberId ?: current.hostMemberId
             )
         }
         ignoredWaiting.remove(memberId)
@@ -451,14 +504,17 @@ class PartyRepository @Inject constructor(
     private fun applySnapshot(snapshot: PartySnapshot) {
         when (snapshot.error) {
             null -> Unit
+
             "not_member" -> {
                 rejoinOrFinish()
                 return
             }
+
             "party_ended" -> {
                 finish(PartyEvent.Ended)
                 return
             }
+
             else -> return
         }
         val info = snapshot.party ?: return
@@ -469,7 +525,7 @@ class PartyRepository @Inject constructor(
                 hostMemberId = info.hostMemberId,
                 maxMembers = info.maxMembers,
                 hostOnly = info.hostOnly,
-                presence = current.presence.filterKeys { key -> members.any { it.id == key } },
+                presence = current.presence.filterKeys { key -> members.any { it.id == key } }
             )
         }
         if (info.media.key != _state.value.party?.media?.key) applyMedia(info.media, info.playback)
@@ -513,7 +569,7 @@ class PartyRepository @Inject constructor(
         positionMs: Long,
         rate: Float,
         waiting: Boolean,
-        at: Long = clock.nowMs(),
+        at: Long = clock.nowMs()
     ) {
         val party = _state.value.party ?: return
         if (!party.canControl) return
@@ -521,7 +577,11 @@ class PartyRepository @Inject constructor(
         val next = nextPlayback(party, paused, positionMs, rate, waiting, party.media.key, at)
         if (current != null && current.paused && !paused) {
             resumedAt = clock.mark()
-            if (current.waiting && !waiting) ignoredWaiting += PartySync.waitingMemberIds(party, emptySet())
+            if (current.waiting &&
+                !waiting
+            ) {
+                ignoredWaiting += PartySync.waitingMemberIds(party, emptySet())
+            }
         }
         if (!waiting) waitStartedAt = null
         _playback.value = next
@@ -536,7 +596,7 @@ class PartyRepository @Inject constructor(
         rate: Float,
         waiting: Boolean,
         mediaKey: String,
-        at: Long,
+        at: Long
     ) = PartyPlayback(
         seq = (_playback.value?.seq ?: 0L) + 1L,
         memberId = party.memberId,
@@ -545,7 +605,7 @@ class PartyRepository @Inject constructor(
         rate = rate.coerceIn(0.25f, 4f),
         at = at,
         mediaKey = mediaKey,
-        waiting = waiting,
+        waiting = waiting
     )
 
     private fun schedulePersist() {
@@ -554,7 +614,9 @@ class PartyRepository @Inject constructor(
             delay(PERSIST_DELAY)
             val party = _state.value.party ?: return@launch
             val playback = _playback.value ?: return@launch
-            runRemote { api.update(party.id, deviceId(), null, playback) }?.let { applySnapshot(it) }
+            runRemote {
+                api.update(party.id, deviceId(), null, playback)
+            }?.let { applySnapshot(it) }
         }
     }
 
@@ -591,14 +653,24 @@ class PartyRepository @Inject constructor(
                 val graceOver = resumedAt?.let { it.elapsedNow() > RESUME_GRACE } ?: true
                 if (waiting.isNotEmpty() && graceOver) {
                     val position = PartySync.expectedPositionMs(playback, clock.nowMs())
-                    publish(paused = true, positionMs = position, rate = playback.rate, waiting = true)
+                    publish(
+                        paused = true,
+                        positionMs = position,
+                        rate = playback.rate,
+                        waiting = true
+                    )
                     waitStartedAt = clock.mark()
                 }
             } else if (playback.waiting) {
                 val started = waitStartedAt ?: clock.mark().also { waitStartedAt = it }
                 if (waiting.isEmpty() || started.elapsedNow() > WAIT_LIMIT) {
                     ignoredWaiting += waiting
-                    publish(paused = false, positionMs = playback.positionMs, rate = playback.rate, waiting = false)
+                    publish(
+                        paused = false,
+                        positionMs = playback.positionMs,
+                        rate = playback.rate,
+                        waiting = false
+                    )
                 }
             }
         }
@@ -616,11 +688,24 @@ class PartyRepository @Inject constructor(
                     val rejoined = snapshot?.takeIf { it.error == null }?.toActiveParty()
                     if (rejoined == null) {
                         stopSession()
-                        _events.tryEmit(if (snapshot?.error == "removed") PartyEvent.Removed else PartyEvent.Ended)
+                        _events.tryEmit(
+                            if (snapshot?.error ==
+                                "removed"
+                            ) {
+                                PartyEvent.Removed
+                            } else {
+                                PartyEvent.Ended
+                            }
+                        )
                         return@withLock
                     }
                     if (rejoined.memberId == party.memberId) {
-                        updateParty { it.copy(members = rejoined.members, hostMemberId = rejoined.hostMemberId) }
+                        updateParty {
+                            it.copy(
+                                members = rejoined.members,
+                                hostMemberId = rejoined.hostMemberId
+                            )
+                        }
                         return@withLock
                     }
                     val playback = _playback.value
@@ -639,24 +724,27 @@ class PartyRepository @Inject constructor(
         _state.update { state -> state.party?.let { state.copy(party = transform(it)) } ?: state }
     }
 
-    private suspend fun <T> runRemote(block: suspend () -> T): T? =
-        try {
-            block()
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Throwable) {
-            Log.w(TAG, "Watch party call failed", error)
-            null
-        }
+    private suspend fun <T> runRemote(block: suspend () -> T): T? = try {
+        block()
+    } catch (error: CancellationException) {
+        throw error
+    } catch (error: Throwable) {
+        Log.w(TAG, "Watch party call failed", error)
+        null
+    }
 
     private suspend fun identity(): PartyIdentity {
         val profile = profileManager.activeProfile
         return PartyIdentity(
             deviceId = deviceId(),
-            displayName = profile?.name?.trim()?.takeIf { it.isNotEmpty() }?.take(40) ?: DEFAULT_NAME,
-            avatarUrl = profile?.let { avatarRepository.shareableImageUrl(it) }?.takeIf { it.startsWith("https://") && it.length <= 512 },
+            displayName =
+                profile?.name?.trim()?.takeIf { it.isNotEmpty() }?.take(40) ?: DEFAULT_NAME,
+            avatarUrl = profile?.let { avatarRepository.shareableImageUrl(it) }?.takeIf {
+                it.startsWith("https://") &&
+                    it.length <= 512
+            },
             avatarColor = profile?.avatarColorHex?.takeIf { COLOR_PATTERN.matches(it) },
-            profileIndex = profile?.id,
+            profileIndex = profile?.id
         )
     }
 
@@ -667,25 +755,26 @@ class PartyRepository @Inject constructor(
         _sharedStream.value = stream
         val payload = buildJsonObject {
             put("member_id", party.memberId)
-            put("stream", stream?.let { PartyApi.json.encodeToJsonElement(PartyStream.serializer(), it) } ?: JsonNull)
+            put(
+                "stream",
+                stream?.let { PartyApi.json.encodeToJsonElement(PartyStream.serializer(), it) }
+                    ?: JsonNull
+            )
         }
         runCatching { channel?.send("stream", payload) }
     }
 
-    private fun encodePlayback(playback: PartyPlayback): JsonObject =
-        PartyApi.json.encodeToJsonElement(PartyPlayback.serializer(), playback).jsonObject
+    private fun encodePlayback(playback: PartyPlayback): JsonObject = PartyApi.json.encodeToJsonElement(PartyPlayback.serializer(), playback).jsonObject
 
-    private fun encodePresence(presence: PartyPresence): JsonObject =
-        PartyApi.json.encodeToJsonElement(PartyPresence.serializer(), presence).jsonObject
+    private fun encodePresence(presence: PartyPresence): JsonObject = PartyApi.json.encodeToJsonElement(PartyPresence.serializer(), presence).jsonObject
 
-    private fun <T> decode(element: JsonElement, serializer: KSerializer<T>): T? =
-        runCatching { PartyApi.json.decodeFromJsonElement(serializer, element) }.getOrNull()
+    private fun <T> decode(element: JsonElement, serializer: KSerializer<T>): T? = runCatching { PartyApi.json.decodeFromJsonElement(serializer, element) }.getOrNull()
 
-    private fun List<PartyMember>.withSafeAvatars(): List<PartyMember> =
-        map { member -> member.copy(avatarUrl = member.avatarUrl?.takeIf { it.startsWith(storageUrl) }) }
+    private fun List<PartyMember>.withSafeAvatars(): List<PartyMember> = map { member ->
+        member.copy(avatarUrl = member.avatarUrl?.takeIf { it.startsWith(storageUrl) })
+    }
 
-    private fun JsonObject.string(key: String): String? =
-        (get(key) as? JsonPrimitive)?.contentOrNull
+    private fun JsonObject.string(key: String): String? = (get(key) as? JsonPrimitive)?.contentOrNull
 
     private fun PartySnapshot.toActiveParty(): ActiveParty? {
         val info = party ?: return null
@@ -701,7 +790,7 @@ class PartyRepository @Inject constructor(
             maxMembers = info.maxMembers,
             connected = false,
             hostOnly = info.hostOnly,
-            inviteLink = "movies://party/${info.code}",
+            inviteLink = "movies://party/${info.code}"
         )
     }
 
@@ -719,13 +808,19 @@ class PartyRepository @Inject constructor(
     }
 }
 
-fun normalizePartyCode(input: String): String =
-    input.uppercase().filter { it in PARTY_CODE_ALPHABET }
+fun normalizePartyCode(input: String): String = input.uppercase().filter { it in PARTY_CODE_ALPHABET }
 
 fun isValidPartyCode(input: String): Boolean = normalizePartyCode(input).length == PARTY_CODE_LENGTH
 
-fun formatPartyCode(code: String): String =
-    normalizePartyCode(code).let { if (it.length == PARTY_CODE_LENGTH) "${it.take(3)} ${it.drop(3)}" else it }
+fun formatPartyCode(code: String): String = normalizePartyCode(code).let {
+    if (it.length ==
+        PARTY_CODE_LENGTH
+    ) {
+        "${it.take(3)} ${it.drop(3)}"
+    } else {
+        it
+    }
+}
 
 const val PARTY_CODE_LENGTH = 6
 const val PARTY_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"

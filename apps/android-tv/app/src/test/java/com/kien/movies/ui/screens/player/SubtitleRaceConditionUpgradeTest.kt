@@ -15,7 +15,13 @@ class SubtitleRaceConditionUpgradeTest {
         // Currently selected language is "en" (secondary match from internal tracks)
         val currentSelectedLang = "en"
         val addonSubtitles = listOf(
-            Subtitle(id = "sub-1", url = "http://example.com/tr.srt", lang = "tr", addonName = "OpenSubtitles", addonLogo = null)
+            Subtitle(
+                id = "sub-1",
+                url = "http://example.com/tr.srt",
+                lang = "tr",
+                addonName = "OpenSubtitles",
+                addonLogo = null
+            )
         )
 
         val isPrimarySatisfied = currentSelectedLang != null &&
@@ -36,7 +42,13 @@ class SubtitleRaceConditionUpgradeTest {
         // Currently selected language is already "tr" (primary match from internal tracks)
         val currentSelectedLang = "tr"
         val addonSubtitles = listOf(
-            Subtitle(id = "sub-1", url = "http://example.com/tr.srt", lang = "tr", addonName = "OpenSubtitles", addonLogo = null)
+            Subtitle(
+                id = "sub-1",
+                url = "http://example.com/tr.srt",
+                lang = "tr",
+                addonName = "OpenSubtitles",
+                addonLogo = null
+            )
         )
 
         val isPrimarySatisfied = currentSelectedLang != null &&
@@ -57,7 +69,13 @@ class SubtitleRaceConditionUpgradeTest {
 
         // Addons only have "es" (neither primary nor secondary target match)
         val addonSubtitles = listOf(
-            Subtitle(id = "sub-1", url = "http://example.com/es.srt", lang = "es", addonName = "OpenSubtitles", addonLogo = null)
+            Subtitle(
+                id = "sub-1",
+                url = "http://example.com/es.srt",
+                lang = "es",
+                addonName = "OpenSubtitles",
+                addonLogo = null
+            )
         )
 
         val isPrimarySatisfied = currentSelectedLang != null &&

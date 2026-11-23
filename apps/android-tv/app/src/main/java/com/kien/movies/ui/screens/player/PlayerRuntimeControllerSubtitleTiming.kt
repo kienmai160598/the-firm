@@ -1,23 +1,23 @@
 package com.kien.movies.ui.screens.player
 
 import com.kien.movies.R
+import com.kien.movies.core.network.IPv4FirstDns
+import com.kien.movies.core.player.SubtitleCharsetDetector
 import com.kien.movies.domain.model.Subtitle
-import kotlinx.coroutines.Dispatchers
+import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.kien.movies.core.network.IPv4FirstDns
-import com.kien.movies.core.player.SubtitleCharsetDetector
 import okhttp3.HttpUrl
-import okhttp3.OkHttpClient
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Interceptor
+import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.util.concurrent.TimeUnit
-import javax.net.ssl.SSLException
 
 private fun OkHttpClient.Builder.subtitleDownloadDefaults(): OkHttpClient.Builder = this
     // Sidecar and auto-sync downloads use these clients; keep timeouts generous for flaky hosts.
@@ -142,7 +142,9 @@ private fun PlayerRuntimeController.maybeLoadSubtitleAutoSyncCues(force: Boolean
                 subtitleAutoSyncCues = emptyList(),
                 subtitleAutoSyncCapturedVideoMs = null,
                 subtitleAutoSyncLoading = false,
-                subtitleAutoSyncError = context.getString(R.string.subtitle_auto_sync_select_addon_track),
+                subtitleAutoSyncError = context.getString(
+                    R.string.subtitle_auto_sync_select_addon_track
+                ),
                 subtitleAutoSyncLoadedTrackKey = null
             )
         }
@@ -209,7 +211,11 @@ private fun PlayerRuntimeController.maybeLoadSubtitleAutoSyncCues(force: Boolean
                 it.copy(
                     subtitleAutoSyncLoading = false,
                     subtitleAutoSyncCues = emptyList(),
-                    subtitleAutoSyncError = e.message ?: context.getString(com.kien.movies.R.string.subtitle_timing_load_lines_failed),
+                    subtitleAutoSyncError =
+                        e.message
+                            ?: context.getString(
+                                com.kien.movies.R.string.subtitle_timing_load_lines_failed
+                            ),
                     subtitleAutoSyncLoadedTrackKey = selectedTrackKey
                 )
             }
@@ -226,35 +232,35 @@ internal suspend fun PlayerRuntimeController.downloadSubtitleBody(
     url: String,
     languageHint: String? = null,
     headers: Map<String, String>? = null
-): String =
-    withContext(Dispatchers.IO) {
-        var lastError: Exception? = null
-        repeat(SUBTITLE_DOWNLOAD_MAX_ATTEMPTS) { attempt ->
-            try {
-                return@withContext executeSubtitleDownload(url, languageHint, headers)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                lastError = e
-                if (attempt < SUBTITLE_DOWNLOAD_MAX_ATTEMPTS - 1) {
-                    delay(SUBTITLE_DOWNLOAD_RETRY_DELAY_MS * (attempt + 1))
-                }
+): String = withContext(Dispatchers.IO) {
+    var lastError: Exception? = null
+    repeat(SUBTITLE_DOWNLOAD_MAX_ATTEMPTS) { attempt ->
+        try {
+            return@withContext executeSubtitleDownload(url, languageHint, headers)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            lastError = e
+            if (attempt < SUBTITLE_DOWNLOAD_MAX_ATTEMPTS - 1) {
+                delay(SUBTITLE_DOWNLOAD_RETRY_DELAY_MS * (attempt + 1))
             }
         }
-        throw lastError ?: IllegalStateException("Subtitle download failed")
     }
+    throw lastError ?: IllegalStateException("Subtitle download failed")
+}
 
 // Request control headers, never copied to a subtitle request from the stream or the subtitle.
-private val SUBTITLE_REQUEST_EXCLUDED_HEADERS = setOf("range", "host", "connection", "transfer-encoding")
+private val SUBTITLE_REQUEST_EXCLUDED_HEADERS =
+    setOf("range", "host", "connection", "transfer-encoding")
 
 // Stream headers allowed on other hosts (#3328).
-private val SUBTITLE_CROSS_HOST_HEADERS = setOf("referer", "origin", "user-agent", "accept-language")
+private val SUBTITLE_CROSS_HOST_HEADERS =
+    setOf("referer", "origin", "user-agent", "accept-language")
 
 // Not forwarded on an HTTPS to HTTP downgrade.
 private val SUBTITLE_DOWNGRADE_EXCLUDED_HEADERS = setOf("referer", "origin")
 
-private fun isDowngrade(requestUrl: HttpUrl, scopeUrl: HttpUrl?): Boolean =
-    scopeUrl != null && scopeUrl.isHttps && !requestUrl.isHttps
+private fun isDowngrade(requestUrl: HttpUrl, scopeUrl: HttpUrl?): Boolean = scopeUrl != null && scopeUrl.isHttps && !requestUrl.isHttps
 
 /** Same host as [scopeUrl] and no HTTPS to HTTP downgrade. Sibling subdomains are out of scope. */
 internal fun isInHeaderScope(requestUrl: HttpUrl, scopeUrl: HttpUrl?): Boolean {
@@ -328,14 +334,12 @@ internal object ForwardedStreamHeaderGuard : Interceptor {
 }
 
 /** Removes the host-scoped stream and subtitle headers, for the permissive TLS retry. */
-internal fun Request.withoutCredentialHeaders(): Request =
-    withoutHeaders(
-        tag(ForwardedStreamHeaders::class.java)?.names.orEmpty() +
-            tag(SubtitleOwnHeaders::class.java)?.names.orEmpty()
-    )
+internal fun Request.withoutCredentialHeaders(): Request = withoutHeaders(
+    tag(ForwardedStreamHeaders::class.java)?.names.orEmpty() +
+        tag(SubtitleOwnHeaders::class.java)?.names.orEmpty()
+)
 
-private fun Request.withoutHeaders(names: Set<String>): Request =
-    if (names.isEmpty()) this else newBuilder().apply { names.forEach { removeHeader(it) } }.build()
+private fun Request.withoutHeaders(names: Set<String>): Request = if (names.isEmpty()) this else newBuilder().apply { names.forEach { removeHeader(it) } }.build()
 
 /** Scoped stream headers, then the subtitle's own headers, then defaults, tagged for the guard. */
 internal fun buildSubtitleRequest(
@@ -371,10 +375,15 @@ internal fun buildSubtitleRequest(
 
     val explicitNames = explicitHeaders?.keys.orEmpty().map { it.lowercase() }.toSet()
     val forwardedNames = scopedStreamHeaders.keys
-        .filter { it.lowercase() !in SUBTITLE_CROSS_HOST_HEADERS && it.lowercase() !in explicitNames }
+        .filter {
+            it.lowercase() !in SUBTITLE_CROSS_HOST_HEADERS && it.lowercase() !in explicitNames
+        }
         .toSet()
     val downgradeNames = scopedStreamHeaders.keys
-        .filter { it.lowercase() in SUBTITLE_DOWNGRADE_EXCLUDED_HEADERS && it.lowercase() !in explicitNames }
+        .filter {
+            it.lowercase() in SUBTITLE_DOWNGRADE_EXCLUDED_HEADERS &&
+                it.lowercase() !in explicitNames
+        }
         .toSet()
     if (streamUrl != null && (forwardedNames.isNotEmpty() || downgradeNames.isNotEmpty())) {
         requestBuilder.tag(
@@ -385,7 +394,10 @@ internal fun buildSubtitleRequest(
     val sentOwnNames = explicitHeaders?.keys.orEmpty()
         .filter { it.lowercase() !in SUBTITLE_REQUEST_EXCLUDED_HEADERS }
     val ownNames = sentOwnNames.filter { it.lowercase() !in SUBTITLE_CROSS_HOST_HEADERS }.toSet()
-    val ownDowngradeNames = sentOwnNames.filter { it.lowercase() in SUBTITLE_DOWNGRADE_EXCLUDED_HEADERS }.toSet()
+    val ownDowngradeNames = sentOwnNames.filter {
+        it.lowercase() in
+            SUBTITLE_DOWNGRADE_EXCLUDED_HEADERS
+    }.toSet()
     if (ownNames.isNotEmpty() || ownDowngradeNames.isNotEmpty()) {
         requestBuilder.tag(
             SubtitleOwnHeaders::class.java,
@@ -403,12 +415,11 @@ internal fun executeSubtitleRequest(
     request: Request,
     validated: OkHttpClient = subtitleHttpClient,
     permissive: OkHttpClient = subtitleUnvalidatedTlsHttpClient
-): okhttp3.Response =
-    try {
-        validated.newCall(request).execute()
-    } catch (e: SSLException) {
-        permissive.newCall(request.withoutCredentialHeaders()).execute()
-    }
+): okhttp3.Response = try {
+    validated.newCall(request).execute()
+} catch (e: SSLException) {
+    permissive.newCall(request.withoutCredentialHeaders()).execute()
+}
 
 private fun PlayerRuntimeController.executeSubtitleDownload(
     url: String,
@@ -429,7 +440,12 @@ private fun PlayerRuntimeController.executeSubtitleDownload(
     val response = executeSubtitleRequest(request)
     response.use {
         if (!response.isSuccessful) {
-            error(context.getString(com.kien.movies.R.string.subtitle_download_failed_http, response.code))
+            error(
+                context.getString(
+                    com.kien.movies.R.string.subtitle_download_failed_http,
+                    response.code
+                )
+            )
         }
         val bodyBytes = response.body?.bytes()
             ?: error(context.getString(com.kien.movies.R.string.subtitle_download_empty_content))
@@ -463,5 +479,5 @@ internal fun formatAutoSyncDelay(delayMs: Int): String {
     val absMs = kotlin.math.abs(delayMs)
     val seconds = absMs / 1000
     val millis = absMs % 1000
-    return "$sign${seconds}.${millis.toString().padStart(3, '0')}s"
+    return "$sign$seconds.${millis.toString().padStart(3, '0')}s"
 }

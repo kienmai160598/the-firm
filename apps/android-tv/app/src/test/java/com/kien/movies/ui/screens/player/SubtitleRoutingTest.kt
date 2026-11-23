@@ -7,26 +7,49 @@ import org.junit.Test
 class SubtitleRoutingTest {
 
     private val streamUrl = "https://video.example.com/v.mkv"
-    private val streamHeaders = mapOf("X-Api-Key" to "stream-key", "Cookie" to "session=stream", "Referer" to "https://video.example.com/")
+    private val streamHeaders = mapOf(
+        "X-Api-Key" to "stream-key",
+        "Cookie" to "session=stream",
+        "Referer" to "https://video.example.com/"
+    )
     private val markedUri = "https://subs.example.com/a.ass?token=a%20b&nuvio_type=subtitle"
-    private val route = SubtitleRoute("https://subs.example.com/a.ass?token=a%20b", mapOf("X-Api-Key" to "own-key"))
+    private val route =
+        SubtitleRoute("https://subs.example.com/a.ass?token=a%20b", mapOf("X-Api-Key" to "own-key"))
     private val routes = mapOf(markedUri to route)
 
     @Test
     fun `a configured http subtitle uri is routed and everything else goes to media`() {
         assertEquals(SubtitleRequestTarget.Routed(route), subtitleRequestTarget(markedUri, routes))
         assertEquals(SubtitleRequestTarget.Media, subtitleRequestTarget(streamUrl, routes))
-        assertEquals(SubtitleRequestTarget.Media, subtitleRequestTarget("https://subs.example.com/a.ass?token=a%20b", routes))
+        assertEquals(
+            SubtitleRequestTarget.Media,
+            subtitleRequestTarget("https://subs.example.com/a.ass?token=a%20b", routes)
+        )
         // Non-HTTP subtitles keep the media data source, marked or not.
-        val local = mapOf("file:///sdcard/a.ass?nuvio_type=subtitle" to SubtitleRoute("file:///sdcard/a.ass", null))
-        assertEquals(SubtitleRequestTarget.Media, subtitleRequestTarget("file:///sdcard/a.ass?nuvio_type=subtitle", local))
-        assertEquals(SubtitleRequestTarget.Media, subtitleRequestTarget("https://cdn.example/v.mkv?not_nuvio_type=subtitle", routes))
+        val local = mapOf(
+            "file:///sdcard/a.ass?nuvio_type=subtitle" to
+                SubtitleRoute("file:///sdcard/a.ass", null)
+        )
+        assertEquals(
+            SubtitleRequestTarget.Media,
+            subtitleRequestTarget("file:///sdcard/a.ass?nuvio_type=subtitle", local)
+        )
+        assertEquals(
+            SubtitleRequestTarget.Media,
+            subtitleRequestTarget("https://cdn.example/v.mkv?not_nuvio_type=subtitle", routes)
+        )
     }
 
     @Test
     fun `a marked http subtitle uri without a route is refused, not sent to media`() {
-        assertEquals(SubtitleRequestTarget.Refused, subtitleRequestTarget("https://other.example/b.ass?nuvio_type=subtitle", routes))
-        assertEquals(SubtitleRequestTarget.Refused, subtitleRequestTarget("HTTP://other.example/b.ass?x=1&nuvio_type=subtitle#f", routes))
+        assertEquals(
+            SubtitleRequestTarget.Refused,
+            subtitleRequestTarget("https://other.example/b.ass?nuvio_type=subtitle", routes)
+        )
+        assertEquals(
+            SubtitleRequestTarget.Refused,
+            subtitleRequestTarget("HTTP://other.example/b.ass?x=1&nuvio_type=subtitle#f", routes)
+        )
     }
 
     @Test

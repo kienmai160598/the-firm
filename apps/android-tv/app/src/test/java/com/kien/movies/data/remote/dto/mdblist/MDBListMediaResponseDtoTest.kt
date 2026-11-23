@@ -32,7 +32,13 @@ class MDBListMediaResponseDtoTest {
 
     @Test
     fun `existing certifications use retention thresholds`() {
-        val retained = MDBListRatings(tomatoes = 70.0, audience = 80.0, tomatoesCertified = true, audienceCertified = true)
+        val retained =
+            MDBListRatings(
+                tomatoes = 70.0,
+                audience = 80.0,
+                tomatoesCertified = true,
+                audienceCertified = true
+            )
         assertEquals(RottenTomatoesStatus.CERTIFIED_FRESH, retained.tomatoesStatus)
         assertEquals(RottenTomatoesStatus.VERIFIED_HOT, retained.audienceStatus)
         assertEquals(RottenTomatoesStatus.FRESH, retained.copy(tomatoes = 69.0).tomatoesStatus)
@@ -121,7 +127,9 @@ class MDBListMediaResponseDtoTest {
 
     @Test
     fun `all supported sources use their native rating scales`() {
-        val ratings = parse("""{"ratings":[
+        val ratings =
+            parse(
+                """{"ratings":[
             {"source":"imdb","value":0,"score":99},
             {"source":"trakt","value":81},
             {"source":"tmdb","value":78},
@@ -129,14 +137,27 @@ class MDBListMediaResponseDtoTest {
             {"source":"myanimelist","value":8.5},
             {"source":"metacritic","value":75},
             {"source":"metacriticuser","value":9.0}
-        ]}""")
+        ]}"""
+            )
 
-        assertEquals(MDBListRatings(imdb = 0.0, trakt = 81.0, tmdb = 78.0, letterboxd = 4.2, mal = 8.5, metacritic = 75.0), ratings)
+        assertEquals(
+            MDBListRatings(
+                imdb = 0.0,
+                trakt = 81.0,
+                tmdb = 78.0,
+                letterboxd = 4.2,
+                mal = 8.5,
+                metacritic = 75.0
+            ),
+            ratings
+        )
     }
 
     @Test
     fun `invalid values and missing ratings are skipped`() {
-        val ratings = parse("""{"ratings":[
+        val ratings =
+            parse(
+                """{"ratings":[
             {"source":"imdb","value":11},
             {"source":"trakt","value":-1},
             {"source":"tmdb","value":101},
@@ -145,7 +166,8 @@ class MDBListMediaResponseDtoTest {
             {"source":"myanimelist","value":10.1},
             {"source":"metacritic","value":null},
             {"source":"imdb","score":75}
-        ]}""")
+        ]}"""
+            )
 
         assertTrue(ratings.isEmpty())
     }
@@ -153,9 +175,17 @@ class MDBListMediaResponseDtoTest {
     @Test
     fun `live single and batch Letterboxd formats keep the same five point rating`() {
         for (value in listOf(3.9, 7.8)) {
-            assertEquals(3.9, parse("""{"ratings":[{"source":"letterboxd","value":$value,"score":78}]}""").letterboxd)
+            assertEquals(
+                3.9,
+                parse(
+                    """{"ratings":[{"source":"letterboxd","value":$value,"score":78}]}"""
+                ).letterboxd
+            )
         }
-        assertEquals(1.2, parse("""{"ratings":[{"source":"letterboxd","value":2.4,"score":24}]}""").letterboxd)
+        assertEquals(
+            1.2,
+            parse("""{"ratings":[{"source":"letterboxd","value":2.4,"score":24}]}""").letterboxd
+        )
         assertEquals(4.2, parse("""{"ratings":[{"source":"letterboxd","value":4.2}]}""").letterboxd)
     }
 
@@ -171,6 +201,5 @@ class MDBListMediaResponseDtoTest {
         assertNull(requireNotNull(adapter.fromJson("""{"id":1}""")).resolvedImdbId())
     }
 
-    private fun parse(payload: String): MDBListRatings =
-        requireNotNull(adapter.fromJson(payload)).toRatings()
+    private fun parse(payload: String): MDBListRatings = requireNotNull(adapter.fromJson(payload)).toRatings()
 }

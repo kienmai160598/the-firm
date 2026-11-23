@@ -28,9 +28,7 @@ data class CloudLibraryFileProgress(
 
 /** Local-only Cloud file progress. It deliberately does not feed Continue Watching or sync. */
 @Singleton
-class CloudLibraryPlaybackProgressStore @Inject constructor(
-    @ApplicationContext context: Context
-) {
+class CloudLibraryPlaybackProgressStore @Inject constructor(@ApplicationContext context: Context) {
     private val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
 
     fun load(item: CloudLibraryItem, file: CloudLibraryFile): CloudLibraryFileProgress? {

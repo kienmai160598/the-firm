@@ -82,19 +82,28 @@ class ServerConnectionViewModel @Inject constructor(
             _uiState.update { it.copy(isSwitching = true, error = null) }
             if (authManager.prepareForServerSwitch().isFailure) {
                 _uiState.update {
-                    it.copy(isSwitching = false, error = context.getString(R.string.custom_server_session_clear_failed))
+                    it.copy(
+                        isSwitching = false,
+                        error = context.getString(R.string.custom_server_session_clear_failed)
+                    )
                 }
                 return@launch
             }
             if (!save()) {
                 _uiState.update {
-                    it.copy(isSwitching = false, error = context.getString(R.string.custom_server_save_failed))
+                    it.copy(
+                        isSwitching = false,
+                        error = context.getString(R.string.custom_server_save_failed)
+                    )
                 }
                 return@launch
             }
             if (!appRestarter.restart()) {
                 _uiState.update {
-                    it.copy(isSwitching = false, error = context.getString(R.string.custom_server_restart_failed))
+                    it.copy(
+                        isSwitching = false,
+                        error = context.getString(R.string.custom_server_restart_failed)
+                    )
                 }
             }
         }
@@ -104,7 +113,10 @@ class ServerConnectionViewModel @Inject constructor(
         val discoveryError = error as? ServerDiscoveryException
             ?: return context.getString(R.string.custom_server_error_connection)
         return when (discoveryError.failure) {
-            ServerDiscoveryFailure.INVALID_URL -> context.getString(R.string.custom_server_error_invalid_url)
+            ServerDiscoveryFailure.INVALID_URL -> context.getString(
+                R.string.custom_server_error_invalid_url
+            )
+
             ServerDiscoveryFailure.OFFICIAL_SERVER -> context.getString(
                 if (_uiState.value.activeServer.isCustom) {
                     R.string.custom_server_error_official_available
@@ -112,18 +124,43 @@ class ServerConnectionViewModel @Inject constructor(
                     R.string.custom_server_error_official_active
                 }
             )
-            ServerDiscoveryFailure.CONNECTION_FAILED -> context.getString(R.string.custom_server_error_connection)
+
+            ServerDiscoveryFailure.CONNECTION_FAILED -> context.getString(
+                R.string.custom_server_error_connection
+            )
+
             ServerDiscoveryFailure.HTTP_ERROR -> context.getString(
                 R.string.custom_server_error_http,
                 discoveryError.statusCode ?: 0
             )
-            ServerDiscoveryFailure.RESPONSE_TOO_LARGE -> context.getString(R.string.custom_server_error_response_too_large)
-            ServerDiscoveryFailure.INVALID_DOCUMENT -> context.getString(R.string.custom_server_error_invalid_document)
-            ServerDiscoveryFailure.UNSUPPORTED_VERSION -> context.getString(R.string.custom_server_error_version)
-            ServerDiscoveryFailure.WRONG_SERVICE -> context.getString(R.string.custom_server_error_service)
-            ServerDiscoveryFailure.NOT_SELF_HOSTED -> context.getString(R.string.custom_server_error_not_self_hosted)
-            ServerDiscoveryFailure.MISSING_CONFIGURATION -> context.getString(R.string.custom_server_error_missing_configuration)
-            ServerDiscoveryFailure.NO_SUPPORTED_AUTH -> context.getString(R.string.custom_server_error_no_auth)
+
+            ServerDiscoveryFailure.RESPONSE_TOO_LARGE -> context.getString(
+                R.string.custom_server_error_response_too_large
+            )
+
+            ServerDiscoveryFailure.INVALID_DOCUMENT -> context.getString(
+                R.string.custom_server_error_invalid_document
+            )
+
+            ServerDiscoveryFailure.UNSUPPORTED_VERSION -> context.getString(
+                R.string.custom_server_error_version
+            )
+
+            ServerDiscoveryFailure.WRONG_SERVICE -> context.getString(
+                R.string.custom_server_error_service
+            )
+
+            ServerDiscoveryFailure.NOT_SELF_HOSTED -> context.getString(
+                R.string.custom_server_error_not_self_hosted
+            )
+
+            ServerDiscoveryFailure.MISSING_CONFIGURATION -> context.getString(
+                R.string.custom_server_error_missing_configuration
+            )
+
+            ServerDiscoveryFailure.NO_SUPPORTED_AUTH -> context.getString(
+                R.string.custom_server_error_no_auth
+            )
         }
     }
 }

@@ -22,11 +22,11 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
@@ -149,7 +149,10 @@ class PosterOptionsController @Inject constructor(
                 canonical.id in watchedSeriesStateHolder.fullyWatchedSeriesIds.value
             } else {
                 runCatching {
-                    watchProgressRepository.isWatched(canonical.id, videoId = canonical.imdbId).first()
+                    watchProgressRepository.isWatched(
+                        canonical.id,
+                        videoId = canonical.imdbId
+                    ).first()
                 }.getOrDefault(false)
             }
 
@@ -174,7 +177,11 @@ class PosterOptionsController @Inject constructor(
         val mediaType = if (item.apiType.equals("series", ignoreCase = true) ||
             item.apiType.equals("tv", ignoreCase = true) ||
             item.apiType.equals("anime", ignoreCase = true)
-        ) "tv" else "movie"
+        ) {
+            "tv"
+        } else {
+            "movie"
+        }
         val imdb = runCatching { tmdbService.tmdbToImdb(tmdbNumber, mediaType) }.getOrNull()
         return if (!imdb.isNullOrBlank()) item.copy(id = imdb) else item
     }
@@ -264,7 +271,11 @@ class PosterOptionsController @Inject constructor(
                 _state.update { current ->
                     current.copy(
                         listPickerPending = false,
-                        listPickerError = error.message ?: appContext.getString(com.kien.movies.R.string.poster_options_error_load_lists_failed)
+                        listPickerError =
+                            error.message
+                                ?: appContext.getString(
+                                    com.kien.movies.R.string.poster_options_error_load_lists_failed
+                                )
                     )
                 }
             }
@@ -321,7 +332,11 @@ class PosterOptionsController @Inject constructor(
                 _state.update {
                     it.copy(
                         listPickerPending = false,
-                        listPickerError = error.message ?: appContext.getString(com.kien.movies.R.string.poster_options_error_update_lists_failed)
+                        listPickerError =
+                            error.message
+                                ?: appContext.getString(
+                                    com.kien.movies.R.string.poster_options_error_update_lists_failed
+                                )
                     )
                 }
             }
@@ -354,7 +369,10 @@ class PosterOptionsController @Inject constructor(
                 libraryRepository.applyMembershipChanges(
                     item = input,
                     changes = changes,
-                    confirmedRemovalProviders = confirmations.mapTo(linkedSetOf(), TrackingMembershipRemovalConfirmation::providerId)
+                    confirmedRemovalProviders = confirmations.mapTo(
+                        linkedSetOf(),
+                        TrackingMembershipRemovalConfirmation::providerId
+                    )
                 )
             }.onSuccess { result ->
                 if (result.requiresRemovalConfirmation) {
@@ -373,7 +391,9 @@ class PosterOptionsController @Inject constructor(
                         listPickerPending = false,
                         removalConfirmations = emptyList(),
                         listPickerError = error.message
-                            ?: appContext.getString(com.kien.movies.R.string.poster_options_error_update_lists_failed)
+                            ?: appContext.getString(
+                                com.kien.movies.R.string.poster_options_error_update_lists_failed
+                            )
                     )
                 }
             }
@@ -423,14 +443,20 @@ class PosterOptionsController @Inject constructor(
             val canonical = ensureCanonical() ?: return@launch
             runCatching {
                 if (currentlyWatched) {
-                    watchProgressRepository.removeFromHistory(canonical.id, videoId = canonical.imdbId)
+                    watchProgressRepository.removeFromHistory(
+                        canonical.id,
+                        videoId = canonical.imdbId
+                    )
                 } else {
                     watchProgressRepository.markAsCompleted(buildCompletedMovieProgress(canonical))
                 }
             }.onFailure { error ->
                 Log.w(TAG, "Failed to toggle watched for ${canonical.id}: ${error.message}")
                 // Revert optimistic update on failure
-                watchProgressRepository.revertOptimisticWatchedMovie(optimisticIds, add = !currentlyWatched)
+                watchProgressRepository.revertOptimisticWatchedMovie(
+                    optimisticIds,
+                    add = !currentlyWatched
+                )
             }
             _state.update { it.copy(isWatchedPending = false) }
         }
@@ -472,7 +498,10 @@ class PosterOptionsController @Inject constructor(
     }
 
     private suspend fun markSeriesWatched(item: MetaPreview) {
-        val episodes = fetchSeriesEpisodes(item).filter { it.season != null && it.episode != null && it.season != 0 }
+        val episodes = fetchSeriesEpisodes(item).filter {
+            it.season != null && it.episode != null &&
+                it.season != 0
+        }
         // Without episodes the only mark left is a show-level one, which trackers answer by marking
         // every episode watched. Fail instead so the optimistic badge is reverted.
         check(episodes.isNotEmpty()) { "No episodes found for ${item.id}" }
@@ -499,7 +528,10 @@ class PosterOptionsController @Inject constructor(
     }
 
     private suspend fun unmarkSeriesWatched(item: MetaPreview) {
-        val episodes = fetchSeriesEpisodes(item).filter { it.season != null && it.episode != null && it.season != 0 }
+        val episodes = fetchSeriesEpisodes(item).filter {
+            it.season != null && it.episode != null &&
+                it.season != 0
+        }
         if (episodes.isEmpty()) {
             watchProgressRepository.removeFromHistory(item.id, videoId = item.imdbId)
             return
@@ -515,7 +547,11 @@ class PosterOptionsController @Inject constructor(
     private suspend fun fetchSeriesEpisodes(item: MetaPreview): List<Video> {
         val type = if (item.apiType.equals("tv", ignoreCase = true) ||
             item.apiType.equals("anime", ignoreCase = true)
-        ) "series" else item.apiType
+        ) {
+            "series"
+        } else {
+            item.apiType
+        }
         var episodes: List<Video> = emptyList()
         metaRepository.getMetaFromPrimaryAddon(type, item.id)
             .collect { networkResult ->

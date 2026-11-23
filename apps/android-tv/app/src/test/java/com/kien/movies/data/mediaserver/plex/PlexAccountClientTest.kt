@@ -11,7 +11,9 @@ import org.junit.Test
 class PlexAccountClientTest {
     private var clock = 1_000_000L
 
-    private fun account(route: (Request) -> Pair<Int, String>): Pair<PlexAccountClient, PlexTestHttp> {
+    private fun account(
+        route: (Request) -> Pair<Int, String>
+    ): Pair<PlexAccountClient, PlexTestHttp> {
         val http = PlexTestHttp(route)
         return PlexAccountClient(PlexClient(http.client, plexTestIdentity), now = { clock }) to http
     }
@@ -24,7 +26,10 @@ class PlexAccountClientTest {
         val (plex, http) = account { request ->
             when (request.method) {
                 "POST" -> 201 to """{"id":42,"code":"ABCD","expiresIn":900}"""
-                else -> 200 to (if (linked) """{"id":42,"code":"ABCD","authToken":"account-token"}""" else """{"id":42,"code":"ABCD"}""")
+
+                else ->
+                    200 to
+                        (if (linked) """{"id":42,"code":"ABCD","authToken":"account-token"}""" else """{"id":42,"code":"ABCD"}""")
             }
         }
 
@@ -87,7 +92,8 @@ class PlexAccountClientTest {
     @Test
     fun aWrongPinGivesNoUser() = runTest {
         val (plex, http) = account { 403 to "" }
-        val kid = PlexHomeUser("2", "uuid-kid", "Kid", hasPin = true, admin = false, restricted = true)
+        val kid =
+            PlexHomeUser("2", "uuid-kid", "Kid", hasPin = true, admin = false, restricted = true)
 
         assertNull(plex.switchUser(owner, kid, "1234"))
         assertEquals("1234", http.requests.single().url.queryParameter("pin"))
@@ -96,7 +102,15 @@ class PlexAccountClientTest {
     @Test
     fun theOwnerWithoutPinNeedsNoSwitch() = runTest {
         val (plex, http) = account { error("No request expected") }
-        val self = PlexHomeUser("1", "uuid-owner", "Paul", hasPin = false, admin = true, restricted = false)
+        val self =
+            PlexHomeUser(
+                "1",
+                "uuid-owner",
+                "Paul",
+                hasPin = false,
+                admin = true,
+                restricted = false
+            )
 
         assertEquals(owner, plex.switchUser(owner, self, null))
         assertTrue(http.requests.isEmpty())
@@ -125,7 +139,10 @@ class PlexAccountClientTest {
         val offline = plex.reach(server) { "another-server" }
 
         assertEquals(PlexReach.LOCAL to "http://192.168.1.20:32400", home.reach to home.address)
-        assertEquals(PlexReach.REMOTE to "https://203-0-113-5.abc.plex.direct:32400", away.reach to away.address)
+        assertEquals(
+            PlexReach.REMOTE to "https://203-0-113-5.abc.plex.direct:32400",
+            away.reach to away.address
+        )
         assertEquals(PlexReach.RELAY, relay.reach)
         assertEquals(PlexReach.OFFLINE to null, offline.reach to offline.address)
     }
@@ -135,7 +152,10 @@ class PlexAccountClientTest {
         val (plex, _) = account { error("No request expected") }
         val tried = mutableListOf<String>()
 
-        plex.reach(server) { address -> tried += address; null }
+        plex.reach(server) { address ->
+            tried += address
+            null
+        }
 
         assertTrue("http://203.0.113.5:32400" !in tried)
     }
@@ -148,11 +168,30 @@ class PlexAccountClientTest {
             name = "Home",
             owned = true,
             accessToken = "token",
-            addresses = List(8) { PlexAddress("https://10-0-0-$it.abc.plex.direct:32400", local = true, relay = false) } +
-                PlexAddress("https://203-0-113-5.abc.plex.direct:32400", local = false, relay = false)
+            addresses =
+                List(8) {
+                    PlexAddress(
+                        "https://10-0-0-$it.abc.plex.direct:32400",
+                        local = true,
+                        relay = false
+                    )
+                } +
+                    PlexAddress(
+                        "https://203-0-113-5.abc.plex.direct:32400",
+                        local = false,
+                        relay = false
+                    )
         )
 
-        val reached = plex.reach(crowded) { address -> if ("10-0-0" in address) awaitCancellation() else "m1" }
+        val reached = plex.reach(crowded) { address ->
+            if ("10-0-0" in
+                address
+            ) {
+                awaitCancellation()
+            } else {
+                "m1"
+            }
+        }
 
         assertEquals("https://203-0-113-5.abc.plex.direct:32400", reached.address)
     }

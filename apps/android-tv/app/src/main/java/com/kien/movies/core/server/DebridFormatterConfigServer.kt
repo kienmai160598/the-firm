@@ -22,9 +22,15 @@ class DebridFormatterConfigServer(
     override fun serve(session: IHTTPSession): Response {
         return when {
             session.method == Method.GET && session.uri == "/" -> serveWebPage()
+
             session.method == Method.GET && session.uri == "/logo.png" -> serveLogo()
+
             session.method == Method.GET && session.uri == "/api/settings" -> serveSettings()
-            session.method == Method.POST && session.uri == "/api/settings" -> handleSettingsUpdate(session)
+
+            session.method == Method.POST && session.uri == "/api/settings" -> handleSettingsUpdate(
+                session
+            )
+
             else -> newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found")
         }
     }
@@ -71,7 +77,11 @@ class DebridFormatterConfigServer(
         val settingsJson = gson.toJson(settingsMap)
         val defaultsJson = gson.toJson(defaultsMap)
         val responseJson = """{"settings":$settingsJson,"defaults":$defaultsJson}"""
-        return newFixedLengthResponse(Response.Status.OK, "application/json; charset=utf-8", responseJson)
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "application/json; charset=utf-8",
+            responseJson
+        )
     }
 
     private fun handleSettingsUpdate(session: IHTTPSession): Response {
@@ -83,10 +93,16 @@ class DebridFormatterConfigServer(
         val descriptionTemplate = parsed?.get("descriptionTemplate") as? String
         val currentSettings = currentSettingsProvider()
         val streamPreferences = runCatching {
-            gson.fromJson(gson.toJson(parsed?.get("streamPreferences")), DebridStreamPreferences::class.java)
+            gson.fromJson(
+                gson.toJson(parsed?.get("streamPreferences")),
+                DebridStreamPreferences::class.java
+            )
         }.getOrNull() ?: currentSettings.streamPreferences
         if (nameTemplate == null || descriptionTemplate == null) {
-            return errorResponse(context?.getString(com.kien.movies.R.string.web_debrid_error_templates_required) ?: "Both templates are required")
+            return errorResponse(
+                context?.getString(com.kien.movies.R.string.web_debrid_error_templates_required)
+                    ?: "Both templates are required"
+            )
         }
 
         onSettingsChanged(
@@ -96,15 +112,18 @@ class DebridFormatterConfigServer(
                 streamPreferences = streamPreferences
             )
         )
-        return newFixedLengthResponse(Response.Status.OK, "application/json; charset=utf-8", gson.toJson(mapOf("status" to "saved")))
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "application/json; charset=utf-8",
+            gson.toJson(mapOf("status" to "saved"))
+        )
     }
 
-    private fun errorResponse(message: String): Response =
-        newFixedLengthResponse(
-            Response.Status.BAD_REQUEST,
-            "application/json; charset=utf-8",
-            gson.toJson(mapOf("error" to message))
-        )
+    private fun errorResponse(message: String): Response = newFixedLengthResponse(
+        Response.Status.BAD_REQUEST,
+        "application/json; charset=utf-8",
+        gson.toJson(mapOf("error" to message))
+    )
 
     private fun readUtf8Body(session: IHTTPSession): String {
         val length = session.headers["content-length"]?.toIntOrNull() ?: return ""

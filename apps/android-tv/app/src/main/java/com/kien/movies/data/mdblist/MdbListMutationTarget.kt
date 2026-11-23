@@ -23,27 +23,42 @@ internal data class MdbListMutationTarget(
         get() = "$type:${media.ids.key}:${season ?: -1}:${episode ?: -1}"
 
     fun matches(record: MdbListWatchedRecord): Boolean = record.type == type &&
-        media.ids.matches(record.media.ids) && (type != MdbListItemType.EPISODE ||
-        (episodeTmdbId != null && episodeTmdbId == record.episodeTmdbId) ||
-        (episodeTvdbId != null && episodeTvdbId == record.episodeTvdbId) ||
-        (season == record.season && episode == record.episode))
+        media.ids.matches(record.media.ids) && (
+            type != MdbListItemType.EPISODE ||
+                (episodeTmdbId != null && episodeTmdbId == record.episodeTmdbId) ||
+                (episodeTvdbId != null && episodeTvdbId == record.episodeTvdbId) ||
+                (season == record.season && episode == record.episode)
+            )
 
     fun matches(record: MdbListPlayback): Boolean = record.type == type &&
         media.ids.matches(record.media.ids) && season == record.season && episode == record.episode
 
     fun watched(at: String) = MdbListWatchedRecord(
-        type, media, at, season, episode, episodeTitle, episodeTmdbId, episodeTvdbId
+        type,
+        media,
+        at,
+        season,
+        episode,
+        episodeTitle,
+        episodeTmdbId,
+        episodeTvdbId
     )
 
     fun scrobbleBody(progress: Double? = null): JsonObject = buildJsonObject {
-        require(type == MdbListItemType.MOVIE || type == MdbListItemType.EPISODE && scrobbleCoordinatesResolved)
-        put(if (type == MdbListItemType.MOVIE) "movie" else "show", buildJsonObject {
-            put("ids", media.ids.requestIds())
-            if (type == MdbListItemType.EPISODE) {
-                put("season", requireNotNull(season))
-                put("episode", requireNotNull(episode))
+        require(
+            type == MdbListItemType.MOVIE ||
+                type == MdbListItemType.EPISODE && scrobbleCoordinatesResolved
+        )
+        put(
+            if (type == MdbListItemType.MOVIE) "movie" else "show",
+            buildJsonObject {
+                put("ids", media.ids.requestIds())
+                if (type == MdbListItemType.EPISODE) {
+                    put("season", requireNotNull(season))
+                    put("episode", requireNotNull(episode))
+                }
             }
-        })
+        )
         progress?.let {
             require(it.isFinite() && it in 0.0..100.0)
             put("progress", BigDecimal.valueOf(it).setScale(2, RoundingMode.DOWN).toDouble())
@@ -57,14 +72,26 @@ internal fun MdbListSyncSnapshot.mutationTarget(
     mediaIndex: MdbListMediaIndex? = projection?.mediaIndex
 ): MdbListMutationTarget? {
     val ids = reference.ids.toMdbListIds() ?: return null
-    val isMovie = reference.kind == TrackingMediaKind.MOVIE || reference.catalog?.contentType in setOf("movie", "film")
-    val type = if (isMovie) MdbListItemType.MOVIE else if (reference.episode != null) MdbListItemType.EPISODE else MdbListItemType.SHOW
+    val isMovie =
+        reference.kind == TrackingMediaKind.MOVIE ||
+            reference.catalog?.contentType in setOf("movie", "film")
+    val type = if (isMovie) {
+        MdbListItemType.MOVIE
+    } else if (reference.episode !=
+        null
+    ) {
+        MdbListItemType.EPISODE
+    } else {
+        MdbListItemType.SHOW
+    }
     val index = mediaIndex ?: MdbListMediaIndex(this)
     val resolvedFromIndex = index.resolve(type, ids)
     val resolvedMedia = playback.asSequence()
         .filter { (it.type == MdbListItemType.MOVIE) == isMovie && it.media.ids.matches(ids) }
         .fold(resolvedFromIndex) { acc, record -> record.media.merged(acc) }
-    val media = resolvedMedia.merged(MdbListMedia(ids, reference.title, reference.year, reference.posterUrl))
+    val media = resolvedMedia.merged(
+        MdbListMedia(ids, reference.title, reference.year, reference.posterUrl)
+    )
     val episode = reference.episode.takeUnless { isMovie }
     val candidates = if (episode == null) {
         emptySequence()
@@ -73,16 +100,31 @@ internal fun MdbListSyncSnapshot.mutationTarget(
             record.type == MdbListItemType.EPISODE && record.media.ids.matches(ids)
         }
     }
-    val known = if (episode == null) null else candidates.firstOrNull { record ->
-        (episode.tmdbId != null && episode.tmdbId == record.episodeTmdbId) ||
-            (episode.tvdbId != null && episode.tvdbId == record.episodeTvdbId) ||
-            (!episode.usesTvdbSeasonMapping && episode.season == record.season && episode.number == record.episode)
+    val known = if (episode == null) {
+        null
+    } else {
+        candidates.firstOrNull { record ->
+            (episode.tmdbId != null && episode.tmdbId == record.episodeTmdbId) ||
+                (episode.tvdbId != null && episode.tvdbId == record.episodeTvdbId) ||
+                (
+                    !episode.usesTvdbSeasonMapping && episode.season == record.season &&
+                        episode.number == record.episode
+                    )
+        }
     }
     val season = known?.season ?: episode?.season
     val number = known?.episode ?: episode?.number
-    if (type == MdbListItemType.EPISODE && (season == null || season < 0 || number == null || number < 1)) return null
+    if (type == MdbListItemType.EPISODE &&
+        (season == null || season < 0 || number == null || number < 1)
+    ) {
+        return null
+    }
     return MdbListMutationTarget(
-        type, media, season, number, known?.episodeTitle ?: episode?.title,
+        type,
+        media,
+        season,
+        number,
+        known?.episodeTitle ?: episode?.title,
         known?.episodeTmdbId ?: episode?.tmdbId,
         known?.episodeTvdbId ?: episode?.tvdbId,
         scrobbleCoordinatesResolved = episode?.usesTvdbSeasonMapping != true || known != null

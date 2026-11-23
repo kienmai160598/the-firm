@@ -61,7 +61,12 @@ object QrCodeGenerator {
         return bitmap
     }
 
-    internal data class ModuleGrid(val left: Int, val top: Int, val moduleSize: Int, val modules: Int)
+    internal data class ModuleGrid(
+        val left: Int,
+        val top: Int,
+        val moduleSize: Int,
+        val modules: Int
+    )
 
     /**
      * Locates the scaled module grid inside [matrix]. The top-left finder pattern starts the

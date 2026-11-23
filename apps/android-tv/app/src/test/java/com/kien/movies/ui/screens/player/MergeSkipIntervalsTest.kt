@@ -6,8 +6,7 @@ import org.junit.Test
 
 class MergeSkipIntervalsTest {
 
-    private fun interval(type: String, start: Double, end: Double, provider: String) =
-        SkipInterval(startTime = start, endTime = end, type = type, provider = provider)
+    private fun interval(type: String, start: Double, end: Double, provider: String) = SkipInterval(startTime = start, endTime = end, type = type, provider = provider)
 
     @Test
     fun `chapters take priority over API for same category`() {

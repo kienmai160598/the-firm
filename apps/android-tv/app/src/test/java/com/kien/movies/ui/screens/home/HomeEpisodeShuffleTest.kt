@@ -13,19 +13,33 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class HomeEpisodeShuffleTest {
-    private val videos = (1..5).map { Video("show:1:$it", "Episode $it", "2020-01-01", "image-$it",
-        season = 1, episode = it, overview = "Description $it") }
-    private val upcoming = ContinueWatchingItem.NextUp(NextUpInfo(
-        "show", "series", "Show", null, null, null, "show:2:1", 2, 1, "Upcoming",
-        thumbnail = null, released = "2999-01-01", hasAired = false, airDateLabel = "Soon",
-        lastWatched = 100, sortTimestamp = 100, isReleaseAlert = true, isNewSeasonRelease = true
-    ))
-    private val finishedCard = ContinueWatchingItem.NextUp(NextUpInfo(
-        "show", "series", "Show", null, null, null, "show:1:5", 1, 5, null,
-        thumbnail = null, lastWatched = 50, sortTimestamp = 50, seedSeason = 1, seedEpisode = 5
-    ))
+    private val videos = (1..5).map {
+        Video(
+            "show:1:$it",
+            "Episode $it",
+            "2020-01-01",
+            "image-$it",
+            season = 1,
+            episode = it,
+            overview = "Description $it"
+        )
+    }
+    private val upcoming = ContinueWatchingItem.NextUp(
+        NextUpInfo(
+            "show", "series", "Show", null, null, null, "show:2:1", 2, 1, "Upcoming",
+            thumbnail = null, released = "2999-01-01", hasAired = false, airDateLabel = "Soon",
+            lastWatched = 100, sortTimestamp = 100, isReleaseAlert = true, isNewSeasonRelease = true
+        )
+    )
+    private val finishedCard = ContinueWatchingItem.NextUp(
+        NextUpInfo(
+            "show", "series", "Show", null, null, null, "show:1:5", 1, 5, null,
+            thumbnail = null, lastWatched = 50, sortTimestamp = 50, seedSeason = 1, seedEpisode = 5
+        )
+    )
     private val state = HomeUiState(upcomingItems = listOf(upcoming))
-    private val profile = EpisodeShuffleProfile(1, true, mapOf("show" to EpisodeShuffleSettings(true, false)))
+    private val profile =
+        EpisodeShuffleProfile(1, true, mapOf("show" to EpisodeShuffleSettings(true, false)))
     private val shuffle = EpisodeShuffle()
 
     @Test
@@ -79,8 +93,14 @@ class HomeEpisodeShuffleTest {
     @Test
     fun `latest resume replaces transient next up and older progress without duplicate focus keys`() {
         val older = ContinueWatchingItem.InProgress(progress())
-        val latest = ContinueWatchingItem.InProgress(progress().copy(videoId = "show:1:4", episode = 4, lastWatched = 200))
-        val input = HomeUiState(continueWatchingItems = listOf(older, latest), upcomingItems = listOf(upcoming))
+        val latest = ContinueWatchingItem.InProgress(
+            progress().copy(videoId = "show:1:4", episode = 4, lastWatched = 200)
+        )
+        val input =
+            HomeUiState(
+                continueWatchingItems = listOf(older, latest),
+                upcomingItems = listOf(upcoming)
+            )
         val output = project(input)
         assertEquals(listOf(latest.copy(shufflePlayback = true)), output.continueWatchingItems)
         assertTrue(output.upcomingItems.isEmpty())
@@ -92,8 +112,13 @@ class HomeEpisodeShuffleTest {
         assertTrue(project(watched = mapOf("show" to watched)).continueWatchingItems.isEmpty())
         val resume = ContinueWatchingItem.InProgress(progress())
         val input = HomeUiState(continueWatchingItems = listOf(resume))
-        assertEquals(resume.progress, (project(input, watched = mapOf("show" to watched))
-            .continueWatchingItems.single() as ContinueWatchingItem.InProgress).progress)
+        assertEquals(
+            resume.progress,
+            (
+                project(input, watched = mapOf("show" to watched))
+                    .continueWatchingItems.single() as ContinueWatchingItem.InProgress
+                ).progress
+        )
     }
 
     @Test
@@ -111,10 +136,17 @@ class HomeEpisodeShuffleTest {
     @Test
     fun `movies and disabled shows preserve their native targets`() {
         val movie = ContinueWatchingItem.InProgress(progress().copy(contentType = "movie"))
-        assertFalse((project(HomeUiState(continueWatchingItems = listOf(movie)))
-            .continueWatchingItems.single()).shufflePlayback)
+        assertFalse(
+            (
+                project(HomeUiState(continueWatchingItems = listOf(movie)))
+                    .continueWatchingItems.single()
+                ).shufflePlayback
+        )
         val other = upcoming.copy(info = upcoming.info.copy(contentId = "other"))
-        assertEquals(listOf(other), project(HomeUiState(upcomingItems = listOf(other))).upcomingItems)
+        assertEquals(
+            listOf(other),
+            project(HomeUiState(upcomingItems = listOf(other))).upcomingItems
+        )
     }
 
     @Test
@@ -126,7 +158,10 @@ class HomeEpisodeShuffleTest {
 
     @Test
     fun `finished show with shuffle on returns with a random episode`() {
-        val card = project(HomeUiState(), finished = listOf(finishedCard)).continueWatchingItems.single()
+        val card = project(
+            HomeUiState(),
+            finished = listOf(finishedCard)
+        ).continueWatchingItems.single()
             as ContinueWatchingItem.NextUp
         assertTrue(card.shufflePlayback)
         assertTrue(videos.any { it.id == card.info.videoId && it.episode == card.info.episode })
@@ -135,8 +170,16 @@ class HomeEpisodeShuffleTest {
 
     @Test
     fun `finished show needs shuffle on and never duplicates an existing card`() {
-        val otherShowOnly = profile.copy(shows = mapOf("other" to EpisodeShuffleSettings(true, false)))
-        assertTrue(project(HomeUiState(), otherShowOnly, finished = listOf(finishedCard)).continueWatchingItems.isEmpty())
+        val otherShowOnly = profile.copy(
+            shows = mapOf("other" to EpisodeShuffleSettings(true, false))
+        )
+        assertTrue(
+            project(
+                HomeUiState(),
+                otherShowOnly,
+                finished = listOf(finishedCard)
+            ).continueWatchingItems.isEmpty()
+        )
         val output = project(finished = listOf(finishedCard))
         assertEquals(1, output.continueWatchingItems.size + output.upcomingItems.size)
     }
@@ -148,8 +191,23 @@ class HomeEpisodeShuffleTest {
         visit: Long = 1,
         catalogue: List<Video>? = videos,
         finished: List<ContinueWatchingItem.NextUp> = emptyList()
-    ) = applyHomeShuffle(input, profile, watched, shuffle, visit, ContinueWatchingSortMode.SPLIT_UPCOMING, finished) { _, _ -> catalogue }
+    ) = applyHomeShuffle(
+        input,
+        profile,
+        watched,
+        shuffle,
+        visit,
+        ContinueWatchingSortMode.SPLIT_UPCOMING,
+        finished
+    ) {
+            _,
+            _
+        ->
+        catalogue
+    }
 
-    private fun progress() = WatchProgress("show", "series", "Show", null, null, null,
-        "show:1:3", 1, 3, "Episode 3", 34000, 100000, 100, progressPercent = 34f)
+    private fun progress() = WatchProgress(
+        "show", "series", "Show", null, null, null,
+        "show:1:3", 1, 3, "Episode 3", 34000, 100000, 100, progressPercent = 34f
+    )
 }

@@ -24,38 +24,50 @@ import com.kien.movies.ui.theme.MoviesTheme
 fun PartySettingsContent(
     onOpen: () -> Unit,
     initialFocusRequester: FocusRequester? = null,
-    viewModel: PartyViewModel = hiltViewModel(),
+    viewModel: PartyViewModel = hiltViewModel()
 ) {
     val state by viewModel.party.state.collectAsStateWithLifecycle()
     val canUse by viewModel.party.canUse.collectAsStateWithLifecycle()
     val party = state.party
-    val rowModifier = if (initialFocusRequester != null) Modifier.focusRequester(initialFocusRequester) else Modifier
+    val rowModifier = if (initialFocusRequester !=
+        null
+    ) {
+        Modifier.focusRequester(initialFocusRequester)
+    } else {
+        Modifier
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         SettingsDetailHeader(
             title = stringResource(R.string.party_title),
-            subtitle = stringResource(R.string.party_settings_description),
+            subtitle = stringResource(R.string.party_settings_description)
         )
         SettingsGroupCard {
             if (party != null) {
                 SettingsActionRow(
                     title = party.media.displayTitle(),
-                    subtitle = stringResource(R.string.party_seats, party.members.size, party.maxMembers),
+                    subtitle = stringResource(
+                        R.string.party_seats,
+                        party.members.size,
+                        party.maxMembers
+                    ),
                     value = formatPartyCode(party.code),
                     onClick = onOpen,
                     leadingIcon = Icons.Rounded.Groups,
-                    modifier = rowModifier,
+                    modifier = rowModifier
                 )
             } else {
                 SettingsActionRow(
                     title = stringResource(R.string.party_join_title),
-                    subtitle = stringResource(if (canUse) R.string.party_join_description else R.string.party_sign_in_required),
+                    subtitle = stringResource(
+                        if (canUse) R.string.party_join_description else R.string.party_sign_in_required
+                    ),
                     onClick = onOpen,
                     leadingIcon = Icons.Rounded.Groups,
-                    modifier = rowModifier,
+                    modifier = rowModifier
                 )
             }
         }

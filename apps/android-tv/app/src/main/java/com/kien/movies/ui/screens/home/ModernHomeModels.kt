@@ -6,24 +6,24 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil3.memory.MemoryCache
+import com.kien.movies.R
 import com.kien.movies.core.image.CustomPosterFallbackInterceptor
 import com.kien.movies.domain.model.CatalogRow
 import com.kien.movies.domain.model.Collection
 import com.kien.movies.domain.model.CollectionFolder
 import com.kien.movies.domain.model.ContentType
+import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.PosterShape
 import com.kien.movies.domain.model.stableKey
-import com.kien.movies.ui.util.localizeEpisodeTitle
-import com.kien.movies.ui.util.localizedContentType
-import com.kien.movies.ui.util.computeAirDateBadgeText
-import com.kien.movies.ui.util.formatHeroRuntime
-import com.kien.movies.domain.model.MetaPreview
-import com.kien.movies.R
 import com.kien.movies.ui.components.formatContinueWatchingProgressLabel
 import com.kien.movies.ui.util.StableList
 import com.kien.movies.ui.util.StableMap
 import com.kien.movies.ui.util.StableSet
 import com.kien.movies.ui.util.asStable
+import com.kien.movies.ui.util.computeAirDateBadgeText
+import com.kien.movies.ui.util.formatHeroRuntime
+import com.kien.movies.ui.util.localizeEpisodeTitle
+import com.kien.movies.ui.util.localizedContentType
 
 internal val YEAR_REGEX = Regex("""\b(19|20)\d{2}\b""")
 internal const val MODERN_HERO_TEXT_WIDTH_FRACTION = 0.42f
@@ -99,10 +99,7 @@ sealed class ModernPayload {
 }
 
 @Immutable
-internal data class FocusedCatalogSelection(
-    val focusKey: String,
-    val payload: ModernPayload
-)
+internal data class FocusedCatalogSelection(val focusKey: String, val payload: ModernPayload)
 
 @Immutable
 data class ModernCarouselItem(
@@ -185,6 +182,7 @@ internal data class ModernCollectionRowBuildCacheEntry(
     val source: Collection,
     val mappedRow: HeroCarouselRow
 )
+
 @Stable
 class ModernCarouselRowBuildCache {
     var continueWatchingItems: List<ContinueWatchingItem> = emptyList()
@@ -201,6 +199,7 @@ class ModernCarouselRowBuildCache {
     var upcomingRow: HeroCarouselRow? = null
     internal val catalogRows = java.util.concurrent.ConcurrentHashMap<String, ModernCatalogRowBuildCacheEntry>()
     internal val collectionRows = java.util.concurrent.ConcurrentHashMap<String, ModernCollectionRowBuildCacheEntry>()
+
     // per-item cache: rowKey -> (itemId -> cached carousel item + source MetaPreview)
     internal val catalogItemCache = java.util.concurrent.ConcurrentHashMap<String, MutableMap<String, CachedCarouselItem>>()
 }
@@ -284,12 +283,11 @@ internal fun ModernCarouselItem.catalogCardRequestMetrics(
     return base.copy(width = maxOf(base.width, expandedWidth))
 }
 
-internal fun ModernCarouselItem.cardImageFallbackUrl(landscapeCustomPoster: Boolean): String? =
-    if (landscapeCustomPoster) {
-        metaPreview?.background ?: heroPreview.backdrop ?: metaPreview?.rawPosterUrl
-    } else {
-        metaPreview?.rawPosterUrl
-    }
+internal fun ModernCarouselItem.cardImageFallbackUrl(landscapeCustomPoster: Boolean): String? = if (landscapeCustomPoster) {
+    metaPreview?.background ?: heroPreview.backdrop ?: metaPreview?.rawPosterUrl
+} else {
+    metaPreview?.rawPosterUrl
+}
 
 internal fun cardImageMemoryCacheKey(
     url: String,
@@ -305,7 +303,6 @@ internal fun cardImageMemoryCacheKey(
         MemoryCache.Key(key)
     }
 }
-
 
 internal fun buildContinueWatchingItem(
     item: ContinueWatchingItem,
@@ -328,6 +325,7 @@ internal fun buildContinueWatchingItem(
                 minLeftLabel = context.getString(R.string.cw_min_left)
             )
         }
+
         is ContinueWatchingItem.NextUp -> {
             if (item.info.isReleaseAlert) {
                 if (item.info.isNewSeasonRelease) {
@@ -354,7 +352,9 @@ internal fun buildContinueWatchingItem(
             } else {
                 null
             }
-            val episodeTitle = item.progress.episodeTitle?.takeIf { it.isNotBlank() }?.localizeEpisodeTitle(context)
+            val episodeTitle = item.progress.episodeTitle?.takeIf {
+                it.isNotBlank()
+            }?.localizeEpisodeTitle(context)
             val episodeLabel = when {
                 isSeries && episodeCode != null && episodeTitle != null -> "$episodeCode · $episodeTitle"
                 isSeries && episodeCode != null -> episodeCode
@@ -364,13 +364,20 @@ internal fun buildContinueWatchingItem(
             HeroPreview(
                 title = item.progress.name,
                 logo = item.progress.logo,
-                description = item.episodeDescription ?: item.progress.episodeTitle?.localizeEpisodeTitle(context),
+                description =
+                    item.episodeDescription
+                        ?: item.progress.episodeTitle?.localizeEpisodeTitle(context),
                 contentTypeText = episodeLabel,
                 isSeries = isSeries,
                 yearText = extractYearOrRange(item.releaseInfo),
                 secondaryHighlightText = secondaryHighlightText,
                 imdbText = item.episodeImdbRating
-                    ?.takeIf { !isSeries || detailImdbRatingsVisibility.showEpisodeRating(isWatched = item.progress.isCompleted()) }
+                    ?.takeIf {
+                        !isSeries ||
+                            detailImdbRatingsVisibility.showEpisodeRating(
+                                isWatched = item.progress.isCompleted()
+                            )
+                    }
                     ?.let { String.format("%.1f", it) },
                 genres = item.genres.asStable(),
                 poster = item.progress.poster,
@@ -383,14 +390,23 @@ internal fun buildContinueWatchingItem(
                 mdbListRatings = item.mdbListRatings
             )
         }
+
         is ContinueWatchingItem.NextUp -> {
             val episodeCode = context.getString(
                 R.string.season_episode_format,
                 item.info.season,
                 item.info.episode
             )
-            val episodeTitle = item.info.episodeTitle?.takeIf { it.isNotBlank() }?.localizeEpisodeTitle(context)
-            val episodeLabel = if (episodeTitle != null) "$episodeCode · $episodeTitle" else episodeCode
+            val episodeTitle = item.info.episodeTitle?.takeIf {
+                it.isNotBlank()
+            }?.localizeEpisodeTitle(context)
+            val episodeLabel = if (episodeTitle !=
+                null
+            ) {
+                "$episodeCode · $episodeTitle"
+            } else {
+                episodeCode
+            }
             HeroPreview(
                 title = item.info.name,
                 logo = item.info.logo,
@@ -408,7 +424,8 @@ internal fun buildContinueWatchingItem(
                 poster = item.info.poster,
                 backdrop = item.info.backdrop,
                 imageUrl = if (useLandscapePosters) {
-                    item.customLandscapePoster ?: firstNonBlank(item.info.backdrop, item.info.poster, item.info.thumbnail)
+                    item.customLandscapePoster
+                        ?: firstNonBlank(item.info.backdrop, item.info.poster, item.info.thumbnail)
                 } else {
                     firstNonBlank(item.info.poster, item.info.backdrop, item.info.thumbnail)
                 },
@@ -431,6 +448,7 @@ internal fun buildContinueWatchingItem(
                 firstNonBlank(item.progress.poster, item.progress.backdrop)
             }
         }
+
         is ContinueWatchingItem.NextUp -> if (useLandscapePosters) {
             item.customLandscapePoster ?: if (item.info.hasAired) {
                 firstNonBlank(item.info.thumbnail, item.info.poster, item.info.backdrop)
@@ -458,6 +476,7 @@ internal fun buildContinueWatchingItem(
                     item.progress.episodeTitle
                 }
             }
+
             is ContinueWatchingItem.NextUp -> {
                 val code = context.getString(
                     R.string.season_episode_format,
@@ -467,7 +486,8 @@ internal fun buildContinueWatchingItem(
                 if (item.info.hasAired) {
                     code
                 } else {
-                    item.info.airDateLabel?.let { "$code • ${airsDateTemplate.format(it)}" } ?: "$code • $upcomingLabel"
+                    item.info.airDateLabel?.let { "$code • ${airsDateTemplate.format(it)}" }
+                        ?: "$code • $upcomingLabel"
                 }
             }
         },
@@ -508,8 +528,14 @@ internal fun buildCatalogItem(
         logo = item.logo,
         description = item.description,
         contentTypeText = when (item.apiType.lowercase()) {
-            "movie" -> strTypeMovie.ifBlank { item.apiType.replaceFirstChar { ch -> ch.uppercase() } }
-            "series" -> strTypeSeries.ifBlank { item.apiType.replaceFirstChar { ch -> ch.uppercase() } }
+            "movie" -> strTypeMovie.ifBlank {
+                item.apiType.replaceFirstChar { ch -> ch.uppercase() }
+            }
+
+            "series" -> strTypeSeries.ifBlank {
+                item.apiType.replaceFirstChar { ch -> ch.uppercase() }
+            }
+
             else -> item.apiType.replaceFirstChar { ch -> ch.uppercase() }
         },
         isSeries = isSeriesType(item.apiType),
@@ -536,7 +562,7 @@ internal fun buildCatalogItem(
     )
 
     return ModernCarouselItem(
-        key = "catalog_${row.key()}_${item.id}_${occurrence}",
+        key = "catalog_${row.key()}_${item.id}_$occurrence",
         title = item.name,
         subtitle = item.releaseInfo,
         imageUrl = if (useLandscapePosters) {
@@ -573,7 +599,8 @@ internal fun buildCollectionFolderItem(
     // GIF URL is only used as an animated overlay on focus (when focusGifEnabled is true).
     // Don't use it as a static poster — it would still animate via Coil's GIF decoder.
     val imageUrl = firstNonBlank(folder.coverImageUrl, collection.backdropImageUrl)
-    val heroBackdrop = firstNonBlank(folder.heroBackdropUrl, folder.coverImageUrl, collection.backdropImageUrl)
+    val heroBackdrop =
+        firstNonBlank(folder.heroBackdropUrl, folder.coverImageUrl, collection.backdropImageUrl)
 
     return ModernCarouselItem(
         key = "collection_${collection.id}_${folder.id}_$occurrence",
@@ -659,10 +686,16 @@ internal fun extractYearOrRange(releaseInfo: String?): String? {
 
 @Volatile
 private var cachedDateFormatLocale: java.util.Locale? = null
+
 @Volatile
 private var cachedDateFormatPattern: String? = null
 
-internal fun extractYearText(type: ContentType, releaseInfo: String?, released: String?, showFullDate: Boolean = true): String? {
+internal fun extractYearText(
+    type: ContentType,
+    releaseInfo: String?,
+    released: String?,
+    showFullDate: Boolean = true
+): String? {
     if (showFullDate && type == ContentType.MOVIE) {
         val full = released
             ?.let {
@@ -673,10 +706,15 @@ internal fun extractYearText(type: ContentType, releaseInfo: String?, released: 
             }
             ?.let {
                 val locale = java.util.Locale.getDefault()
-                val pattern = if (locale == cachedDateFormatLocale && cachedDateFormatPattern != null) {
+                val pattern = if (locale == cachedDateFormatLocale &&
+                    cachedDateFormatPattern != null
+                ) {
                     cachedDateFormatPattern!!
                 } else {
-                    android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMMMy").also { p ->
+                    android.text.format.DateFormat.getBestDateTimePattern(
+                        locale,
+                        "dMMMMy"
+                    ).also { p ->
                         cachedDateFormatPattern = p
                         cachedDateFormatLocale = locale
                     }
@@ -687,7 +725,13 @@ internal fun extractYearText(type: ContentType, releaseInfo: String?, released: 
                 // instead of the genitive "czerwca" used in full dates), while
                 // SimpleDateFormat uses the inflected form expected in date context.
                 java.text.SimpleDateFormat(pattern, locale)
-                    .format(java.util.Date(it.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()))
+                    .format(
+                        java.util.Date(
+                            it.atStartOfDay(
+                                java.time.ZoneId.systemDefault()
+                            ).toInstant().toEpochMilli()
+                        )
+                    )
             }
         if (full != null) return full
     }

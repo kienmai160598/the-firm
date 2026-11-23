@@ -108,6 +108,7 @@ internal object AudioOutputRouteDetector {
         AudioDeviceInfo.TYPE_USB_HEADSET,
         AudioDeviceInfo.TYPE_USB_DEVICE,
         AudioDeviceInfo.TYPE_USB_ACCESSORY -> true
+
         else -> false
     }
 
@@ -119,19 +120,28 @@ internal object AudioOutputRouteDetector {
     @SuppressLint("NewApi")
     private fun routeRank(type: Int): Int = when (type) {
         AudioDeviceInfo.TYPE_BLUETOOTH_A2DP -> 0
+
         AudioDeviceInfo.TYPE_BLE_HEADSET -> 1
+
         AudioDeviceInfo.TYPE_BLE_SPEAKER -> 2
+
         AudioDeviceInfo.TYPE_BLE_BROADCAST -> 3
+
         AudioDeviceInfo.TYPE_BLUETOOTH_SCO -> 4
+
         AudioDeviceInfo.TYPE_HDMI,
         AudioDeviceInfo.TYPE_HDMI_ARC,
         AudioDeviceInfo.TYPE_HDMI_EARC -> 10
+
         AudioDeviceInfo.TYPE_USB_HEADSET,
         AudioDeviceInfo.TYPE_USB_DEVICE,
         AudioDeviceInfo.TYPE_USB_ACCESSORY -> 20
+
         AudioDeviceInfo.TYPE_WIRED_HEADSET,
         AudioDeviceInfo.TYPE_WIRED_HEADPHONES -> 30
+
         AudioDeviceInfo.TYPE_BUILTIN_SPEAKER -> 40
+
         else -> ROUTE_RANK_UNSUPPORTED
     }
 
@@ -148,6 +158,7 @@ internal object AudioOutputRouteDetector {
         AudioDeviceInfo.TYPE_BLE_HEADSET,
         AudioDeviceInfo.TYPE_BLE_SPEAKER,
         AudioDeviceInfo.TYPE_BLE_BROADCAST -> true
+
         else -> false
     }
 
@@ -181,7 +192,8 @@ internal object AudioOutputRouteDetector {
         // multi-channel PCM that the platform will downmix before the BT stack.
         return androidx.media3.exoplayer.audio.AudioCapabilities(
             intArrayOf(C.ENCODING_PCM_16BIT),
-            /* maxChannelCount= */ 8
+            /* maxChannelCount= */
+            8
         )
     }
 

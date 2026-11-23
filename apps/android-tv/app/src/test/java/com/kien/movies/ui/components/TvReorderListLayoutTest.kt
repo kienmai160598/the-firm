@@ -11,7 +11,11 @@ class TvReorderListLayoutTest {
     private val rowHeight = 100f
     private val spacing = 10f
 
-    private fun uniformTops(count: Int, height: Float = rowHeight, gap: Float = spacing): FloatArray {
+    private fun uniformTops(
+        count: Int,
+        height: Float = rowHeight,
+        gap: Float = spacing
+    ): FloatArray {
         return computeSlotTops(count, { height }, gap)
     }
 
@@ -21,7 +25,7 @@ class TvReorderListLayoutTest {
         val tops = computeSlotTops(
             slotCount = 3,
             heightAt = { heights[it] },
-            spacingPx = 10f,
+            spacingPx = 10f
         )
         assertEquals(0f, tops[0], 0.001f)
         assertEquals(110f, tops[1], 0.001f)
@@ -33,7 +37,7 @@ class TvReorderListLayoutTest {
         val tops = computeSlotTops(
             slotCount = 5,
             heightAt = { 100f },
-            spacingPx = 10f,
+            spacingPx = 10f
         )
         for (i in 0 until 5) {
             assertEquals(i * 110f, tops[i], 0.001f)
@@ -51,7 +55,7 @@ class TvReorderListLayoutTest {
         val range = visibleSlotRangeFromTops(
             tops = FloatArray(0),
             topEdgePx = 0f,
-            bottomEdgePx = 500f,
+            bottomEdgePx = 500f
         )
         assertTrue(range.isEmpty())
     }
@@ -81,7 +85,12 @@ class TvReorderListLayoutTest {
         val heights = FloatArray(100) { if (it < 40) 200f else 100f }
         val tops = computeSlotTops(100, { heights[it] }, 10f)
         // window around content y = 40*210 = 8400 -> slot ~42; stride-based estimate would say ~76
-        val range = visibleSlotRangeFromTops(tops, topEdgePx = 8400f - 500f, bottomEdgePx = 8400f + 500f)
+        val range = visibleSlotRangeFromTops(
+            tops,
+            topEdgePx = 8400f - 500f,
+            bottomEdgePx =
+                8400f + 500f
+        )
         assertTrue("first=${range.first} should be near slot 38", range.first in 36..38)
     }
 
@@ -109,7 +118,7 @@ class TvReorderListLayoutTest {
             itemContent = itemContent,
             canMove = canMove,
             onStartMove = onStartMove,
-            onConfirmMove = onConfirmMove,
+            onConfirmMove = onConfirmMove
         ) {
             factoryCalls++
             Any()
@@ -121,7 +130,7 @@ class TvReorderListLayoutTest {
             itemContent = itemContent,
             canMove = canMove,
             onStartMove = onStartMove,
-            onConfirmMove = onConfirmMove,
+            onConfirmMove = onConfirmMove
         ) {
             factoryCalls++
             Any()
@@ -147,7 +156,7 @@ class TvReorderListLayoutTest {
             itemContent = initialRenderer,
             canMove = canMove,
             onStartMove = onStartMove,
-            onConfirmMove = onConfirmMove,
+            onConfirmMove = onConfirmMove
         ) { Any() }
 
         val second = cache.getOrPut(
@@ -157,7 +166,7 @@ class TvReorderListLayoutTest {
             itemContent = updatedRenderer,
             canMove = canMove,
             onStartMove = onStartMove,
-            onConfirmMove = onConfirmMove,
+            onConfirmMove = onConfirmMove
         ) { Any() }
 
         assertNotSame(first, second)
@@ -177,7 +186,7 @@ class TvReorderListLayoutTest {
             itemContent = itemContent,
             canMove = Any(),
             onStartMove = onStartMove,
-            onConfirmMove = onConfirmMove,
+            onConfirmMove = onConfirmMove
         ) { Any() }
 
         val second = cache.getOrPut(
@@ -187,7 +196,7 @@ class TvReorderListLayoutTest {
             itemContent = itemContent,
             canMove = Any(),
             onStartMove = onStartMove,
-            onConfirmMove = onConfirmMove,
+            onConfirmMove = onConfirmMove
         ) { Any() }
 
         assertNotSame(first, second)
@@ -208,7 +217,7 @@ class TvReorderListLayoutTest {
             itemContent = itemContent,
             canMove = canMove,
             onStartMove = onStartMove,
-            onConfirmMove = onConfirmMove,
+            onConfirmMove = onConfirmMove
         ) { Any() }
 
         cache.retainKeys(setOf("row-b"))
@@ -220,7 +229,7 @@ class TvReorderListLayoutTest {
             itemContent = itemContent,
             canMove = canMove,
             onStartMove = onStartMove,
-            onConfirmMove = onConfirmMove,
+            onConfirmMove = onConfirmMove
         ) { Any() }
 
         assertNotSame(first, recreated)
@@ -234,7 +243,7 @@ class TvReorderListLayoutTest {
             headerOffsetPx = 1200f,
             viewportHeightPx = 1000f,
             initialScrollPx = 900,
-            maxScrollPx = 3000,
+            maxScrollPx = 3000
         )
         assertEquals(900, target)
     }
@@ -247,7 +256,7 @@ class TvReorderListLayoutTest {
             headerOffsetPx = 1200f,
             viewportHeightPx = 1000f,
             initialScrollPx = 0,
-            maxScrollPx = 3000,
+            maxScrollPx = 3000
         )
         // Slot occupies [1200, 1300]; scrolling to 0 would push it off-screen below viewport 1000.
         assertTrue("target=$target should keep [1200, 1300] inside viewport", target in 300..1200)
@@ -262,7 +271,7 @@ class TvReorderListLayoutTest {
             headerOffsetPx = 200f,
             viewportHeightPx = 1000f,
             initialScrollPx = null,
-            maxScrollPx = 3000,
+            maxScrollPx = 3000
         )
         assertEquals(0, target)
     }
@@ -275,7 +284,7 @@ class TvReorderListLayoutTest {
             headerOffsetPx = 500f,
             viewportHeightPx = 1000f,
             initialScrollPx = null,
-            maxScrollPx = 2200,
+            maxScrollPx = 2200
         )
         assertEquals(2200, target)
     }

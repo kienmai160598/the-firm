@@ -24,9 +24,14 @@ class OkHttpMdbListEngineTest {
         MockWebServer().use { server ->
             for (method in listOf(MdbListHttpMethod.PUT, MdbListHttpMethod.DELETE)) {
                 server.enqueue(MockResponse().setResponseCode(204))
-                val response = engine(server).execute(MdbListHttpRequest(
-                    method, "/lists/42", body = """{"name":"Weekend","private":true}""", accessToken = "access-token"
-                ))
+                val response = engine(server).execute(
+                    MdbListHttpRequest(
+                        method,
+                        "/lists/42",
+                        body = """{"name":"Weekend","private":true}""",
+                        accessToken = "access-token"
+                    )
+                )
                 val sent = server.takeRequest()
                 assertEquals(method.name, sent.method)
                 assertEquals("/lists/42", sent.path)
@@ -34,8 +39,12 @@ class OkHttpMdbListEngineTest {
                 assertEquals(204, response.status)
                 if (method == MdbListHttpMethod.PUT) {
                     assertEquals("""{"name":"Weekend","private":true}""", sent.body.readUtf8())
-                    assertTrue(sent.getHeader("Content-Type").orEmpty().startsWith("application/json"))
-                } else assertEquals(0L, sent.bodySize)
+                    assertTrue(
+                        sent.getHeader("Content-Type").orEmpty().startsWith("application/json")
+                    )
+                } else {
+                    assertEquals(0L, sent.bodySize)
+                }
             }
         }
     }
@@ -45,14 +54,25 @@ class OkHttpMdbListEngineTest {
         MockWebServer().use { server ->
             server.enqueue(MockResponse().setBody("{}"))
             val engine = engine(server)
-            engine.execute(MdbListHttpRequest(
-                MdbListHttpMethod.POST, "/oauth/token/", form = mapOf("client_id" to "public", "device_code" to "a+b&c")
-            ))
+            engine.execute(
+                MdbListHttpRequest(
+                    MdbListHttpMethod.POST,
+                    "/oauth/token/",
+                    form = mapOf(
+                        "client_id" to "public",
+                        "device_code" to "a+b&c"
+                    )
+                )
+            )
 
             val sent = server.takeRequest()
             assertEquals("/oauth/token/", sent.path)
             assertEquals("client_id=public&device_code=a%2Bb%26c", sent.body.readUtf8())
-            assertTrue(sent.getHeader("Content-Type").orEmpty().startsWith("application/x-www-form-urlencoded"))
+            assertTrue(
+                sent.getHeader(
+                    "Content-Type"
+                ).orEmpty().startsWith("application/x-www-form-urlencoded")
+            )
             assertEquals(null, sent.getHeader("Authorization"))
         }
     }
@@ -61,9 +81,14 @@ class OkHttpMdbListEngineTest {
     fun `bearer authentication stays out of URL and cursor values are encoded`() = runTest {
         MockWebServer().use { server ->
             server.enqueue(MockResponse().setBody("{}"))
-            engine(server).execute(MdbListHttpRequest(
-                MdbListHttpMethod.GET, "/sync/journal", query = mapOf("cursor" to "a+b/c="), accessToken = "access-token"
-            ))
+            engine(server).execute(
+                MdbListHttpRequest(
+                    MdbListHttpMethod.GET,
+                    "/sync/journal",
+                    query = mapOf("cursor" to "a+b/c="),
+                    accessToken = "access-token"
+                )
+            )
 
             val sent = server.takeRequest()
             assertEquals("Bearer access-token", sent.getHeader("Authorization"))
@@ -76,11 +101,19 @@ class OkHttpMdbListEngineTest {
     fun `redirects never forward credentials to another destination`() = runTest {
         MockWebServer().use { server ->
             MockWebServer().use { destination ->
-                server.enqueue(MockResponse().setResponseCode(302).addHeader("Location", destination.url("/stolen")))
+                server.enqueue(
+                    MockResponse().setResponseCode(
+                        302
+                    ).addHeader("Location", destination.url("/stolen"))
+                )
 
-                val response = engine(server).execute(MdbListHttpRequest(
-                    MdbListHttpMethod.GET, "/user", accessToken = "access-token"
-                ))
+                val response = engine(server).execute(
+                    MdbListHttpRequest(
+                        MdbListHttpMethod.GET,
+                        "/user",
+                        accessToken = "access-token"
+                    )
+                )
 
                 assertEquals(302, response.status)
                 assertEquals(0, destination.requestCount)
@@ -94,7 +127,10 @@ class OkHttpMdbListEngineTest {
             val client = OkHttpClient()
             server.enqueue(MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE))
             val engine = engine(server, client)
-            val operation = async(Dispatchers.IO) { engine.execute(MdbListHttpRequest(MdbListHttpMethod.GET, "/user")) }
+            val operation =
+                async(Dispatchers.IO) {
+                    engine.execute(MdbListHttpRequest(MdbListHttpMethod.GET, "/user"))
+                }
             val request = withContext(Dispatchers.IO) { server.takeRequest(5, TimeUnit.SECONDS) }
             assertNotNull(request)
 
@@ -119,13 +155,21 @@ class OkHttpMdbListEngineTest {
 
     @Test
     fun `production credentials cannot be sent over plaintext HTTP`() {
-        val engine = OkHttpMdbListEngine(OkHttpClient(), MdbListConfiguration("client", "test", "http://api.mdblist.com"))
+        val engine =
+            OkHttpMdbListEngine(
+                OkHttpClient(),
+                MdbListConfiguration("client", "test", "http://api.mdblist.com")
+            )
 
         assertThrows(IllegalArgumentException::class.java) {
-            engine.buildRequest(MdbListHttpRequest(MdbListHttpMethod.GET, "/user", accessToken = "token"))
+            engine.buildRequest(
+                MdbListHttpRequest(MdbListHttpMethod.GET, "/user", accessToken = "token")
+            )
         }
     }
 
-    private fun engine(server: MockWebServer, client: OkHttpClient = OkHttpClient()) =
-        OkHttpMdbListEngine(client, MdbListConfiguration("client", "test", server.url("/").toString()))
+    private fun engine(server: MockWebServer, client: OkHttpClient = OkHttpClient()) = OkHttpMdbListEngine(
+        client,
+        MdbListConfiguration("client", "test", server.url("/").toString())
+    )
 }

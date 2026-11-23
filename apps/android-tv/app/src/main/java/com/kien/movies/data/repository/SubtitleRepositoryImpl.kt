@@ -12,16 +12,16 @@ import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.domain.model.enabledAddons
 import com.kien.movies.domain.repository.SubtitleRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.concurrent.atomic.AtomicInteger
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
-import java.util.concurrent.atomic.AtomicInteger
-import javax.inject.Inject
+import kotlinx.coroutines.withTimeoutOrNull
 
 class SubtitleRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -44,11 +44,15 @@ class SubtitleRepositoryImpl @Inject constructor(
         onProgress: ((completed: Int, total: Int, addonName: String?) -> Unit)?,
         onSubtitlesEmitted: ((List<Subtitle>) -> Unit)?
     ): List<Subtitle> = withContext(Dispatchers.IO) {
-        if (ServerItemRef.isServerId(id) || ServerItemRef.isServerId(videoId)) return@withContext emptyList()
+        if (ServerItemRef.isServerId(id) ||
+            ServerItemRef.isServerId(videoId)
+        ) {
+            return@withContext emptyList()
+        }
         val requestType = canonicalSubtitleType(type)
         val startedAtMs = System.currentTimeMillis()
         Log.d(TAG, "Fetching subtitles for type=$requestType, id=$id, videoId=$videoId")
-        
+
         // Get installed addons
         val addons = try {
             addonRepository.getInstalledAddons().first().enabledAddons()
@@ -63,8 +67,13 @@ class SubtitleRepositoryImpl @Inject constructor(
                 isSubtitleResource(resource.name) && supportsType(addon, resource, requestType, id)
             }
         }
-        
-        Log.d(TAG, "Found ${subtitleAddons.size} subtitle addons: ${subtitleAddons.map { it.name }}")
+
+        Log.d(
+            TAG,
+            "Found ${subtitleAddons.size} subtitle addons: ${subtitleAddons.map {
+                it.name
+            }}"
+        )
 
         if (subtitleAddons.isEmpty()) {
             return@withContext emptyList()
@@ -83,7 +92,15 @@ class SubtitleRepositoryImpl @Inject constructor(
                     val addonStartMs = System.currentTimeMillis()
                     val subtitles = try {
                         withTimeoutOrNull(PER_ADDON_TIMEOUT_MS) {
-                            fetchSubtitlesFromAddon(addon, type, id, videoId, videoHash, videoSize, filename)
+                            fetchSubtitlesFromAddon(
+                                addon,
+                                type,
+                                id,
+                                videoId,
+                                videoHash,
+                                videoSize,
+                                filename
+                            )
                         }
                     } catch (e: CancellationException) {
                         throw e
@@ -129,8 +146,13 @@ class SubtitleRepositoryImpl @Inject constructor(
     private fun canonicalSubtitleType(type: String): String {
         return if (type.equals("tv", ignoreCase = true)) "series" else type.lowercase()
     }
-    
-    private fun supportsType(addon: Addon, resource: com.kien.movies.domain.model.AddonResource, type: String, id: String): Boolean {
+
+    private fun supportsType(
+        addon: Addon,
+        resource: com.kien.movies.domain.model.AddonResource,
+        type: String,
+        id: String
+    ): Boolean {
         // Check if type is supported (normalizing "tv" and "series" to be equivalent)
         if (resource.types.isNotEmpty()) {
             val reqType = canonicalSubtitleType(type)
@@ -139,14 +161,14 @@ class SubtitleRepositoryImpl @Inject constructor(
             }
             if (!matchesType) return false
         }
-        
+
         // Check if id prefix is supported (check resource first, then fallback to addon top-level idPrefixes)
         val prefixes = resource.idPrefixes?.takeIf { it.isNotEmpty() }
             ?: addon.idPrefixes.takeIf { it.isNotEmpty() }
         if (prefixes != null && prefixes.isNotEmpty()) {
             return prefixes.any { prefix -> id.startsWith(prefix) }
         }
-        
+
         return true
     }
 
@@ -154,7 +176,7 @@ class SubtitleRepositoryImpl @Inject constructor(
         return name.equals("subtitles", ignoreCase = true) ||
             name.equals("subtitle", ignoreCase = true)
     }
-    
+
     private suspend fun fetchSubtitlesFromAddon(
         addon: Addon,
         type: String,
@@ -170,14 +192,20 @@ class SubtitleRepositoryImpl @Inject constructor(
         } else {
             videoId?.takeIf { it.isNotBlank() } ?: id
         }
-        
+
         val encodedType = encodePathSegment(normalizedType)
         val encodedActualId = encodePathSegment(actualId)
 
         // Build the subtitle URL with optional extra parameters
         val rawBaseUrl = addon.baseUrl.trimEnd('/')
         val queryStart = rawBaseUrl.indexOf('?')
-        val basePath = if (queryStart >= 0) rawBaseUrl.substring(0, queryStart).trimEnd('/') else rawBaseUrl
+        val basePath = if (queryStart >=
+            0
+        ) {
+            rawBaseUrl.substring(0, queryStart).trimEnd('/')
+        } else {
+            rawBaseUrl
+        }
         val baseQuery = if (queryStart >= 0) rawBaseUrl.substring(queryStart) else ""
         val extraParams = buildExtraParams(videoHash, videoSize, filename)
         val subtitleUrl = if (extraParams.isNotEmpty()) {
@@ -185,15 +213,18 @@ class SubtitleRepositoryImpl @Inject constructor(
         } else {
             "$basePath/subtitles/$encodedType/$encodedActualId.json$baseQuery"
         }
-        
+
         Log.d(TAG, "Fetching subtitles from ${addon.name}: $subtitleUrl")
-        
+
         return try {
             when (val result = safeApiCall(context) { api.getSubtitles(subtitleUrl) }) {
                 is NetworkResult.Success -> {
                     val subtitles = result.data.subtitles?.mapNotNull { dto ->
                         val url = dto.url?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-                        val lang = dto.lang?.takeIf { it.isNotBlank() } ?: dto.language?.takeIf { it.isNotBlank() } ?: "und"
+                        val lang =
+                            dto.lang?.takeIf { it.isNotBlank() }
+                                ?: dto.language?.takeIf { it.isNotBlank() }
+                                ?: "und"
                         val subId = dto.id?.takeIf { it.isNotBlank() } ?: "$lang-${url.hashCode()}"
                         Subtitle(
                             id = subId,
@@ -205,14 +236,19 @@ class SubtitleRepositoryImpl @Inject constructor(
                             label = dto.label?.trim()?.takeIf { it.isNotBlank() }
                         )
                     } ?: emptyList()
-                    
+
                     Log.d(TAG, "Got ${subtitles.size} subtitles from ${addon.name}")
                     subtitles
                 }
+
                 is NetworkResult.Error -> {
-                    Log.e(TAG, "Failed to fetch subtitles from ${addon.name}: code=${result.code} message=${result.message}")
+                    Log.e(
+                        TAG,
+                        "Failed to fetch subtitles from ${addon.name}: code=${result.code} message=${result.message}"
+                    )
                     emptyList()
                 }
+
                 NetworkResult.Loading -> emptyList()
             }
         } catch (e: Exception) {
@@ -220,20 +256,16 @@ class SubtitleRepositoryImpl @Inject constructor(
             emptyList()
         }
     }
-    
-    private fun buildExtraParams(
-        videoHash: String?,
-        videoSize: Long?,
-        filename: String?
-    ): String {
+
+    private fun buildExtraParams(videoHash: String?, videoSize: Long?, filename: String?): String {
         val params = mutableListOf<String>()
-        
+
         videoHash?.let { params.add("videoHash=$it") }
         videoSize?.let { params.add("videoSize=$it") }
         filename?.let {
             params.add("filename=${encodePathSegment(it)}")
         }
-        
+
         return if (params.isNotEmpty()) {
             params.joinToString("&")
         } else {

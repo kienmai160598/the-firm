@@ -22,7 +22,7 @@ class PartyStreamTest {
         filename = "movie.mkv",
         videoSize = 1_500_000_000L,
         bingeGroup = "torrentio|720p",
-        badges = listOf(StreamBadge(name = "HDR", imageURL = "https://example.com/hdr.png")),
+        badges = listOf(StreamBadge(name = "HDR", imageURL = "https://example.com/hdr.png"))
     )
 
     @Test
@@ -51,7 +51,10 @@ class PartyStreamTest {
         assertEquals("https://example.com/logo.png", item.addonLogo)
         assertEquals(1_500_000_000L, item.behaviorHints?.videoSize)
         assertEquals("movie.mkv", item.behaviorHints?.filename)
-        assertEquals(mapOf("Referer" to "https://example.com"), item.behaviorHints?.proxyHeaders?.request)
+        assertEquals(
+            mapOf("Referer" to "https://example.com"),
+            item.behaviorHints?.proxyHeaders?.request
+        )
         assertEquals("HDR", item.badges.single().name)
         assertFalse(item.isTorrent())
     }
@@ -96,9 +99,9 @@ class PartyStreamTest {
             bingeGroup = null,
             countryWhitelist = null,
             proxyHeaders = null,
-            filename = filename,
+            filename = filename
         ),
         addonName = "Torrentio",
-        addonLogo = null,
+        addonLogo = null
     )
 }

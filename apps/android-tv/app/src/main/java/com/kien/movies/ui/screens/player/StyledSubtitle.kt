@@ -24,8 +24,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -50,8 +50,7 @@ internal val SubtitleStyleSettings.usesStyledRenderer: Boolean
         shadowEnabled ||
         (outlineEnabled && outlineWidth != SubtitleStyleSettings.OUTLINE_WIDTH_DEFAULT)
 
-internal fun styledSubtitlePaddingXPx(textSizePx: Float): Float =
-    STYLED_SUBTITLE_PADDING_X * textSizePx / SUBTITLE_BASE_TEXT_SP
+internal fun styledSubtitlePaddingXPx(textSizePx: Float): Float = STYLED_SUBTITLE_PADDING_X * textSizePx / SUBTITLE_BASE_TEXT_SP
 
 @Composable
 internal fun rememberSubtitleTypeface(fontId: String): Typeface? {
@@ -70,7 +69,8 @@ internal fun rememberSubtitleFontFamily(fontId: String): FontFamily {
     val store = remember(context) { SubtitleFontStore.get(context) }
     val typeface = rememberSubtitleTypeface(fontId)
     return remember(fontId, typeface) {
-        typeface?.let { store.fontFile(fontId) }?.let { FontFamily(Font(it)) } ?: builtInSubtitleFontFamily(fontId)
+        typeface?.let { store.fontFile(fontId) }?.let { FontFamily(Font(it)) }
+            ?: builtInSubtitleFontFamily(fontId)
     }
 }
 
@@ -109,16 +109,33 @@ internal fun StyledSubtitleText(
         )
         val textConstraints = Constraints(maxWidth = maxTextWidth)
         val textAlpha = Color(style.textColor).alpha
-        val fillText = text.mapColors { subtitleFileColor(it, style.fileColorBrightness, textAlpha) }
-        val layout = measurer.measure(text = fillText, style = textStyle, constraints = textConstraints)
+        val fillText = text.mapColors {
+            subtitleFileColor(it, style.fileColorBrightness, textAlpha)
+        }
+        val layout = measurer.measure(
+            text = fillText,
+            style = textStyle,
+            constraints = textConstraints
+        )
         val outlineLayout = if (text.spanStyles.any { it.item.color.isSpecified }) {
-            measurer.measure(text = text.mapColors { Color.Unspecified }, style = textStyle, constraints = textConstraints)
+            measurer.measure(
+                text = text.mapColors {
+                    Color.Unspecified
+                },
+                style = textStyle,
+                constraints = textConstraints
+            )
         } else {
             layout
         }
         val lineLeft = (0 until layout.lineCount).minOfOrNull { layout.getLineLeft(it) } ?: 0f
         val lineRight = (0 until layout.lineCount).maxOfOrNull { layout.getLineRight(it) } ?: 0f
-        val lineWidth = (0 until layout.lineCount).maxOfOrNull { layout.getLineRight(it) - layout.getLineLeft(it) } ?: 0f
+        val lineWidth =
+            (0 until layout.lineCount).maxOfOrNull {
+                layout.getLineRight(it) -
+                    layout.getLineLeft(it)
+            }
+                ?: 0f
         val blockHeight = layout.size.height + paddingY * 2
         val textColor = Color(style.textColor)
         val outlineColor = Color(style.outlineColor)
@@ -164,7 +181,10 @@ internal fun StyledSubtitleText(
                 drawStyle = Fill,
                 shadow = if (style.shadowEnabled) {
                     Shadow(
-                        color = Color.Black.copy(alpha = style.shadowOpacity / 100f * textColor.alpha),
+                        color = Color.Black.copy(
+                            alpha =
+                                style.shadowOpacity / 100f * textColor.alpha
+                        ),
                         offset = Offset(shadowSize, shadowSize),
                         blurRadius = shadowSize * 2
                     )
@@ -176,13 +196,12 @@ internal fun StyledSubtitleText(
     }
 }
 
-internal fun subtitleFileColor(color: Color, brightness: Float, textAlpha: Float): Color =
-    Color(
-        red = color.red * brightness,
-        green = color.green * brightness,
-        blue = color.blue * brightness,
-        alpha = color.alpha * textAlpha
-    )
+internal fun subtitleFileColor(color: Color, brightness: Float, textAlpha: Float): Color = Color(
+    red = color.red * brightness,
+    green = color.green * brightness,
+    blue = color.blue * brightness,
+    alpha = color.alpha * textAlpha
+)
 
 private fun AnnotatedString.mapColors(transform: (Color) -> Color): AnnotatedString = buildAnnotatedString {
     append(this@mapColors.text)

@@ -28,13 +28,17 @@ internal fun computeAirDateBadgeText(
 
     return when {
         daysUntil < 0 -> null
+
         daysUntil == 0L -> context.getString(R.string.cw_airs_today)
+
         daysUntil == 1L -> context.getString(R.string.cw_airs_tomorrow)
+
         daysUntil in 2..7 -> context.resources.getQuantityString(
             R.plurals.cw_airs_in_days,
             daysUntil.toInt(),
             daysUntil.toInt()
         )
+
         else -> airDateLabel?.let { context.getString(R.string.cw_airs_date, it) }
     }
 }
@@ -59,13 +63,17 @@ internal fun computeAirDateBadgeTextShort(
 
     return when {
         daysUntil < 0 -> null
+
         daysUntil == 0L -> context.getString(R.string.cw_airs_today_short)
+
         daysUntil == 1L -> context.getString(R.string.cw_airs_tomorrow_short)
+
         daysUntil in 2..7 -> context.resources.getQuantityString(
             R.plurals.cw_airs_in_days_short,
             daysUntil.toInt(),
             daysUntil.toInt()
         )
+
         else -> airDateLabel?.let { context.getString(R.string.cw_airs_date_short, it) }
     }
 }

@@ -31,23 +31,28 @@ class ServerCatalogTest {
 
     private fun catalog(
         provider: FakeServerProvider = FakeServerProvider(),
-        libraries: List<ServerLibrary> = listOf(FakeServerProvider.MOVIE_LIBRARY, FakeServerProvider.SERIES_LIBRARY)
+        libraries: List<ServerLibrary> =
+            listOf(FakeServerProvider.MOVIE_LIBRARY, FakeServerProvider.SERIES_LIBRARY)
     ): Triple<ServerCatalog, ServerRepository, ServerConnection> {
         val (repository, connection) = fakeServerRepository(provider, libraries = libraries)
         return Triple(ServerCatalog(context, repository, addonRepository), repository, connection)
     }
 
-    private suspend fun ServerCatalog.page(connection: ServerConnection, catalogId: String, skip: Int, extra: Map<String, String> = emptyMap()) =
-        catalog(
-            addonBaseUrl = ServerCatalog.baseUrl(connection.id),
-            addonId = ServerCatalog.addonId(connection.id),
-            addonName = "Fake · Box",
-            catalogId = catalogId,
-            catalogName = "Box · Movies",
-            type = "movie",
-            skip = skip,
-            extraArgs = extra
-        )
+    private suspend fun ServerCatalog.page(
+        connection: ServerConnection,
+        catalogId: String,
+        skip: Int,
+        extra: Map<String, String> = emptyMap()
+    ) = catalog(
+        addonBaseUrl = ServerCatalog.baseUrl(connection.id),
+        addonId = ServerCatalog.addonId(connection.id),
+        addonName = "Fake · Box",
+        catalogId = catalogId,
+        catalogName = "Box · Movies",
+        type = "movie",
+        skip = skip,
+        extraArgs = extra
+    )
 
     @Test
     fun paginatesLibraryWithOpaqueNumericIds() = runTest {
@@ -75,8 +80,18 @@ class ServerCatalogTest {
         assertTrue(ServerCatalog.isServerAddon(addon.baseUrl))
         assertEquals(listOf("resume", "10", "search.movie"), addon.catalogs.map { it.id })
         assertEquals("Box · Movies", addon.catalogs.single { it.id == "10" }.name)
-        assertEquals(listOf("10", "search.movie"), catalog.searchAddons.first().single().catalogs.map { it.id })
-        assertEquals(listOf("search.movie"), addon.catalogs.filter { it.supportsExtra("search") }.map { it.id })
+        assertEquals(
+            listOf("10", "search.movie"),
+            catalog.searchAddons.first().single().catalogs.map {
+                it.id
+            }
+        )
+        assertEquals(
+            listOf("search.movie"),
+            addon.catalogs.filter {
+                it.supportsExtra("search")
+            }.map { it.id }
+        )
         assertTrue(addon.catalogs.last().extra.single().isRequired)
     }
 
@@ -104,10 +119,18 @@ class ServerCatalogTest {
         val provider = FakeServerProvider()
         val (catalog, _, connection) = catalog(provider)
 
-        val search = catalog.page(connection, "search.series", skip = 0, extra = mapOf("search" to "item"))
+        val search = catalog.page(
+            connection,
+            "search.series",
+            skip = 0,
+            extra = mapOf("search" to "item")
+        )
         assertEquals(listOf(ServerItemRef(connection.id, "7").encode()), search.items.map { it.id })
         assertFalse(search.hasMore)
-        assertEquals(listOf(ServerMediaKind.SERIES to listOf(FakeServerProvider.SERIES_LIBRARY.id)), provider.searches)
+        assertEquals(
+            listOf(ServerMediaKind.SERIES to listOf(FakeServerProvider.SERIES_LIBRARY.id)),
+            provider.searches
+        )
 
         val resume = catalog.page(connection, "resume", skip = 0)
         assertEquals(listOf(ServerItemRef(connection.id, "3").encode()), resume.items.map { it.id })
@@ -120,8 +143,18 @@ class ServerCatalogTest {
         val (catalog, _, connection) = catalog(provider, libraries = listOf(mixed))
 
         val addon = catalog.addons.first().single()
-        assertEquals(listOf("resume", "90", "search.movie", "search.series"), addon.catalogs.map { it.id })
-        assertEquals(listOf("search.movie", "search.series"), catalog.searchAddons.first().single().catalogs.map { it.id })
+        assertEquals(
+            listOf("resume", "90", "search.movie", "search.series"),
+            addon.catalogs.map {
+                it.id
+            }
+        )
+        assertEquals(
+            listOf("search.movie", "search.series"),
+            catalog.searchAddons.first().single().catalogs.map {
+                it.id
+            }
+        )
         catalog.page(connection, "search.movie", skip = 0, extra = mapOf("search" to "item"))
         assertEquals(listOf(ServerMediaKind.MOVIE to listOf("90")), provider.searches)
     }
@@ -129,10 +162,18 @@ class ServerCatalogTest {
     @Test
     fun collectionCardsOpenTheirContentsAsACatalog() = runTest {
         val (catalog, _, connection) = catalog(
-            libraries = listOf(FakeServerProvider.MOVIE_LIBRARY, FakeServerProvider.COLLECTION_LIBRARY)
+            libraries = listOf(
+                FakeServerProvider.MOVIE_LIBRARY,
+                FakeServerProvider.COLLECTION_LIBRARY
+            )
         )
         assertTrue(catalog.titleLibraries().none { it.library.kind == ServerMediaKind.COLLECTION })
-        assertTrue(catalog.searchAddons.first().single().catalogs.none { it.id == FakeServerProvider.COLLECTION_LIBRARY.id })
+        assertTrue(
+            catalog.searchAddons.first().single().catalogs.none {
+                it.id ==
+                    FakeServerProvider.COLLECTION_LIBRARY.id
+            }
+        )
 
         val ref = ServerItemRef(connection.id, "c-popular")
         assertTrue(ServerCatalog.isCollection(ref.encode(), "collection"))
@@ -153,12 +194,25 @@ class ServerCatalogTest {
         }
         val (catalog, repository, connection) = catalog(provider)
 
-        val native = catalog.page(connection, FakeServerProvider.MOVIE_LIBRARY.id, skip = 0).items.take(3)
+        val native = catalog.page(
+            connection,
+            FakeServerProvider.MOVIE_LIBRARY.id,
+            skip = 0
+        ).items.take(3)
         assertTrue(native.all { ServerItemRef.isServerId(it.id) })
 
         repository.setCatalogMetadata(connection.id, true)
-        val mapped = catalog.page(connection, FakeServerProvider.MOVIE_LIBRARY.id, skip = 0).items.take(3)
-        assertEquals(listOf("tmdb:278", "tmdb:550", ServerItemRef(connection.id, "2").encode()), mapped.map { it.id })
+        val mapped = catalog.page(
+            connection,
+            FakeServerProvider.MOVIE_LIBRARY.id,
+            skip = 0
+        ).items.take(3)
+        assertEquals(
+            listOf("tmdb:278", "tmdb:550", ServerItemRef(connection.id, "2").encode()),
+            mapped.map {
+                it.id
+            }
+        )
         assertEquals("tt0111161", mapped.first().imdbId)
         assertEquals("Item 0", mapped.first().name)
     }
@@ -174,16 +228,26 @@ class ServerCatalogTest {
         assertEquals("kitsu:3", title.catalogPreview(listOf(kitsu, cinemeta)).id)
         assertEquals("tt1", title.catalogPreview(listOf(cinemeta, kitsu)).id)
         assertEquals("tmdb:2", title.catalogPreview(listOf(metaAddon("mal", listOf("mal:")))).id)
-        assertEquals(title.preview.id, title.copy(externalIds = TrackingExternalIds(kitsu = 3)).catalogPreview(emptyList()).id)
+        assertEquals(
+            title.preview.id,
+            title.copy(externalIds = TrackingExternalIds(kitsu = 3)).catalogPreview(emptyList()).id
+        )
     }
 
     @Test
     fun collectionsKeepServerIdentity() {
         val collection = ServerTitle(
-            preview(ServerItemRef("c1", "b1").encode(), ContentType.UNKNOWN, rawType = "collection"),
+            preview(
+                ServerItemRef("c1", "b1").encode(),
+                ContentType.UNKNOWN,
+                rawType = "collection"
+            ),
             TrackingExternalIds(imdb = "tt1")
         )
-        assertEquals(collection.preview, collection.catalogPreview(listOf(metaAddon("any", emptyList()))))
+        assertEquals(
+            collection.preview,
+            collection.catalogPreview(listOf(metaAddon("any", emptyList())))
+        )
     }
 
     @Test
@@ -209,14 +273,26 @@ class ServerCatalogTest {
         val details = catalog.details(ServerItemRef(connection.id, FakeServerProvider.SHOW_ID))
         assertEquals("series", details.meta.apiType)
         assertFalse(details.externalIds.hasAny)
-        assertEquals(ServerItemRef(connection.id, FakeServerProvider.EPISODE_ID), ServerItemRef.parse(details.meta.videos.single().id))
+        assertEquals(
+            ServerItemRef(connection.id, FakeServerProvider.EPISODE_ID),
+            ServerItemRef.parse(details.meta.videos.single().id)
+        )
     }
 
     @Test
     fun unknownConnectionsFailAsNotFound() = runTest {
         val (catalog, _, _) = catalog()
         val failure = runCatching {
-            catalog.catalog(ServerCatalog.baseUrl("missing"), "server.missing", "", "10", "", "movie", 0, emptyMap())
+            catalog.catalog(
+                ServerCatalog.baseUrl("missing"),
+                "server.missing",
+                "",
+                "10",
+                "",
+                "movie",
+                0,
+                emptyMap()
+            )
         }.exceptionOrNull()
         assertEquals(ServerFailure.NOT_FOUND, failure?.serverFailure())
         assertNull(ServerCatalog.connectionId("https://addon.example"))
@@ -246,7 +322,9 @@ class ServerCatalogTest {
         baseUrl = "https://$id.example",
         catalogs = emptyList(),
         types = listOf(ContentType.MOVIE, ContentType.SERIES),
-        resources = listOf(AddonResource(name = "meta", types = listOf("movie", "series"), idPrefixes = prefixes)),
+        resources = listOf(
+            AddonResource(name = "meta", types = listOf("movie", "series"), idPrefixes = prefixes)
+        ),
         idPrefixes = prefixes
     )
 }

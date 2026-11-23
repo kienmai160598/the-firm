@@ -10,6 +10,10 @@ import com.kien.movies.data.local.LayoutPreferenceDataStore
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.ui.screens.home.ContinueWatchingItem
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.math.abs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -19,11 +23,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Singleton
-
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.abs
 
 @Singleton
 class TvRecommendationManager @Inject constructor(
@@ -67,6 +66,7 @@ class TvRecommendationManager @Inject constructor(
         val progressList = items.mapNotNull { item ->
             when (item) {
                 is ContinueWatchingItem.InProgress -> item.progress
+
                 is ContinueWatchingItem.NextUp -> WatchProgress(
                     contentId = item.info.contentId,
                     contentType = item.info.contentType,
@@ -94,7 +94,9 @@ class TvRecommendationManager @Inject constructor(
                 try {
                     val posterPattern = recommendationPosterPattern()
                     val decorated = items.withCustomPosterArt(posterPattern)
-                    val currentInternalIds = decorated.map { programBuilder.watchNextId(it) }.toSet()
+                    val currentInternalIds = decorated.map {
+                        programBuilder.watchNextId(it)
+                    }.toSet()
                     val existingInternalIds = programBuilder.getAllWatchNextInternalIds()
 
                     // Remove only stale programs that are no longer in CW
@@ -224,6 +226,5 @@ class TvRecommendationManager @Inject constructor(
         }
     }
 
-    private fun isTvDevice(): Boolean =
-        context.packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
+    private fun isTvDevice(): Boolean = context.packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
 }

@@ -54,7 +54,10 @@ class SiloProvider internal constructor(
     private val identity: ServerClientIdentity,
     private val now: () -> Long
 ) : ServerProvider {
-    constructor(http: OkHttpClient, identity: ServerClientIdentity) : this(http, identity, System::currentTimeMillis)
+    constructor(
+        http: OkHttpClient,
+        identity: ServerClientIdentity
+    ) : this(http, identity, System::currentTimeMillis)
 
     override val id: String = ID
     override val displayName: String = "Silo"
@@ -75,7 +78,9 @@ class SiloProvider internal constructor(
     private val legacyQuality: MutableSet<String> = ConcurrentHashMap.newKeySet()
     private val traversals = Collections.synchronizedMap(
         object : LinkedHashMap<String, Traversal>(16, 0.75f, true) {
-            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Traversal>?): Boolean = size > MAX_TRAVERSALS
+            override fun removeEldestEntry(
+                eldest: MutableMap.MutableEntry<String, Traversal>?
+            ): Boolean = size > MAX_TRAVERSALS
         }
     )
 
@@ -86,15 +91,22 @@ class SiloProvider internal constructor(
         return coroutineScope {
             val serverId = async { serverId(address) }
             val providers = async { get(address, PROVIDERS_PATH, ProvidersWire.serializer()) }
-            val branding = async { optional { get(address, BRANDING_PATH, BrandingWire.serializer()) } }
-            val codes = async { optional { get(address, DEVICE_CAPABILITY_PATH, DeviceCapabilityWire.serializer()) } }
+            val branding =
+                async { optional { get(address, BRANDING_PATH, BrandingWire.serializer()) } }
+            val codes =
+                async {
+                    optional {
+                        get(address, DEVICE_CAPABILITY_PATH, DeviceCapabilityWire.serializer())
+                    }
+                }
             val methods = providers.await()
             val capability = codes.await()
             SiloServer(
                 address = address,
                 serverId = serverId.await(),
                 name = branding.await()?.serverName?.takeIf { it.isNotBlank() } ?: displayName,
-                passwordSignIn = methods.passwordLogin || methods.items.any { it.mode == "credentials" },
+                passwordSignIn =
+                    methods.passwordLogin || methods.items.any { it.mode == "credentials" },
                 codeSignIn = capability == null || capability.state == "available",
                 cancelsCodes = capability?.cancel ?: true
             )
@@ -111,7 +123,11 @@ class SiloProvider internal constructor(
             DeviceStartBody.serializer(),
             DeviceStartBody(client.deviceName.take(DEVICE_NAME_MAX))
         )
-        if (reply.deviceCode.isBlank() || reply.userCode.isBlank()) throw ServerException(ServerFailure.FAILED)
+        if (reply.deviceCode.isBlank() ||
+            reply.userCode.isBlank()
+        ) {
+            throw ServerException(ServerFailure.FAILED)
+        }
         return SiloCode(
             deviceCode = reply.deviceCode,
             userCode = reply.userCode,
@@ -125,19 +141,41 @@ class SiloProvider internal constructor(
 
     suspend fun pollCode(server: SiloServer, code: SiloCode): SiloCodeStatus {
         val reply = try {
-            send("POST", server.address, DEVICE_POLL_PATH, DevicePollWire.serializer(), DeviceCodeBody.serializer(), DeviceCodeBody(code.deviceCode))
+            send(
+                "POST",
+                server.address,
+                DEVICE_POLL_PATH,
+                DevicePollWire.serializer(),
+                DeviceCodeBody.serializer(),
+                DeviceCodeBody(code.deviceCode)
+            )
         } catch (error: ServerException) {
-            if (error.failure == ServerFailure.NOT_FOUND) return SiloCodeStatus.Ended(SiloCodeEnd.EXPIRED)
+            if (error.failure ==
+                ServerFailure.NOT_FOUND
+            ) {
+                return SiloCodeStatus.Ended(SiloCodeEnd.EXPIRED)
+            }
             throw error
         }
         val pollAfterMs = (reply.pollAfter ?: 0L).times(1_000L).coerceAtLeast(code.pollEveryMs)
         return when (reply.status) {
-            "pending" -> SiloCodeStatus.Waiting(reply.opened, movedExpiry(code, reply.expiresAt), pollAfterMs)
-            "approved" -> reply.tokens?.let { SiloCodeStatus.Approved(it.toTokens()) } ?: SiloCodeStatus.Ended(SiloCodeEnd.USED)
+            "pending" -> SiloCodeStatus.Waiting(
+                reply.opened,
+                movedExpiry(code, reply.expiresAt),
+                pollAfterMs
+            )
+
+            "approved" -> reply.tokens?.let { SiloCodeStatus.Approved(it.toTokens()) }
+                ?: SiloCodeStatus.Ended(SiloCodeEnd.USED)
+
             "denied" -> SiloCodeStatus.Ended(SiloCodeEnd.DENIED)
+
             "canceled" -> SiloCodeStatus.Ended(SiloCodeEnd.CANCELED)
+
             "consumed" -> SiloCodeStatus.Ended(SiloCodeEnd.USED)
+
             "expired" -> SiloCodeStatus.Ended(SiloCodeEnd.EXPIRED)
+
             else -> SiloCodeStatus.Waiting(reply.opened, code.expiresAtMs, pollAfterMs)
         }
     }
@@ -154,13 +192,28 @@ class SiloProvider internal constructor(
         if (!server.cancelsCodes) return
         withContext(NonCancellable) {
             runCatching {
-                send<DeviceCodeBody, Unit>("POST", server.address, DEVICE_CANCEL_PATH, null, DeviceCodeBody.serializer(), DeviceCodeBody(code.deviceCode))
+                send<DeviceCodeBody, Unit>(
+                    "POST",
+                    server.address,
+                    DEVICE_CANCEL_PATH,
+                    null,
+                    DeviceCodeBody.serializer(),
+                    DeviceCodeBody(code.deviceCode)
+                )
             }
         }
     }
 
     suspend fun passwordSignIn(server: SiloServer, username: String, password: String): SiloTokens {
-        val reply = send("POST", server.address, LOGIN_PATH, TokenPairWire.serializer(), LoginBody.serializer(), LoginBody(username.trim(), password))
+        val reply =
+            send(
+                "POST",
+                server.address,
+                LOGIN_PATH,
+                TokenPairWire.serializer(),
+                LoginBody.serializer(),
+                LoginBody(username.trim(), password)
+            )
         return reply.toTokens().also { checkUsable(server, it) }
     }
 
@@ -171,13 +224,19 @@ class SiloProvider internal constructor(
         throw SiloProblem(403, PASSWORD_CHANGE_REQUIRED).toServerException()
     }
 
-    suspend fun profiles(server: SiloServer, tokens: SiloTokens): List<SiloProfile> =
-        get(server.address, PROFILES_PATH, ProfilesWire.serializer(), bearer(tokens.access)).items
-            .filter { it.id.isNotBlank() }
-            .map { SiloProfile(it.id, it.name.ifBlank { it.id }, it.hasPin, it.isChild, it.isPrimary) }
+    suspend fun profiles(server: SiloServer, tokens: SiloTokens): List<SiloProfile> = get(server.address, PROFILES_PATH, ProfilesWire.serializer(), bearer(tokens.access)).items
+        .filter { it.id.isNotBlank() }
+        .map {
+            SiloProfile(it.id, it.name.ifBlank { it.id }, it.hasPin, it.isChild, it.isPrimary)
+        }
 
     /** The profile's token, or null when the PIN is wrong. */
-    suspend fun verifyPin(server: SiloServer, tokens: SiloTokens, profile: SiloProfile, pin: String): String? {
+    suspend fun verifyPin(
+        server: SiloServer,
+        tokens: SiloTokens,
+        profile: SiloProfile,
+        pin: String
+    ): String? {
         if (pin.isBlank()) return null
         val reply = send(
             "POST",
@@ -191,34 +250,46 @@ class SiloProvider internal constructor(
         return reply.profileToken?.takeIf { reply.valid && it.isNotBlank() }
     }
 
-    fun signIn(server: SiloServer, tokens: SiloTokens, profile: SiloProfile, profileToken: String?, profileCount: Int): ServerSignIn =
-        ServerSignIn(
-            address = server.address,
-            serverName = server.name,
-            serverId = server.serverId,
-            userId = "${tokens.userId}/${profile.id}",
-            userName = if (profileCount > 1) "${tokens.userName} · ${profile.name}" else tokens.userName,
-            token = json.encodeToString(
-                SiloCredential.serializer(),
-                SiloCredential(
-                    access = tokens.access,
-                    refresh = tokens.refresh,
-                    issuedAtMs = tokens.issuedAtMs,
-                    accessExpiresAtMs = tokens.accessExpiresAtMs,
-                    profileId = profile.id,
-                    profileToken = profileToken?.takeIf { profile.hasPin },
-                    signInId = UUID.randomUUID().toString(),
-                    syncedAtMs = tokens.issuedAtMs
-                )
+    fun signIn(
+        server: SiloServer,
+        tokens: SiloTokens,
+        profile: SiloProfile,
+        profileToken: String?,
+        profileCount: Int
+    ): ServerSignIn = ServerSignIn(
+        address = server.address,
+        serverName = server.name,
+        serverId = server.serverId,
+        userId = "${tokens.userId}/${profile.id}",
+        userName = if (profileCount >
+            1
+        ) {
+            "${tokens.userName} · ${profile.name}"
+        } else {
+            tokens.userName
+        },
+        token = json.encodeToString(
+            SiloCredential.serializer(),
+            SiloCredential(
+                access = tokens.access,
+                refresh = tokens.refresh,
+                issuedAtMs = tokens.issuedAtMs,
+                accessExpiresAtMs = tokens.accessExpiresAtMs,
+                profileId = profile.id,
+                profileToken = profileToken?.takeIf { profile.hasPin },
+                signInId = UUID.randomUUID().toString(),
+                syncedAtMs = tokens.issuedAtMs
             )
         )
+    )
 
     /** Ends a sign-in that was never saved, so it doesn't stay in the server's list of devices. */
     suspend fun abandon(server: SiloServer, tokens: SiloTokens) = logout(server.address, tokens.access)
 
     /** Silo's own id for the server; a Silo too old for the identity document is known by its address. */
     private suspend fun serverId(address: String): String = try {
-        get(address, IDENTITY_PATH, IdentityWire.serializer()).serverId.takeIf { it.isNotBlank() } ?: throw notSilo()
+        get(address, IDENTITY_PATH, IdentityWire.serializer()).serverId.takeIf { it.isNotBlank() }
+            ?: throw notSilo()
     } catch (error: ServerException) {
         if (error.failure != ServerFailure.NOT_FOUND) throw error
         address
@@ -231,11 +302,17 @@ class SiloProvider internal constructor(
             val reply = try {
                 client.execute("GET", site, SYSTEM_INFO_PATH, allowRedirect = true)
             } catch (error: ServerException) {
-                if (error.failure == ServerFailure.UNREACHABLE || error.siloStatus == null) throw error
+                if (error.failure == ServerFailure.UNREACHABLE ||
+                    error.siloStatus == null
+                ) {
+                    throw error
+                }
                 throw notSilo()
             }
             if (reply.status !in 300..399) {
-                val info = runCatching { client.decode(SystemInfoWire.serializer(), reply.body) }.getOrNull()
+                val info = runCatching {
+                    client.decode(SystemInfoWire.serializer(), reply.body)
+                }.getOrNull()
                 if (info?.apiMajor == API_MAJOR) return site
                 throw notSilo()
             }
@@ -245,7 +322,8 @@ class SiloProvider internal constructor(
                 ?.let { normalizeServerAddress(it) }
                 ?.takeIf { moved ->
                     val next = moved.toHttpUrlOrNull()
-                    moved != site && next?.host == current?.host && !(current?.isHttps == true && next?.isHttps == false)
+                    moved != site && next?.host == current?.host &&
+                        !(current?.isHttps == true && next?.isHttps == false)
                 }
                 ?: throw notSilo()
         }
@@ -256,13 +334,23 @@ class SiloProvider internal constructor(
 
     // Browsing
 
-    override suspend fun libraries(session: ServerSession): List<ServerLibrary> =
-        get(session.address, USER_LIBRARIES_PATH, UserLibrariesWire.serializer(), authHeaders(session)).items
-            .sortedBy { it.sortOrder }
-            .mapNotNull { library ->
-                val kind = libraryKind(library.type) ?: return@mapNotNull null
-                ServerLibrary(id = library.id, name = library.name.ifBlank { library.id }, kind = kind)
-            }
+    override suspend fun libraries(session: ServerSession): List<ServerLibrary> = get(
+        session.address,
+        USER_LIBRARIES_PATH,
+        UserLibrariesWire.serializer(),
+        authHeaders(session)
+    ).items
+        .sortedBy { it.sortOrder }
+        .mapNotNull { library ->
+            val kind = libraryKind(library.type) ?: return@mapNotNull null
+            ServerLibrary(
+                id = library.id,
+                name = library.name.ifBlank {
+                    library.id
+                },
+                kind = kind
+            )
+        }
 
     override suspend fun libraryPage(
         session: ServerSession,
@@ -270,9 +358,21 @@ class SiloProvider internal constructor(
         start: Int,
         limit: Int
     ): ServerPage<ServerTitle> {
-        val page = catalogPage(session, "library", libraryQuery(library, library.kind, sort = "-added_at", "medium"), start, limit)
+        val page =
+            catalogPage(
+                session,
+                "library",
+                libraryQuery(library, library.kind, sort = "-added_at", "medium"),
+                start,
+                limit
+            )
         val mapper = mapper(session)
-        return ServerPage(page.items.mapNotNull(mapper::title), page.total.takeIf { page.totalExact })
+        return ServerPage(
+            page.items.mapNotNull(mapper::title),
+            page.total.takeIf {
+                page.totalExact
+            }
+        )
     }
 
     override suspend fun search(
@@ -304,10 +404,26 @@ class SiloProvider internal constructor(
 
     override suspend fun details(session: ServerSession, itemId: String): ServerItemDetails {
         val item = item(session, itemId, "large")
-        val episodes = if (siloKind(item.type) == ServerMediaKind.SERIES) episodes(session, itemId) else emptyList()
+        val episodes = if (siloKind(item.type) ==
+            ServerMediaKind.SERIES
+        ) {
+            episodes(session, itemId)
+        } else {
+            emptyList()
+        }
         val mapper = mapper(session)
-        val states = if (episodes.isEmpty()) listOfNotNull(mapper.userState(item)) else episodes.mapNotNull(mapper::userState)
-        return ServerItemDetails(meta = mapper.details(item, episodes), externalIds = item.externalIds(), userStates = states)
+        val states = if (episodes.isEmpty()) {
+            listOfNotNull(
+                mapper.userState(item)
+            )
+        } else {
+            episodes.mapNotNull(mapper::userState)
+        }
+        return ServerItemDetails(
+            meta = mapper.details(item, episodes),
+            externalIds = item.externalIds(),
+            userStates = states
+        )
     }
 
     override suspend fun setPlayed(session: ServerSession, itemId: String, played: Boolean) {
@@ -324,8 +440,16 @@ class SiloProvider internal constructor(
 
     /** The profile's Continue Watching row from Silo's Home, without the next-up episodes the app works out itself. */
     override suspend fun resumeItems(session: ServerSession, limit: Int): List<ServerTitle> {
-        val layout = get(session.address, HOME_LAYOUT_PATH, HomeLayoutWire.serializer(), authHeaders(session))
-        val section = layout.sections.firstOrNull { it.sectionType == "continue_watching" } ?: return emptyList()
+        val layout =
+            get(
+                session.address,
+                HOME_LAYOUT_PATH,
+                HomeLayoutWire.serializer(),
+                authHeaders(session)
+            )
+        val section =
+            layout.sections.firstOrNull { it.sectionType == "continue_watching" }
+                ?: return emptyList()
         val items = get(
             session.address,
             "$HOME_SECTIONS_PATH/${pathSegment(section.id)}/items",
@@ -357,7 +481,14 @@ class SiloProvider internal constructor(
         var total: Int? = null
         while (entries.size < limit) {
             val size = minOf(CATALOG_MAX, limit - entries.size)
-            val page = catalogPage(session, "index", libraryQuery(library, library.kind, sort = "title", "small"), start + entries.size, size)
+            val page =
+                catalogPage(
+                    session,
+                    "index",
+                    libraryQuery(library, library.kind, sort = "title", "small"),
+                    start + entries.size,
+                    size
+                )
             entries += page.items.map(mapper::indexEntry)
             total = page.total.takeIf { page.totalExact }
             if (page.items.size < size || page.page?.hasMore != true) break
@@ -366,8 +497,18 @@ class SiloProvider internal constructor(
     }
 
     /** Silo names most titles after an external id, so a title is usually one read away; otherwise a title search. */
-    override suspend fun lookupTitle(session: ServerSession, library: ServerLibrary, query: ServerTitleQuery): List<ServerIndexEntry> {
-        val kinds = if (library.kind == ServerMediaKind.MIXED) listOf(ServerMediaKind.MOVIE, ServerMediaKind.SERIES) else listOf(library.kind)
+    override suspend fun lookupTitle(
+        session: ServerSession,
+        library: ServerLibrary,
+        query: ServerTitleQuery
+    ): List<ServerIndexEntry> {
+        val kinds = if (library.kind ==
+            ServerMediaKind.MIXED
+        ) {
+            listOf(ServerMediaKind.MOVIE, ServerMediaKind.SERIES)
+        } else {
+            listOf(library.kind)
+        }
         for (contentId in kinds.flatMap { contentIdCandidates(it, query.ids) }) {
             val item = try {
                 item(session, contentId, "small")
@@ -375,7 +516,12 @@ class SiloProvider internal constructor(
                 if (error.failure == ServerFailure.NOT_FOUND) continue
                 throw error
             }
-            if (library.holds(siloKind(item.type) ?: continue)) return listOf(ServerIndexEntry(item.contentId, item.externalIds(), item.year))
+            if (library.holds(
+                    siloKind(item.type) ?: continue
+                )
+            ) {
+                return listOf(ServerIndexEntry(item.contentId, item.externalIds(), item.year))
+            }
         }
         val name = query.name?.trim()?.takeIf { it.isNotEmpty() } ?: return emptyList()
         val reply = get(
@@ -389,14 +535,23 @@ class SiloProvider internal constructor(
             )
         )
         val mapper = mapper(session)
-        return reply.items.filter { item -> siloKind(item.type)?.let(library::holds) == true }.map(mapper::indexEntry)
+        return reply.items.filter { item ->
+            siloKind(item.type)?.let(library::holds) == true
+        }.map(mapper::indexEntry)
     }
 
-    override suspend fun findEpisode(session: ServerSession, seriesItemId: String, season: Int, episode: Int): ServerEpisode? {
+    override suspend fun findEpisode(
+        session: ServerSession,
+        seriesItemId: String,
+        season: Int,
+        episode: Int
+    ): ServerEpisode? {
         episodeContentId(seriesItemId, season, episode)?.let { contentId ->
             try {
                 val item = item(session, contentId, "small")
-                if (item.type.equals("episode", ignoreCase = true) && item.seasonNumber == season && item.episodeNumber == episode) {
+                if (item.type.equals("episode", ignoreCase = true) && item.seasonNumber == season &&
+                    item.episodeNumber == episode
+                ) {
                     return ServerEpisode(item.contentId, item.airDate)
                 }
             } catch (error: ServerException) {
@@ -404,7 +559,9 @@ class SiloProvider internal constructor(
             }
         }
         val match = try {
-            seasonEpisodes(session, seriesItemId, season).filter { it.episodeNumber == episode }.singleOrNull()
+            seasonEpisodes(session, seriesItemId, season).filter {
+                it.episodeNumber == episode
+            }.singleOrNull()
         } catch (error: ServerException) {
             if (error.failure == ServerFailure.NOT_FOUND) return null
             throw error
@@ -413,7 +570,10 @@ class SiloProvider internal constructor(
     }
 
     /** Fresh artwork links for [contentId]; Silo's signed links run out after a few hours. */
-    internal suspend fun freshArtwork(session: ServerSession, contentId: String): Map<SiloArtworkKind, String> {
+    internal suspend fun freshArtwork(
+        session: ServerSession,
+        contentId: String
+    ): Map<SiloArtworkKind, String> {
         val item = item(session, contentId, "medium")
         val mapper = mapper(session)
         return buildMap {
@@ -423,14 +583,17 @@ class SiloProvider internal constructor(
         }
     }
 
-    private suspend fun item(session: ServerSession, contentId: String, imageSize: String): CatalogItemWire =
-        get(
-            session.address,
-            "$CATALOG_ITEMS_PATH/${pathSegment(contentId)}",
-            CatalogItemWire.serializer(),
-            authHeaders(session),
-            mapOf("image_size" to imageSize)
-        )
+    private suspend fun item(
+        session: ServerSession,
+        contentId: String,
+        imageSize: String
+    ): CatalogItemWire = get(
+        session.address,
+        "$CATALOG_ITEMS_PATH/${pathSegment(contentId)}",
+        CatalogItemWire.serializer(),
+        authHeaders(session),
+        mapOf("image_size" to imageSize)
+    )
 
     /** Every episode of a series, a few seasons at a time to stay inside Silo's request limit. */
     private suspend fun episodes(session: ServerSession, seriesId: String): List<EpisodeWire> {
@@ -442,23 +605,38 @@ class SiloProvider internal constructor(
             mapOf("include_artwork" to "false")
         ).items.map { it.seasonNumber }.distinct().sorted()
         return seasons.chunked(SEASONS_AT_ONCE).flatMap { chunk ->
-            coroutineScope { chunk.map { number -> async { seasonEpisodes(session, seriesId, number) } }.awaitAll() }.flatten()
+            coroutineScope {
+                chunk.map { number ->
+                    async { seasonEpisodes(session, seriesId, number) }
+                }.awaitAll()
+            }.flatten()
         }
     }
 
-    private suspend fun seasonEpisodes(session: ServerSession, seriesId: String, season: Int): List<EpisodeWire> =
-        get(
-            session.address,
-            "$SERIES_PATH/${pathSegment(seriesId)}/seasons/$season/episodes",
-            EpisodesWire.serializer(),
-            authHeaders(session),
-            mapOf("image_size" to "small")
-        ).items.filter { it.contentId.isNotBlank() }
+    private suspend fun seasonEpisodes(
+        session: ServerSession,
+        seriesId: String,
+        season: Int
+    ): List<EpisodeWire> = get(
+        session.address,
+        "$SERIES_PATH/${pathSegment(seriesId)}/seasons/$season/episodes",
+        EpisodesWire.serializer(),
+        authHeaders(session),
+        mapOf("image_size" to "small")
+    ).items.filter { it.contentId.isNotBlank() }
 
-    private fun libraryQuery(library: ServerLibrary, kind: ServerMediaKind, sort: String?, imageSize: String): Map<String, String?> = mapOf(
+    private fun libraryQuery(
+        library: ServerLibrary,
+        kind: ServerMediaKind,
+        sort: String?,
+        imageSize: String
+    ): Map<String, String?> = mapOf(
         "source" to "query",
         "library_id" to library.id,
-        "type" to kind.takeIf { it == ServerMediaKind.MOVIE || it == ServerMediaKind.SERIES }?.contentType,
+        "type" to
+            kind.takeIf {
+                it == ServerMediaKind.MOVIE || it == ServerMediaKind.SERIES
+            }?.contentType,
         "sort" to sort,
         "image_size" to imageSize
     )
@@ -474,21 +652,43 @@ class SiloProvider internal constructor(
         start: Int,
         limit: Int
     ): CatalogPageWire {
-        val key = listOf(session.connection.id, profileId(session), purpose, query.toString(), limit).joinToString("|")
+        val key = listOf(
+            session.connection.id,
+            profileId(session),
+            purpose,
+            query.toString(),
+            limit
+        ).joinToString("|")
         val pageQuery = query + ("limit" to limit.toString())
         repeat(2) { attempt ->
-            val traversal = traversals[key]?.takeIf { now() - it.createdAtMs < TRAVERSAL_TTL_MS } ?: Traversal(now())
+            val traversal =
+                traversals[key]?.takeIf { now() - it.createdAtMs < TRAVERSAL_TTL_MS }
+                    ?: Traversal(now())
             if (traversals[key] !== traversal) traversals[key] = traversal
             val position: Map<String, String?> = when {
                 start == 0 -> emptyMap()
+
                 traversal.cursors[start] != null -> mapOf("cursor" to traversal.cursors[start])
+
                 else -> mapOf(
-                    "cursor" to (traversal.window ?: catalogPage(session, purpose, query, 0, limit).let { traversals[key]?.window }),
+                    "cursor" to
+                        (
+                            traversal.window
+                                ?: catalogPage(session, purpose, query, 0, limit).let {
+                                    traversals[key]?.window
+                                }
+                            ),
                     "seek" to start.toString()
                 )
             }
             val reply = try {
-                get(session.address, CATALOG_PATH, CatalogPageWire.serializer(), authHeaders(session), pageQuery + position)
+                get(
+                    session.address,
+                    CATALOG_PATH,
+                    CatalogPageWire.serializer(),
+                    authHeaders(session),
+                    pageQuery + position
+                )
             } catch (error: ServerException) {
                 if (error.siloCode != "invalid_cursor" || attempt > 0) throw error
                 traversals.remove(key)
@@ -512,16 +712,20 @@ class SiloProvider internal constructor(
 
     // Playback
 
-    override suspend fun candidates(session: ServerSession, itemId: String): List<ServerCandidate> =
-        mapper(session).candidates(itemId, watchState(session, itemId).versions)
+    override suspend fun candidates(session: ServerSession, itemId: String): List<ServerCandidate> = mapper(session).candidates(itemId, watchState(session, itemId).versions)
 
-    override suspend fun preparePlayback(session: ServerSession, request: ServerPlaybackRequest): ServerPlaybackSession {
+    override suspend fun preparePlayback(
+        session: ServerSession,
+        request: ServerPlaybackRequest
+    ): ServerPlaybackSession {
         val credential = credential(session)
         val itemId = request.target.item.itemId
         val installationId = installationId(session)
         val state = watchState(session, itemId)
         val fileId = request.target.mediaSourceId
-            ?: state.userData?.lastFileId?.takeIf { last -> state.versions.any { it.fileId == last } }
+            ?: state.userData?.lastFileId?.takeIf { last ->
+                state.versions.any { it.fileId == last }
+            }
             ?: state.versions.firstOrNull()?.fileId
             ?: throw ServerException(ServerFailure.NOT_FOUND)
         val attemptId = UUID.randomUUID().toString()
@@ -548,11 +752,22 @@ class SiloProvider internal constructor(
                 throw error
             }
             body = startBody(legacy = true)
-            sendPlayback(session, "POST", PLAYBACK_START_PATH, body, DecisionWire.serializer()).also { legacyQuality += key }
+            sendPlayback(
+                session,
+                "POST",
+                PLAYBACK_START_PATH,
+                body,
+                DecisionWire.serializer()
+            ).also {
+                legacyQuality +=
+                    key
+            }
         }
         val started = decision.plan
         val startedSession = decision.sessionId
-        if (decision.outcome != "playable" || started == null || startedSession.isNullOrBlank() || started.stream.url.isBlank()) {
+        if (decision.outcome != "playable" || started == null || startedSession.isNullOrBlank() ||
+            started.stream.url.isBlank()
+        ) {
             if (decision.terminal?.reason == INSTALLATION_CHANGED) installations.remove(key)
             throw ServerException(ServerFailure.UNSUPPORTED, decision.terminal?.reason)
         }
@@ -581,11 +796,16 @@ class SiloProvider internal constructor(
             }
         val selectedAudio = plan.selectedTracks.audio?.index
         val selectedSubtitle = plan.selectedTracks.subtitle?.index
-        plays[sessionId] = SiloPlayState(installationId, itemId, plan.timeline.timelineOffsetSeconds)
+        plays[sessionId] =
+            SiloPlayState(installationId, itemId, plan.timeline.timelineOffsetSeconds)
         return ServerPlaybackSession(
             target = ServerPlaybackTarget(request.target.item, effectiveFile),
             mediaSourceId = effectiveFile,
-            url = playbackUrl(session, plan.stream.url) ?: throw ServerException(ServerFailure.FAILED),
+            url =
+                playbackUrl(
+                    session,
+                    plan.stream.url
+                ) ?: throw ServerException(ServerFailure.FAILED),
             headers = headers,
             subtitles = subtitles,
             playSessionId = sessionId,
@@ -593,7 +813,10 @@ class SiloProvider internal constructor(
             audioTracks = version?.audioTracks.orEmpty().mapIndexed { index, track ->
                 ServerTrack(index, track.label(), track.language, selected = index == selectedAudio)
             },
-            burnInSubtitles = plan.subtitle.inventory.filter { it.delivery == "burn_in_only" && !it.unplayable() }.map { entry ->
+            burnInSubtitles = plan.subtitle.inventory.filter {
+                it.delivery == "burn_in_only" &&
+                    !it.unplayable()
+            }.map { entry ->
                 ServerTrack(
                     entry.combinedIndex,
                     entry.label ?: entry.language ?: entry.combinedIndex.toString(),
@@ -627,21 +850,33 @@ class SiloProvider internal constructor(
             attempted += plan.planAttemptKey
             val body = siloReplanBody(start, plan, attempted, UUID.randomUUID().toString())
             val next = try {
-                sendPlayback(session, "POST", "$PLAYBACK_PATH/${pathSegment(current.first)}/replan", body, DecisionWire.serializer())
+                sendPlayback(
+                    session,
+                    "POST",
+                    "$PLAYBACK_PATH/${pathSegment(current.first)}/replan",
+                    body,
+                    DecisionWire.serializer()
+                )
             } catch (_: ServerException) {
                 break
             }
-            val nextPlan = next.plan?.takeIf { next.outcome == "playable" && it.stream.url.isNotBlank() } ?: break
+            val nextPlan =
+                next.plan?.takeIf { next.outcome == "playable" && it.stream.url.isNotBlank() }
+                    ?: break
             current = (next.sessionId?.takeIf { it.isNotBlank() } ?: current.first) to nextPlan
         }
         return current
     }
 
-    private fun PlanWire.needsSeekableRoute(): Boolean =
-        !timeline.canSeekAnywhere && delivery.startsWith("server_remux") && (source.durationSeconds ?: 0.0) > 0.0 &&
-            planId.isNotBlank() && planAttemptKey.isNotBlank()
+    private fun PlanWire.needsSeekableRoute(): Boolean = !timeline.canSeekAnywhere && delivery.startsWith("server_remux") &&
+        (source.durationSeconds ?: 0.0) > 0.0 &&
+        planId.isNotBlank() && planAttemptKey.isNotBlank()
 
-    override suspend fun report(session: ServerSession, playback: ServerPlaybackSession, event: ServerPlaybackEvent) {
+    override suspend fun report(
+        session: ServerSession,
+        playback: ServerPlaybackSession,
+        event: ServerPlaybackEvent
+    ) {
         val sessionId = playback.playSessionId ?: return
         val state = plays[sessionId] ?: return
         val position = event.positionMs.coerceAtLeast(0L) / 1_000.0 + state.timelineOffsetSeconds
@@ -649,25 +884,45 @@ class SiloProvider internal constructor(
         try {
             when (event.type) {
                 ServerPlaybackEventType.START -> Unit
+
                 ServerPlaybackEventType.STOP -> {
                     try {
-                        stopWithRetries(session, path, siloStopBody(state.installationId, UUID.randomUUID().toString(), state.nextSequence(), position))
+                        stopWithRetries(
+                            session,
+                            path,
+                            siloStopBody(
+                                state.installationId,
+                                UUID.randomUUID().toString(),
+                                state.nextSequence(),
+                                position
+                            )
+                        )
                     } catch (error: ServerException) {
                         if (error.failure != ServerFailure.AUTH_REQUIRED) plays.remove(sessionId)
                         throw error
                     }
                     plays.remove(sessionId)
                 }
+
                 else -> sendPlayback<Unit>(
                     session,
                     "POST",
                     "$path/progress",
-                    siloProgressBody(state.installationId, state.nextSequence(), position, event.isPaused),
+                    siloProgressBody(
+                        state.installationId,
+                        state.nextSequence(),
+                        position,
+                        event.isPaused
+                    ),
                     null
                 )
             }
         } catch (error: ServerException) {
-            if (error.failure != ServerFailure.NOT_FOUND && error.siloStatus != SESSION_ENDED_STATUS) throw error
+            if (error.failure != ServerFailure.NOT_FOUND &&
+                error.siloStatus != SESSION_ENDED_STATUS
+            ) {
+                throw error
+            }
             plays.remove(sessionId)
         }
     }
@@ -679,25 +934,43 @@ class SiloProvider internal constructor(
                 sendPlayback<Unit>(session, "DELETE", path, body, null)
                 return
             } catch (error: ServerException) {
-                if (error.failure != ServerFailure.UNREACHABLE || attempt == STOP_TRIES - 1) throw error
+                if (error.failure != ServerFailure.UNREACHABLE ||
+                    attempt == STOP_TRIES - 1
+                ) {
+                    throw error
+                }
                 delay(STOP_RETRY_MS * (attempt + 1))
             }
         }
     }
 
-    private suspend fun watchState(session: ServerSession, itemId: String): WatchStateWire =
-        get(session.address, "$WATCH_PATH/${pathSegment(itemId)}", WatchStateWire.serializer(), authHeaders(session) + client.deviceHeaders)
+    private suspend fun watchState(session: ServerSession, itemId: String): WatchStateWire = get(
+        session.address,
+        "$WATCH_PATH/${pathSegment(itemId)}",
+        WatchStateWire.serializer(),
+        authHeaders(session) + client.deviceHeaders
+    )
 
     /** The server's playback installation, which every playback call carries; Silo playback switched off or too old says so. */
     private suspend fun installationId(session: ServerSession): String {
         val key = cacheKey(session)
         installations[key]?.let { return it }
-        val document = capabilityCache[key]?.takeIf { now() - it.first < CAPABILITIES_TTL_MS }?.second
-            ?: get(session.address, PLAYBACK_CAPABILITIES_PATH, PlaybackCapabilitiesWire.serializer(), authHeaders(session))
-                .also { capabilityCache[key] = now() to it }
-        val usable = document.state == "available" && document.allowed && PLAYBACK_PROTOCOL in document.protocolVersions &&
-            "sequenced_progress_v1" in document.features
-        val id = document.installationId?.takeIf { usable && it.isNotBlank() } ?: throw ServerException(ServerFailure.UNSUPPORTED)
+        val document =
+            capabilityCache[key]?.takeIf { now() - it.first < CAPABILITIES_TTL_MS }?.second
+                ?: get(
+                    session.address,
+                    PLAYBACK_CAPABILITIES_PATH,
+                    PlaybackCapabilitiesWire.serializer(),
+                    authHeaders(session)
+                )
+                    .also { capabilityCache[key] = now() to it }
+        val usable =
+            document.state == "available" && document.allowed &&
+                PLAYBACK_PROTOCOL in document.protocolVersions &&
+                "sequenced_progress_v1" in document.features
+        val id =
+            document.installationId?.takeIf { usable && it.isNotBlank() }
+                ?: throw ServerException(ServerFailure.UNSUPPORTED)
         installations[key] = id
         return id
     }
@@ -710,7 +983,13 @@ class SiloProvider internal constructor(
         reply: DeserializationStrategy<T>?
     ): T {
         val response = try {
-            client.execute(method, session.address, path, authHeaders(session) + client.deviceHeaders, body = body.toString())
+            client.execute(
+                method,
+                session.address,
+                path,
+                authHeaders(session) + client.deviceHeaders,
+                body = body.toString()
+            )
         } catch (error: ServerException) {
             if (error.siloCode == INSTALLATION_CHANGED) installations.remove(cacheKey(session))
             throw error.profileLocked()
@@ -724,8 +1003,11 @@ class SiloProvider internal constructor(
     private fun playbackUrl(session: ServerSession, url: String?): String? {
         val value = url?.trim()?.takeIf { it.isNotEmpty() } ?: return null
         return when {
-            value.startsWith("http://", ignoreCase = true) || value.startsWith("https://", ignoreCase = true) -> value
+            value.startsWith("http://", ignoreCase = true) ||
+                value.startsWith("https://", ignoreCase = true) -> value
+
             value.startsWith("/") -> session.address.trimEnd('/') + value
+
             else -> null
         }
     }
@@ -745,7 +1027,13 @@ class SiloProvider internal constructor(
     /** Renewed once half the token's life has passed, so a play that starts now keeps a valid token to its end. */
     override fun renewalDue(session: ServerSession): Boolean {
         val credential = credentialOrNull(session.token) ?: return false
-        val halfLife = if (credential.issuedAtMs > 0) (credential.accessExpiresAtMs - credential.issuedAtMs) / 2 else RENEW_BEFORE_MS
+        val halfLife = if (credential.issuedAtMs >
+            0
+        ) {
+            (credential.accessExpiresAtMs - credential.issuedAtMs) / 2
+        } else {
+            RENEW_BEFORE_MS
+        }
         return now() >= credential.accessExpiresAtMs - halfLife.coerceAtLeast(RENEW_BEFORE_MS)
     }
 
@@ -755,9 +1043,20 @@ class SiloProvider internal constructor(
         val credential = credentialOrNull(session.token) ?: return null
         val startedAt = now()
         val reply = try {
-            send("POST", session.address, REFRESH_PATH, TokenPairWire.serializer(), RefreshBody.serializer(), RefreshBody(credential.refresh))
+            send(
+                "POST",
+                session.address,
+                REFRESH_PATH,
+                TokenPairWire.serializer(),
+                RefreshBody.serializer(),
+                RefreshBody(credential.refresh)
+            )
         } catch (error: ServerException) {
-            if (error.siloStatus in SIGNED_OUT) throw ServerException(ServerFailure.AUTH_REQUIRED, error.message)
+            if (error.siloStatus in
+                SIGNED_OUT
+            ) {
+                throw ServerException(ServerFailure.AUTH_REQUIRED, error.message)
+            }
             throw error
         }
         if (reply.accessToken.isBlank()) throw ServerException(ServerFailure.FAILED)
@@ -768,7 +1067,13 @@ class SiloProvider internal constructor(
                 refresh = reply.refreshToken.ifBlank { credential.refresh },
                 issuedAtMs = startedAt,
                 accessExpiresAtMs = startedAt + reply.expiresIn * 1_000L,
-                syncedAtMs = if (startedAt - credential.syncedAtMs >= ACCOUNT_REFRESH_MS) startedAt else credential.syncedAtMs
+                syncedAtMs = if (startedAt - credential.syncedAtMs >=
+                    ACCOUNT_REFRESH_MS
+                ) {
+                    startedAt
+                } else {
+                    credential.syncedAtMs
+                }
             )
         )
     }
@@ -789,8 +1094,7 @@ class SiloProvider internal constructor(
     }
 
     /** Refresh tokens last 30 days and older ones keep working, so the account only needs a fresh copy now and then. */
-    override fun renewalChangesAccount(previous: String, renewed: String): Boolean =
-        credentialOrNull(previous)?.syncedAtMs != credentialOrNull(renewed)?.syncedAtMs
+    override fun renewalChangesAccount(previous: String, renewed: String): Boolean = credentialOrNull(previous)?.syncedAtMs != credentialOrNull(renewed)?.syncedAtMs
 
     private fun authHeaders(session: ServerSession): Map<String, String> {
         val credential = credentialOrNull(session.token) ?: return emptyMap()
@@ -801,8 +1105,7 @@ class SiloProvider internal constructor(
         }
     }
 
-    private fun credential(session: ServerSession): SiloCredential =
-        credentialOrNull(session.token) ?: throw ServerException(ServerFailure.AUTH_REQUIRED)
+    private fun credential(session: ServerSession): SiloCredential = credentialOrNull(session.token) ?: throw ServerException(ServerFailure.AUTH_REQUIRED)
 
     internal fun credentialOrNull(token: String): SiloCredential? = try {
         json.decodeFromString(SiloCredential.serializer(), token)
@@ -814,7 +1117,9 @@ class SiloProvider internal constructor(
 
     private suspend fun logout(address: String, access: String) {
         withContext(NonCancellable) {
-            runCatching { send<Unit, Unit>("POST", address, LOGOUT_PATH, null, null, null, bearer(access)) }
+            runCatching {
+                send<Unit, Unit>("POST", address, LOGOUT_PATH, null, null, null, bearer(access))
+            }
         }
     }
 
@@ -851,7 +1156,13 @@ class SiloProvider internal constructor(
                 path,
                 headers,
                 query,
-                body = if (bodySerializer != null && body != null) json.encodeToString(bodySerializer, body) else null
+                body = if (bodySerializer != null &&
+                    body != null
+                ) {
+                    json.encodeToString(bodySerializer, body)
+                } else {
+                    null
+                }
             )
         } catch (error: ServerException) {
             throw error.profileLocked()
@@ -864,7 +1175,11 @@ class SiloProvider internal constructor(
     private fun bearer(access: String): Map<String, String> = mapOf(AUTHORIZATION to "Bearer $access")
 
     private fun TokenPairWire.toTokens(): SiloTokens {
-        if (accessToken.isBlank() || refreshToken.isBlank()) throw ServerException(ServerFailure.FAILED)
+        if (accessToken.isBlank() ||
+            refreshToken.isBlank()
+        ) {
+            throw ServerException(ServerFailure.FAILED)
+        }
         val account = user ?: throw ServerException(ServerFailure.FAILED)
         val issuedAt = now()
         return SiloTokens(
@@ -879,8 +1194,13 @@ class SiloProvider internal constructor(
     }
 
     /** A PIN profile Silo wants checked again (the account's access rules changed): the sign-in has to be renewed. */
-    private fun ServerException.profileLocked(): ServerException =
-        if (siloCode == PROFILE_VERIFICATION && failure != ServerFailure.AUTH_REQUIRED) ServerException(ServerFailure.AUTH_REQUIRED, message) else this
+    private fun ServerException.profileLocked(): ServerException = if (siloCode == PROFILE_VERIFICATION &&
+        failure != ServerFailure.AUTH_REQUIRED
+    ) {
+        ServerException(ServerFailure.AUTH_REQUIRED, message)
+    } else {
+        this
+    }
 
     internal companion object {
         const val ID = "silo"
@@ -940,7 +1260,9 @@ class SiloProvider internal constructor(
             else -> null
         }
 
-        fun parseInstant(value: String?): Long? = value?.let { runCatching { Instant.parse(it).toEpochMilli() }.getOrNull() }
+        fun parseInstant(value: String?): Long? = value?.let {
+            runCatching { Instant.parse(it).toEpochMilli() }.getOrNull()
+        }
 
         /** Why a sign-in was refused, for the message shown; null when Silo gave no reason the app knows. */
         fun signInProblem(error: Throwable): SiloSignInProblem? = when ((error as? ServerException)?.siloCode) {

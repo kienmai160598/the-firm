@@ -1,7 +1,5 @@
 package com.kien.movies.ui.screens.party
 
-import com.kien.movies.ui.screens.detail.atLeastOnBox
-import com.kien.movies.ui.screens.detail.TvSizeFloors
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.RepeatMode
@@ -53,6 +51,8 @@ import com.kien.movies.core.party.PartyMemberStatus
 import com.kien.movies.core.party.PartyPresence
 import com.kien.movies.core.party.PartyProfile
 import com.kien.movies.ui.components.ProfileAvatarCircle
+import com.kien.movies.ui.screens.detail.TvSizeFloors
+import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.delay
 
@@ -60,7 +60,7 @@ internal enum class PartyPresenceState {
     Watching,
     Busy,
     Away,
-    Offline,
+    Offline
 }
 
 @Composable
@@ -69,7 +69,7 @@ internal fun PartyAvatar(
     modifier: Modifier = Modifier,
     size: Dp = 44.dp,
     presence: PartyPresenceState? = null,
-    ringColor: Color = MoviesTheme.colors.Background,
+    ringColor: Color = MoviesTheme.colors.Background
 ) {
     PartyAvatar(
         name = member.displayName,
@@ -78,7 +78,7 @@ internal fun PartyAvatar(
         modifier = modifier,
         size = size,
         presence = presence,
-        ringColor = ringColor,
+        ringColor = ringColor
     )
 }
 
@@ -90,14 +90,14 @@ internal fun PartyAvatar(
     modifier: Modifier = Modifier,
     size: Dp = 44.dp,
     presence: PartyPresenceState? = null,
-    ringColor: Color = MoviesTheme.colors.Background,
+    ringColor: Color = MoviesTheme.colors.Background
 ) {
     Box(modifier = modifier.size(size)) {
         ProfileAvatarCircle(
             name = name,
             colorHex = color.orEmpty(),
             size = size,
-            avatarImageUrl = imageUrl,
+            avatarImageUrl = imageUrl
         )
         if (presence != null) {
             PresenceDot(
@@ -105,7 +105,7 @@ internal fun PartyAvatar(
                 ringColor = ringColor,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .size(size * 0.3f),
+                    .size(size * 0.3f)
             )
         }
     }
@@ -115,7 +115,7 @@ internal fun PartyAvatar(
 private fun PresenceDot(
     state: PartyPresenceState,
     ringColor: Color,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val accent = MoviesTheme.colors.Secondary
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
@@ -125,7 +125,7 @@ private fun PresenceDot(
                 initialValue = 0f,
                 targetValue = 1f,
                 animationSpec = infiniteRepeatable(tween(1100), RepeatMode.Restart),
-                label = "presencePulse",
+                label = "presencePulse"
             )
             Box(
                 modifier = Modifier
@@ -136,14 +136,14 @@ private fun PresenceDot(
                         alpha = 1f - pulse
                     }
                     .clip(CircleShape)
-                    .background(accent),
+                    .background(accent)
             )
         }
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(CircleShape)
-                .background(ringColor),
+                .background(ringColor)
         )
         Box(
             modifier = Modifier
@@ -151,11 +151,21 @@ private fun PresenceDot(
                 .clip(CircleShape)
                 .then(
                     when (state) {
-                        PartyPresenceState.Watching, PartyPresenceState.Busy -> Modifier.background(accent)
-                        PartyPresenceState.Away -> Modifier.background(MoviesTheme.colors.TextTertiary)
-                        PartyPresenceState.Offline -> Modifier.border(MoviesTheme.strokes.thin, MoviesTheme.colors.TextTertiary, CircleShape)
-                    },
-                ),
+                        PartyPresenceState.Watching, PartyPresenceState.Busy -> Modifier.background(
+                            accent
+                        )
+
+                        PartyPresenceState.Away -> Modifier.background(
+                            MoviesTheme.colors.TextTertiary
+                        )
+
+                        PartyPresenceState.Offline -> Modifier.border(
+                            MoviesTheme.strokes.thin,
+                            MoviesTheme.colors.TextTertiary,
+                            CircleShape
+                        )
+                    }
+                )
         )
     }
 }
@@ -166,7 +176,7 @@ internal fun AvatarStack(
     size: Dp,
     modifier: Modifier = Modifier,
     ringColor: Color = MoviesTheme.colors.Background,
-    animateIn: Boolean = false,
+    animateIn: Boolean = false
 ) {
     val shown = members.take(3)
     val extra = members.size - shown.size
@@ -175,25 +185,37 @@ internal fun AvatarStack(
     Box(modifier = modifier.width(size + step * (slots - 1).coerceAtLeast(0))) {
         shown.forEachIndexed { index, member ->
             key(member.id) {
-                StackSlot(index = index, slots = slots, step = step, ringColor = ringColor, animateIn = animateIn) {
+                StackSlot(
+                    index = index,
+                    slots = slots,
+                    step = step,
+                    ringColor = ringColor,
+                    animateIn = animateIn
+                ) {
                     PartyAvatar(member = member, size = size)
                 }
             }
         }
         if (extra > 0) {
-            StackSlot(index = shown.size, slots = slots, step = step, ringColor = ringColor, animateIn = animateIn) {
+            StackSlot(
+                index = shown.size,
+                slots = slots,
+                step = step,
+                ringColor = ringColor,
+                animateIn = animateIn
+            ) {
                 Box(
                     modifier = Modifier
                         .size(size)
                         .clip(CircleShape)
                         .background(MoviesTheme.colors.BackgroundCard),
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "+$extra",
                         color = MoviesTheme.colors.TextPrimary,
                         fontSize = (size.value * 0.36f).sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -208,7 +230,7 @@ private fun StackSlot(
     step: Dp,
     ringColor: Color,
     animateIn: Boolean,
-    content: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
     val scale = remember { Animatable(if (animateIn) 0f else 1f) }
     if (animateIn) {
@@ -225,17 +247,14 @@ private fun StackSlot(
                 scaleX = scale.value
                 scaleY = scale.value
             }
-            .border(MoviesTheme.strokes.medium, ringColor, CircleShape),
+            .border(MoviesTheme.strokes.medium, ringColor, CircleShape)
     ) {
         content()
     }
 }
 
 @Composable
-internal fun OpenSeat(
-    size: Dp,
-    modifier: Modifier = Modifier,
-) {
+internal fun OpenSeat(size: Dp, modifier: Modifier = Modifier) {
     val outline = MoviesTheme.colors.TextTertiary
     Box(
         modifier = modifier
@@ -246,17 +265,19 @@ internal fun OpenSeat(
                     radius = this.size.minDimension / 2f - 1.dp.toPx(),
                     style = Stroke(
                         width = MoviesTheme.strokes.thin.toPx(),
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 4.dp.toPx())),
-                    ),
+                        pathEffect = PathEffect.dashPathEffect(
+                            floatArrayOf(5.dp.toPx(), 4.dp.toPx())
+                        )
+                    )
                 )
             },
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = Icons.Rounded.Add,
             contentDescription = null,
             tint = MoviesTheme.colors.TextSecondary,
-            modifier = Modifier.size(size * 0.42f),
+            modifier = Modifier.size(size * 0.42f)
         )
     }
 }
@@ -266,7 +287,7 @@ internal fun SeatsHero(
     profile: PartyProfile,
     size: Dp,
     ringColor: Color,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val step = size * 0.72f
     Box(modifier = modifier.width(size + step * 2)) {
@@ -279,7 +300,7 @@ internal fun SeatsHero(
             size = size,
             modifier = Modifier
                 .zIndex(1f)
-                .border(MoviesTheme.strokes.heavy, ringColor, CircleShape),
+                .border(MoviesTheme.strokes.heavy, ringColor, CircleShape)
         )
     }
 }
@@ -291,14 +312,14 @@ internal fun PulsingDot() {
         initialValue = 1f,
         targetValue = 0.25f,
         animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
-        label = "pulsingDotAlpha",
+        label = "pulsingDotAlpha"
     )
     Box(
         modifier = Modifier
             .size(8.dp)
             .alpha(alpha)
             .clip(CircleShape)
-            .background(MoviesTheme.colors.Secondary),
+            .background(MoviesTheme.colors.Secondary)
     )
 }
 
@@ -308,7 +329,7 @@ internal fun PartyNote(text: String, modifier: Modifier = Modifier) {
         text = text,
         style = MaterialTheme.typography.bodyMedium,
         color = MoviesTheme.colors.TextTertiary,
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -317,12 +338,11 @@ internal fun ExperimentalNote() {
     Text(
         text = stringResource(R.string.party_experimental),
         style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-        color = MoviesTheme.colors.TextTertiary,
+        color = MoviesTheme.colors.TextTertiary
     )
 }
 
-private fun ActiveParty.presenceOf(member: PartyMember): PartyPresence? =
-    presence[member.id] ?: PartyPresence(memberId = member.id).takeIf { member.id == memberId }
+private fun ActiveParty.presenceOf(member: PartyMember): PartyPresence? = presence[member.id] ?: PartyPresence(memberId = member.id).takeIf { member.id == memberId }
 
 internal fun ActiveParty.presenceState(member: PartyMember): PartyPresenceState {
     val presence = presenceOf(member) ?: return PartyPresenceState.Offline
@@ -334,10 +354,9 @@ internal fun ActiveParty.presenceState(member: PartyMember): PartyPresenceState 
     }
 }
 
-internal fun ActiveParty.behindMs(member: PartyMember): Long? =
-    presenceOf(member)
-        ?.takeIf { it.status == PartyMemberStatus.Behind && it.mediaKey == media.key }
-        ?.let { it.behindMs ?: 0L }
+internal fun ActiveParty.behindMs(member: PartyMember): Long? = presenceOf(member)
+    ?.takeIf { it.status == PartyMemberStatus.Behind && it.mediaKey == media.key }
+    ?.let { it.behindMs ?: 0L }
 
 @get:StringRes
 internal val PartyError.messageRes: Int

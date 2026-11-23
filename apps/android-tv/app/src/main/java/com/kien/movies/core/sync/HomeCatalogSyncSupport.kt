@@ -1,11 +1,11 @@
 package com.kien.movies.core.sync
 
 import com.kien.movies.data.mediaserver.ServerCatalog
-import com.kien.movies.domain.model.catalogTypeKey
-import com.kien.movies.domain.model.catalogRowLegacyKey
 import com.kien.movies.domain.model.Addon
 import com.kien.movies.domain.model.CatalogDescriptor
 import com.kien.movies.domain.model.Collection
+import com.kien.movies.domain.model.catalogRowLegacyKey
+import com.kien.movies.domain.model.catalogTypeKey
 import com.kien.movies.domain.model.enabledAddons
 
 internal data class LocalHomeCatalogSettingsState(
@@ -31,15 +31,14 @@ internal fun homeCatalogKey(addonId: String, type: String, catalogId: String): S
 }
 
 internal fun homeCollectionKey(collectionId: String): String {
-    return "collection_${collectionId}"
+    return "collection_$collectionId"
 }
 
-internal fun List<String>.withLocalServerKeys(local: List<String>): List<String> =
-    local.withIndex()
-        .filter { ServerCatalog.isServerKey(it.value) }
-        .fold(filterNot(ServerCatalog::isServerKey).toMutableList()) { keys, (index, key) ->
-            keys.apply { add(index.coerceAtMost(size), key) }
-        }
+internal fun List<String>.withLocalServerKeys(local: List<String>): List<String> = local.withIndex()
+    .filter { ServerCatalog.isServerKey(it.value) }
+    .fold(filterNot(ServerCatalog::isServerKey).toMutableList()) { keys, (index, key) ->
+        keys.apply { add(index.coerceAtMost(size), key) }
+    }
 
 internal fun homeLegacyDisabledCatalogKey(
     addonBaseUrl: String,
@@ -47,7 +46,7 @@ internal fun homeLegacyDisabledCatalogKey(
     catalogId: String,
     catalogName: String
 ): String {
-    return "${addonBaseUrl}_${catalogTypeKey(type)}_${catalogId}_${catalogName}"
+    return "${addonBaseUrl}_${catalogTypeKey(type)}_${catalogId}_$catalogName"
 }
 
 internal fun hasLegacyHomeCatalogDisabledKeyFormat(key: String): Boolean {

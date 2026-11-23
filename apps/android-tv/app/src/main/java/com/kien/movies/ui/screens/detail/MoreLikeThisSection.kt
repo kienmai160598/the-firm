@@ -1,8 +1,7 @@
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.foundation.focusGroup
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,6 +34,7 @@ import androidx.tv.material3.Text
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.ui.components.GridContentCard
 import com.kien.movies.ui.components.PosterCardStyle
+import com.kien.movies.ui.theme.MoviesTheme
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -125,7 +124,15 @@ fun MoreLikeThisSection(
             state = listState,
             modifier = Modifier
                 .fillMaxWidth()
-                .then(if (sectionFocusRequester != null) Modifier.focusRequester(sectionFocusRequester) else Modifier)
+                .then(
+                    if (sectionFocusRequester !=
+                        null
+                    ) {
+                        Modifier.focusRequester(sectionFocusRequester)
+                    } else {
+                        Modifier
+                    }
+                )
                 .focusRestorer {
                     when {
                         restorePending -> restoreFocusRequester
@@ -145,8 +152,12 @@ fun MoreLikeThisSection(
                 val isFirstItem = index == 0
                 val focusRequester = when {
                     isRestoreTarget -> restoreFocusRequester
+
                     isFirstItem -> firstItemFocusRequester
-                    else -> remember(item.id) { itemFocusRequesters.getOrPut(item.id) { FocusRequester() } }
+
+                    else -> remember(item.id) {
+                        itemFocusRequesters.getOrPut(item.id) { FocusRequester() }
+                    }
                 }
 
                 Column(
@@ -193,7 +204,11 @@ fun MoreLikeThisSection(
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
                                 .width(landscapeStyle.width)
-                                .padding(start = MoviesTheme.spacing.xxs, end = MoviesTheme.spacing.xxs, top = MoviesTheme.spacing.xxs)
+                                .padding(
+                                    start = MoviesTheme.spacing.xxs,
+                                    end = MoviesTheme.spacing.xxs,
+                                    top = MoviesTheme.spacing.xxs
+                                )
                         )
                     }
                 }
@@ -211,7 +226,11 @@ fun MoreLikeThisSection(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .align(androidx.compose.ui.Alignment.End)
-                        .padding(end = 10.dp, top = MoviesTheme.spacing.xxs, bottom = MoviesTheme.spacing.xxs)
+                        .padding(
+                            end = 10.dp,
+                            top = MoviesTheme.spacing.xxs,
+                            bottom = MoviesTheme.spacing.xxs
+                        )
                 )
             }
     }

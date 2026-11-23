@@ -1,10 +1,10 @@
 package com.kien.movies.ui.screens.player
 
 import com.kien.movies.domain.model.Stream
+import java.net.URLEncoder
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import java.net.URLEncoder
 
 /**
  * Player route arguments for [stream], in the form [PlayerNavigationArgs.from] reads them back:
@@ -20,8 +20,7 @@ internal fun playerStreamRouteValues(
     episode: Int?,
     episodeTitle: String?
 ): Map<String, String> {
-    fun encoded(value: String?): String =
-        value?.let { URLEncoder.encode(it, "UTF-8").replace("+", "%20") } ?: ""
+    fun encoded(value: String?): String = value?.let { URLEncoder.encode(it, "UTF-8").replace("+", "%20") } ?: ""
 
     val hints = stream.behaviorHints
     return mapOf(

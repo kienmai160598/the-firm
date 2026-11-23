@@ -37,13 +37,21 @@ class StreamRedirectTargetTest {
 
     @Test
     fun `the requested query carried across the hop still matches`() {
-        val target = findRedirectTargetStream(listed, "Addon", "${base}0?player=tv", "${base}2?player=tv")
+        val target =
+            findRedirectTargetStream(listed, "Addon", "${base}0?player=tv", "${base}2?player=tv")
         assertEquals("1080p AC3", target?.name)
     }
 
     @Test
     fun `a redirect to an unlisted url such as a debrid cdn matches nothing`() {
-        assertNull(findRedirectTargetStream(listed, "Addon", "${base}0", "https://cdn.example.net/dl/file.mkv"))
+        assertNull(
+            findRedirectTargetStream(
+                listed,
+                "Addon",
+                "${base}0",
+                "https://cdn.example.net/dl/file.mkv"
+            )
+        )
     }
 
     @Test
@@ -55,6 +63,13 @@ class StreamRedirectTargetTest {
     @Test
     fun `a target that only differs in encoding from the request is not a redirect`() {
         val requested = "https://addon.example.com/token123/play/a b"
-        assertNull(findRedirectTargetStream(listed, "Addon", requested, "https://addon.example.com/token123/play/a%20b"))
+        assertNull(
+            findRedirectTargetStream(
+                listed,
+                "Addon",
+                requested,
+                "https://addon.example.com/token123/play/a%20b"
+            )
+        )
     }
 }

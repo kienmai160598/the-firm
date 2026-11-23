@@ -29,7 +29,7 @@ internal fun audioSyncSettingsItems(enabled: Boolean) {
         checked = fallbackOn,
         onToggle = { AudioSyncSettings.setFallbackEnabled(!fallbackOn) },
         enabled = enabled && autoSyncOn,
-        expandSubtitleOnFocus = true,
+        expandSubtitleOnFocus = true
     )
     if (autoSyncOn && fallbackOn) {
         val model by SubtitleSyncStatus.speechModel.collectAsStateWithLifecycle()
@@ -37,17 +37,31 @@ internal fun audioSyncSettingsItems(enabled: Boolean) {
         SettingsActionRow(
             title = stringResource(R.string.audio_sync_model_title, model.sizeMb),
             subtitle = when {
-                model.downloading -> stringResource(R.string.audio_sync_model_downloading, (model.progress * 100).toInt())
+                model.downloading -> stringResource(
+                    R.string.audio_sync_model_downloading,
+                    (
+                        model.progress *
+                            100
+                        ).toInt()
+                )
+
                 model.downloaded -> stringResource(R.string.audio_sync_model_ready)
+
                 model.error != null -> stringResource(R.string.audio_sync_model_failed)
+
                 else -> stringResource(R.string.audio_sync_model_description)
             },
-            value = stringResource(if (model.downloaded) R.string.audio_sync_model_delete else R.string.audio_sync_model_download),
+            value = stringResource(
+                if (model.downloaded) R.string.audio_sync_model_delete else R.string.audio_sync_model_download
+            ),
             enabled = enabled && model.supported && !model.downloading,
             onClick = {
-                if (model.downloaded) SubtitleSyncStatus.modelActions?.delete()
-                else SubtitleSyncStatus.modelActions?.download()
-            },
+                if (model.downloaded) {
+                    SubtitleSyncStatus.modelActions?.delete()
+                } else {
+                    SubtitleSyncStatus.modelActions?.download()
+                }
+            }
         )
         var showSamplingDialog by remember { mutableStateOf(false) }
         SettingsActionRow(
@@ -55,7 +69,7 @@ internal fun audioSyncSettingsItems(enabled: Boolean) {
             subtitle = stringResource(R.string.audio_sync_sampling_description),
             value = samplingLabel(sampling),
             enabled = enabled,
-            onClick = { showSamplingDialog = true },
+            onClick = { showSamplingDialog = true }
         )
         if (showSamplingDialog) {
             SettingsSingleChoiceDialog(
@@ -71,7 +85,7 @@ internal fun audioSyncSettingsItems(enabled: Boolean) {
                 },
                 onDismiss = { showSamplingDialog = false },
                 width = 460.dp,
-                maxHeight = 420.dp,
+                maxHeight = 420.dp
             )
         }
     }
@@ -83,7 +97,7 @@ private fun samplingLabel(mode: AudioSamplingMode): String = stringResource(
         AudioSamplingMode.OFF -> R.string.audio_sync_sampling_off
         AudioSamplingMode.LOW -> R.string.audio_sync_sampling_low
         AudioSamplingMode.HIGH -> R.string.audio_sync_sampling_high
-    },
+    }
 )
 
 @Composable
@@ -92,5 +106,5 @@ private fun samplingDescription(mode: AudioSamplingMode): String = stringResourc
         AudioSamplingMode.OFF -> R.string.audio_sync_sampling_off_description
         AudioSamplingMode.LOW -> R.string.audio_sync_sampling_low_description
         AudioSamplingMode.HIGH -> R.string.audio_sync_sampling_high_description
-    },
+    }
 )

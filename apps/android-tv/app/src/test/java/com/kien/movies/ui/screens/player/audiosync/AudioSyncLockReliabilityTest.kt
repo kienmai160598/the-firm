@@ -24,12 +24,18 @@ class AudioSyncLockReliabilityTest {
                 fromFrame = range.first,
                 track = SubtitleSpeechTrack.fromCues(cues),
                 minShiftMs = -60_000.0,
-                maxShiftMs = 60_000.0,
-            ),
+                maxShiftMs = 60_000.0
+            )
         )
         assertTrue(abs(estimate.shiftMs - truth.shiftMs) < 80.0, "shift ${estimate.shiftMs}")
-        assertTrue(estimate.separation > estimate.prominence, "separation ${estimate.separation} prominence ${estimate.prominence}")
-        assertTrue(estimate.separation >= AudioSyncTracker.ACCEPT_SEPARATION, "separation ${estimate.separation}")
+        assertTrue(
+            estimate.separation > estimate.prominence,
+            "separation ${estimate.separation} prominence ${estimate.prominence}"
+        )
+        assertTrue(
+            estimate.separation >= AudioSyncTracker.ACCEPT_SEPARATION,
+            "separation ${estimate.separation}"
+        )
     }
 
     @Test
@@ -49,11 +55,21 @@ class AudioSyncLockReliabilityTest {
         val spots = spotSpeech.snapshot(0, spotSpeech.knownRange()!!.last + 1)
         for (start in spotStarts) {
             val first = (start / frameMs).toInt()
-            for (frame in first until first + spotFrames) if (!spots[frame].isNaN()) live.record(frame, spots[frame])
+            for (frame in first until first + spotFrames) {
+                if (!spots[frame].isNaN()) {
+                    live.record(
+                        frame,
+                        spots[frame]
+                    )
+                }
+            }
         }
         tracker.update(live, 0L)
         val early = assertNotNull(tracker.model, "spots should lock")
-        assertTrue(abs(early.segments.single().shiftMs - spotted.shiftMs) < 100.0, "spot lock ${early.segments}")
+        assertTrue(
+            abs(early.segments.single().shiftMs - spotted.shiftMs) < 100.0,
+            "spot lock ${early.segments}"
+        )
 
         // Playback from the start hears the other offset, which never agreed with the lock.
         val heard = playSpeech.snapshot(0, playSpeech.knownRange()!!.last + 1)
@@ -80,7 +96,9 @@ class AudioSyncLockReliabilityTest {
         val cues = syntheticCues(Random(71), durationMs = 30 * 60_000L)
         val track = SubtitleSpeechTrack.fromCues(cues)
         val timeline = speechFor(cues, SubtitleSyncSegment(0L, 1.0, 1_200.0), Random(72))
-        val segments = timeline.segments(toFrame = (4 * 60_000 / SpeechTimeline.FRAME_DURATION_MS).toInt())
+        val segments = timeline.segments(
+            toFrame = (4 * 60_000 / SpeechTimeline.FRAME_DURATION_MS).toInt()
+        )
         val known = segments.sumOf { it.knownFrames }
         val speech = assertNotNull(SubtitleAudioAligner.prepare(segments, -60_000.0, 60_000.0))
         val unit = assertNotNull(speech.estimate(track, doubleArrayOf(1.0)))
@@ -88,7 +106,10 @@ class AudioSyncLockReliabilityTest {
         // The PAL rates score far lower here: no change to the lock.
         val rival = assertNotNull(AudioSyncTracker.rivalRate(speech, track, unit))
         assertTrue(rival.scale > 1.02 || rival.scale < 0.98, "rival $rival")
-        assertTrue(AudioSyncTracker.isLockable(unit, segments, known, track, rival), "unit $unit rival $rival")
+        assertTrue(
+            AudioSyncTracker.isLockable(unit, segments, known, track, rival),
+            "unit $unit rival $rival"
+        )
         // Another rate scoring as well on overlap, line starts clearly preferring this one: locks.
         val tiedPal = rival.copy(peak = unit.peak)
         assertTrue(AudioSyncTracker.isLockable(unit, segments, known, track, tiedPal))
@@ -121,23 +142,45 @@ class AudioSyncLockReliabilityTest {
     }
 
     /** Noisy detector output for speech that happens where [cues] land under [mapping]. */
-    private fun speechFor(cues: List<Triple<Long, Long, String>>, mapping: SubtitleSyncSegment, random: Random): SpeechTimeline {
+    private fun speechFor(
+        cues: List<Triple<Long, Long, String>>,
+        mapping: SubtitleSyncSegment,
+        random: Random
+    ): SpeechTimeline {
         val frameMs = SpeechTimeline.FRAME_DURATION_MS
         val end = cues.maxOf { it.second } * mapping.scale + mapping.shiftMs + 30_000
         val frames = (end / frameMs).toInt()
         val speaking = BooleanArray(frames)
         val latencyMs = SubtitleAudioAligner.DETECTOR_BIAS_MS
         for ((start, stop, _) in cues) {
-            val from = ((start * mapping.scale + mapping.shiftMs + latencyMs) / frameMs).roundToInt().coerceIn(0, frames)
-            val to = ((stop * mapping.scale + mapping.shiftMs + latencyMs) / frameMs).roundToInt().coerceIn(0, frames)
+            val from = ((start * mapping.scale + mapping.shiftMs + latencyMs) / frameMs).roundToInt().coerceIn(
+                0,
+                frames
+            )
+            val to = ((stop * mapping.scale + mapping.shiftMs + latencyMs) / frameMs).roundToInt().coerceIn(
+                0,
+                frames
+            )
             for (f in from until to) speaking[f] = true
         }
         val timeline = SpeechTimeline()
         for (f in 0 until frames) {
             val p = if (speaking[f]) {
-                if (random.nextFloat() < 0.25f) random.nextFloat() * 0.3f else 0.7f + random.nextFloat() * 0.3f
+                if (random.nextFloat() <
+                    0.25f
+                ) {
+                    random.nextFloat() * 0.3f
+                } else {
+                    0.7f + random.nextFloat() * 0.3f
+                }
             } else {
-                if (random.nextFloat() < 0.08f) 0.4f + random.nextFloat() * 0.5f else random.nextFloat() * 0.1f
+                if (random.nextFloat() <
+                    0.08f
+                ) {
+                    0.4f + random.nextFloat() * 0.5f
+                } else {
+                    random.nextFloat() * 0.1f
+                }
             }
             timeline.record(f, p)
         }

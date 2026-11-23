@@ -64,8 +64,10 @@ private fun inspectStoredEntry(entry: File): StoredEntry = try {
     val status = Os.lstat(entry.path)
     when {
         OsConstants.S_ISDIR(status.st_mode) -> StoredEntry.Directory
+
         OsConstants.S_ISREG(status.st_mode) ->
             StoredEntry.RegularFile(minOf(status.st_size, status.st_blocks * STAT_BLOCK_BYTES))
+
         else -> StoredEntry.Skipped
     }
 } catch (_: ErrnoException) {

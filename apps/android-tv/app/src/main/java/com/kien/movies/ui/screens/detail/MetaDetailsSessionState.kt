@@ -21,12 +21,14 @@ class MetaDetailsSessionState @Inject constructor() {
         progressSource: String,
         contentId: String,
         contentType: String
-    ): NextToWatch? = nextToWatchCache[cacheKey(
-        profileId = profileId,
-        progressSource = progressSource,
-        contentId = contentId,
-        contentType = contentType
-    )]
+    ): NextToWatch? = nextToWatchCache[
+        cacheKey(
+            profileId = profileId,
+            progressSource = progressSource,
+            contentId = contentId,
+            contentType = contentType
+        )
+    ]
 
     fun putNextToWatch(
         profileId: Int,
@@ -35,12 +37,14 @@ class MetaDetailsSessionState @Inject constructor() {
         contentType: String,
         nextToWatch: NextToWatch
     ) {
-        nextToWatchCache[cacheKey(
-            profileId = profileId,
-            progressSource = progressSource,
-            contentId = contentId,
-            contentType = contentType
-        )] = nextToWatch
+        nextToWatchCache[
+            cacheKey(
+                profileId = profileId,
+                progressSource = progressSource,
+                contentId = contentId,
+                contentType = contentType
+            )
+        ] = nextToWatch
     }
 
     private fun cacheKey(

@@ -1,8 +1,5 @@
 package com.kien.movies.ui.screens.search
 
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.screens.home.HeroBackdropState
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,19 +18,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
-import com.kien.movies.ui.navigation.toptabbar.LocalTopTabBarInset
 import com.kien.movies.domain.model.DiscoverLocation
 import com.kien.movies.ui.components.EmptyScreenState
 import com.kien.movies.ui.components.PosterCardDefaults
 import com.kien.movies.ui.components.PosterCardStyle
+import com.kien.movies.ui.navigation.toptabbar.LocalTopTabBarInset
+import com.kien.movies.ui.screens.home.HeroBackdropState
 import com.kien.movies.ui.theme.MoviesColors
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlin.math.roundToInt
 
 @Composable
@@ -130,7 +129,10 @@ fun DiscoverScreen(
                 onItemLongPress = { item, addonBaseUrl ->
                     viewModel.posterOptions.show(item, addonBaseUrl)
                 },
-                modifier = Modifier.padding(top = LocalTopTabBarInset.current + MoviesTheme.spacing.lg)
+                modifier = Modifier.padding(
+                    top =
+                        LocalTopTabBarInset.current + MoviesTheme.spacing.lg
+                )
             )
         }
 

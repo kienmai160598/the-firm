@@ -32,12 +32,7 @@ interface TrackingProgressProvider {
 
     fun episodeProgress(contentId: String): Flow<Map<Pair<Int, Int>, WatchProgress>>
     fun airedEpisodeOrder(contentId: String): Flow<List<Pair<Int, Int>>>
-    fun isWatched(
-        contentId: String,
-        videoId: String?,
-        season: Int?,
-        episode: Int?
-    ): Flow<Boolean>
+    fun isWatched(contentId: String, videoId: String?, season: Int?, episode: Int?): Flow<Boolean>
     suspend fun watchedShowEpisodes(): Map<String, Set<Pair<Int, Int>>>
     suspend fun showIdSiblings(): Map<String, Set<String>>
     fun isWatchedByVideoId(videoId: String, episode: Int): Boolean? = null
@@ -50,8 +45,7 @@ interface TrackingProgressProvider {
     fun retainsLocalWatchedEpisode(item: WatchedItem): Boolean = false
     fun isHiddenFromProgress(contentId: String): Boolean
     fun continueWatchingCutoffEpochMs(daysCap: Int, nowEpochMs: Long): Long? = null
-    fun shouldUseAsNextUpSeed(progress: WatchProgress, nowEpochMs: Long): Boolean =
-        progress.isCompleted()
+    fun shouldUseAsNextUpSeed(progress: WatchProgress, nowEpochMs: Long): Boolean = progress.isCompleted()
     fun normalizeParentContentId(parentContentId: String, videoId: String?): String = parentContentId
     suspend fun prepareNextUpSeed(progress: WatchProgress): WatchProgress
 }
@@ -66,8 +60,7 @@ class TrackingProgressProviderRegistry @Inject constructor(
         require(providersById.size == providers.size)
     }
 
-    fun providers(): List<TrackingProgressProvider> =
-        providersById.values.sortedBy { it.providerId.ordinal }
+    fun providers(): List<TrackingProgressProvider> = providersById.values.sortedBy { it.providerId.ordinal }
 
     fun provider(id: TrackingProviderId): TrackingProgressProvider? = providersById[id]
 }
@@ -82,8 +75,7 @@ class TrackingHistoryWriterRegistry @Inject constructor(
         require(writersById.size == writers.size)
     }
 
-    fun writers(): List<TrackingHistoryWriter> =
-        writersById.values.sortedBy { it.providerId.ordinal }
+    fun writers(): List<TrackingHistoryWriter> = writersById.values.sortedBy { it.providerId.ordinal }
 
     fun writer(id: TrackingProviderId): TrackingHistoryWriter? = writersById[id]
 }

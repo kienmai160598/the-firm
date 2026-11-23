@@ -6,6 +6,8 @@ import com.kien.movies.data.remote.supabase.MembershipOverviewRemoteDataSource
 import com.kien.movies.domain.model.AuthState
 import com.kien.movies.domain.model.MembershipOverview
 import com.kien.movies.domain.model.MembershipOverviewState
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,8 +19,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val MembershipOverviewTag = "MembershipOverview"
 

@@ -36,27 +36,24 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.mikepenz.markdown.m3.Markdown
-import com.mikepenz.markdown.m3.markdownColor
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.mikepenz.markdown.m3.markdownTypography
 import com.kien.movies.R
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.updater.model.AppUpdate
+import com.mikepenz.markdown.m3.Markdown
+import com.mikepenz.markdown.m3.markdownColor
+import com.mikepenz.markdown.m3.markdownTypography
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun UpdateReleaseNotesDialog(
-    update: AppUpdate,
-    onDismiss: () -> Unit
-) {
+internal fun UpdateReleaseNotesDialog(update: AppUpdate, onDismiss: () -> Unit) {
     val notesFocusRequester = remember { FocusRequester() }
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -93,12 +90,14 @@ internal fun UpdateReleaseNotesDialog(
                                 }
                                 true
                             }
+
                             Key.DirectionUp -> {
                                 if (scrollState.value > 0) {
                                     coroutineScope.launch { scrollState.animateScrollBy(-160f) }
                                 }
                                 true
                             }
+
                             else -> false
                         }
                     }
@@ -111,7 +110,8 @@ internal fun UpdateReleaseNotesDialog(
                     if (maxScroll > 0f) {
                         val thumbHeight = (size.height / (maxScroll + size.height) * size.height)
                             .coerceAtLeast(32.dp.toPx())
-                        val thumbOffset = scrollState.value / maxScroll * (size.height - thumbHeight)
+                        val thumbOffset =
+                            scrollState.value / maxScroll * (size.height - thumbHeight)
                         drawRoundRect(
                             color = focusRingColor.copy(alpha = if (isFocused) 0.85f else 0.35f),
                             topLeft = Offset(size.width - 6.dp.toPx(), thumbOffset),
@@ -131,9 +131,15 @@ internal fun UpdateReleaseNotesDialog(
                 colors = markdownColor(text = MoviesTheme.colors.TextSecondary),
                 typography = markdownTypography(
                     paragraph = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp),
-                    h1 = MaterialTheme.typography.titleLarge.copy(color = MoviesTheme.colors.TextPrimary),
-                    h2 = MaterialTheme.typography.titleMedium.copy(color = MoviesTheme.colors.TextPrimary),
-                    h3 = MaterialTheme.typography.bodyLarge.copy(color = MoviesTheme.colors.TextPrimary)
+                    h1 = MaterialTheme.typography.titleLarge.copy(
+                        color = MoviesTheme.colors.TextPrimary
+                    ),
+                    h2 = MaterialTheme.typography.titleMedium.copy(
+                        color = MoviesTheme.colors.TextPrimary
+                    ),
+                    h3 = MaterialTheme.typography.bodyLarge.copy(
+                        color = MoviesTheme.colors.TextPrimary
+                    )
                 )
             )
         }
@@ -141,10 +147,7 @@ internal fun UpdateReleaseNotesDialog(
 }
 
 @Composable
-internal fun UpdateUnknownSourcesDialog(
-    onOpenSettings: () -> Unit,
-    onDismiss: () -> Unit
-) {
+internal fun UpdateUnknownSourcesDialog(onOpenSettings: () -> Unit, onDismiss: () -> Unit) {
     val settingsFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {

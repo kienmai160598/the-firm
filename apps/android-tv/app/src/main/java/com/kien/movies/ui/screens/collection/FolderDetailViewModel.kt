@@ -7,48 +7,50 @@ import androidx.lifecycle.viewModelScope
 import com.kien.movies.R
 import com.kien.movies.core.build.AppFeaturePolicy
 import com.kien.movies.core.network.NetworkResult
+import com.kien.movies.core.poster.withCustomPosterUrls
 import com.kien.movies.core.tmdb.TmdbCollectionSourceResolver
+import com.kien.movies.core.trakt.TraktPublicListSourceResolver
 import com.kien.movies.core.util.hasNoReleaseInfo
 import com.kien.movies.core.util.isUnreleased
-import com.kien.movies.core.trakt.TraktPublicListSourceResolver
-import com.kien.movies.data.trailer.TrailerService
 import com.kien.movies.data.local.CollectionsDataStore
 import com.kien.movies.data.local.LayoutPreferenceDataStore
+import com.kien.movies.data.trailer.TrailerService
 import com.kien.movies.domain.model.AddonCatalogCollectionSource
 import com.kien.movies.domain.model.CatalogRow
-import com.kien.movies.domain.model.CollectionSource
 import com.kien.movies.domain.model.CollectionFolder
+import com.kien.movies.domain.model.CollectionSource
 import com.kien.movies.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.kien.movies.domain.model.FolderViewMode
 import com.kien.movies.domain.model.HomeImdbRatingsVisibility
 import com.kien.movies.domain.model.HomeLayout
 import com.kien.movies.domain.model.MetaPreview
+import com.kien.movies.domain.model.PLACEHOLDER_IMAGE_URL
 import com.kien.movies.domain.model.TmdbCollectionSource
 import com.kien.movies.domain.model.TraktCollectionSource
 import com.kien.movies.domain.model.enabledAddons
 import com.kien.movies.domain.model.findCollectionCatalog
+import com.kien.movies.domain.model.isSeriesLikeType
 import com.kien.movies.domain.model.mergeCatalogPage
 import com.kien.movies.domain.model.nextCatalogSkip
 import com.kien.movies.domain.model.skipStep
 import com.kien.movies.domain.model.supportsExtra
-import com.kien.movies.domain.model.isSeriesLikeType
 import com.kien.movies.domain.repository.AddonRepository
+import com.kien.movies.domain.repository.CatalogRepository
 import com.kien.movies.domain.repository.WatchProgressRepository
 import com.kien.movies.ui.screens.home.GridItem
 import com.kien.movies.ui.screens.home.HomeRow
 import com.kien.movies.ui.screens.home.HomeUiState
 import com.kien.movies.ui.screens.home.ModernCarouselRowBuildCache
 import com.kien.movies.ui.screens.home.ModernHomePresentationInput
-import com.kien.movies.domain.model.PLACEHOLDER_IMAGE_URL
 import com.kien.movies.ui.screens.home.buildModernHomePresentation
 import com.kien.movies.ui.screens.home.homeItemStatusKey
-import com.kien.movies.domain.repository.CatalogRepository
-import com.kien.movies.core.poster.withCustomPosterUrls
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -58,9 +60,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class FolderDetailUiState(
     val folder: CollectionFolder? = null,
@@ -147,7 +147,9 @@ class FolderDetailViewModel @Inject constructor(
     private var movieWatchedJob: Job? = null
     private var enrichFocusJob: Job? = null
     private val enrichedItemIds = java.util.Collections.synchronizedSet(mutableSetOf<String>())
-    private val backgroundMetaPrefetchedIds = java.util.Collections.synchronizedSet(mutableSetOf<String>())
+    private val backgroundMetaPrefetchedIds = java.util.Collections.synchronizedSet(
+        mutableSetOf<String>()
+    )
     private val _enrichingItemId = MutableStateFlow<String?>(null)
     val enrichingItemId: StateFlow<String?> = _enrichingItemId.asStateFlow()
     private val _enrichedPreviews = MutableStateFlow<Map<String, MetaPreview>>(emptyMap())
@@ -175,19 +177,26 @@ class FolderDetailViewModel @Inject constructor(
     private var adjacentItemPrefetchJob: Job? = null
     private var pendingAdjacentPrefetchItemId: String? = null
     private val prefetchedTmdbIds = java.util.Collections.synchronizedSet(mutableSetOf<String>())
-    private val prefetchedExternalMetaIds = java.util.Collections.synchronizedSet(mutableSetOf<String>())
+    private val prefetchedExternalMetaIds = java.util.Collections.synchronizedSet(
+        mutableSetOf<String>()
+    )
 
     // MDBList batch prefetch for folder detail (follow-layout modern hero)
     private val mdbBatchNegativeIds: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
     private var mdbBatchJob: Job? = null
+
     @Volatile private var mdbBatchHasFired = false
+
     @Volatile private var mdbLastFocusedRowKey: String? = null
+
     @Volatile private var currentMdbListSettings: com.kien.movies.domain.model.MDBListSettings? = null
 
-    private val _rowsFocusState = MutableStateFlow(com.kien.movies.ui.screens.home.HomeScreenFocusState())
+    private val _rowsFocusState =
+        MutableStateFlow(com.kien.movies.ui.screens.home.HomeScreenFocusState())
     val rowsFocusState: StateFlow<com.kien.movies.ui.screens.home.HomeScreenFocusState> = _rowsFocusState.asStateFlow()
 
-    private val _followLayoutFocusState = MutableStateFlow(com.kien.movies.ui.screens.home.HomeScreenFocusState())
+    private val _followLayoutFocusState =
+        MutableStateFlow(com.kien.movies.ui.screens.home.HomeScreenFocusState())
     val followLayoutFocusState: StateFlow<com.kien.movies.ui.screens.home.HomeScreenFocusState> = _followLayoutFocusState.asStateFlow()
 
     private val _tabFocusStates = MutableStateFlow<Map<Int, FolderDetailGridFocusState>>(emptyMap())
@@ -198,7 +207,10 @@ class FolderDetailViewModel @Inject constructor(
         loadFolder()
         observeWatchedStatusCombined()
         viewModelScope.launch {
-            mdbListSettingsDataStore.settings.distinctUntilChanged().collect { currentMdbListSettings = it }
+            mdbListSettingsDataStore.settings.distinctUntilChanged().collect {
+                currentMdbListSettings =
+                    it
+            }
         }
         viewModelScope.launch {
             layoutPreferenceDataStore.focusedPosterTrailerContinueInDetails.collect { enabled ->
@@ -219,7 +231,10 @@ class FolderDetailViewModel @Inject constructor(
             }.collectLatest { (movieWatchedIds, seriesWatchedIds, allItems) ->
                 val newStatus = mutableMapOf<String, Boolean>()
                 allItems.forEach { item ->
-                    val key = com.kien.movies.ui.screens.home.homeItemStatusKey(item.id, item.apiType)
+                    val key = com.kien.movies.ui.screens.home.homeItemStatusKey(
+                        item.id,
+                        item.apiType
+                    )
                     val isWatched = when (item.apiType) {
                         "series", "tv" -> item.id in seriesWatchedIds
                         else -> !isSeriesLikeType(item.apiType) && item.id in movieWatchedIds
@@ -227,7 +242,13 @@ class FolderDetailViewModel @Inject constructor(
                     newStatus[key] = isWatched
                 }
                 _uiState.update { s ->
-                    if (s.movieWatchedStatus == newStatus) s else s.copy(movieWatchedStatus = newStatus)
+                    if (s.movieWatchedStatus ==
+                        newStatus
+                    ) {
+                        s
+                    } else {
+                        s.copy(movieWatchedStatus = newStatus)
+                    }
                 }
                 rebuildFollowLayoutState()
             }
@@ -291,14 +312,30 @@ class FolderDetailViewModel @Inject constructor(
                 val (name, typeLabel, rawType) = when (source) {
                     is AddonCatalogCollectionSource -> {
                         val addon = addons.find { it.id == source.addonId }
-                        val catalog = addon?.catalogs?.findCollectionCatalog(source.type, source.catalogId)
-                            ?: addon?.catalogs?.findCollectionCatalog(source.type, source.catalogId.substringBefore(","))
-                            ?: addons.firstNotNullOfOrNull { a -> a.catalogs.findCollectionCatalog(source.type, source.catalogId) }
+                        val catalog =
+                            addon?.catalogs?.findCollectionCatalog(source.type, source.catalogId)
+                                ?: addon?.catalogs?.findCollectionCatalog(
+                                    source.type,
+                                    source.catalogId.substringBefore(",")
+                                )
+                                ?: addons.firstNotNullOfOrNull { a ->
+                                    a.catalogs.findCollectionCatalog(source.type, source.catalogId)
+                                }
                         val labels = buildAddonTabLabels(source, catalog?.name)
                         Triple(labels.first, labels.second, catalog?.apiType ?: source.type)
                     }
-                    is TmdbCollectionSource -> Triple(source.title, buildTmdbTypeLabel(source), source.mediaType.value.toCollectionRawType())
-                    is TraktCollectionSource -> Triple(source.title, buildTraktTypeLabel(source), source.mediaType.value.toCollectionRawType())
+
+                    is TmdbCollectionSource -> Triple(
+                        source.title,
+                        buildTmdbTypeLabel(source),
+                        source.mediaType.value.toCollectionRawType()
+                    )
+
+                    is TraktCollectionSource -> Triple(
+                        source.title,
+                        buildTraktTypeLabel(source),
+                        source.mediaType.value.toCollectionRawType()
+                    )
                 }
                 // Generate placeholder CatalogRow with shimmer items for Modern/Classic follow-layout
                 val placeholderRow = if (useShimmerPlaceholders) {
@@ -307,7 +344,9 @@ class FolderDetailViewModel @Inject constructor(
                             val baseUrl = addons.find { it.id == source.addonId }?.baseUrl ?: ""
                             Triple(source.addonId, source.catalogId, baseUrl)
                         }
+
                         is TmdbCollectionSource -> Triple("tmdb", buildTmdbSourceKey(source), "")
+
                         is TraktCollectionSource -> Triple("trakt", buildTraktSourceKey(source), "")
                     }
                     val apiType = rawType.ifBlank { "movie" }
@@ -339,15 +378,26 @@ class FolderDetailViewModel @Inject constructor(
                         isLoading = true,
                         hasMore = false
                     )
-                } else null
-                FolderTab(label = name, typeLabel = typeLabel, rawType = rawType, source = source, catalogRow = placeholderRow, isLoading = true)
+                } else {
+                    null
+                }
+                FolderTab(
+                    label = name,
+                    typeLabel = typeLabel,
+                    rawType = rawType,
+                    source = source,
+                    catalogRow = placeholderRow,
+                    isLoading = true
+                )
             }
 
             val tabs = if (showAll) {
                 listOf(
                     FolderTab(
                         label = appContext.getString(com.kien.movies.R.string.collections_tab_all),
-                        typeLabel = appContext.getString(com.kien.movies.R.string.collections_tab_combined),
+                        typeLabel = appContext.getString(
+                            com.kien.movies.R.string.collections_tab_combined
+                        ),
                         isLoading = true,
                         isAllTab = true
                     )
@@ -378,7 +428,8 @@ class FolderDetailViewModel @Inject constructor(
                         AppFeaturePolicy.inAppTrailerPlaybackEnabled,
                     focusedPosterBackdropTrailerMuted = focusedPosterBackdropTrailerMuted,
                     focusedPosterBackdropTrailerPlaybackTarget = focusedPosterBackdropTrailerPlaybackTarget,
-                    classicFocusGradientEnabled = classicFocusGradientEnabled && homeLayout == HomeLayout.CLASSIC,
+                    classicFocusGradientEnabled =
+                        classicFocusGradientEnabled && homeLayout == HomeLayout.CLASSIC,
                     posterCardWidthDp = posterCardWidthDp,
                     posterCardHeightDp = posterCardHeightDp,
                     posterCardCornerRadiusDp = posterCardCornerRadiusDp,
@@ -459,7 +510,8 @@ class FolderDetailViewModel @Inject constructor(
         if (state.viewMode != FolderViewMode.FOLLOW_LAYOUT) return
         val sourceTabs = state.tabs.filter { !it.isAllTab }
         val loadedRows = sourceTabs.mapNotNull { it.catalogRow }
-        val useShimmer = state.homeLayout == HomeLayout.MODERN || state.homeLayout == HomeLayout.CLASSIC
+        val useShimmer =
+            state.homeLayout == HomeLayout.MODERN || state.homeLayout == HomeLayout.CLASSIC
 
         // Build rows including placeholder shimmer rows for tabs still loading (Modern/Classic)
         val allRows = if (useShimmer) {
@@ -518,28 +570,34 @@ class FolderDetailViewModel @Inject constructor(
         val realRows = allRows.filter { !it.isLoading }
         val gridItems = buildList<GridItem> {
             realRows.forEach { row ->
-                add(GridItem.SectionDivider(
-                    catalogName = row.catalogName,
-                    catalogId = row.catalogId,
-                    addonBaseUrl = row.addonBaseUrl,
-                    addonId = row.addonId,
-                    type = row.apiType
-                ))
-                row.items.forEach { item ->
-                    add(GridItem.Content(
-                        item = item,
-                        addonBaseUrl = row.addonBaseUrl,
+                add(
+                    GridItem.SectionDivider(
+                        catalogName = row.catalogName,
                         catalogId = row.catalogId,
-                        catalogName = row.catalogName
-                    ))
+                        addonBaseUrl = row.addonBaseUrl,
+                        addonId = row.addonId,
+                        type = row.apiType
+                    )
+                )
+                row.items.forEach { item ->
+                    add(
+                        GridItem.Content(
+                            item = item,
+                            addonBaseUrl = row.addonBaseUrl,
+                            catalogId = row.catalogId,
+                            catalogName = row.catalogName
+                        )
+                    )
                 }
                 if (row.hasMore && !row.isLoading) {
-                    add(GridItem.SeeAll(
-                        catalogId = row.catalogId,
-                        addonId = row.addonId,
-                        addonBaseUrl = row.addonBaseUrl,
-                        type = row.apiType
-                    ))
+                    add(
+                        GridItem.SeeAll(
+                            catalogId = row.catalogId,
+                            addonId = row.addonId,
+                            addonBaseUrl = row.addonBaseUrl,
+                            type = row.apiType
+                        )
+                    )
                 }
             }
         }
@@ -581,7 +639,13 @@ class FolderDetailViewModel @Inject constructor(
                         isLoading = anyLoading,
                         homeLayout = s.homeLayout,
                         homeImdbRatingsVisibility = s.homeImdbRatingsVisibility,
-                        posterLabelsEnabled = if (s.homeLayout == HomeLayout.MODERN) false else s.posterLabelsEnabled,
+                        posterLabelsEnabled = if (s.homeLayout ==
+                            HomeLayout.MODERN
+                        ) {
+                            false
+                        } else {
+                            s.posterLabelsEnabled
+                        },
                         modernLandscapePostersEnabled = s.modernLandscapePostersEnabled,
                         modernHeroFullScreenBackdropEnabled = s.modernHeroFullScreenBackdropEnabled,
                         alwaysShowLandscapeClearlogo = s.alwaysShowLandscapeClearlogo,
@@ -602,9 +666,15 @@ class FolderDetailViewModel @Inject constructor(
                         heroEnrichmentEnabled = computedHeroEnrichmentEnabled,
                         classicFocusGradientEnabled = s.classicFocusGradientEnabled,
                         mdbListShowOnHero = currentMdbListSettings?.showOnHero ?: false,
-                        mdbListRatingOrder = currentMdbListSettings?.enabledRatingOrder() ?: com.kien.movies.domain.model.MDBListSettings.DEFAULT_RATING_ORDER
+                        mdbListRatingOrder =
+                            currentMdbListSettings?.enabledRatingOrder()
+                                ?: com.kien.movies.domain.model.MDBListSettings.DEFAULT_RATING_ORDER
                     )
-                    s.copy(followLayoutHomeState = homeState.copy(modernHomePresentation = modernPresentation))
+                    s.copy(
+                        followLayoutHomeState = homeState.copy(
+                            modernHomePresentation = modernPresentation
+                        )
+                    )
                 }
                 scheduleMdbBatchPrefetch()
             }
@@ -640,7 +710,9 @@ class FolderDetailViewModel @Inject constructor(
                     heroEnrichmentEnabled = false,
                     classicFocusGradientEnabled = s.classicFocusGradientEnabled,
                     mdbListShowOnHero = currentMdbListSettings?.showOnHero ?: false,
-                    mdbListRatingOrder = currentMdbListSettings?.enabledRatingOrder() ?: com.kien.movies.domain.model.MDBListSettings.DEFAULT_RATING_ORDER
+                    mdbListRatingOrder =
+                        currentMdbListSettings?.enabledRatingOrder()
+                            ?: com.kien.movies.domain.model.MDBListSettings.DEFAULT_RATING_ORDER
                 )
                 s.copy(followLayoutHomeState = homeState)
             }
@@ -652,9 +724,17 @@ class FolderDetailViewModel @Inject constructor(
         if (rowKey == null) return
         mdbLastFocusedRowKey = rowKey
         val state = _uiState.value
-        if (state.viewMode != FolderViewMode.FOLLOW_LAYOUT || state.homeLayout != HomeLayout.MODERN) return
+        if (state.viewMode != FolderViewMode.FOLLOW_LAYOUT ||
+            state.homeLayout != HomeLayout.MODERN
+        ) {
+            return
+        }
         val settings = currentMdbListSettings
-        if (settings == null || !mdbListRepository.isAvailable(settings) || !settings.showOnHero) return
+        if (settings == null || !mdbListRepository.isAvailable(settings) ||
+            !settings.showOnHero
+        ) {
+            return
+        }
 
         val isFirst = !mdbBatchHasFired
         mdbBatchJob?.cancel()
@@ -701,20 +781,28 @@ class FolderDetailViewModel @Inject constructor(
                                 language = item.language, links = item.links
                             )
                             val result = mdbListRepository.getRatingsForMeta(
-                                meta = meta, fallbackItemId = item.id, fallbackItemType = item.apiType
+                                meta = meta,
+                                fallbackItemId = item.id,
+                                fallbackItemType = item.apiType
                             )
                             if (result != null) {
                                 updateItemInTabs(item.id) { current ->
                                     current.copy(
                                         mdbListRatings = result.ratings,
                                         mdbListRatingOrder = ratingOrder,
-                                        imdbRating = result.ratings.imdb?.toFloat() ?: current.imdbRating
+                                        imdbRating =
+                                            result.ratings.imdb?.toFloat() ?: current.imdbRating
                                     )
                                 }
                                 val existing = _enrichedPreviews.value[item.id]
                                 if (existing != null) {
                                     val enriched = _uiState.value.tabs
-                                        .firstNotNullOfOrNull { tab -> tab.catalogRow?.items?.firstOrNull { it.id == item.id } }
+                                        .firstNotNullOfOrNull { tab ->
+                                            tab.catalogRow?.items?.firstOrNull {
+                                                it.id ==
+                                                    item.id
+                                            }
+                                        }
                                     if (enriched != null) {
                                         publishEnrichedPreview(item.id, enriched)
                                     }
@@ -722,8 +810,11 @@ class FolderDetailViewModel @Inject constructor(
                             } else {
                                 mdbBatchNegativeIds.add(item.id)
                             }
-                        } catch (e: kotlinx.coroutines.CancellationException) { throw e }
-                        catch (_: Exception) { }
+                        } catch (
+                            e: kotlinx.coroutines.CancellationException
+                        ) {
+                            throw e
+                        } catch (_: Exception) { }
                     }
                 }.awaitAll()
             }
@@ -733,7 +824,11 @@ class FolderDetailViewModel @Inject constructor(
 
     private fun scheduleMdbBatchPrefetch() {
         val state = _uiState.value
-        if (state.viewMode != FolderViewMode.FOLLOW_LAYOUT || state.homeLayout != HomeLayout.MODERN) return
+        if (state.viewMode != FolderViewMode.FOLLOW_LAYOUT ||
+            state.homeLayout != HomeLayout.MODERN
+        ) {
+            return
+        }
         val homeState = state.followLayoutHomeState ?: return
         val rowKey = mdbLastFocusedRowKey
             ?: homeState.modernHomePresentation.rows.list.firstOrNull()?.key
@@ -759,8 +854,20 @@ class FolderDetailViewModel @Inject constructor(
     private fun loadSourceForTab(tabIndex: Int, source: CollectionSource) {
         when (source) {
             is AddonCatalogCollectionSource -> loadAddonCatalogForTab(tabIndex, source)
-            is TmdbCollectionSource -> loadTmdbSourceForTab(tabIndex, source, page = 1, append = false)
-            is TraktCollectionSource -> loadTraktSourceForTab(tabIndex, source, page = 1, append = false)
+
+            is TmdbCollectionSource -> loadTmdbSourceForTab(
+                tabIndex,
+                source,
+                page = 1,
+                append = false
+            )
+
+            is TraktCollectionSource -> loadTraktSourceForTab(
+                tabIndex,
+                source,
+                page = 1,
+                append = false
+            )
         }
     }
 
@@ -784,7 +891,10 @@ class FolderDetailViewModel @Inject constructor(
             }
 
             var catalog = addon.catalogs.findCollectionCatalog(source.type, source.catalogId)
-                ?: addon.catalogs.findCollectionCatalog(source.type, source.catalogId.substringBefore(","))
+                ?: addon.catalogs.findCollectionCatalog(
+                    source.type,
+                    source.catalogId.substringBefore(",")
+                )
             // If the catalog wasn't found in the declared addon, search all installed addons.
             var effectiveAddon: com.kien.movies.domain.model.Addon = addon
             if (catalog == null) {
@@ -825,7 +935,9 @@ class FolderDetailViewModel @Inject constructor(
                             val tabs = state.tabs.toMutableList()
                             if (tabIndex < tabs.size) {
                                 tabs[tabIndex] = tabs[tabIndex].copy(
-                                    catalogRow = result.data.filteredForRelease(state.hideUnreleasedContent),
+                                    catalogRow = result.data.filteredForRelease(
+                                        state.hideUnreleasedContent
+                                    ),
                                     isLoading = false
                                 )
                             }
@@ -834,17 +946,20 @@ class FolderDetailViewModel @Inject constructor(
                         rebuildAllTab()
                         rebuildFollowLayoutState()
                     }
+
                     is NetworkResult.Error -> {
                         _uiState.update { state ->
                             val tabs = state.tabs.toMutableList()
                             if (tabIndex < tabs.size) {
-                                tabs[tabIndex] = tabs[tabIndex].copy(isLoading = false, error = result.message)
+                                tabs[tabIndex] =
+                                    tabs[tabIndex].copy(isLoading = false, error = result.message)
                             }
                             state.copy(tabs = tabs)
                         }
                         rebuildAllTab()
                         rebuildFollowLayoutState()
                     }
+
                     NetworkResult.Loading -> {}
                 }
             }
@@ -920,7 +1035,10 @@ class FolderDetailViewModel @Inject constructor(
                             } else {
                                 result.data.items
                             }
-                            val mergedRow = currentRow.mergeCatalogPage(result.data, incomingFiltered)
+                            val mergedRow = currentRow.mergeCatalogPage(
+                                result.data,
+                                incomingFiltered
+                            )
 
                             val tabs = s.tabs.toMutableList()
                             tabs[tabIndex] = tabs[tabIndex].copy(
@@ -931,9 +1049,11 @@ class FolderDetailViewModel @Inject constructor(
                         rebuildAllTab()
                         rebuildFollowLayoutState()
                     }
+
                     is NetworkResult.Error -> {
                         _uiState.update { s ->
-                            val currentRow = s.tabs.getOrNull(tabIndex)?.catalogRow ?: return@update s
+                            val currentRow =
+                                s.tabs.getOrNull(tabIndex)?.catalogRow ?: return@update s
                             val tabs = s.tabs.toMutableList()
                             tabs[tabIndex] = tabs[tabIndex].copy(
                                 catalogRow = currentRow.copy(isLoading = false)
@@ -941,6 +1061,7 @@ class FolderDetailViewModel @Inject constructor(
                             s.copy(tabs = tabs)
                         }
                     }
+
                     NetworkResult.Loading -> {}
                 }
             }
@@ -1045,12 +1166,22 @@ class FolderDetailViewModel @Inject constructor(
         }
     }
 
-    private fun loadTmdbSourceForTab(tabIndex: Int, source: TmdbCollectionSource, page: Int, append: Boolean) {
+    private fun loadTmdbSourceForTab(
+        tabIndex: Int,
+        source: TmdbCollectionSource,
+        page: Int,
+        append: Boolean
+    ) {
         if (append) {
             _uiState.update { s ->
                 val tabs = s.tabs.toMutableList()
                 val row = tabs.getOrNull(tabIndex)?.catalogRow
-                if (row != null) tabs[tabIndex] = tabs[tabIndex].copy(catalogRow = row.copy(isLoading = true))
+                if (row !=
+                    null
+                ) {
+                    tabs[tabIndex] =
+                        tabs[tabIndex].copy(catalogRow = row.copy(isLoading = true))
+                }
                 s.copy(tabs = tabs)
             }
             rebuildAllTab()
@@ -1070,8 +1201,13 @@ class FolderDetailViewModel @Inject constructor(
                                 treatMissingDateAsUnreleased = true
                             )
                             val row = if (append && currentRow != null) {
-                                val existingIds = currentRow.items.map { "${it.apiType}:${it.id}" }.toHashSet()
-                                val newItems = filteredData.items.filter { "${it.apiType}:${it.id}" !in existingIds }
+                                val existingIds = currentRow.items.map {
+                                    "${it.apiType}:${it.id}"
+                                }.toHashSet()
+                                val newItems = filteredData.items.filter {
+                                    "${it.apiType}:${it.id}" !in
+                                        existingIds
+                                }
                                 filteredData.copy(
                                     items = currentRow.items + newItems,
                                     hasMore = filteredData.hasMore && newItems.isNotEmpty(),
@@ -1080,12 +1216,29 @@ class FolderDetailViewModel @Inject constructor(
                             } else {
                                 filteredData
                             }
-                            if (tabIndex < tabs.size) tabs[tabIndex] = tabs[tabIndex].copy(catalogRow = row.copy(items = row.items.withCustomPosterUrls(com.kien.movies.core.poster.patternForScreen(posterPattern, com.kien.movies.core.poster.CustomPosterScreen.COLLECTIONS, enabledScreens))), isLoading = false)
+                            if (tabIndex <
+                                tabs.size
+                            ) {
+                                tabs[tabIndex] =
+                                    tabs[tabIndex].copy(
+                                        catalogRow = row.copy(
+                                            items = row.items.withCustomPosterUrls(
+                                                com.kien.movies.core.poster.patternForScreen(
+                                                    posterPattern,
+                                                    com.kien.movies.core.poster.CustomPosterScreen.COLLECTIONS,
+                                                    enabledScreens
+                                                )
+                                            )
+                                        ),
+                                        isLoading = false
+                                    )
+                            }
                             s.copy(tabs = tabs)
                         }
                         rebuildAllTab()
                         rebuildFollowLayoutState()
                     }
+
                     is NetworkResult.Error -> {
                         _uiState.update { s ->
                             val tabs = s.tabs.toMutableList()
@@ -1102,18 +1255,29 @@ class FolderDetailViewModel @Inject constructor(
                         rebuildAllTab()
                         rebuildFollowLayoutState()
                     }
+
                     NetworkResult.Loading -> {}
                 }
             }
         }
     }
 
-    private fun loadTraktSourceForTab(tabIndex: Int, source: TraktCollectionSource, page: Int, append: Boolean) {
+    private fun loadTraktSourceForTab(
+        tabIndex: Int,
+        source: TraktCollectionSource,
+        page: Int,
+        append: Boolean
+    ) {
         if (append) {
             _uiState.update { s ->
                 val tabs = s.tabs.toMutableList()
                 val row = tabs.getOrNull(tabIndex)?.catalogRow
-                if (row != null) tabs[tabIndex] = tabs[tabIndex].copy(catalogRow = row.copy(isLoading = true))
+                if (row !=
+                    null
+                ) {
+                    tabs[tabIndex] =
+                        tabs[tabIndex].copy(catalogRow = row.copy(isLoading = true))
+                }
                 s.copy(tabs = tabs)
             }
             rebuildAllTab()
@@ -1133,8 +1297,13 @@ class FolderDetailViewModel @Inject constructor(
                                 treatMissingDateAsUnreleased = true
                             )
                             val row = if (append && currentRow != null) {
-                                val existingIds = currentRow.items.map { "${it.apiType}:${it.id}" }.toHashSet()
-                                val newItems = filteredData.items.filter { "${it.apiType}:${it.id}" !in existingIds }
+                                val existingIds = currentRow.items.map {
+                                    "${it.apiType}:${it.id}"
+                                }.toHashSet()
+                                val newItems = filteredData.items.filter {
+                                    "${it.apiType}:${it.id}" !in
+                                        existingIds
+                                }
                                 filteredData.copy(
                                     items = currentRow.items + newItems,
                                     hasMore = filteredData.hasMore && newItems.isNotEmpty(),
@@ -1143,12 +1312,29 @@ class FolderDetailViewModel @Inject constructor(
                             } else {
                                 filteredData
                             }
-                            if (tabIndex < tabs.size) tabs[tabIndex] = tabs[tabIndex].copy(catalogRow = row.copy(items = row.items.withCustomPosterUrls(com.kien.movies.core.poster.patternForScreen(posterPattern, com.kien.movies.core.poster.CustomPosterScreen.COLLECTIONS, enabledScreens))), isLoading = false)
+                            if (tabIndex <
+                                tabs.size
+                            ) {
+                                tabs[tabIndex] =
+                                    tabs[tabIndex].copy(
+                                        catalogRow = row.copy(
+                                            items = row.items.withCustomPosterUrls(
+                                                com.kien.movies.core.poster.patternForScreen(
+                                                    posterPattern,
+                                                    com.kien.movies.core.poster.CustomPosterScreen.COLLECTIONS,
+                                                    enabledScreens
+                                                )
+                                            )
+                                        ),
+                                        isLoading = false
+                                    )
+                            }
                             s.copy(tabs = tabs)
                         }
                         rebuildAllTab()
                         rebuildFollowLayoutState()
                     }
+
                     is NetworkResult.Error -> {
                         _uiState.update { s ->
                             val tabs = s.tabs.toMutableList()
@@ -1165,13 +1351,17 @@ class FolderDetailViewModel @Inject constructor(
                         rebuildAllTab()
                         rebuildFollowLayoutState()
                     }
+
                     NetworkResult.Loading -> {}
                 }
             }
         }
     }
 
-    private fun buildAddonTabLabels(source: AddonCatalogCollectionSource, catalogName: String?): Pair<String, String> {
+    private fun buildAddonTabLabels(
+        source: AddonCatalogCollectionSource,
+        catalogName: String?
+    ): Pair<String, String> {
         val typeLabel = when (source.type.lowercase()) {
             "movie" -> appContext.getString(R.string.type_movies)
             "series" -> appContext.getString(R.string.type_series_plural)
@@ -1182,7 +1372,10 @@ class FolderDetailViewModel @Inject constructor(
         } else {
             typeLabel
         }
-        val effectiveGenre = source.genre?.takeIf { it.isNotBlank() && !it.equals("None", ignoreCase = true) }
+        val effectiveGenre = source.genre?.takeIf {
+            it.isNotBlank() &&
+                !it.equals("None", ignoreCase = true)
+        }
         val name = effectiveGenre?.let { "$baseName · $it" } ?: baseName
         return name to typeLabel
     }
@@ -1201,8 +1394,13 @@ class FolderDetailViewModel @Inject constructor(
 
     private fun buildTraktTypeLabel(source: TraktCollectionSource): String {
         return when (source.mediaType) {
-            com.kien.movies.domain.model.TmdbCollectionMediaType.MOVIE -> appContext.getString(R.string.collections_editor_trakt_movie_list)
-            com.kien.movies.domain.model.TmdbCollectionMediaType.TV -> appContext.getString(R.string.collections_editor_trakt_series_list)
+            com.kien.movies.domain.model.TmdbCollectionMediaType.MOVIE -> appContext.getString(
+                R.string.collections_editor_trakt_movie_list
+            )
+
+            com.kien.movies.domain.model.TmdbCollectionMediaType.TV -> appContext.getString(
+                R.string.collections_editor_trakt_series_list
+            )
         }
     }
 
@@ -1218,7 +1416,9 @@ class FolderDetailViewModel @Inject constructor(
             append(source.mediaType.value)
             append("_")
             append(source.sortBy.replace('.', '_'))
-            if (source.sourceType == com.kien.movies.domain.model.TmdbCollectionSourceType.DISCOVER) {
+            if (source.sourceType ==
+                com.kien.movies.domain.model.TmdbCollectionSourceType.DISCOVER
+            ) {
                 append("_")
                 append(source.filters.hashCode().toUInt().toString(16))
             }
@@ -1241,7 +1441,9 @@ class FolderDetailViewModel @Inject constructor(
     }
 
     private fun buildCatalogExtraArgs(source: AddonCatalogCollectionSource): Map<String, String> {
-        val genre = source.genre?.takeIf { it.isNotBlank() && !it.equals("None", ignoreCase = true) } ?: return emptyMap()
+        val genre =
+            source.genre?.takeIf { it.isNotBlank() && !it.equals("None", ignoreCase = true) }
+                ?: return emptyMap()
         return mapOf("genre" to genre)
     }
 
@@ -1254,14 +1456,18 @@ class FolderDetailViewModel @Inject constructor(
             // Ensure enrichedPreviews has this item for hero display.
             if (item.id !in _enrichedPreviews.value) {
                 val enrichedItem = _uiState.value.tabs
-                    .firstNotNullOfOrNull { tab -> tab.catalogRow?.items?.firstOrNull { it.id == item.id } }
+                    .firstNotNullOfOrNull { tab ->
+                        tab.catalogRow?.items?.firstOrNull {
+                            it.id ==
+                                item.id
+                        }
+                    }
                 if (enrichedItem != null) {
                     publishEnrichedPreview(item.id, enrichedItem)
                 }
             }
             return
         }
-
 
         enrichFocusJob?.cancel()
         enrichFocusJob = viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
@@ -1288,7 +1494,9 @@ class FolderDetailViewModel @Inject constructor(
             // when no enrichment source can provide data.
             val viewMode = _uiState.value.viewMode
             val willEnrich = tmdbEnabled || externalMetaEnabled
-            if (willEnrich && viewMode == FolderViewMode.FOLLOW_LAYOUT && homeLayout == HomeLayout.MODERN) {
+            if (willEnrich && viewMode == FolderViewMode.FOLLOW_LAYOUT &&
+                homeLayout == HomeLayout.MODERN
+            ) {
                 _enrichingItemId.value = item.id
             }
 
@@ -1302,7 +1510,9 @@ class FolderDetailViewModel @Inject constructor(
 
             var enrichment: com.kien.movies.core.tmdb.TmdbEnrichment? = null
             if (tmdbEnabled) {
-                val tmdbId = runCatching { tmdbService.ensureTmdbId(item.id, item.apiType) }.getOrNull()
+                val tmdbId = runCatching {
+                    tmdbService.ensureTmdbId(item.id, item.apiType)
+                }.getOrNull()
                 if (tmdbId != null) {
                     enrichment = runCatching {
                         tmdbMetadataService.fetchEnrichment(
@@ -1330,39 +1540,42 @@ class FolderDetailViewModel @Inject constructor(
 
                 updateItemInTabs(item.id) { merged ->
                     var result = merged
-                if (finalEnrichment != null) {
-                    if (tmdbSettings.useBasicInfo) {
-                        val isModern = _uiState.value.homeLayout == HomeLayout.MODERN
-                        result = result.copy(
-                            name = if (isModern) finalEnrichment.localizedTitle ?: result.name else result.name,
-                            description = finalEnrichment.description ?: result.description,
-                            genres = if (finalEnrichment.genres.isNotEmpty()) finalEnrichment.genres else result.genres
-                        )
+                    if (finalEnrichment != null) {
+                        if (tmdbSettings.useBasicInfo) {
+                            val isModern = _uiState.value.homeLayout == HomeLayout.MODERN
+                            result = result.copy(
+                                name = if (isModern) finalEnrichment.localizedTitle ?: result.name else result.name,
+                                description = finalEnrichment.description ?: result.description,
+                                genres = if (finalEnrichment.genres.isNotEmpty()) finalEnrichment.genres else result.genres
+                            )
+                        }
+                        if (tmdbSettings.useArtwork) {
+                            result = result.copy(
+                                background = finalEnrichment.backdrop ?: result.background,
+                                logo = finalEnrichment.logo ?: result.logo
+                            )
+                        }
+                        if (tmdbSettings.useDetails) {
+                            result = result.copy(
+                                runtime =
+                                    finalEnrichment.runtimeMinutes?.toString() ?: result.runtime,
+                                ageRating = finalEnrichment.ageRating ?: result.ageRating,
+                                status = finalEnrichment.status ?: result.status
+                            )
+                        }
+                        // Propagate TMDB-fetched localized trailer YT ids onto the item
+                        // so the trailer pipeline can use them as a fallback when the
+                        // direct TMDB videos lookup misses the user locale (e.g. Trakt
+                        // list items that didn't carry trailers from their addon).
+                        val enrichedYtIds = finalEnrichment.trailers.mapNotNull {
+                            it.ytId
+                        }.distinct()
+                        if (enrichedYtIds.isNotEmpty() && result.trailerYtIds.isEmpty()) {
+                            result = result.copy(trailerYtIds = enrichedYtIds)
+                        }
                     }
-                    if (tmdbSettings.useArtwork) {
-                        result = result.copy(
-                            background = finalEnrichment.backdrop ?: result.background,
-                            logo = finalEnrichment.logo ?: result.logo
-                        )
-                    }
-                    if (tmdbSettings.useDetails) {
-                        result = result.copy(
-                            runtime = finalEnrichment.runtimeMinutes?.toString() ?: result.runtime,
-                            ageRating = finalEnrichment.ageRating ?: result.ageRating,
-                            status = finalEnrichment.status ?: result.status
-                        )
-                    }
-                    // Propagate TMDB-fetched localized trailer YT ids onto the item
-                    // so the trailer pipeline can use them as a fallback when the
-                    // direct TMDB videos lookup misses the user locale (e.g. Trakt
-                    // list items that didn't carry trailers from their addon).
-                    val enrichedYtIds = finalEnrichment.trailers.mapNotNull { it.ytId }.distinct()
-                    if (enrichedYtIds.isNotEmpty() && result.trailerYtIds.isEmpty()) {
-                        result = result.copy(trailerYtIds = enrichedYtIds)
-                    }
+                    result
                 }
-                result
-            }
             }
 
             // If the trailer pipeline already ran for this item without a hit and
@@ -1397,7 +1610,11 @@ class FolderDetailViewModel @Inject constructor(
                 item.logo.isNullOrBlank()
             val needsExternalAddon = enrichment == null || artworkStillMissing
             if (needsExternalAddon && externalMetaEnabled) {
-                val metaResult = metaRepository.getMetaFromAllAddons(item.apiType, item.id, item.sourceAddonBaseUrl)
+                val metaResult = metaRepository.getMetaFromAllAddons(
+                    item.apiType,
+                    item.id,
+                    item.sourceAddonBaseUrl
+                )
                     .first { it is NetworkResult.Success || it is NetworkResult.Error }
                 when {
                     metaResult is NetworkResult.Success -> {
@@ -1406,7 +1623,9 @@ class FolderDetailViewModel @Inject constructor(
                             // Only apply artwork — TMDB already provided the rest.
                             updateItemInTabs(item.id) { merged ->
                                 merged.copy(
-                                    background = meta.background?.takeIf { it.isNotBlank() } ?: merged.background,
+                                    background =
+                                        meta.background?.takeIf { it.isNotBlank() }
+                                            ?: merged.background,
                                     logo = meta.logo?.takeIf { it.isNotBlank() } ?: merged.logo
                                 )
                             }
@@ -1414,19 +1633,30 @@ class FolderDetailViewModel @Inject constructor(
                             updateItemInTabs(item.id) { merged ->
                                 merged.copy(
                                     name = meta.name.takeIf { it.isNotBlank() } ?: merged.name,
-                                    description = meta.description?.takeIf { it.isNotBlank() } ?: merged.description,
-                                    background = meta.background?.takeIf { it.isNotBlank() } ?: merged.background,
+                                    description =
+                                        meta.description?.takeIf { it.isNotBlank() }
+                                            ?: merged.description,
+                                    background =
+                                        meta.background?.takeIf { it.isNotBlank() }
+                                            ?: merged.background,
                                     logo = meta.logo?.takeIf { it.isNotBlank() } ?: merged.logo,
-                                    genres = meta.genres.takeIf { it.isNotEmpty() } ?: merged.genres,
+                                    genres = meta.genres.takeIf {
+                                        it.isNotEmpty()
+                                    } ?: merged.genres,
                                     imdbRating = meta.imdbRating ?: merged.imdbRating,
-                                    releaseInfo = meta.releaseInfo?.takeIf { it.isNotBlank() } ?: merged.releaseInfo
+                                    releaseInfo =
+                                        meta.releaseInfo?.takeIf { it.isNotBlank() }
+                                            ?: merged.releaseInfo
                                 )
                             }
                         }
                     }
-                    metaResult is NetworkResult.Error && metaResult.code == NetworkResult.SOURCE_SUFFICIENT_CODE -> {
+
+                    metaResult is NetworkResult.Error &&
+                        metaResult.code == NetworkResult.SOURCE_SUFFICIENT_CODE -> {
                         // Catalog already has the best available meta — no update needed.
                     }
+
                     else -> {
                         // External meta also failed — mark as failed enrichment.
                         if (item.id !in _enrichedPreviews.value) {
@@ -1486,14 +1716,17 @@ class FolderDetailViewModel @Inject constructor(
                 )
 
                 val isLatestFocusedItem =
-                    activeTrailerPreviewItemId == itemId && trailerPreviewRequestVersion == requestVersion
+                    activeTrailerPreviewItemId == itemId &&
+                        trailerPreviewRequestVersion == requestVersion
                 if (!isLatestFocusedItem) return@launch
 
                 // Prefer the localized YT id provided by the caller (typically TMDB
                 // enrichment trailers in the user locale) when the direct TMDB videos
                 // lookup didn't find anything for this language and we'd otherwise
                 // fall through to TMDB's en-US fallback.
-                val resolvedSource = if (trailerSource?.videoUrl.isNullOrBlank() && !fallbackYtId.isNullOrBlank()) {
+                val resolvedSource = if (trailerSource?.videoUrl.isNullOrBlank() &&
+                    !fallbackYtId.isNullOrBlank()
+                ) {
                     trailerService.getTrailerPlaybackSourceFromYouTubeUrl(
                         youtubeUrl = "https://www.youtube.com/watch?v=$fallbackYtId",
                         title = title,
@@ -1534,7 +1767,15 @@ class FolderDetailViewModel @Inject constructor(
         val videoUrl = _trailerPreviewUrls.value[itemId] ?: return
         val audioUrl = _trailerPreviewAudioUrls.value[itemId]
         val youtubeKey = trailerPreviewYoutubeKeys[itemId]
-        if (backgroundTrailerController.beginTransfer(itemId, videoUrl, audioUrl, youtubeKey)) return
+        if (backgroundTrailerController.beginTransfer(
+                itemId,
+                videoUrl,
+                audioUrl,
+                youtubeKey
+            )
+        ) {
+            return
+        }
         trailerPlayerPool.beginHandoff(
             itemId = itemId,
             videoUrl = videoUrl,
@@ -1553,14 +1794,26 @@ class FolderDetailViewModel @Inject constructor(
             val existingRatings = _enrichedPreviews.value[itemId]?.mdbListRatings
             val tabsRatings = if (existingRatings == null) {
                 _uiState.value.tabs
-                    .firstNotNullOfOrNull { tab -> tab.catalogRow?.items?.firstOrNull { it.id == itemId } }
+                    .firstNotNullOfOrNull { tab ->
+                        tab.catalogRow?.items?.firstOrNull {
+                            it.id ==
+                                itemId
+                        }
+                    }
                     ?.mdbListRatings
-            } else null
+            } else {
+                null
+            }
             val ratings = existingRatings ?: tabsRatings
             if (ratings != null) {
                 val order = _enrichedPreviews.value[itemId]?.mdbListRatingOrder
                     ?: _uiState.value.tabs
-                        .firstNotNullOfOrNull { tab -> tab.catalogRow?.items?.firstOrNull { it.id == itemId } }
+                        .firstNotNullOfOrNull { tab ->
+                            tab.catalogRow?.items?.firstOrNull {
+                                it.id ==
+                                    itemId
+                            }
+                        }
                         ?.mdbListRatingOrder
                     ?: currentMdbListSettings?.enabledRatingOrder()
                     ?: com.kien.movies.domain.model.MDBListSettings.DEFAULT_RATING_ORDER
@@ -1569,8 +1822,12 @@ class FolderDetailViewModel @Inject constructor(
                     mdbListRatingOrder = order,
                     imdbRating = ratings.imdb?.toFloat() ?: item.imdbRating
                 )
-            } else item
-        } else item
+            } else {
+                item
+            }
+        } else {
+            item
+        }
         _enrichedPreviews.update { it + (itemId to withRatings) }
     }
 
@@ -1624,7 +1881,9 @@ class FolderDetailViewModel @Inject constructor(
             try {
                 var tmdbEnriched = false
                 if (tmdbEnabled) {
-                    val tmdbId = runCatching { tmdbService.ensureTmdbId(item.id, item.apiType) }.getOrNull()
+                    val tmdbId = runCatching {
+                        tmdbService.ensureTmdbId(item.id, item.apiType)
+                    }.getOrNull()
                     if (tmdbId != null) {
                         val enrichment = runCatching {
                             tmdbMetadataService.fetchEnrichment(
@@ -1645,7 +1904,12 @@ class FolderDetailViewModel @Inject constructor(
                                 if (tmdbSettings.useBasicInfo) {
                                     val isModern = _uiState.value.homeLayout == HomeLayout.MODERN
                                     result = result.copy(
-                                        name = if (isModern) enrichment.localizedTitle ?: result.name else result.name,
+                                        name = if (isModern) {
+                                            enrichment.localizedTitle
+                                                ?: result.name
+                                        } else {
+                                            result.name
+                                        },
                                         description = enrichment.description ?: result.description,
                                         genres = if (enrichment.genres.isNotEmpty()) enrichment.genres else result.genres
                                     )
@@ -1658,7 +1922,8 @@ class FolderDetailViewModel @Inject constructor(
                                 }
                                 if (tmdbSettings.useDetails) {
                                     result = result.copy(
-                                        runtime = enrichment.runtimeMinutes?.toString() ?: result.runtime,
+                                        runtime =
+                                            enrichment.runtimeMinutes?.toString() ?: result.runtime,
                                         ageRating = enrichment.ageRating ?: result.ageRating,
                                         status = enrichment.status ?: result.status
                                     )
@@ -1667,7 +1932,9 @@ class FolderDetailViewModel @Inject constructor(
                             }
                             // Don't emit enrichedPreviews yet if artwork fallback is pending —
                             // avoids flashing hero without logo.
-                            val artworkWillFollow = !tmdbSettings.useArtwork && item.logo.isNullOrBlank() && externalMetaEnabled
+                            val artworkWillFollow =
+                                !tmdbSettings.useArtwork && item.logo.isNullOrBlank() &&
+                                    externalMetaEnabled
                             if (!artworkWillFollow) {
                                 val enrichedItem = _uiState.value.tabs
                                     .firstNotNullOfOrNull { tab ->
@@ -1684,31 +1951,58 @@ class FolderDetailViewModel @Inject constructor(
                 }
                 if (!tmdbEnriched && externalMetaEnabled && item.id !in prefetchedExternalMetaIds) {
                     prefetchedExternalMetaIds.add(item.id)
-                    val result = metaRepository.getMetaFromAllAddons(item.apiType, item.id, item.sourceAddonBaseUrl)
-                        .first { it is com.kien.movies.core.network.NetworkResult.Success || it is com.kien.movies.core.network.NetworkResult.Error }
+                    val result = metaRepository.getMetaFromAllAddons(
+                        item.apiType,
+                        item.id,
+                        item.sourceAddonBaseUrl
+                    )
+                        .first {
+                            it is com.kien.movies.core.network.NetworkResult.Success ||
+                                it is com.kien.movies.core.network.NetworkResult.Error
+                        }
                     if (result is com.kien.movies.core.network.NetworkResult.Success) {
                         enrichedItemIds.add(item.id)
                         val meta = result.data
                         updateItemInTabs(item.id) { merged ->
                             merged.copy(
                                 name = meta.name.takeIf { it.isNotBlank() } ?: merged.name,
-                                description = meta.description?.takeIf { it.isNotBlank() } ?: merged.description,
-                                background = meta.background?.takeIf { it.isNotBlank() } ?: merged.background,
+                                description =
+                                    meta.description?.takeIf { it.isNotBlank() }
+                                        ?: merged.description,
+                                background =
+                                    meta.background?.takeIf {
+                                        it.isNotBlank()
+                                    } ?: merged.background,
                                 logo = meta.logo?.takeIf { it.isNotBlank() } ?: merged.logo,
                                 genres = meta.genres.takeIf { it.isNotEmpty() } ?: merged.genres,
                                 imdbRating = meta.imdbRating ?: merged.imdbRating,
-                                releaseInfo = meta.releaseInfo?.takeIf { it.isNotBlank() } ?: merged.releaseInfo
+                                releaseInfo =
+                                    meta.releaseInfo?.takeIf { it.isNotBlank() }
+                                        ?: merged.releaseInfo
                             )
                         }
                         val enrichedItem = _uiState.value.tabs
-                            .firstNotNullOfOrNull { tab -> tab.catalogRow?.items?.firstOrNull { it.id == item.id } }
+                            .firstNotNullOfOrNull { tab ->
+                                tab.catalogRow?.items?.firstOrNull {
+                                    it.id ==
+                                        item.id
+                                }
+                            }
                         if (enrichedItem != null) {
                             publishEnrichedPreview(item.id, enrichedItem)
                         }
-                    } else if (result is com.kien.movies.core.network.NetworkResult.Error && result.code == com.kien.movies.core.network.NetworkResult.SOURCE_SUFFICIENT_CODE) {
+                    } else if (result is com.kien.movies.core.network.NetworkResult.Error &&
+                        result.code ==
+                        com.kien.movies.core.network.NetworkResult.SOURCE_SUFFICIENT_CODE
+                    ) {
                         enrichedItemIds.add(item.id)
                         val enrichedItem = _uiState.value.tabs
-                            .firstNotNullOfOrNull { tab -> tab.catalogRow?.items?.firstOrNull { it.id == item.id } }
+                            .firstNotNullOfOrNull { tab ->
+                                tab.catalogRow?.items?.firstOrNull {
+                                    it.id ==
+                                        item.id
+                                }
+                            }
                         if (enrichedItem != null) {
                             publishEnrichedPreview(item.id, enrichedItem)
                         }
@@ -1719,13 +2013,23 @@ class FolderDetailViewModel @Inject constructor(
                     item.logo.isNullOrBlank() && item.id !in prefetchedExternalMetaIds
                 if (adjArtworkMissing && externalMetaEnabled) {
                     prefetchedExternalMetaIds.add(item.id)
-                    val result = metaRepository.getMetaFromAllAddons(item.apiType, item.id, item.sourceAddonBaseUrl)
-                        .first { it is com.kien.movies.core.network.NetworkResult.Success || it is com.kien.movies.core.network.NetworkResult.Error }
+                    val result = metaRepository.getMetaFromAllAddons(
+                        item.apiType,
+                        item.id,
+                        item.sourceAddonBaseUrl
+                    )
+                        .first {
+                            it is com.kien.movies.core.network.NetworkResult.Success ||
+                                it is com.kien.movies.core.network.NetworkResult.Error
+                        }
                     if (result is com.kien.movies.core.network.NetworkResult.Success) {
                         val meta = result.data
                         updateItemInTabs(item.id) { merged ->
                             merged.copy(
-                                background = meta.background?.takeIf { it.isNotBlank() } ?: merged.background,
+                                background =
+                                    meta.background?.takeIf {
+                                        it.isNotBlank()
+                                    } ?: merged.background,
                                 logo = meta.logo?.takeIf { it.isNotBlank() } ?: merged.logo
                             )
                         }
@@ -1738,7 +2042,10 @@ class FolderDetailViewModel @Inject constructor(
                         }
                         enrichedItemIds.add(item.id)
                         rebuildFollowLayoutState()
-                    } else if (result is com.kien.movies.core.network.NetworkResult.Error && result.code == com.kien.movies.core.network.NetworkResult.SOURCE_SUFFICIENT_CODE) {
+                    } else if (result is com.kien.movies.core.network.NetworkResult.Error &&
+                        result.code ==
+                        com.kien.movies.core.network.NetworkResult.SOURCE_SUFFICIENT_CODE
+                    ) {
                         // Source addon matched — catalog data is sufficient, mark as enriched.
                         enrichedItemIds.add(item.id)
                     } else {
@@ -1753,7 +2060,6 @@ class FolderDetailViewModel @Inject constructor(
             }
         }
     }
-
 }
 
 /**

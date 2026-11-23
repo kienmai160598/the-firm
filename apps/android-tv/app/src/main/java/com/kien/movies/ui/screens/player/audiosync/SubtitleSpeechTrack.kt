@@ -5,7 +5,7 @@ import com.kien.movies.ui.screens.player.SubtitleSdhFilter
 /** Dialogue intervals of a subtitle file, in subtitle time (milliseconds). */
 internal class SubtitleSpeechTrack private constructor(
     val startsMs: LongArray,
-    val endsMs: LongArray,
+    val endsMs: LongArray
 ) {
     val size: Int get() = startsMs.size
 
@@ -17,7 +17,7 @@ internal class SubtitleSpeechTrack private constructor(
     val starts: SubtitleSpeechTrack by lazy {
         SubtitleSpeechTrack(
             startsMs = LongArray(size) { startsMs[it] - START_HALF_WIDTH_MS },
-            endsMs = LongArray(size) { startsMs[it] + START_HALF_WIDTH_MS },
+            endsMs = LongArray(size) { startsMs[it] + START_HALF_WIDTH_MS }
         )
     }
 
@@ -25,8 +25,7 @@ internal class SubtitleSpeechTrack private constructor(
      * Fractional on-screen coverage per 32 ms frame for frames [fromFrame, toFrame) after mapping
      * subtitle time t to media time t * [scale].
      */
-    fun render(fromFrame: Int, toFrame: Int, scale: Double): DoubleArray =
-        renderInto(DoubleArray((toFrame - fromFrame).coerceAtLeast(0)), fromFrame, scale)
+    fun render(fromFrame: Int, toFrame: Int, scale: Double): DoubleArray = renderInto(DoubleArray((toFrame - fromFrame).coerceAtLeast(0)), fromFrame, scale)
 
     fun renderInto(out: DoubleArray, fromFrame: Int, scale: Double): DoubleArray {
         out.fill(0.0)
@@ -71,20 +70,26 @@ internal class SubtitleSpeechTrack private constructor(
         fun fromCues(cues: List<Triple<Long, Long, String>>): SubtitleSpeechTrack {
             val kept = cues
                 .asSequence()
-                .filter { (start, end, _) -> start >= 0L && end > start && end - start < MAX_CUE_DURATION_MS }
+                .filter { (start, end, _) ->
+                    start >= 0L && end > start &&
+                        end - start < MAX_CUE_DURATION_MS
+                }
                 .filter { (_, _, text) -> isDialogue(text) }
                 .sortedBy { it.first }
                 .toList()
             return SubtitleSpeechTrack(
                 startsMs = LongArray(kept.size) { kept[it].first },
-                endsMs = LongArray(kept.size) { kept[it].second },
+                endsMs = LongArray(kept.size) { kept[it].second }
             )
         }
 
         internal fun isDialogue(text: String): Boolean {
             if (text.isBlank()) return true // Bitmap or styled cues without text still mark dialogue.
             val filtered = SubtitleSdhFilter.filterPlainText(text) ?: return false
-            val lines = filtered.lines().filterNot { musicOnly.matches(it) || musicWrapped.matches(it) }
+            val lines = filtered.lines().filterNot {
+                musicOnly.matches(it) ||
+                    musicWrapped.matches(it)
+            }
             return lines.any { line -> line.any(Char::isLetterOrDigit) }
         }
 

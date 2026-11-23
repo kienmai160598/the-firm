@@ -5,10 +5,10 @@ import com.kien.movies.R
 import com.kien.movies.data.repository.PlaybackIssueErrorInput
 import `is`.xyz.mpv.MPV
 import `is`.xyz.mpv.MPVNode
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
 
 private const val MPV_END_FILE_REASON_ERROR = "error"
 
@@ -24,7 +24,8 @@ private const val MPV_RETRY_DELAY_MS = 1_500L
 private const val MPV_STABLE_PROGRESS_RESET_DELAY_MS = 5_000L
 private const val MPV_ERROR_LOG_LINES = 6
 
-private val MPV_HTTP_ERROR_REGEX = Regex("HTTP error (\\d{3})(?:\\s+(.+))?", RegexOption.IGNORE_CASE)
+private val MPV_HTTP_ERROR_REGEX =
+    Regex("HTTP error (\\d{3})(?:\\s+(.+))?", RegexOption.IGNORE_CASE)
 private val MPV_URL_REGEX = Regex("https?://\\S+")
 private val MPV_FFMPEG_ADDR_REGEX = Regex("\\s*@\\s*0x[0-9a-fA-F]+")
 private val MPV_DIAGNOSTIC_LOG_REGEX = Regex(
@@ -45,7 +46,7 @@ private val MPV_OUTPUT_CAUSE_REGEX = Regex(
 internal data class MpvEndFile(
     val reason: String,
     val fileError: String?,
-    val playlistEntryId: Long?,
+    val playlistEntryId: Long?
 ) {
     val isPlaybackError: Boolean
         get() = reason.equals(MPV_END_FILE_REASON_ERROR, ignoreCase = true)
@@ -78,7 +79,8 @@ internal fun mpvErrorCodeForFileError(fileError: String?): Int = when (fileError
 internal class MpvEventRelay(
     private val controller: PlayerRuntimeController,
     private val epoch: Long
-) : MPV.EventObserver, MPV.LogObserver {
+) : MPV.EventObserver,
+    MPV.LogObserver {
 
     val active = AtomicBoolean(true)
 
@@ -196,7 +198,11 @@ internal fun PlayerRuntimeController.onMpvLogLine(prefix: String, level: Int, te
     if (level > MPV.mpvLogLevel.MPV_LOG_LEVEL_INFO) return
     val isInfo = level > MPV.mpvLogLevel.MPV_LOG_LEVEL_WARN
     if (isInfo && !mpvInfoLineIsUseful(text)) return
-    if (!isInfo && level > MPV.mpvLogLevel.MPV_LOG_LEVEL_ERROR && !isHttp && !mpvWarnLineIsUseful(prefix, text)) return
+    if (!isInfo && level > MPV.mpvLogLevel.MPV_LOG_LEVEL_ERROR && !isHttp &&
+        !mpvWarnLineIsUseful(prefix, text)
+    ) {
+        return
+    }
     val body = text.replace(MPV_URL_REGEX, "").trim().take(300)
     if (body.isEmpty()) return
     val line = if (prefix.isBlank()) body else "[${prefix.trim()}] $body"
@@ -249,9 +255,11 @@ internal fun PlayerRuntimeController.handleMpvPlaybackError(
         )
         val detailedError = when {
             detailedErrorOverride == null -> technical
+
             technical.isBlank() ||
                 technical.equals(fallback, ignoreCase = true) ||
                 detailedErrorOverride.contains(technical) -> detailedErrorOverride
+
             else -> "$detailedErrorOverride\n\n$technical"
         }
         Log.e(
@@ -294,7 +302,11 @@ internal fun PlayerRuntimeController.handleMpvPlaybackError(
             mpvView?.currentPositionMs()?.coerceAtLeast(0L) ?: 0L
         }
         val retryCanHelp = httpCode == null || !isPermanentHttpStatus(httpCode)
-        if (retryCanHelp && attemptMpvAutoRetry(detailedError = detailedError, savedPosition = savedPosition)) return
+        if (retryCanHelp &&
+            attemptMpvAutoRetry(detailedError = detailedError, savedPosition = savedPosition)
+        ) {
+            return
+        }
 
         finishLoadingDiagnostics("mpv_error")
         cancelNextEpisodeAutoPlayOnFatalError()
@@ -361,7 +373,8 @@ internal fun PlayerRuntimeController.maybeRunMpvStartupWatchdog(view: MoviesMpvS
         idleActive = runCatching { view.mpv.getPropertyBoolean("idle-active") }.getOrNull() == true
         if (!idleActive) {
             val cacheSec = runCatching { view.demuxerCacheDurationSec() }.getOrDefault(0.0)
-            cacheProgressing = MpvStartupWatchdogPolicy.cacheIsProgressing(mpvLastDemuxerCacheSec, cacheSec)
+            cacheProgressing =
+                MpvStartupWatchdogPolicy.cacheIsProgressing(mpvLastDemuxerCacheSec, cacheSec)
             if (cacheSec > mpvLastDemuxerCacheSec) {
                 mpvLastDemuxerCacheSec = cacheSec
             }
@@ -389,15 +402,18 @@ internal fun PlayerRuntimeController.maybeRunMpvStartupWatchdog(view: MoviesMpvS
 
     when (step.action) {
         MpvStartupWatchdogPolicy.Action.Continue -> Unit
+
         MpvStartupWatchdogPolicy.Action.SurfaceTimeout -> handleMpvPlaybackError(
             source = "surface_timeout",
             mpvErrorCode = MPV_ERROR_GENERIC,
             detailedErrorOverride = context.getString(R.string.player_error_mpv_surface_failed)
         )
+
         MpvStartupWatchdogPolicy.Action.IdleError -> handleMpvPlaybackError(
             source = "idle_active",
             mpvErrorCode = MPV_ERROR_LOADING_FAILED
         )
+
         MpvStartupWatchdogPolicy.Action.StallTimeout,
         MpvStartupWatchdogPolicy.Action.AbsoluteTimeout -> handleMpvPlaybackError(
             source = if (step.action == MpvStartupWatchdogPolicy.Action.StallTimeout) {
@@ -449,14 +465,25 @@ private fun PlayerRuntimeController.mpvCodecContextLine(): String? {
             ?.trim()
             ?.substringBefore(" (")
             ?.trim()
-            ?.takeIf { it.isNotEmpty() && !it.equals("unknown", ignoreCase = true) && !it.equals("no", ignoreCase = true) }
+            ?.takeIf {
+                it.isNotEmpty() && !it.equals("unknown", ignoreCase = true) &&
+                    !it.equals("no", ignoreCase = true)
+            }
     }.getOrNull()
     val existing = mpvLastErrorLogLine.orEmpty()
     val width = runCatching { mpv.getPropertyInt("width") }.getOrNull()?.takeIf { it > 0 }
     val height = runCatching { mpv.getPropertyInt("height") }.getOrNull()?.takeIf { it > 0 }
     val resolution = if (width != null && height != null) "${width}x$height" else null
-    val rate = runCatching { mpv.getPropertyInt("audio-params/samplerate") }.getOrNull()?.takeIf { it > 0 }
-    val channels = runCatching { mpv.getPropertyInt("audio-params/channel-count") }.getOrNull()?.takeIf { it > 0 }
+    val rate = runCatching { mpv.getPropertyInt("audio-params/samplerate") }.getOrNull()?.takeIf {
+        it >
+            0
+    }
+    val channels = runCatching {
+        mpv.getPropertyInt("audio-params/channel-count")
+    }.getOrNull()?.takeIf {
+        it >
+            0
+    }
     val parts = listOfNotNull(
         fresh(existing, prop("file-format")),
         fresh(existing, prop("current-vo") ?: prop("vo"), label = "vo"),
@@ -545,7 +572,10 @@ internal fun mpvDirectErrorMessage(
             if (!file.isNullOrBlank()) append(" [$file]")
             specific.take(MPV_ERROR_LOG_LINES).forEach { line ->
                 if (!file.isNullOrBlank() &&
-                    (line.contains(file, ignoreCase = true) || file.contains(line, ignoreCase = true))
+                    (
+                        line.contains(file, ignoreCase = true) ||
+                            file.contains(line, ignoreCase = true)
+                        )
                 ) {
                     return@forEach
                 }
@@ -556,11 +586,29 @@ internal fun mpvDirectErrorMessage(
     }
     val unique = details.distinctBy { it.lowercase() }
     val specific = unique.filter { !mpvDetailIsWrapper(it) }
-    val chosen = (if (specific.isNotEmpty()) specific else unique.filter { !mpvDetailIsGeneric(it) }.ifEmpty { unique })
+    val chosen = (
+        if (specific.isNotEmpty()) {
+            specific
+        } else {
+            unique.filter {
+                !mpvDetailIsGeneric(it)
+            }.ifEmpty { unique }
+        }
+        )
         .take(MPV_ERROR_LOG_LINES)
         .toMutableList()
-    if (chosen.isEmpty()) return prependMpvStatusExplanation(statusExplanation, file ?: fallback, fallback)
-    if (file != null && chosen.none { it.equals(file, ignoreCase = true) || it.contains(file, ignoreCase = true) }) {
+    if (chosen.isEmpty()) {
+        return prependMpvStatusExplanation(
+            statusExplanation,
+            file ?: fallback,
+            fallback
+        )
+    }
+    if (file != null &&
+        chosen.none {
+            it.equals(file, ignoreCase = true) || it.contains(file, ignoreCase = true)
+        }
+    ) {
         if (mpvFileErrorHeadsCause(file)) {
             chosen.add(0, file)
         } else {
@@ -637,7 +685,10 @@ internal enum class MpvNonHttpExplanationKind {
     OpenFailed
 }
 
-internal fun mpvNonHttpExplanationKind(fileError: String?, logLine: String?): MpvNonHttpExplanationKind {
+internal fun mpvNonHttpExplanationKind(
+    fileError: String?,
+    logLine: String?
+): MpvNonHttpExplanationKind {
     val file = fileError?.trim()?.lowercase().orEmpty()
     val log = logLine?.lowercase().orEmpty()
     if (file == "unrecognized file format" ||
@@ -666,15 +717,21 @@ internal fun mpvNonHttpExplanationText(
     val raw = when (mpvNonHttpExplanationKind(fileError, logLine)) {
         MpvNonHttpExplanationKind.InvalidContent ->
             context.getString(R.string.player_error_source_invalid_content, "")
+
         MpvNonHttpExplanationKind.UnsupportedFormat ->
             context.getString(R.string.player_error_unsupported_format, "")
+
         MpvNonHttpExplanationKind.OpenFailed ->
             context.getString(R.string.player_error_stream_unavailable)
     }
     return raw.trim().removeSuffix("[]").trim()
 }
 
-internal fun prependMpvStatusExplanation(statusExplanation: String, technical: String, fallback: String): String {
+internal fun prependMpvStatusExplanation(
+    statusExplanation: String,
+    technical: String,
+    fallback: String
+): String {
     val explanation = statusExplanation.trim()
     val detail = technical.trim()
     if (explanation.isEmpty()) return detail

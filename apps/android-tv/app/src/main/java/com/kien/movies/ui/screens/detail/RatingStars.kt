@@ -52,9 +52,9 @@ import com.kien.movies.core.tracking.TrackingRatings
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
-import kotlinx.coroutines.delay
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
 
 private const val StarCount = 5
 
@@ -105,18 +105,28 @@ internal fun RatingStars(
                 }
                 when {
                     step != 0 -> {
-                        if (native.action == AndroidKeyEvent.ACTION_DOWN) select(currentValue + step)
+                        if (native.action ==
+                            AndroidKeyEvent.ACTION_DOWN
+                        ) {
+                            select(currentValue + step)
+                        }
                         true
                     }
+
                     native.keyCode in AndroidKeyEvent.KEYCODE_0..AndroidKeyEvent.KEYCODE_9 -> {
-                        if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0) {
+                        if (native.action == AndroidKeyEvent.ACTION_DOWN &&
+                            native.repeatCount == 0
+                        ) {
                             val digit = native.keyCode - AndroidKeyEvent.KEYCODE_0
                             select(if (digit == 0) TrackingRatings.MAX else digit)
                         }
                         true
                     }
+
                     isRatingSelectKey(native.keyCode) -> {
-                        if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0) {
+                        if (native.action == AndroidKeyEvent.ACTION_DOWN &&
+                            native.repeatCount == 0
+                        ) {
                             confirmArmed = true
                         } else if (native.action == AndroidKeyEvent.ACTION_UP && confirmArmed) {
                             confirmArmed = false
@@ -124,6 +134,7 @@ internal fun RatingStars(
                         }
                         true
                     }
+
                     else -> false
                 }
             }
@@ -216,7 +227,6 @@ private fun Star(
     }
 }
 
-private fun isRatingSelectKey(keyCode: Int): Boolean =
-    keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_ENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
+private fun isRatingSelectKey(keyCode: Int): Boolean = keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||
+    keyCode == AndroidKeyEvent.KEYCODE_ENTER ||
+    keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER

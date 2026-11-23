@@ -29,14 +29,24 @@ data class CustomThemeColors(
         fun decode(value: String?): CustomThemeColors {
             val colors = value?.split(",")?.map { parseHexColor(it) ?: return Default }
                 ?: return Default
-            return if (colors.size == 3) CustomThemeColors(colors[0], colors[1], colors[2]) else Default
+            return if (colors.size ==
+                3
+            ) {
+                CustomThemeColors(colors[0], colors[1], colors[2])
+            } else {
+                Default
+            }
         }
     }
 }
 
 fun parseHexColor(value: String): Int? {
     val hex = value.trim().removePrefix("#")
-    if (hex.length != 6 || hex.any { it !in '0'..'9' && it.uppercaseChar() !in 'A'..'F' }) return null
+    if (hex.length != 6 ||
+        hex.any { it !in '0'..'9' && it.uppercaseChar() !in 'A'..'F' }
+    ) {
+        return null
+    }
     return hex.toIntOrNull(16)
 }
 

@@ -138,7 +138,9 @@ class SimklApiClientTest {
         val invalidEngine = RecordingEngine(response(400, """{"error":"wrong_parameter"}"""))
         val invalidHarness = Harness(invalidEngine)
         val error = assertThrows(SimklApiException::class.java) {
-            runBlocking { invalidHarness.client.execute(SimklApiRequest(SimklHttpMethod.POST, "/bad")) }
+            runBlocking {
+                invalidHarness.client.execute(SimklApiRequest(SimklHttpMethod.POST, "/bad"))
+            }
         }
         assertEquals("wrong_parameter", error.errorCode)
         assertEquals(1, invalidEngine.requests.size)
@@ -150,7 +152,9 @@ class SimklApiClientTest {
         val harness = Harness(engine)
 
         assertThrows(SimklApiException::class.java) {
-            runBlocking { harness.client.execute(SimklApiRequest(SimklHttpMethod.GET, "/unavailable")) }
+            runBlocking {
+                harness.client.execute(SimklApiRequest(SimklHttpMethod.GET, "/unavailable"))
+            }
         }
 
         assertEquals(5, engine.requests.size)
@@ -222,10 +226,7 @@ class SimklApiClientTest {
         assertTrue(result.isSoftSuccess)
     }
 
-    private class Harness(
-        engine: RecordingEngine,
-        responseDurationMs: Long = 0L
-    ) {
+    private class Harness(engine: RecordingEngine, responseDurationMs: Long = 0L) {
         var now = 0L
         val sleeps = mutableListOf<Long>()
         var wasUnauthorized = false
@@ -238,7 +239,10 @@ class SimklApiClientTest {
             authorization = { testSimklAuthorization() },
             onUnauthorized = { wasUnauthorized = true },
             nowEpochMs = { now },
-            sleep = { delay -> sleeps += delay; now += delay },
+            sleep = { delay ->
+                sleeps += delay
+                now += delay
+            },
             retryJitterMs = { 0L }
         )
     }

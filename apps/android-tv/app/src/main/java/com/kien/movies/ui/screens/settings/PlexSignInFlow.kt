@@ -100,7 +100,9 @@ class PlexSignInFlow(
                 fail(error)
                 return
             }
-            mutableState.update { it.copy(pin = pin, codePhase = PlexCodePhase.WAITING, error = null) }
+            mutableState.update {
+                it.copy(pin = pin, codePhase = PlexCodePhase.WAITING, error = null)
+            }
             val token = awaitLink(provider, pin)
             if (token != null) {
                 linked(provider, token)
@@ -151,7 +153,11 @@ class PlexSignInFlow(
             fail(error)
             return
         }
-        val ordered = reached.sortedWith(compareBy({ it.reach.ordinal }, { !it.owned }, { it.name.lowercase() }))
+        val ordered = reached.sortedWith(
+            compareBy({
+                it.reach.ordinal
+            }, { !it.owned }, { it.name.lowercase() })
+        )
         mutableState.update { it.copy(servers = ordered, serversLoading = false) }
         ordered.singleOrNull()?.takeIf { it.reach != PlexReach.OFFLINE }?.let(::pickServer)
     }
@@ -162,8 +168,16 @@ class PlexSignInFlow(
         mutableState.update { it.copy(server = server, error = null) }
         val only = state.users.singleOrNull()
         when {
-            state.users.isEmpty() || only != null && !only.hasPin -> finish(server, only, pin = null)
-            only != null -> mutableState.update { it.copy(step = PlexSignInStep.PIN, pinFor = only, pinWrong = false) }
+            state.users.isEmpty() || only != null && !only.hasPin -> finish(
+                server,
+                only,
+                pin = null
+            )
+
+            only != null -> mutableState.update {
+                it.copy(step = PlexSignInStep.PIN, pinFor = only, pinWrong = false)
+            }
+
             else -> mutableState.update { it.copy(step = PlexSignInStep.USERS) }
         }
     }
@@ -172,7 +186,9 @@ class PlexSignInFlow(
         val server = mutableState.value.server ?: return
         if (mutableState.value.busy) return
         if (user.hasPin) {
-            mutableState.update { it.copy(step = PlexSignInStep.PIN, pinFor = user, pinWrong = false, error = null) }
+            mutableState.update {
+                it.copy(step = PlexSignInStep.PIN, pinFor = user, pinWrong = false, error = null)
+            }
         } else {
             finish(server, user, pin = null)
         }
@@ -190,11 +206,21 @@ class PlexSignInFlow(
         val state = mutableState.value
         if (state.busy) return
         val previous = when (state.step) {
-            PlexSignInStep.PIN -> if (state.users.size > 1) PlexSignInStep.USERS else PlexSignInStep.SERVERS
+            PlexSignInStep.PIN -> if (state.users.size >
+                1
+            ) {
+                PlexSignInStep.USERS
+            } else {
+                PlexSignInStep.SERVERS
+            }
+
             PlexSignInStep.USERS -> PlexSignInStep.SERVERS
+
             else -> return
         }
-        mutableState.update { it.copy(step = previous, pinFor = null, pinWrong = false, error = null) }
+        mutableState.update {
+            it.copy(step = previous, pinFor = null, pinWrong = false, error = null)
+        }
     }
 
     private fun finish(server: PlexServer, user: PlexHomeUser?, pin: String?) {
@@ -204,7 +230,13 @@ class PlexSignInFlow(
         mutableState.update { it.copy(busy = true, pinWrong = false, error = null) }
         job = scope.launch {
             val connection = try {
-                val switched = if (user == null) owner else provider.account.switchUser(owner, user, pin)
+                val switched = if (user ==
+                    null
+                ) {
+                    owner
+                } else {
+                    provider.account.switchUser(owner, user, pin)
+                }
                 if (switched == null) {
                     mutableState.update { it.copy(busy = false, pinWrong = true) }
                     return@launch
@@ -215,7 +247,9 @@ class PlexSignInFlow(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                mutableState.update { it.copy(step = step, busy = false, error = error.serverFailure()) }
+                mutableState.update {
+                    it.copy(step = step, busy = false, error = error.serverFailure())
+                }
                 return@launch
             }
             this@PlexSignInFlow.owner = null
@@ -234,7 +268,12 @@ class PlexSignInFlow(
 
     private fun fail(error: Exception) {
         mutableState.update {
-            it.copy(step = PlexSignInStep.FAILED, busy = false, serversLoading = false, error = error.serverFailure())
+            it.copy(
+                step = PlexSignInStep.FAILED,
+                busy = false,
+                serversLoading = false,
+                error = error.serverFailure()
+            )
         }
     }
 

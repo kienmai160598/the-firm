@@ -2,6 +2,7 @@ package com.kien.movies.data.mdblist
 
 import android.content.Context
 import com.kien.movies.domain.model.MDBListRatings
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -11,7 +12,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.json.JSONObject
-import java.io.File
 
 internal class MdbListRatingsDiskCache(
     private val context: Context,
@@ -38,7 +38,10 @@ internal class MdbListRatingsDiskCache(
             if (loaded) return
             try {
                 val file = cacheFile()
-                if (!file.exists()) { loaded = true; return }
+                if (!file.exists()) {
+                    loaded = true
+                    return
+                }
                 val json = JSONObject(file.readText())
                 val map = mutableMapOf<String, Entry>()
                 val cutoff = now() - TTL_MS
@@ -130,8 +133,7 @@ internal class MdbListRatingsDiskCache(
         audienceCertified = obj.optBoolean("ac", false)
     )
 
-    private fun JSONObject.optDoubleOrNull(key: String): Double? =
-        if (has(key)) optDouble(key).takeIf { !it.isNaN() } else null
+    private fun JSONObject.optDoubleOrNull(key: String): Double? = if (has(key)) optDouble(key).takeIf { !it.isNaN() } else null
 
     companion object {
         private const val TTL_MS = 12L * 60L * 60L * 1000L

@@ -4,12 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kien.movies.R
-import com.kien.movies.core.sync.CollectionSyncService
-import com.kien.movies.core.sync.HomeCatalogSettingsSyncService
-import com.kien.movies.core.sync.StartupSyncService
-import com.kien.movies.core.sync.homeCatalogKey
-import com.kien.movies.core.sync.homeLegacyDisabledCatalogKey
 import com.kien.movies.core.network.NetworkResult
+import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.core.qr.QrCodeGenerator
 import com.kien.movies.core.server.AddonConfigServer
 import com.kien.movies.core.server.AddonInfo
@@ -31,18 +27,22 @@ import com.kien.movies.core.server.TraktSourceMetadataInfo
 import com.kien.movies.core.server.TraktSourceMetadataRequest
 import com.kien.movies.core.server.TraktSourceSearchRequest
 import com.kien.movies.core.server.TraktSourceSearchResultInfo
-import com.kien.movies.core.profile.ProfileManager
+import com.kien.movies.core.sync.CollectionSyncService
+import com.kien.movies.core.sync.HomeCatalogSettingsSyncService
+import com.kien.movies.core.sync.StartupSyncService
+import com.kien.movies.core.sync.homeCatalogKey
+import com.kien.movies.core.sync.homeLegacyDisabledCatalogKey
 import com.kien.movies.core.tmdb.TmdbCollectionSourceResolver
 import com.kien.movies.core.trakt.TraktPublicListSourceResolver
 import com.kien.movies.core.util.readAppLogoBytes
 import com.kien.movies.data.local.CollectionsDataStore
-import com.kien.movies.data.repository.TrackingAddonConsentController
-import com.kien.movies.data.repository.isTrackingAddon
 import com.kien.movies.data.local.ExperienceModeDataStore
 import com.kien.movies.data.local.LayoutPreferenceDataStore
+import com.kien.movies.data.repository.TrackingAddonConsentController
+import com.kien.movies.data.repository.isTrackingAddon
 import com.kien.movies.domain.model.Addon
-import com.kien.movies.domain.model.Collection
 import com.kien.movies.domain.model.AddonCatalogCollectionSource
+import com.kien.movies.domain.model.Collection
 import com.kien.movies.domain.model.ExperienceMode
 import com.kien.movies.domain.model.TmdbCollectionSource
 import com.kien.movies.domain.model.TmdbCollectionSourceType
@@ -51,9 +51,13 @@ import com.kien.movies.domain.model.enabledAddons
 import com.kien.movies.domain.repository.AddonRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -61,13 +65,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import javax.inject.Inject
 
 @HiltViewModel
 class AddonManagerViewModel @Inject constructor(
@@ -164,7 +164,10 @@ class AddonManagerViewModel @Inject constructor(
             when (val result = addonRepository.fetchAddon(normalizedUrl)) {
                 is NetworkResult.Success -> {
                     if (result.data.isTrackingAddon) {
-                        val decision = trackingAddonConsentController.request(normalizedUrl, result.data)
+                        val decision = trackingAddonConsentController.request(
+                            normalizedUrl,
+                            result.data
+                        )
                         _uiState.update { it.copy(isInstalling = false) }
                         if (decision.await()) {
                             _uiState.update { it.copy(installUrl = "") }
@@ -177,11 +180,15 @@ class AddonManagerViewModel @Inject constructor(
                         it.copy(
                             isInstalling = false,
                             installUrl = "",
-                            transientMessage = context.getString(R.string.addon_install_success, addonName),
+                            transientMessage = context.getString(
+                                R.string.addon_install_success,
+                                addonName
+                            ),
                             transientMessageIsError = false
                         )
                     }
                 }
+
                 is NetworkResult.Error -> {
                     val message = result.message
                     _uiState.update {
@@ -193,6 +200,7 @@ class AddonManagerViewModel @Inject constructor(
                         )
                     }
                 }
+
                 NetworkResult.Loading -> {
                     _uiState.update { it.copy(isInstalling = true) }
                 }
@@ -317,10 +325,7 @@ class AddonManagerViewModel @Inject constructor(
         }
     }
 
-    private fun orderAddonsByKeys(
-        addons: List<Addon>,
-        orderKeys: List<String>
-    ): List<Addon> {
+    private fun orderAddonsByKeys(addons: List<Addon>, orderKeys: List<String>): List<Addon> {
         val byUrl = addons.associateBy { it.baseUrl }
         val seen = LinkedHashSet<String>()
         val ordered = ArrayList<Addon>(addons.size)
@@ -447,7 +452,9 @@ class AddonManagerViewModel @Inject constructor(
 
         val activeServer = server
         if (activeServer == null) {
-            _uiState.update { it.copy(error = context.getString(R.string.error_server_ports_unavailable)) }
+            _uiState.update {
+                it.copy(error = context.getString(R.string.error_server_ports_unavailable))
+            }
             return
         }
 
@@ -481,18 +488,38 @@ class AddonManagerViewModel @Inject constructor(
         server = null
     }
 
-    private fun fetchTmdbSourceMetadata(request: TmdbSourceMetadataRequest): TmdbSourceMetadataInfo? {
-        val sourceType = runCatching { TmdbCollectionSourceType.valueOf(request.sourceType.uppercase()) }.getOrNull()
-            ?: return null
+    private fun fetchTmdbSourceMetadata(
+        request: TmdbSourceMetadataRequest
+    ): TmdbSourceMetadataInfo? {
+        val sourceType =
+            runCatching {
+                TmdbCollectionSourceType.valueOf(request.sourceType.uppercase())
+            }.getOrNull()
+                ?: return null
         return runBlocking {
             runCatching {
                 val metadata = when (sourceType) {
-                    TmdbCollectionSourceType.LIST -> tmdbCollectionSourceResolver.listImportMetadata(request.tmdbId)
-                    TmdbCollectionSourceType.COLLECTION -> tmdbCollectionSourceResolver.collectionImportMetadata(request.tmdbId)
-                    TmdbCollectionSourceType.COMPANY -> tmdbCollectionSourceResolver.companyImportMetadata(request.tmdbId)
-                    TmdbCollectionSourceType.NETWORK -> tmdbCollectionSourceResolver.networkImportMetadata(request.tmdbId)
+                    TmdbCollectionSourceType.LIST -> tmdbCollectionSourceResolver.listImportMetadata(
+                        request.tmdbId
+                    )
+
+                    TmdbCollectionSourceType.COLLECTION -> tmdbCollectionSourceResolver.collectionImportMetadata(
+                        request.tmdbId
+                    )
+
+                    TmdbCollectionSourceType.COMPANY -> tmdbCollectionSourceResolver.companyImportMetadata(
+                        request.tmdbId
+                    )
+
+                    TmdbCollectionSourceType.NETWORK -> tmdbCollectionSourceResolver.networkImportMetadata(
+                        request.tmdbId
+                    )
+
                     TmdbCollectionSourceType.PERSON,
-                    TmdbCollectionSourceType.DIRECTOR -> tmdbCollectionSourceResolver.personImportMetadata(request.tmdbId)
+                    TmdbCollectionSourceType.DIRECTOR -> tmdbCollectionSourceResolver.personImportMetadata(
+                        request.tmdbId
+                    )
+
                     TmdbCollectionSourceType.DISCOVER -> return@runBlocking null
                 }
                 TmdbSourceMetadataInfo(
@@ -503,35 +530,58 @@ class AddonManagerViewModel @Inject constructor(
         }
     }
 
-    private fun searchTmdbSources(request: TmdbSourceSearchRequest): List<TmdbSourceSearchResultInfo> {
-        val sourceType = runCatching { TmdbCollectionSourceType.valueOf(request.sourceType.uppercase()) }.getOrNull()
-            ?: return emptyList()
+    private fun searchTmdbSources(
+        request: TmdbSourceSearchRequest
+    ): List<TmdbSourceSearchResultInfo> {
+        val sourceType =
+            runCatching {
+                TmdbCollectionSourceType.valueOf(request.sourceType.uppercase())
+            }.getOrNull()
+                ?: return emptyList()
         return runBlocking {
             runCatching {
                 when (sourceType) {
-                    TmdbCollectionSourceType.COMPANY -> tmdbCollectionSourceResolver.searchCompanies(request.query)
+                    TmdbCollectionSourceType.COMPANY -> tmdbCollectionSourceResolver.searchCompanies(
+                        request.query
+                    )
                         .map {
                             TmdbSourceSearchResultInfo(
                                 id = it.id,
-                                title = it.name ?: context.getString(com.kien.movies.R.string.web_tmdb_company_fallback, it.id),
+                                title =
+                                    it.name
+                                        ?: context.getString(
+                                            com.kien.movies.R.string.web_tmdb_company_fallback,
+                                            it.id
+                                        ),
                                 subtitle = it.originCountry?.takeIf { value -> value.isNotBlank() }
                             )
                         }
-                    TmdbCollectionSourceType.COLLECTION -> tmdbCollectionSourceResolver.searchCollections(request.query)
+
+                    TmdbCollectionSourceType.COLLECTION -> tmdbCollectionSourceResolver.searchCollections(
+                        request.query
+                    )
                         .map {
                             TmdbSourceSearchResultInfo(
                                 id = it.id,
-                                title = it.name ?: context.getString(com.kien.movies.R.string.web_tmdb_collection_fallback, it.id),
+                                title =
+                                    it.name
+                                        ?: context.getString(
+                                            com.kien.movies.R.string.web_tmdb_collection_fallback,
+                                            it.id
+                                        ),
                                 subtitle = it.overview?.takeIf { value -> value.isNotBlank() }
                             )
                         }
+
                     else -> emptyList()
                 }
             }.getOrElse { emptyList() }
         }
     }
 
-    private fun fetchTraktSourceMetadata(request: TraktSourceMetadataRequest): TraktSourceMetadataInfo? {
+    private fun fetchTraktSourceMetadata(
+        request: TraktSourceMetadataRequest
+    ): TraktSourceMetadataInfo? {
         return runBlocking {
             runCatching {
                 val metadata = traktPublicListSourceResolver.listImportMetadata(request.input)
@@ -544,7 +594,9 @@ class AddonManagerViewModel @Inject constructor(
         }
     }
 
-    private fun searchTraktSources(request: TraktSourceSearchRequest): List<TraktSourceSearchResultInfo> {
+    private fun searchTraktSources(
+        request: TraktSourceSearchRequest
+    ): List<TraktSourceSearchResultInfo> {
         return runBlocking {
             runCatching {
                 traktPublicListSourceResolver.searchPublicLists(request.query).map {
@@ -560,7 +612,9 @@ class AddonManagerViewModel @Inject constructor(
     }
 
     private fun handleChangeProposed(change: PendingAddonChange) {
-        val currentUrls = _uiState.value.installedAddons.map { normalizeUrlForComparison(it.baseUrl) }.toSet()
+        val currentUrls = _uiState.value.installedAddons.map {
+            normalizeUrlForComparison(it.baseUrl)
+        }.toSet()
         val proposedNormalized = change.proposedUrls.map { normalizeUrlForComparison(it) }.toSet()
         val currentCatalogEntries = buildOrderedCatalogEntries(
             addons = _uiState.value.installedAddons.enabledAddons(),
@@ -605,7 +659,8 @@ class AddonManagerViewModel @Inject constructor(
             .mapNotNull { availableDisableKeyToName[it] }
         val newlyEnabledCatalogs = (currentDisabledCatalogKeys - proposedDisabledSet)
             .mapNotNull { availableDisableKeyToName[it] }
-        val catalogsReordered = resolvedProposedCatalogOrderKeys != currentCatalogEntries.map { it.key }
+        val catalogsReordered =
+            resolvedProposedCatalogOrderKeys != currentCatalogEntries.map { it.key }
 
         val removedNameMap = _uiState.value.installedAddons
             .associateBy({ normalizeUrlForComparison(it.baseUrl) }, { it.displayName })
@@ -616,8 +671,16 @@ class AddonManagerViewModel @Inject constructor(
         val proposedCollectionsJson = change.proposedCollectionsJson
         val collectionsChanged = proposedCollectionsJson != null
         val proposedCollectionCount = if (proposedCollectionsJson != null) {
-            try { parseCollectionsFromJson(proposedCollectionsJson).size } catch (_: Exception) { 0 }
-        } else 0
+            try {
+                parseCollectionsFromJson(proposedCollectionsJson).size
+            } catch (
+                _: Exception
+            ) {
+                0
+            }
+        } else {
+            0
+        }
         val proposedDisabledCollectionKeys = change.proposedDisabledCollectionKeys
 
         _uiState.update {
@@ -664,19 +727,21 @@ class AddonManagerViewModel @Inject constructor(
         }
     }
 
-    private suspend fun fetchAddedAddons(urls: List<String>): Map<String, Addon?> =
-        withContext(Dispatchers.IO) {
-            urls.map { url ->
-                async {
-                    val result = runCatching {
-                        withTimeoutOrNull(15_000L) { addonRepository.fetchAddon(url) }
-                    }.getOrNull()
-                    url to (result as? NetworkResult.Success)?.data
-                }
-            }.awaitAll().toMap()
-        }
+    private suspend fun fetchAddedAddons(urls: List<String>): Map<String, Addon?> = withContext(Dispatchers.IO) {
+        urls.map { url ->
+            async {
+                val result = runCatching {
+                    withTimeoutOrNull(15_000L) { addonRepository.fetchAddon(url) }
+                }.getOrNull()
+                url to (result as? NetworkResult.Success)?.data
+            }
+        }.awaitAll().toMap()
+    }
 
-    private suspend fun resolveTrackingConsentNames(changeId: String, urls: List<String>): List<String> {
+    private suspend fun resolveTrackingConsentNames(
+        changeId: String,
+        urls: List<String>
+    ): List<String> {
         val initial = addedAddonsFetch
             ?.takeIf { (fetchChangeId, _) -> fetchChangeId == changeId }
             ?.second
@@ -694,8 +759,7 @@ class AddonManagerViewModel @Inject constructor(
         }
     }
 
-    private fun isCurrentPendingChange(changeId: String): Boolean =
-        _uiState.value.pendingChange?.changeId == changeId
+    private fun isCurrentPendingChange(changeId: String): Boolean = _uiState.value.pendingChange?.changeId == changeId
 
     fun dismissPendingTrackingConsent() {
         _uiState.update { state ->
@@ -706,12 +770,21 @@ class AddonManagerViewModel @Inject constructor(
     fun confirmPendingChange(trackingConsentGiven: Boolean = false) {
         val pending = _uiState.value.pendingChange ?: return
 
-        _uiState.update { it.copy(pendingChange = pending.copy(isApplying = true, awaitingTrackingConsent = false)) }
+        _uiState.update {
+            it.copy(
+                pendingChange = pending.copy(isApplying = true, awaitingTrackingConsent = false)
+            )
+        }
 
         viewModelScope.launch {
             if (!trackingConsentGiven && pending.addedUrls.isNotEmpty()) {
-                val consentedUrls = pending.trackingConsentUrls.map { normalizeUrlForComparison(it) }.toSet()
-                val urlsNeedingConsent = pending.addedUrls.filter { normalizeUrlForComparison(it) !in consentedUrls }
+                val consentedUrls = pending.trackingConsentUrls.map {
+                    normalizeUrlForComparison(it)
+                }.toSet()
+                val urlsNeedingConsent = pending.addedUrls.filter {
+                    normalizeUrlForComparison(it) !in
+                        consentedUrls
+                }
                 val trackingNames = if (urlsNeedingConsent.isEmpty()) {
                     emptyList()
                 } else {
@@ -742,9 +815,14 @@ class AddonManagerViewModel @Inject constructor(
                 } catch (_: Exception) { }
             }
             // Apply disabled collection key changes
-            if (pending.proposedDisabledCollectionKeys.isNotEmpty() || disabledHomeCatalogKeys.any { it.startsWith("collection_") }) {
-                val nonCollectionDisabledKeys = disabledHomeCatalogKeys.filter { !it.startsWith("collection_") }
-                val mergedDisabledKeys = nonCollectionDisabledKeys + pending.proposedDisabledCollectionKeys
+            if (pending.proposedDisabledCollectionKeys.isNotEmpty() ||
+                disabledHomeCatalogKeys.any { it.startsWith("collection_") }
+            ) {
+                val nonCollectionDisabledKeys = disabledHomeCatalogKeys.filter {
+                    !it.startsWith("collection_")
+                }
+                val mergedDisabledKeys =
+                    nonCollectionDisabledKeys + pending.proposedDisabledCollectionKeys
                 layoutPreferenceDataStore.setDisabledHomeCatalogKeys(mergedDisabledKeys)
                 homeCatalogSettingsSyncService.triggerPush()
             }
@@ -876,6 +954,7 @@ class AddonManagerViewModel @Inject constructor(
                                     catalogId = source.catalogId,
                                     genre = source.genre
                                 )
+
                                 is TmdbCollectionSource -> CollectionSourceInfo(
                                     provider = "tmdb",
                                     tmdbSourceType = source.sourceType.name,
@@ -900,6 +979,7 @@ class AddonManagerViewModel @Inject constructor(
                                         withWatchProviders = source.filters.withWatchProviders
                                     )
                                 )
+
                                 is TraktCollectionSource -> CollectionSourceInfo(
                                     provider = "trakt",
                                     title = source.title,
@@ -934,6 +1014,7 @@ class AddonManagerViewModel @Inject constructor(
                     val pending = pendingAddonOrder
                     val ordered = when {
                         draft != null -> orderAddonsByKeys(addons, draft)
+
                         pending != null -> {
                             val emittedKeys = addons.map { it.baseUrl }
                             if (emittedKeys == pending || emittedKeys.toSet() != pending.toSet()) {
@@ -943,6 +1024,7 @@ class AddonManagerViewModel @Inject constructor(
                                 orderAddonsByKeys(addons, pending)
                             }
                         }
+
                         else -> addons
                     }
                     _uiState.update { state ->

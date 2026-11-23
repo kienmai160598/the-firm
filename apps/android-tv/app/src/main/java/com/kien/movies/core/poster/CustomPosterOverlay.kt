@@ -17,9 +17,7 @@ import com.kien.movies.domain.model.WatchProgress
  *
  * When the pattern contains `{shape}`, the landscape poster is also resolved.
  */
-fun MetaPreview.withCustomPosterUrl(
-    pattern: String
-): MetaPreview {
+fun MetaPreview.withCustomPosterUrl(pattern: String): MetaPreview {
     if (pattern.isBlank()) return this
 
     val ids = CustomPosterUrlResolver.extractIds(id, explicitImdbId = imdbId)
@@ -43,7 +41,9 @@ fun MetaPreview.withCustomPosterUrl(
             type = type,
             shape = "landscape"
         )
-    } else null
+    } else {
+        null
+    }
 
     if (resolvedPoster == null && resolvedLandscape == null) return this
 
@@ -63,9 +63,7 @@ private fun PosterShape.toShapeParam(): String = when (this) {
 /**
  * Applies [withCustomPosterUrl] to every item in a list.
  */
-fun List<MetaPreview>.withCustomPosterUrls(
-    pattern: String
-): List<MetaPreview> {
+fun List<MetaPreview>.withCustomPosterUrls(pattern: String): List<MetaPreview> {
     if (pattern.isBlank()) return this
     return map { it.withCustomPosterUrl(pattern) }
 }
@@ -74,9 +72,7 @@ fun List<MetaPreview>.withCustomPosterUrls(
  * Applies a custom poster URL pattern to a [Meta] (detail screen).
  * Same logic as [MetaPreview.withCustomPosterUrl].
  */
-fun Meta.withCustomPosterUrl(
-    pattern: String
-): Meta {
+fun Meta.withCustomPosterUrl(pattern: String): Meta {
     if (pattern.isBlank()) return this
 
     val ids = CustomPosterUrlResolver.extractIds(id, explicitImdbId = imdbId)
@@ -97,7 +93,9 @@ fun Meta.withCustomPosterUrl(
             type = type,
             shape = "landscape"
         )
-    } else null
+    } else {
+        null
+    }
 
     if (resolvedPoster == null && resolvedLandscape == null) return this
 
@@ -111,9 +109,7 @@ fun Meta.withCustomPosterUrl(
 /**
  * Applies a custom poster URL pattern to a [LibraryEntry].
  */
-fun LibraryEntry.withCustomPosterUrl(
-    pattern: String
-): LibraryEntry {
+fun LibraryEntry.withCustomPosterUrl(pattern: String): LibraryEntry {
     if (pattern.isBlank()) return this
 
     val ids = CustomPosterUrlResolver.extractIds(id, explicitImdbId = imdbId)
@@ -134,7 +130,9 @@ fun LibraryEntry.withCustomPosterUrl(
             type = type,
             shape = "landscape"
         )
-    } else null
+    } else {
+        null
+    }
 
     if (resolvedPoster == null && resolvedLandscape == null) return this
 
@@ -149,9 +147,7 @@ fun LibraryEntry.withCustomPosterUrl(
  * Applies [withCustomPosterUrl] to every item in a list of [LibraryEntry].
  */
 @JvmName("withCustomPosterUrlsLibrary")
-fun List<LibraryEntry>.withCustomPosterUrls(
-    pattern: String
-): List<LibraryEntry> {
+fun List<LibraryEntry>.withCustomPosterUrls(pattern: String): List<LibraryEntry> {
     if (pattern.isBlank()) return this
     return map { it.withCustomPosterUrl(pattern) }
 }
@@ -181,11 +177,21 @@ fun com.kien.movies.ui.screens.home.ContinueWatchingItem.withCustomPosterUrl(
     return when (this) {
         is com.kien.movies.ui.screens.home.ContinueWatchingItem.InProgress -> {
             val ids = CustomPosterUrlResolver.extractIds(progress.contentId)
-            val type = if (progress.contentType.equals("movie", ignoreCase = true)) "movie" else "series"
+            val type = if (progress.contentType.equals(
+                    "movie",
+                    ignoreCase = true
+                )
+            ) {
+                "movie"
+            } else {
+                "series"
+            }
             val resolvedPoster = CustomPosterUrlResolver.resolve(pattern, ids, type)
             val resolvedLandscape = if (supportsShape) {
                 CustomPosterUrlResolver.resolve(pattern, ids, type, shape = "landscape")
-            } else null
+            } else {
+                null
+            }
             if (resolvedPoster == null && resolvedLandscape == null) return this
             copy(
                 progress = progress.copy(poster = resolvedPoster ?: progress.poster),
@@ -193,13 +199,24 @@ fun com.kien.movies.ui.screens.home.ContinueWatchingItem.withCustomPosterUrl(
                 customLandscapePoster = resolvedLandscape
             )
         }
+
         is com.kien.movies.ui.screens.home.ContinueWatchingItem.NextUp -> {
             val ids = CustomPosterUrlResolver.extractIds(info.contentId)
-            val type = if (info.contentType.equals("movie", ignoreCase = true)) "movie" else "series"
+            val type = if (info.contentType.equals(
+                    "movie",
+                    ignoreCase = true
+                )
+            ) {
+                "movie"
+            } else {
+                "series"
+            }
             val resolvedPoster = CustomPosterUrlResolver.resolve(pattern, ids, type)
             val resolvedLandscape = if (supportsShape) {
                 CustomPosterUrlResolver.resolve(pattern, ids, type, shape = "landscape")
-            } else null
+            } else {
+                null
+            }
             if (resolvedPoster == null && resolvedLandscape == null) return this
             copy(
                 info = info.copy(poster = resolvedPoster ?: info.poster),

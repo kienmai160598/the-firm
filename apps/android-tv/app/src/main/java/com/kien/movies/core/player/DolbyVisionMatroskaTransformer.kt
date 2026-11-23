@@ -29,7 +29,7 @@ import java.io.ByteArrayOutputStream
 internal class DolbyVisionMatroskaTransformer(
     private val config: DolbyVisionConversionConfig,
     private val stripRpuOnly: Boolean = false,
-    private val stripHdr10PlusSei: Boolean = false,
+    private val stripHdr10PlusSei: Boolean = false
 ) : MatroskaExtractor.DolbyVisionSampleTransformer {
 
     private var lastTransformedLength = 0
@@ -51,7 +51,9 @@ internal class DolbyVisionMatroskaTransformer(
     ): Boolean {
         dv5StripDecision?.let { return it }
         val detected = HevcDvRpuStripper.containsHdr10StaticMetadataSei(
-            sample, sampleLength, nalUnitLengthFieldLength
+            sample,
+            sampleLength,
+            nalUnitLengthFieldLength
         )
         if (detected) {
             dv5StripDecision = true
@@ -61,7 +63,10 @@ internal class DolbyVisionMatroskaTransformer(
         dv5DetectionSamplesChecked++
         if (dv5DetectionSamplesChecked >= DV5_DETECTION_SAMPLE_LIMIT) {
             dv5StripDecision = false
-            android.util.Log.i("DVStrip", "DV5_STRIP_DECISION: hdr10StaticSeiPresent=false after $dv5DetectionSamplesChecked samples -> SKIP")
+            android.util.Log.i(
+                "DVStrip",
+                "DV5_STRIP_DECISION: hdr10StaticSeiPresent=false after $dv5DetectionSamplesChecked samples -> SKIP"
+            )
             return false
         }
         return false
@@ -85,7 +90,7 @@ internal class DolbyVisionMatroskaTransformer(
     override fun shouldTransform(codecs: String?, dolbyVisionConfigBytes: ByteArray?): Boolean {
         if (stripHdr10PlusSei) return true
         val isDv = codecs?.startsWith("dv", ignoreCase = true) == true ||
-                (dolbyVisionConfigBytes != null && dolbyVisionConfigBytes.isNotEmpty())
+            (dolbyVisionConfigBytes != null && dolbyVisionConfigBytes.isNotEmpty())
         if (stripRpuOnly) return isDv
         val profile = resolveProfile(codecs, dolbyVisionConfigBytes)
         return config.shouldConvert(profile)
@@ -116,16 +121,25 @@ internal class DolbyVisionMatroskaTransformer(
         if (stripRpuOnly) {
             if (profile == 5) {
                 if (!shouldStripDv5Rpu(sample, sampleLength, nalUnitLengthFieldLength)) {
-                    return stripHdr10PlusIfEnabled(sample, sampleLength, nalUnitLengthFieldLength) ?: sample
+                    return stripHdr10PlusIfEnabled(sample, sampleLength, nalUnitLengthFieldLength)
+                        ?: sample
                 }
             }
             // Use the shared ExposedByteArrayOutputStream scratch buffer to avoid GC allocations on every frame
             val changed = HevcDvRpuStripper.stripRpuLengthDelimited(
-                sample, sampleLength, nalUnitLengthFieldLength, scratch
+                sample,
+                sampleLength,
+                nalUnitLengthFieldLength,
+                scratch
             )
             if (changed) {
                 val stripped = finishScratch()
-                return stripHdr10PlusIfEnabled(stripped, lastTransformedLength, nalUnitLengthFieldLength) ?: stripped
+                return stripHdr10PlusIfEnabled(
+                    stripped,
+                    lastTransformedLength,
+                    nalUnitLengthFieldLength
+                )
+                    ?: stripped
             }
             return stripHdr10PlusIfEnabled(sample, sampleLength, nalUnitLengthFieldLength) ?: sample
         }
@@ -139,14 +153,21 @@ internal class DolbyVisionMatroskaTransformer(
         }
 
         val mode = config.conversionMode(profile)
-        val baseChanged = rewriteMp4HevcSampleInto(sample, sampleLength, nalUnitLengthFieldLength, mode)
+        val baseChanged =
+            rewriteMp4HevcSampleInto(sample, sampleLength, nalUnitLengthFieldLength, mode)
 
         if (blockAdditionalData == null) {
             if (!baseChanged) {
-                return stripHdr10PlusIfEnabled(sample, sampleLength, nalUnitLengthFieldLength) ?: sample
+                return stripHdr10PlusIfEnabled(sample, sampleLength, nalUnitLengthFieldLength)
+                    ?: sample
             }
             val dvResult = finishScratch()
-            return stripHdr10PlusIfEnabled(dvResult, lastTransformedLength, nalUnitLengthFieldLength) ?: dvResult
+            return stripHdr10PlusIfEnabled(
+                dvResult,
+                lastTransformedLength,
+                nalUnitLengthFieldLength
+            )
+                ?: dvResult
         }
 
         if (!baseChanged) {
@@ -158,7 +179,8 @@ internal class DolbyVisionMatroskaTransformer(
             return null
         }
         val dvResult = finishScratch()
-        return stripHdr10PlusIfEnabled(dvResult, lastTransformedLength, nalUnitLengthFieldLength) ?: dvResult
+        return stripHdr10PlusIfEnabled(dvResult, lastTransformedLength, nalUnitLengthFieldLength)
+            ?: dvResult
     }
 
     private fun finishScratch(): ByteArray {
@@ -207,7 +229,11 @@ internal class DolbyVisionMatroskaTransformer(
         nalLengthFieldLength: Int
     ): ByteArray? {
         if (!stripHdr10PlusSei) return null
-        val stripped = HevcHdr10PlusStripper.stripHdr10PlusLengthDelimited(data, len, nalLengthFieldLength)
+        val stripped = HevcHdr10PlusStripper.stripHdr10PlusLengthDelimited(
+            data,
+            len,
+            nalLengthFieldLength
+        )
         if (stripped != null) {
             lastTransformedLength = stripped.size
             return stripped
@@ -254,11 +280,18 @@ internal class DolbyVisionMatroskaTransformer(
             when {
                 // Enhancement-layer NAL that isn't the RPU: drop it.
                 layerId > 0 && nalType != NAL_TYPE_UNSPEC62 -> changed = true
+
                 // P7 single-track: EL is in type-63 NALs at layer 0.
                 nalType == NAL_TYPE_UNSPEC63 -> changed = true
+
                 // RPU NAL: convert directly from sample buffer without JVM allocations
                 nalType == NAL_TYPE_UNSPEC62 -> {
-                    val outLen = DoviBridge.convertDv7RpuToDv81NonAllocating(sample, offset, nalSize, mode)
+                    val outLen = DoviBridge.convertDv7RpuToDv81NonAllocating(
+                        sample,
+                        offset,
+                        nalSize,
+                        mode
+                    )
                     if (outLen > 0) {
                         changed = true
                         if (!writeLengthField(out, outLen, nalUnitLengthFieldLength)) return false
@@ -278,6 +311,7 @@ internal class DolbyVisionMatroskaTransformer(
                         }
                     }
                 }
+
                 // Base-layer NAL: forward straight from the sample buffer, no copy.
                 else -> {
                     if (!writeLengthField(out, nalSize, nalUnitLengthFieldLength)) return false
@@ -328,8 +362,16 @@ internal class DolbyVisionMatroskaTransformer(
         val parts = raw.split('.').toMutableList()
         if (parts.size < 2) return null
         return when (parts[0].lowercase()) {
-            "dvhe" -> { parts[0] = "hvc1"; parts.joinToString(".") }
-            "dvh1" -> { parts[0] = "hev1"; parts.joinToString(".") }
+            "dvhe" -> {
+                parts[0] = "hvc1"
+                parts.joinToString(".")
+            }
+
+            "dvh1" -> {
+                parts[0] = "hev1"
+                parts.joinToString(".")
+            }
+
             else -> null
         }
     }
@@ -354,8 +396,7 @@ internal class DolbyVisionMatroskaTransformer(
         return parts[1].toIntOrNull()
     }
 
-    private fun nalUnitTypeAt(sample: ByteArray, offset: Int): Int =
-        (sample[offset].toInt() ushr 1) and 0x3F
+    private fun nalUnitTypeAt(sample: ByteArray, offset: Int): Int = (sample[offset].toInt() ushr 1) and 0x3F
 
     private fun nuhLayerIdAt(sample: ByteArray, offset: Int, nalSize: Int): Int {
         if (nalSize < 2) return 0
@@ -387,7 +428,11 @@ internal class DolbyVisionMatroskaTransformer(
         return value
     }
 
-    private fun writeLengthField(out: ByteArrayOutputStream, value: Int, lengthBytes: Int): Boolean {
+    private fun writeLengthField(
+        out: ByteArrayOutputStream,
+        value: Int,
+        lengthBytes: Int
+    ): Boolean {
         if (value < 0) return false
         val maxNalSize = when (lengthBytes) {
             1 -> 0xFF

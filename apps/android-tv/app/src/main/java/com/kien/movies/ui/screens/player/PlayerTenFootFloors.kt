@@ -31,8 +31,7 @@ internal object PlayerTenFoot {
     val edgeMargin: Dp = 28.dp
 
     /** [size] raised to [floor]. */
-    fun atLeast(size: TextUnit, floor: TextUnit): TextUnit =
-        if (size.value < floor.value) floor else size
+    fun atLeast(size: TextUnit, floor: TextUnit): TextUnit = if (size.value < floor.value) floor else size
 
     fun atLeast(size: Dp, floor: Dp): Dp = maxOf(size, floor)
 }

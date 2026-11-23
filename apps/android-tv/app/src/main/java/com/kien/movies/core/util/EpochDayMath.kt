@@ -1,7 +1,6 @@
 package com.kien.movies.core.util
 
-internal fun isLeapYear(year: Int): Boolean =
-    (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
+internal fun isLeapYear(year: Int): Boolean = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
 
 internal fun daysInMonth(year: Int, month: Int): Int = when (month) {
     1, 3, 5, 7, 8, 10, 12 -> 31

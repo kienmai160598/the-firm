@@ -20,15 +20,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-data class ServerSignInState(
-    val connecting: Boolean = false,
-    val error: ServerFailure? = null
-)
+data class ServerSignInState(val connecting: Boolean = false, val error: ServerFailure? = null)
 
 @HiltViewModel
-class MediaServersViewModel @Inject constructor(
-    private val repository: ServerRepository
-) : ViewModel() {
+class MediaServersViewModel @Inject constructor(private val repository: ServerRepository) : ViewModel() {
     val uiState: StateFlow<ServersUiState> = repository.uiState
 
     val providers: List<ServerProvider>
@@ -41,10 +36,13 @@ class MediaServersViewModel @Inject constructor(
     val refreshing: StateFlow<String?> = mutableRefreshing.asStateFlow()
 
     val plexSignIn: PlexSignInFlow by lazy { PlexSignInFlow(repository, viewModelScope) }
+
     /** Withdrawing an unused code and ending an unsaved sign-in still run after this screen is gone. */
     private val cleanupScope by lazy { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
 
-    val siloSignIn: SiloSignInFlow by lazy { SiloSignInFlow(repository, viewModelScope, cleanupScope) }
+    val siloSignIn: SiloSignInFlow by lazy {
+        SiloSignInFlow(repository, viewModelScope, cleanupScope)
+    }
 
     init {
         repository.ensureLoaded()
@@ -103,8 +101,7 @@ class MediaServersViewModel @Inject constructor(
 
     fun setImportWatchState(connectionId: String, enabled: Boolean) = repository.setImportWatchState(connectionId, enabled)
 
-    fun setLibrarySelected(connectionId: String, libraryId: String, selected: Boolean) =
-        repository.setLibrarySelected(connectionId, libraryId, selected)
+    fun setLibrarySelected(connectionId: String, libraryId: String, selected: Boolean) = repository.setLibrarySelected(connectionId, libraryId, selected)
 
     fun remove(connectionId: String) = repository.remove(connectionId)
 

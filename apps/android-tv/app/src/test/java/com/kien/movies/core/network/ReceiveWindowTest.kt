@@ -1,11 +1,11 @@
 package com.kien.movies.core.network
 
+import java.net.InetAddress
+import java.net.ServerSocket
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.net.InetAddress
-import java.net.ServerSocket
 
 class ReceiveWindowTest {
     private val mib = 1024 * 1024
@@ -18,7 +18,9 @@ class ReceiveWindowTest {
     @Test
     fun `a small rmem_max is left to the kernel`() {
         // Stock Amlogic firmware: rmem_max 256 KiB, so asking would cap the socket below its tuning.
-        assertFalse(ReceiveWindow.shouldAsk(grantedBytes = 512 * 1024, tuningCeilingBytes = 4 * mib))
+        assertFalse(
+            ReceiveWindow.shouldAsk(grantedBytes = 512 * 1024, tuningCeilingBytes = 4 * mib)
+        )
     }
 
     @Test
@@ -54,8 +56,13 @@ class ReceiveWindowTest {
     @Test
     fun `connected overloads keep the plain buffer and no delay`() {
         ServerSocket(0, 4, InetAddress.getLoopbackAddress()).use { server ->
-            val plain = java.net.Socket(InetAddress.getLoopbackAddress(), server.localPort).use { it.receiveBufferSize }
-            PlaybackSocketFactory.createSocket(InetAddress.getLoopbackAddress(), server.localPort).use {
+            val plain = java.net.Socket(InetAddress.getLoopbackAddress(), server.localPort).use {
+                it.receiveBufferSize
+            }
+            PlaybackSocketFactory.createSocket(
+                InetAddress.getLoopbackAddress(),
+                server.localPort
+            ).use {
                 assertTrue(it.isConnected)
                 assertTrue(it.tcpNoDelay)
                 assertEquals(plain, it.receiveBufferSize)

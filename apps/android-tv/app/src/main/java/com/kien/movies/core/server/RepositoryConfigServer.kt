@@ -16,11 +16,7 @@ class RepositoryConfigServer(
     port: Int = 8090
 ) : NanoHTTPD(port) {
 
-    data class RepositoryInfo(
-        val url: String,
-        val name: String,
-        val description: String?
-    )
+    data class RepositoryInfo(val url: String, val name: String, val description: String?)
 
     data class PendingRepoChange(
         val id: String = UUID.randomUUID().toString(),
@@ -56,7 +52,11 @@ class RepositoryConfigServer(
     }
 
     private fun serveWebPage(): Response {
-        return newFixedLengthResponse(Response.Status.OK, "text/html", RepositoryWebPage.getHtml(context))
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "text/html",
+            RepositoryWebPage.getHtml(context)
+        )
     }
 
     private fun serveLogo(): Response {
@@ -90,11 +90,17 @@ class RepositoryConfigServer(
         val body = bodyMap["postData"] ?: ""
 
         val urls: List<String> = try {
-            val parsed = gson.fromJson<Map<String, Any>>(body, object : TypeToken<Map<String, Any>>() {}.type)
+            val parsed = gson.fromJson<Map<String, Any>>(
+                body,
+                object : TypeToken<Map<String, Any>>() {}.type
+            )
             @Suppress("UNCHECKED_CAST")
             (parsed["urls"] as? List<String>) ?: emptyList()
         } catch (e: Exception) {
-            val error = mapOf("error" to context.getString(com.kien.movies.R.string.web_error_invalid_request_body))
+            val error = mapOf(
+                "error" to
+                    context.getString(com.kien.movies.R.string.web_error_invalid_request_body)
+            )
             return newFixedLengthResponse(
                 Response.Status.BAD_REQUEST,
                 "application/json",
@@ -129,7 +135,14 @@ class RepositoryConfigServer(
         ): RepositoryConfigServer? {
             for (port in startPort until startPort + maxAttempts) {
                 try {
-                    val server = RepositoryConfigServer(context, currentRepositoriesProvider, onChangeProposed, logoProvider, port)
+                    val server =
+                        RepositoryConfigServer(
+                            context,
+                            currentRepositoriesProvider,
+                            onChangeProposed,
+                            logoProvider,
+                            port
+                        )
                     server.start(SOCKET_READ_TIMEOUT, false)
                     return server
                 } catch (e: Exception) {

@@ -23,8 +23,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.tv.material3.Text
-import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
 
 // Long enough that moving the D-pad across a list does not start a scroll on every card the focus passes through, and long enough to read the visible lines first.
 const val DefaultFocusScrollStartDelayMillis = 6000L
@@ -49,8 +49,7 @@ internal fun focusScrollDurationMillis(overflowPx: Int, pxPerSecond: Float): Int
     return ((overflowPx / pxPerSecond) * 1000f).roundToInt().coerceAtLeast(1)
 }
 
-internal fun focusScrollOverflowPx(fullHeightPx: Int, collapsedHeightPx: Int): Int =
-    (fullHeightPx - collapsedHeightPx).coerceAtLeast(0)
+internal fun focusScrollOverflowPx(fullHeightPx: Int, collapsedHeightPx: Int): Int = (fullHeightPx - collapsedHeightPx).coerceAtLeast(0)
 
 // Multi-line text clipped to maxLines that reveals the rest while focused, scrolling down, holding at the end, then returning to the top for a few passes before settling.
 // The box keeps a fixed height whether or not it is scrolling, so a fixed-height card can use this without the surrounding list reflowing as focus moves.
@@ -62,7 +61,7 @@ fun FocusScrollingText(
     maxLines: Int,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    startDelayMillis: Long = DefaultFocusScrollStartDelayMillis,
+    startDelayMillis: Long = DefaultFocusScrollStartDelayMillis
 ) {
     val density = LocalDensity.current
     val collapsedHeight = remember(style, maxLines, density) {

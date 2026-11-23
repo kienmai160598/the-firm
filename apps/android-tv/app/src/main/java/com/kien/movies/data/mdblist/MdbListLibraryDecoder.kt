@@ -14,7 +14,10 @@ internal fun decodeMdbListLibraryLists(body: String, accountId: Long): List<MdbL
     return rows.mapNotNull { element ->
         val row = element.objectValue()
         if (row.text("type") != "static" || row.flag("dynamic") == true ||
-            row.number("user_id")?.let { it != accountId } == true) return@mapNotNull null
+            row.number("user_id")?.let { it != accountId } == true
+        ) {
+            return@mapNotNull null
+        }
         val mediaType = row.text("mediatype")?.let(::mdbListLibraryType)
         if (row.text("mediatype") != null && mediaType == null) return@mapNotNull null
         MdbListLibraryList(
@@ -25,7 +28,13 @@ internal fun decodeMdbListLibraryLists(body: String, accountId: Long): List<MdbL
             mediaType = mediaType,
             updatedAt = row.text("last_updated_at", "updated_at", "updated")
         )
-    }.also { lists -> if (lists.map { it.id }.toSet().size != lists.size) throw MdbListDecodingException() }
+    }.also { lists ->
+        if (lists.map { it.id }.toSet().size !=
+            lists.size
+        ) {
+            throw MdbListDecodingException()
+        }
+    }
 }
 
 /** Owned lists filled by MDBList filters, read from the same response as the static lists. */
@@ -34,7 +43,10 @@ internal fun decodeMdbListDynamicLists(body: String, accountId: Long): List<MdbL
     return rows.mapNotNull { element ->
         val row = element.objectValue()
         if (row.flag("dynamic") != true && row.text("type") != "dynamic" ||
-            row.number("user_id")?.let { it != accountId } == true) return@mapNotNull null
+            row.number("user_id")?.let { it != accountId } == true
+        ) {
+            return@mapNotNull null
+        }
         val mediaType = row.text("mediatype")?.let(::mdbListLibraryType)
         if (row.text("mediatype") != null && mediaType == null) return@mapNotNull null
         MdbListDynamicList(
@@ -44,7 +56,13 @@ internal fun decodeMdbListDynamicLists(body: String, accountId: Long): List<MdbL
             mediaType = mediaType,
             updatedAt = row.text("last_updated_at", "updated_at", "updated")
         )
-    }.also { lists -> if (lists.map { it.id }.toSet().size != lists.size) throw MdbListDecodingException() }
+    }.also { lists ->
+        if (lists.map { it.id }.toSet().size !=
+            lists.size
+        ) {
+            throw MdbListDecodingException()
+        }
+    }
 }
 
 private fun mdbListUserListId(row: JsonObject): Long {
@@ -86,35 +104,74 @@ internal fun decodeMdbListExternalLists(body: String): List<MdbListExternalList>
             mediaType = mediaType,
             updatedAt = row.text("last_updated_at", "updated_at", "updated")
         )
-    }.also { lists -> if (lists.map { it.id }.toSet().size != lists.size) throw MdbListDecodingException() }
+    }.also { lists ->
+        if (lists.map { it.id }.toSet().size !=
+            lists.size
+        ) {
+            throw MdbListDecodingException()
+        }
+    }
 }
 
 internal fun decodeMdbListLibraryPage(body: String): MdbListPage<MdbListLibraryItem> {
     val root = mdbListResponseElement(body)
-    if (root is JsonArray) return MdbListPage(root.mapNotNull { decodeLibraryItem(it.objectValue()) })
+    if (root is JsonArray) {
+        return MdbListPage(
+            root.mapNotNull {
+                decodeLibraryItem(it.objectValue())
+            }
+        )
+    }
     val value = root.objectValue()
     val items = if (value["items"] is JsonArray) {
         value.arrayValue("items").mapNotNull { decodeLibraryItem(it.objectValue()) }
     } else {
-        if (listOf("movies", "shows", "seasons", "episodes").none(value::containsKey)) throw MdbListDecodingException()
-        value.arrayValue("movies").mapNotNull { decodeLibraryItem(it.objectValue(), MdbListItemType.MOVIE) } +
-            value.arrayValue("shows").mapNotNull { decodeLibraryItem(it.objectValue(), MdbListItemType.SHOW) }
+        if (listOf(
+                "movies",
+                "shows",
+                "seasons",
+                "episodes"
+            ).none(value::containsKey)
+        ) {
+            throw MdbListDecodingException()
+        }
+        value.arrayValue("movies").mapNotNull {
+            decodeLibraryItem(it.objectValue(), MdbListItemType.MOVIE)
+        } +
+            value.arrayValue("shows").mapNotNull {
+                decodeLibraryItem(it.objectValue(), MdbListItemType.SHOW)
+            }
     }
     return mdbListPage(value, items)
 }
 
-private fun decodeLibraryItem(row: JsonObject, bucket: MdbListItemType? = null): MdbListLibraryItem? {
+private fun decodeLibraryItem(
+    row: JsonObject,
+    bucket: MdbListItemType? = null
+): MdbListLibraryItem? {
     val declaredType = row.text("mediatype", "type")
     val type = declaredType?.let(::mdbListLibraryType) ?: bucket
     if (declaredType in listOf("season", "episode")) return null
-    if (type == null || declaredType != null && mdbListLibraryType(declaredType) == null || bucket != null && type != bucket) throw MdbListDecodingException()
+    if (type == null || declaredType != null && mdbListLibraryType(declaredType) == null ||
+        bucket != null && type != bucket
+    ) {
+        throw MdbListDecodingException()
+    }
     val nested = row.objectValue("ids")
-    val ids = decodeMdbListIds(buildJsonObject {
-        row.number("id")?.let { put("tmdb", it) }
-        row.text("imdb_id")?.let { put("imdb", it) }
-        row.number("tvdb_id")?.let { put("tvdb", it) }
-        nested?.forEach { (key, value) -> if (value != kotlinx.serialization.json.JsonNull) put(key, value) }
-    })
+    val ids = decodeMdbListIds(
+        buildJsonObject {
+            row.number("id")?.let { put("tmdb", it) }
+            row.text("imdb_id")?.let { put("imdb", it) }
+            row.number("tvdb_id")?.let { put("tvdb", it) }
+            nested?.forEach { (key, value) ->
+                if (value !=
+                    kotlinx.serialization.json.JsonNull
+                ) {
+                    put(key, value)
+                }
+            }
+        }
+    )
     return MdbListLibraryItem(
         type = type,
         media = MdbListMedia(
@@ -137,7 +194,9 @@ private fun decodeLibraryItem(row: JsonObject, bucket: MdbListItemType? = null):
 // Only used to sort by recently added, so an unusual date (external lists can carry
 // date-only values) must not discard the whole list.
 private fun mdbListListedAt(value: String): Long = runCatching { mdbListTimestamp(value) }
-    .recoverCatching { LocalDate.parse(value.take(10)).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli() }
+    .recoverCatching {
+        LocalDate.parse(value.take(10)).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+    }
     .getOrDefault(0)
 
 internal fun mdbListLibraryType(type: String): MdbListItemType? = when (type.lowercase()) {

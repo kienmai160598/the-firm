@@ -5,14 +5,14 @@ import android.content.ContentUris
 import android.content.Context
 import android.content.pm.PackageManager
 import android.database.Cursor
-import android.net.Uri
 import android.media.tv.TvContract
+import android.net.Uri
+import android.util.Log
 import androidx.tvprovider.media.tv.TvContractCompat
 import com.kien.movies.domain.model.WatchProgress
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import android.util.Log
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
@@ -151,10 +151,18 @@ class AndroidTvChannelManagerTest {
         val rows = listOf("tt001" to 99L, "tt001" to 100L)
         val cursor = mockk<Cursor>(relaxed = true) {
             var idx = -1
-            every { moveToNext() } answers { idx++; idx < rows.size }
+            every { moveToNext() } answers {
+                idx++
+                idx < rows.size
+            }
             every { getColumnIndexOrThrow(TvContractCompat.PreviewPrograms._ID) } returns 0
-            every { getColumnIndexOrThrow(TvContractCompat.PreviewPrograms.COLUMN_CHANNEL_ID) } returns 2
-            every { getColumnIndexOrThrow(TvContractCompat.PreviewPrograms.COLUMN_INTERNAL_PROVIDER_ID) } returns 1
+            every {
+                getColumnIndexOrThrow(TvContractCompat.PreviewPrograms.COLUMN_CHANNEL_ID)
+            } returns
+                2
+            every {
+                getColumnIndexOrThrow(TvContractCompat.PreviewPrograms.COLUMN_INTERNAL_PROVIDER_ID)
+            } returns 1
             every { getLong(0) } answers { rows[idx].second }
             every { getLong(2) } returns channelId
             every { getString(1) } answers { rows[idx].first }
@@ -195,10 +203,18 @@ class AndroidTvChannelManagerTest {
         val rows = existingRows.entries.toList()
         val cursor = mockk<Cursor>(relaxed = true) {
             var idx = -1
-            every { moveToNext() } answers { idx++; idx < rows.size }
+            every { moveToNext() } answers {
+                idx++
+                idx < rows.size
+            }
             every { getColumnIndexOrThrow(TvContractCompat.PreviewPrograms._ID) } returns 0
-            every { getColumnIndexOrThrow(TvContractCompat.PreviewPrograms.COLUMN_CHANNEL_ID) } returns 2
-            every { getColumnIndexOrThrow(TvContractCompat.PreviewPrograms.COLUMN_INTERNAL_PROVIDER_ID) } returns 1
+            every {
+                getColumnIndexOrThrow(TvContractCompat.PreviewPrograms.COLUMN_CHANNEL_ID)
+            } returns
+                2
+            every {
+                getColumnIndexOrThrow(TvContractCompat.PreviewPrograms.COLUMN_INTERNAL_PROVIDER_ID)
+            } returns 1
             every { getLong(0) } answers { rows[idx].value }
             every { getLong(2) } returns channelId
             every { getString(1) } answers { rows[idx].key }

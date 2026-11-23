@@ -50,26 +50,25 @@ class PluginBinaryFetchTest {
         }
     }
 
-    private fun fetch(url: String, bodyKind: String, body: String) =
-        PluginRuntime::class.java.getDeclaredMethod(
-            "performNativeFetch",
-            String::class.java,
-            String::class.java,
-            String::class.java,
-            String::class.java,
-            String::class.java,
-            Boolean::class.javaPrimitiveType,
-            MutableSet::class.java
-        ).apply { isAccessible = true }
-            .invoke(
-                PluginRuntime(),
-                url,
-                "POST",
-                """{"Content-Type":"application/octet-stream"}""",
-                bodyKind,
-                body,
-                true,
-                mutableSetOf<Call>()
-            )
-            .let { JsonParser.parseString(it as String).asJsonObject }
+    private fun fetch(url: String, bodyKind: String, body: String) = PluginRuntime::class.java.getDeclaredMethod(
+        "performNativeFetch",
+        String::class.java,
+        String::class.java,
+        String::class.java,
+        String::class.java,
+        String::class.java,
+        Boolean::class.javaPrimitiveType,
+        MutableSet::class.java
+    ).apply { isAccessible = true }
+        .invoke(
+            PluginRuntime(),
+            url,
+            "POST",
+            """{"Content-Type":"application/octet-stream"}""",
+            bodyKind,
+            body,
+            true,
+            mutableSetOf<Call>()
+        )
+        .let { JsonParser.parseString(it as String).asJsonObject }
 }

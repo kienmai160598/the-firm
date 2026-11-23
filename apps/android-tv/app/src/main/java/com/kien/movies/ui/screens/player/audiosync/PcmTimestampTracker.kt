@@ -29,7 +29,9 @@ internal class PcmTimestampTracker {
         require(frames > 0 && sampleRate > 0)
         val expected = if (sourceRate == sampleRate) {
             anchorTimeUs + receivedFrames * 1_000_000L / sampleRate
-        } else null
+        } else {
+            null
+        }
         val repeated = expected != null && timeUs == lastReportedTimeUs
         if (repeated) repeatedTimestamps++
         val resolved = when {

@@ -5,10 +5,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 internal object ParallelRangeRetryAfter {
-    fun parseHeaderMs(
-        header: String?,
-        nowEpochMs: Long = System.currentTimeMillis()
-    ): Long? {
+    fun parseHeaderMs(header: String?, nowEpochMs: Long = System.currentTimeMillis()): Long? {
         if (header.isNullOrEmpty()) return null
         header.toLongOrNull()?.let { seconds ->
             return (seconds * 1000L).coerceAtLeast(0L)

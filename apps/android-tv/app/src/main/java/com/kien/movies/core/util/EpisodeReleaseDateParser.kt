@@ -48,7 +48,9 @@ internal fun parseEpisodeReleaseInstant(
 
     return parseExplicitReleaseInstant(value)
         ?: runCatching { LocalDateTime.parse(value).atZone(zoneId).toInstant() }.getOrNull()
-        ?: runCatching { LocalDate.parse(value).atStartOfDay(ZoneOffset.UTC).toInstant() }.getOrNull()
+        ?: runCatching {
+            LocalDate.parse(value).atStartOfDay(ZoneOffset.UTC).toInstant()
+        }.getOrNull()
         ?: parseEmbeddedReleaseDate(value)?.atStartOfDay(ZoneOffset.UTC)?.toInstant()
 }
 
@@ -66,12 +68,10 @@ internal fun selectEpisodeReleaseValue(
     return tmdbAirDate?.trim()?.takeIf { it.isNotEmpty() } ?: addonValue
 }
 
-private fun parseExplicitReleaseInstant(value: String): Instant? =
-    runCatching { Instant.parse(value) }.getOrNull()
-        ?: runCatching { OffsetDateTime.parse(value).toInstant() }.getOrNull()
-        ?: runCatching { ZonedDateTime.parse(value).toInstant() }.getOrNull()
+private fun parseExplicitReleaseInstant(value: String): Instant? = runCatching { Instant.parse(value) }.getOrNull()
+    ?: runCatching { OffsetDateTime.parse(value).toInstant() }.getOrNull()
+    ?: runCatching { ZonedDateTime.parse(value).toInstant() }.getOrNull()
 
-private fun parseEmbeddedReleaseDate(value: String): LocalDate? =
-    ISO_DATE_PATTERN.find(value)?.value?.let { datePortion ->
-        runCatching { LocalDate.parse(datePortion) }.getOrNull()
-    }
+private fun parseEmbeddedReleaseDate(value: String): LocalDate? = ISO_DATE_PATTERN.find(value)?.value?.let { datePortion ->
+    runCatching { LocalDate.parse(datePortion) }.getOrNull()
+}

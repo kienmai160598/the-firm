@@ -20,6 +20,7 @@ internal fun resolveNextToWatchLatestProgress(
                 !isResumable(latestProgress) ||
                 resumeOverride.lastWatched >= latestProgress.lastWatched
             ) -> resumeOverride
+
         else -> latestProgress
     }
 }

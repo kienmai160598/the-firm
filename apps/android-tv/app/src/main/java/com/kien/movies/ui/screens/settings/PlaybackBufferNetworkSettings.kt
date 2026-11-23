@@ -1,8 +1,5 @@
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesPrimitives
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -25,6 +22,8 @@ import com.kien.movies.R
 import com.kien.movies.data.local.PlayerSettings
 import com.kien.movies.data.local.VodCacheSizeMode
 import com.kien.movies.ui.screens.player.MoviesExoPlayerPerformanceHelper
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlin.math.min
 
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -48,7 +47,9 @@ internal fun PlaybackBufferNetworkSection(
         checked = isSupported && settings.moviesPerformanceModeEnabled,
         onToggle = {
             if (isSupported) {
-                updateMemory { setMoviesPerformanceModeEnabled(!settings.moviesPerformanceModeEnabled) }
+                updateMemory {
+                    setMoviesPerformanceModeEnabled(!settings.moviesPerformanceModeEnabled)
+                }
             } else {
                 showPerformanceModeWarning = true
             }
@@ -116,7 +117,10 @@ private fun CustomBufferControls(
     val durationStep = if (isNativeMemory) 10 else 5
 
     SettingsSectionLabel(text = stringResource(R.string.playback_buffer_header))
-    SettingsNote(text = stringResource(R.string.playback_buffer_warning), tone = SettingsNoteTone.Warning)
+    SettingsNote(
+        text = stringResource(R.string.playback_buffer_warning),
+        tone = SettingsNoteTone.Warning
+    )
 
     SliderSettingsItem(
         title = stringResource(R.string.playback_buffer_min),
@@ -143,7 +147,9 @@ private fun CustomBufferControls(
         minValue = 5,
         maxValue = maxDuration,
         step = durationStep,
-        onValueChange = { seconds -> onUpdate { setBufferMaxBufferMs(maxOf(seconds, minBufferSeconds) * 1000) } }
+        onValueChange = { seconds ->
+            onUpdate { setBufferMaxBufferMs(maxOf(seconds, minBufferSeconds) * 1000) }
+        }
     )
 
     SliderSettingsItem(
@@ -165,7 +171,9 @@ private fun CustomBufferControls(
         minValue = 1,
         maxValue = 120,
         step = 1,
-        onValueChange = { seconds -> onUpdate { setBufferForPlaybackAfterRebufferMs(seconds * 1000) } }
+        onValueChange = { seconds ->
+            onUpdate { setBufferForPlaybackAfterRebufferMs(seconds * 1000) }
+        }
     )
 
     SliderSettingsItem(
@@ -195,7 +203,9 @@ private fun CustomBufferControls(
 
     val budgetManaged = settings.bufferBudgetManaged
     val parallelActive = settings.parallelNetworkEnabled && settings.useParallelConnections
-    val chunkMb = Math.ceil(settings.parallelChunkSizeKb / 1024.0).toInt().coerceAtMost(MemoryBudget.tierMaxChunkMb)
+    val chunkMb = Math.ceil(
+        settings.parallelChunkSizeKb / 1024.0
+    ).toInt().coerceAtMost(MemoryBudget.tierMaxChunkMb)
     val parallelOverheadMb = if (parallelActive) {
         MemoryBudget.parallelOverheadMb(settings.parallelConnectionCount, chunkMb)
     } else {
@@ -209,7 +219,11 @@ private fun CustomBufferControls(
     val warningMaxMb = if (settings.moviesPerformanceModeEnabled) {
         MoviesExoPlayerPerformanceHelper.getWarningNativeMemoryLimitMb(context)
     } else {
-        (((MemoryBudget.budgetMb * 1.25f).toInt() - parallelOverheadMb) / MemoryBudget.BUFFER_STEP_MB * MemoryBudget.BUFFER_STEP_MB)
+        (
+            ((MemoryBudget.budgetMb * 1.25f).toInt() - parallelOverheadMb) /
+                MemoryBudget.BUFFER_STEP_MB *
+                MemoryBudget.BUFFER_STEP_MB
+            )
             .coerceIn(MemoryBudget.MIN_BUFFER_MB, MemoryBudget.MAX_BUFFER_MB)
     }
     val maxBufferSizeMb = if (settings.allowLargeTargetBuffer) {
@@ -225,12 +239,16 @@ private fun CustomBufferControls(
             .effectiveBufferMb(buffer.targetBufferSizeMb)
             .coerceIn(minBufferSizeMb, maxBufferSizeMb)
     }
-    val effectiveExoMb = (bufferSizeMb - parallelOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
+    val effectiveExoMb = (bufferSizeMb - parallelOverheadMb).coerceAtLeast(
+        MemoryBudget.MIN_BUFFER_MB
+    )
     SliderSettingsItem(
         title = stringResource(R.string.playback_buffer_target),
         subtitle = stringResource(R.string.playback_buffer_target_sub),
         value = bufferSizeMb,
-        valueText = if (settings.moviesPerformanceModeEnabled && parallelActive && parallelOverheadMb > 0) {
+        valueText = if (settings.moviesPerformanceModeEnabled && parallelActive &&
+            parallelOverheadMb > 0
+        ) {
             "$effectiveExoMb+$parallelOverheadMb MB"
         } else {
             "$bufferSizeMb MB"
@@ -273,10 +291,7 @@ private fun CustomBufferControls(
 }
 
 @Composable
-private fun DiskCacheControls(
-    settings: PlayerSettings,
-    onUpdate: PlaybackSettingsUpdate
-) {
+private fun DiskCacheControls(settings: PlayerSettings, onUpdate: PlaybackSettingsUpdate) {
     val context = LocalContext.current
 
     SettingsToggleRow(
@@ -295,7 +310,11 @@ private fun DiskCacheControls(
         subtitle = stringResource(R.string.playback_cache_auto_size_sub),
         checked = autoMode,
         onToggle = {
-            onUpdate { setVodCacheSizeMode(if (autoMode) VodCacheSizeMode.MANUAL else VodCacheSizeMode.AUTO) }
+            onUpdate {
+                setVodCacheSizeMode(
+                    if (autoMode) VodCacheSizeMode.MANUAL else VodCacheSizeMode.AUTO
+                )
+            }
         },
         modifier = Modifier.padding(start = MoviesTheme.spacing.xxl)
     )
@@ -303,7 +322,10 @@ private fun DiskCacheControls(
     val freeDiskBytes = context.cacheDir.usableSpace.coerceAtLeast(0L)
     val maxManualCacheMb = resolveManualVodCacheMaxMb(freeDiskBytes)
     if (!autoMode) {
-        val manualCacheMb = settings.vodCacheSizeMb.coerceIn(PlayerSettings.MIN_VOD_CACHE_SIZE_MB, maxManualCacheMb)
+        val manualCacheMb = settings.vodCacheSizeMb.coerceIn(
+            PlayerSettings.MIN_VOD_CACHE_SIZE_MB,
+            maxManualCacheMb
+        )
         SliderSettingsItem(
             title = stringResource(R.string.playback_cache_vod_size),
             subtitle = stringResource(R.string.playback_cache_vod_size_sub),
@@ -316,10 +338,20 @@ private fun DiskCacheControls(
         )
     }
 
-    val rangeInfo = stringResource(R.string.playback_cache_info_range, PlayerSettings.MIN_VOD_CACHE_SIZE_MB, maxManualCacheMb)
+    val rangeInfo =
+        stringResource(
+            R.string.playback_cache_info_range,
+            PlayerSettings.MIN_VOD_CACHE_SIZE_MB,
+            maxManualCacheMb
+        )
     val autoInfo = stringResource(R.string.playback_cache_info_auto)
-    val headroomInfo = stringResource(R.string.playback_cache_info_manual_headroom, VOD_CACHE_FREE_SPACE_RESERVE_MB.toInt())
-    val freeDiskInfo = stringResource(R.string.playback_cache_info_free_disk, formatStorageSize(freeDiskBytes))
+    val headroomInfo =
+        stringResource(
+            R.string.playback_cache_info_manual_headroom,
+            VOD_CACHE_FREE_SPACE_RESERVE_MB.toInt()
+        )
+    val freeDiskInfo =
+        stringResource(R.string.playback_cache_info_free_disk, formatStorageSize(freeDiskBytes))
     val restartInfo = stringResource(R.string.playback_cache_info_restart)
     SettingsNote(
         text = buildString {
@@ -336,7 +368,10 @@ private fun DiskCacheControls(
             }
         }
     )
-    SettingsNote(text = stringResource(R.string.playback_cache_write_warning), tone = SettingsNoteTone.Warning)
+    SettingsNote(
+        text = stringResource(R.string.playback_cache_write_warning),
+        tone = SettingsNoteTone.Warning
+    )
 }
 
 @Composable
@@ -383,7 +418,9 @@ private fun ParallelNetworkControls(
             maxValue = (chunkSizes.size - 1).coerceAtLeast(0),
             step = 1,
             onValueChange = { index ->
-                chunkSizes.getOrNull(index)?.let { (kb, _) -> updateMemory { setParallelChunkSizeKb(kb) } }
+                chunkSizes.getOrNull(index)?.let { (kb, _) ->
+                    updateMemory { setParallelChunkSizeKb(kb) }
+                }
             }
         )
     }
@@ -406,14 +443,21 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
                 MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
             }
         }
+
         settings.bufferEngineEnabled -> {
-            if (settings.bufferBudgetManaged) MemoryBudget.budgetMb
-            else MemoryBudget.effectiveBufferMb(settings.bufferSettings.targetBufferSizeMb)
+            if (settings.bufferBudgetManaged) {
+                MemoryBudget.budgetMb
+            } else {
+                MemoryBudget.effectiveBufferMb(settings.bufferSettings.targetBufferSizeMb)
+            }
         }
+
         else -> MemoryBudget.defaultBufferSizeMb
     }
     val parallelActive = settings.parallelNetworkEnabled && settings.useParallelConnections
-    val chunkMb = Math.ceil(settings.parallelChunkSizeKb / 1024.0).toInt().coerceAtMost(MemoryBudget.tierMaxChunkMb)
+    val chunkMb = Math.ceil(
+        settings.parallelChunkSizeKb / 1024.0
+    ).toInt().coerceAtMost(MemoryBudget.tierMaxChunkMb)
     val parallelOverheadMb = if (parallelActive) {
         MemoryBudget.parallelOverheadMb(settings.parallelConnectionCount, chunkMb)
     } else {
@@ -422,7 +466,12 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
     val totalUsageMb = if (settings.moviesPerformanceModeEnabled) {
         effectiveBufferMb
     } else {
-        MemoryBudget.totalUsageMb(effectiveBufferMb, settings.parallelConnectionCount, chunkMb, parallelActive)
+        MemoryBudget.totalUsageMb(
+            effectiveBufferMb,
+            settings.parallelConnectionCount,
+            chunkMb,
+            parallelActive
+        )
     }
     val safeLimitMb = if (settings.moviesPerformanceModeEnabled) {
         MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
@@ -439,11 +488,19 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
         MemoryUsageStatus.WARNING -> MoviesTheme.colors.Warning
         MemoryUsageStatus.SAFE -> MoviesPrimitives.success
     }
-    val effectiveExoMb = (effectiveBufferMb - parallelOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
-    val baseText = stringResource(R.string.playback_estimated_memory_usage, totalUsageMb, warningLimitMb)
-    val usageText = if (settings.moviesPerformanceModeEnabled && parallelActive && parallelOverheadMb > 0) {
+    val effectiveExoMb = (effectiveBufferMb - parallelOverheadMb).coerceAtLeast(
+        MemoryBudget.MIN_BUFFER_MB
+    )
+    val baseText =
+        stringResource(R.string.playback_estimated_memory_usage, totalUsageMb, warningLimitMb)
+    val usageText = if (settings.moviesPerformanceModeEnabled && parallelActive &&
+        parallelOverheadMb > 0
+    ) {
         baseText
-            .replace("$totalUsageMb / $warningLimitMb", "$totalUsageMb($effectiveExoMb+$parallelOverheadMb)/$warningLimitMb")
+            .replace(
+                "$totalUsageMb / $warningLimitMb",
+                "$totalUsageMb($effectiveExoMb+$parallelOverheadMb)/$warningLimitMb"
+            )
             .replace("$totalUsageMb /", "$totalUsageMb($effectiveExoMb+$parallelOverheadMb)/")
     } else {
         baseText
@@ -452,8 +509,15 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = MoviesTheme.colors.BackgroundCard, shape = RoundedCornerShape(10.dp))
-            .border(MoviesTheme.spacing.hairline, usageColor.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+            .background(
+                color = MoviesTheme.colors.BackgroundCard,
+                shape = RoundedCornerShape(10.dp)
+            )
+            .border(
+                MoviesTheme.spacing.hairline,
+                usageColor.copy(alpha = 0.35f),
+                RoundedCornerShape(10.dp)
+            )
             .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
         Text(

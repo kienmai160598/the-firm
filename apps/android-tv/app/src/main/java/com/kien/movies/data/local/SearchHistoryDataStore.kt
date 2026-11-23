@@ -5,12 +5,12 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.kien.movies.core.profile.ProfileManager
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class SearchHistoryDataStore @Inject constructor(
@@ -22,13 +22,14 @@ class SearchHistoryDataStore @Inject constructor(
         private const val DEFAULT_MAX_RECENT_SEARCHES = 8
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
     private val gson = Gson()
     private val recentSearchesKey = stringPreferencesKey("recent_searches")
 
-    val recentSearches: Flow<List<String>> = profileManager.activeProfileId.flatMapLatest { profileId ->
+    val recentSearches: Flow<List<String>> = profileManager.activeProfileId.flatMapLatest {
+            profileId
+        ->
         factory.get(profileId, FEATURE).data.map { prefs ->
             parseRecentSearches(prefs[recentSearchesKey])
         }

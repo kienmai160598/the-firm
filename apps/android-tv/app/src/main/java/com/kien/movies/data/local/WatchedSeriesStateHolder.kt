@@ -4,19 +4,19 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
-import com.kien.movies.core.profile.ProfileManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.kien.movies.core.profile.ProfileManager
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Shared holder for fully-watched series IDs derived from the CW pipeline.
@@ -49,6 +49,7 @@ class WatchedSeriesStateHolder @Inject constructor(
     /** Per-series revalidation deadline (contentId → epochMs when re-check is needed). */
     @Volatile
     private var revalidateAfterMap: Map<String, Long> = emptyMap()
+
     @Volatile
     private var loadedForProfileId: Int? = null
 
@@ -70,7 +71,9 @@ class WatchedSeriesStateHolder @Inject constructor(
         } else {
             revalidateAfterMap = parseTimestamps(prefs[REVALIDATE_KEY])
         }
-        if (switchingProfile || (_fullyWatchedSeriesIds.value.isEmpty() && persisted.isNotEmpty())) {
+        if (switchingProfile ||
+            (_fullyWatchedSeriesIds.value.isEmpty() && persisted.isNotEmpty())
+        ) {
             _fullyWatchedSeriesIds.value = persisted
         }
         loadedForProfileId = profileId

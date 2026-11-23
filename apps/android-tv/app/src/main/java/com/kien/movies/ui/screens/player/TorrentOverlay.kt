@@ -1,7 +1,5 @@
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -20,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.ui.theme.MoviesTheme
 
 private val TorrentStatSize = PlayerTenFoot.atLeast(11.sp, PlayerTenFoot.metaText)
 
@@ -70,7 +69,15 @@ fun TorrentOverlay(
                 )
             }
             Text(
-                text = stringResource(R.string.player_torrent_stats, peers, seeds, (totalProgress * 100).toInt()),
+                text = stringResource(
+                    R.string.player_torrent_stats,
+                    peers,
+                    seeds,
+                    (
+                        totalProgress *
+                            100
+                        ).toInt()
+                ),
                 color = Color.White.copy(alpha = 0.6f),
                 fontSize = PlayerTenFoot.atLeast(10.sp, PlayerTenFoot.metaText)
             )
@@ -81,8 +88,22 @@ fun TorrentOverlay(
 @Composable
 private fun formatSpeed(bytesPerSec: Long): String {
     return when {
-        bytesPerSec >= 1_048_576 -> stringResource(R.string.unit_speed_mb_s, String.format("%.1f", bytesPerSec / 1_048_576.0))
-        bytesPerSec >= 1_024 -> stringResource(R.string.unit_speed_kb_s, String.format("%.0f", bytesPerSec / 1_024.0))
+        bytesPerSec >= 1_048_576 -> stringResource(
+            R.string.unit_speed_mb_s,
+            String.format(
+                "%.1f",
+                bytesPerSec / 1_048_576.0
+            )
+        )
+
+        bytesPerSec >= 1_024 -> stringResource(
+            R.string.unit_speed_kb_s,
+            String.format(
+                "%.0f",
+                bytesPerSec / 1_024.0
+            )
+        )
+
         else -> stringResource(R.string.unit_speed_b_s, bytesPerSec)
     }
 }

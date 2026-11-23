@@ -89,7 +89,10 @@ class ProfileSettingsPluginSyncTest {
         ambient.setEnabled(false)
         harness.service.pushCurrentProfileToRemote().getOrThrow()
         harness.factory.get(1, AmbientModeDataStore.FEATURE).edit { it.clear() }
-        assertEquals(AmbientModeSettings.DEFAULT_TIMEOUT_MINUTES, ambient.settings.first().timeoutMinutes)
+        assertEquals(
+            AmbientModeSettings.DEFAULT_TIMEOUT_MINUTES,
+            ambient.settings.first().timeoutMinutes
+        )
 
         assertTrue(harness.service.pullCurrentProfileFromRemote().getOrThrow())
 
@@ -128,14 +131,16 @@ class ProfileSettingsPluginSyncTest {
         val uploaded = harness.remote.getValue(1).getValue("features").jsonObject
             .getValue(PluginDataStore.FEATURE).jsonObject
         assertEquals(setOf(PluginDataStore.GROUP_STREAMS_BY_REPOSITORY), uploaded.keys)
-        harness.remote[1] = settings(buildJsonObject {
-            put(PluginDataStore.GROUP_STREAMS_BY_REPOSITORY, encodedBoolean(false))
-            put("repositories", encodedString("remote repositories"))
-            put("scrapers", encodedString("remote scrapers"))
-            put("scraper_settings", encodedString("remote scraper settings"))
-            put("future_plugin_setting", encodedString("remote future value"))
-            put("plugins_enabled", encodedBoolean(true))
-        })
+        harness.remote[1] = settings(
+            buildJsonObject {
+                put(PluginDataStore.GROUP_STREAMS_BY_REPOSITORY, encodedBoolean(false))
+                put("repositories", encodedString("remote repositories"))
+                put("scrapers", encodedString("remote scrapers"))
+                put("scraper_settings", encodedString("remote scraper settings"))
+                put("future_plugin_setting", encodedString("remote future value"))
+                put("plugins_enabled", encodedBoolean(true))
+            }
+        )
 
         harness.service.pullCurrentProfileFromRemote().getOrThrow()
 
@@ -175,9 +180,11 @@ class ProfileSettingsPluginSyncTest {
         )
 
         invalidValues.forEach { invalid ->
-            harness.remote[1] = settings(buildJsonObject {
-                put(PluginDataStore.GROUP_STREAMS_BY_REPOSITORY, invalid)
-            })
+            harness.remote[1] = settings(
+                buildJsonObject {
+                    put(PluginDataStore.GROUP_STREAMS_BY_REPOSITORY, invalid)
+                }
+            )
             harness.service.pullCurrentProfileFromRemote().getOrThrow()
             assertTrue(harness.plugins.groupStreamsByRepository.first())
         }
@@ -268,7 +275,12 @@ class ProfileSettingsPluginSyncTest {
         runCurrent()
 
         assertTrue(harness.plugins.groupStreamsByRepository.first())
-        assertEquals(false, harness.pluginStore(3).value[booleanPreferencesKey(PluginDataStore.GROUP_STREAMS_BY_REPOSITORY)])
+        assertEquals(
+            false,
+            harness.pluginStore(
+                3
+            ).value[booleanPreferencesKey(PluginDataStore.GROUP_STREAMS_BY_REPOSITORY)]
+        )
         assertEquals("primary theme", primaryTheme.value[stringPreferencesKey("theme")])
         assertTrue(harness.pushes.isEmpty())
     }
@@ -276,7 +288,10 @@ class ProfileSettingsPluginSyncTest {
     @Test
     fun `switching profiles does not push the newly active profile's local settings`() = runTest(dispatcher) {
         val harness = harness(authenticated = true)
-        harness.store(2, "theme_settings").edit { it[stringPreferencesKey("theme")] = "stale local theme" }
+        harness.store(2, "theme_settings").edit {
+            it[stringPreferencesKey("theme")] =
+                "stale local theme"
+        }
         harness.remote[2] = settings(null, theme = "cloud theme")
         runCurrent()
 
@@ -292,10 +307,16 @@ class ProfileSettingsPluginSyncTest {
     @Test
     fun `a change made right before switching profiles is pushed for its own profile`() = runTest(dispatcher) {
         val harness = harness(authenticated = true)
-        harness.store(2, "theme_settings").edit { it[stringPreferencesKey("theme")] = "secondary theme" }
+        harness.store(2, "theme_settings").edit {
+            it[stringPreferencesKey("theme")] =
+                "secondary theme"
+        }
         runCurrent()
 
-        harness.store(1, "theme_settings").edit { it[stringPreferencesKey("theme")] = "new primary theme" }
+        harness.store(1, "theme_settings").edit {
+            it[stringPreferencesKey("theme")] =
+                "new primary theme"
+        }
         runCurrent()
         advanceTimeBy(500)
         harness.activeProfileId.value = 2
@@ -319,15 +340,18 @@ class ProfileSettingsPluginSyncTest {
         }
         every { factory.corruptedFileNames } returns mutableSetOf()
         val activeProfileId = MutableStateFlow(profileId)
-        val profiles = MutableStateFlow(listOf(
-            UserProfile(1, "Primary", "#000000"),
-            UserProfile(2, "Independent", "#000000"),
-            UserProfile(3, "Shared", "#000000", usesPrimaryPlugins = true)
-        ))
+        val profiles = MutableStateFlow(
+            listOf(
+                UserProfile(1, "Primary", "#000000"),
+                UserProfile(2, "Independent", "#000000"),
+                UserProfile(3, "Shared", "#000000", usesPrimaryPlugins = true)
+            )
+        )
         val profileManager = mockk<ProfileManager>()
         every { profileManager.activeProfileId } returns activeProfileId
         every { profileManager.profiles } returns profiles
-        every { profileManager.activeProfile } answers { profiles.value.first { it.id == activeProfileId.value } }
+        every { profileManager.activeProfile } answers
+            { profiles.value.first { it.id == activeProfileId.value } }
         val authManager = mockk<AuthManager>(relaxed = true)
         every { authManager.isAuthenticated } returns authenticated
         val identity = mockk<SyncClientIdentity>()
@@ -346,24 +370,41 @@ class ProfileSettingsPluginSyncTest {
                     remote[requestedProfile] = params.getValue("p_settings_json").jsonObject
                     ""
                 }
+
                 "sync_pull_profile_settings_blob" -> {
                     pulls += requestedProfile
                     val blob = remote[requestedProfile]
-                    JsonArray(if (blob == null) emptyList() else listOf(buildJsonObject {
-                        put("profile_id", requestedProfile)
-                        put("settings_json", blob)
-                    })).toString()
+                    JsonArray(
+                        if (blob == null) {
+                            emptyList()
+                        } else {
+                            listOf(
+                                buildJsonObject {
+                                    put("profile_id", requestedProfile)
+                                    put("settings_json", blob)
+                                }
+                            )
+                        }
+                    ).toString()
                 }
+
                 else -> error("Unexpected RPC")
             }
             PostgrestResult(response, Headers.Empty, postgrest)
         }
         val service = ProfileSettingsSyncService(
             authManager, postgrest, profileManager, factory, identity,
-            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true)
+            mockk(
+                relaxed = true
+            ),
+            mockk(
+                relaxed = true
+            ),
+            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true)
         )
         services += service
-        val plugins = PluginDataStore(mockk(relaxed = true), Moshi.Builder().build(), factory, profileManager)
+        val plugins =
+            PluginDataStore(mockk(relaxed = true), Moshi.Builder().build(), factory, profileManager)
         return Harness(service, plugins, factory, activeProfileId, remote, pulls, pushes)
     }
 
@@ -383,12 +424,20 @@ class ProfileSettingsPluginSyncTest {
 
     private fun settings(pluginSettings: JsonObject?, theme: String? = null) = buildJsonObject {
         put("version", 1)
-        put("features", buildJsonObject {
-            if (pluginSettings != null) put(PluginDataStore.FEATURE, pluginSettings)
-            if (theme != null) put("theme_settings", buildJsonObject {
-                put("theme", encodedString(theme))
-            })
-        })
+        put(
+            "features",
+            buildJsonObject {
+                if (pluginSettings != null) put(PluginDataStore.FEATURE, pluginSettings)
+                if (theme != null) {
+                    put(
+                        "theme_settings",
+                        buildJsonObject {
+                            put("theme", encodedString(theme))
+                        }
+                    )
+                }
+            }
+        )
     }
 
     private data class Harness(

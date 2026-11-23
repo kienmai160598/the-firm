@@ -31,7 +31,12 @@ class SimklMutationService internal constructor(
         }
     )
 
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = false; explicitNulls = false }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = false
+        explicitNulls =
+            false
+    }
 
     suspend fun moveToList(
         items: Collection<TrackingMediaReference>,
@@ -52,8 +57,7 @@ class SimklMutationService internal constructor(
         return receipt.result
     }
 
-    suspend fun removeFromList(items: Collection<TrackingMediaReference>): TrackingMutationResult =
-        removeFromHistory(items)
+    suspend fun removeFromList(items: Collection<TrackingMediaReference>): TrackingMutationResult = removeFromHistory(items)
 
     suspend fun addToHistory(items: Collection<TrackingHistoryItem>): TrackingMutationResult {
         val candidates = items.toList().also { historyItems ->
@@ -75,7 +79,9 @@ class SimklMutationService internal constructor(
         return receipt.result
     }
 
-    suspend fun removeFromHistory(items: Collection<TrackingMediaReference>): TrackingMutationResult {
+    suspend fun removeFromHistory(
+        items: Collection<TrackingMediaReference>
+    ): TrackingMutationResult {
         val candidates = items.validated()
         if (candidates.isEmpty()) return TrackingMutationResult(attemptedCount = 0)
         val response = client.execute(
@@ -130,10 +136,9 @@ class SimklMutationService internal constructor(
         return response.toSimklScrobbleResult(action, event, json)
     }
 
-    private fun Collection<TrackingMediaReference>.validated(): List<TrackingMediaReference> =
-        toList().also { candidates ->
-            require(candidates.all(TrackingMediaReference::hasResolvableIdentity)) {
-                "Simkl mutation requires a media ID or title for every item"
-            }
+    private fun Collection<TrackingMediaReference>.validated(): List<TrackingMediaReference> = toList().also { candidates ->
+        require(candidates.all(TrackingMediaReference::hasResolvableIdentity)) {
+            "Simkl mutation requires a media ID or title for every item"
         }
+    }
 }

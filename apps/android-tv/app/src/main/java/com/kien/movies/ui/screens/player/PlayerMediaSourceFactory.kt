@@ -30,24 +30,11 @@ import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.text.SubtitleParser
 import com.kien.movies.MoviesApplication
 import com.kien.movies.R
-import com.kien.movies.core.util.findCause
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.yield
 import com.kien.movies.core.network.IPv4FirstDns
 import com.kien.movies.core.network.NoDelaySocketFactory
+import com.kien.movies.core.util.findCause
 import com.kien.movies.data.local.PlayerSettings
 import com.kien.movies.data.local.VodCacheSizeMode
-import okhttp3.ConnectionPool
-import okhttp3.Dispatcher
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.SocketTimeoutException
 import java.net.URLDecoder
@@ -61,6 +48,19 @@ import java.util.concurrent.atomic.AtomicLong
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
+import okhttp3.ConnectionPool
+import okhttp3.Dispatcher
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 internal class PlayerMediaSourceFactory(private val context: Context) {
     private var customExtractorsFactory: ExtractorsFactory? = null
@@ -68,7 +68,9 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
     private val loadErrorHandlingPolicy = PlayerLoadErrorHandlingPolicy()
 
     @Volatile private var currentVodCacheUrl: String? = null
+
     @Volatile private var currentVodCacheResolvedUrl: String? = null
+
     @Volatile private var currentVodCacheActive: Boolean = false
 
     // Called on a loader thread with the url a progressive stream opened at after a redirect.
@@ -77,9 +79,15 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
     // Takes the caller's context because this factory only holds the application one, which ignores the in-app language.
     fun vodCacheStateLabel(context: Context): String = when {
         currentVodCacheActive ->
-            context.getString(R.string.diag_value_disk_cache_on, formatCacheBytes(configuredVodCacheMaxBytes))
+            context.getString(
+                R.string.diag_value_disk_cache_on,
+                formatCacheBytes(configuredVodCacheMaxBytes)
+            )
+
         isVodCacheDisabled -> context.getString(R.string.diag_value_disk_cache_unavailable)
+
         vodCacheEnabled -> context.getString(R.string.diag_value_disk_cache_not_used)
+
         else -> context.getString(R.string.diag_value_off)
     }
 
@@ -114,6 +122,7 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
     var useParallelConnections: Boolean = PlayerSettings.DEFAULT_USE_PARALLEL_CONNECTIONS
     var parallelConnectionCount: Int = PlayerSettings.DEFAULT_PARALLEL_CONNECTION_COUNT
     var parallelChunkSizeKb: Int = PlayerSettings.DEFAULT_PARALLEL_CHUNK_SIZE_KB
+
     // Gated by the parallel network toggle because its only use is the native memory argument to
     // the chunk data source, which nothing else builds.
     var moviesPerformanceModeEnabled: Boolean = PlayerSettings.DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED
@@ -140,16 +149,16 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             .build()
     }
 
-    private fun computePrefetchDepthChunks(
-        connections: Int,
-        chunkBytes: Long
-    ): Int {
+    private fun computePrefetchDepthChunks(connections: Int, chunkBytes: Long): Int {
         if (!moviesPerformanceModeEnabled) return connections + 1
         val chunkMb = (chunkBytes / (1024L * 1024L)).toInt().coerceAtLeast(1)
         val safeNativeMb = MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
         val reserveMb = MoviesExoPlayerPerformanceHelper.targetBufferSizeMb.coerceAtLeast(0)
         return com.kien.movies.ui.screens.settings.MemoryBudget.prefetchDepthChunks(
-            connections, chunkMb, safeNativeMb, reserveMb
+            connections,
+            chunkMb,
+            safeNativeMb,
+            reserveMb
         )
     }
 
@@ -187,8 +196,8 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 context,
                 PlayerPlaybackNetworking.createHttpDataSourceFactory(
                     sanitizedHeaders,
-                    useLongReadTimeout = isLoopbackUrl(url),
-                ),
+                    useLongReadTimeout = isLoopbackUrl(url)
+                )
             )
             if (isHls) HlsParameterSetInitDataSource.Factory(adaptiveFactory) else adaptiveFactory
         } else {
@@ -218,7 +227,9 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 "maxBufferMs=${MoviesExoPlayerPerformanceHelper.maxBufferMs} " +
                 "backBufferMs=${MoviesExoPlayerPerformanceHelper.backBufferMs} " +
                 "targetMb=${MoviesExoPlayerPerformanceHelper.targetBufferSizeMb} " +
-                "safeNativeMb=${MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)} " +
+                "safeNativeMb=${MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(
+                    context
+                )} " +
                 "parallel=${if (useParallelConnections) parallelConnectionCount else 0} chunkKb=$parallelChunkSizeKb"
         )
         val useChunkSessionSource = useParallelConnections && !isHls && !isDash
@@ -232,7 +243,9 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 }
             }
             val sessionChunkBytes = parallelChunkSizeKb
-                .coerceAtMost(com.kien.movies.ui.screens.settings.MemoryBudget.tierMaxChunkMb * 1024)
+                .coerceAtMost(
+                    com.kien.movies.ui.screens.settings.MemoryBudget.tierMaxChunkMb * 1024
+                )
                 .toLong() * 1024L
             val effectiveNative =
                 moviesPerformanceModeEnabled || NuvioEngineConfig.get().isNativeAllocationEnabled()
@@ -249,7 +262,10 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 onResolvedUri = { resolved -> currentVodCacheResolvedUrl = resolved?.toString() }
             )
         } else if (isLoopbackUrl(url)) {
-            PlayerPlaybackNetworking.createHttpDataSourceFactory(sanitizedHeaders, useLongReadTimeout = true)
+            PlayerPlaybackNetworking.createHttpDataSourceFactory(
+                sanitizedHeaders,
+                useLongReadTimeout = true
+            )
         } else {
             httpDataSourceFactory
         }
@@ -259,7 +275,8 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             }
 
         // 2. VOD disk cache (opt-in).
-        val useVodCache = ENABLE_VOD_CACHE && vodCacheEnabled && !isHls && !isDash && shouldUseVodCache(url)
+        val useVodCache =
+            ENABLE_VOD_CACHE && vodCacheEnabled && !isHls && !isDash && shouldUseVodCache(url)
         // A playback started inside the delay window would have its own data swept out from under it.
         pendingEvictionJob?.cancel()
         pendingEvictionJob = null
@@ -267,7 +284,13 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         currentVodCacheResolvedUrl = null
         vodCacheEvictor?.resetTrimAnchor()
         // Size the cache only when used; 0 means off or not enough free space (skip, stream direct).
-        val vodCacheMaxBytes = if (useVodCache && !isVodCacheDisabled) resolveVodCacheMaxBytes() else 0L
+        val vodCacheMaxBytes = if (useVodCache &&
+            !isVodCacheDisabled
+        ) {
+            resolveVodCacheMaxBytes()
+        } else {
+            0L
+        }
         val vodCacheActive = vodCacheMaxBytes > 0L
 
         val cachedProgressiveFactory: DataSource.Factory = if (vodCacheActive) {
@@ -285,7 +308,9 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         }
         // The buffer only pays off against the cache's per-call cost, so a direct stream keeps its original chain.
         val progressiveFactory: DataSource.Factory = if (currentVodCacheActive) {
-            DataSource.Factory { BufferedReadDataSource(cachedProgressiveFactory.createDataSource()) }
+            DataSource.Factory {
+                BufferedReadDataSource(cachedProgressiveFactory.createDataSource())
+            }
         } else {
             cachedProgressiveFactory
         }
@@ -304,13 +329,17 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         } else {
             progressiveFactory
         }
-        val defaultFactory = DefaultMediaSourceFactory(defaultSourceFactory, extractorsFactory).apply {
+        val defaultFactory = DefaultMediaSourceFactory(
+            defaultSourceFactory,
+            extractorsFactory
+        ).apply {
             setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
             customSubtitleParserFactory?.let { parserFactory ->
                 setSubtitleParserFactory(parserFactory)
             }
         }
-        val forceDefaultFactory = customExtractorsFactory != null || customSubtitleParserFactory != null
+        val forceDefaultFactory =
+            customExtractorsFactory != null || customSubtitleParserFactory != null
 
         // Sidecar subtitles are more reliable through DefaultMediaSourceFactory.
         if (subtitleConfigurations.isNotEmpty()) {
@@ -325,12 +354,17 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 .setAllowChunklessPreparation(true)
                 .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
                 .createMediaSource(mediaItem)
+
             isDash && !forceDefaultFactory -> DashMediaSource.Factory(httpDataSourceFactory)
                 .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
                 .createMediaSource(mediaItem)
+
             else -> defaultFactory.createMediaSource(mediaItem)
         }
-        return wrapAudioDelay(mediaSource = mediaSource, audioDelayUsProvider = audioDelayUsProvider)
+        return wrapAudioDelay(
+            mediaSource = mediaSource,
+            audioDelayUsProvider = audioDelayUsProvider
+        )
     }
 
     fun shutdown() {
@@ -360,7 +394,10 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         }
     }
 
-    private fun buildVodCacheDataSourceFactory(upstreamFactory: DataSource.Factory, cache: SimpleCache): DataSource.Factory {
+    private fun buildVodCacheDataSourceFactory(
+        upstreamFactory: DataSource.Factory,
+        cache: SimpleCache
+    ): DataSource.Factory {
         val dataSinkFactory = DataSink.Factory {
             VodCacheWriteSink(
                 CacheDataSink.Factory().setCache(cache)
@@ -427,6 +464,7 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         private const val VOD_CACHE_FREE_SPACE_RESERVE_BYTES = 1024L * 1024L * 1024L
         private const val VOD_CACHE_DIR_NAME = "nuvio_vod_cache"
         private const val VOD_CACHE_STALE_PREFIX = "nuvio_vod_cache_stale_"
+
         // Larger fragments mean fewer files to create, index and delete, which is the part of cache
         // upkeep that competes with playback reads on slow storage.
         private const val VOD_CACHE_FRAGMENT_BYTES = 8L * 1024L * 1024L
@@ -443,13 +481,16 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
 
         private const val MIME_PROBE_CACHE_SIZE = 64
 
-        data class StreamProbeInfo(
-            val contentLength: Long,
-            val acceptsRanges: Boolean
-        )
+        data class StreamProbeInfo(val contentLength: Long, val acceptsRanges: Boolean)
 
-        private val probeInfoCache = object : LinkedHashMap<String, StreamProbeInfo>(MIME_PROBE_CACHE_SIZE, 0.75f, true) {
-            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, StreamProbeInfo>?): Boolean {
+        private val probeInfoCache = object : LinkedHashMap<String, StreamProbeInfo>(
+            MIME_PROBE_CACHE_SIZE,
+            0.75f,
+            true
+        ) {
+            override fun removeEldestEntry(
+                eldest: MutableMap.MutableEntry<String, StreamProbeInfo>?
+            ): Boolean {
                 return size > MIME_PROBE_CACHE_SIZE
             }
         }
@@ -463,7 +504,12 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             }
         }
 
-        private fun cacheProbeInfo(url: String, headers: Map<String, String>, contentLength: Long, acceptsRanges: Boolean) {
+        private fun cacheProbeInfo(
+            url: String,
+            headers: Map<String, String>,
+            contentLength: Long,
+            acceptsRanges: Boolean
+        ) {
             val sanitizedHeaders = sanitizeHeaders(headers)
             val cacheKey = buildMimeProbeCacheKey(url, sanitizedHeaders)
             synchronized(probeInfoCache) {
@@ -484,14 +530,13 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             }
         }
 
-        data class NormalizedPlaybackRequest(
-            val url: String,
-            val headers: Map<String, String>
-        )
+        data class NormalizedPlaybackRequest(val url: String, val headers: Map<String, String>)
 
         @Volatile private var sharedSimpleCache: SimpleCache? = null
         private var sharedVodDatabaseProvider: StandaloneDatabaseProvider? = null
+
         @Volatile private var configuredVodCacheMaxBytes: Long = -1L
+
         @Volatile private var isVodCacheDisabled: Boolean = false
         private val vodCacheLock = Any()
         private val vodCacheBytesReadFromCache = AtomicLong(0L)
@@ -499,6 +544,7 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         private val vodCacheBytesRemoved = AtomicLong(0L)
         private val vodCacheBytesTrimmed = AtomicLong(0L)
         private val vodCacheWriteCounters = VodCacheWriteSink.Counters()
+
         @Volatile private var vodCacheEvictor: CountingCacheEvictor? = null
 
         // A header read at 0, the jump to a resume point and an mp4 index at the tail all look alike
@@ -577,7 +623,8 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
 
         internal fun isLoopbackUrl(url: String): Boolean {
             val host = url.toHttpUrlOrNull()?.host ?: return false
-            return host == "127.0.0.1" || host == "::1" || host.equals("localhost", ignoreCase = true)
+            return host == "127.0.0.1" || host == "::1" ||
+                host.equals("localhost", ignoreCase = true)
         }
 
         fun parseHeaders(headers: String?): Map<String, String> {
@@ -620,7 +667,10 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 // on a live instance, so a resize waits for the next app start.
                 if (existing != null) {
                     if (configuredVodCacheMaxBytes != maxBytes) {
-                        Log.i(LOG_TAG, "VOD_CACHE: keeping cap ${configuredVodCacheMaxBytes / (1024L * 1024L)}MB, ${maxBytes / (1024L * 1024L)}MB applies next launch")
+                        Log.i(
+                            LOG_TAG,
+                            "VOD_CACHE: keeping cap ${configuredVodCacheMaxBytes / (1024L * 1024L)}MB, ${maxBytes / (1024L * 1024L)}MB applies next launch"
+                        )
                     }
                     return existing
                 }
@@ -655,8 +705,14 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         }
 
         // A fifth of free space is too small on low-storage devices to hold the window a large remux keeps seeking back into.
-        internal fun resolveAutoVodCacheBytes(freeSpaceBytes: Long, minBytes: Long, runtimeMaxBytes: Long): Long =
-            maxOf(AUTO_VOD_CACHE_FLOOR_BYTES, freeSpaceBytes / 5L).coerceIn(minBytes, runtimeMaxBytes)
+        internal fun resolveAutoVodCacheBytes(
+            freeSpaceBytes: Long,
+            minBytes: Long,
+            runtimeMaxBytes: Long
+        ): Long = maxOf(
+            AUTO_VOD_CACHE_FLOOR_BYTES,
+            freeSpaceBytes / 5L
+        ).coerceIn(minBytes, runtimeMaxBytes)
 
         private fun createVodCache(context: Context, dir: File, maxBytes: Long): SimpleCache? {
             var cache: SimpleCache? = null
@@ -677,15 +733,19 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         }
 
         // The live cache and the stale folder delete write to the same database.
-        private fun vodDatabaseProvider(context: Context): StandaloneDatabaseProvider =
-            synchronized(vodCacheLock) {
-                sharedVodDatabaseProvider
-                    ?: StandaloneDatabaseProvider(context.applicationContext).also { sharedVodDatabaseProvider = it }
-            }
+        private fun vodDatabaseProvider(context: Context): StandaloneDatabaseProvider = synchronized(vodCacheLock) {
+            sharedVodDatabaseProvider
+                ?: StandaloneDatabaseProvider(context.applicationContext).also {
+                    sharedVodDatabaseProvider =
+                        it
+                }
+        }
 
         private fun moveStaleVodCacheAside(dir: File): Boolean {
             if (!dir.exists()) return true
-            return dir.renameTo(File(dir.parentFile, "$VOD_CACHE_STALE_PREFIX${System.currentTimeMillis()}"))
+            return dir.renameTo(
+                File(dir.parentFile, "$VOD_CACHE_STALE_PREFIX${System.currentTimeMillis()}")
+            )
         }
 
         // Also picks up folders an earlier run was killed before it finished deleting.
@@ -817,12 +877,12 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 delegate.onSpanRemoved(cache, span)
             }
 
-            override fun onSpanTouched(cache: Cache, oldSpan: CacheSpan, newSpan: CacheSpan) =
-                delegate.onSpanTouched(cache, oldSpan, newSpan)
+            override fun onSpanTouched(cache: Cache, oldSpan: CacheSpan, newSpan: CacheSpan) = delegate.onSpanTouched(cache, oldSpan, newSpan)
         }
 
         private fun inferAdaptiveMimeTypeFromPath(path: String?): String? {
-            val normalized = path?.trim()?.lowercase(Locale.US)?.takeIf { it.isNotBlank() } ?: return null
+            val normalized =
+                path?.trim()?.lowercase(Locale.US)?.takeIf { it.isNotBlank() } ?: return null
             val pathWithoutFragment = normalized.substringBefore('#')
             val pathPart = pathWithoutFragment.substringBefore('?')
             val fileName = pathPart.substringAfterLast('/')
@@ -882,6 +942,7 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 "audio/x-matroska",
                 "video/mkv",
                 "audio/mkv" -> MimeTypes.VIDEO_MATROSKA
+
                 else -> null
             }
         }
@@ -894,8 +955,13 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
 
             return when {
                 normalized.startsWith("#extm3u") -> MimeTypes.APPLICATION_M3U8
-                normalized.startsWith("<?xml") && normalized.contains("<mpd") -> MimeTypes.APPLICATION_MPD
+
+                normalized.startsWith(
+                    "<?xml"
+                ) && normalized.contains("<mpd") -> MimeTypes.APPLICATION_MPD
+
                 normalized.startsWith("<mpd") -> MimeTypes.APPLICATION_MPD
+
                 else -> null
             }
         }
@@ -917,7 +983,9 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             url: String,
             headers: Map<String, String> = emptyMap()
         ): String? = withContext(Dispatchers.IO) {
-            if (!url.startsWith("http://", ignoreCase = true) && !url.startsWith("https://", ignoreCase = true)) {
+            if (!url.startsWith("http://", ignoreCase = true) &&
+                !url.startsWith("https://", ignoreCase = true)
+            ) {
                 return@withContext null
             }
             val sanitizedHeaders = sanitizeHeaders(headers)
@@ -937,7 +1005,9 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                         requestBuilder.header("User-Agent", DEFAULT_USER_AGENT)
                     }
 
-                    PlayerPlaybackNetworking.playbackHttpClient.newCall(requestBuilder.build()).execute().use { response ->
+                    PlayerPlaybackNetworking.playbackHttpClient.newCall(
+                        requestBuilder.build()
+                    ).execute().use { response ->
                         if (!response.isSuccessful && response.code !in 200..308) {
                             return@use null
                         }
@@ -948,8 +1018,12 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                         val contentType = response.header("Content-Type")
                         normalizeMimeType(contentType)?.let { return@withContext it }
 
-                        val responseHeadersMap = response.headers.names().associateWith { response.header(it).orEmpty() }
-                        inferMimeTypeFromResponseHeaders(responseHeadersMap)?.let { return@withContext it }
+                        val responseHeadersMap = response.headers.names().associateWith {
+                            response.header(it).orEmpty()
+                        }
+                        inferMimeTypeFromResponseHeaders(responseHeadersMap)?.let {
+                            return@withContext it
+                        }
 
                         if (method == "GET") {
                             val snippet = response.body?.byteStream()?.use { stream ->
@@ -994,7 +1068,8 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         }
 
         private fun inferMimeTypeFromPath(path: String?): String? {
-            val normalized = path?.trim()?.lowercase(Locale.US)?.takeIf { it.isNotBlank() } ?: return null
+            val normalized =
+                path?.trim()?.lowercase(Locale.US)?.takeIf { it.isNotBlank() } ?: return null
             val pathWithoutFragment = normalized.substringBefore('#')
             val pathPart = pathWithoutFragment.substringBefore('?')
             val queryPart = pathWithoutFragment.substringAfter('?', missingDelimiterValue = "")
@@ -1003,15 +1078,25 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
 
             return when {
                 extension == "m3u8" || extension == "m3u" -> MimeTypes.APPLICATION_M3U8
+
                 extension == "mpd" -> MimeTypes.APPLICATION_MPD
+
                 extension == "ism" || extension == "isml" -> MimeTypes.APPLICATION_SS
+
                 extension == "mkv" -> MimeTypes.VIDEO_MATROSKA
+
                 extension == "webm" -> MimeTypes.VIDEO_WEBM
+
                 extension == "mp4" || extension == "m4v" -> MimeTypes.VIDEO_MP4
+
                 extension == "ts" || extension == "mts" || extension == "m2ts" -> MimeTypes.VIDEO_MP2T
+
                 extension == "mov" -> MIME_VIDEO_QUICK_TIME
+
                 extension == "avi" -> MimeTypes.VIDEO_AVI
+
                 extension == "mpeg" || extension == "mpg" -> MimeTypes.VIDEO_MPEG
+
                 else -> inferMimeTypeFromQuery(queryPart)
                     ?: inferMimeTypeFromDelimitedToken(pathPart)
                     ?: inferMimeTypeFromDelimitedToken(queryPart)
@@ -1068,9 +1153,11 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                     "m3u8",
                     "m3u",
                     "hls" -> return MimeTypes.APPLICATION_M3U8
+
                     "application/dash+xml",
                     "video/vnd.mpeg.dash.mpd",
                     "dash" -> return MimeTypes.APPLICATION_MPD
+
                     "application/vnd.ms-sstr+xml",
                     "smoothstreaming",
                     "ss" -> return MimeTypes.APPLICATION_SS
@@ -1092,7 +1179,6 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             }
         }
 
-
         private fun wrapAudioDelay(
             mediaSource: MediaSource,
             audioDelayUsProvider: (() -> Long)?
@@ -1108,7 +1194,10 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         }
 
         private val DELIMITED_M3U8_PATTERN = Regex("(^|[=/_.?&-])(m3u8|m3u)($|[=/_.?&-])")
-        private val PLAYLIST_HLS_PATTERN = Regex("/(playlist|hls|manifest|master|vs)/(?!stream$|list$|info$|details$)[a-zA-Z0-9_/-]+$")
+        private val PLAYLIST_HLS_PATTERN =
+            Regex(
+                "/(playlist|hls|manifest|master|vs)/(?!stream$|list$|info$|details$)[a-zA-Z0-9_/-]+$"
+            )
         private val DELIMITED_MPD_PATTERN = Regex("(^|[=/_.?&-])mpd($|[=/_.?&-])")
         private val DELIMITED_SS_PATTERN = Regex("(^|[=/_.?&-])(ism|isml)($|[=/_.?&-])")
 
@@ -1124,16 +1213,23 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             headers: Map<String, String>
         ): Pair<String, Map<String, String>> {
             if (url.isBlank()) return url to headers
-            val uri = try { java.net.URI(url) } catch (_: Exception) { return url to headers }
+            val uri = try {
+                java.net.URI(url)
+            } catch (_: Exception) {
+                return url to headers
+            }
             val rawUserInfo = uri.rawAuthority
                 ?.substringBeforeLast('@', missingDelimiterValue = "")
                 ?.takeIf { it.isNotBlank() }
-            val userInfo = uri.userInfo ?: rawUserInfo?.let(::decodeRawUserInfo) ?: return url to headers
+            val userInfo =
+                uri.userInfo ?: rawUserInfo?.let(::decodeRawUserInfo) ?: return url to headers
             if (userInfo.isBlank()) return url to headers
             val cleanUrl = stripRawUserInfo(uri) ?: return url to headers
             val mergedHeaders = LinkedHashMap(headers)
             if (headers.none { it.key.equals("Authorization", ignoreCase = true) }) {
-                val encoded = Base64.getEncoder().encodeToString(userInfo.toByteArray(Charsets.UTF_8))
+                val encoded = Base64.getEncoder().encodeToString(
+                    userInfo.toByteArray(Charsets.UTF_8)
+                )
                 mergedHeaders["Authorization"] = "Basic $encoded"
             }
             return cleanUrl to mergedHeaders
@@ -1142,9 +1238,10 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         private fun stripRawUserInfo(uri: java.net.URI): String? {
             val scheme = uri.scheme?.takeIf { it.isNotBlank() } ?: return null
             val rawAuthority = uri.rawAuthority?.takeIf { it.isNotBlank() } ?: return null
-            val cleanAuthority = rawAuthority.substringAfterLast('@', missingDelimiterValue = rawAuthority)
-                .takeIf { it != rawAuthority && it.isNotBlank() }
-                ?: return null
+            val cleanAuthority =
+                rawAuthority.substringAfterLast('@', missingDelimiterValue = rawAuthority)
+                    .takeIf { it != rawAuthority && it.isNotBlank() }
+                    ?: return null
             return buildString {
                 append(scheme)
                 append("://")
@@ -1161,10 +1258,9 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             }
         }
 
-        private fun decodeRawUserInfo(value: String): String? =
-            runCatching {
-                URLDecoder.decode(value.replace("+", "%2B"), Charsets.UTF_8.name())
-            }.getOrNull()
+        private fun decodeRawUserInfo(value: String): String? = runCatching {
+            URLDecoder.decode(value.replace("+", "%2B"), Charsets.UTF_8.name())
+        }.getOrNull()
     }
 }
 
@@ -1210,7 +1306,9 @@ private class PlayerLoadErrorHandlingPolicy : DefaultLoadErrorHandlingPolicy(6) 
                 2 -> 1500L
                 else -> 3000L
             }
-        } else super.getRetryDelayMsFor(loadErrorInfo)
+        } else {
+            super.getRetryDelayMsFor(loadErrorInfo)
+        }
     }
 }
 
@@ -1218,7 +1316,6 @@ internal fun shouldPreferAlternativeHlsTrack(
     responseCode: Int?,
     dataType: Int,
     alternativeTrackAvailable: Boolean
-): Boolean =
-    responseCode == 404 &&
-        dataType == C.DATA_TYPE_MEDIA &&
-        alternativeTrackAvailable
+): Boolean = responseCode == 404 &&
+    dataType == C.DATA_TYPE_MEDIA &&
+    alternativeTrackAvailable

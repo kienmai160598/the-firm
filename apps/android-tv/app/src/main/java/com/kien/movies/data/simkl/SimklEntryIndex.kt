@@ -67,7 +67,13 @@ internal class SimklEntryIndex private constructor(
         }
 
         val oldIds = if (index in externalIdsByIndex.indices) externalIdsByIndex[index] else null
-        val oldProviderId = if (index in providerItemIdByIndex.indices) providerItemIdByIndex[index] else null
+        val oldProviderId = if (index in
+            providerItemIdByIndex.indices
+        ) {
+            providerItemIdByIndex[index]
+        } else {
+            null
+        }
         val idsArrayUnchanged = index in externalIdsByIndex.indices &&
             newEntries.size == externalIdsByIndex.size &&
             oldIds == newIds &&
@@ -215,10 +221,7 @@ internal class SimklEntryIndex private constructor(
         return result
     }
 
-    fun indexOfMatchingEntry(
-        entries: List<SimklLibraryEntry>,
-        result: SimklScrobbleResult
-    ): Int {
+    fun indexOfMatchingEntry(entries: List<SimklLibraryEntry>, result: SimklScrobbleResult): Int {
         if (!matchesEntries(entries)) {
             return entries.indexOfMatchingEntryLinear(result)
         }
@@ -238,10 +241,7 @@ internal class SimklEntryIndex private constructor(
         return fallbackIndex
     }
 
-    fun indexOfMatchingMedia(
-        entries: List<SimklLibraryEntry>,
-        target: SimklMedia
-    ): Int {
+    fun indexOfMatchingMedia(entries: List<SimklLibraryEntry>, target: SimklMedia): Int {
         if (!matchesEntries(entries)) {
             return entries.indexOfMatchingMediaLinear(target)
         }
@@ -361,14 +361,23 @@ internal class SimklEntryIndex private constructor(
             }
             val next = IntArray(existing.size - 1)
             if (pos > 0) System.arraycopy(existing, 0, next, 0, pos)
-            if (pos < existing.lastIndex) System.arraycopy(existing, pos + 1, next, pos, existing.size - pos - 1)
+            if (pos <
+                existing.lastIndex
+            ) {
+                System.arraycopy(
+                    existing,
+                    pos + 1,
+                    next,
+                    pos,
+                    existing.size - pos - 1
+                )
+            }
             map[key] = next
         }
     }
 }
 
-private fun SimklMedia.normalizedTitleKey(): String? =
-    title?.trim()?.takeIf(String::isNotEmpty)?.lowercase()
+private fun SimklMedia.normalizedTitleKey(): String? = title?.trim()?.takeIf(String::isNotEmpty)?.lowercase()
 
 internal inline fun TrackingExternalIds.forEachAliasKey(action: (String) -> Unit) {
     simkl?.let { action("simkl:$it") }

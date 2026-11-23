@@ -91,7 +91,9 @@ class CollectionsDataStoreSourceMigrationTest {
         assertTrue(json.contains("\"provider\":\"tmdb\""))
         assertTrue(json.contains("\"tmdbSourceType\":\"COMPANY\""))
         assertTrue(json.contains("\"tmdbId\":420"))
-        val source = store.importFromJson(json).single().folders.single().sources.single() as TmdbCollectionSource
+        val source = store.importFromJson(
+            json
+        ).single().folders.single().sources.single() as TmdbCollectionSource
         assertEquals("16", source.filters.withoutGenres)
         assertEquals("9715", source.filters.withoutKeywords)
         assertEquals("2", source.filters.withoutCompanies)

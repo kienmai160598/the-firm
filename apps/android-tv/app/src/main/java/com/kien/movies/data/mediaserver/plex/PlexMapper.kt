@@ -59,7 +59,9 @@ internal class PlexMapper(private val address: String, private val connectionId:
         )
     }
 
-    fun title(item: MetadataWire): ServerTitle? = preview(item)?.let { ServerTitle(it, item.externalIds()) }
+    fun title(item: MetadataWire): ServerTitle? = preview(item)?.let {
+        ServerTitle(it, item.externalIds())
+    }
 
     /** A Continue watching card: an episode shows its show, a movie itself. */
     fun resumeTitle(item: MetadataWire): ServerTitle? {
@@ -99,12 +101,20 @@ internal class PlexMapper(private val address: String, private val connectionId:
             status = null,
             imdbRating = item.rating(),
             genres = item.genres.mapNotNull { it.tag },
-            runtime = item.duration?.takeIf { it > 0 }?.let { "${(it / 60_000L).coerceAtLeast(1)} min" },
+            runtime = item.duration?.takeIf {
+                it > 0
+            }?.let { "${(it / 60_000L).coerceAtLeast(1)} min" },
             director = item.directors.mapNotNull { it.tag },
             writer = item.writers.mapNotNull { it.tag },
             cast = cast.map { it.tag },
             castMembers = cast.map { role ->
-                MetaCastMember(name = role.tag, character = role.role, photo = role.thumb?.takeIf { it.startsWith("http") })
+                MetaCastMember(
+                    name = role.tag,
+                    character = role.role,
+                    photo = role.thumb?.takeIf {
+                        it.startsWith("http")
+                    }
+                )
             },
             videos = episodes.mapNotNull(::video),
             ageRating = item.contentRating,
@@ -127,7 +137,9 @@ internal class PlexMapper(private val address: String, private val connectionId:
             season = episode.parentIndex,
             episode = episode.index,
             overview = episode.summary,
-            runtime = episode.duration?.takeIf { it > 0 }?.let { (it / 60_000L).toInt().coerceAtLeast(1) },
+            runtime = episode.duration?.takeIf {
+                it > 0
+            }?.let { (it / 60_000L).toInt().coerceAtLeast(1) },
             rating = null,
             available = true
         )
@@ -153,14 +165,21 @@ internal class PlexMapper(private val address: String, private val connectionId:
         val several = item.media.size > 1
         return item.media.mapNotNull { media ->
             val part = media.parts.firstOrNull() ?: return@mapNotNull null
-            val version = media.title?.takeIf { it.isNotBlank() } ?: item.editionTitle?.takeIf { it.isNotBlank() }
+            val version =
+                media.title?.takeIf { it.isNotBlank() }
+                    ?: item.editionTitle?.takeIf { it.isNotBlank() }
             ServerCandidate(
                 target = ServerPlaybackTarget(ref, part.id.toString()),
                 title = version?.takeIf { several } ?: media.label(),
                 description = listOfNotNull(
-                    part.streams.firstOrNull { it.streamType == STREAM_VIDEO }?.displayTitle?.takeIf { it.isNotBlank() }
+                    part.streams.firstOrNull {
+                        it.streamType == STREAM_VIDEO
+                    }?.displayTitle?.takeIf { it.isNotBlank() }
                         ?: media.videoCodec?.uppercase(),
-                    media.audioCodec?.let(::audioCodecLabel)?.let { codec -> media.audioChannels?.let { "$codec ${channelLabel(it)}" } ?: codec },
+                    media.audioCodec?.let(::audioCodecLabel)?.let { codec ->
+                        media.audioChannels?.let { "$codec ${channelLabel(it)}" }
+                            ?: codec
+                    },
                     media.container?.uppercase()?.let { if (it == "MATROSKA") "MKV" else it }
                 ).joinToString(" • ").ifBlank { null },
                 filename = part.file?.substringAfterLast('/')?.substringAfterLast('\\'),
@@ -169,12 +188,16 @@ internal class PlexMapper(private val address: String, private val connectionId:
         }
     }
 
-    fun indexEntry(item: MetadataWire): ServerIndexEntry =
-        ServerIndexEntry(itemId = item.ratingKey, ids = item.externalIds(), year = item.year)
+    fun indexEntry(item: MetadataWire): ServerIndexEntry = ServerIndexEntry(itemId = item.ratingKey, ids = item.externalIds(), year = item.year)
 
     private fun MetadataWire.logo(): String? = images.firstOrNull { it.type == "clearLogo" }?.url
 
-    private fun MetadataWire.rating(): Float? = (audienceRating ?: rating)?.let { ((it * 10).roundToInt() / 10.0).toFloat() }
+    private fun MetadataWire.rating(): Float? = (audienceRating ?: rating)?.let {
+        (
+            (it * 10).roundToInt() /
+                10.0
+            ).toFloat()
+    }
 
     private companion object {
         const val POSTER_WIDTH = 400
@@ -189,8 +212,12 @@ internal class PlexMapper(private val address: String, private val connectionId:
 }
 
 private fun MediaWire.label(): String = when {
-    !videoResolution.isNullOrBlank() -> videoResolution.uppercase().let { if (it.all(Char::isDigit)) "${it}p" else it }
+    !videoResolution.isNullOrBlank() -> videoResolution.uppercase().let {
+        if (it.all(Char::isDigit)) "${it}p" else it
+    }
+
     !container.isNullOrBlank() -> container.uppercase()
+
     else -> "Plex"
 }
 
@@ -218,7 +245,9 @@ private fun channelLabel(channels: Int): String = when (channels) {
  */
 internal fun MetadataWire.externalIds(): TrackingExternalIds {
     fun id(scheme: String) = guids.firstNotNullOfOrNull { guid ->
-        guid.id?.takeIf { it.startsWith("$scheme://", ignoreCase = true) }?.substringAfter("://")?.trim()?.takeIf { it.isNotEmpty() }
+        guid.id?.takeIf {
+            it.startsWith("$scheme://", ignoreCase = true)
+        }?.substringAfter("://")?.trim()?.takeIf { it.isNotEmpty() }
     }
     val fromList = TrackingExternalIds(
         imdb = id("imdb")?.lowercase()?.takeIf { IMDB_ID.matches(it) },
@@ -235,23 +264,38 @@ internal fun legacyGuidIds(guid: String?): TrackingExternalIds {
     fun digits(text: String) = LEADING_DIGITS.find(text)?.value
     return when (agent) {
         "imdb" -> TrackingExternalIds(imdb = value.lowercase().takeIf { IMDB_ID.matches(it) })
+
         "themoviedb", "tmdb" -> TrackingExternalIds(tmdb = digits(value)?.toLongOrNull())
+
         "thetvdb", "tvdb", "thetvdbdvdorder" -> TrackingExternalIds(tvdb = digits(value))
+
         "hama" -> {
             val source = value.substringBefore('-').lowercase()
             val id = value.substringAfter('-', "")
             when {
-                source == "anidb" || source == "anidb2" -> TrackingExternalIds(anidb = digits(id)?.toLongOrNull())
+                source == "anidb" || source == "anidb2" -> TrackingExternalIds(
+                    anidb = digits(id)?.toLongOrNull()
+                )
+
                 source.startsWith("tvdb") -> TrackingExternalIds(tvdb = digits(id))
+
                 source == "tmdb" -> TrackingExternalIds(tmdb = digits(id)?.toLongOrNull())
-                source == "imdb" -> TrackingExternalIds(imdb = id.lowercase().takeIf { IMDB_ID.matches(it) })
+
+                source == "imdb" -> TrackingExternalIds(
+                    imdb = id.lowercase().takeIf {
+                        IMDB_ID.matches(it)
+                    }
+                )
+
                 else -> TrackingExternalIds()
             }
         }
+
         else -> TrackingExternalIds()
     }
 }
 
-private val LEGACY_GUID = Regex("""^com\.plexapp\.agents\.([a-z0-9]+)://([^/?]+)""", RegexOption.IGNORE_CASE)
+private val LEGACY_GUID =
+    Regex("""^com\.plexapp\.agents\.([a-z0-9]+)://([^/?]+)""", RegexOption.IGNORE_CASE)
 private val IMDB_ID = Regex("""tt\d+""")
 private val LEADING_DIGITS = Regex("""^\d+""")

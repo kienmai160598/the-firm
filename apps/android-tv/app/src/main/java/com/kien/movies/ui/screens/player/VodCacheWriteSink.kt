@@ -14,10 +14,7 @@ import java.util.concurrent.atomic.AtomicLong
 // Nothing here may throw once the span is open, because CacheDataSource treats any sink exception
 // as a cache failure and stops using the cache for the rest of the source's life.
 @UnstableApi
-internal class VodCacheWriteSink(
-    private val delegate: DataSink,
-    private val counters: Counters
-) : DataSink {
+internal class VodCacheWriteSink(private val delegate: DataSink, private val counters: Counters) : DataSink {
 
     // Counters live outside so the factory can report them without holding a sink reference.
     class Counters {
@@ -26,12 +23,14 @@ internal class VodCacheWriteSink(
         val enqueueTimeMs = AtomicLong(0L)
         val errors = AtomicLong(0L)
         val blockedMs = AtomicLong(0L)
+
         // Nanoseconds because a single write runs well under a millisecond, which a millisecond
         // clock records as nothing at all. Enqueue covers both, and they point at different fixes:
         // buffer time is contention on the pool, copy time is the device being out of cpu.
         val bufferTimeNs = AtomicLong(0L)
         val copyTimeNs = AtomicLong(0L)
         val allocations = AtomicLong(0L)
+
         // Close runs on the read thread and waits for the worker to drain this span,
         // so a slow disk shows up here rather than in the enqueue or blocked counters.
         val closeWaitMs = AtomicLong(0L)
@@ -159,7 +158,10 @@ internal class VodCacheWriteSink(
         if (!drained) {
             // Queued writes skip once failed is set, so only the write already running is left to wait on.
             failed = true
-            Log.w(TAG, "VOD_CACHE: close gave up on the rest of this span (interrupted=$interrupted)")
+            Log.w(
+                TAG,
+                "VOD_CACHE: close gave up on the rest of this span (interrupted=$interrupted)"
+            )
             while (true) {
                 try {
                     done.await()
@@ -204,6 +206,7 @@ internal class VodCacheWriteSink(
         const val MAX_QUEUED_BYTES = 24L * 1024L * 1024L
         const val BACKPRESSURE_SLEEP_MS = 2L
         const val MAX_BACKPRESSURE_WAIT_MS = 2_000L
+
         // A seek or exit waits on close from the load thread, so a slow disk only gets this long.
         const val MAX_CLOSE_WAIT_MS = 500L
         const val POOL_CAPACITY = 64

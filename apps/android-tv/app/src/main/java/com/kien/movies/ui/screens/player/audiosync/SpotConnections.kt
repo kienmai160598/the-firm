@@ -9,7 +9,8 @@ internal object SpotConnections {
     private const val LOW_MEMORY_BYTES = 2_560L * 1024 * 1024
 
     fun isLowMemoryTv(context: Context): Boolean {
-        val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager ?: return true
+        val manager =
+            context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager ?: return true
         if (manager.isLowRamDevice) return true
         val info = ActivityManager.MemoryInfo().also(manager::getMemoryInfo)
         return info.totalMem in 1 until LOW_MEMORY_BYTES

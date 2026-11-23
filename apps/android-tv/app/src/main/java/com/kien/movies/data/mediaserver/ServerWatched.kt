@@ -47,13 +47,23 @@ class ServerWatched internal constructor(
         scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
         notifyFailure = {
             withContext(Dispatchers.Main) {
-                Toast.makeText(context, context.getString(R.string.servers_watched_failed), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.servers_watched_failed),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     )
 
-    fun apply(marks: List<ServerWatchMark>, played: Boolean, onFailed: suspend (List<ServerWatchMark>) -> Unit): Job? {
-        val targets = marks.mapNotNull { mark -> mark.serverRef()?.let { it to mark } }.distinctBy { it.first }
+    fun apply(
+        marks: List<ServerWatchMark>,
+        played: Boolean,
+        onFailed: suspend (List<ServerWatchMark>) -> Unit
+    ): Job? {
+        val targets = marks.mapNotNull { mark ->
+            mark.serverRef()?.let { it to mark }
+        }.distinctBy { it.first }
         if (targets.isEmpty()) return null
         return scope.launch {
             val failed = write(targets, played)
@@ -61,10 +71,15 @@ class ServerWatched internal constructor(
                 Log.i(TAG, "Marked ${targets.size} server items played=$played")
                 return@launch
             }
-            Log.w(TAG, "Could not mark ${failed.size} of ${targets.size} server items played=$played")
+            Log.w(
+                TAG,
+                "Could not mark ${failed.size} of ${targets.size} server items played=$played"
+            )
             notifyFailure()
             onFailed(failed)
-            failed.mapNotNull { ServerItemRef.parse(it.contentId) }.distinct().forEach { resync(it) }
+            failed.mapNotNull {
+                ServerItemRef.parse(it.contentId)
+            }.distinct().forEach { resync(it) }
         }
     }
 
@@ -75,18 +90,35 @@ class ServerWatched internal constructor(
         return scope.launch {
             var lookupFailures = 0
             val targets = catalogMarks.flatMap { mark ->
-                val request = matcher.request(mark.contentType, mark.videoId ?: mark.contentId, mark.season, mark.episode)
-                    ?: return@flatMap emptyList()
+                val request =
+                    matcher.request(
+                        mark.contentType,
+                        mark.videoId ?: mark.contentId,
+                        mark.season,
+                        mark.episode
+                    )
+                        ?: return@flatMap emptyList()
                 connections.filter { matcher.supports(it, request.kind) }.flatMap { connection ->
                     try {
                         matcher.match(connection, request, forceRefresh = false)
-                            .also { if (it.isEmpty()) Log.i(TAG, "No ${connection.providerId} match for ${mark.label()}") }
+                            .also {
+                                if (it.isEmpty()) {
+                                    Log.i(
+                                        TAG,
+                                        "No ${connection.providerId} match for ${mark.label()}"
+                                    )
+                                }
+                            }
                             .map { it to mark }
                     } catch (error: CancellationException) {
                         throw error
                     } catch (error: Exception) {
                         lookupFailures++
-                        Log.w(TAG, "Looking up ${mark.label()} on ${connection.providerId} failed", error)
+                        Log.w(
+                            TAG,
+                            "Looking up ${mark.label()} on ${connection.providerId} failed",
+                            error
+                        )
                         emptyList()
                     }
                 }
@@ -98,7 +130,10 @@ class ServerWatched internal constructor(
             }
             val failed = write(targets, played)
             if (failed.isNotEmpty()) {
-                Log.w(TAG, "Could not mirror played=$played to ${failed.size} of ${targets.size} server items")
+                Log.w(
+                    TAG,
+                    "Could not mirror played=$played to ${failed.size} of ${targets.size} server items"
+                )
                 notifyFailure()
                 return@launch
             }
@@ -106,7 +141,10 @@ class ServerWatched internal constructor(
         }
     }
 
-    internal suspend fun write(targets: List<Pair<ServerItemRef, ServerWatchMark>>, played: Boolean): List<ServerWatchMark> {
+    internal suspend fun write(
+        targets: List<Pair<ServerItemRef, ServerWatchMark>>,
+        played: Boolean
+    ): List<ServerWatchMark> {
         val failed = mutableListOf<ServerWatchMark>()
         targets.chunked(WRITE_BATCH).forEach { batch ->
             if (failed.isNotEmpty()) {
@@ -114,7 +152,9 @@ class ServerWatched internal constructor(
                 return@forEach
             }
             failed += coroutineScope {
-                batch.map { (ref, mark) -> async { mark.takeUnless { setPlayed(ref, played) } } }.awaitAll().filterNotNull()
+                batch.map { (ref, mark) ->
+                    async { mark.takeUnless { setPlayed(ref, played) } }
+                }.awaitAll().filterNotNull()
             }
         }
         return failed
@@ -122,24 +162,33 @@ class ServerWatched internal constructor(
 
     private fun ServerWatchMark.serverRef(): ServerItemRef? = when {
         !ServerItemRef.isServerId(contentId) -> null
+
         episode != null -> ServerItemRef.parse(videoId)
-        ServerMediaKind.fromContentType(contentType) == ServerMediaKind.MOVIE -> ServerItemRef.parse(contentId)
+
+        ServerMediaKind.fromContentType(
+            contentType
+        ) == ServerMediaKind.MOVIE -> ServerItemRef.parse(contentId)
+
         else -> null
     }
 
-    private suspend fun setPlayed(ref: ServerItemRef, played: Boolean): Boolean =
-        try {
-            repository.call(ref.connectionId) { provider, session ->
-                if (!provider.supports(ServerCapability.USER_STATE_WRITE)) throw ServerException(ServerFailure.UNSUPPORTED)
-                provider.setPlayed(session, ref.itemId, played)
+    private suspend fun setPlayed(ref: ServerItemRef, played: Boolean): Boolean = try {
+        repository.call(ref.connectionId) { provider, session ->
+            if (!provider.supports(
+                    ServerCapability.USER_STATE_WRITE
+                )
+            ) {
+                throw ServerException(ServerFailure.UNSUPPORTED)
             }
-            true
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Exception) {
-            Log.w(TAG, "Setting played=$played on ${ref.label()} failed", error)
-            false
+            provider.setPlayed(session, ref.itemId, played)
         }
+        true
+    } catch (error: CancellationException) {
+        throw error
+    } catch (error: Exception) {
+        Log.w(TAG, "Setting played=$played on ${ref.label()} failed", error)
+        false
+    }
 
     private suspend fun resync(ref: ServerItemRef) {
         try {

@@ -48,8 +48,11 @@ internal fun continueWatchingCardsAwaitingNextUp(
     val contentId = item.contentId()
     contentId !in placedContentIds &&
         contentId in seededContentIds &&
-        (item !is ContinueWatchingItem.NextUp ||
-            nextUpDismissKey(contentId, item.info.seedSeason, item.info.seedEpisode) !in dismissedNextUpKeys)
+        (
+            item !is ContinueWatchingItem.NextUp ||
+                nextUpDismissKey(contentId, item.info.seedSeason, item.info.seedEpisode) !in
+                dismissedNextUpKeys
+            )
 }
 
 internal fun mergeConcurrentContinueWatchingEnrichment(

@@ -6,7 +6,6 @@ enum class DiscoverLocation {
     IN_SIDEBAR;
 
     companion object {
-        fun fromLegacySearchDiscoverEnabled(enabled: Boolean): DiscoverLocation =
-            if (enabled) IN_SEARCH else OFF
+        fun fromLegacySearchDiscoverEnabled(enabled: Boolean): DiscoverLocation = if (enabled) IN_SEARCH else OFF
     }
 }

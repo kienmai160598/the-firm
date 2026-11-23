@@ -42,12 +42,14 @@ private const val SELECTED_OUTLINE_ALPHA = 0.72f
  * white outline, so the chosen tile of a grid reads without focus on it.
  */
 @Composable
-internal fun moviesCardBorder(selected: Boolean = false, shape: Shape = M3eShapes.card): CardBorder =
-    CardDefaults.border(
-        border = if (selected) selectedOutline(shape) else Border.None,
-        focusedBorder = Border.None,
-        pressedBorder = Border.None
-    )
+internal fun moviesCardBorder(
+    selected: Boolean = false,
+    shape: Shape = M3eShapes.card
+): CardBorder = CardDefaults.border(
+    border = if (selected) selectedOutline(shape) else Border.None,
+    focusedBorder = Border.None,
+    pressedBorder = Border.None
+)
 
 private fun selectedOutline(shape: Shape): Border = Border(
     border = BorderStroke(SelectedOutlineWidth, Color.White.copy(alpha = SELECTED_OUTLINE_ALPHA)),

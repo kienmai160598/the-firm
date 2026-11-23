@@ -4,30 +4,27 @@ import android.os.SystemClock
 import android.util.Log
 import com.kien.movies.core.auth.AuthManager
 import com.kien.movies.core.profile.ProfileManager
-import com.kien.movies.data.remote.supabase.SupabaseProfileLockState
 import com.kien.movies.data.remote.supabase.SupabaseProfile
+import com.kien.movies.data.remote.supabase.SupabaseProfileLockState
 import com.kien.movies.data.remote.supabase.SupabaseProfilePinVerifyResult
-import com.kien.movies.domain.model.UserProfile
 import com.kien.movies.domain.model.AuthState
+import com.kien.movies.domain.model.UserProfile
 import io.github.jan.supabase.postgrest.Postgrest
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "ProfileSyncService"
 private const val PROFILE_PULL_MIN_INTERVAL_MS = 10_000L
 
-internal data class ProfilePullFreshness(
-    val userId: String? = null,
-    val pulledAtMs: Long = 0L
-) {
+internal data class ProfilePullFreshness(val userId: String? = null, val pulledAtMs: Long = 0L) {
     fun isRecent(candidateUserId: String, nowMs: Long): Boolean {
         return userId == candidateUserId &&
             pulledAtMs > 0L &&
@@ -68,21 +65,32 @@ class ProfileSyncService @Inject constructor(
 
             val params = buildJsonObject {
                 put("p_client_max_profiles", ProfileManager.MAX_PROFILES)
-                put("p_profiles", buildJsonArray {
-                    profiles.forEach { profile ->
-                        addJsonObject {
-                            put("profile_index", profile.id)
-                            put("name", profile.name)
-                            put("avatar_color_hex", profile.avatarColorHex)
-                            put("uses_primary_addons", profile.usesPrimaryAddons)
-                            put("uses_primary_plugins", profile.usesPrimaryPlugins)
-                            put("avatar_id", if (profile.avatarUrl.isNullOrBlank()) profile.avatarId else null)
-                            put("avatar_url", profile.avatarUrl?.takeIf { it.isNotBlank() })
-                            put("profile_background_id", profile.profileBackgroundId)
-                            put("profile_background_url", profile.profileBackgroundUrl?.takeIf { it.isNotBlank() })
+                put(
+                    "p_profiles",
+                    buildJsonArray {
+                        profiles.forEach { profile ->
+                            addJsonObject {
+                                put("profile_index", profile.id)
+                                put("name", profile.name)
+                                put("avatar_color_hex", profile.avatarColorHex)
+                                put("uses_primary_addons", profile.usesPrimaryAddons)
+                                put("uses_primary_plugins", profile.usesPrimaryPlugins)
+                                put(
+                                    "avatar_id",
+                                    if (profile.avatarUrl.isNullOrBlank()) profile.avatarId else null
+                                )
+                                put("avatar_url", profile.avatarUrl?.takeIf { it.isNotBlank() })
+                                put("profile_background_id", profile.profileBackgroundId)
+                                put(
+                                    "profile_background_url",
+                                    profile.profileBackgroundUrl?.takeIf {
+                                        it.isNotBlank()
+                                    }
+                                )
+                            }
                         }
                     }
-                })
+                )
                 putSyncOriginClientId(syncClientIdentity)
             }
             withJwtRefreshRetry {
@@ -179,7 +187,11 @@ class ProfileSyncService @Inject constructor(
         }
     }
 
-    suspend fun setProfilePin(profileId: Int, pin: String, currentPin: String? = null): SetProfilePinResult = withContext(Dispatchers.IO) {
+    suspend fun setProfilePin(
+        profileId: Int,
+        pin: String,
+        currentPin: String? = null
+    ): SetProfilePinResult = withContext(Dispatchers.IO) {
         try {
             val params = buildJsonObject {
                 put("p_profile_id", profileId)
@@ -202,8 +214,7 @@ class ProfileSyncService @Inject constructor(
         }
     }
 
-    private fun isCurrentPinRequiredError(e: Throwable): Boolean =
-        e.message?.contains("Current PIN is required", ignoreCase = true) == true
+    private fun isCurrentPinRequiredError(e: Throwable): Boolean = e.message?.contains("Current PIN is required", ignoreCase = true) == true
 
     suspend fun clearProfilePin(profileId: Int, currentPin: String? = null): Result<Unit> = withContext(Dispatchers.IO) {
         try {
@@ -223,7 +234,10 @@ class ProfileSyncService @Inject constructor(
         }
     }
 
-    suspend fun verifyProfilePin(profileId: Int, pin: String): Result<SupabaseProfilePinVerifyResult> = withContext(Dispatchers.IO) {
+    suspend fun verifyProfilePin(
+        profileId: Int,
+        pin: String
+    ): Result<SupabaseProfilePinVerifyResult> = withContext(Dispatchers.IO) {
         try {
             val params = buildJsonObject {
                 put("p_profile_id", profileId)

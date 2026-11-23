@@ -7,10 +7,7 @@ import java.time.LocalDate
 
 private val YEAR_REGEX = Regex("""\b(19|20)\d{2}\b""")
 
-fun MetaPreview.isUnreleased(
-    today: LocalDate,
-    clock: Clock = Clock.systemDefaultZone()
-): Boolean {
+fun MetaPreview.isUnreleased(today: LocalDate, clock: Clock = Clock.systemDefaultZone()): Boolean {
     released?.trim()?.takeIf { it.isNotEmpty() }?.let { rawReleased ->
         isEpisodeReleaseAired(rawReleased, clock)?.let { hasAired ->
             return !hasAired
@@ -39,5 +36,4 @@ fun CatalogRow.filterReleasedItems(
  * sources where dates are authoritative (e.g. TMDB, where a movie without a
  * release_date is unannounced); addon metadata often legitimately omits dates.
  */
-fun MetaPreview.hasNoReleaseInfo(): Boolean =
-    released.isNullOrBlank() && releaseInfo.isNullOrBlank()
+fun MetaPreview.hasNoReleaseInfo(): Boolean = released.isNullOrBlank() && releaseInfo.isNullOrBlank()

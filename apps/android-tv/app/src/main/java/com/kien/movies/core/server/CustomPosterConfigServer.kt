@@ -15,19 +15,24 @@ class CustomPosterConfigServer(
     override fun serve(session: IHTTPSession): Response {
         return when {
             session.method == Method.GET && session.uri == "/" -> serveWebPage()
+
             session.method == Method.GET && session.uri == "/api/pattern" -> serveCurrentPattern()
-            session.method == Method.POST && session.uri == "/api/pattern" -> handlePatternUpdate(session)
+
+            session.method == Method.POST && session.uri == "/api/pattern" -> handlePatternUpdate(
+                session
+            )
+
             session.method == Method.POST && session.uri == "/api/clear" -> handleClear()
+
             else -> newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found")
         }
     }
 
-    private fun serveWebPage(): Response =
-        newFixedLengthResponse(
-            Response.Status.OK,
-            "text/html; charset=utf-8",
-            CustomPosterWebPage.html(context)
-        )
+    private fun serveWebPage(): Response = newFixedLengthResponse(
+        Response.Status.OK,
+        "text/html; charset=utf-8",
+        CustomPosterWebPage.html(context)
+    )
 
     private fun serveCurrentPattern(): Response {
         val pattern = currentPatternProvider()
@@ -76,8 +81,11 @@ class CustomPosterConfigServer(
         if (rest.isEmpty()) return null
         return if (rest.startsWith("\"")) {
             val endQuote = rest.indexOf('"', 1)
-            if (endQuote < 0) null
-            else rest.substring(1, endQuote).replace("\\\"", "\"").replace("\\\\", "\\")
+            if (endQuote < 0) {
+                null
+            } else {
+                rest.substring(1, endQuote).replace("\\\"", "\"").replace("\\\\", "\\")
+            }
         } else {
             // unquoted value - take until comma or closing brace
             val end = rest.indexOfFirst { it == ',' || it == '}' }

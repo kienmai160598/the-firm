@@ -67,8 +67,7 @@ data class Meta(
  * always are, and so is any other type that is not a show (an add-on's "youtube", say) when it
  * has no episode list.
  */
-fun Meta.isWatchedAsOneItem(): Boolean =
-    apiType.equals("movie", ignoreCase = true) || (!isSeriesLikeType(apiType) && videos.isEmpty())
+fun Meta.isWatchedAsOneItem(): Boolean = apiType.equals("movie", ignoreCase = true) || (!isSeriesLikeType(apiType) && videos.isEmpty())
 
 fun List<Video>.watchableEpisodes(): List<Video> {
     val candidates = filter {
@@ -188,11 +187,7 @@ data class MetaCastMember(
 )
 
 @Immutable
-data class MetaCompany(
-    val name: String,
-    val logo: String? = null,
-    val tmdbId: Int? = null
-)
+data class MetaCompany(val name: String, val logo: String? = null, val tmdbId: Int? = null)
 
 @Immutable
 data class Video(
@@ -212,11 +207,7 @@ data class Video(
 )
 
 @Immutable
-data class MetaLink(
-    val name: String,
-    val category: String,
-    val url: String
-)
+data class MetaLink(val name: String, val category: String, val url: String)
 
 @Immutable
 data class MetaBehaviorHints(

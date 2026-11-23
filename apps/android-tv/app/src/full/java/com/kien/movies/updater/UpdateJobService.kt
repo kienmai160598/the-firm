@@ -49,7 +49,10 @@ class UpdateJobService : JobService() {
     private var jobScope: CoroutineScope? = null
 
     override fun onStartJob(params: JobParameters): Boolean {
-        val entryPoint = EntryPointAccessors.fromApplication(applicationContext, UpdateJobEntryPoint::class.java)
+        val entryPoint = EntryPointAccessors.fromApplication(
+            applicationContext,
+            UpdateJobEntryPoint::class.java
+        )
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         jobScope = scope
         scope.launch {
@@ -99,7 +102,11 @@ class UpdateJobService : JobService() {
 
     private suspend fun installDownloaded(entryPoint: UpdateJobEntryPoint) {
         val preferences = entryPoint.updatePreferences()
-        if (!canInstallSilently(applicationContext) || !preferences.autoInstallEnabled.first()) return
+        if (!canInstallSilently(applicationContext) ||
+            !preferences.autoInstallEnabled.first()
+        ) {
+            return
+        }
         val (tag, apkFile) = entryPoint.updateDownloadStore().pendingInstall() ?: return
         if (tag == preferences.ignoredTag.first()) return
         Log.d(TAG, "Installing $tag while the device is idle")
@@ -109,13 +116,16 @@ class UpdateJobService : JobService() {
 
     companion object {
         /** Silent self-updates need Android 12+ and the "install unknown apps" permission. */
-        fun canInstallSilently(context: Context): Boolean =
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && ApkInstaller.canRequestPackageInstalls(context)
+        fun canInstallSilently(context: Context): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            ApkInstaller.canRequestPackageInstalls(context)
 
         fun schedulePeriodicCheck(context: Context) {
             val scheduler = context.jobScheduler()
             if (scheduler.hasPendingJob(JOB_ID_CHECK)) return
-            val job = JobInfo.Builder(JOB_ID_CHECK, ComponentName(context, UpdateJobService::class.java))
+            val job = JobInfo.Builder(
+                JOB_ID_CHECK,
+                ComponentName(context, UpdateJobService::class.java)
+            )
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setPeriodic(CHECK_INTERVAL_MS)
                 .setPersisted(true)
@@ -125,7 +135,10 @@ class UpdateJobService : JobService() {
 
         /** Downloads a newer release found by the in-app check without waiting for the next periodic run. */
         fun scheduleCheckNow(context: Context) {
-            val job = JobInfo.Builder(JOB_ID_CHECK_NOW, ComponentName(context, UpdateJobService::class.java))
+            val job = JobInfo.Builder(
+                JOB_ID_CHECK_NOW,
+                ComponentName(context, UpdateJobService::class.java)
+            )
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .build()
             context.jobScheduler().scheduleSafely(job)
@@ -137,7 +150,10 @@ class UpdateJobService : JobService() {
 
         fun scheduleIdleInstall(context: Context) {
             if (!canInstallSilently(context)) return
-            val job = JobInfo.Builder(JOB_ID_INSTALL, ComponentName(context, UpdateJobService::class.java))
+            val job = JobInfo.Builder(
+                JOB_ID_INSTALL,
+                ComponentName(context, UpdateJobService::class.java)
+            )
                 .setRequiresDeviceIdle(true)
                 .setPersisted(true)
                 .build()
@@ -148,7 +164,6 @@ class UpdateJobService : JobService() {
             context.jobScheduler().cancel(JOB_ID_INSTALL)
         }
 
-        private fun Context.jobScheduler(): JobScheduler =
-            getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        private fun Context.jobScheduler(): JobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
     }
 }

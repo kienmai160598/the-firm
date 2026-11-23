@@ -22,11 +22,11 @@ import com.kien.movies.domain.model.DebridStreamSortMode
 import com.kien.movies.domain.model.DebridStreamVisualTag
 import com.kien.movies.domain.model.normalizeDebridInstantPlaybackPreparationLimit
 import com.kien.movies.domain.model.normalizeDebridStreamMaxResults
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class DebridSettingsDataStore @Inject constructor(
@@ -39,16 +39,17 @@ class DebridSettingsDataStore @Inject constructor(
         private const val FEATURE = "debrid_settings"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
     private val enabledKey = booleanPreferencesKey("debrid_enabled")
     private val cloudLibraryEnabledKey = booleanPreferencesKey("cloud_library_enabled")
     private val torboxApiKeyKey = stringPreferencesKey("torbox_api_key")
     private val premiumizeApiKeyKey = stringPreferencesKey("premiumize_api_key")
     private val realDebridApiKeyKey = stringPreferencesKey("real_debrid_api_key")
-    private val preferredResolverProviderIdKey = stringPreferencesKey("preferred_resolver_provider_id")
-    private val instantPlaybackPreparationLimitKey = intPreferencesKey("instant_playback_preparation_limit")
+    private val preferredResolverProviderIdKey =
+        stringPreferencesKey("preferred_resolver_provider_id")
+    private val instantPlaybackPreparationLimitKey =
+        intPreferencesKey("instant_playback_preparation_limit")
     private val streamMaxResultsKey = intPreferencesKey("stream_max_results")
     private val streamSortModeKey = stringPreferencesKey("stream_sort_mode")
     private val streamMinimumQualityKey = stringPreferencesKey("stream_minimum_quality")
@@ -57,7 +58,8 @@ class DebridSettingsDataStore @Inject constructor(
     private val streamCodecFilterKey = stringPreferencesKey("stream_codec_filter")
     private val streamPreferencesKey = stringPreferencesKey("stream_preferences")
     private val streamNameTemplateKey = stringPreferencesKey("debrid_stream_name_template")
-    private val streamDescriptionTemplateKey = stringPreferencesKey("debrid_stream_description_template")
+    private val streamDescriptionTemplateKey =
+        stringPreferencesKey("debrid_stream_description_template")
 
     val settings: Flow<DebridSettings> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.map { prefs ->
@@ -69,10 +71,22 @@ class DebridSettingsDataStore @Inject constructor(
                 ?: legacyStreamPreferences(
                     maxResults = prefs[streamMaxResultsKey] ?: 0,
                     sortMode = storedStreamSortMode,
-                    minimumQuality = enumValueOrDefault(prefs[streamMinimumQualityKey], DebridStreamMinimumQuality.ANY),
-                    dolbyVisionFilter = enumValueOrDefault(prefs[streamDolbyVisionFilterKey], DebridStreamFeatureFilter.ANY),
-                    hdrFilter = enumValueOrDefault(prefs[streamHdrFilterKey], DebridStreamFeatureFilter.ANY),
-                    codecFilter = enumValueOrDefault(prefs[streamCodecFilterKey], DebridStreamCodecFilter.ANY)
+                    minimumQuality = enumValueOrDefault(
+                        prefs[streamMinimumQualityKey],
+                        DebridStreamMinimumQuality.ANY
+                    ),
+                    dolbyVisionFilter = enumValueOrDefault(
+                        prefs[streamDolbyVisionFilterKey],
+                        DebridStreamFeatureFilter.ANY
+                    ),
+                    hdrFilter = enumValueOrDefault(
+                        prefs[streamHdrFilterKey],
+                        DebridStreamFeatureFilter.ANY
+                    ),
+                    codecFilter = enumValueOrDefault(
+                        prefs[streamCodecFilterKey],
+                        DebridStreamCodecFilter.ANY
+                    )
                 )
             val streamSortMode = legacyModeForSortCriteria(streamPreferences.sortCriteria)
             DebridSettings(
@@ -162,7 +176,8 @@ class DebridSettingsDataStore @Inject constructor(
 
     suspend fun setInstantPlaybackPreparationLimit(limit: Int) {
         store().edit {
-            it[instantPlaybackPreparationLimitKey] = normalizeDebridInstantPlaybackPreparationLimit(limit)
+            it[instantPlaybackPreparationLimitKey] =
+                normalizeDebridInstantPlaybackPreparationLimit(limit)
         }
     }
 
@@ -170,7 +185,10 @@ class DebridSettingsDataStore @Inject constructor(
         store().edit {
             val normalized = normalizeDebridStreamMaxResults(maxResults)
             it[streamMaxResultsKey] = normalized
-            it[streamPreferencesKey] = gson.toJson(currentStreamPreferences(it[streamPreferencesKey]).copy(maxResults = normalized))
+            it[streamPreferencesKey] =
+                gson.toJson(
+                    currentStreamPreferences(it[streamPreferencesKey]).copy(maxResults = normalized)
+                )
         }
     }
 
@@ -178,7 +196,9 @@ class DebridSettingsDataStore @Inject constructor(
         store().edit {
             it[streamSortModeKey] = mode.name
             it[streamPreferencesKey] = gson.toJson(
-                currentStreamPreferences(it[streamPreferencesKey]).copy(sortCriteria = sortCriteriaForLegacyMode(mode))
+                currentStreamPreferences(
+                    it[streamPreferencesKey]
+                ).copy(sortCriteria = sortCriteriaForLegacyMode(mode))
             )
         }
     }
@@ -187,7 +207,9 @@ class DebridSettingsDataStore @Inject constructor(
         store().edit {
             it[streamMinimumQualityKey] = quality.name
             it[streamPreferencesKey] = gson.toJson(
-                currentStreamPreferences(it[streamPreferencesKey]).copy(requiredResolutions = resolutionsForMinimumQuality(quality))
+                currentStreamPreferences(
+                    it[streamPreferencesKey]
+                ).copy(requiredResolutions = resolutionsForMinimumQuality(quality))
             )
         }
     }
@@ -199,16 +221,44 @@ class DebridSettingsDataStore @Inject constructor(
             it[streamPreferencesKey] = gson.toJson(
                 when (filter) {
                     DebridStreamFeatureFilter.ANY -> current.copy(
-                        requiredVisualTags = current.requiredVisualTags - DebridStreamVisualTag.DV - DebridStreamVisualTag.DV_ONLY - DebridStreamVisualTag.HDR_DV,
-                        excludedVisualTags = current.excludedVisualTags - DebridStreamVisualTag.DV - DebridStreamVisualTag.DV_ONLY - DebridStreamVisualTag.HDR_DV
+                        requiredVisualTags =
+                            current.requiredVisualTags - DebridStreamVisualTag.DV -
+                                DebridStreamVisualTag.DV_ONLY -
+                                DebridStreamVisualTag.HDR_DV,
+                        excludedVisualTags =
+                            current.excludedVisualTags - DebridStreamVisualTag.DV -
+                                DebridStreamVisualTag.DV_ONLY -
+                                DebridStreamVisualTag.HDR_DV
                     )
+
                     DebridStreamFeatureFilter.EXCLUDE -> current.copy(
-                        requiredVisualTags = current.requiredVisualTags - DebridStreamVisualTag.DV - DebridStreamVisualTag.DV_ONLY - DebridStreamVisualTag.HDR_DV,
-                        excludedVisualTags = (current.excludedVisualTags + listOf(DebridStreamVisualTag.DV, DebridStreamVisualTag.DV_ONLY, DebridStreamVisualTag.HDR_DV)).distinct()
+                        requiredVisualTags =
+                            current.requiredVisualTags - DebridStreamVisualTag.DV -
+                                DebridStreamVisualTag.DV_ONLY -
+                                DebridStreamVisualTag.HDR_DV,
+                        excludedVisualTags = (
+                            current.excludedVisualTags +
+                                listOf(
+                                    DebridStreamVisualTag.DV,
+                                    DebridStreamVisualTag.DV_ONLY,
+                                    DebridStreamVisualTag.HDR_DV
+                                )
+                            ).distinct()
                     )
+
                     DebridStreamFeatureFilter.ONLY -> current.copy(
-                        requiredVisualTags = (current.requiredVisualTags + listOf(DebridStreamVisualTag.DV, DebridStreamVisualTag.DV_ONLY, DebridStreamVisualTag.HDR_DV)).distinct(),
-                        excludedVisualTags = current.excludedVisualTags - DebridStreamVisualTag.DV - DebridStreamVisualTag.DV_ONLY - DebridStreamVisualTag.HDR_DV
+                        requiredVisualTags = (
+                            current.requiredVisualTags +
+                                listOf(
+                                    DebridStreamVisualTag.DV,
+                                    DebridStreamVisualTag.DV_ONLY,
+                                    DebridStreamVisualTag.HDR_DV
+                                )
+                            ).distinct(),
+                        excludedVisualTags =
+                            current.excludedVisualTags - DebridStreamVisualTag.DV -
+                                DebridStreamVisualTag.DV_ONLY -
+                                DebridStreamVisualTag.HDR_DV
                     )
                 }
             )
@@ -218,7 +268,15 @@ class DebridSettingsDataStore @Inject constructor(
     suspend fun setStreamHdrFilter(filter: DebridStreamFeatureFilter) {
         store().edit {
             it[streamHdrFilterKey] = filter.name
-            val hdrTags = listOf(DebridStreamVisualTag.HDR, DebridStreamVisualTag.HDR10, DebridStreamVisualTag.HDR10_PLUS, DebridStreamVisualTag.HLG, DebridStreamVisualTag.HDR_ONLY, DebridStreamVisualTag.HDR_DV)
+            val hdrTags =
+                listOf(
+                    DebridStreamVisualTag.HDR,
+                    DebridStreamVisualTag.HDR10,
+                    DebridStreamVisualTag.HDR10_PLUS,
+                    DebridStreamVisualTag.HLG,
+                    DebridStreamVisualTag.HDR_ONLY,
+                    DebridStreamVisualTag.HDR_DV
+                )
             val current = currentStreamPreferences(it[streamPreferencesKey])
             it[streamPreferencesKey] = gson.toJson(
                 when (filter) {
@@ -226,10 +284,12 @@ class DebridSettingsDataStore @Inject constructor(
                         requiredVisualTags = current.requiredVisualTags - hdrTags.toSet(),
                         excludedVisualTags = current.excludedVisualTags - hdrTags.toSet()
                     )
+
                     DebridStreamFeatureFilter.EXCLUDE -> current.copy(
                         requiredVisualTags = current.requiredVisualTags - hdrTags.toSet(),
                         excludedVisualTags = (current.excludedVisualTags + hdrTags).distinct()
                     )
+
                     DebridStreamFeatureFilter.ONLY -> current.copy(
                         requiredVisualTags = (current.requiredVisualTags + hdrTags).distinct(),
                         excludedVisualTags = current.excludedVisualTags - hdrTags.toSet()
@@ -343,50 +403,137 @@ class DebridSettingsDataStore @Inject constructor(
         )
         preferences = when (dolbyVisionFilter) {
             DebridStreamFeatureFilter.ANY -> preferences
-            DebridStreamFeatureFilter.EXCLUDE -> preferences.copy(excludedVisualTags = preferences.excludedVisualTags + listOf(DebridStreamVisualTag.DV, DebridStreamVisualTag.DV_ONLY, DebridStreamVisualTag.HDR_DV))
-            DebridStreamFeatureFilter.ONLY -> preferences.copy(requiredVisualTags = preferences.requiredVisualTags + listOf(DebridStreamVisualTag.DV, DebridStreamVisualTag.DV_ONLY, DebridStreamVisualTag.HDR_DV))
+
+            DebridStreamFeatureFilter.EXCLUDE -> preferences.copy(
+                excludedVisualTags =
+                    preferences.excludedVisualTags +
+                        listOf(
+                            DebridStreamVisualTag.DV,
+                            DebridStreamVisualTag.DV_ONLY,
+                            DebridStreamVisualTag.HDR_DV
+                        )
+            )
+
+            DebridStreamFeatureFilter.ONLY -> preferences.copy(
+                requiredVisualTags =
+                    preferences.requiredVisualTags +
+                        listOf(
+                            DebridStreamVisualTag.DV,
+                            DebridStreamVisualTag.DV_ONLY,
+                            DebridStreamVisualTag.HDR_DV
+                        )
+            )
         }
         preferences = when (hdrFilter) {
             DebridStreamFeatureFilter.ANY -> preferences
-            DebridStreamFeatureFilter.EXCLUDE -> preferences.copy(excludedVisualTags = preferences.excludedVisualTags + listOf(DebridStreamVisualTag.HDR, DebridStreamVisualTag.HDR10, DebridStreamVisualTag.HDR10_PLUS, DebridStreamVisualTag.HLG, DebridStreamVisualTag.HDR_ONLY, DebridStreamVisualTag.HDR_DV))
-            DebridStreamFeatureFilter.ONLY -> preferences.copy(requiredVisualTags = preferences.requiredVisualTags + listOf(DebridStreamVisualTag.HDR, DebridStreamVisualTag.HDR10, DebridStreamVisualTag.HDR10_PLUS, DebridStreamVisualTag.HLG, DebridStreamVisualTag.HDR_ONLY, DebridStreamVisualTag.HDR_DV))
+
+            DebridStreamFeatureFilter.EXCLUDE -> preferences.copy(
+                excludedVisualTags =
+                    preferences.excludedVisualTags +
+                        listOf(
+                            DebridStreamVisualTag.HDR,
+                            DebridStreamVisualTag.HDR10,
+                            DebridStreamVisualTag.HDR10_PLUS,
+                            DebridStreamVisualTag.HLG,
+                            DebridStreamVisualTag.HDR_ONLY,
+                            DebridStreamVisualTag.HDR_DV
+                        )
+            )
+
+            DebridStreamFeatureFilter.ONLY -> preferences.copy(
+                requiredVisualTags =
+                    preferences.requiredVisualTags +
+                        listOf(
+                            DebridStreamVisualTag.HDR,
+                            DebridStreamVisualTag.HDR10,
+                            DebridStreamVisualTag.HDR10_PLUS,
+                            DebridStreamVisualTag.HLG,
+                            DebridStreamVisualTag.HDR_ONLY,
+                            DebridStreamVisualTag.HDR_DV
+                        )
+            )
         }
         preferences = when (codecFilter) {
             DebridStreamCodecFilter.ANY -> preferences
-            DebridStreamCodecFilter.H264 -> preferences.copy(requiredEncodes = listOf(DebridStreamEncode.AVC))
-            DebridStreamCodecFilter.HEVC -> preferences.copy(requiredEncodes = listOf(DebridStreamEncode.HEVC))
-            DebridStreamCodecFilter.AV1 -> preferences.copy(requiredEncodes = listOf(DebridStreamEncode.AV1))
+
+            DebridStreamCodecFilter.H264 -> preferences.copy(
+                requiredEncodes = listOf(DebridStreamEncode.AVC)
+            )
+
+            DebridStreamCodecFilter.HEVC -> preferences.copy(
+                requiredEncodes = listOf(DebridStreamEncode.HEVC)
+            )
+
+            DebridStreamCodecFilter.AV1 -> preferences.copy(
+                requiredEncodes = listOf(DebridStreamEncode.AV1)
+            )
         }
         return preferences.normalized()
     }
 
-    private fun resolutionsForMinimumQuality(quality: DebridStreamMinimumQuality): List<DebridStreamResolution> {
-        return DebridStreamResolution.defaultOrder.filter { it.value >= quality.minResolution && it != DebridStreamResolution.UNKNOWN }
-    }
-
-    private fun sortCriteriaForLegacyMode(mode: DebridStreamSortMode): List<DebridStreamSortCriterion> {
-        return when (mode) {
-            DebridStreamSortMode.DEFAULT -> DebridStreamSortCriterion.originalOrder
-            DebridStreamSortMode.QUALITY_DESC -> listOf(
-                DebridStreamSortCriterion(DebridStreamSortKey.RESOLUTION, DebridStreamSortDirection.DESC),
-                DebridStreamSortCriterion(DebridStreamSortKey.QUALITY, DebridStreamSortDirection.DESC),
-                DebridStreamSortCriterion(DebridStreamSortKey.SIZE, DebridStreamSortDirection.DESC)
-            )
-            DebridStreamSortMode.SIZE_DESC -> listOf(DebridStreamSortCriterion(DebridStreamSortKey.SIZE, DebridStreamSortDirection.DESC))
-            DebridStreamSortMode.SIZE_ASC -> listOf(DebridStreamSortCriterion(DebridStreamSortKey.SIZE, DebridStreamSortDirection.ASC))
+    private fun resolutionsForMinimumQuality(
+        quality: DebridStreamMinimumQuality
+    ): List<DebridStreamResolution> {
+        return DebridStreamResolution.defaultOrder.filter {
+            it.value >= quality.minResolution &&
+                it != DebridStreamResolution.UNKNOWN
         }
     }
 
-    private fun legacyModeForSortCriteria(criteria: List<DebridStreamSortCriterion>): DebridStreamSortMode {
+    private fun sortCriteriaForLegacyMode(
+        mode: DebridStreamSortMode
+    ): List<DebridStreamSortCriterion> {
+        return when (mode) {
+            DebridStreamSortMode.DEFAULT -> DebridStreamSortCriterion.originalOrder
+
+            DebridStreamSortMode.QUALITY_DESC -> listOf(
+                DebridStreamSortCriterion(
+                    DebridStreamSortKey.RESOLUTION,
+                    DebridStreamSortDirection.DESC
+                ),
+                DebridStreamSortCriterion(
+                    DebridStreamSortKey.QUALITY,
+                    DebridStreamSortDirection.DESC
+                ),
+                DebridStreamSortCriterion(DebridStreamSortKey.SIZE, DebridStreamSortDirection.DESC)
+            )
+
+            DebridStreamSortMode.SIZE_DESC -> listOf(
+                DebridStreamSortCriterion(DebridStreamSortKey.SIZE, DebridStreamSortDirection.DESC)
+            )
+
+            DebridStreamSortMode.SIZE_ASC -> listOf(
+                DebridStreamSortCriterion(DebridStreamSortKey.SIZE, DebridStreamSortDirection.ASC)
+            )
+        }
+    }
+
+    private fun legacyModeForSortCriteria(
+        criteria: List<DebridStreamSortCriterion>
+    ): DebridStreamSortMode {
         val normalized = criteria.map { it.key to it.direction }
         val bestQuality = DebridStreamSortCriterion.defaultOrder.map { it.key to it.direction }
-        fun legacySignature(mode: DebridStreamSortMode) = sortCriteriaForLegacyMode(mode).map { it.key to it.direction }
+        fun legacySignature(mode: DebridStreamSortMode) = sortCriteriaForLegacyMode(mode).map {
+            it.key to
+                it.direction
+        }
         return when {
             normalized.isEmpty() -> DebridStreamSortMode.DEFAULT
+
             normalized == bestQuality -> DebridStreamSortMode.QUALITY_DESC
-            normalized == legacySignature(DebridStreamSortMode.QUALITY_DESC) -> DebridStreamSortMode.QUALITY_DESC
-            normalized == legacySignature(DebridStreamSortMode.SIZE_DESC) -> DebridStreamSortMode.SIZE_DESC
-            normalized == legacySignature(DebridStreamSortMode.SIZE_ASC) -> DebridStreamSortMode.SIZE_ASC
+
+            normalized == legacySignature(
+                DebridStreamSortMode.QUALITY_DESC
+            ) -> DebridStreamSortMode.QUALITY_DESC
+
+            normalized == legacySignature(
+                DebridStreamSortMode.SIZE_DESC
+            ) -> DebridStreamSortMode.SIZE_DESC
+
+            normalized == legacySignature(
+                DebridStreamSortMode.SIZE_ASC
+            ) -> DebridStreamSortMode.SIZE_ASC
+
             else -> DebridStreamSortMode.DEFAULT
         }
     }
@@ -404,9 +551,12 @@ class DebridSettingsDataStore @Inject constructor(
         val preferredAudioTagsValue: List<com.kien.movies.domain.model.DebridStreamAudioTag>? = preferredAudioTags
         val requiredAudioTagsValue: List<com.kien.movies.domain.model.DebridStreamAudioTag>? = requiredAudioTags
         val excludedAudioTagsValue: List<com.kien.movies.domain.model.DebridStreamAudioTag>? = excludedAudioTags
-        val preferredAudioChannelsValue: List<com.kien.movies.domain.model.DebridStreamAudioChannel>? = preferredAudioChannels
-        val requiredAudioChannelsValue: List<com.kien.movies.domain.model.DebridStreamAudioChannel>? = requiredAudioChannels
-        val excludedAudioChannelsValue: List<com.kien.movies.domain.model.DebridStreamAudioChannel>? = excludedAudioChannels
+        val preferredAudioChannelsValue:
+            List<com.kien.movies.domain.model.DebridStreamAudioChannel>? = preferredAudioChannels
+        val requiredAudioChannelsValue: List<com.kien.movies.domain.model.DebridStreamAudioChannel>? =
+            requiredAudioChannels
+        val excludedAudioChannelsValue: List<com.kien.movies.domain.model.DebridStreamAudioChannel>? =
+            excludedAudioChannels
         val preferredEncodesValue: List<DebridStreamEncode>? = preferredEncodes
         val requiredEncodesValue: List<DebridStreamEncode>? = requiredEncodes
         val excludedEncodesValue: List<DebridStreamEncode>? = excludedEncodes
@@ -422,29 +572,51 @@ class DebridSettingsDataStore @Inject constructor(
             maxPerQuality = maxPerQuality.coerceIn(0, 100),
             sizeMinGb = sizeMinGb.coerceIn(0, 100),
             sizeMaxGb = sizeMaxGb.coerceIn(0, 100),
-            preferredResolutions = preferredResolutionsValue?.ifEmpty { DebridStreamResolution.defaultOrder } ?: DebridStreamResolution.defaultOrder,
+            preferredResolutions =
+                preferredResolutionsValue?.ifEmpty { DebridStreamResolution.defaultOrder }
+                    ?: DebridStreamResolution.defaultOrder,
             requiredResolutions = requiredResolutionsValue.orEmpty(),
             excludedResolutions = excludedResolutionsValue.orEmpty(),
-            preferredQualities = preferredQualitiesValue?.ifEmpty { com.kien.movies.domain.model.DebridStreamQuality.defaultOrder } ?: com.kien.movies.domain.model.DebridStreamQuality.defaultOrder,
+            preferredQualities =
+                preferredQualitiesValue?.ifEmpty {
+                    com.kien.movies.domain.model.DebridStreamQuality.defaultOrder
+                }
+                    ?: com.kien.movies.domain.model.DebridStreamQuality.defaultOrder,
             requiredQualities = requiredQualitiesValue.orEmpty(),
             excludedQualities = excludedQualitiesValue.orEmpty(),
-            preferredVisualTags = preferredVisualTagsValue?.ifEmpty { DebridStreamVisualTag.defaultOrder } ?: DebridStreamVisualTag.defaultOrder,
+            preferredVisualTags =
+                preferredVisualTagsValue?.ifEmpty { DebridStreamVisualTag.defaultOrder }
+                    ?: DebridStreamVisualTag.defaultOrder,
             requiredVisualTags = requiredVisualTagsValue.orEmpty(),
             excludedVisualTags = excludedVisualTagsValue.orEmpty(),
-            preferredAudioTags = preferredAudioTagsValue?.ifEmpty { com.kien.movies.domain.model.DebridStreamAudioTag.defaultOrder } ?: com.kien.movies.domain.model.DebridStreamAudioTag.defaultOrder,
+            preferredAudioTags =
+                preferredAudioTagsValue?.ifEmpty {
+                    com.kien.movies.domain.model.DebridStreamAudioTag.defaultOrder
+                }
+                    ?: com.kien.movies.domain.model.DebridStreamAudioTag.defaultOrder,
             requiredAudioTags = requiredAudioTagsValue.orEmpty(),
             excludedAudioTags = excludedAudioTagsValue.orEmpty(),
-            preferredAudioChannels = preferredAudioChannelsValue?.ifEmpty { com.kien.movies.domain.model.DebridStreamAudioChannel.defaultOrder } ?: com.kien.movies.domain.model.DebridStreamAudioChannel.defaultOrder,
+            preferredAudioChannels =
+                preferredAudioChannelsValue?.ifEmpty {
+                    com.kien.movies.domain.model.DebridStreamAudioChannel.defaultOrder
+                }
+                    ?: com.kien.movies.domain.model.DebridStreamAudioChannel.defaultOrder,
             requiredAudioChannels = requiredAudioChannelsValue.orEmpty(),
             excludedAudioChannels = excludedAudioChannelsValue.orEmpty(),
-            preferredEncodes = preferredEncodesValue?.ifEmpty { DebridStreamEncode.defaultOrder } ?: DebridStreamEncode.defaultOrder,
+            preferredEncodes =
+                preferredEncodesValue?.ifEmpty { DebridStreamEncode.defaultOrder }
+                    ?: DebridStreamEncode.defaultOrder,
             requiredEncodes = requiredEncodesValue.orEmpty(),
             excludedEncodes = excludedEncodesValue.orEmpty(),
             preferredLanguages = preferredLanguagesValue.orEmpty(),
             requiredLanguages = requiredLanguagesValue.orEmpty(),
             excludedLanguages = excludedLanguagesValue.orEmpty(),
-            requiredReleaseGroups = requiredReleaseGroupsValue.orEmpty().map { it.trim() }.filter { it.isNotBlank() }.distinct(),
-            excludedReleaseGroups = excludedReleaseGroupsValue.orEmpty().map { it.trim() }.filter { it.isNotBlank() }.distinct(),
+            requiredReleaseGroups = requiredReleaseGroupsValue.orEmpty().map {
+                it.trim()
+            }.filter { it.isNotBlank() }.distinct(),
+            excludedReleaseGroups = excludedReleaseGroupsValue.orEmpty().map {
+                it.trim()
+            }.filter { it.isNotBlank() }.distinct(),
             sortCriteria = sortCriteriaValue ?: DebridStreamSortCriterion.originalOrder
         )
     }

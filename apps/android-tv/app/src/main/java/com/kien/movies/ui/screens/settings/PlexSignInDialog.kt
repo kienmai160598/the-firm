@@ -54,14 +54,28 @@ internal fun PlexSignInDialog(
     val busy = state.busy || state.step == PlexSignInStep.SIGNING_IN
     val title = when (state.step) {
         PlexSignInStep.SERVERS -> stringResource(R.string.plex_servers_title)
+
         PlexSignInStep.USERS -> stringResource(R.string.plex_users_title)
-        PlexSignInStep.PIN -> stringResource(R.string.servers_pin_title, state.pinFor?.name.orEmpty())
+
+        PlexSignInStep.PIN -> stringResource(
+            R.string.servers_pin_title,
+            state.pinFor?.name.orEmpty()
+        )
+
         else -> stringResource(R.string.servers_sign_in_title, "Plex")
     }
     val subtitle = when (state.step) {
         PlexSignInStep.CODE, PlexSignInStep.FAILED -> stringResource(R.string.plex_sign_in_subtitle)
-        PlexSignInStep.SERVERS -> state.accountName?.let { stringResource(R.string.plex_servers_subtitle, it) }
-        PlexSignInStep.USERS -> stringResource(R.string.plex_users_subtitle, state.server?.name.orEmpty())
+
+        PlexSignInStep.SERVERS -> state.accountName?.let {
+            stringResource(R.string.plex_servers_subtitle, it)
+        }
+
+        PlexSignInStep.USERS -> stringResource(
+            R.string.plex_users_subtitle,
+            state.server?.name.orEmpty()
+        )
+
         else -> state.server?.name
     }
 
@@ -72,26 +86,59 @@ internal fun PlexSignInDialog(
         width = 640.dp
     ) {
         when (state.step) {
-            PlexSignInStep.CODE -> PlexCodeStep(state, onNewCode = flow::newCode, onCancel = onDismiss)
-            PlexSignInStep.SERVERS -> PlexServersStep(state, onPick = flow::pickServer, onCancel = onDismiss)
-            PlexSignInStep.USERS -> PlexUsersStep(state, onPick = flow::pickUser, onBack = flow::back)
+            PlexSignInStep.CODE -> PlexCodeStep(
+                state,
+                onNewCode = flow::newCode,
+                onCancel = onDismiss
+            )
+
+            PlexSignInStep.SERVERS -> PlexServersStep(
+                state,
+                onPick = flow::pickServer,
+                onCancel = onDismiss
+            )
+
+            PlexSignInStep.USERS -> PlexUsersStep(
+                state,
+                onPick = flow::pickUser,
+                onBack = flow::back
+            )
+
             PlexSignInStep.PIN -> ServerSignInPin(
                 key = state.pinFor?.uuid,
                 hint = stringResource(R.string.servers_pin_hint),
                 maxLength = PIN_LENGTH,
-                wrongText = if (state.pinWrong) stringResource(R.string.servers_pin_wrong) else null,
+                wrongText = if (state.pinWrong) {
+                    stringResource(
+                        R.string.servers_pin_wrong
+                    )
+                } else {
+                    null
+                },
                 busy = state.busy,
                 backText = stringResource(R.string.action_back),
                 onBack = flow::back,
                 onSubmit = flow::submitPin,
                 error = { PlexError(state) }
             )
-            PlexSignInStep.SIGNING_IN -> ServerSignInStatus(stringResource(R.string.servers_signing_in), loading = true)
+
+            PlexSignInStep.SIGNING_IN -> ServerSignInStatus(
+                stringResource(R.string.servers_signing_in),
+                loading = true
+            )
+
             PlexSignInStep.FAILED -> {
                 PlexError(state)
                 SettingsDialogActionRow {
-                    SettingsDialogActionButton(text = stringResource(R.string.action_cancel), onClick = onDismiss)
-                    SettingsDialogActionButton(text = stringResource(R.string.action_retry), onClick = flow::newCode, primary = true)
+                    SettingsDialogActionButton(
+                        text = stringResource(R.string.action_cancel),
+                        onClick = onDismiss
+                    )
+                    SettingsDialogActionButton(
+                        text = stringResource(R.string.action_retry),
+                        onClick = flow::newCode,
+                        primary = true
+                    )
                 }
             }
         }
@@ -99,14 +146,25 @@ internal fun PlexSignInDialog(
 }
 
 @Composable
-private fun ColumnScope.PlexCodeStep(state: PlexSignInState, onNewCode: () -> Unit, onCancel: () -> Unit) {
+private fun ColumnScope.PlexCodeStep(
+    state: PlexSignInState,
+    onNewCode: () -> Unit,
+    onCancel: () -> Unit
+) {
     val pin = state.pin
     when {
-        state.codePhase == PlexCodePhase.EXPIRED -> ServerSignInStatus(stringResource(R.string.servers_code_expired))
+        state.codePhase == PlexCodePhase.EXPIRED -> ServerSignInStatus(
+            stringResource(R.string.servers_code_expired)
+        )
+
         state.codePhase == PlexCodePhase.STARTING || pin == null ->
             ServerSignInStatus(stringResource(R.string.servers_code_starting), loading = true)
+
         else -> ServerSignInCode(
-            instructions = stringResource(R.string.plex_code_instructions, PlexAccountClient.LINK_PAGE),
+            instructions = stringResource(
+                R.string.plex_code_instructions,
+                PlexAccountClient.LINK_PAGE
+            ),
             link = "https://${PlexAccountClient.LINK_PAGE}?pin=${pin.code}",
             code = pin.code,
             page = PlexAccountClient.LINK_PAGE,
@@ -114,23 +172,53 @@ private fun ColumnScope.PlexCodeStep(state: PlexSignInState, onNewCode: () -> Un
         )
     }
     SettingsDialogActionRow(horizontalAlignment = Alignment.CenterHorizontally) {
-        SettingsDialogActionButton(text = stringResource(R.string.action_cancel), onClick = onCancel)
+        SettingsDialogActionButton(
+            text = stringResource(R.string.action_cancel),
+            onClick = onCancel
+        )
         if (state.codePhase == PlexCodePhase.EXPIRED) {
-            SettingsDialogActionButton(text = stringResource(R.string.servers_new_code), onClick = onNewCode, primary = true)
+            SettingsDialogActionButton(
+                text = stringResource(R.string.servers_new_code),
+                onClick = onNewCode,
+                primary = true
+            )
         }
     }
 }
 
 @Composable
-private fun ColumnScope.PlexServersStep(state: PlexSignInState, onPick: (PlexServer) -> Unit, onCancel: () -> Unit) {
+private fun ColumnScope.PlexServersStep(
+    state: PlexSignInState,
+    onPick: (PlexServer) -> Unit,
+    onCancel: () -> Unit
+) {
     val servers = state.servers
     when {
-        state.serversLoading && servers.isEmpty() -> ServerSignInStatus(stringResource(R.string.plex_servers_finding), loading = true)
+        state.serversLoading && servers.isEmpty() -> ServerSignInStatus(
+            stringResource(R.string.plex_servers_finding),
+            loading = true
+        )
+
         servers.isEmpty() -> ServerSignInStatus(stringResource(R.string.plex_servers_none))
+
         else -> ServerSignInPicker(
             items = servers,
-            focusIndex = if (state.serversLoading) -1 else servers.indexOfFirst { it.reach != PlexReach.OFFLINE },
-            footer = { if (state.serversLoading) ServerSignInStatus(stringResource(R.string.plex_servers_checking), loading = true) }
+            focusIndex = if (state.serversLoading) {
+                -1
+            } else {
+                servers.indexOfFirst {
+                    it.reach !=
+                        PlexReach.OFFLINE
+                }
+            },
+            footer = {
+                if (state.serversLoading) {
+                    ServerSignInStatus(
+                        stringResource(R.string.plex_servers_checking),
+                        loading = true
+                    )
+                }
+            }
         ) { server, modifier ->
             SettingsActionRow(
                 title = server.name,
@@ -145,13 +233,17 @@ private fun ColumnScope.PlexServersStep(state: PlexSignInState, onPick: (PlexSer
     }
     PlexError(state)
     SettingsDialogActionRow {
-        SettingsDialogActionButton(text = stringResource(R.string.action_cancel), onClick = onCancel)
+        SettingsDialogActionButton(
+            text = stringResource(R.string.action_cancel),
+            onClick = onCancel
+        )
     }
 }
 
 @Composable
 private fun PlexServer.description(checking: Boolean): String {
-    val owner = stringResource(if (owned) R.string.plex_server_owned else R.string.plex_server_shared)
+    val owner =
+        stringResource(if (owned) R.string.plex_server_owned else R.string.plex_server_shared)
     if (checking) return owner
     return when (reach) {
         PlexReach.RELAY -> "$owner · ${stringResource(R.string.plex_reach_relay_detail)}"
@@ -171,7 +263,11 @@ private fun PlexReach.label(): String = stringResource(
 )
 
 @Composable
-private fun ColumnScope.PlexUsersStep(state: PlexSignInState, onPick: (PlexHomeUser) -> Unit, onBack: () -> Unit) {
+private fun ColumnScope.PlexUsersStep(
+    state: PlexSignInState,
+    onPick: (PlexHomeUser) -> Unit,
+    onBack: () -> Unit
+) {
     ServerSignInPicker(state.users) { user, modifier ->
         SettingsActionRow(
             title = user.name,
@@ -184,7 +280,11 @@ private fun ColumnScope.PlexUsersStep(state: PlexSignInState, onPick: (PlexHomeU
     }
     PlexError(state)
     SettingsDialogActionRow {
-        SettingsDialogActionButton(text = stringResource(R.string.action_back), onClick = onBack, enabled = !state.busy)
+        SettingsDialogActionButton(
+            text = stringResource(R.string.action_back),
+            onClick = onBack,
+            enabled = !state.busy
+        )
     }
 }
 

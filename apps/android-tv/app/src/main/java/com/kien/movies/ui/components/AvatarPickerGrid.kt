@@ -1,25 +1,17 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.components.expressive.MoviesChip
-import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,22 +37,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import kotlin.math.floor
-import kotlin.math.max
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.kien.movies.R
 import com.kien.movies.data.remote.supabase.AvatarCatalogItem
+import com.kien.movies.ui.components.expressive.MoviesChip
+import com.kien.movies.ui.theme.ExpressiveMotion
+import com.kien.movies.ui.theme.MoviesTheme
+import kotlin.math.floor
+import kotlin.math.max
 
 private val PinnedAvatarCategories = listOf("anime", "animation", "tv", "movie", "gaming")
 
@@ -112,7 +111,9 @@ fun AvatarPickerGrid(
     val filteredAvatars = remember(avatars, selectedCategory) {
         when (selectedCategory) {
             "all" -> avatars
+
             "supporter" -> avatars.filter { it.memberOnly }
+
             else -> avatars.filter {
                 !it.memberOnly && it.category.equals(selectedCategory, ignoreCase = true)
             }
@@ -141,8 +142,20 @@ fun AvatarPickerGrid(
                     label = categoryLabel(category),
                     isSelected = selectedCategory == category,
                     focusRequester = categoryRequesters.getValue(category),
-                    downFocusRequester = if (selectedCategory == category) firstAvatarRequester else null,
-                    leftFocusRequester = if (category == categories.first()) leftFocusRequester else null,
+                    downFocusRequester = if (selectedCategory ==
+                        category
+                    ) {
+                        firstAvatarRequester
+                    } else {
+                        null
+                    },
+                    leftFocusRequester = if (category ==
+                        categories.first()
+                    ) {
+                        leftFocusRequester
+                    } else {
+                        null
+                    },
                     onClick = { selectedCategory = category }
                 )
                 if (category != categories.last()) {
@@ -171,22 +184,43 @@ fun AvatarPickerGrid(
             key(filteredAvatars) {
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = minCellWidth),
-                    contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs),
+                    contentPadding = PaddingValues(
+                        horizontal = MoviesTheme.spacing.sm,
+                        vertical = MoviesTheme.spacing.xs
+                    ),
                     horizontalArrangement = Arrangement.spacedBy(horizontalSpacing),
                     verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    itemsIndexed(filteredAvatars, key = { _, avatar -> avatar.id }) { index, avatar ->
+                    itemsIndexed(filteredAvatars, key = { _, avatar ->
+                        avatar.id
+                    }) { index, avatar ->
                         AvatarGridItem(
                             avatar = avatar,
                             isSelected = avatar.id == selectedAvatarId,
                             focusRequester = avatarRequesters.getValue(avatar.id),
-                            entryFocusRequester = entryFocusRequester.takeIf { avatar.id == entryAvatarId },
-                            upFocusRequester = if (index < columnCount) selectedCategoryRequester else null,
-                            leftFocusRequester = if (index % columnCount == 0) leftFocusRequester else null,
+                            entryFocusRequester = entryFocusRequester.takeIf {
+                                avatar.id ==
+                                    entryAvatarId
+                            },
+                            upFocusRequester = if (index <
+                                columnCount
+                            ) {
+                                selectedCategoryRequester
+                            } else {
+                                null
+                            },
+                            leftFocusRequester = if (index % columnCount ==
+                                0
+                            ) {
+                                leftFocusRequester
+                            } else {
+                                null
+                            },
                             onFocused = { focused ->
                                 if (focused) {
-                                    lastFocusedAvatarId = filteredAvatars[index - index % columnCount].id
+                                    lastFocusedAvatarId =
+                                        filteredAvatars[index - index % columnCount].id
                                     onAvatarFocused?.invoke(avatar)
                                 }
                             },
@@ -262,7 +296,15 @@ private fun AvatarGridItem(
                 scaleY = scale
             }
             .focusRequester(focusRequester)
-            .then(if (entryFocusRequester != null) Modifier.focusRequester(entryFocusRequester) else Modifier)
+            .then(
+                if (entryFocusRequester !=
+                    null
+                ) {
+                    Modifier.focusRequester(entryFocusRequester)
+                } else {
+                    Modifier
+                }
+            )
             .focusProperties {
                 if (upFocusRequester != null) up = upFocusRequester
                 if (leftFocusRequester != null) start = leftFocusRequester

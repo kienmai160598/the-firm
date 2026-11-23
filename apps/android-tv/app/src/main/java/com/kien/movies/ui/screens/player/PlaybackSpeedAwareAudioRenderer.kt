@@ -43,7 +43,9 @@ internal class PlaybackSpeedAwareAudioRenderer(
         val forcePcm = playbackSpeedAwareAudioSink.shouldForcePcmForFormat(format)
 
         var audioOffloadSupport = AUDIO_OFFLOAD_NOT_SUPPORTED
-        if (supportsFormatDrm && (!formatHasDrm || MediaCodecUtil.getDecryptOnlyDecoderInfo() != null)) {
+        if (supportsFormatDrm &&
+            (!formatHasDrm || MediaCodecUtil.getDecryptOnlyDecoderInfo() != null)
+        ) {
             audioOffloadSupport = getRendererAudioOffloadSupport(format, forcePcm)
             if (!forcePcm && playbackSpeedAwareAudioSink.supportsFormat(format)) {
                 return RendererCapabilities.create(
@@ -54,7 +56,9 @@ internal class PlaybackSpeedAwareAudioRenderer(
                 )
             }
         }
-        if (MimeTypes.AUDIO_RAW == format.sampleMimeType && !playbackSpeedAwareAudioSink.supportsFormat(format)) {
+        if (MimeTypes.AUDIO_RAW == format.sampleMimeType &&
+            !playbackSpeedAwareAudioSink.supportsFormat(format)
+        ) {
             return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE)
         }
         if (!playbackSpeedAwareAudioSink.supportsFormat(
@@ -86,11 +90,19 @@ internal class PlaybackSpeedAwareAudioRenderer(
         }
         val formatSupport = if (isFormatSupported) C.FORMAT_HANDLED else C.FORMAT_EXCEEDS_CAPABILITIES
         val adaptiveSupport =
-            if (isFormatSupported && decoderInfo.isSeamlessAdaptationSupported(format)) ADAPTIVE_SEAMLESS
-            else ADAPTIVE_NOT_SEAMLESS
+            if (isFormatSupported &&
+                decoderInfo.isSeamlessAdaptationSupported(format)
+            ) {
+                ADAPTIVE_SEAMLESS
+            } else {
+                ADAPTIVE_NOT_SEAMLESS
+            }
         val hardwareAccelerationSupport =
-            if (decoderInfo.hardwareAccelerated) HARDWARE_ACCELERATION_SUPPORTED
-            else HARDWARE_ACCELERATION_NOT_SUPPORTED
+            if (decoderInfo.hardwareAccelerated) {
+                HARDWARE_ACCELERATION_SUPPORTED
+            } else {
+                HARDWARE_ACCELERATION_NOT_SUPPORTED
+            }
         val decoderSupport = if (isPreferredDecoder) DECODER_SUPPORT_PRIMARY else DECODER_SUPPORT_FALLBACK
         return RendererCapabilities.create(
             formatSupport,
@@ -107,7 +119,9 @@ internal class PlaybackSpeedAwareAudioRenderer(
         format: Format,
         requiresSecureDecoder: Boolean
     ): List<MediaCodecInfo> {
-        val decoderInfos = if (!playbackSpeedAwareAudioSink.shouldForcePcmForFormat(format) && playbackSpeedAwareAudioSink.supportsFormat(format)) {
+        val decoderInfos = if (!playbackSpeedAwareAudioSink.shouldForcePcmForFormat(format) &&
+            playbackSpeedAwareAudioSink.supportsFormat(format)
+        ) {
             MediaCodecUtil.getDecryptOnlyDecoderInfo()?.let(::listOf)
                 ?: MediaCodecUtil.getDecoderInfosSoftMatch(
                     mediaCodecSelector,

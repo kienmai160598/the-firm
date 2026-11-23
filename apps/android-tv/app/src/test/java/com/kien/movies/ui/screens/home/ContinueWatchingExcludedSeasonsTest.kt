@@ -17,7 +17,12 @@ class ContinueWatchingExcludedSeasonsTest {
 
     @Test
     fun `excluding the seed season still allows an eligible following season`() {
-        val next = resolveNextUpVideoFromMeta(seed().copy(excludedNextUpSeasons = setOf(1)), metadata(), false)
+        val next =
+            resolveNextUpVideoFromMeta(
+                seed().copy(excludedNextUpSeasons = setOf(1)),
+                metadata(),
+                false
+            )
         assertEquals(2, next?.season)
     }
 
@@ -31,8 +36,10 @@ class ContinueWatchingExcludedSeasonsTest {
     @Test
     fun `changing exclusions invalidates cached resolution with deterministic keys`() {
         val original = buildNextUpSeedCacheKey(seed(), false)
-        val changed = buildNextUpSeedCacheKey(seed().copy(excludedNextUpSeasons = setOf(2, 3)), false)
-        val reordered = buildNextUpSeedCacheKey(seed().copy(excludedNextUpSeasons = setOf(3, 2)), false)
+        val changed =
+            buildNextUpSeedCacheKey(seed().copy(excludedNextUpSeasons = setOf(2, 3)), false)
+        val reordered =
+            buildNextUpSeedCacheKey(seed().copy(excludedNextUpSeasons = setOf(3, 2)), false)
         assertNotEquals(original, changed)
         assertEquals(changed, reordered)
     }
@@ -43,6 +50,16 @@ class ContinueWatchingExcludedSeasonsTest {
     )
     private fun metadata() = CwMetaSummary(
         "tt1", "Series", null, null, null, null, emptyList(), null, null, null, null,
-        (1..3).map { season -> CwVideoSummary("tt1:$season:1", "Episode", "2020-01-01T00:00:00Z", null, season, 1, null) }
+        (1..3).map { season ->
+            CwVideoSummary(
+                "tt1:$season:1",
+                "Episode",
+                "2020-01-01T00:00:00Z",
+                null,
+                season,
+                1,
+                null
+            )
+        }
     )
 }

@@ -1,7 +1,5 @@
 package com.kien.movies.updater
 
-import com.kien.movies.core.build.AppFeaturePolicy
-
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -11,18 +9,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kien.movies.BuildConfig
 import com.kien.movies.R
+import com.kien.movies.core.build.AppFeaturePolicy
 import com.kien.movies.updater.model.AppUpdate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -67,26 +66,28 @@ class UpdateViewModel @Inject constructor(
         if (!AppFeaturePolicy.inAppUpdatesEnabled) {
             UpdateJobService.cancelPeriodicCheck(context)
             UpdateJobService.cancelIdleInstall(context)
-        } else viewModelScope.launch {
-            val enabled = updatePreferences.updateBannerEnabled.first()
-            val channel = updatePreferences.getOrInitializeUpdateChannel()
-            val autoInstallEnabled = updatePreferences.autoInstallEnabled.first()
-            val autoInstallNoticeEnabled = updatePreferences.autoInstallNoticeEnabled.first()
-            val optimizeDuringInstall = updatePreferences.optimizeDuringInstall.first()
-            _uiState.update {
-                it.copy(
-                    updateBannerEnabled = enabled,
-                    updateChannel = channel,
-                    autoInstallEnabled = autoInstallEnabled,
-                    autoInstallNoticeEnabled = autoInstallNoticeEnabled,
-                    optimizeDuringInstall = optimizeDuringInstall
-                )
-            }
-            downloadStore.clearIfInstalled()
-            consumeAutoInstalledUpdate()
-            syncBackgroundJobs()
-            if (enabled && !BuildConfig.IS_DEBUG_BUILD) {
-                checkForUpdates(force = false, showNoUpdateFeedback = false)
+        } else {
+            viewModelScope.launch {
+                val enabled = updatePreferences.updateBannerEnabled.first()
+                val channel = updatePreferences.getOrInitializeUpdateChannel()
+                val autoInstallEnabled = updatePreferences.autoInstallEnabled.first()
+                val autoInstallNoticeEnabled = updatePreferences.autoInstallNoticeEnabled.first()
+                val optimizeDuringInstall = updatePreferences.optimizeDuringInstall.first()
+                _uiState.update {
+                    it.copy(
+                        updateBannerEnabled = enabled,
+                        updateChannel = channel,
+                        autoInstallEnabled = autoInstallEnabled,
+                        autoInstallNoticeEnabled = autoInstallNoticeEnabled,
+                        optimizeDuringInstall = optimizeDuringInstall
+                    )
+                }
+                downloadStore.clearIfInstalled()
+                consumeAutoInstalledUpdate()
+                syncBackgroundJobs()
+                if (enabled && !BuildConfig.IS_DEBUG_BUILD) {
+                    checkForUpdates(force = false, showNoUpdateFeedback = false)
+                }
             }
         }
     }
@@ -114,13 +115,24 @@ class UpdateViewModel @Inject constructor(
 
             result
                 .onSuccess { update ->
-                    val remoteNewer = VersionUtils.isRemoteNewer(update.tag, BuildConfig.VERSION_NAME)
-                    val downloadedFile = if (remoteNewer) downloadStore.downloadedFileFor(update) else null
+                    val remoteNewer = VersionUtils.isRemoteNewer(
+                        update.tag,
+                        BuildConfig.VERSION_NAME
+                    )
+                    val downloadedFile = if (remoteNewer) {
+                        downloadStore.downloadedFileFor(
+                            update
+                        )
+                    } else {
+                        null
+                    }
                     // The release just installed carries the notes the "updated" banner can show.
                     val installedUpdate = _uiState.value.installedUpdate?.let { installed ->
                         if (installed.tag == update.tag) update else installed
                     }
-                    if (remoteNewer && downloadedFile == null && update.tag != dismissedTag && !BuildConfig.IS_DEBUG_BUILD) {
+                    if (remoteNewer && downloadedFile == null && update.tag != dismissedTag &&
+                        !BuildConfig.IS_DEBUG_BUILD
+                    ) {
                         UpdateJobService.scheduleCheckNow(context)
                     }
                     val shouldShow = UpdateBannerPolicy.shouldShow(
@@ -139,7 +151,10 @@ class UpdateViewModel @Inject constructor(
                             isDownloading = false,
                             downloadProgress = null,
                             downloadedApkPath = downloadedFile?.absolutePath
-                                ?: state.downloadedApkPath.takeIf { remoteNewer && state.update?.tag == update.tag },
+                                ?: state.downloadedApkPath.takeIf {
+                                    remoteNewer &&
+                                        state.update?.tag == update.tag
+                                },
                             showBanner = shouldShow || installedUpdate != null,
                             installedUpdate = installedUpdate,
                             showUnknownSourcesDialog = false,
@@ -168,7 +183,8 @@ class UpdateViewModel @Inject constructor(
                                 if (error is NoEligibleUpdateException) {
                                     noUpdateFeedback(channel)
                                 } else {
-                                    error.message ?: context.getString(R.string.update_error_check_failed)
+                                    error.message
+                                        ?: context.getString(R.string.update_error_check_failed)
                                 }
                             } else {
                                 null
@@ -179,12 +195,13 @@ class UpdateViewModel @Inject constructor(
         }
     }
 
-    private fun noUpdateFeedback(channel: UpdateChannel): String =
-        if (channel == UpdateChannel.STABLE && VersionUtils.isPrerelease(BuildConfig.VERSION_NAME)) {
-            context.getString(R.string.update_waiting_for_stable)
-        } else {
-            context.getString(R.string.update_latest_version)
-        }
+    private fun noUpdateFeedback(channel: UpdateChannel): String = if (channel == UpdateChannel.STABLE &&
+        VersionUtils.isPrerelease(BuildConfig.VERSION_NAME)
+    ) {
+        context.getString(R.string.update_waiting_for_stable)
+    } else {
+        context.getString(R.string.update_latest_version)
+    }
 
     fun dismissBanner() {
         val state = _uiState.value
@@ -301,7 +318,9 @@ class UpdateViewModel @Inject constructor(
                             isDownloading = false,
                             downloadProgress = null,
                             downloadedApkPath = null,
-                            errorMessage = error.message ?: context.getString(R.string.update_error_download_failed),
+                            errorMessage =
+                                error.message
+                                    ?: context.getString(R.string.update_error_download_failed),
                             showBanner = true
                         )
                     }
@@ -330,7 +349,8 @@ class UpdateViewModel @Inject constructor(
         _uiState.update { it.copy(showUnknownSourcesDialog = false) }
         // Without dex metadata a session install gains nothing over the system installer, whose screen stays up
         // while the app is closed for the install and offers to open it again.
-        val useSystemInstaller = !ApkInstaller.supportsDexMetadata || !_uiState.value.optimizeDuringInstall
+        val useSystemInstaller =
+            !ApkInstaller.supportsDexMetadata || !_uiState.value.optimizeDuringInstall
         viewModelScope.launch(Dispatchers.IO) {
             if (useSystemInstaller) {
                 runCatching { ApkInstaller.launchSystemInstaller(context, apkFile) }

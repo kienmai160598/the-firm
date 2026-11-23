@@ -29,7 +29,8 @@ data class MDBListRatings(
         }
 
     fun isEmpty(): Boolean = trakt == null && imdb == null && tmdb == null &&
-        letterboxd == null && tomatoes == null && audience == null && metacritic == null && mal == null
+        letterboxd == null && tomatoes == null && audience == null && metacritic == null &&
+        mal == null
 }
 
 enum class RottenTomatoesStatus {
@@ -41,7 +42,4 @@ enum class RottenTomatoesStatus {
     VERIFIED_HOT
 }
 
-data class MDBListRatingsResult(
-    val ratings: MDBListRatings,
-    val hasImdbRating: Boolean
-)
+data class MDBListRatingsResult(val ratings: MDBListRatings, val hasImdbRating: Boolean)

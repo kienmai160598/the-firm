@@ -42,7 +42,9 @@ class PlayerProgressFillTest {
                         layout(child.width, child.height) { child.place(0, 0) }
                     }
                     .background(Color.Black)
-                    .playerProgressFill({ played.floatValue }, { buffered.floatValue }, Color.Red, SolidColor(Color.Red))
+                    .playerProgressFill({
+                        played.floatValue
+                    }, { buffered.floatValue }, Color.Red, SolidColor(Color.Red))
             )
         }
         compose.waitForIdle()
@@ -51,7 +53,10 @@ class PlayerProgressFillTest {
         assertPixel(0.1f, 1f)
         assertPixel(0.3f, 0.35f)
         assertPixel(0.5f, 0f)
-        compose.runOnIdle { played.floatValue = 0.6f; buffered.floatValue = 0.8f }
+        compose.runOnIdle {
+            played.floatValue = 0.6f
+            buffered.floatValue = 0.8f
+        }
         compose.waitForIdle()
         assertPixel(0.5f, 1f)
         assertPixel(0.7f, 0.35f)
@@ -69,9 +74,15 @@ class PlayerProgressFillTest {
     @Test
     fun gradientUsesPlayedWidthRatherThanEntireTrackWidth() {
         compose.setContent {
-            Box(Modifier.size(200.dp, 12.dp).testTag("track").background(Color.Black)
-                .playerProgressFill({ 0.5f }, { 0.75f }, Color.Red,
-                    Brush.horizontalGradient(listOf(Color.Red, Color.Blue))))
+            Box(
+                Modifier.size(200.dp, 12.dp).testTag("track").background(Color.Black)
+                    .playerProgressFill(
+                        { 0.5f },
+                        { 0.75f },
+                        Color.Red,
+                        Brush.horizontalGradient(listOf(Color.Red, Color.Blue))
+                    )
+            )
         }
         compose.waitForIdle()
         // Quarter-track lies at midpoint of half-track played fill.

@@ -1,11 +1,11 @@
 package com.kien.movies.ui.screens.home
 
+import java.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.Instant
 
 class ContinueWatchingReleaseRefreshTest {
     private val now = Instant.parse("2026-11-12T12:00:00Z").toEpochMilli()
@@ -38,7 +38,10 @@ class ContinueWatchingReleaseRefreshTest {
             nextUp("2026-11-12T15:00:00Z", hasAired = false, id = "tt2")
         )
 
-        assertEquals(Instant.parse("2026-11-12T15:00:00Z").toEpochMilli(), nextContinueWatchingReleaseMs(items, emptyList(), now))
+        assertEquals(
+            Instant.parse("2026-11-12T15:00:00Z").toEpochMilli(),
+            nextContinueWatchingReleaseMs(items, emptyList(), now)
+        )
     }
 
     @Test
@@ -54,14 +57,38 @@ class ContinueWatchingReleaseRefreshTest {
 
     @Test
     fun `a series due to be looked up again schedules a refresh too`() {
-        assertEquals(now + 2 * hour, nextContinueWatchingReleaseMs(emptyList(), listOf(now - hour, now + 2 * hour), now))
+        assertEquals(
+            now + 2 * hour,
+            nextContinueWatchingReleaseMs(
+                emptyList(),
+                listOf(
+                    now - hour,
+                    now + 2 * hour
+                ),
+                now
+            )
+        )
     }
 
     @Test
     fun `a release passed since the last cycle is noticed on return`() {
         val items = listOf(nextUp("2026-11-12T11:00:00Z", hasAired = false))
 
-        assertTrue(hasContinueWatchingReleaseSince(items, emptyList(), sinceMs = now - 2 * hour, nowMs = now))
-        assertFalse(hasContinueWatchingReleaseSince(items, emptyList(), sinceMs = now - 30 * 60_000L, nowMs = now))
+        assertTrue(
+            hasContinueWatchingReleaseSince(
+                items,
+                emptyList(),
+                sinceMs = now - 2 * hour,
+                nowMs = now
+            )
+        )
+        assertFalse(
+            hasContinueWatchingReleaseSince(
+                items,
+                emptyList(),
+                sinceMs = now - 30 * 60_000L,
+                nowMs = now
+            )
+        )
     }
 }

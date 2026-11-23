@@ -37,7 +37,15 @@ class DebridStreamTemplateEngine @Inject constructor() {
         if (bracket >= 0 && expression.endsWith("]")) {
             val condition = expression.substring(0, bracket)
             val branches = parseBranches(expression.substring(bracket + 1, expression.length - 1))
-            val selected = if (evaluateCondition(condition, values)) branches.first else branches.second
+            val selected = if (evaluateCondition(
+                    condition,
+                    values
+                )
+            ) {
+                branches.first
+            } else {
+                branches.second
+            }
             return render(selected, values)
         }
 
@@ -63,7 +71,9 @@ class DebridStreamTemplateEngine @Inject constructor() {
                     currentGroup = mutableListOf()
                     index++
                 }
+
                 "and" -> index++
+
                 else -> {
                     val field = tokens[index]
                     index++
@@ -94,41 +104,50 @@ class DebridStreamTemplateEngine @Inject constructor() {
                     result = exists(value)
                     hasResult = true
                 }
+
                 op == "istrue" -> {
                     result = if (hasResult) result else asBoolean(value) == true
                     hasResult = true
                 }
+
                 op == "isfalse" -> {
                     result = if (hasResult) !result else asBoolean(value) == false
                     hasResult = true
                 }
+
                 op.startsWith("~=") -> {
                     val target = op.drop(2).trim()
                     result = containsText(value, target)
                     hasResult = true
                 }
+
                 op.startsWith("~") -> {
                     val target = op.drop(1).trim()
                     result = containsText(value, target)
                     hasResult = true
                 }
+
                 op.startsWith("=") -> {
                     val target = op.drop(1).trim()
                     result = equalsText(value, target)
                     hasResult = true
                 }
+
                 op.startsWith(">=") -> {
                     result = compareNumber(value, op.drop(2)) { left, right -> left >= right }
                     hasResult = true
                 }
+
                 op.startsWith("<=") -> {
                     result = compareNumber(value, op.drop(2)) { left, right -> left <= right }
                     hasResult = true
                 }
+
                 op.startsWith(">") -> {
                     result = compareNumber(value, op.drop(1)) { left, right -> left > right }
                     hasResult = true
                 }
+
                 op.startsWith("<") -> {
                     result = compareNumber(value, op.drop(1)) { left, right -> left < right }
                     hasResult = true
@@ -141,21 +160,37 @@ class DebridStreamTemplateEngine @Inject constructor() {
     private fun applyTransform(value: Any?, op: String): Any? {
         return when {
             op == "title" -> valueToText(value).titleCased()
+
             op == "lower" -> valueToText(value).lowercase()
+
             op == "upper" -> valueToText(value).uppercase()
+
             op == "bytes" -> asNumber(value)?.let { formatBytes(it) }.orEmpty()
+
             op == "time" -> asNumber(value)?.let { formatTime(it) }.orEmpty()
+
             op.startsWith("join(") -> {
                 val separator = parseArgs(op).firstOrNull() ?: ", "
                 when (value) {
-                    is Iterable<*> -> value.mapNotNull { valueToText(it).takeIf { text -> text.isNotBlank() } }.joinToString(separator)
+                    is Iterable<*> -> value.mapNotNull {
+                        valueToText(it).takeIf { text -> text.isNotBlank() }
+                    }.joinToString(separator)
+
                     else -> valueToText(value)
                 }
             }
+
             op.startsWith("replace(") -> {
                 val args = parseArgs(op)
-                if (args.size < 2) valueToText(value) else valueToText(value).replace(args[0], args[1])
+                if (args.size <
+                    2
+                ) {
+                    valueToText(value)
+                } else {
+                    valueToText(value).replace(args[0], args[1])
+                }
             }
+
             else -> value
         }
     }
@@ -213,8 +248,11 @@ class DebridStreamTemplateEngine @Inject constructor() {
             }
             when (char) {
                 '\'', '"' -> quote = char
+
                 '(' -> parenDepth++
+
                 ')' -> parenDepth = (parenDepth - 1).coerceAtLeast(0)
+
                 ':' -> {
                     if (parenDepth == 0 && text.getOrNull(index + 1) == ':') {
                         tokens += text.substring(start, index).trim()
@@ -266,6 +304,7 @@ class DebridStreamTemplateEngine @Inject constructor() {
             }
             when (char) {
                 '\'', '"' -> quote = char
+
                 ',' -> {
                     args += parseQuoted(body.substring(argStart, index))
                     argStart = index + 1
@@ -280,8 +319,10 @@ class DebridStreamTemplateEngine @Inject constructor() {
         val trimmed = raw.trim()
         val unquoted = if (
             trimmed.length >= 2 &&
-            ((trimmed.first() == '"' && trimmed.last() == '"') ||
-                (trimmed.first() == '\'' && trimmed.last() == '\''))
+            (
+                (trimmed.first() == '"' && trimmed.last() == '"') ||
+                    (trimmed.first() == '\'' && trimmed.last() == '\'')
+                )
         ) {
             trimmed.substring(1, trimmed.length - 1)
         } else {
@@ -334,7 +375,11 @@ class DebridStreamTemplateEngine @Inject constructor() {
         }
     }
 
-    private fun compareNumber(value: Any?, rawTarget: String, compare: (Double, Double) -> Boolean): Boolean {
+    private fun compareNumber(
+        value: Any?,
+        rawTarget: String,
+        compare: (Double, Double) -> Boolean
+    ): Boolean {
         val left = asNumber(value) ?: return false
         val right = rawTarget.trim().toDoubleOrNull() ?: return false
         return compare(left, right)
@@ -343,7 +388,10 @@ class DebridStreamTemplateEngine @Inject constructor() {
     private fun equalsText(value: Any?, target: String): Boolean {
         val normalized = target.trim()
         return when (value) {
-            is Iterable<*> -> value.any { valueToText(it).trim().equals(normalized, ignoreCase = true) }
+            is Iterable<*> -> value.any {
+                valueToText(it).trim().equals(normalized, ignoreCase = true)
+            }
+
             else -> valueToText(value).trim().equals(normalized, ignoreCase = true)
         }
     }
@@ -359,10 +407,17 @@ class DebridStreamTemplateEngine @Inject constructor() {
     private fun valueToText(value: Any?): String {
         return when (value) {
             null -> ""
+
             is DebridTemplateBytes -> formatBytes(value.value.toDouble())
-            is Iterable<*> -> value.mapNotNull { valueToText(it).takeIf { text -> text.isNotBlank() } }.joinToString(", ")
+
+            is Iterable<*> -> value.mapNotNull {
+                valueToText(it).takeIf { text -> text.isNotBlank() }
+            }.joinToString(", ")
+
             is Double -> if (value % 1.0 == 0.0) value.toLong().toString() else value.toString()
+
             is Float -> if (value % 1f == 0f) value.toLong().toString() else value.toString()
+
             else -> value.toString()
         }
     }

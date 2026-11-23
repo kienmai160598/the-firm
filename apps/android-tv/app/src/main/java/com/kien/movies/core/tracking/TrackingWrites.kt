@@ -19,8 +19,7 @@ enum class TrackingListStatus(val wireValue: String) {
     DROPPED("dropped");
 
     companion object {
-        fun fromWireValue(value: String?): TrackingListStatus? =
-            entries.firstOrNull { status -> status.wireValue.equals(value, ignoreCase = true) }
+        fun fromWireValue(value: String?): TrackingListStatus? = entries.firstOrNull { status -> status.wireValue.equals(value, ignoreCase = true) }
     }
 }
 
@@ -41,10 +40,7 @@ data class TrackingHistoryItem(
         get() = media.episode == null && media.kind != TrackingMediaKind.MOVIE
 }
 
-data class TrackingScrobbleEvent(
-    val media: TrackingMediaReference,
-    val progressPercent: Double
-)
+data class TrackingScrobbleEvent(val media: TrackingMediaReference, val progressPercent: Double)
 
 data class TrackingMutationResult(
     val attemptedCount: Int,

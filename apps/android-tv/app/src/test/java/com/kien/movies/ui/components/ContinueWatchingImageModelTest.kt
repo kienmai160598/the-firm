@@ -70,7 +70,11 @@ class ContinueWatchingImageModelTest {
         val item = inProgress(poster = null, backdrop = null, thumbnail = "thumb.jpg")
 
         assertNull(
-            continueWatchingImageModel(item, useEpisodeThumbnails = false, preferPosterArtwork = true)
+            continueWatchingImageModel(
+                item,
+                useEpisodeThumbnails = false,
+                preferPosterArtwork = true
+            )
         )
     }
 
@@ -80,7 +84,11 @@ class ContinueWatchingImageModelTest {
         val item = inProgress(poster = "poster.jpg", backdrop = null, thumbnail = "thumb.jpg")
 
         assertNull(
-            continueWatchingImageModel(item, useEpisodeThumbnails = false, preferPosterArtwork = true)
+            continueWatchingImageModel(
+                item,
+                useEpisodeThumbnails = false,
+                preferPosterArtwork = true
+            )
         )
     }
 
@@ -89,7 +97,11 @@ class ContinueWatchingImageModelTest {
         val item = inProgress(poster = null, backdrop = null, thumbnail = "thumb.jpg")
 
         assertNull(
-            continueWatchingImageModel(item, useEpisodeThumbnails = false, preferPosterArtwork = false)
+            continueWatchingImageModel(
+                item,
+                useEpisodeThumbnails = false,
+                preferPosterArtwork = false
+            )
         )
     }
 
@@ -98,7 +110,11 @@ class ContinueWatchingImageModelTest {
         val item = nextUp(poster = null, backdrop = null, thumbnail = "thumb.jpg")
 
         assertNull(
-            continueWatchingImageModel(item, useEpisodeThumbnails = false, preferPosterArtwork = false)
+            continueWatchingImageModel(
+                item,
+                useEpisodeThumbnails = false,
+                preferPosterArtwork = false
+            )
         )
     }
 
@@ -107,42 +123,66 @@ class ContinueWatchingImageModelTest {
         val item = nextUp(poster = null, backdrop = null, thumbnail = "thumb.jpg", hasAired = false)
 
         assertNull(
-            continueWatchingImageModel(item, useEpisodeThumbnails = false, preferPosterArtwork = false)
+            continueWatchingImageModel(
+                item,
+                useEpisodeThumbnails = false,
+                preferPosterArtwork = false
+            )
         )
     }
 
     @Test
     fun `poster style still prefers poster then backdrop`() {
-        val withPoster = inProgress(poster = "poster.jpg", backdrop = "backdrop.jpg", thumbnail = "thumb.jpg")
+        val withPoster =
+            inProgress(poster = "poster.jpg", backdrop = "backdrop.jpg", thumbnail = "thumb.jpg")
         assertEquals(
             "poster.jpg",
-            continueWatchingImageModel(withPoster, useEpisodeThumbnails = false, preferPosterArtwork = true)
+            continueWatchingImageModel(
+                withPoster,
+                useEpisodeThumbnails = false,
+                preferPosterArtwork = true
+            )
         )
 
-        val backdropOnly = inProgress(poster = null, backdrop = "backdrop.jpg", thumbnail = "thumb.jpg")
+        val backdropOnly =
+            inProgress(poster = null, backdrop = "backdrop.jpg", thumbnail = "thumb.jpg")
         assertEquals(
             "backdrop.jpg",
-            continueWatchingImageModel(backdropOnly, useEpisodeThumbnails = false, preferPosterArtwork = true)
+            continueWatchingImageModel(
+                backdropOnly,
+                useEpisodeThumbnails = false,
+                preferPosterArtwork = true
+            )
         )
     }
 
     @Test
     fun `thumbnails on still outrank poster art`() {
-        val item = inProgress(poster = "poster.jpg", backdrop = "backdrop.jpg", thumbnail = "thumb.jpg")
+        val item =
+            inProgress(poster = "poster.jpg", backdrop = "backdrop.jpg", thumbnail = "thumb.jpg")
 
         assertEquals(
             "thumb.jpg",
-            continueWatchingImageModel(item, useEpisodeThumbnails = true, preferPosterArtwork = true)
+            continueWatchingImageModel(
+                item,
+                useEpisodeThumbnails = true,
+                preferPosterArtwork = true
+            )
         )
     }
 
     @Test
     fun `landscape style with thumbnails on still prefers the thumbnail`() {
-        val item = inProgress(poster = "poster.jpg", backdrop = "backdrop.jpg", thumbnail = "thumb.jpg")
+        val item =
+            inProgress(poster = "poster.jpg", backdrop = "backdrop.jpg", thumbnail = "thumb.jpg")
 
         assertEquals(
             "thumb.jpg",
-            continueWatchingImageModel(item, useEpisodeThumbnails = true, preferPosterArtwork = false)
+            continueWatchingImageModel(
+                item,
+                useEpisodeThumbnails = true,
+                preferPosterArtwork = false
+            )
         )
     }
 
@@ -152,20 +192,33 @@ class ContinueWatchingImageModelTest {
 
         assertEquals(
             "thumb.jpg",
-            continueWatchingImageModel(item, useEpisodeThumbnails = true, preferPosterArtwork = false)
+            continueWatchingImageModel(
+                item,
+                useEpisodeThumbnails = true,
+                preferPosterArtwork = false
+            )
         )
     }
 
     @Test
     fun `poster style disables episode thumbnails regardless of the setting`() {
         assertFalse(
-            continueWatchingUsesEpisodeThumbnails(ContinueWatchingCardStyle.POSTER, useEpisodeThumbnails = true)
+            continueWatchingUsesEpisodeThumbnails(
+                ContinueWatchingCardStyle.POSTER,
+                useEpisodeThumbnails = true
+            )
         )
         assertTrue(
-            continueWatchingUsesEpisodeThumbnails(ContinueWatchingCardStyle.CARD, useEpisodeThumbnails = true)
+            continueWatchingUsesEpisodeThumbnails(
+                ContinueWatchingCardStyle.CARD,
+                useEpisodeThumbnails = true
+            )
         )
         assertTrue(
-            continueWatchingUsesEpisodeThumbnails(ContinueWatchingCardStyle.WIDE, useEpisodeThumbnails = true)
+            continueWatchingUsesEpisodeThumbnails(
+                ContinueWatchingCardStyle.WIDE,
+                useEpisodeThumbnails = true
+            )
         )
     }
 
@@ -189,7 +242,8 @@ class ContinueWatchingImageModelTest {
 
     @Test
     fun `in progress episode thumbnails remain blurred until watched`() {
-        val item = inProgress(poster = "poster.jpg", backdrop = "backdrop.jpg", thumbnail = "thumb.jpg")
+        val item =
+            inProgress(poster = "poster.jpg", backdrop = "backdrop.jpg", thumbnail = "thumb.jpg")
 
         assertTrue(
             continueWatchingShouldBlur(

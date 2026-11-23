@@ -1,8 +1,5 @@
 package com.kien.movies.ui.screens.party
 
-import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.screens.detail.atLeastOnBox
-import com.kien.movies.ui.screens.detail.TvSizeFloors
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -63,6 +60,8 @@ import com.kien.movies.core.party.PartyRepository
 import com.kien.movies.core.party.isValidPartyCode
 import com.kien.movies.core.party.normalizePartyCode
 import com.kien.movies.core.party.partyErrorOf
+import com.kien.movies.ui.screens.detail.TvSizeFloors
+import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.screens.settings.SettingsActionRow
 import com.kien.movies.ui.screens.settings.SettingsDetailHeader
@@ -71,6 +70,7 @@ import com.kien.movies.ui.screens.settings.SettingsStandaloneScaffold
 import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
 import com.kien.movies.ui.screens.settings.settingsHeaderInset
 import com.kien.movies.ui.screens.stream.StreamBackdrop
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesMotion
 import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.Job
@@ -80,7 +80,7 @@ import kotlinx.coroutines.launch
 private enum class PartyScreenMode {
     Join,
     Joined,
-    Party,
+    Party
 }
 
 @Composable
@@ -88,14 +88,19 @@ fun PartyScreen(
     initialCode: String,
     onBackPress: () -> Unit,
     onWatch: (PartyMedia) -> Unit,
-    viewModel: PartyViewModel = hiltViewModel(),
+    viewModel: PartyViewModel = hiltViewModel()
 ) {
     val repository = viewModel.party
     val state by repository.state.collectAsStateWithLifecycle()
     val party = state.party
     var joined by remember { mutableStateOf<ActiveParty?>(null) }
     var pendingCode by remember {
-        mutableStateOf(initialCode.takeIf { isValidPartyCode(it) && normalizePartyCode(it) != party?.code }.orEmpty())
+        mutableStateOf(
+            initialCode.takeIf {
+                isValidPartyCode(it) &&
+                    normalizePartyCode(it) != party?.code
+            }.orEmpty()
+        )
     }
     var joining by remember { mutableStateOf(party == null || pendingCode.isNotEmpty()) }
     val mode = when {
@@ -120,14 +125,14 @@ fun PartyScreen(
         Crossfade(
             targetState = backdropMedia?.let { it.background ?: it.poster },
             animationSpec = tween(MoviesMotion.tokens.durations.hero),
-            label = "partyBackdrop",
+            label = "partyBackdrop"
         ) { image ->
             if (image != null) StreamBackdrop(backdrop = image, isLoading = false)
         }
         SettingsStandaloneScaffold(
             title = stringResource(R.string.party_title),
             subtitle = stringResource(R.string.party_settings_description),
-            classicContainer = false,
+            classicContainer = false
         ) {
             SettingsDetailHeader(
                 title = stringResource(R.string.party_title),
@@ -136,12 +141,13 @@ fun PartyScreen(
                     ?.member(shown.hostMemberId)
                     ?.displayName
                     ?.let { stringResource(R.string.party_hosted_by, it) }
-                    ?: stringResource(R.string.party_settings_description),
+                    ?: stringResource(R.string.party_settings_description)
             )
             AnimatedContent(
                 targetState = mode,
                 transitionSpec = {
-                    val grow = scaleIn(ExpressiveMotion.standardDefaultSpatial(), initialScale = 0.96f)
+                    val grow =
+                        scaleIn(ExpressiveMotion.standardDefaultSpatial(), initialScale = 0.96f)
                     (fadeIn(tween(260, delayMillis = 60)) + grow) togetherWith
                         fadeOut(ExpressiveMotion.defaultEffects())
                 },
@@ -149,7 +155,7 @@ fun PartyScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(start = settingsHeaderInset()),
+                    .padding(start = settingsHeaderInset())
             ) { target ->
                 when (target) {
                     PartyScreenMode.Join -> JoinContent(
@@ -160,9 +166,11 @@ fun PartyScreen(
                             pendingCode = ""
                             joining = false
                             joined = newParty
-                        },
+                        }
                     )
+
                     PartyScreenMode.Joined -> shown?.let { JoinedContent(it) }
+
                     PartyScreenMode.Party -> party?.let { PartyContent(repository, it, onWatch) }
                 }
             }
@@ -175,7 +183,7 @@ private fun JoinContent(
     repository: PartyRepository,
     initialCode: String,
     onPreview: (PartyMedia?) -> Unit,
-    onJoined: (ActiveParty) -> Unit,
+    onJoined: (ActiveParty) -> Unit
 ) {
     val state by repository.state.collectAsStateWithLifecycle()
     val available by repository.available.collectAsStateWithLifecycle()
@@ -187,7 +195,9 @@ private fun JoinContent(
     val shake = remember { Animatable(0f) }
     val prefilled = remember { isValidPartyCode(initialCode) }
     var code by remember {
-        mutableStateOf(if (prefilled) "" else normalizePartyCode(initialCode).take(PARTY_CODE_LENGTH))
+        mutableStateOf(
+            if (prefilled) "" else normalizePartyCode(initialCode).take(PARTY_CODE_LENGTH)
+        )
     }
     var error by remember { mutableStateOf<PartyError?>(null) }
     var preview by remember { mutableStateOf<PartyPreview?>(null) }
@@ -211,7 +221,7 @@ private fun JoinContent(
                 -8f at 180
                 6f at 240
                 -3f at 300
-            },
+            }
         )
     }
 
@@ -242,6 +252,7 @@ private fun JoinContent(
                     if (result.isFull) error = PartyError.Full
                     submitFocusRequester.requestFocusAfterFrames()
                 }
+
                 failure != null && failure != PartyError.Network -> reject(failure)
             }
         }
@@ -276,23 +287,26 @@ private fun JoinContent(
     Row(
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxxl),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
             modifier = Modifier
                 .weight(1f)
                 .widthIn(max = 460.dp),
-            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             AnimatedContent(
                 targetState = preview,
                 contentKey = { it != null },
                 transitionSpec = {
-                    val rise = slideInVertically(ExpressiveMotion.standardDefaultSpatial()) { it / 10 }
+                    val rise = slideInVertically(ExpressiveMotion.standardDefaultSpatial()) {
+                        it /
+                            10
+                    }
                     (fadeIn(tween(240, delayMillis = 60)) + rise) togetherWith
                         fadeOut(ExpressiveMotion.defaultEffects())
                 },
-                label = "partyJoinPreview",
+                label = "partyJoinPreview"
             ) { current ->
                 if (current != null) {
                     PreviewCard(current)
@@ -302,57 +316,66 @@ private fun JoinContent(
                             profile = profile,
                             size = 64.dp,
                             ringColor = MoviesTheme.colors.Background,
-                            modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs),
+                            modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
                         )
                         Text(
                             text = stringResource(R.string.party_join_title),
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.SemiBold,
-                            color = MoviesTheme.colors.TextPrimary,
+                            color = MoviesTheme.colors.TextPrimary
                         )
                         Text(
                             text = stringResource(R.string.party_join_description),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MoviesTheme.colors.TextSecondary,
+                            color = MoviesTheme.colors.TextSecondary
                         )
                     }
                 }
             }
             CodeSlots(
                 code = code,
-                activeIndex = if (blockedError == null && !state.busy) code.length.coerceAtMost(PARTY_CODE_LENGTH - 1) else null,
+                activeIndex = if (blockedError == null &&
+                    !state.busy
+                ) {
+                    code.length.coerceAtMost(PARTY_CODE_LENGTH - 1)
+                } else {
+                    null
+                },
                 textStyle = MaterialTheme.typography.headlineLarge,
                 slotHeight = 64.dp,
                 modifier = Modifier
                     .padding(top = MoviesTheme.spacing.xs)
-                    .graphicsLayer { translationX = shake.value.dp.toPx() },
+                    .graphicsLayer { translationX = shake.value.dp.toPx() }
             )
             AnimatedContent(
                 targetState = shownError,
                 transitionSpec = {
-                    val drop = slideInVertically(ExpressiveMotion.standardDefaultSpatial()) { -it / 2 }
+                    val drop = slideInVertically(ExpressiveMotion.standardDefaultSpatial()) {
+                        -it /
+                            2
+                    }
                     (fadeIn(ExpressiveMotion.defaultEffects()) + drop) togetherWith
                         fadeOut(ExpressiveMotion.defaultEffects())
                 },
-                label = "partyJoinError",
+                label = "partyJoinError"
             ) { current ->
                 Text(
                     text = current?.let { stringResource(it.messageRes) }.orEmpty(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MoviesTheme.colors.Error,
-                    minLines = 1,
+                    minLines = 1
                 )
             }
             ExperimentalNote()
             AnimatedVisibility(
                 visible = preview == null,
                 enter = fadeIn(ExpressiveMotion.defaultEffects()),
-                exit = fadeOut(ExpressiveMotion.defaultEffects()),
+                exit = fadeOut(ExpressiveMotion.defaultEffects())
             ) {
                 Text(
                     text = stringResource(R.string.party_host_hint),
                     style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-                    color = MoviesTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary
                 )
             }
         }
@@ -361,12 +384,18 @@ private fun JoinContent(
             canSubmit = isValidPartyCode(code) &&
                 error !in setOf(PartyError.NotFound, PartyError.Removed, PartyError.RateLimited),
             busy = state.busy || previewing,
-            onKey = { character -> if (code.length < PARTY_CODE_LENGTH) changeCode(code + character) },
+            onKey = { character ->
+                if (code.length <
+                    PARTY_CODE_LENGTH
+                ) {
+                    changeCode(code + character)
+                }
+            },
             onDelete = { changeCode(code.dropLast(1)) },
             onSubmit = ::submit,
             firstKeyFocusRequester = firstKeyFocusRequester,
             submitFocusRequester = submitFocusRequester,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f)
         )
     }
 }
@@ -379,7 +408,7 @@ private fun PreviewCard(preview: PartyPreview) {
         MediaHeader(media)
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
         ) {
             if (host != null) {
                 PartyAvatar(member = host, size = MoviesTheme.sizes.avatars.sm)
@@ -389,13 +418,13 @@ private fun PreviewCard(preview: PartyPreview) {
                     style = MaterialTheme.typography.bodyMedium,
                     color = MoviesTheme.colors.TextSecondary,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             Text(
                 text = stringResource(R.string.party_seats, preview.members, preview.maxMembers),
                 style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-                color = MoviesTheme.colors.TextTertiary,
+                color = MoviesTheme.colors.TextTertiary
             )
         }
     }
@@ -411,7 +440,7 @@ private fun MediaHeader(media: PartyMedia) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MoviesTheme.colors.TextSecondary,
                 maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -424,7 +453,7 @@ private fun MediaTitle(media: PartyMedia, centered: Boolean = false) {
     val textAlign = if (centered) TextAlign.Center else TextAlign.Start
     Column(
         horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         if (logo != null) {
             AsyncImage(
@@ -435,7 +464,7 @@ private fun MediaTitle(media: PartyMedia, centered: Boolean = false) {
                 onError = { logoFailed = true },
                 modifier = Modifier
                     .fillMaxWidth(0.85f)
-                    .height(100.dp),
+                    .height(100.dp)
             )
         } else if (media.title.isNotBlank()) {
             Text(
@@ -445,7 +474,7 @@ private fun MediaTitle(media: PartyMedia, centered: Boolean = false) {
                 color = MoviesTheme.colors.TextPrimary,
                 textAlign = textAlign,
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
+                overflow = TextOverflow.Ellipsis
             )
         }
         media.episodeLabel()?.let { label ->
@@ -455,7 +484,7 @@ private fun MediaTitle(media: PartyMedia, centered: Boolean = false) {
                 color = MoviesTheme.colors.TextPrimary,
                 textAlign = textAlign,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -466,23 +495,26 @@ private fun JoinedContent(party: ActiveParty) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(
+            MoviesTheme.spacing.md,
+            Alignment.CenterVertically
+        )
     ) {
         AvatarStack(
             members = party.members,
             size = MoviesTheme.sizes.avatars.lg,
             animateIn = true,
-            modifier = Modifier.padding(bottom = MoviesTheme.spacing.sm),
+            modifier = Modifier.padding(bottom = MoviesTheme.spacing.sm)
         )
         Text(
             text = stringResource(R.string.party_joined_title),
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.SemiBold,
-            color = MoviesTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary
         )
         MediaTitle(
             media = party.media,
-            centered = true,
+            centered = true
         )
     }
 }
@@ -491,7 +523,7 @@ private fun JoinedContent(party: ActiveParty) {
 private fun PartyContent(
     repository: PartyRepository,
     party: ActiveParty,
-    onWatch: (PartyMedia) -> Unit,
+    onWatch: (PartyMedia) -> Unit
 ) {
     val listState = rememberLazyListState()
     val watchFocusRequester = remember { FocusRequester() }
@@ -499,31 +531,31 @@ private fun PartyContent(
 
     Row(
         modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxl),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxl)
     ) {
         Column(
             modifier = Modifier
                 .weight(0.42f)
                 .fillMaxHeight(),
-            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl),
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl)
         ) {
             MediaHeader(party.media)
             CodeSection(
                 code = party.code,
                 connected = party.connected,
-                slotHeight = 52.dp,
+                slotHeight = 52.dp
             )
         }
         Box(
             modifier = Modifier
                 .weight(0.58f)
-                .fillMaxHeight(),
+                .fillMaxHeight()
         ) {
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = MoviesTheme.spacing.md),
-                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
             ) {
                 item(key = "party_actions") {
                     SettingsGroupCard {
@@ -532,12 +564,12 @@ private fun PartyContent(
                             subtitle = null,
                             onClick = { onWatch(party.media) },
                             leadingIcon = Icons.Rounded.PlayArrow,
-                            modifier = Modifier.focusRequester(watchFocusRequester),
+                            modifier = Modifier.focusRequester(watchFocusRequester)
                         )
                         PartyActions(
                             party = party,
                             onLeave = repository::leave,
-                            onEnd = repository::end,
+                            onEnd = repository::end
                         )
                     }
                 }
@@ -546,7 +578,7 @@ private fun PartyContent(
                         MembersSection(
                             party = party,
                             ringColor = MoviesTheme.colors.BackgroundCard,
-                            onRemove = { member -> repository.removeMember(member.id) },
+                            onRemove = { member -> repository.removeMember(member.id) }
                         )
                         if (!party.isHost && party.hostOnly) HostOnlyNote()
                     }
@@ -557,7 +589,7 @@ private fun PartyContent(
                             HostSettings(
                                 party = party,
                                 onHostOnlyChange = repository::setHostOnly,
-                                onSharingChange = repository::setSharing,
+                                onSharingChange = repository::setSharing
                             )
                         }
                     }

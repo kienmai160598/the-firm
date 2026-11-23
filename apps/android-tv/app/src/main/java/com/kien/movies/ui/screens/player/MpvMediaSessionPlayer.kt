@@ -3,8 +3,8 @@ package com.kien.movies.ui.screens.player
 import android.os.Looper
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
 import androidx.media3.common.PlaybackParameters
+import androidx.media3.common.Player
 import androidx.media3.common.SimpleBasePlayer
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -20,7 +20,7 @@ internal data class MpvMediaSessionSnapshot(
     val isBuffering: Boolean,
     val isEnded: Boolean,
     val isSeekable: Boolean,
-    val speed: Float,
+    val speed: Float
 )
 
 internal interface MpvMediaSessionCommandTarget {
@@ -34,7 +34,7 @@ internal interface MpvMediaSessionCommandTarget {
  */
 internal class MpvMediaSessionPlayer(
     private val snapshotProvider: () -> MpvMediaSessionSnapshot,
-    private val commandTarget: MpvMediaSessionCommandTarget,
+    private val commandTarget: MpvMediaSessionCommandTarget
 ) : SimpleBasePlayer(Looper.getMainLooper()) {
 
     fun refresh() = invalidateState()
@@ -53,13 +53,13 @@ internal class MpvMediaSessionPlayer(
                 Player.COMMAND_GET_METADATA,
                 Player.COMMAND_GET_AUDIO_ATTRIBUTES,
                 Player.COMMAND_GET_VOLUME,
-                Player.COMMAND_GET_TRACKS,
+                Player.COMMAND_GET_TRACKS
             )
         if (snapshot.isSeekable) {
             commandsBuilder.addAll(
                 Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
                 Player.COMMAND_SEEK_BACK,
-                Player.COMMAND_SEEK_FORWARD,
+                Player.COMMAND_SEEK_FORWARD
             )
         }
         val commands = commandsBuilder.build()
@@ -102,7 +102,11 @@ internal class MpvMediaSessionPlayer(
         return immediateVoidFuture()
     }
 
-    override fun handleSeek(mediaItemIndex: Int, positionMs: Long, command: Int): ListenableFuture<Void> {
+    override fun handleSeek(
+        mediaItemIndex: Int,
+        positionMs: Long,
+        command: Int
+    ): ListenableFuture<Void> {
         if (mediaItemIndex == 0) commandTarget.seekTo(positionMs.coerceAtLeast(0L))
         return immediateVoidFuture()
     }
@@ -112,6 +116,5 @@ internal class MpvMediaSessionPlayer(
 
     /** Media3 declares a non-null Java [Void] generic while Guava exposes it as nullable to Kotlin. */
     @Suppress("UNCHECKED_CAST")
-    private fun immediateVoidFuture(): ListenableFuture<Void> =
-        Futures.immediateVoidFuture() as ListenableFuture<Void>
+    private fun immediateVoidFuture(): ListenableFuture<Void> = Futures.immediateVoidFuture() as ListenableFuture<Void>
 }

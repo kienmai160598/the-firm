@@ -4,9 +4,11 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
-import com.kien.movies.core.profile.ProfileManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.kien.movies.core.profile.ProfileManager
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -14,8 +16,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -29,11 +29,16 @@ class AddonPreferences @Inject constructor(
 
     private fun effectiveProfileId(): Int {
         val active = profileManager.activeProfile
-        return if (active != null && active.usesPrimaryAddons) 1 else profileManager.activeProfileId.value
+        return if (active != null &&
+            active.usesPrimaryAddons
+        ) {
+            1
+        } else {
+            profileManager.activeProfileId.value
+        }
     }
 
-    private fun store(profileId: Int = effectiveProfileId()) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = effectiveProfileId()) = factory.get(profileId, FEATURE)
 
     private val effectiveProfileIdFlow: Flow<Int> = combine(
         profileManager.activeProfileId,
@@ -75,7 +80,9 @@ class AddonPreferences @Inject constructor(
         }
     }
 
-    val addonEnabledStates: Flow<Map<String, Boolean>> = effectiveProfileIdFlow.flatMapLatest { pid ->
+    val addonEnabledStates: Flow<Map<String, Boolean>> = effectiveProfileIdFlow.flatMapLatest {
+            pid
+        ->
         factory.get(pid, FEATURE).data.map { preferences ->
             preferences[addonEnabledStatesKey]
                 ?.let(::parseEnabledStateMap)
@@ -96,13 +103,18 @@ class AddonPreferences @Inject constructor(
     }
 
     suspend fun addAddon(url: String): Boolean {
-           val active = profileManager.activeProfile
-           if (active != null && !active.isPrimary && active.usesPrimaryAddons) return false
+        val active = profileManager.activeProfile
+        if (active != null && !active.isPrimary && active.usesPrimaryAddons) return false
         var changed = false
         store().edit { preferences ->
             val current = getCurrentList(preferences)
             val normalizedUrl = canonicalizeUrl(url)
-            if (current.any { canonicalizeUrl(it).equals(normalizedUrl, ignoreCase = true) }) return@edit
+            if (current.any {
+                    canonicalizeUrl(it).equals(normalizedUrl, ignoreCase = true)
+                }
+            ) {
+                return@edit
+            }
             preferences[orderedUrlsKey] = gson.toJson(current + normalizedUrl)
             val states = getCurrentEnabledStates(preferences).toMutableMap()
             states[normalizedUrl] = true
@@ -113,8 +125,8 @@ class AddonPreferences @Inject constructor(
     }
 
     suspend fun removeAddon(url: String): Boolean {
-           val active = profileManager.activeProfile
-           if (active != null && !active.isPrimary && active.usesPrimaryAddons) return false
+        val active = profileManager.activeProfile
+        if (active != null && !active.isPrimary && active.usesPrimaryAddons) return false
         var changed = false
         store().edit { preferences ->
             val current = getCurrentList(preferences).toMutableList()
@@ -137,8 +149,8 @@ class AddonPreferences @Inject constructor(
     }
 
     suspend fun setAddonOrder(urls: List<String>): Boolean {
-            val active = profileManager.activeProfile
-            if (active != null && !active.isPrimary && active.usesPrimaryAddons) return false
+        val active = profileManager.activeProfile
+        if (active != null && !active.isPrimary && active.usesPrimaryAddons) return false
         var changed = false
         store().edit { preferences ->
             val orderedUrls = urls.map(::canonicalizeUrl)

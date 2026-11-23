@@ -17,7 +17,9 @@ object AddonWebPage {
             val config = Configuration(baseContext.resources.configuration)
             config.setLocale(Locale.forLanguageTag(tag))
             baseContext.createConfigurationContext(config)
-        } else baseContext
+        } else {
+            baseContext
+        }
         fun jsString(resId: Int): String = context.getString(resId)
             .replace("\\", "\\\\")
             .replace("'", "\\'")
@@ -30,9 +32,11 @@ object AddonWebPage {
         }
         val pageSubtitle = when {
             isCollectionsOnly -> context.getString(R.string.web_manage_collections_subtitle)
+
             webConfigMode == AddonWebConfigMode.ADDONS_ONLY -> {
                 context.getString(R.string.web_manage_addons_only_subtitle)
             }
+
             else -> context.getString(R.string.web_manage_addons_subtitle)
         }
         val successStatusMessage = if (isCollectionsOnly) {
@@ -51,17 +55,23 @@ object AddonWebPage {
         }
         val tabButtons = listOfNotNull(
             if (allowAddonManagement) {
-                """    <button class="tab${if (defaultTab == "addons") " active" else ""}" type="button" onclick="switchTab('addons')">${context.getString(R.string.web_tab_addons)}</button>"""
+                """    <button class="tab${if (defaultTab == "addons") " active" else ""}" type="button" onclick="switchTab('addons')">${context.getString(
+                    R.string.web_tab_addons
+                )}</button>"""
             } else {
                 null
             },
             if (allowCatalogManagement) {
-                """    <button class="tab${if (defaultTab == "catalogs") " active" else ""}" type="button" onclick="switchTab('catalogs')">${context.getString(R.string.web_tab_home_layout)}</button>"""
+                """    <button class="tab${if (defaultTab == "catalogs") " active" else ""}" type="button" onclick="switchTab('catalogs')">${context.getString(
+                    R.string.web_tab_home_layout
+                )}</button>"""
             } else {
                 null
             },
             if (allowCollectionManagement) {
-                """    <button class="tab${if (defaultTab == "collections") " active" else ""}" type="button" onclick="switchTab('collections')">${context.getString(R.string.web_tab_collections)}</button>"""
+                """    <button class="tab${if (defaultTab == "collections") " active" else ""}" type="button" onclick="switchTab('collections')">${context.getString(
+                    R.string.web_tab_collections
+                )}</button>"""
             } else {
                 null
             }
@@ -73,7 +83,7 @@ object AddonWebPage {
         ).joinToString(prefix = "[", postfix = "]")
         val tabsHtml = """
   <div class="tabs">
-${tabButtons}
+$tabButtons
   </div>
 """
         val addonsTabHtml = if (allowAddonManagement) {
@@ -82,20 +92,30 @@ ${tabButtons}
     <div class="add-section">
       <label>${context.getString(R.string.web_add_addon_url)}</label>
       <div class="add-row">
-        <input type="url" id="addonUrl" placeholder="${context.getString(R.string.web_placeholder_url)}" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button class="btn" id="addBtn" onclick="addAddon()">${context.getString(R.string.web_btn_add)}</button>
+        <input type="url" id="addonUrl" placeholder="${context.getString(
+                R.string.web_placeholder_url
+            )}" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="btn" id="addBtn" onclick="addAddon()">${context.getString(
+                R.string.web_btn_add
+            )}</button>
       </div>
       <div class="add-error" id="addError"></div>
       <div class="tracking-consent" id="trackingConsent">
-        <div class="tracking-consent-title">${context.getString(R.string.addon_tracking_consent_title)}</div>
+        <div class="tracking-consent-title">${context.getString(
+                R.string.addon_tracking_consent_title
+            )}</div>
         <div class="tracking-consent-body" id="trackingConsentBody"></div>
         <label class="tracking-consent-check">
           <input type="checkbox" id="trackingConsentCheck" onchange="updateTrackingConsentButton()">
           <span>${context.getString(R.string.addon_tracking_consent_checkbox)}</span>
         </label>
         <div class="tracking-consent-actions">
-          <button class="btn" onclick="cancelTrackingConsent()">${context.getString(R.string.addon_tracking_consent_cancel)}</button>
-          <button class="btn" id="trackingConsentInstall" onclick="confirmTrackingConsent()" disabled>${context.getString(R.string.addon_tracking_consent_install)}</button>
+          <button class="btn" onclick="cancelTrackingConsent()">${context.getString(
+                R.string.addon_tracking_consent_cancel
+            )}</button>
+          <button class="btn" id="trackingConsentInstall" onclick="confirmTrackingConsent()" disabled>${context.getString(
+                R.string.addon_tracking_consent_install
+            )}</button>
         </div>
       </div>
     </div>
@@ -116,7 +136,9 @@ ${tabButtons}
       <div id="followAddonsToggle" class="addon-item" style="border-top:none;padding:0.75rem 0">
         <div class="catalog-info">
           <div class="catalog-name">${context.getString(R.string.catalog_order_follow_addons)}</div>
-          <div class="catalog-meta">${context.getString(R.string.catalog_order_follow_addons_desc)}</div>
+          <div class="catalog-meta">${context.getString(
+                R.string.catalog_order_follow_addons_desc
+            )}</div>
         </div>
         <label class="toggle-switch">
           <input type="checkbox" id="followAddonsCheckbox" onchange="toggleFollowAddonsOrder()">
@@ -125,11 +147,17 @@ ${tabButtons}
         </label>
       </div>
       <div class="add-section" style="display:flex;gap:0.5rem">
-        <button class="btn" onclick="enableAllCatalogs()" style="flex:1">${context.getString(R.string.web_btn_enable_all)}</button>
-        <button class="btn" onclick="disableAllCatalogs()" style="flex:1">${context.getString(R.string.web_btn_disable_all)}</button>
+        <button class="btn" onclick="enableAllCatalogs()" style="flex:1">${context.getString(
+                R.string.web_btn_enable_all
+            )}</button>
+        <button class="btn" onclick="disableAllCatalogs()" style="flex:1">${context.getString(
+                R.string.web_btn_disable_all
+            )}</button>
       </div>
       <ul class="addon-list" id="catalogList"></ul>
-      <div class="empty-state" id="catalogEmptyState">${context.getString(R.string.web_no_catalogs)}</div>
+      <div class="empty-state" id="catalogEmptyState">${context.getString(
+                R.string.web_no_catalogs
+            )}</div>
     </div>
   </div>
 """
@@ -142,16 +170,28 @@ ${tabButtons}
     <div class="section-block">
       <div class="section-label">${context.getString(R.string.web_tab_collections)}</div>
       <div class="add-section" style="display:flex;gap:0.5rem">
-        <button class="btn" onclick="enableAllCollections()" style="flex:1">${context.getString(R.string.web_btn_show_all)}</button>
-        <button class="btn" onclick="disableAllCollections()" style="flex:1">${context.getString(R.string.web_btn_hide_all)}</button>
+        <button class="btn" onclick="enableAllCollections()" style="flex:1">${context.getString(
+                R.string.web_btn_show_all
+            )}</button>
+        <button class="btn" onclick="disableAllCollections()" style="flex:1">${context.getString(
+                R.string.web_btn_hide_all
+            )}</button>
       </div>
       <div class="add-section" style="display:flex;gap:0.5rem">
-        <button class="btn" onclick="addCollection()" style="flex:1">${context.getString(R.string.web_btn_new_collection)}</button>
-        <button class="btn" onclick="exportCollections()" style="flex:1">${context.getString(R.string.web_btn_export)}</button>
-        <button class="btn" onclick="showImportModal()" style="flex:1">${context.getString(R.string.web_btn_import)}</button>
+        <button class="btn" onclick="addCollection()" style="flex:1">${context.getString(
+                R.string.web_btn_new_collection
+            )}</button>
+        <button class="btn" onclick="exportCollections()" style="flex:1">${context.getString(
+                R.string.web_btn_export
+            )}</button>
+        <button class="btn" onclick="showImportModal()" style="flex:1">${context.getString(
+                R.string.web_btn_import
+            )}</button>
       </div>
       <div id="collectionsList"></div>
-      <div class="empty-state" id="collectionsEmptyState">${context.getString(R.string.web_no_collections)}</div>
+      <div class="empty-state" id="collectionsEmptyState">${context.getString(
+                R.string.web_no_collections
+            )}</div>
     </div>
   </div>
 """
@@ -1154,14 +1194,24 @@ ${tabButtons}
 
   <div class="import-overlay" id="importOverlay">
     <div class="import-modal">
-      <div style="font-size:1.1rem;font-weight:700;margin-bottom:1rem">${context.getString(R.string.web_import_collections_title)}</div>
+      <div style="font-size:1.1rem;font-weight:700;margin-bottom:1rem">${context.getString(
+            R.string.web_import_collections_title
+        )}</div>
       <div style="display:flex;gap:0.5rem;margin-bottom:1rem">
-        <button class="btn import-tab-btn active" onclick="switchImportTab('paste')">${context.getString(R.string.web_import_tab_paste)}</button>
-        <button class="btn import-tab-btn" onclick="switchImportTab('file')">${context.getString(R.string.web_import_tab_file)}</button>
-        <button class="btn import-tab-btn" onclick="switchImportTab('url')">${context.getString(R.string.web_import_tab_url)}</button>
+        <button class="btn import-tab-btn active" onclick="switchImportTab('paste')">${context.getString(
+            R.string.web_import_tab_paste
+        )}</button>
+        <button class="btn import-tab-btn" onclick="switchImportTab('file')">${context.getString(
+            R.string.web_import_tab_file
+        )}</button>
+        <button class="btn import-tab-btn" onclick="switchImportTab('url')">${context.getString(
+            R.string.web_import_tab_url
+        )}</button>
 	      </div>
 	      <div id="import-tab-paste" class="import-tab active">
-	        <textarea id="importJsonInput" placeholder="${context.getString(R.string.web_import_paste_placeholder)}" style="width:100%;min-height:120px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:0.75rem;color:#fff;font-family:monospace;font-size:0.8rem;resize:vertical"></textarea>
+	        <textarea id="importJsonInput" placeholder="${context.getString(
+            R.string.web_import_paste_placeholder
+        )}" style="width:100%;min-height:120px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:0.75rem;color:#fff;font-family:monospace;font-size:0.8rem;resize:vertical"></textarea>
 	      </div>
 	      <div id="import-tab-file" class="import-tab">
 	        <label style="display:block;text-align:center;padding:2rem;border:2px dashed rgba(255,255,255,0.15);border-radius:12px;cursor:pointer;color:rgba(255,255,255,0.4);font-size:0.85rem;transition:border-color 0.2s" id="fileDropLabel">
@@ -1171,25 +1221,35 @@ ${tabButtons}
 	        </label>
 	      </div>
 	      <div id="import-tab-url" class="import-tab">
-	        <input type="url" id="importUrlInput" placeholder="${context.getString(R.string.collections_import_url_placeholder)}" style="width:100%;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:100px;padding:0.875rem 1.25rem;color:#fff;font-family:inherit;font-size:0.9rem">
+	        <input type="url" id="importUrlInput" placeholder="${context.getString(
+            R.string.collections_import_url_placeholder
+        )}" style="width:100%;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:100px;padding:0.875rem 1.25rem;color:#fff;font-family:inherit;font-size:0.9rem">
       </div>
       <div id="importError" style="color:rgba(207,102,121,0.9);font-size:0.8rem;margin-top:0.5rem;display:none"></div>
 	      <div id="importSuccess" style="color:rgba(130,200,130,0.9);font-size:0.8rem;margin-top:0.5rem;display:none"></div>
 	      <div style="display:flex;gap:0.75rem;margin-top:1rem">
-	        <button class="btn" onclick="dismissImportModal()" style="flex:1">${context.getString(R.string.collections_cancel)}</button>
-	        <button class="btn" onclick="doImport()" style="flex:1" id="importBtn">${context.getString(R.string.web_btn_import)}</button>
+	        <button class="btn" onclick="dismissImportModal()" style="flex:1">${context.getString(
+            R.string.collections_cancel
+        )}</button>
+	        <button class="btn" onclick="doImport()" style="flex:1" id="importBtn">${context.getString(
+            R.string.web_btn_import
+        )}</button>
 	      </div>
     </div>
   </div>
 
-  <button class="btn btn-save" id="saveBtn" onclick="saveChanges()">${context.getString(R.string.web_btn_save)}</button>
+  <button class="btn btn-save" id="saveBtn" onclick="saveChanges()">${context.getString(
+            R.string.web_btn_save
+        )}</button>
 </div>
 
 <div class="status-overlay" id="statusOverlay">
   <div class="status-content" id="statusContent"></div>
 </div>
 
-<div class="connection-bar" id="connectionBar">${context.getString(R.string.web_connection_lost)}</div>
+<div class="connection-bar" id="connectionBar">${context.getString(
+            R.string.web_connection_lost
+        )}</div>
 
 <script>
 var addons = [];
@@ -1216,15 +1276,21 @@ var i18n = {
   viewMode: '${context.getString(R.string.collections_editor_view_mode).replace("'", "\\'")}',
   tabs: '${context.getString(R.string.collections_editor_view_mode_tabs).replace("'", "\\'")}',
   rows: '${context.getString(R.string.collections_editor_view_mode_rows).replace("'", "\\'")}',
-  followHome: '${context.getString(R.string.collections_editor_view_mode_follow).replace("'", "\\'")}',
+  followHome: '${context.getString(
+            R.string.collections_editor_view_mode_follow
+        ).replace("'", "\\'")}',
   showAllTab: '${context.getString(R.string.collections_editor_show_all_tab).replace("'", "\\'")}',
   cover: '${context.getString(R.string.collections_editor_cover).replace("'", "\\'")}',
   coverNone: '${context.getString(R.string.collections_editor_cover_none).replace("'", "\\'")}',
   coverEmoji: '${context.getString(R.string.collections_editor_cover_emoji).replace("'", "\\'")}',
-  coverImage: '${context.getString(R.string.collections_editor_cover_image_url).replace("'", "\\'")}',
+  coverImage: '${context.getString(
+            R.string.collections_editor_cover_image_url
+        ).replace("'", "\\'")}',
   focusGif: '${context.getString(R.string.collections_editor_focus_gif).replace("'", "\\'")}',
   playGif: '${context.getString(R.string.collections_editor_play_gif).replace("'", "\\'")}',
-  heroBackdrop: '${context.getString(R.string.collections_editor_hero_backdrop).replace("'", "\\'")}',
+  heroBackdrop: '${context.getString(
+            R.string.collections_editor_hero_backdrop
+        ).replace("'", "\\'")}',
   heroVideo: '${context.getString(R.string.collections_editor_hero_video).replace("'", "\\'")}',
   titleLogo: '${context.getString(R.string.collections_editor_title_logo).replace("'", "\\'")}',
   tileShape: '${context.getString(R.string.collections_editor_tile_shape).replace("'", "\\'")}',
@@ -1232,37 +1298,93 @@ var i18n = {
   catalogs: '${context.getString(R.string.collections_editor_catalogs).replace("'", "\\'")}',
   addCatalog: '${context.getString(R.string.collections_editor_add_catalog).replace("'", "\\'")}',
   addTmdb: '${context.getString(R.string.collections_editor_add_source).replace("'", "\\'")}',
-  addTrakt: '${context.getString(R.string.collections_editor_add_trakt_source).replace("'", "\\'")}',
+  addTrakt: '${context.getString(
+            R.string.collections_editor_add_trakt_source
+        ).replace("'", "\\'")}',
   tmdbSearch: '${context.getString(R.string.collections_editor_tmdb_search).replace("'", "\\'")}',
   tmdbSources: '${context.getString(R.string.collections_editor_tmdb_sources).replace("'", "\\'")}',
-  traktSources: '${context.getString(R.string.collections_editor_trakt_sources).replace("'", "\\'")}',
+  traktSources: '${context.getString(
+            R.string.collections_editor_trakt_sources
+        ).replace("'", "\\'")}',
   traktList: '${context.getString(R.string.collections_editor_trakt_list).replace("'", "\\'")}',
-  traktSearchResults: '${context.getString(R.string.collections_editor_trakt_search_results).replace("'", "\\'")}',
-  traktDirection: '${context.getString(R.string.collections_editor_trakt_direction).replace("'", "\\'")}',
-  traktAscending: '${context.getString(R.string.collections_editor_trakt_ascending).replace("'", "\\'")}',
-  traktDescending: '${context.getString(R.string.collections_editor_trakt_descending).replace("'", "\\'")}',
-  tmdbIdOrUrl: '${context.getString(R.string.collections_editor_tmdb_id_or_url).replace("'", "\\'")}',
-  tmdbPublicList: '${context.getString(R.string.collections_editor_tmdb_public_list).replace("'", "\\'")}',
-  tmdbNetworkId: '${context.getString(R.string.collections_editor_tmdb_network_id).replace("'", "\\'")}',
-  tmdbCollectionId: '${context.getString(R.string.collections_editor_tmdb_collection_id).replace("'", "\\'")}',
-  tmdbCompanySearch: '${context.getString(R.string.collections_editor_tmdb_company_search).replace("'", "\\'")}',
-  tmdbPersonId: '${context.getString(R.string.collections_editor_tmdb_person_id).replace("'", "\\'")}',
-  tmdbDisplayTitle: '${context.getString(R.string.collections_editor_tmdb_display_title).replace("'", "\\'")}',
-  tmdbTitleHelper: '${context.getString(R.string.collections_editor_tmdb_title_helper).replace("'", "\\'")}',
-  tmdbHelpPresets: '${context.getString(R.string.collections_editor_tmdb_help_presets).replace("'", "\\'")}',
-  tmdbHelpList: '${context.getString(R.string.collections_editor_tmdb_help_list).replace("'", "\\'")}',
-  tmdbHelpProduction: '${context.getString(R.string.collections_editor_tmdb_help_production).replace("'", "\\'")}',
-  tmdbHelpNetwork: '${context.getString(R.string.collections_editor_tmdb_help_network).replace("'", "\\'")}',
-  tmdbHelpCollection: '${context.getString(R.string.collections_editor_tmdb_help_collection).replace("'", "\\'")}',
-  tmdbHelpPerson: '${context.getString(R.string.collections_editor_tmdb_help_person).replace("'", "\\'")}',
-  tmdbHelpDirector: '${context.getString(R.string.collections_editor_tmdb_help_director).replace("'", "\\'")}',
-  tmdbHelpDiscover: '${context.getString(R.string.collections_editor_tmdb_help_discover).replace("'", "\\'")}',
-  tmdbSearchHelper: '${context.getString(R.string.collections_editor_tmdb_search_helper).replace("'", "\\'")}',
-  tmdbCollectionHelper: '${context.getString(R.string.collections_editor_tmdb_collection_helper).replace("'", "\\'")}',
-  tmdbNetworkHelper: '${context.getString(R.string.collections_editor_tmdb_network_helper).replace("'", "\\'")}',
-  tmdbListHelper: '${context.getString(R.string.collections_editor_tmdb_list_helper).replace("'", "\\'")}',
-  tmdbPersonHelper: '${context.getString(R.string.collections_editor_tmdb_person_helper).replace("'", "\\'")}',
-  tmdbCollection: '${context.getString(R.string.collections_editor_tmdb_collection).replace("'", "\\'")}',
+  traktSearchResults: '${context.getString(
+            R.string.collections_editor_trakt_search_results
+        ).replace("'", "\\'")}',
+  traktDirection: '${context.getString(
+            R.string.collections_editor_trakt_direction
+        ).replace("'", "\\'")}',
+  traktAscending: '${context.getString(
+            R.string.collections_editor_trakt_ascending
+        ).replace("'", "\\'")}',
+  traktDescending: '${context.getString(
+            R.string.collections_editor_trakt_descending
+        ).replace("'", "\\'")}',
+  tmdbIdOrUrl: '${context.getString(
+            R.string.collections_editor_tmdb_id_or_url
+        ).replace("'", "\\'")}',
+  tmdbPublicList: '${context.getString(
+            R.string.collections_editor_tmdb_public_list
+        ).replace("'", "\\'")}',
+  tmdbNetworkId: '${context.getString(
+            R.string.collections_editor_tmdb_network_id
+        ).replace("'", "\\'")}',
+  tmdbCollectionId: '${context.getString(
+            R.string.collections_editor_tmdb_collection_id
+        ).replace("'", "\\'")}',
+  tmdbCompanySearch: '${context.getString(
+            R.string.collections_editor_tmdb_company_search
+        ).replace("'", "\\'")}',
+  tmdbPersonId: '${context.getString(
+            R.string.collections_editor_tmdb_person_id
+        ).replace("'", "\\'")}',
+  tmdbDisplayTitle: '${context.getString(
+            R.string.collections_editor_tmdb_display_title
+        ).replace("'", "\\'")}',
+  tmdbTitleHelper: '${context.getString(
+            R.string.collections_editor_tmdb_title_helper
+        ).replace("'", "\\'")}',
+  tmdbHelpPresets: '${context.getString(
+            R.string.collections_editor_tmdb_help_presets
+        ).replace("'", "\\'")}',
+  tmdbHelpList: '${context.getString(
+            R.string.collections_editor_tmdb_help_list
+        ).replace("'", "\\'")}',
+  tmdbHelpProduction: '${context.getString(
+            R.string.collections_editor_tmdb_help_production
+        ).replace("'", "\\'")}',
+  tmdbHelpNetwork: '${context.getString(
+            R.string.collections_editor_tmdb_help_network
+        ).replace("'", "\\'")}',
+  tmdbHelpCollection: '${context.getString(
+            R.string.collections_editor_tmdb_help_collection
+        ).replace("'", "\\'")}',
+  tmdbHelpPerson: '${context.getString(
+            R.string.collections_editor_tmdb_help_person
+        ).replace("'", "\\'")}',
+  tmdbHelpDirector: '${context.getString(
+            R.string.collections_editor_tmdb_help_director
+        ).replace("'", "\\'")}',
+  tmdbHelpDiscover: '${context.getString(
+            R.string.collections_editor_tmdb_help_discover
+        ).replace("'", "\\'")}',
+  tmdbSearchHelper: '${context.getString(
+            R.string.collections_editor_tmdb_search_helper
+        ).replace("'", "\\'")}',
+  tmdbCollectionHelper: '${context.getString(
+            R.string.collections_editor_tmdb_collection_helper
+        ).replace("'", "\\'")}',
+  tmdbNetworkHelper: '${context.getString(
+            R.string.collections_editor_tmdb_network_helper
+        ).replace("'", "\\'")}',
+  tmdbListHelper: '${context.getString(
+            R.string.collections_editor_tmdb_list_helper
+        ).replace("'", "\\'")}',
+  tmdbPersonHelper: '${context.getString(
+            R.string.collections_editor_tmdb_person_helper
+        ).replace("'", "\\'")}',
+  tmdbCollection: '${context.getString(
+            R.string.collections_editor_tmdb_collection
+        ).replace("'", "\\'")}',
   filterType: '${context.getString(R.string.library_filter_type).replace("'", "\\'")}',
   filterSort: '${context.getString(R.string.library_filter_sort).replace("'", "\\'")}',
   movie: '${context.getString(R.string.type_movie).replace("'", "\\'")}',
@@ -1271,28 +1393,64 @@ var i18n = {
   topRated: '${context.getString(R.string.tmdb_entity_rail_top_rated).replace("'", "\\'")}',
   mostVoted: '${context.getString(R.string.tmdb_entity_rail_most_voted).replace("'", "\\'")}',
   recent: '${context.getString(R.string.tmdb_entity_rail_recent).replace("'", "\\'")}',
-  tmdbQuickGenres: '${context.getString(R.string.collections_editor_tmdb_quick_genres).replace("'", "\\'")}',
-  tmdbQuickLanguages: '${context.getString(R.string.collections_editor_tmdb_quick_languages).replace("'", "\\'")}',
-  tmdbQuickCountries: '${context.getString(R.string.collections_editor_tmdb_quick_countries).replace("'", "\\'")}',
-  tmdbQuickKeywords: '${context.getString(R.string.collections_editor_tmdb_quick_keywords).replace("'", "\\'")}',
-  tmdbQuickCompanies: '${context.getString(R.string.collections_editor_tmdb_quick_companies).replace("'", "\\'")}',
-  tmdbQuickNetworks: '${context.getString(R.string.collections_editor_tmdb_quick_networks).replace("'", "\\'")}',
+  tmdbQuickGenres: '${context.getString(
+            R.string.collections_editor_tmdb_quick_genres
+        ).replace("'", "\\'")}',
+  tmdbQuickLanguages: '${context.getString(
+            R.string.collections_editor_tmdb_quick_languages
+        ).replace("'", "\\'")}',
+  tmdbQuickCountries: '${context.getString(
+            R.string.collections_editor_tmdb_quick_countries
+        ).replace("'", "\\'")}',
+  tmdbQuickKeywords: '${context.getString(
+            R.string.collections_editor_tmdb_quick_keywords
+        ).replace("'", "\\'")}',
+  tmdbQuickCompanies: '${context.getString(
+            R.string.collections_editor_tmdb_quick_companies
+        ).replace("'", "\\'")}',
+  tmdbQuickNetworks: '${context.getString(
+            R.string.collections_editor_tmdb_quick_networks
+        ).replace("'", "\\'")}',
   tmdbGenres: '${context.getString(R.string.collections_editor_tmdb_genres).replace("'", "\\'")}',
-  tmdbDateFrom: '${context.getString(R.string.collections_editor_tmdb_date_from).replace("'", "\\'")}',
+  tmdbDateFrom: '${context.getString(
+            R.string.collections_editor_tmdb_date_from
+        ).replace("'", "\\'")}',
   tmdbDateTo: '${context.getString(R.string.collections_editor_tmdb_date_to).replace("'", "\\'")}',
-  tmdbRatingMin: '${context.getString(R.string.collections_editor_tmdb_rating_min).replace("'", "\\'")}',
-  tmdbRatingMax: '${context.getString(R.string.collections_editor_tmdb_rating_max).replace("'", "\\'")}',
-  tmdbVotesMin: '${context.getString(R.string.collections_editor_tmdb_votes_min).replace("'", "\\'")}',
-  tmdbLanguage: '${context.getString(R.string.collections_editor_tmdb_language).replace("'", "\\'")}',
+  tmdbRatingMin: '${context.getString(
+            R.string.collections_editor_tmdb_rating_min
+        ).replace("'", "\\'")}',
+  tmdbRatingMax: '${context.getString(
+            R.string.collections_editor_tmdb_rating_max
+        ).replace("'", "\\'")}',
+  tmdbVotesMin: '${context.getString(
+            R.string.collections_editor_tmdb_votes_min
+        ).replace("'", "\\'")}',
+  tmdbLanguage: '${context.getString(
+            R.string.collections_editor_tmdb_language
+        ).replace("'", "\\'")}',
   tmdbCountry: '${context.getString(R.string.collections_editor_tmdb_country).replace("'", "\\'")}',
-  tmdbKeywords: '${context.getString(R.string.collections_editor_tmdb_keywords).replace("'", "\\'")}',
-  tmdbCompanies: '${context.getString(R.string.collections_editor_tmdb_companies).replace("'", "\\'")}',
-  tmdbNetworks: '${context.getString(R.string.collections_editor_tmdb_networks).replace("'", "\\'")}',
+  tmdbKeywords: '${context.getString(
+            R.string.collections_editor_tmdb_keywords
+        ).replace("'", "\\'")}',
+  tmdbCompanies: '${context.getString(
+            R.string.collections_editor_tmdb_companies
+        ).replace("'", "\\'")}',
+  tmdbNetworks: '${context.getString(
+            R.string.collections_editor_tmdb_networks
+        ).replace("'", "\\'")}',
   tmdbYear: '${context.getString(R.string.collections_editor_tmdb_year).replace("'", "\\'")}',
-  tmdbWatchProviders: '${context.getString(R.string.collections_editor_tmdb_watch_providers).replace("'", "\\'")}',
-  tmdbWatchRegion: '${context.getString(R.string.collections_editor_tmdb_watch_region).replace("'", "\\'")}',
-  tmdbQuickWatchProviders: '${context.getString(R.string.collections_editor_tmdb_quick_watch_providers).replace("'", "\\'")}',
-  tmdbQuickWatchRegions: '${context.getString(R.string.collections_editor_tmdb_quick_watch_regions).replace("'", "\\'")}',
+  tmdbWatchProviders: '${context.getString(
+            R.string.collections_editor_tmdb_watch_providers
+        ).replace("'", "\\'")}',
+  tmdbWatchRegion: '${context.getString(
+            R.string.collections_editor_tmdb_watch_region
+        ).replace("'", "\\'")}',
+  tmdbQuickWatchProviders: '${context.getString(
+            R.string.collections_editor_tmdb_quick_watch_providers
+        ).replace("'", "\\'")}',
+  tmdbQuickWatchRegions: '${context.getString(
+            R.string.collections_editor_tmdb_quick_watch_regions
+        ).replace("'", "\\'")}',
   addFolder: '${context.getString(R.string.collections_editor_add_folder).replace("'", "\\'")}',
   newFolder: '${jsString(R.string.collections_editor_new_folder)}',
   folders: '${context.getString(R.string.collections_editor_folders).replace("'", "\\'")}',
@@ -1302,7 +1460,9 @@ var i18n = {
   shapePoster: '${context.getString(R.string.collections_editor_shape_poster).replace("'", "\\'")}',
   shapeWide: '${context.getString(R.string.collections_editor_shape_wide).replace("'", "\\'")}',
   shapeSquare: '${context.getString(R.string.collections_editor_shape_square).replace("'", "\\'")}',
-  tapToPickEmoji: '${context.getString(R.string.collections_editor_cover_emoji).replace("'", "\\'")}',
+  tapToPickEmoji: '${context.getString(
+            R.string.collections_editor_cover_emoji
+        ).replace("'", "\\'")}',
   added: '${jsString(R.string.web_source_added)}',
   add: '+ ${jsString(R.string.web_btn_add)}',
   movies: '${jsString(R.string.type_movies)}',
@@ -1316,7 +1476,9 @@ var i18n = {
   heroBackdropPlaceholder: '${jsString(R.string.collections_editor_placeholder_hero_backdrop)}',
   heroVideoPlaceholder: '${jsString(R.string.collections_editor_placeholder_hero_video)}',
   titleLogoPlaceholder: '${jsString(R.string.collections_editor_placeholder_title_logo)}',
-  filterActiveSourcesPlaceholder: '${jsString(R.string.collections_editor_filter_active_sources_placeholder)}',
+  filterActiveSourcesPlaceholder: '${jsString(
+            R.string.collections_editor_filter_active_sources_placeholder
+        )}',
   searchCatalogsPlaceholder: '${jsString(R.string.collections_editor_search_catalogs_placeholder)}',
   tmdbDefaultList: '${jsString(R.string.collections_editor_tmdb_default_list)}',
   tmdbDefaultProduction: '${jsString(R.string.collections_editor_tmdb_default_production)}',
@@ -1375,7 +1537,9 @@ var i18n = {
   importSourcesArray: '${jsString(R.string.web_import_error_sources_array)}',
   importInvalidTileShape: '${jsString(R.string.web_import_error_invalid_tile_shape)}',
   importSourceInvalidFormat: '${jsString(R.string.web_import_error_source_invalid_format)}',
-  importSourceMissingAddonFields: '${jsString(R.string.web_import_error_source_missing_addon_fields)}',
+  importSourceMissingAddonFields: '${jsString(
+            R.string.web_import_error_source_missing_addon_fields
+        )}',
   importSourceMissingTmdbType: '${jsString(R.string.web_import_error_source_missing_tmdb_type)}',
   importSourceMissingTraktId: '${jsString(R.string.web_import_error_source_missing_trakt_id)}',
   errorValidTmdbId: '${jsString(R.string.collections_editor_error_valid_tmdb_id_or_url)}',
@@ -1540,16 +1704,36 @@ function tmdbSourceSubtitle(src) {
 }
 
 var EMOJI_CATEGORIES = [
-  {name:'${jsString(R.string.collections_editor_emoji_category_streaming)}', emojis:['🎬','🎭','🎥','📺','🍿','🎞️','📽️','🎦','📡','📻']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_genres)}', emojis:['💀','👻','🔪','💣','🚀','🛸','🧙','🦸','🧟','🤖','💘','😂','😱','🤯','🥺','😈']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_sports)}', emojis:['⚽','🏀','🏈','⚾','🎾','🏐','🏒','🥊','🏎️','🏆','🎯','🏋️']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_music)}', emojis:['🎵','🎶','🎤','🎸','🥁','🎹','🎷','🎺','🎻','🪗']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_nature)}', emojis:['🌍','🌊','🏔️','🌋','🌅','🌙','⭐','🔥','❄️','🌈','🌸','🍀']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_animals)}', emojis:['🐕','🐈','🦁','🐻','🦊','🐺','🦅','🐉','🦋','🐬','🦈','🐙']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_food)}', emojis:['🍕','🍔','🍣','🍜','🍩','🍰','🍷','🍺','☕','🧁','🌮','🥗']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_travel)}', emojis:['✈️','🚂','🚗','⛵','🏖️','🗼','🏰','🗽','🎡','🏕️','🌆','🛣️']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_people)}', emojis:['👨‍👩‍👧‍👦','👫','👶','🧒','👩','👨','🧓','💃','🕺','🥷','🧑‍🚀','🧑‍🎨']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_objects)}', emojis:['📱','💻','🎮','🕹️','📷','🔮','💡','🔑','💎','🎁','📚','✏️']},
+  {name:'${jsString(
+            R.string.collections_editor_emoji_category_streaming
+        )}', emojis:['🎬','🎭','🎥','📺','🍿','🎞️','📽️','🎦','📡','📻']},
+  {name:'${jsString(
+            R.string.collections_editor_emoji_category_genres
+        )}', emojis:['💀','👻','🔪','💣','🚀','🛸','🧙','🦸','🧟','🤖','💘','😂','😱','🤯','🥺','😈']},
+  {name:'${jsString(
+            R.string.collections_editor_emoji_category_sports
+        )}', emojis:['⚽','🏀','🏈','⚾','🎾','🏐','🏒','🥊','🏎️','🏆','🎯','🏋️']},
+  {name:'${jsString(
+            R.string.collections_editor_emoji_category_music
+        )}', emojis:['🎵','🎶','🎤','🎸','🥁','🎹','🎷','🎺','🎻','🪗']},
+  {name:'${jsString(
+            R.string.collections_editor_emoji_category_nature
+        )}', emojis:['🌍','🌊','🏔️','🌋','🌅','🌙','⭐','🔥','❄️','🌈','🌸','🍀']},
+  {name:'${jsString(
+            R.string.collections_editor_emoji_category_animals
+        )}', emojis:['🐕','🐈','🦁','🐻','🦊','🐺','🦅','🐉','🦋','🐬','🦈','🐙']},
+  {name:'${jsString(
+            R.string.collections_editor_emoji_category_food
+        )}', emojis:['🍕','🍔','🍣','🍜','🍩','🍰','🍷','🍺','☕','🧁','🌮','🥗']},
+  {name:'${jsString(
+            R.string.collections_editor_emoji_category_travel
+        )}', emojis:['✈️','🚂','🚗','⛵','🏖️','🗼','🏰','🗽','🎡','🏕️','🌆','🛣️']},
+  {name:'${jsString(
+            R.string.collections_editor_emoji_category_people
+        )}', emojis:['👨‍👩‍👧‍👦','👫','👶','🧒','👩','👨','🧓','💃','🕺','🥷','🧑‍🚀','🧑‍🎨']},
+  {name:'${jsString(
+            R.string.collections_editor_emoji_category_objects
+        )}', emojis:['📱','💻','🎮','🕹️','📷','🔮','💡','🔑','💎','🎁','📚','✏️']},
   {name:'${jsString(R.string.collections_editor_emoji_category_flags)}', emojis:[
     '🏳️‍🌈','🏴‍☠️',
     '🇦🇫','🇦🇱','🇩🇿','🇦🇸','🇦🇩','🇦🇴','🇦🇮','🇦🇬','🇦🇷','🇦🇲','🇦🇼','🇦🇺',
@@ -1570,7 +1754,9 @@ var EMOJI_CATEGORIES = [
     '🇹🇭','🇹🇱','🇹🇬','🇹🇴','🇹🇹','🇹🇳','🇹🇷','🇹🇲','🇹🇻','🇺🇬','🇺🇦','🇦🇪',
     '🇬🇧','🇺🇸','🇺🇾','🇺🇿','🇻🇺','🇻🇪','🇻🇳','🇾🇪','🇿🇲','🇿🇼'
   ]},
-  {name:'${jsString(R.string.collections_editor_emoji_category_symbols)}', emojis:['❤️','💜','💙','💚','💛','🧡','🖤','🤍','✅','❌','⚡','💯']}
+  {name:'${jsString(
+            R.string.collections_editor_emoji_category_symbols
+        )}', emojis:['❤️','💜','💙','💚','💛','🧡','🖤','🤍','✅','❌','⚡','💯']}
 ];
 
 var openEmojiPicker = null;
@@ -1731,13 +1917,17 @@ function renderAddons() {
       '</div>' +
       '<div class="addon-info">' +
         '<div class="addon-name">' + escapeHtml(addon.name || addon.url) +
-          (addon.isNew ? '<span class="badge-new">${context.getString(R.string.web_badge_new).replace("'", "\\'")}</span>' : '') +
+          (addon.isNew ? '<span class="badge-new">${context.getString(
+            R.string.web_badge_new
+        ).replace("'", "\\'")}</span>' : '') +
         '</div>' +
         (addon.description ? '<div class="addon-desc">' + escapeHtml(addon.description) + '</div>' : '') +
         '<div class="addon-url">' + escapeHtml(addon.url) + '</div>' +
       '</div>' +
       '<div class="addon-actions">' +
-        '<button class="btn btn-remove" onclick="removeAddon(' + i + ')">${context.getString(R.string.web_btn_remove).replace("'", "\\'")}</button>' +
+        '<button class="btn btn-remove" onclick="removeAddon(' + i + ')">${context.getString(
+            R.string.web_btn_remove
+        ).replace("'", "\\'")}</button>' +
       '</div>';
 
     list.appendChild(li);
@@ -1799,14 +1989,23 @@ function renderCatalogs() {
       '</div>' +
       '<div class="catalog-info">' +
         '<div class="catalog-name">' + escapeHtml(formatCatalogTitle(catalog.catalogName, catalog.type)) +
-          (isCollection ? '<span class="badge-collection">${context.getString(R.string.web_badge_collection).replace("'", "\\'")}</span>' : '') +
-          (catalog.isDisabled ? '<span class="badge-disabled">${context.getString(R.string.web_badge_disabled).replace("'", "\\'")}</span>' : '') +
+          (isCollection ? '<span class="badge-collection">${context.getString(
+            R.string.web_badge_collection
+        ).replace("'", "\\'")}</span>' : '') +
+          (catalog.isDisabled ? '<span class="badge-disabled">${context.getString(
+            R.string.web_badge_disabled
+        ).replace("'", "\\'")}</span>' : '') +
         '</div>' +
         '<div class="catalog-meta">' + escapeHtml(catalog.addonName) + '</div>' +
       '</div>' +
       '<div class="addon-actions">' +
         '<button class="' + toggleClass + '" onclick="toggleCatalog(' + i + ')">' +
-          (catalog.isDisabled ? '${context.getString(R.string.web_btn_enable).replace("'", "\\'")}' : '${context.getString(R.string.web_btn_disable).replace("'", "\\'")}') +
+          (catalog.isDisabled ? '${context.getString(
+            R.string.web_btn_enable
+        ).replace(
+            "'",
+            "\\'"
+        )}' : '${context.getString(R.string.web_btn_disable).replace("'", "\\'")}') +
         '</button>' +
       '</div>';
 
@@ -1985,7 +2184,9 @@ async function addAddon() {
   url = url.replace(/\/+$/, '');
 
   if (addons.some(function(a) { return a.url === url; })) {
-    errorEl.textContent = '${context.getString(R.string.web_error_addon_exists).replace("'", "\\'")}';
+    errorEl.textContent = '${context.getString(
+            R.string.web_error_addon_exists
+        ).replace("'", "\\'")}';
     errorEl.style.display = 'block';
     setTimeout(function() { errorEl.style.display = 'none'; }, 3000);
     return;
@@ -2108,8 +2309,12 @@ function showPendingStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="spinner"></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_waiting_tv).replace("'", "\\'")}</div>' +
-    '<div class="status-message">${context.getString(R.string.web_status_msg_waiting_tv).replace("'", "\\'")}</div>';
+    '<div class="status-title">${context.getString(
+            R.string.web_status_waiting_tv
+        ).replace("'", "\\'")}</div>' +
+    '<div class="status-message">${context.getString(
+            R.string.web_status_msg_waiting_tv
+        ).replace("'", "\\'")}</div>';
   content.className = 'status-content';
   overlay.classList.add('visible');
 }
@@ -2118,7 +2323,9 @@ function showSuccessStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_changes_applied).replace("'", "\\'")}</div>' +
+    '<div class="status-title">${context.getString(
+            R.string.web_status_changes_applied
+        ).replace("'", "\\'")}</div>' +
     '<div class="status-message">' + escapeHtml(successStatusMessage) + '</div>';
   content.className = 'status-content status-success';
   setTimeout(dismissStatus, 2500);
@@ -2128,8 +2335,12 @@ function showRejectedStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(207,102,121,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_changes_rejected).replace("'", "\\'")}</div>' +
-    '<div class="status-message">${context.getString(R.string.web_status_msg_changes_rejected).replace("'", "\\'")}</div>';
+    '<div class="status-title">${context.getString(
+            R.string.web_status_changes_rejected
+        ).replace("'", "\\'")}</div>' +
+    '<div class="status-message">${context.getString(
+            R.string.web_status_msg_changes_rejected
+        ).replace("'", "\\'")}</div>';
   content.className = 'status-content status-rejected';
   setTimeout(function() {
     addons = JSON.parse(JSON.stringify(originalAddons));
@@ -2148,9 +2359,13 @@ function showErrorStatus(msg) {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(207,102,121,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_error).replace("'", "\\'")}</div>' +
+    '<div class="status-title">${context.getString(
+            R.string.web_status_error
+        ).replace("'", "\\'")}</div>' +
     '<div class="status-message">' + escapeHtml(msg) + '</div>' +
-    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(R.string.web_btn_dismiss).replace("'", "\\'")}</button></div>';
+    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(
+            R.string.web_btn_dismiss
+        ).replace("'", "\\'")}</button></div>';
   content.className = 'status-content status-error';
   overlay.classList.add('visible');
 }
@@ -2159,9 +2374,15 @@ function showTimeoutStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(207,102,121,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_timeout).replace("'", "\\'")}</div>' +
-    '<div class="status-message">${context.getString(R.string.web_status_msg_timeout).replace("'", "\\'")}</div>' +
-    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(R.string.web_btn_dismiss).replace("'", "\\'")}</button></div>';
+    '<div class="status-title">${context.getString(
+            R.string.web_status_timeout
+        ).replace("'", "\\'")}</div>' +
+    '<div class="status-message">${context.getString(
+            R.string.web_status_msg_timeout
+        ).replace("'", "\\'")}</div>' +
+    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(
+            R.string.web_btn_dismiss
+        ).replace("'", "\\'")}</button></div>';
   content.className = 'status-content status-error';
 }
 
@@ -2169,9 +2390,15 @@ function showDisconnectedStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(207,102,121,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.56 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_connection_lost).replace("'", "\\'")}</div>' +
-    '<div class="status-message">${context.getString(R.string.web_status_msg_connection_lost).replace("'", "\\'")}</div>' +
-    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(R.string.web_btn_dismiss).replace("'", "\\'")}</button></div>';
+    '<div class="status-title">${context.getString(
+            R.string.web_connection_lost
+        ).replace("'", "\\'")}</div>' +
+    '<div class="status-message">${context.getString(
+            R.string.web_status_msg_connection_lost
+        ).replace("'", "\\'")}</div>' +
+    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(
+            R.string.web_btn_dismiss
+        ).replace("'", "\\'")}</button></div>';
   content.className = 'status-content status-error';
 }
 
@@ -3463,6 +3690,6 @@ loadState();
 </script>
 </body>
 </html>
-""".trimIndent()
+        """.trimIndent()
     }
 }

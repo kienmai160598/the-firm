@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +36,7 @@ import androidx.compose.ui.zIndex
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 fun NextEpisodeEndPromptOverlay(
@@ -74,7 +73,9 @@ fun NextEpisodeEndPromptOverlay(
         ) {
             Text(
                 text = stringResource(R.string.player_next_episode_prompt_title),
-                style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.SemiBold),
+                style = MaterialTheme.typography.displaySmall.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
                 color = Color.White,
                 textAlign = TextAlign.Center
             )
@@ -130,7 +131,12 @@ fun NextEpisodeEndPromptOverlay(
                     modifier = Modifier
                         .focusRequester(returnFocusRequester)
                         .focusProperties {
-                            if (isRtl) right = continueFocusRequester else left = continueFocusRequester
+                            if (isRtl) {
+                                right = continueFocusRequester
+                            } else {
+                                left =
+                                    continueFocusRequester
+                            }
                             if (isRtl) left = Cancel else right = Cancel
                         }
                 )

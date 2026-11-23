@@ -10,10 +10,8 @@ import android.view.KeyEvent
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -24,6 +22,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -53,14 +53,14 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -74,8 +74,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.RectangleShape
@@ -102,18 +102,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import com.kien.movies.core.build.BoxBuild
-import com.kien.movies.ui.navigation.toptabbar.TopTabBarScaffold
-import com.kien.movies.ui.screens.ambient.AmbientIdleController
-import com.kien.movies.ui.screens.ambient.AmbientModeHost
-import com.kien.movies.ui.screens.ambient.LocalAmbientIdleController
-import com.kien.movies.ui.components.LocalStartupLoadingState
-import com.kien.movies.ui.components.LocalStartupSplashEnabled
-import com.kien.movies.ui.components.StartupLoadingState
-import com.kien.movies.ui.components.StartupDestination
-import com.kien.movies.ui.components.shouldShowStartupSplash
-import com.kien.movies.ui.components.startupDestinationForRoute
-import com.kien.movies.core.runtime.PluginRuntimeHooks
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -127,10 +115,10 @@ import androidx.metrics.performance.PerformanceMetricsState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.DrawerValue
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.ModalNavigationDrawer
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
@@ -140,14 +128,14 @@ import androidx.tv.material3.rememberDrawerState
 import com.kien.movies.R
 import com.kien.movies.core.auth.AuthManager
 import com.kien.movies.core.auth.DeviceSessionRegistration
+import com.kien.movies.core.build.BoxBuild
 import com.kien.movies.core.deeplink.DeepLinkHandler
 import com.kien.movies.core.deeplink.DeepLinkInstallResult
-import com.kien.movies.data.repository.TrackingAddonConsentController
-import com.kien.movies.ui.components.TrackingAddonConsentDialog
 import com.kien.movies.core.deeplink.DeepLinkParser
-import com.kien.movies.core.player.PlayerWindowBackdrop
 import com.kien.movies.core.party.PartyRepository
+import com.kien.movies.core.player.PlayerWindowBackdrop
 import com.kien.movies.core.profile.ProfileManager
+import com.kien.movies.core.runtime.PluginRuntimeHooks
 import com.kien.movies.core.sync.ProfileSyncService
 import com.kien.movies.core.sync.StartupSyncService
 import com.kien.movies.core.tracking.TrackingProgressRefreshCoordinator
@@ -158,42 +146,54 @@ import com.kien.movies.data.local.ExperienceModeDataStore
 import com.kien.movies.data.local.LayoutPreferenceDataStore
 import com.kien.movies.data.local.StartupAuthNotice
 import com.kien.movies.data.local.ThemeDataStore
-import com.kien.movies.data.repository.MemberAccessRepository
 import com.kien.movies.data.remote.supabase.AvatarRepository
+import com.kien.movies.data.repository.MemberAccessRepository
+import com.kien.movies.data.repository.TrackingAddonConsentController
+import com.kien.movies.domain.deeplink.AppDeepLink
 import com.kien.movies.domain.model.AppFont
 import com.kien.movies.domain.model.AppTheme
-import com.kien.movies.domain.model.CustomThemeColors
 import com.kien.movies.domain.model.AuthState
 import com.kien.movies.domain.model.CardDepthStyle
 import com.kien.movies.domain.model.CosmeticEntitlement
+import com.kien.movies.domain.model.CustomThemeColors
 import com.kien.movies.domain.model.DiscoverLocation
 import com.kien.movies.domain.model.ExperienceMode
 import com.kien.movies.domain.model.MemberAccess
 import com.kien.movies.domain.model.ProfileBackgroundSelection
-import com.kien.movies.domain.model.resolveProfileBackgroundSelection
 import com.kien.movies.domain.model.SettingsUiStyle
 import com.kien.movies.domain.model.resolveAppTheme
 import com.kien.movies.domain.model.resolveCustomThemeColors
-import com.kien.movies.domain.deeplink.AppDeepLink
+import com.kien.movies.domain.model.resolveProfileBackgroundSelection
 import com.kien.movies.domain.repository.AddonRepository
-import com.kien.movies.ui.components.MoviesScrollDefaults
 import com.kien.movies.ui.components.BrandWordmark
+import com.kien.movies.ui.components.LocalAlwaysBackdropWithLogo
 import com.kien.movies.ui.components.LocalCardDepthStyle
 import com.kien.movies.ui.components.LocalLandscapePosterMode
-import com.kien.movies.ui.components.LocalAlwaysBackdropWithLogo
+import com.kien.movies.ui.components.LocalStartupLoadingState
+import com.kien.movies.ui.components.LocalStartupSplashEnabled
+import com.kien.movies.ui.components.MoviesScrollDefaults
 import com.kien.movies.ui.components.ProfileAvatarCircle
+import com.kien.movies.ui.components.StartupDestination
+import com.kien.movies.ui.components.StartupLoadingState
+import com.kien.movies.ui.components.TrackingAddonConsentDialog
+import com.kien.movies.ui.components.expressive.MoviesSurface
+import com.kien.movies.ui.components.shouldShowStartupSplash
+import com.kien.movies.ui.components.startupDestinationForRoute
+import com.kien.movies.ui.membership.LocalMemberAccess
 import com.kien.movies.ui.navigation.LocalNavViewModelStoreOwner
 import com.kien.movies.ui.navigation.MoviesNavHost
 import com.kien.movies.ui.navigation.Screen
 import com.kien.movies.ui.navigation.rememberNavSessionViewModelStoreOwner
-import com.kien.movies.ui.screens.party.PartyEffects
-import com.kien.movies.ui.membership.LocalMemberAccess
+import com.kien.movies.ui.navigation.toptabbar.TopTabBarScaffold
 import com.kien.movies.ui.screens.account.AuthQrSignInScreen
 import com.kien.movies.ui.screens.addon.EssentialAddonSetupScreen
+import com.kien.movies.ui.screens.ambient.AmbientIdleController
+import com.kien.movies.ui.screens.ambient.AmbientModeHost
+import com.kien.movies.ui.screens.ambient.LocalAmbientIdleController
+import com.kien.movies.ui.screens.party.PartyEffects
 import com.kien.movies.ui.screens.profile.ProfileSelectionScreen
 import com.kien.movies.ui.theme.MoviesComponents
 import com.kien.movies.ui.theme.MoviesLayout
-import com.kien.movies.ui.components.expressive.MoviesSurface
 import com.kien.movies.ui.theme.MoviesMotion
 import com.kien.movies.ui.theme.MoviesPrimitives
 import com.kien.movies.ui.theme.MoviesRadii
@@ -209,8 +209,8 @@ import com.kien.movies.ui.util.setContentForScreenReaders
 import com.kien.movies.updater.UpdateViewModel
 import com.kien.movies.updater.ui.UpdateBannerHost
 import dagger.hilt.android.AndroidEntryPoint
-import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeInputScale
+import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import java.util.Locale
@@ -295,7 +295,8 @@ open class MainActivity : ComponentActivity() {
     lateinit var startupSyncService: StartupSyncService
 
     @Inject
-    lateinit var androidTvChannelSyncService: com.kien.movies.core.sync.androidtv.AndroidTvChannelSyncService
+    lateinit var androidTvChannelSyncService:
+        com.kien.movies.core.sync.androidtv.AndroidTvChannelSyncService
 
     @Inject
     lateinit var profileSyncService: ProfileSyncService
@@ -319,13 +320,15 @@ open class MainActivity : ComponentActivity() {
     lateinit var avatarRepository: AvatarRepository
 
     @Inject
-    lateinit var profileBackgroundRepository: com.kien.movies.data.remote.supabase.ProfileBackgroundRepository
+    lateinit var profileBackgroundRepository:
+        com.kien.movies.data.remote.supabase.ProfileBackgroundRepository
 
     @Inject
     lateinit var trailerPlayerPool: com.kien.movies.core.player.TrailerPlayerPool
 
     @Inject
-    lateinit var backgroundTrailerController: com.kien.movies.core.player.BackgroundTrailerController
+    lateinit var backgroundTrailerController:
+        com.kien.movies.core.player.BackgroundTrailerController
 
     @Inject
     lateinit var externalPlaybackTracker: com.kien.movies.core.player.ExternalPlaybackTracker
@@ -452,7 +455,8 @@ open class MainActivity : ComponentActivity() {
 
             val activeProfileId by profileManager.activeProfileId.collectAsState()
             val startupSplashEnabled by profileManager.startupSplashEnabled.collectAsState()
-            val startupLoadingState = remember(activeProfileId, startupSession) { StartupLoadingState() }
+            val startupLoadingState =
+                remember(activeProfileId, startupSession) { StartupLoadingState() }
             val profiles by profileManager.profiles.collectAsState()
             val hasEverSelectedProfile by profileManager.hasEverSelectedProfile.collectAsState()
             val rememberLastProfileEnabled by profileManager.rememberLastProfileEnabled.collectAsState()
@@ -495,7 +499,9 @@ open class MainActivity : ComponentActivity() {
                 }
             }
 
-            var avatarCatalog by remember { mutableStateOf(emptyList<com.kien.movies.data.remote.supabase.AvatarCatalogItem>()) }
+            var avatarCatalog by remember {
+                mutableStateOf(emptyList<com.kien.movies.data.remote.supabase.AvatarCatalogItem>())
+            }
             val avatarMemberAccess by memberAccessRepository.access.collectAsState()
             val hasProfileAvatarAccess = avatarMemberAccess.entitlements
                 .includes(CosmeticEntitlement.PROFILE_AVATARS)
@@ -509,7 +515,9 @@ open class MainActivity : ComponentActivity() {
 
             val activeProfileAvatarImageUrl = remember(activeProfile, avatarCatalog) {
                 activeProfile?.avatarUrl?.takeIf { it.isNotBlank() }
-                    ?: activeProfile?.avatarId?.let { avatarRepository.getAvatarImageUrl(it, avatarCatalog) }
+                    ?: activeProfile?.avatarId?.let {
+                        avatarRepository.getAvatarImageUrl(it, avatarCatalog)
+                    }
             }
 
             val mainUiPrefsFlow = remember(
@@ -526,7 +534,10 @@ open class MainActivity : ComponentActivity() {
                 ) { selection, memberAccess ->
                     selection.copy(
                         theme = resolveAppTheme(selection.theme, memberAccess.entitlements),
-                        customColors = resolveCustomThemeColors(selection.customColors, memberAccess.tier)
+                        customColors = resolveCustomThemeColors(
+                            selection.customColors,
+                            memberAccess.tier
+                        )
                     ) to memberAccess
                 }
                 // Group flows into two batches to reduce intermediate flow allocations.
@@ -537,7 +548,7 @@ open class MainActivity : ComponentActivity() {
                     themeDataStore.selectedFont,
                     themeDataStore.amoledMode,
                     themeDataStore.amoledSurfacesMode,
-                    experienceModeDataStore.mode,
+                    experienceModeDataStore.mode
                 ) { themeAndAccess, font, amoledMode, amoledSurfacesMode, experienceMode ->
                     MainUiPrefs(
                         theme = themeAndAccess.first.theme ?: BoxBuild.appTheme,
@@ -547,7 +558,7 @@ open class MainActivity : ComponentActivity() {
                         amoledMode = amoledMode,
                         amoledSurfacesMode = amoledSurfacesMode,
                         experienceMode = experienceMode,
-                        experienceModeLoaded = true,
+                        experienceModeLoaded = true
                     )
                 }
                 val layoutAndFeaturesFlow = combine(
@@ -555,14 +566,20 @@ open class MainActivity : ComponentActivity() {
                     layoutPreferenceDataStore.sidebarCollapsedByDefault,
                     layoutPreferenceDataStore.modernSidebarEnabled,
                     layoutPreferenceDataStore.modernSidebarBlurEnabled,
-                    layoutPreferenceDataStore.discoverLocation,
-                ) { hasChosenLayout, sidebarCollapsed, modernSidebarEnabled, modernSidebarBlurPref, discoverLocation ->
+                    layoutPreferenceDataStore.discoverLocation
+                ) {
+                        hasChosenLayout,
+                        sidebarCollapsed,
+                        modernSidebarEnabled,
+                        modernSidebarBlurPref,
+                        discoverLocation
+                    ->
                     MainUiPrefs(
                         hasChosenLayout = hasChosenLayout,
                         sidebarCollapsed = sidebarCollapsed,
                         modernSidebarEnabled = modernSidebarEnabled,
                         modernSidebarBlurPref = modernSidebarBlurPref,
-                        discoverLocation = discoverLocation,
+                        discoverLocation = discoverLocation
                     )
                 }
                 val extraFeaturesFlow = combine(
@@ -570,14 +587,20 @@ open class MainActivity : ComponentActivity() {
                     layoutPreferenceDataStore.smoothBringIntoViewEnabled,
                     layoutPreferenceDataStore.fastHorizontalNavigationEnabled,
                     layoutPreferenceDataStore.composeHighlighterEnabled,
-                    themeDataStore.settingsUiStyle,
-                ) { addonSetupSkipped, smoothBringIntoView, fastHorizontalNav, composeHighlighter, settingsUiStyle ->
+                    themeDataStore.settingsUiStyle
+                ) {
+                        addonSetupSkipped,
+                        smoothBringIntoView,
+                        fastHorizontalNav,
+                        composeHighlighter,
+                        settingsUiStyle
+                    ->
                     MainUiPrefs(
                         addonSetupSkipped = addonSetupSkipped,
                         smoothBringIntoViewEnabled = smoothBringIntoView,
                         fastHorizontalNavigationEnabled = fastHorizontalNav,
                         composeHighlighterEnabled = composeHighlighter,
-                        settingsUiStyle = settingsUiStyle,
+                        settingsUiStyle = settingsUiStyle
                     )
                 }
                 val landscapePrefsFlow = combine(
@@ -591,7 +614,13 @@ open class MainActivity : ComponentActivity() {
                     extraFeaturesFlow,
                     layoutPreferenceDataStore.cardDepthStyle,
                     landscapePrefsFlow
-                ) { themePrefs, layoutPrefs, extraPrefs, cardDepthStyle, (landscapePosterMode, alwaysBackdropWithLogo) ->
+                ) {
+                        themePrefs,
+                        layoutPrefs,
+                        extraPrefs,
+                        cardDepthStyle,
+                        (landscapePosterMode, alwaysBackdropWithLogo)
+                    ->
                     themePrefs.copy(
                         hasChosenLayout = layoutPrefs.hasChosenLayout,
                         sidebarCollapsed = layoutPrefs.sidebarCollapsed,
@@ -640,7 +669,8 @@ open class MainActivity : ComponentActivity() {
                         fontScale = systemDensity.fontScale.coerceAtMost(MAX_SUPPORTED_FONT_SCALE)
                     )
                 }
-                val highlighterEnabled = BuildConfig.IS_DEBUG_BUILD && mainUiPrefs.composeHighlighterEnabled
+                val highlighterEnabled =
+                    BuildConfig.IS_DEBUG_BUILD && mainUiPrefs.composeHighlighterEnabled
                 com.kien.movies.ui.util.RecompositionHighlighterFlag.enabled = highlighterEnabled
                 val profileBgSelection = resolveProfileBackgroundSelection(
                     profile = activeProfile,
@@ -651,9 +681,13 @@ open class MainActivity : ComponentActivity() {
                 // can show the correct background on cold start when
                 // "remember last profile" skips the profile selection screen.
                 val splashPrefs = remember {
-                    context.getSharedPreferences("startup_splash", android.content.Context.MODE_PRIVATE)
+                    context.getSharedPreferences(
+                        "startup_splash",
+                        android.content.Context.MODE_PRIVATE
+                    )
                 }
-                val splashPreferencesReady = mainUiPrefs.hasChosenLayout != null && mainUiPrefs.experienceModeLoaded
+                val splashPreferencesReady =
+                    mainUiPrefs.hasChosenLayout != null && mainUiPrefs.experienceModeLoaded
                 val splashBackground = remember(
                     profileBgSelection, profileBgCatalog, activeProfile, activeProfileId,
                     focusedSplashColor, focusedSplashBgUrl, focusedSplashCacheKey,
@@ -661,10 +695,12 @@ open class MainActivity : ComponentActivity() {
                 ) {
                     val bgUrl = when (profileBgSelection) {
                         is ProfileBackgroundSelection.Custom -> profileBgSelection.url
+
                         is ProfileBackgroundSelection.Catalog -> {
                             profileBgCatalog.firstOrNull { it.id == profileBgSelection.id }
                                 ?.imageFile?.toURI()?.toString()
                         }
+
                         else -> null
                     }
                     val colorHex = activeProfile?.avatarColorHex
@@ -677,24 +713,47 @@ open class MainActivity : ComponentActivity() {
                         splashPrefs.edit()
                             .putString("bg_url_$activeProfileId", bgUrl)
                             .apply()
-                    } else if (splashPreferencesReady && profileBgSelection == null && activeProfile != null) {
+                    } else if (splashPreferencesReady && profileBgSelection == null &&
+                        activeProfile != null
+                    ) {
                         splashPrefs.edit()
                             .remove("bg_url_$activeProfileId")
                             .apply()
                     }
                     val activeTheme = mainUiPrefs.theme
                     if (splashPreferencesReady && activeTheme != AppTheme.WHITE) {
-                        splashPrefs.edit().putString("theme_$activeProfileId", activeTheme.name).apply()
+                        splashPrefs.edit().putString(
+                            "theme_$activeProfileId",
+                            activeTheme.name
+                        ).apply()
                     } else if (splashPreferencesReady) {
                         splashPrefs.edit().remove("theme_$activeProfileId").apply()
                     }
                     // Fall back to cached values only on cold start (no focused override)
                     val hasFocusedOverride = focusedSplashColor != null
-                    val fallbackColor = if (colorHex == null && !hasFocusedOverride) splashPrefs.getString("color_$activeProfileId", null) else null
+                    val fallbackColor = if (colorHex == null &&
+                        !hasFocusedOverride
+                    ) {
+                        splashPrefs.getString("color_$activeProfileId", null)
+                    } else {
+                        null
+                    }
                     val fallbackBg = if (
-                        bgUrl == null && !hasFocusedOverride && (!splashPreferencesReady || profileBgSelection != null)
-                    ) splashPrefs.getString("bg_url_$activeProfileId", null) else null
-                    val resolvedBgUrl = if (hasFocusedOverride) focusedSplashBgUrl else (bgUrl ?: fallbackBg)
+                        bgUrl == null && !hasFocusedOverride &&
+                        (!splashPreferencesReady || profileBgSelection != null)
+                    ) {
+                        splashPrefs.getString("bg_url_$activeProfileId", null)
+                    } else {
+                        null
+                    }
+                    val resolvedBgUrl = if (hasFocusedOverride) {
+                        focusedSplashBgUrl
+                    } else {
+                        (
+                            bgUrl
+                                ?: fallbackBg
+                            )
+                    }
                     val skipGradient = !hasFocusedOverride && resolvedBgUrl == null &&
                         profileBgSelection is ProfileBackgroundSelection.Catalog
                     // Resolve branded logo: focused theme (profile screen) > active theme > cached theme > default
@@ -704,14 +763,28 @@ open class MainActivity : ComponentActivity() {
                             ?.let { name -> AppTheme.entries.firstOrNull { it.name == name } }
                         ?: BoxBuild.appTheme
                     SplashBackground(
-                        profileColorHex = if (hasFocusedOverride) focusedSplashColor else (colorHex ?: fallbackColor),
+                        profileColorHex = if (hasFocusedOverride) {
+                            focusedSplashColor
+                        } else {
+                            (
+                                colorHex
+                                    ?: fallbackColor
+                                )
+                        },
                         backgroundUrl = resolvedBgUrl,
-                        backgroundCacheKey = if (hasFocusedOverride) focusedSplashCacheKey else when (profileBgSelection) {
-                            is ProfileBackgroundSelection.Catalog -> profileBgCatalog
-                                .firstOrNull { it.id == profileBgSelection.id }
-                                ?.let { "profile-background-${it.id}-v${it.assetVersion}" }
-                            is ProfileBackgroundSelection.Custom -> "custom-profile-background-${profileBgSelection.url}"
-                            null -> null
+                        backgroundCacheKey = if (hasFocusedOverride) {
+                            focusedSplashCacheKey
+                        } else {
+                            when (profileBgSelection) {
+                                is ProfileBackgroundSelection.Catalog ->
+                                    profileBgCatalog
+                                        .firstOrNull { it.id == profileBgSelection.id }
+                                        ?.let { "profile-background-${it.id}-v${it.assetVersion}" }
+
+                                is ProfileBackgroundSelection.Custom -> "custom-profile-background-${profileBgSelection.url}"
+
+                                null -> null
+                            }
                         },
                         skipGradient = skipGradient,
                         brandWordmarkRes = resolvedTheme.brandWordmarkResource
@@ -720,7 +793,8 @@ open class MainActivity : ComponentActivity() {
                 CompositionLocalProvider(
                     LocalDensity provides clampedFontScaleDensity,
                     LocalBringIntoViewSpec provides bringIntoViewSpec,
-                    LocalFastHorizontalNavigationEnabled provides mainUiPrefs.fastHorizontalNavigationEnabled,
+                    LocalFastHorizontalNavigationEnabled provides
+                        mainUiPrefs.fastHorizontalNavigationEnabled,
                     LocalRecompositionHighlighterEnabled provides highlighterEnabled,
                     LocalCardDepthStyle provides mainUiPrefs.cardDepthStyle,
                     LocalLandscapePosterMode provides mainUiPrefs.landscapePosterMode,
@@ -728,627 +802,801 @@ open class MainActivity : ComponentActivity() {
                     LocalMemberAccess provides mainUiPrefs.memberAccess,
                     LocalAmbientIdleController provides ambientIdleController,
                     com.kien.movies.core.player.LocalTrailerPlayerPool provides trailerPlayerPool,
-                    com.kien.movies.core.player.LocalBackgroundTrailerController provides backgroundTrailerController,
+                    com.kien.movies.core.player.LocalBackgroundTrailerController provides
+                        backgroundTrailerController,
                     LocalSplashBackground provides splashBackground,
                     LocalStartupLoadingState provides startupLoadingState,
                     LocalStartupSplashEnabled provides startupSplashEnabled
                 ) {
-                val transparentPlayerBackdrop = PlayerWindowBackdrop.isTransparentRequested
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    shape = RectangleShape,
-                    colors = SurfaceDefaults.colors(
-                        containerColor = if (transparentPlayerBackdrop) {
-                            Color.Transparent
-                        } else {
-                            MoviesTheme.colors.Background
-                        },
-                        contentColor = contentColorFor(MoviesTheme.colors.Background)
-                    )
-                ) {
-                    // Wrap everything in a Box. This prevents any black flash between
-                    // profile selection and the home content
-                    Box(modifier = Modifier.fillMaxSize()) {
-
-                    var startupDestination = StartupDestination.Loading
-                    val surfaceContentReady = hasSeenAuthQrOnFirstLaunch != null &&
-                        authState !is AuthState.Loading
-
-                    if (!surfaceContentReady) {
-                        // Still loading auth state; nothing to show yet.
-                    } else if (
-                        hasSeenAuthQrOnFirstLaunch == false &&
-                        authState !is AuthState.FullAccount &&
-                        !onboardingCompletedThisSession
+                    val transparentPlayerBackdrop = PlayerWindowBackdrop.isTransparentRequested
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        shape = RectangleShape,
+                        colors = SurfaceDefaults.colors(
+                            containerColor = if (transparentPlayerBackdrop) {
+                                Color.Transparent
+                            } else {
+                                MoviesTheme.colors.Background
+                            },
+                            contentColor = contentColorFor(MoviesTheme.colors.Background)
+                        )
                     ) {
-                        startupDestination = StartupDestination.Setup
-                        AuthQrSignInScreen(
-                            onBackPress = { finish() },
-                            onContinue = {
-                                lifecycleScope.launch {
-                                    val shouldRunRemoteOnboardingSync =
-                                        authManager.authState.value is AuthState.FullAccount
+                        // Wrap everything in a Box. This prevents any black flash between
+                        // profile selection and the home content
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            var startupDestination = StartupDestination.Loading
+                            val surfaceContentReady = hasSeenAuthQrOnFirstLaunch != null &&
+                                authState !is AuthState.Loading
 
-                                    if (shouldRunRemoteOnboardingSync) {
-                                        if (onboardingProfileSyncInProgress) return@launch
-                                        onboardingProfileSyncInProgress = true
-                                        val maxAttempts = 3
-                                        var synced = false
-                                        for (attempt in 0 until maxAttempts) {
-                                            val result = profileSyncService.pullFromRemote()
-                                            if (result.isSuccess) {
-                                                synced = true
-                                                break
+                            if (!surfaceContentReady) {
+                                // Still loading auth state; nothing to show yet.
+                            } else if (
+                                hasSeenAuthQrOnFirstLaunch == false &&
+                                authState !is AuthState.FullAccount &&
+                                !onboardingCompletedThisSession
+                            ) {
+                                startupDestination = StartupDestination.Setup
+                                AuthQrSignInScreen(
+                                    onBackPress = { finish() },
+                                    onContinue = {
+                                        lifecycleScope.launch {
+                                            val shouldRunRemoteOnboardingSync =
+                                                authManager.authState.value is AuthState.FullAccount
+
+                                            if (shouldRunRemoteOnboardingSync) {
+                                                if (onboardingProfileSyncInProgress) return@launch
+                                                onboardingProfileSyncInProgress = true
+                                                val maxAttempts = 3
+                                                var synced = false
+                                                for (attempt in 0 until maxAttempts) {
+                                                    val result = profileSyncService.pullFromRemote()
+                                                    if (result.isSuccess) {
+                                                        synced = true
+                                                        break
+                                                    }
+                                                    if (attempt < maxAttempts - 1) {
+                                                        delay(1_000)
+                                                    }
+                                                }
+                                                if (!synced) {
+                                                    android.util.Log.w(
+                                                        "MainActivity",
+                                                        "Onboarding profile sync failed after retries; continuing"
+                                                    )
+                                                }
                                             }
-                                            if (attempt < maxAttempts - 1) {
-                                                delay(1_000)
-                                            }
-                                        }
-                                        if (!synced) {
-                                            android.util.Log.w(
-                                                "MainActivity",
-                                                "Onboarding profile sync failed after retries; continuing"
+                                            appOnboardingDataStore.setHasSeenAuthQrOnFirstLaunch(
+                                                true
                                             )
+                                            onboardingCompletedThisSession = true
+                                            onboardingProfileSyncInProgress = false
+                                        }
+                                        if (authManager.authState.value is AuthState.FullAccount) {
+                                            startupSyncService.requestSyncNow()
                                         }
                                     }
-                                    appOnboardingDataStore.setHasSeenAuthQrOnFirstLaunch(true)
-                                    onboardingCompletedThisSession = true
-                                    onboardingProfileSyncInProgress = false
-                                }
-                                if (authManager.authState.value is AuthState.FullAccount) {
-                                    startupSyncService.requestSyncNow()
-                                }
-                            }
-                        )
-                    } else {
-
-                    val shouldShowProfileSelection =
-                        !hasSelectedProfileThisSession && (profiles.size > 1 || activeProfileHasPin)
-
-                    if (shouldShowProfileSelection) {
-                        startupDestination = if (splashTriggered) StartupDestination.Loading else StartupDestination.ProfileSelection
-                        ProfileSelectionScreen(
-                            onProfileClicked = {
-                                splashTriggered = true
-                            },
-                            onProfileSelectionFailed = {
-                                splashTriggered = false
-                            },
-                            onProfileFocusChanged = { colorHex, bgUrl, cacheKey ->
-                                if (!splashTriggered) {
-                                    focusedSplashColor = colorHex
-                                    focusedSplashBgUrl = bgUrl
-                                    focusedSplashCacheKey = cacheKey
-                                }
-                            },
-                            onProfileThemeFocused = { theme ->
-                                if (!splashTriggered) {
-                                    focusedSplashTheme = theme
-                                }
-                            },
-                            onProfileSelected = {
-                                hasSelectedProfileThisSession = true
-                                if (authManager.authState.value is AuthState.FullAccount) {
-                                    startupSyncService.requestSyncNow()
-                                }
-                            }
-                        )
-                    } else {
-
-                    val layoutChosen = mainUiPrefs.hasChosenLayout
-                    val prefsLoading = layoutChosen == null || !mainUiPrefs.experienceModeLoaded || installedAddons == null
-                    if (!prefsLoading) {
-                    val effectiveExperienceMode = mainUiPrefs.experienceMode
-                        ?: if (layoutChosen) ExperienceMode.ADVANCED else null
-                    val needsExperienceSelection = effectiveExperienceMode == null
-                    val needsEssentialAddonSetup =
-                        effectiveExperienceMode == ExperienceMode.ESSENTIAL &&
-                            installedAddons.orEmpty().isEmpty() &&
-                            !mainUiPrefs.addonSetupSkipped
-                    val pendingDeepLink by pendingDeepLinkUrl.collectAsState()
-
-                    LaunchedEffect(pendingDeepLink) {
-                        val url = pendingDeepLink ?: return@LaunchedEffect
-                        val deepLink = DeepLinkParser.parse(url)
-                        if (deepLink is AppDeepLink.AddonInstall && (needsEssentialAddonSetup || !layoutChosen)) {
-                            Toast.makeText(context, context.getString(R.string.addon_installing), Toast.LENGTH_SHORT).show()
-                            val installResult = deepLinkHandler.installAddon(deepLink.manifestUrl)
-                            if (pendingDeepLinkUrl.value == url) {
-                                pendingDeepLinkUrl.value = null
-                            }
-                            if (installResult !is DeepLinkInstallResult.ConsentRequired) {
-                                Toast.makeText(context, installResult.message, Toast.LENGTH_LONG).show()
-                            }
-                        }
-                    }
-
-                    val pendingTrackingInstall by trackingAddonConsentController.pending.collectAsState()
-                    pendingTrackingInstall?.let { pending ->
-                        TrackingAddonConsentDialog(
-                            addonName = pending.addon.displayName.ifBlank { pending.addon.baseUrl },
-                            onInstall = {
-                                lifecycleScope.launch {
-                                    val installed = trackingAddonConsentController.install() ?: return@launch
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(
-                                            R.string.addon_install_success,
-                                            installed.displayName.ifBlank { installed.baseUrl }
-                                        ),
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-                            },
-                            onDismiss = trackingAddonConsentController::dismiss
-                        )
-                    }
-
-                    if (needsEssentialAddonSetup) {
-                        startupDestination = StartupDestination.Setup
-                        EssentialAddonSetupScreen(
-                            onSkip = {
-                                lifecycleScope.launch {
-                                    experienceModeDataStore.setAddonSetupSkipped(true)
-                                }
-                            }
-                        )
-                    } else {
-                    val sidebarCollapsed = mainUiPrefs.sidebarCollapsed
-                    val modernSidebarEnabled = mainUiPrefs.modernSidebarEnabled
-                    val modernSidebarBlurEnabled =
-                        mainUiPrefs.modernSidebarBlurPref && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S
-                    val hideBuiltInHeadersForFloatingPill = modernSidebarEnabled && !sidebarCollapsed
-
-                    val startDestination = when {
-                        needsExperienceSelection -> Screen.ExperienceModeSelection.route
-                        layoutChosen -> Screen.Home.route
-                        else -> Screen.LayoutSelection.route
-                    }
-                    val navController = rememberNavController()
-                    val navViewModelStoreOwner = rememberNavSessionViewModelStoreOwner(navController)
-                    var optimisticRoute by remember { mutableStateOf<String?>(null) }
-                    val navBackStackEntry by navController.currentBackStackEntryAsState()
-                    val actualRoute = navBackStackEntry?.destination?.route
-                    val currentRoute = optimisticRoute ?: actualRoute
-                    startupDestination = startupDestinationForRoute(actualRoute ?: startDestination)
-
-                    LaunchedEffect(actualRoute) {
-                        optimisticRoute = null
-                        ambientIdleController.onInteraction()
-                    }
-
-                    // The player and home are routes inside this activity, so leaving the
-                    // player or returning home never reaches onResume. Ask for the same
-                    // throttled watch state pull a foreground return gets.
-                    LaunchedEffect(navController) {
-                        var previousRoute: String? = null
-                        navController.currentBackStackEntryFlow.collect { entry ->
-                            val route = entry.destination.route
-                            if (route == previousRoute) return@collect
-                            val leftPlayer = previousRoute == Screen.Player.route
-                            val returnedHome = previousRoute != null && route == Screen.Home.route
-                            if (leftPlayer || returnedHome) {
-                                startupSyncService.requestNavigationSync()
-                            }
-                            previousRoute = route
-                        }
-                    }
-
-                    // Auto-play next episode for EXTERNAL players: the tracker resolves the
-                    // next episode and we navigate into the same Screen.Stream auto-play route
-                    // the internal onPlaybackEnded path uses. Collected from the root composable
-                    // so it survives StreamScreen's self-pop and a process kill (metadata is
-                    // recovered from disk and the event replayed).
-                    LaunchedEffect(navController) {
-                        externalPlaybackTracker.autoPlayNext.collect { next ->
-                            if (!externalPlaybackTracker.claimAutoPlayNextNavigation(next)) {
-                                return@collect
-                            }
-                            Log.d(
-                                "MainActivity",
-                                "autoPlayNext received: S${next.nextSeason}E${next.nextEpisode} " +
-                                    "videoId=${next.nextVideoId}; navigating to Stream"
-                            )
-                            navController.navigate(
-                                Screen.Stream.createRoute(
-                                    videoId = next.nextVideoId,
-                                    contentType = next.contentType,
-                                    title = next.contentName,
-                                    poster = next.poster,
-                                    backdrop = next.backdrop,
-                                    logo = next.logo,
-                                    season = next.nextSeason,
-                                    episode = next.nextEpisode,
-                                    year = next.year,
-                                    contentId = next.contentId,
-                                    contentName = next.contentName,
-                                    returnToDetailOnBack = next.contentType.equals("series", ignoreCase = true),
-                                    profileId = next.profileId
-                                )
-                            ) {
-                                // Replace any lingering Stream screen (e.g. the previous
-                                // episode's, restored from the backstack after a process restart).
-                                popUpTo(Screen.Stream.route) { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        }
-                    }
-
-                    // Navigate to content when launched from the Continue Watching channel row.
-                    LaunchedEffect(navController) {
-                        if (launchContentId != null && launchContentType != null && layoutChosen) {
-                            if (launchMode == "stream" && launchVideoId != null && launchName != null) {
-                                navController.navigate(
-                                    Screen.Stream.createRoute(
-                                        videoId = launchVideoId,
-                                        contentType = launchContentType,
-                                        title = launchName,
-                                        poster = launchPoster,
-                                        backdrop = launchBackdrop,
-                                        logo = launchLogo,
-                                        season = launchSeason,
-                                        episode = launchEpisode,
-                                        episodeName = launchEpisodeTitle,
-                                        contentId = launchContentId,
-                                        contentName = launchName,
-                                        returnToDetailOnBack = launchContentType.equals("series", ignoreCase = true),
-                                        returnToHomeOnBack = true
-                                    )
                                 )
                             } else {
-                                navController.navigate(
-                                    Screen.Detail.createRoute(
-                                        itemId = launchContentId,
-                                        itemType = launchContentType
-                                    )
-                                )
-                            }
-                        }
-                    }
+                                val shouldShowProfileSelection =
+                                    !hasSelectedProfileThisSession &&
+                                        (profiles.size > 1 || activeProfileHasPin)
 
-                    val pendingLaunch by pendingLaunchIntent.collectAsState()
-                    LaunchedEffect(navController, layoutChosen, pendingLaunch) {
-                        val intent = pendingLaunch ?: return@LaunchedEffect
-                        if (!layoutChosen) return@LaunchedEffect
-                        pendingLaunchIntent.value = null
-                        val contentId = intent.getStringExtra("contentId") ?: return@LaunchedEffect
-                        val contentType = intent.getStringExtra("contentType") ?: return@LaunchedEffect
-                        val videoId = intent.getStringExtra("videoId")
-                        val name = intent.getStringExtra("name")
-                        if (videoId != null && name != null) {
-                            navController.navigate(
-                                Screen.Stream.createRoute(
-                                    videoId = videoId,
-                                    contentType = contentType,
-                                    title = name,
-                                    poster = intent.getStringExtra("poster"),
-                                    backdrop = intent.getStringExtra("backdrop"),
-                                    logo = intent.getStringExtra("logo"),
-                                    season = intent.getIntExtra("season", -1).takeIf { it >= 0 },
-                                    episode = intent.getIntExtra("episode", -1).takeIf { it >= 0 },
-                                    episodeName = intent.getStringExtra("episodeTitle"),
-                                    contentId = contentId,
-                                    contentName = name,
-                                    returnToDetailOnBack = contentType.equals("series", ignoreCase = true),
-                                    returnToHomeOnBack = true
-                                )
-                            )
-                        } else {
-                            navController.navigate(
-                                Screen.Detail.createRoute(
-                                    itemId = contentId,
-                                    itemType = contentType
-                                )
-                            )
-                        }
-                    }
-
-                    LaunchedEffect(navController, layoutChosen, pendingDeepLink) {
-                        val url = pendingDeepLink ?: return@LaunchedEffect
-                        if (!layoutChosen) return@LaunchedEffect
-                        when (val deepLink = DeepLinkParser.parse(url)) {
-                            is AppDeepLink.Meta -> {
-                                pendingDeepLinkUrl.value = null
-                                navController.navigate(
-                                    Screen.Detail.createRoute(
-                                        itemId = deepLink.id,
-                                        itemType = deepLink.type
-                                    )
-                                ) {
-                                    launchSingleTop = true
-                                }
-                            }
-                            is AppDeepLink.Party -> {
-                                pendingDeepLinkUrl.value = null
-                                navController.navigate(Screen.WatchParty.createRoute(deepLink.code)) {
-                                    launchSingleTop = true
-                                }
-                            }
-                            is AppDeepLink.AddonInstall -> {
-                                navController.navigate(Screen.AddonManager.route) {
-                                    launchSingleTop = true
-                                }
-                                Toast.makeText(context, context.getString(R.string.addon_installing), Toast.LENGTH_SHORT).show()
-                                val installResult = deepLinkHandler.installAddon(deepLink.manifestUrl)
-                                if (pendingDeepLinkUrl.value == url) {
-                                    pendingDeepLinkUrl.value = null
-                                }
-                                if (installResult !is DeepLinkInstallResult.ConsentRequired) {
-                                    Toast.makeText(context, installResult.message, Toast.LENGTH_LONG).show()
-                                }
-                            }
-                            null -> {
-                                pendingDeepLinkUrl.value = null
-                            }
-                        }
-                    }
-
-                    val view = LocalView.current
-                    LaunchedEffect(currentRoute) {
-                        val holder = PerformanceMetricsState.getHolderForHierarchy(view)
-                        if (currentRoute != null) {
-                            holder.state?.putState("Screen", currentRoute)
-                        }
-                    }
-
-                    LaunchedEffect(discoverLocation, currentRoute) {
-                        if (discoverLocation == null) return@LaunchedEffect
-                        val onDiscoverRoute = currentRoute == Screen.Discover.route ||
-                            currentRoute?.startsWith("${Screen.Discover.route}/") == true
-                        if (discoverLocation == DiscoverLocation.OFF && onDiscoverRoute) {
-                            navController.navigate(Screen.Home.route) {
-                                popUpTo(navController.graph.startDestinationId) { saveState = false }
-                                launchSingleTop = true
-                            }
-                        }
-                    }
-
-                    val rootRoutes = remember(discoverLocation) {
-                        buildSet {
-                            add(Screen.Home.route)
-                            add(Screen.Search.route)
-                            add(Screen.Library.route)
-                            add(Screen.Settings.route)
-                            if (discoverLocation == DiscoverLocation.IN_SIDEBAR) {
-                                add(Screen.Discover.route)
-                            }
-                        }
-                    }
-
-                    val strNavHome = stringResource(R.string.nav_home)
-                    val strNavDiscover = stringResource(R.string.nav_discover)
-                    val strNavSearch = stringResource(R.string.nav_search)
-                    val strNavLibrary = stringResource(R.string.nav_library)
-                    val strNavSettings = stringResource(R.string.nav_settings)
-                    val drawerItems = remember(
-                        strNavHome,
-                        strNavDiscover,
-                        strNavSearch,
-                        strNavLibrary,
-                        strNavSettings,
-                        discoverLocation
-                    ) {
-                        buildList {
-                            add(
-                                DrawerItem(
-                                    route = Screen.Home.route,
-                                    label = strNavHome,
-                                    icon = Icons.Default.Home
-                                )
-                            )
-                            if (discoverLocation == DiscoverLocation.IN_SIDEBAR) {
-                                add(
-                                    DrawerItem(
-                                        route = Screen.Discover.route,
-                                        label = strNavDiscover,
-                                        icon = Icons.Default.Explore
-                                    )
-                                )
-                            }
-                            add(
-                                DrawerItem(
-                                    route = Screen.Search.route,
-                                    label = strNavSearch,
-                                    iconRes = R.raw.sidebar_search
-                                )
-                            )
-                            add(
-                                DrawerItem(
-                                    route = Screen.Library.route,
-                                    label = strNavLibrary,
-                                    iconRes = R.raw.sidebar_library
-                                )
-                            )
-                            add(
-                                DrawerItem(
-                                    route = Screen.Settings.route,
-                                    label = strNavSettings,
-                                    iconRes = R.raw.sidebar_settings
-                                )
-                            )
-                        }
-                    }
-                    val selectedDrawerRoute = drawerItems.firstOrNull { item ->
-                        currentRoute == item.route || currentRoute?.startsWith("${item.route}/") == true
-                    }?.route
-                    val selectedDrawerItem = drawerItems.firstOrNull { it.route == selectedDrawerRoute } ?: drawerItems.first()
-
-                    val confirmExitEnabled by profileManager.confirmExitEnabled.collectAsState()
-                    var backPressedOnce by remember { mutableStateOf(false) }
-                    LaunchedEffect(backPressedOnce) {
-                        if (backPressedOnce) {
-                            delay(2000L)
-                            backPressedOnce = false
-                        }
-                    }
-                    val handleExitApp: () -> Unit = {
-                        if (!confirmExitEnabled || backPressedOnce) {
-                            finishAffinity()
-                            finishAndRemoveTask()
-                            if (confirmExitEnabled) {
-                                // Kill the process to free RAM on low-memory devices.
-                                android.os.Process.killProcess(android.os.Process.myPid())
-                            }
-                        } else {
-                            backPressedOnce = true
-                            Toast.makeText(this@MainActivity, getString(R.string.confirm_exit_toast), Toast.LENGTH_SHORT).show()
-                        }
-                    }
-
-                    val updateViewModel: UpdateViewModel = hiltViewModel(this@MainActivity)
-                    val updateState by updateViewModel.uiState.collectAsState()
-                    val updateBannerState = updateState.copy(
-                        showBanner = updateState.showBanner && currentRoute?.startsWith("player/") != true
-                    )
-
-                    UpdateBannerHost(
-                        state = updateBannerState,
-                        onDismissBanner = updateViewModel::dismissBanner,
-                        onDownload = updateViewModel::downloadUpdate,
-                        onInstall = updateViewModel::installUpdateOrRequestPermission,
-                        onDismissUnknownSources = updateViewModel::dismissUnknownSourcesDialog,
-                        onOpenUnknownSources = updateViewModel::openUnknownSourcesSettings,
-                        onFeedbackShown = updateViewModel::consumeFeedbackMessage
-                    ) {
-                        val handleSwitchProfile = {
-                            startupSession++
-                            splashTriggered = false
-                            profileSwitchedManually = true
-                            focusedSplashColor = null
-                            focusedSplashBgUrl = null
-                            focusedSplashCacheKey = null
-                            focusedSplashTheme = null
-                            hasSelectedProfileThisSession = false
-                        }
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            CompositionLocalProvider(LocalNavViewModelStoreOwner provides navViewModelStoreOwner) {
-                                if (BoxBuild.topTabBar) {
-                                    TopTabBarScaffold(
-                                        longPressBackHeld = longPressBackHeld,
-                                        navController = navController,
-                                        startDestination = startDestination,
-                                        currentRoute = currentRoute,
-                                        rootRoutes = rootRoutes,
-                                        drawerItems = drawerItems,
-                                        selectedDrawerRoute = selectedDrawerRoute,
-                                        activeProfileName = activeProfile?.name ?: "",
-                                        activeProfileColorHex = activeProfile?.avatarColorHex ?: "#1E88E5",
-                                        activeProfileAvatarImageUrl = activeProfileAvatarImageUrl,
-                                        showProfileSelector = profiles.size > 1,
-                                        onSwitchProfile = handleSwitchProfile,
-                                        onNavigate = { optimisticRoute = it },
-                                        onExitApp = handleExitApp
-                                    )
-                                } else if (modernSidebarEnabled) {
-                                    ModernSidebarScaffold(
-                                        longPressBackHeld = longPressBackHeld,
-                                        navController = navController,
-                                        startDestination = startDestination,
-                                        currentRoute = currentRoute,
-                                        rootRoutes = rootRoutes,
-                                        drawerItems = drawerItems,
-                                        selectedDrawerRoute = selectedDrawerRoute,
-                                        selectedDrawerItem = selectedDrawerItem,
-                                        sidebarCollapsed = sidebarCollapsed,
-                                        modernSidebarBlurEnabled = modernSidebarBlurEnabled,
-                                        hideBuiltInHeaders = hideBuiltInHeadersForFloatingPill,
-                                        activeProfileName = activeProfile?.name ?: "",
-                                        activeProfileColorHex = activeProfile?.avatarColorHex ?: "#1E88E5",
-                                        activeProfileAvatarImageUrl = activeProfileAvatarImageUrl,
-                                        showProfileSelector = profiles.size > 1,
-                                        onSwitchProfile = handleSwitchProfile,
-                                        onNavigate = { optimisticRoute = it },
-                                        onExitApp = handleExitApp
+                                if (shouldShowProfileSelection) {
+                                    startupDestination =
+                                        if (splashTriggered) StartupDestination.Loading else StartupDestination.ProfileSelection
+                                    ProfileSelectionScreen(
+                                        onProfileClicked = {
+                                            splashTriggered = true
+                                        },
+                                        onProfileSelectionFailed = {
+                                            splashTriggered = false
+                                        },
+                                        onProfileFocusChanged = { colorHex, bgUrl, cacheKey ->
+                                            if (!splashTriggered) {
+                                                focusedSplashColor = colorHex
+                                                focusedSplashBgUrl = bgUrl
+                                                focusedSplashCacheKey = cacheKey
+                                            }
+                                        },
+                                        onProfileThemeFocused = { theme ->
+                                            if (!splashTriggered) {
+                                                focusedSplashTheme = theme
+                                            }
+                                        },
+                                        onProfileSelected = {
+                                            hasSelectedProfileThisSession = true
+                                            if (authManager.authState.value is AuthState.FullAccount) {
+                                                startupSyncService.requestSyncNow()
+                                            }
+                                        }
                                     )
                                 } else {
-                                    LegacySidebarScaffold(
-                                        longPressBackHeld = longPressBackHeld,
-                                        navController = navController,
-                                        startDestination = startDestination,
-                                        currentRoute = currentRoute,
-                                        rootRoutes = rootRoutes,
-                                        drawerItems = drawerItems,
-                                        selectedDrawerRoute = selectedDrawerRoute,
-                                        sidebarCollapsed = sidebarCollapsed,
-                                        hideBuiltInHeaders = false,
-                                        activeProfileName = activeProfile?.name ?: "",
-                                        activeProfileColorHex = activeProfile?.avatarColorHex ?: "#1E88E5",
-                                        activeProfileAvatarImageUrl = activeProfileAvatarImageUrl,
-                                        showProfileSelector = profiles.size > 1,
-                                        onSwitchProfile = handleSwitchProfile,
-                                        onNavigate = { optimisticRoute = it },
-                                        onExitApp = handleExitApp
-                                    )
+                                    val layoutChosen = mainUiPrefs.hasChosenLayout
+                                    val prefsLoading =
+                                        layoutChosen == null || !mainUiPrefs.experienceModeLoaded ||
+                                            installedAddons == null
+                                    if (!prefsLoading) {
+                                        val effectiveExperienceMode = mainUiPrefs.experienceMode
+                                            ?: if (layoutChosen) ExperienceMode.ADVANCED else null
+                                        val needsExperienceSelection =
+                                            effectiveExperienceMode == null
+                                        val needsEssentialAddonSetup =
+                                            effectiveExperienceMode == ExperienceMode.ESSENTIAL &&
+                                                installedAddons.orEmpty().isEmpty() &&
+                                                !mainUiPrefs.addonSetupSkipped
+                                        val pendingDeepLink by pendingDeepLinkUrl.collectAsState()
+
+                                        LaunchedEffect(pendingDeepLink) {
+                                            val url = pendingDeepLink ?: return@LaunchedEffect
+                                            val deepLink = DeepLinkParser.parse(url)
+                                            if (deepLink is AppDeepLink.AddonInstall &&
+                                                (needsEssentialAddonSetup || !layoutChosen)
+                                            ) {
+                                                Toast.makeText(
+                                                    context,
+                                                    context.getString(R.string.addon_installing),
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                val installResult = deepLinkHandler.installAddon(
+                                                    deepLink.manifestUrl
+                                                )
+                                                if (pendingDeepLinkUrl.value == url) {
+                                                    pendingDeepLinkUrl.value = null
+                                                }
+                                                if (installResult !is DeepLinkInstallResult.ConsentRequired) {
+                                                    Toast.makeText(
+                                                        context,
+                                                        installResult.message,
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                }
+                                            }
+                                        }
+
+                                        val pendingTrackingInstall by trackingAddonConsentController.pending.collectAsState()
+                                        pendingTrackingInstall?.let { pending ->
+                                            TrackingAddonConsentDialog(
+                                                addonName = pending.addon.displayName.ifBlank {
+                                                    pending.addon.baseUrl
+                                                },
+                                                onInstall = {
+                                                    lifecycleScope.launch {
+                                                        val installed =
+                                                            trackingAddonConsentController.install()
+                                                                ?: return@launch
+                                                        Toast.makeText(
+                                                            context,
+                                                            context.getString(
+                                                                R.string.addon_install_success,
+                                                                installed.displayName.ifBlank {
+                                                                    installed.baseUrl
+                                                                }
+                                                            ),
+                                                            Toast.LENGTH_LONG
+                                                        ).show()
+                                                    }
+                                                },
+                                                onDismiss = trackingAddonConsentController::dismiss
+                                            )
+                                        }
+
+                                        if (needsEssentialAddonSetup) {
+                                            startupDestination = StartupDestination.Setup
+                                            EssentialAddonSetupScreen(
+                                                onSkip = {
+                                                    lifecycleScope.launch {
+                                                        experienceModeDataStore.setAddonSetupSkipped(
+                                                            true
+                                                        )
+                                                    }
+                                                }
+                                            )
+                                        } else {
+                                            val sidebarCollapsed = mainUiPrefs.sidebarCollapsed
+                                            val modernSidebarEnabled = mainUiPrefs.modernSidebarEnabled
+                                            val modernSidebarBlurEnabled =
+                                                mainUiPrefs.modernSidebarBlurPref &&
+                                                    android.os.Build.VERSION.SDK_INT >=
+                                                    android.os.Build.VERSION_CODES.S
+                                            val hideBuiltInHeadersForFloatingPill =
+                                                modernSidebarEnabled && !sidebarCollapsed
+
+                                            val startDestination = when {
+                                                needsExperienceSelection -> Screen.ExperienceModeSelection.route
+                                                layoutChosen -> Screen.Home.route
+                                                else -> Screen.LayoutSelection.route
+                                            }
+                                            val navController = rememberNavController()
+                                            val navViewModelStoreOwner =
+                                                rememberNavSessionViewModelStoreOwner(navController)
+                                            var optimisticRoute by remember {
+                                                mutableStateOf<String?>(null)
+                                            }
+                                            val navBackStackEntry by navController.currentBackStackEntryAsState()
+                                            val actualRoute = navBackStackEntry?.destination?.route
+                                            val currentRoute = optimisticRoute ?: actualRoute
+                                            startupDestination =
+                                                startupDestinationForRoute(
+                                                    actualRoute ?: startDestination
+                                                )
+
+                                            LaunchedEffect(actualRoute) {
+                                                optimisticRoute = null
+                                                ambientIdleController.onInteraction()
+                                            }
+
+                                            // The player and home are routes inside this activity, so leaving the
+                                            // player or returning home never reaches onResume. Ask for the same
+                                            // throttled watch state pull a foreground return gets.
+                                            LaunchedEffect(navController) {
+                                                var previousRoute: String? = null
+                                                navController.currentBackStackEntryFlow.collect { entry ->
+                                                    val route = entry.destination.route
+                                                    if (route == previousRoute) return@collect
+                                                    val leftPlayer =
+                                                        previousRoute == Screen.Player.route
+                                                    val returnedHome =
+                                                        previousRoute != null &&
+                                                            route == Screen.Home.route
+                                                    if (leftPlayer || returnedHome) {
+                                                        startupSyncService.requestNavigationSync()
+                                                    }
+                                                    previousRoute = route
+                                                }
+                                            }
+
+                                            // Auto-play next episode for EXTERNAL players: the tracker resolves the
+                                            // next episode and we navigate into the same Screen.Stream auto-play route
+                                            // the internal onPlaybackEnded path uses. Collected from the root composable
+                                            // so it survives StreamScreen's self-pop and a process kill (metadata is
+                                            // recovered from disk and the event replayed).
+                                            LaunchedEffect(navController) {
+                                                externalPlaybackTracker.autoPlayNext.collect { next ->
+                                                    if (!externalPlaybackTracker.claimAutoPlayNextNavigation(
+                                                            next
+                                                        )
+                                                    ) {
+                                                        return@collect
+                                                    }
+                                                    Log.d(
+                                                        "MainActivity",
+                                                        "autoPlayNext received: S${next.nextSeason}E${next.nextEpisode} " +
+                                                            "videoId=${next.nextVideoId}; navigating to Stream"
+                                                    )
+                                                    navController.navigate(
+                                                        Screen.Stream.createRoute(
+                                                            videoId = next.nextVideoId,
+                                                            contentType = next.contentType,
+                                                            title = next.contentName,
+                                                            poster = next.poster,
+                                                            backdrop = next.backdrop,
+                                                            logo = next.logo,
+                                                            season = next.nextSeason,
+                                                            episode = next.nextEpisode,
+                                                            year = next.year,
+                                                            contentId = next.contentId,
+                                                            contentName = next.contentName,
+                                                            returnToDetailOnBack = next.contentType.equals(
+                                                                "series",
+                                                                ignoreCase = true
+                                                            ),
+                                                            profileId = next.profileId
+                                                        )
+                                                    ) {
+                                                        // Replace any lingering Stream screen (e.g. the previous
+                                                        // episode's, restored from the backstack after a process restart).
+                                                        popUpTo(Screen.Stream.route) {
+                                                            inclusive =
+                                                                true
+                                                        }
+                                                        launchSingleTop = true
+                                                    }
+                                                }
+                                            }
+
+                                            // Navigate to content when launched from the Continue Watching channel row.
+                                            LaunchedEffect(navController) {
+                                                if (launchContentId != null &&
+                                                    launchContentType != null &&
+                                                    layoutChosen
+                                                ) {
+                                                    if (launchMode == "stream" &&
+                                                        launchVideoId != null &&
+                                                        launchName != null
+                                                    ) {
+                                                        navController.navigate(
+                                                            Screen.Stream.createRoute(
+                                                                videoId = launchVideoId,
+                                                                contentType = launchContentType,
+                                                                title = launchName,
+                                                                poster = launchPoster,
+                                                                backdrop = launchBackdrop,
+                                                                logo = launchLogo,
+                                                                season = launchSeason,
+                                                                episode = launchEpisode,
+                                                                episodeName = launchEpisodeTitle,
+                                                                contentId = launchContentId,
+                                                                contentName = launchName,
+                                                                returnToDetailOnBack = launchContentType.equals(
+                                                                    "series",
+                                                                    ignoreCase = true
+                                                                ),
+                                                                returnToHomeOnBack = true
+                                                            )
+                                                        )
+                                                    } else {
+                                                        navController.navigate(
+                                                            Screen.Detail.createRoute(
+                                                                itemId = launchContentId,
+                                                                itemType = launchContentType
+                                                            )
+                                                        )
+                                                    }
+                                                }
+                                            }
+
+                                            val pendingLaunch by pendingLaunchIntent.collectAsState()
+                                            LaunchedEffect(
+                                                navController,
+                                                layoutChosen,
+                                                pendingLaunch
+                                            ) {
+                                                val intent = pendingLaunch ?: return@LaunchedEffect
+                                                if (!layoutChosen) return@LaunchedEffect
+                                                pendingLaunchIntent.value = null
+                                                val contentId =
+                                                    intent.getStringExtra("contentId")
+                                                        ?: return@LaunchedEffect
+                                                val contentType =
+                                                    intent.getStringExtra("contentType")
+                                                        ?: return@LaunchedEffect
+                                                val videoId = intent.getStringExtra("videoId")
+                                                val name = intent.getStringExtra("name")
+                                                if (videoId != null && name != null) {
+                                                    navController.navigate(
+                                                        Screen.Stream.createRoute(
+                                                            videoId = videoId,
+                                                            contentType = contentType,
+                                                            title = name,
+                                                            poster = intent.getStringExtra(
+                                                                "poster"
+                                                            ),
+                                                            backdrop = intent.getStringExtra(
+                                                                "backdrop"
+                                                            ),
+                                                            logo = intent.getStringExtra("logo"),
+                                                            season = intent.getIntExtra(
+                                                                "season",
+                                                                -1
+                                                            ).takeIf {
+                                                                it >=
+                                                                    0
+                                                            },
+                                                            episode = intent.getIntExtra(
+                                                                "episode",
+                                                                -1
+                                                            ).takeIf {
+                                                                it >=
+                                                                    0
+                                                            },
+                                                            episodeName = intent.getStringExtra(
+                                                                "episodeTitle"
+                                                            ),
+                                                            contentId = contentId,
+                                                            contentName = name,
+                                                            returnToDetailOnBack = contentType.equals(
+                                                                "series",
+                                                                ignoreCase = true
+                                                            ),
+                                                            returnToHomeOnBack = true
+                                                        )
+                                                    )
+                                                } else {
+                                                    navController.navigate(
+                                                        Screen.Detail.createRoute(
+                                                            itemId = contentId,
+                                                            itemType = contentType
+                                                        )
+                                                    )
+                                                }
+                                            }
+
+                                            LaunchedEffect(
+                                                navController,
+                                                layoutChosen,
+                                                pendingDeepLink
+                                            ) {
+                                                val url = pendingDeepLink ?: return@LaunchedEffect
+                                                if (!layoutChosen) return@LaunchedEffect
+                                                when (val deepLink = DeepLinkParser.parse(url)) {
+                                                    is AppDeepLink.Meta -> {
+                                                        pendingDeepLinkUrl.value = null
+                                                        navController.navigate(
+                                                            Screen.Detail.createRoute(
+                                                                itemId = deepLink.id,
+                                                                itemType = deepLink.type
+                                                            )
+                                                        ) {
+                                                            launchSingleTop = true
+                                                        }
+                                                    }
+
+                                                    is AppDeepLink.Party -> {
+                                                        pendingDeepLinkUrl.value = null
+                                                        navController.navigate(
+                                                            Screen.WatchParty.createRoute(
+                                                                deepLink.code
+                                                            )
+                                                        ) {
+                                                            launchSingleTop = true
+                                                        }
+                                                    }
+
+                                                    is AppDeepLink.AddonInstall -> {
+                                                        navController.navigate(
+                                                            Screen.AddonManager.route
+                                                        ) {
+                                                            launchSingleTop = true
+                                                        }
+                                                        Toast.makeText(
+                                                            context,
+                                                            context.getString(
+                                                                R.string.addon_installing
+                                                            ),
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                        val installResult = deepLinkHandler.installAddon(
+                                                            deepLink.manifestUrl
+                                                        )
+                                                        if (pendingDeepLinkUrl.value == url) {
+                                                            pendingDeepLinkUrl.value = null
+                                                        }
+                                                        if (installResult !is DeepLinkInstallResult.ConsentRequired) {
+                                                            Toast.makeText(
+                                                                context,
+                                                                installResult.message,
+                                                                Toast.LENGTH_LONG
+                                                            ).show()
+                                                        }
+                                                    }
+
+                                                    null -> {
+                                                        pendingDeepLinkUrl.value = null
+                                                    }
+                                                }
+                                            }
+
+                                            val view = LocalView.current
+                                            LaunchedEffect(currentRoute) {
+                                                val holder = PerformanceMetricsState.getHolderForHierarchy(
+                                                    view
+                                                )
+                                                if (currentRoute != null) {
+                                                    holder.state?.putState("Screen", currentRoute)
+                                                }
+                                            }
+
+                                            LaunchedEffect(discoverLocation, currentRoute) {
+                                                if (discoverLocation == null) return@LaunchedEffect
+                                                val onDiscoverRoute =
+                                                    currentRoute == Screen.Discover.route ||
+                                                        currentRoute?.startsWith(
+                                                            "${Screen.Discover.route}/"
+                                                        ) ==
+                                                        true
+                                                if (discoverLocation == DiscoverLocation.OFF &&
+                                                    onDiscoverRoute
+                                                ) {
+                                                    navController.navigate(Screen.Home.route) {
+                                                        popUpTo(
+                                                            navController.graph.startDestinationId
+                                                        ) {
+                                                            saveState = false
+                                                        }
+                                                        launchSingleTop = true
+                                                    }
+                                                }
+                                            }
+
+                                            val rootRoutes = remember(discoverLocation) {
+                                                buildSet {
+                                                    add(Screen.Home.route)
+                                                    add(Screen.Search.route)
+                                                    add(Screen.Library.route)
+                                                    add(Screen.Settings.route)
+                                                    if (discoverLocation ==
+                                                        DiscoverLocation.IN_SIDEBAR
+                                                    ) {
+                                                        add(Screen.Discover.route)
+                                                    }
+                                                }
+                                            }
+
+                                            val strNavHome = stringResource(R.string.nav_home)
+                                            val strNavDiscover =
+                                                stringResource(R.string.nav_discover)
+                                            val strNavSearch = stringResource(R.string.nav_search)
+                                            val strNavLibrary = stringResource(R.string.nav_library)
+                                            val strNavSettings =
+                                                stringResource(R.string.nav_settings)
+                                            val drawerItems = remember(
+                                                strNavHome,
+                                                strNavDiscover,
+                                                strNavSearch,
+                                                strNavLibrary,
+                                                strNavSettings,
+                                                discoverLocation
+                                            ) {
+                                                buildList {
+                                                    add(
+                                                        DrawerItem(
+                                                            route = Screen.Home.route,
+                                                            label = strNavHome,
+                                                            icon = Icons.Default.Home
+                                                        )
+                                                    )
+                                                    if (discoverLocation ==
+                                                        DiscoverLocation.IN_SIDEBAR
+                                                    ) {
+                                                        add(
+                                                            DrawerItem(
+                                                                route = Screen.Discover.route,
+                                                                label = strNavDiscover,
+                                                                icon = Icons.Default.Explore
+                                                            )
+                                                        )
+                                                    }
+                                                    add(
+                                                        DrawerItem(
+                                                            route = Screen.Search.route,
+                                                            label = strNavSearch,
+                                                            iconRes = R.raw.sidebar_search
+                                                        )
+                                                    )
+                                                    add(
+                                                        DrawerItem(
+                                                            route = Screen.Library.route,
+                                                            label = strNavLibrary,
+                                                            iconRes = R.raw.sidebar_library
+                                                        )
+                                                    )
+                                                    add(
+                                                        DrawerItem(
+                                                            route = Screen.Settings.route,
+                                                            label = strNavSettings,
+                                                            iconRes = R.raw.sidebar_settings
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                            val selectedDrawerRoute = drawerItems.firstOrNull { item ->
+                                                currentRoute == item.route ||
+                                                    currentRoute?.startsWith("${item.route}/") ==
+                                                    true
+                                            }?.route
+                                            val selectedDrawerItem =
+                                                drawerItems.firstOrNull {
+                                                    it.route ==
+                                                        selectedDrawerRoute
+                                                }
+                                                    ?: drawerItems.first()
+
+                                            val confirmExitEnabled by profileManager.confirmExitEnabled.collectAsState()
+                                            var backPressedOnce by remember {
+                                                mutableStateOf(false)
+                                            }
+                                            LaunchedEffect(backPressedOnce) {
+                                                if (backPressedOnce) {
+                                                    delay(2000L)
+                                                    backPressedOnce = false
+                                                }
+                                            }
+                                            val handleExitApp: () -> Unit = {
+                                                if (!confirmExitEnabled || backPressedOnce) {
+                                                    finishAffinity()
+                                                    finishAndRemoveTask()
+                                                    if (confirmExitEnabled) {
+                                                        // Kill the process to free RAM on low-memory devices.
+                                                        android.os.Process.killProcess(
+                                                            android.os.Process.myPid()
+                                                        )
+                                                    }
+                                                } else {
+                                                    backPressedOnce = true
+                                                    Toast.makeText(
+                                                        this@MainActivity,
+                                                        getString(R.string.confirm_exit_toast),
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            }
+
+                                            val updateViewModel: UpdateViewModel =
+                                                hiltViewModel(this@MainActivity)
+                                            val updateState by updateViewModel.uiState.collectAsState()
+                                            val updateBannerState = updateState.copy(
+                                                showBanner =
+                                                    updateState.showBanner &&
+                                                        currentRoute?.startsWith("player/") != true
+                                            )
+
+                                            UpdateBannerHost(
+                                                state = updateBannerState,
+                                                onDismissBanner = updateViewModel::dismissBanner,
+                                                onDownload = updateViewModel::downloadUpdate,
+                                                onInstall = updateViewModel::installUpdateOrRequestPermission,
+                                                onDismissUnknownSources = updateViewModel::dismissUnknownSourcesDialog,
+                                                onOpenUnknownSources = updateViewModel::openUnknownSourcesSettings,
+                                                onFeedbackShown = updateViewModel::consumeFeedbackMessage
+                                            ) {
+                                                val handleSwitchProfile = {
+                                                    startupSession++
+                                                    splashTriggered = false
+                                                    profileSwitchedManually = true
+                                                    focusedSplashColor = null
+                                                    focusedSplashBgUrl = null
+                                                    focusedSplashCacheKey = null
+                                                    focusedSplashTheme = null
+                                                    hasSelectedProfileThisSession = false
+                                                }
+                                                Box(modifier = Modifier.fillMaxSize()) {
+                                                    CompositionLocalProvider(
+                                                        LocalNavViewModelStoreOwner provides
+                                                            navViewModelStoreOwner
+                                                    ) {
+                                                        if (BoxBuild.topTabBar) {
+                                                            TopTabBarScaffold(
+                                                                longPressBackHeld = longPressBackHeld,
+                                                                navController = navController,
+                                                                startDestination = startDestination,
+                                                                currentRoute = currentRoute,
+                                                                rootRoutes = rootRoutes,
+                                                                drawerItems = drawerItems,
+                                                                selectedDrawerRoute = selectedDrawerRoute,
+                                                                activeProfileName =
+                                                                    activeProfile?.name ?: "",
+                                                                activeProfileColorHex =
+                                                                    activeProfile?.avatarColorHex
+                                                                        ?: "#1E88E5",
+                                                                activeProfileAvatarImageUrl = activeProfileAvatarImageUrl,
+                                                                showProfileSelector =
+                                                                    profiles.size > 1,
+                                                                onSwitchProfile = handleSwitchProfile,
+                                                                onNavigate = {
+                                                                    optimisticRoute = it
+                                                                },
+                                                                onExitApp = handleExitApp
+                                                            )
+                                                        } else if (modernSidebarEnabled) {
+                                                            ModernSidebarScaffold(
+                                                                longPressBackHeld = longPressBackHeld,
+                                                                navController = navController,
+                                                                startDestination = startDestination,
+                                                                currentRoute = currentRoute,
+                                                                rootRoutes = rootRoutes,
+                                                                drawerItems = drawerItems,
+                                                                selectedDrawerRoute = selectedDrawerRoute,
+                                                                selectedDrawerItem = selectedDrawerItem,
+                                                                sidebarCollapsed = sidebarCollapsed,
+                                                                modernSidebarBlurEnabled = modernSidebarBlurEnabled,
+                                                                hideBuiltInHeaders = hideBuiltInHeadersForFloatingPill,
+                                                                activeProfileName =
+                                                                    activeProfile?.name ?: "",
+                                                                activeProfileColorHex =
+                                                                    activeProfile?.avatarColorHex
+                                                                        ?: "#1E88E5",
+                                                                activeProfileAvatarImageUrl = activeProfileAvatarImageUrl,
+                                                                showProfileSelector =
+                                                                    profiles.size > 1,
+                                                                onSwitchProfile = handleSwitchProfile,
+                                                                onNavigate = {
+                                                                    optimisticRoute = it
+                                                                },
+                                                                onExitApp = handleExitApp
+                                                            )
+                                                        } else {
+                                                            LegacySidebarScaffold(
+                                                                longPressBackHeld = longPressBackHeld,
+                                                                navController = navController,
+                                                                startDestination = startDestination,
+                                                                currentRoute = currentRoute,
+                                                                rootRoutes = rootRoutes,
+                                                                drawerItems = drawerItems,
+                                                                selectedDrawerRoute = selectedDrawerRoute,
+                                                                sidebarCollapsed = sidebarCollapsed,
+                                                                hideBuiltInHeaders = false,
+                                                                activeProfileName =
+                                                                    activeProfile?.name ?: "",
+                                                                activeProfileColorHex =
+                                                                    activeProfile?.avatarColorHex
+                                                                        ?: "#1E88E5",
+                                                                activeProfileAvatarImageUrl = activeProfileAvatarImageUrl,
+                                                                showProfileSelector =
+                                                                    profiles.size > 1,
+                                                                onSwitchProfile = handleSwitchProfile,
+                                                                onNavigate = {
+                                                                    optimisticRoute = it
+                                                                },
+                                                                onExitApp = handleExitApp
+                                                            )
+                                                        }
+                                                    }
+
+                                                    val autoNextOverlay by externalPlaybackTracker.autoNextOverlay.collectAsState()
+                                                    autoNextOverlay?.let { ov ->
+                                                        com.kien.movies.ui.screens.player.LoadingOverlay(
+                                                            visible = true,
+                                                            backdropUrl = ov.backdrop,
+                                                            logoUrl = ov.logo,
+                                                            title = ov.title,
+                                                            message =
+                                                                ov.message
+                                                                    ?: stringResource(
+                                                                        R.string.external_auto_next_loading
+                                                                    ),
+                                                            progress = ov.progress,
+                                                            modifier = Modifier.fillMaxSize()
+                                                        )
+                                                    }
+
+                                                    val isTrailerPlaying by trailerPlayerPool.isTrailerPlaying.collectAsState()
+                                                    LaunchedEffect(isTrailerPlaying) {
+                                                        if (!isTrailerPlaying) ambientIdleController.onInteraction()
+                                                    }
+                                                    AmbientModeHost(
+                                                        controller = ambientIdleController,
+                                                        allowed =
+                                                            currentRoute?.startsWith("player/") !=
+                                                                true &&
+                                                                autoNextOverlay == null &&
+                                                                !isTrailerPlaying,
+                                                        onShown = { trailerPlayerPool.stop() }
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
 
-                            val autoNextOverlay by externalPlaybackTracker.autoNextOverlay.collectAsState()
-                            autoNextOverlay?.let { ov ->
-                                com.kien.movies.ui.screens.player.LoadingOverlay(
-                                    visible = true,
-                                    backdropUrl = ov.backdrop,
-                                    logoUrl = ov.logo,
-                                    title = ov.title,
-                                    message = ov.message ?: stringResource(R.string.external_auto_next_loading),
-                                    progress = ov.progress,
-                                    modifier = Modifier.fillMaxSize()
+                            LaunchedEffect(startupDestination, startupLoadingState) {
+                                if (startupDestination == StartupDestination.Content) {
+                                    startupLoadingState.complete = true
+                                }
+                            }
+                            val showSplash = shouldShowStartupSplash(
+                                enabled = startupSplashEnabled,
+                                complete = startupLoadingState.complete,
+                                destination = startupDestination
+                            )
+                            val animatedSplashAlpha by animateFloatAsState(
+                                targetValue = if (showSplash) 1f else 0f,
+                                animationSpec = tween(if (showSplash) 0 else 400),
+                                label = "startupSplashAlpha"
+                            )
+                            val splashAlpha = if (showSplash) 1f else animatedSplashAlpha
+                            LaunchedEffect(splashAlpha, startupDestination) {
+                                if (splashAlpha == 0f &&
+                                    startupDestination != StartupDestination.ProfileSelection
+                                ) {
+                                    focusedSplashColor = null
+                                    focusedSplashBgUrl = null
+                                    focusedSplashCacheKey = null
+                                    focusedSplashTheme = null
+                                }
+                            }
+                            if (splashAlpha > 0f) {
+                                com.kien.movies.ui.components.StartupSplashScreen(
+                                    profileColorHex = splashBackground.profileColorHex,
+                                    profileBackgroundUrl = splashBackground.backgroundUrl,
+                                    backgroundCacheKey = splashBackground.backgroundCacheKey,
+                                    skipGradient = splashBackground.skipGradient,
+                                    brandWordmarkRes = splashBackground.brandWordmarkRes,
+                                    modifier = Modifier.graphicsLayer { alpha = splashAlpha }
                                 )
                             }
-
-                            val isTrailerPlaying by trailerPlayerPool.isTrailerPlaying.collectAsState()
-                            LaunchedEffect(isTrailerPlaying) {
-                                if (!isTrailerPlaying) ambientIdleController.onInteraction()
-                            }
-                            AmbientModeHost(
-                                controller = ambientIdleController,
-                                allowed = currentRoute?.startsWith("player/") != true &&
-                                    autoNextOverlay == null &&
-                                    !isTrailerPlaying,
-                                onShown = { trailerPlayerPool.stop() }
-                            )
                         }
                     }
-                } 
-            } 
-        } 
-    }
-
-                    LaunchedEffect(startupDestination, startupLoadingState) {
-                        if (startupDestination == StartupDestination.Content) {
-                            startupLoadingState.complete = true
-                        }
-                    }
-                    val showSplash = shouldShowStartupSplash(
-                        enabled = startupSplashEnabled,
-                        complete = startupLoadingState.complete,
-                        destination = startupDestination
-                    )
-                    val animatedSplashAlpha by animateFloatAsState(
-                        targetValue = if (showSplash) 1f else 0f,
-                        animationSpec = tween(if (showSplash) 0 else 400),
-                        label = "startupSplashAlpha"
-                    )
-                    val splashAlpha = if (showSplash) 1f else animatedSplashAlpha
-                    LaunchedEffect(splashAlpha, startupDestination) {
-                        if (splashAlpha == 0f && startupDestination != StartupDestination.ProfileSelection) {
-                            focusedSplashColor = null
-                            focusedSplashBgUrl = null
-                            focusedSplashCacheKey = null
-                            focusedSplashTheme = null
-                        }
-                    }
-                    if (splashAlpha > 0f) {
-                        com.kien.movies.ui.components.StartupSplashScreen(
-                            profileColorHex = splashBackground.profileColorHex,
-                            profileBackgroundUrl = splashBackground.backgroundUrl,
-                            backgroundCacheKey = splashBackground.backgroundCacheKey,
-                            skipGradient = splashBackground.skipGradient,
-                            brandWordmarkRes = splashBackground.brandWordmarkRes,
-                            modifier = Modifier.graphicsLayer { alpha = splashAlpha }
-                        )
-                    }
-                    }
-                }
                 }
             }
         }
@@ -1435,7 +1683,10 @@ open class MainActivity : ComponentActivity() {
             externalPlaybackTracker.autoNextOverlay.value != null
         ) {
             if (event.action == KeyEvent.ACTION_UP) {
-                Log.d("ExtAutoNext", "dispatchKeyEvent BACK -> dismissAutoNextOverlay (loader showing)")
+                Log.d(
+                    "ExtAutoNext",
+                    "dispatchKeyEvent BACK -> dismissAutoNextOverlay (loader showing)"
+                )
                 externalPlaybackTracker.dismissAutoNextOverlay()
             }
             return true
@@ -1481,7 +1732,8 @@ private fun SidebarFocusRecoveryEffect(
         if (!sidebarOwnsFocus) {
             return@LaunchedEffect
         }
-        val selectedVisible = selectedDrawerRoute != null && drawerItems.any { it.route == selectedDrawerRoute }
+        val selectedVisible =
+            selectedDrawerRoute != null && drawerItems.any { it.route == selectedDrawerRoute }
         if (selectedVisible && sidebarHasFocus) {
             return@LaunchedEffect
         }
@@ -1530,7 +1782,9 @@ private fun LegacySidebarScaffold(
     val openDrawerItemWidth = sidebarTokens.itemWidth
 
     val focusManager = LocalFocusManager.current
-    val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+    val isRtl =
+        androidx.compose.ui.platform.LocalLayoutDirection.current ==
+            androidx.compose.ui.unit.LayoutDirection.Rtl
     val contentFocusRequester = remember { FocusRequester() }
     var pendingContentFocusTransfer by remember { mutableStateOf(false) }
     var pendingSidebarFocusRequest by remember { mutableStateOf(false) }
@@ -1539,13 +1793,17 @@ private fun LegacySidebarScaffold(
     // resets while the user navigates between drawer items.
     var legacyDrawerInteractionVersion by remember { mutableStateOf(0) }
 
-
-    BackHandler(enabled = currentRoute in rootRoutes && drawerState.currentValue == DrawerValue.Closed) {
+    BackHandler(
+        enabled =
+            currentRoute in rootRoutes && drawerState.currentValue == DrawerValue.Closed
+    ) {
         pendingSidebarFocusRequest = true
         drawerState.setValue(DrawerValue.Open)
     }
 
-    BackHandler(enabled = currentRoute in rootRoutes && drawerState.currentValue == DrawerValue.Open) {
+    BackHandler(
+        enabled = currentRoute in rootRoutes && drawerState.currentValue == DrawerValue.Open
+    ) {
         if (longPressBackHeld.value) return@BackHandler
         onExitApp()
     }
@@ -1559,8 +1817,15 @@ private fun LegacySidebarScaffold(
         pendingContentFocusTransfer = false
     }
 
-    LaunchedEffect(drawerState.currentValue, selectedDrawerRoute, showSidebar, pendingSidebarFocusRequest) {
-        if (!showSidebar || !pendingSidebarFocusRequest || drawerState.currentValue != DrawerValue.Open) {
+    LaunchedEffect(
+        drawerState.currentValue,
+        selectedDrawerRoute,
+        showSidebar,
+        pendingSidebarFocusRequest
+    ) {
+        if (!showSidebar || !pendingSidebarFocusRequest ||
+            drawerState.currentValue != DrawerValue.Open
+        ) {
             return@LaunchedEffect
         }
         val targetRoute = selectedDrawerRoute ?: drawerItems.firstOrNull()?.route ?: run {
@@ -1588,7 +1853,13 @@ private fun LegacySidebarScaffold(
         drawerState = drawerState,
         drawerContent = { drawerValue ->
             if (showSidebar) {
-                val drawerWidth = if (drawerValue == DrawerValue.Open) openDrawerWidth else closedDrawerWidth
+                val drawerWidth = if (drawerValue ==
+                    DrawerValue.Open
+                ) {
+                    openDrawerWidth
+                } else {
+                    closedDrawerWidth
+                }
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
@@ -1614,7 +1885,10 @@ private fun LegacySidebarScaffold(
                     val isExpanded = drawerValue == DrawerValue.Open
                     val itemWidth by animateDpAsState(
                         targetValue = if (isExpanded) openDrawerItemWidth else MoviesTheme.sizes.avatars.md,
-                        animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.fast, easing = MoviesMotion.tokens.easings.standard),
+                        animationSpec = tween(
+                            durationMillis = MoviesMotion.tokens.durations.fast,
+                            easing = MoviesMotion.tokens.easings.standard
+                        ),
                         label = "legacySidebarItemWidth"
                     )
 
@@ -1627,11 +1901,14 @@ private fun LegacySidebarScaffold(
                             Spacer(modifier = Modifier.height(30.dp))
                             if (showProfileSelector && activeProfileName.isNotEmpty()) {
                                 var isProfileFocused by remember { mutableStateOf(false) }
-                                val profileLeadingInset = MoviesTheme.spacing.lg + MoviesTheme.spacing.xxs
+                                val profileLeadingInset =
+                                    MoviesTheme.spacing.lg + MoviesTheme.spacing.xxs
                                 val profileAvatarSize = MoviesTheme.sizes.sidebar.leadingVisual
                                 val profileLabelStart = 60.dp
                                 val profileGapAfterAvatar =
-                                    (profileLabelStart - profileLeadingInset - profileAvatarSize).coerceAtLeast(MoviesTheme.spacing.none)
+                                    (profileLabelStart - profileLeadingInset - profileAvatarSize).coerceAtLeast(
+                                        MoviesTheme.spacing.none
+                                    )
                                 Box(
                                     modifier = Modifier.fillMaxWidth(),
                                     contentAlignment = Alignment.Center
@@ -1648,30 +1925,30 @@ private fun LegacySidebarScaffold(
                                             .semantics { role = Role.Button },
                                         resting = Color.Transparent
                                     ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Spacer(modifier = Modifier.width(profileLeadingInset))
-                                        ProfileAvatarCircle(
-                                            name = activeProfileName,
-                                            colorHex = activeProfileColorHex,
-                                            size = profileAvatarSize,
-                                            avatarImageUrl = activeProfileAvatarImageUrl,
-                                            imageCrossfade = false
-                                        )
-                                        Spacer(modifier = Modifier.width(profileGapAfterAvatar))
-                                        Text(
-                                            text = activeProfileName,
-                                            color = LocalContentColor.current.copy(
-                                                alpha = if (isProfileFocused) 1f else 0.64f
-                                            ),
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            textAlign = TextAlign.Start,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                    }
+                                        Row(
+                                            modifier = Modifier.fillMaxSize(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Spacer(modifier = Modifier.width(profileLeadingInset))
+                                            ProfileAvatarCircle(
+                                                name = activeProfileName,
+                                                colorHex = activeProfileColorHex,
+                                                size = profileAvatarSize,
+                                                avatarImageUrl = activeProfileAvatarImageUrl,
+                                                imageCrossfade = false
+                                            )
+                                            Spacer(modifier = Modifier.width(profileGapAfterAvatar))
+                                            Text(
+                                                text = activeProfileName,
+                                                color = LocalContentColor.current.copy(
+                                                    alpha = if (isProfileFocused) 1f else 0.64f
+                                                ),
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                                textAlign = TextAlign.Start,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                        }
                                     }
                                 }
                             } else {
@@ -1718,11 +1995,11 @@ private fun LegacySidebarScaffold(
                                         .width(itemWidth)
                                         .offset(x = MoviesTheme.spacing.md)
                                 )
+                            }
                         }
                     }
                 }
             }
-        }
         }
     ) {
         // Applied per root destination (not on the NavHost container) so it only changes
@@ -1772,7 +2049,10 @@ private fun LegacySidebarScaffold(
                         keyEvent.type == KeyEventType.KeyDown &&
                         keyEvent.key == openKey
                     ) {
-                        if (focusManager.moveFocus(if (isRtl) FocusDirection.Right else FocusDirection.Left)) {
+                        if (focusManager.moveFocus(
+                                if (isRtl) FocusDirection.Right else FocusDirection.Left
+                            )
+                        ) {
                             true
                         } else {
                             pendingSidebarFocusRequest = true
@@ -1833,32 +2113,32 @@ private fun LegacySidebarButton(
                     this.selected = selected
                 }
         ) {
-        DrawerItemIcon(
-            iconRes = iconRes,
-            icon = icon,
-            tint = if (expanded || selected) {
-                LocalContentColor.current
-            } else {
-                LocalContentColor.current.copy(alpha = 0.64f)
-            },
-            brush = selectedCollapsedIconBrush,
-            modifier = Modifier
-                .size(MoviesComponents.tokens.sidebar.iconSize)
-                .align(Alignment.CenterStart)
-                .offset(x = 13.dp)
-        )
-        if (expanded) {
-            com.kien.movies.ui.components.AutoResizeText(
-                text = label,
-                color = LocalContentColor.current,
-                textAlign = TextAlign.Start,
+            DrawerItemIcon(
+                iconRes = iconRes,
+                icon = icon,
+                tint = if (expanded || selected) {
+                    LocalContentColor.current
+                } else {
+                    LocalContentColor.current.copy(alpha = 0.64f)
+                },
+                brush = selectedCollapsedIconBrush,
                 modifier = Modifier
+                    .size(MoviesComponents.tokens.sidebar.iconSize)
                     .align(Alignment.CenterStart)
-                    .padding(start = 54.dp, end = 14.dp)
+                    .offset(x = 13.dp)
             )
+            if (expanded) {
+                com.kien.movies.ui.components.AutoResizeText(
+                    text = label,
+                    color = LocalContentColor.current,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 54.dp, end = 14.dp)
+                )
+            }
         }
     }
-}
 }
 
 @Composable
@@ -1888,7 +2168,9 @@ private fun ModernSidebarScaffold(
     val openSidebarWidth = sidebarTokens.expandedWidth
 
     val focusManager = LocalFocusManager.current
-    val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+    val isRtl =
+        androidx.compose.ui.platform.LocalLayoutDirection.current ==
+            androidx.compose.ui.unit.LayoutDirection.Rtl
     val contentFocusRequester = remember { FocusRequester() }
     val drawerItemFocusRequesters = rememberDrawerItemFocusRequesters(drawerItems)
     val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
@@ -1938,13 +2220,18 @@ private fun ModernSidebarScaffold(
         }
     }
 
-    BackHandler(enabled = currentRoute in rootRoutes && !isSidebarExpanded && !sidebarCollapsePending) {
+    BackHandler(
+        enabled =
+            currentRoute in rootRoutes && !isSidebarExpanded && !sidebarCollapsePending
+    ) {
         isSidebarExpanded = true
         sidebarCollapsePending = false
         pendingSidebarFocusRequest = true
     }
 
-    BackHandler(enabled = currentRoute in rootRoutes && isSidebarExpanded && !sidebarCollapsePending) {
+    BackHandler(
+        enabled = currentRoute in rootRoutes && isSidebarExpanded && !sidebarCollapsePending
+    ) {
         if (longPressBackHeld.value) return@BackHandler
         onExitApp()
     }
@@ -1969,8 +2256,16 @@ private fun ModernSidebarScaffold(
     // its label (DPAD UP from content) and then leaves it idle. The DPAD DOWN
     // path already collapses it instantly, this just covers the case where the
     // user releases UP and walks away.
-    LaunchedEffect(isFloatingPillIconOnly, keepFloatingPillExpanded, showSidebar, isSidebarExpanded, pillExpandRequestCount) {
-        if (!showSidebar || isFloatingPillIconOnly || keepFloatingPillExpanded || isSidebarExpanded) {
+    LaunchedEffect(
+        isFloatingPillIconOnly,
+        keepFloatingPillExpanded,
+        showSidebar,
+        isSidebarExpanded,
+        pillExpandRequestCount
+    ) {
+        if (!showSidebar || isFloatingPillIconOnly || keepFloatingPillExpanded ||
+            isSidebarExpanded
+        ) {
             return@LaunchedEffect
         }
         delay(SIDEBAR_AUTO_COLLAPSE_DELAY_MS)
@@ -1989,7 +2284,10 @@ private fun ModernSidebarScaffold(
     val sidebarSlideX = MoviesTheme.spacing.none
     val sidebarSurfaceAlpha by animateFloatAsState(
         targetValue = if (isSidebarExpanded) 1f else 0f,
-        animationSpec = tween(durationMillis = if (isSidebarExpanded) 280 else 200, easing = animationEasing),
+        animationSpec = tween(
+            durationMillis = if (isSidebarExpanded) 280 else 200,
+            easing = animationEasing
+        ),
         label = "sidebarSurfaceAlpha"
     )
     val shouldApplySidebarHaze = showSidebar && modernSidebarBlurEnabled
@@ -2003,9 +2301,15 @@ private fun ModernSidebarScaffold(
     val sidebarExpandProgress by sidebarTransition.animateFloat(
         transitionSpec = {
             if (targetState) {
-                tween(durationMillis = MoviesMotion.tokens.durations.sidebarPanelIn, easing = FastOutSlowInEasing)
+                tween(
+                    durationMillis = MoviesMotion.tokens.durations.sidebarPanelIn,
+                    easing = FastOutSlowInEasing
+                )
             } else {
-                tween(durationMillis = MoviesMotion.tokens.durations.sidebarPanelOut, easing = LinearOutSlowInEasing)
+                tween(
+                    durationMillis = MoviesMotion.tokens.durations.sidebarPanelOut,
+                    easing = LinearOutSlowInEasing
+                )
             }
         },
         label = "sidebarExpandProgress"
@@ -2023,8 +2327,15 @@ private fun ModernSidebarScaffold(
     val sidebarDeflateOffsetX = MoviesTheme.spacing.none
     val sidebarDeflateOffsetY = MoviesTheme.spacing.none
 
-    LaunchedEffect(isSidebarExpanded, sidebarCollapsePending, pendingContentFocusTransfer, showSidebar) {
-        if (!showSidebar || !pendingContentFocusTransfer || isSidebarExpanded || sidebarCollapsePending) {
+    LaunchedEffect(
+        isSidebarExpanded,
+        sidebarCollapsePending,
+        pendingContentFocusTransfer,
+        showSidebar
+    ) {
+        if (!showSidebar || !pendingContentFocusTransfer || isSidebarExpanded ||
+            sidebarCollapsePending
+        ) {
             return@LaunchedEffect
         }
         repeat(2) { withFrameNanos { } }
@@ -2032,7 +2343,12 @@ private fun ModernSidebarScaffold(
         pendingContentFocusTransfer = false
     }
 
-    LaunchedEffect(isSidebarExpanded, pendingSidebarFocusRequest, showSidebar, selectedDrawerRoute) {
+    LaunchedEffect(
+        isSidebarExpanded,
+        pendingSidebarFocusRequest,
+        showSidebar,
+        selectedDrawerRoute
+    ) {
         if (!showSidebar || !pendingSidebarFocusRequest || !isSidebarExpanded) {
             return@LaunchedEffect
         }
@@ -2074,8 +2390,11 @@ private fun ModernSidebarScaffold(
             modifier = Modifier
                 .fillMaxSize()
                 .then(
-                    if (shouldApplySidebarHaze) Modifier.hazeSource(state = sidebarHazeState)
-                    else Modifier
+                    if (shouldApplySidebarHaze) {
+                        Modifier.hazeSource(state = sidebarHazeState)
+                    } else {
+                        Modifier
+                    }
                 )
                 .onPreviewKeyEvent { keyEvent ->
                     // Long-press Back on a root route directly opens the sidebar,
@@ -2115,20 +2434,27 @@ private fun ModernSidebarScaffold(
                     }
                 }
                 .onKeyEvent { keyEvent ->
-                    if (showSidebar && !isSidebarExpanded && keyEvent.type == KeyEventType.KeyDown) {
+                    if (showSidebar && !isSidebarExpanded &&
+                        keyEvent.type == KeyEventType.KeyDown
+                    ) {
                         if (!keepFloatingPillExpanded) {
                             when (keyEvent.key) {
                                 Key.DirectionDown -> isFloatingPillIconOnly = true
+
                                 Key.DirectionUp -> {
                                     isFloatingPillIconOnly = false
                                     pillExpandRequestCount++
                                 }
+
                                 else -> Unit
                             }
                         }
                         val openKey = if (isRtl) Key.DirectionRight else Key.DirectionLeft
                         if (keyEvent.key == openKey) {
-                            if (focusManager.moveFocus(if (isRtl) FocusDirection.Right else FocusDirection.Left)) {
+                            if (focusManager.moveFocus(
+                                    if (isRtl) FocusDirection.Right else FocusDirection.Left
+                                )
+                            ) {
                                 true
                             } else {
                                 isSidebarExpanded = true
@@ -2164,7 +2490,12 @@ private fun ModernSidebarScaffold(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .width(openSidebarWidth)
-                    .padding(start = MoviesTheme.spacing.lg - MoviesTheme.spacing.xxs, top = MoviesTheme.spacing.lg, bottom = MoviesTheme.spacing.md, end = MoviesTheme.spacing.sm)
+                    .padding(
+                        start = MoviesTheme.spacing.lg - MoviesTheme.spacing.xxs,
+                        top = MoviesTheme.spacing.lg,
+                        bottom = MoviesTheme.spacing.md,
+                        end = MoviesTheme.spacing.sm
+                    )
                     .graphicsLayer {
                         val progress = sidebarExpandProgress
                         alpha = sidebarSurfaceAlpha
@@ -2195,7 +2526,9 @@ private fun ModernSidebarScaffold(
                                 if (focusedDrawerIndex == drawerItems.lastIndex) {
                                     // Already at the bottom drawer item: stay put.
                                     true
-                                } else if (focusedDrawerIndex == drawerItems.size && hasSidebarProfileItem) {
+                                } else if (focusedDrawerIndex == drawerItems.size &&
+                                    hasSidebarProfileItem
+                                ) {
                                     // Profile → first drawer item: skip moveFocus (the
                                     // Spacer gap causes it to land in content) and
                                     // request the first drawer item directly.
@@ -2319,10 +2652,12 @@ private fun CollapsedSidebarPill(
     val mediaColors = colors.media
     val pillBackgroundBrush = remember(blurEnabled) {
         val alpha = if (blurEnabled) 0.65f else 0.96f
-        Brush.verticalGradient(listOf(
-            Color(0xFF1C1C1E).copy(alpha = alpha),
-            Color(0xFF1C1C1E).copy(alpha = alpha)
-        ))
+        Brush.verticalGradient(
+            listOf(
+                Color(0xFF1C1C1E).copy(alpha = alpha),
+                Color(0xFF1C1C1E).copy(alpha = alpha)
+            )
+        )
     }
 
     Row(
@@ -2377,15 +2712,21 @@ private fun CollapsedSidebarPill(
                 AnimatedVisibility(
                     visible = !iconOnly,
                     enter = expandHorizontally(
-                            animationSpec = tween(MoviesMotion.tokens.durations.fast, easing = FastOutSlowInEasing),
-                            expandFrom = Alignment.Start,
-                            clip = true
+                        animationSpec = tween(
+                            MoviesMotion.tokens.durations.fast,
+                            easing = FastOutSlowInEasing
                         ),
+                        expandFrom = Alignment.Start,
+                        clip = true
+                    ),
                     exit = shrinkHorizontally(
-                            animationSpec = tween(MoviesMotion.tokens.durations.fast, easing = FastOutSlowInEasing),
-                            shrinkTowards = Alignment.Start,
-                            clip = true
-                        )
+                        animationSpec = tween(
+                            MoviesMotion.tokens.durations.fast,
+                            easing = FastOutSlowInEasing
+                        ),
+                        shrinkTowards = Alignment.Start,
+                        clip = true
+                    )
                 ) {
                     Text(
                         text = label,
@@ -2418,7 +2759,9 @@ internal fun navigateToDrawerRoute(
                 // "home" not yet on the back stack (e.g. nav graph not fully initialized).
                 return
             }
-            val homeViewModel = androidx.lifecycle.ViewModelProvider(homeEntry)[com.kien.movies.ui.screens.home.HomeViewModel::class.java]
+            val homeViewModel = androidx.lifecycle.ViewModelProvider(
+                homeEntry
+            )[com.kien.movies.ui.screens.home.HomeViewModel::class.java]
             homeViewModel.requestScrollToTop()
         }
         return

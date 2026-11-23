@@ -1,9 +1,8 @@
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.MoviesTheme
-
-import androidx.compose.foundation.layout.Arrangement
+import android.text.format.DateFormat
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +14,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -29,34 +30,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import com.kien.movies.ui.components.expressive.M3eShapes
-import com.kien.movies.ui.components.expressive.MoviesCard
+import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import androidx.compose.ui.platform.LocalContext
-import com.kien.movies.domain.model.MetaCastMember
-import android.text.format.DateFormat
-import java.util.Date
-import java.util.Locale
-import kotlinx.coroutines.delay
-import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
+import com.kien.movies.domain.model.MetaCastMember
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.localizeEpisodeTitle
 import com.kien.movies.ui.util.toAbsoluteAlignment
+import java.util.Date
+import java.util.Locale
+import kotlinx.coroutines.delay
 
 @Composable
 fun PauseOverlay(
@@ -191,7 +190,9 @@ private fun PauseMetadataView(
                 } else {
                     Text(
                         text = title,
-                        modifier = Modifier.align(title.contentTextDirection().toAbsoluteAlignment()),
+                        modifier = Modifier.align(
+                            title.contentTextDirection().toAbsoluteAlignment()
+                        ),
                         style = MaterialTheme.typography.headlineLarge,
                         color = Color.White,
                         maxLines = 2,
@@ -210,7 +211,9 @@ private fun PauseMetadataView(
             }
 
             if (!year.isNullOrBlank()) {
-                val episodeLabel = if (type in listOf("series", "tv") && season != null && episode != null) {
+                val episodeLabel = if (type in listOf("series", "tv") && season != null &&
+                    episode != null
+                ) {
                     " • " + stringResource(R.string.season_episode_format, season, episode)
                 } else {
                     ""
@@ -275,10 +278,7 @@ private fun PauseMetadataView(
 
 /** A cast pill: frosted at rest, white with black text on focus. */
 @Composable
-private fun CastChip(
-    member: MetaCastMember,
-    onClick: () -> Unit
-) {
+private fun CastChip(member: MetaCastMember, onClick: () -> Unit) {
     MoviesCard(
         onClick = onClick,
         modifier = Modifier.heightIn(min = CastChipMinHeight),
@@ -303,10 +303,7 @@ private fun CastChip(
 private val CastChipMinHeight = 48.dp
 
 @Composable
-private fun CastDetailView(
-    member: MetaCastMember,
-    onBack: () -> Unit
-) {
+private fun CastDetailView(member: MetaCastMember, onBack: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center

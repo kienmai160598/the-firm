@@ -21,8 +21,18 @@ object PlexArtworkLink {
     fun needsToken(url: String?): Boolean = url?.contains("#$MARK") == true
 
     /** A resized copy of [path] (a server path such as /library/metadata/1/thumb/2) from the server's picture service. */
-    fun picture(address: String, connectionId: String, path: String, width: Int, height: Int): String? {
-        if (path.startsWith("http://", ignoreCase = true) || path.startsWith("https://", ignoreCase = true)) return path
+    fun picture(
+        address: String,
+        connectionId: String,
+        path: String,
+        width: Int,
+        height: Int
+    ): String? {
+        if (path.startsWith("http://", ignoreCase = true) ||
+            path.startsWith("https://", ignoreCase = true)
+        ) {
+            return path
+        }
         if (!path.startsWith("/")) return null
         val base = address.toHttpUrlOrNull() ?: return null
         val url = base.newBuilder()
@@ -38,8 +48,12 @@ object PlexArtworkLink {
     }
 
     fun connectionId(url: HttpUrl): String? {
-        val value = url.encodedFragment?.split('&')?.firstOrNull { it.startsWith(MARK) }?.removePrefix(MARK) ?: return null
-        return runCatching { URLDecoder.decode(value, "UTF-8") }.getOrNull()?.takeIf { it.isNotBlank() }
+        val value =
+            url.encodedFragment?.split('&')?.firstOrNull { it.startsWith(MARK) }?.removePrefix(MARK)
+                ?: return null
+        return runCatching {
+            URLDecoder.decode(value, "UTF-8")
+        }.getOrNull()?.takeIf { it.isNotBlank() }
     }
 
     internal const val PHOTO_PATH = "/photo/:/transcode"
@@ -66,11 +80,20 @@ class PlexArtworkSigner internal constructor(private val access: (String) -> Ple
 class PlexArtworkInterceptor(private val signer: () -> PlexArtworkSigner?) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
-        val connectionId = PlexArtworkLink.connectionId(request.url) ?: return chain.proceed(request)
+        val connectionId =
+            PlexArtworkLink.connectionId(request.url) ?: return chain.proceed(request)
         val access = signer()?.access(connectionId) ?: return chain.proceed(request)
         val server = access.address.toHttpUrlOrNull() ?: return chain.proceed(request)
         val url = moved(request.url, server)
-        return chain.proceed(if (url == request.url) request else request.newBuilder().url(url).build())
+        return chain.proceed(
+            if (url ==
+                request.url
+            ) {
+                request
+            } else {
+                request.newBuilder().url(url).build()
+            }
+        )
     }
 
     /**
@@ -80,17 +103,28 @@ class PlexArtworkInterceptor(private val signer: () -> PlexArtworkSigner?) : Int
     class Token(private val signer: () -> PlexArtworkSigner?) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             val request = chain.request()
-            val connectionId = PlexArtworkLink.connectionId(request.url) ?: return chain.proceed(request)
+            val connectionId =
+                PlexArtworkLink.connectionId(request.url) ?: return chain.proceed(request)
             val access = signer()?.access(connectionId) ?: return chain.proceed(request)
             val server = access.address.toHttpUrlOrNull() ?: return chain.proceed(request)
             val url = request.url
-            if (url.scheme != server.scheme || url.host != server.host || url.port != server.port) return chain.proceed(request)
-            return chain.proceed(request.newBuilder().header(PlexClient.TOKEN_HEADER, access.token).build())
+            if (url.scheme != server.scheme || url.host != server.host ||
+                url.port != server.port
+            ) {
+                return chain.proceed(request)
+            }
+            return chain.proceed(
+                request.newBuilder().header(PlexClient.TOKEN_HEADER, access.token).build()
+            )
         }
     }
 
     private fun moved(url: HttpUrl, server: HttpUrl): HttpUrl {
-        if (server.scheme == url.scheme && server.host == url.host && server.port == url.port) return url
+        if (server.scheme == url.scheme && server.host == url.host &&
+            server.port == url.port
+        ) {
+            return url
+        }
         if (!url.encodedPath.endsWith(PlexArtworkLink.PHOTO_PATH)) return url
         return url.newBuilder()
             .scheme(server.scheme)

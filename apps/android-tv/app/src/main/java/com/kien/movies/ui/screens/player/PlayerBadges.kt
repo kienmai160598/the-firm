@@ -16,7 +16,10 @@ import com.kien.movies.ui.components.StreamImportedBadgeChip
 import com.kien.movies.ui.util.languageCodeToName
 
 @Composable
-internal fun rememberPlayerBadges(viewModel: PlayerViewModel, uiState: PlayerUiState): List<StreamBadge> {
+internal fun rememberPlayerBadges(
+    viewModel: PlayerViewModel,
+    uiState: PlayerUiState
+): List<StreamBadge> {
     val filters = uiState.playerBadgeFilters
     var mediaInfo by remember { mutableStateOf(PlayerMediaInfo()) }
     var streamFilename by remember { mutableStateOf<String?>(null) }
@@ -36,7 +39,8 @@ internal fun rememberPlayerBadges(viewModel: PlayerViewModel, uiState: PlayerUiS
     }
     if (filters.isEmpty()) return emptyList()
     val language = selectedAudio?.language
-    val text = playbackMatchText(mediaInfo, listOfNotNull(language, language?.let(::languageCodeToName)))
+    val text =
+        playbackMatchText(mediaInfo, listOfNotNull(language, language?.let(::languageCodeToName)))
     // Keep candidates separate so regex lookaheads in one don't bleed into another.
     // Collapse whitespace so \n in stream names doesn't break single-line regex patterns.
     val metaCandidates = listOfNotNull(
@@ -53,16 +57,15 @@ internal fun rememberPlayerBadges(viewModel: PlayerViewModel, uiState: PlayerUiS
 }
 
 @Composable
-internal fun PlayerBadges(
-    badges: List<StreamBadge>,
-    modifier: Modifier = Modifier
-) {
+internal fun PlayerBadges(badges: List<StreamBadge>, modifier: Modifier = Modifier) {
     Layout(
         content = { badges.forEach { StreamImportedBadgeChip(badge = it) } },
         modifier = modifier
     ) { measurables, constraints ->
         val gap = 4.dp.roundToPx()
-        val placeables = measurables.map { it.measure(Constraints(maxWidth = constraints.maxWidth)) }
+        val placeables = measurables.map {
+            it.measure(Constraints(maxWidth = constraints.maxWidth))
+        }
         var width = 0
         var visibleCount = 0
         for (placeable in placeables) {

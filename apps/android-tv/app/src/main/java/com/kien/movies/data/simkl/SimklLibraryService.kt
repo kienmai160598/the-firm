@@ -42,21 +42,22 @@ class SimklLibraryService @Inject constructor(
 
     override fun recognizesListKey(key: String): Boolean = simklLibraryStatusDefinition(key) != null
 
-    override fun observeMembership(itemId: String, itemType: String): Flow<Set<String>> =
-        syncRepository.projection.map { projection ->
-            projection.membershipKey(itemId, itemType.normalizedContentType())
-                ?.let(::setOf)
-                .orEmpty()
-        }.onStart { syncRepository.refresh(TrackingRefreshIntent.AUTOMATIC) }
-            .distinctUntilChanged()
+    override fun observeMembership(itemId: String, itemType: String): Flow<Set<String>> = syncRepository.projection.map { projection ->
+        projection.membershipKey(itemId, itemType.normalizedContentType())
+            ?.let(::setOf)
+            .orEmpty()
+    }.onStart { syncRepository.refresh(TrackingRefreshIntent.AUTOMATIC) }
+        .distinctUntilChanged()
 
     override fun toggledDefaultMembership(
         currentMembership: Map<String, Boolean>
     ): Map<String, Boolean> = currentMembership.mapValues { false }.toMutableMap().apply {
         if (currentMembership.values.none { selected -> selected }) {
-            this[simklLibraryStatusDefinitions.single {
-                it.status == SimklListStatus.PLAN_TO_WATCH
-            }.key] = true
+            this[
+                simklLibraryStatusDefinitions.single {
+                    it.status == SimklListStatus.PLAN_TO_WATCH
+                }.key
+            ] = true
         }
     }
 
@@ -103,9 +104,11 @@ class SimklLibraryService @Inject constructor(
         }
         require(desiredDefinitions.size <= 1) { "A Simkl item can have only one list status" }
         val desired = desiredDefinitions.singleOrNull()
-        require(desired == null || desired.supportedContentTypes.any { supported ->
-            supported.equals(item.itemType.normalizedContentType(), ignoreCase = true)
-        }) { "${desired?.title} does not support ${item.itemType}" }
+        require(
+            desired == null || desired.supportedContentTypes.any { supported ->
+                supported.equals(item.itemType.normalizedContentType(), ignoreCase = true)
+            }
+        ) { "${desired?.title} does not support ${item.itemType}" }
         val mutation = resolveSimklLibraryMutation(
             currentEntry = currentEntry,
             currentDefinition = currentDefinition,
@@ -137,6 +140,7 @@ class SimklLibraryService @Inject constructor(
                 listOf(reference),
                 mutation.destination
             )
+
             SimklLibraryMutation.Remove -> mutationService.removeFromList(listOf(reference))
         }
         check(result.isComplete) {
@@ -174,7 +178,6 @@ class SimklLibraryService @Inject constructor(
         "tv", "show", "anime" -> "series"
         else -> trim().lowercase()
     }
-
 }
 
 internal fun SimklLibraryEntry.destructiveRemovalImpacts(): Set<TrackingMembershipRemovalImpact> = buildSet {
@@ -202,7 +205,11 @@ internal fun resolveSimklLibraryMutation(
     destructiveRemovalConfirmed: Boolean
 ): SimklLibraryMutation? {
     if (desiredDefinition == currentDefinition) return null
-    if (desiredDefinition != null) return SimklLibraryMutation.Move(desiredDefinition.trackingStatus)
+    if (desiredDefinition !=
+        null
+    ) {
+        return SimklLibraryMutation.Move(desiredDefinition.trackingStatus)
+    }
     if (
         currentEntry?.destructiveRemovalImpacts().orEmpty().isNotEmpty() &&
         !destructiveRemovalConfirmed
@@ -212,6 +219,7 @@ internal fun resolveSimklLibraryMutation(
     return SimklLibraryMutation.Remove
 }
 
-class SimklDestructiveRemovalRequiredException : IllegalStateException(
-    "Removing this Simkl status would also clear watched history or a rating"
-)
+class SimklDestructiveRemovalRequiredException :
+    IllegalStateException(
+        "Removing this Simkl status would also clear watched history or a rating"
+    )

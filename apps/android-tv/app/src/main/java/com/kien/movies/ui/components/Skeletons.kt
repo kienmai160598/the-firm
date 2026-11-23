@@ -1,8 +1,5 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -21,6 +18,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -33,9 +33,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import com.kien.movies.ui.theme.ExpressiveMotion
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 fun StreamsSkeletonList(
@@ -78,11 +77,31 @@ fun StreamCardSkeleton(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
             ) {
-                SkeletonBar(width = 180.dp, height = MoviesTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
-                SkeletonBar(width = 140.dp, height = MoviesTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
+                SkeletonBar(
+                    width = 180.dp,
+                    height = MoviesTheme.spacing.lg,
+                    brush = shimmerBrush,
+                    cornerRadius = 10.dp
+                )
+                SkeletonBar(
+                    width = 140.dp,
+                    height = MoviesTheme.spacing.md,
+                    brush = shimmerBrush,
+                    cornerRadius = 10.dp
+                )
                 Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
-                    SkeletonBar(width = 64.dp, height = MoviesTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
-                    SkeletonBar(width = 52.dp, height = MoviesTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
+                    SkeletonBar(
+                        width = 64.dp,
+                        height = MoviesTheme.spacing.lg,
+                        brush = shimmerBrush,
+                        cornerRadius = 10.dp
+                    )
+                    SkeletonBar(
+                        width = 52.dp,
+                        height = MoviesTheme.spacing.lg,
+                        brush = shimmerBrush,
+                        cornerRadius = 10.dp
+                    )
                 }
             }
 
@@ -97,7 +116,12 @@ fun StreamCardSkeleton(
                             .background(shimmerBrush)
                     )
                     Spacer(modifier = Modifier.height(6.dp))
-                    SkeletonBar(width = 64.dp, height = 10.dp, brush = shimmerBrush, cornerRadius = MoviesTheme.spacing.sm)
+                    SkeletonBar(
+                        width = 64.dp,
+                        height = 10.dp,
+                        brush = shimmerBrush,
+                        cornerRadius = MoviesTheme.spacing.sm
+                    )
                 }
             }
         }
@@ -221,7 +245,11 @@ private fun MetaHeroSkeleton(shimmerBrush: Brush) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.lg),
+                .padding(
+                    start = MoviesTheme.spacing.xxxl,
+                    end = MoviesTheme.spacing.xxxl,
+                    bottom = MoviesTheme.spacing.lg
+                ),
             verticalArrangement = Arrangement.Bottom
         ) {
             SkeletonBar(
@@ -237,7 +265,11 @@ private fun MetaHeroSkeleton(shimmerBrush: Brush) {
                 horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                SkeletonPill(width = 100.dp, height = MoviesTheme.spacing.xxxl, brush = shimmerBrush)
+                SkeletonPill(
+                    width = 100.dp,
+                    height = MoviesTheme.spacing.xxxl,
+                    brush = shimmerBrush
+                )
                 Box(
                     modifier = Modifier
                         .size(MoviesTheme.spacing.xxxl)
@@ -250,24 +282,64 @@ private fun MetaHeroSkeleton(shimmerBrush: Brush) {
 
             SkeletonBar(width = 0.5f, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
             Spacer(modifier = Modifier.height(10.dp))
-            SkeletonBar(width = 0.6f, height = MoviesTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
+            SkeletonBar(
+                width = 0.6f,
+                height = MoviesTheme.spacing.lg,
+                brush = shimmerBrush,
+                cornerRadius = 10.dp
+            )
             Spacer(modifier = Modifier.height(6.dp))
-            SkeletonBar(width = 0.55f, height = MoviesTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
+            SkeletonBar(
+                width = 0.55f,
+                height = MoviesTheme.spacing.lg,
+                brush = shimmerBrush,
+                cornerRadius = 10.dp
+            )
 
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
             Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
-                SkeletonBar(width = 96.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
-                SkeletonBar(width = 72.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
-                SkeletonBar(width = 84.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
-                SkeletonBar(width = 64.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
+                SkeletonBar(
+                    width = 96.dp,
+                    height = 14.dp,
+                    brush = shimmerBrush,
+                    cornerRadius = 10.dp
+                )
+                SkeletonBar(
+                    width = 72.dp,
+                    height = 14.dp,
+                    brush = shimmerBrush,
+                    cornerRadius = 10.dp
+                )
+                SkeletonBar(
+                    width = 84.dp,
+                    height = 14.dp,
+                    brush = shimmerBrush,
+                    cornerRadius = 10.dp
+                )
+                SkeletonBar(
+                    width = 64.dp,
+                    height = 14.dp,
+                    brush = shimmerBrush,
+                    cornerRadius = 10.dp
+                )
             }
 
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
 
             Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
-                SkeletonBar(width = 72.dp, height = MoviesTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
-                SkeletonBar(width = MoviesTheme.spacing.huge, height = MoviesTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
+                SkeletonBar(
+                    width = 72.dp,
+                    height = MoviesTheme.spacing.md,
+                    brush = shimmerBrush,
+                    cornerRadius = 10.dp
+                )
+                SkeletonBar(
+                    width = MoviesTheme.spacing.huge,
+                    height = MoviesTheme.spacing.md,
+                    brush = shimmerBrush,
+                    cornerRadius = 10.dp
+                )
             }
         }
     }
@@ -277,7 +349,10 @@ private fun MetaHeroSkeleton(shimmerBrush: Brush) {
 private fun SeasonTabsSkeleton(shimmerBrush: Brush) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xl),
+        contentPadding = PaddingValues(
+            horizontal = MoviesTheme.spacing.xxxl,
+            vertical = MoviesTheme.spacing.xl
+        ),
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         items(5) {
@@ -287,13 +362,13 @@ private fun SeasonTabsSkeleton(shimmerBrush: Brush) {
 }
 
 @Composable
-private fun EpisodesRowSkeleton(
-    shimmerBrush: Brush,
-    cardColor: Color
-) {
+private fun EpisodesRowSkeleton(shimmerBrush: Brush, cardColor: Color) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.lg),
+        contentPadding = PaddingValues(
+            horizontal = MoviesTheme.spacing.xxxl,
+            vertical = MoviesTheme.spacing.lg
+        ),
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
     ) {
         items(5) {
@@ -307,13 +382,28 @@ private fun EpisodesRowSkeleton(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(158.dp)
-                        .clip(RoundedCornerShape(topStart = MoviesTheme.spacing.md, topEnd = MoviesTheme.spacing.md))
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = MoviesTheme.spacing.md,
+                                topEnd = MoviesTheme.spacing.md
+                            )
+                        )
                         .background(shimmerBrush)
                 )
                 Column(modifier = Modifier.padding(MoviesTheme.spacing.md)) {
-                    SkeletonBar(width = 160.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
+                    SkeletonBar(
+                        width = 160.dp,
+                        height = 14.dp,
+                        brush = shimmerBrush,
+                        cornerRadius = 10.dp
+                    )
                     Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                    SkeletonBar(width = 120.dp, height = MoviesTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
+                    SkeletonBar(
+                        width = 120.dp,
+                        height = MoviesTheme.spacing.md,
+                        brush = shimmerBrush,
+                        cornerRadius = 10.dp
+                    )
                 }
             }
         }
@@ -350,9 +440,19 @@ private fun CastSectionSkeleton(shimmerBrush: Brush) {
                             .background(shimmerBrush)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    SkeletonBar(width = 90.dp, height = MoviesTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
+                    SkeletonBar(
+                        width = 90.dp,
+                        height = MoviesTheme.spacing.md,
+                        brush = shimmerBrush,
+                        cornerRadius = 10.dp
+                    )
                     Spacer(modifier = Modifier.height(6.dp))
-                    SkeletonBar(width = 70.dp, height = 10.dp, brush = shimmerBrush, cornerRadius = 10.dp)
+                    SkeletonBar(
+                        width = 70.dp,
+                        height = 10.dp,
+                        brush = shimmerBrush,
+                        cornerRadius = 10.dp
+                    )
                 }
             }
         }
@@ -360,17 +460,19 @@ private fun CastSectionSkeleton(shimmerBrush: Brush) {
 }
 
 @Composable
-private fun CompanyLogosSkeleton(
-    titleWidth: Dp,
-    shimmerBrush: Brush
-) {
+private fun CompanyLogosSkeleton(titleWidth: Dp, shimmerBrush: Brush) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 20.dp, bottom = MoviesTheme.spacing.sm)
     ) {
         Box(modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl)) {
-            SkeletonBar(width = titleWidth, height = 20.dp, brush = shimmerBrush, cornerRadius = 10.dp)
+            SkeletonBar(
+                width = titleWidth,
+                height = 20.dp,
+                brush = shimmerBrush,
+                cornerRadius = 10.dp
+            )
         }
 
         LazyRow(
@@ -392,12 +494,7 @@ private fun CompanyLogosSkeleton(
 }
 
 @Composable
-fun SkeletonBar(
-    width: Dp,
-    height: Dp,
-    brush: Brush,
-    cornerRadius: Dp = MoviesTheme.spacing.sm
-) {
+fun SkeletonBar(width: Dp, height: Dp, brush: Brush, cornerRadius: Dp = MoviesTheme.spacing.sm) {
     Box(
         modifier = Modifier
             .width(width)
@@ -408,12 +505,7 @@ fun SkeletonBar(
 }
 
 @Composable
-fun SkeletonBar(
-    width: Float,
-    height: Dp,
-    brush: Brush,
-    cornerRadius: Dp = MoviesTheme.spacing.sm
-) {
+fun SkeletonBar(width: Float, height: Dp, brush: Brush, cornerRadius: Dp = MoviesTheme.spacing.sm) {
     Box(
         modifier = Modifier
             .fillMaxWidth(width)
@@ -424,11 +516,7 @@ fun SkeletonBar(
 }
 
 @Composable
-fun SkeletonPill(
-    width: Dp,
-    height: Dp,
-    brush: Brush
-) {
+fun SkeletonPill(width: Dp, height: Dp, brush: Brush) {
     Box(
         modifier = Modifier
             .width(width)

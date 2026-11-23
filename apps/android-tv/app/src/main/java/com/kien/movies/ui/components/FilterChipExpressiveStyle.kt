@@ -100,19 +100,18 @@ internal fun borderlessFilterChip(): SelectableChipBorder = FilterChipDefaults.b
     focusedSelectedDisabledBorder = Border.None
 )
 
-internal fun selectedCheckIcon(selected: Boolean, tint: Color): (@Composable () -> Unit)? =
-    if (selected) {
-        {
-            Icon(
-                imageVector = Icons.Rounded.Check,
-                contentDescription = null,
-                modifier = Modifier.size(CheckIconSize),
-                tint = tint
-            )
-        }
-    } else {
-        null
+internal fun selectedCheckIcon(selected: Boolean, tint: Color): (@Composable () -> Unit)? = if (selected) {
+    {
+        Icon(
+            imageVector = Icons.Rounded.Check,
+            contentDescription = null,
+            modifier = Modifier.size(CheckIconSize),
+            tint = tint
+        )
     }
+} else {
+    null
+}
 
 internal suspend fun playErrorNudge(
     alpha: Animatable<Float, AnimationVector1D>,

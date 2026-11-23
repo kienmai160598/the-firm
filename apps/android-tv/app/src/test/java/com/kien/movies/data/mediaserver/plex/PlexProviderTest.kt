@@ -52,10 +52,12 @@ class PlexProviderTest {
     @Test
     fun listsMovieAndShowLibrariesOnly() = runTest {
         val (plex, http) = provider {
-            ok("""{"MediaContainer":{"Directory":[
+            ok(
+                """{"MediaContainer":{"Directory":[
                 {"key":"1","title":"Movies","type":"movie"},
                 {"key":"2","title":"TV Shows","type":"show"},
-                {"key":"3","title":"Music","type":"artist"}]}}""")
+                {"key":"3","title":"Music","type":"artist"}]}}"""
+            )
         }
 
         val libraries = plex.libraries(session)
@@ -68,11 +70,13 @@ class PlexProviderTest {
     @Test
     fun readsLibraryPagesWithNumericTagIdsAndUnsignedArtwork() = runTest {
         val (plex, http) = provider {
-            ok("""{"MediaContainer":{"totalSize":120,"Metadata":[{
+            ok(
+                """{"MediaContainer":{"totalSize":120,"Metadata":[{
                 "ratingKey":"10","type":"movie","title":"The Matrix","year":1999,"thumb":"/library/metadata/10/thumb/1",
                 "art":"/library/metadata/10/art/1","audienceRating":8.66,
                 "Genre":[{"id":7,"tag":"Action"}],
-                "Guid":[{"id":"imdb://tt0133093"},{"id":"tmdb://603"},{"id":"tvdb://169"}]}]}}""")
+                "Guid":[{"id":"imdb://tt0133093"},{"id":"tmdb://603"},{"id":"tvdb://169"}]}]}}"""
+            )
         }
 
         val page = plex.libraryPage(session, movies, start = 50, limit = 50)
@@ -82,7 +86,10 @@ class PlexProviderTest {
         assertEquals(ServerItemRef("c1", "10").encode(), title.preview.id)
         assertEquals(listOf("Action"), title.preview.genres)
         assertEquals(8.7f, title.preview.imdbRating)
-        assertEquals(TrackingExternalIds(imdb = "tt0133093", tmdb = 603, tvdb = "169"), title.externalIds)
+        assertEquals(
+            TrackingExternalIds(imdb = "tt0133093", tmdb = 603, tvdb = "169"),
+            title.externalIds
+        )
         val poster = title.preview.poster.orEmpty()
         assertTrue(poster.startsWith("http://192.168.1.20:32400/photo/:/transcode?"))
         assertTrue(poster.endsWith("#nuvio-plex=c1"))
@@ -98,10 +105,16 @@ class PlexProviderTest {
     fun showDetailsCarryEveryEpisodeAndItsWatchState() = runTest {
         val (plex, _) = provider { request ->
             when (request.url.encodedPath) {
-                "/library/metadata/20" -> ok("""{"MediaContainer":{"Metadata":[{"ratingKey":"20","type":"show","title":"Severance"}]}}""")
-                "/library/metadata/20/allLeaves" -> ok("""{"MediaContainer":{"Metadata":[
+                "/library/metadata/20" -> ok(
+                    """{"MediaContainer":{"Metadata":[{"ratingKey":"20","type":"show","title":"Severance"}]}}"""
+                )
+
+                "/library/metadata/20/allLeaves" -> ok(
+                    """{"MediaContainer":{"Metadata":[
                     {"ratingKey":"21","type":"episode","title":"Good News","parentIndex":1,"index":1,"duration":3000000,"viewCount":1},
-                    {"ratingKey":"22","type":"episode","title":"Half Loop","parentIndex":1,"index":2,"duration":3000000,"viewOffset":60000,"lastViewedAt":1700000000}]}}""")
+                    {"ratingKey":"22","type":"episode","title":"Half Loop","parentIndex":1,"index":2,"duration":3000000,"viewOffset":60000,"lastViewedAt":1700000000}]}}"""
+                )
+
                 else -> error("Unexpected ${request.url}")
             }
         }
@@ -119,10 +132,12 @@ class PlexProviderTest {
     @Test
     fun resumeRowShowsStartedItemsFromChosenLibraries() = runTest {
         val (plex, _) = provider {
-            ok("""{"MediaContainer":{"Metadata":[
+            ok(
+                """{"MediaContainer":{"Metadata":[
                 {"ratingKey":"31","type":"episode","title":"Pilot","grandparentRatingKey":"30","grandparentTitle":"Lost","viewOffset":5000,"librarySectionID":2},
                 {"ratingKey":"40","type":"movie","title":"Heat","viewOffset":0,"librarySectionID":1},
-                {"ratingKey":"50","type":"movie","title":"Other","viewOffset":9000,"librarySectionID":9}]}}""")
+                {"ratingKey":"50","type":"movie","title":"Other","viewOffset":9000,"librarySectionID":9}]}}"""
+            )
         }
 
         val resume = plex.resumeItems(session, limit = 10)
@@ -134,12 +149,18 @@ class PlexProviderTest {
     @Test
     fun findsATitleByNameAndChecksItsIds() = runTest {
         val (plex, http) = provider {
-            ok("""{"MediaContainer":{"Metadata":[
+            ok(
+                """{"MediaContainer":{"Metadata":[
                 {"ratingKey":"10","type":"movie","title":"The Matrix","year":1999,"Guid":[{"id":"tmdb://603"}]},
-                {"ratingKey":"11","type":"movie","title":"The Matrix Reloaded","year":2003,"Guid":[{"id":"tmdb://604"}]}]}}""")
+                {"ratingKey":"11","type":"movie","title":"The Matrix Reloaded","year":2003,"Guid":[{"id":"tmdb://604"}]}]}}"""
+            )
         }
 
-        val found = plex.lookupTitle(session, movies, ServerTitleQuery(TrackingExternalIds(tmdb = 603), "The Matrix", 1999))
+        val found = plex.lookupTitle(
+            session,
+            movies,
+            ServerTitleQuery(TrackingExternalIds(tmdb = 603), "The Matrix", 1999)
+        )
 
         assertEquals(listOf("10", "11"), found?.map { it.itemId })
         assertEquals("1999", http.requests.single().url.queryParameter("year"))
@@ -148,9 +169,11 @@ class PlexProviderTest {
     @Test
     fun findsAnEpisodeByItsNumbers() = runTest {
         val (plex, _) = provider {
-            ok("""{"MediaContainer":{"Metadata":[
+            ok(
+                """{"MediaContainer":{"Metadata":[
                 {"ratingKey":"21","type":"episode","parentIndex":1,"index":1,"originallyAvailableAt":"2022-02-18"},
-                {"ratingKey":"22","type":"episode","parentIndex":1,"index":2}]}}""")
+                {"ratingKey":"22","type":"episode","parentIndex":1,"index":2}]}}"""
+            )
         }
 
         assertEquals("21", plex.findEpisode(session, "20", 1, 1)?.itemId)
@@ -165,9 +188,17 @@ class PlexProviderTest {
         plex.setPlayed(session, "10", played = true)
         plex.setPlayed(session, "10", played = false)
 
-        assertEquals(listOf("/:/scrobble", "/:/unscrobble"), http.requests.map { it.url.encodedPath })
+        assertEquals(
+            listOf("/:/scrobble", "/:/unscrobble"),
+            http.requests.map {
+                it.url.encodedPath
+            }
+        )
         assertEquals("10", http.requests.first().url.queryParameter("key"))
-        assertEquals("com.plexapp.plugins.library", http.requests.first().url.queryParameter("identifier"))
+        assertEquals(
+            "com.plexapp.plugins.library",
+            http.requests.first().url.queryParameter("identifier")
+        )
     }
 
     private val movieItem = """{"MediaContainer":{"Metadata":[{"ratingKey":"10","key":"/library/metadata/10","type":"movie","title":"Heat","duration":600000,
@@ -197,7 +228,14 @@ class PlexProviderTest {
 
     @Test
     fun namesDtsByItsUsualName() = runTest {
-        val (plex, _) = provider { ok(movieItem.replace("\"audioCodec\":\"truehd\",\"audioChannels\":8", "\"audioCodec\":\"dca\",\"audioChannels\":6")) }
+        val (plex, _) = provider {
+            ok(
+                movieItem.replace(
+                    "\"audioCodec\":\"truehd\",\"audioChannels\":8",
+                    "\"audioCodec\":\"dca\",\"audioChannels\":6"
+                )
+            )
+        }
 
         assertEquals("HEVC • DTS 5.1 • MKV", plex.candidates(session, "10").single().description)
     }
@@ -211,14 +249,22 @@ class PlexProviderTest {
         val playback = plex.preparePlayback(session, request)
 
         assertEquals(ServerPlayMethod.DIRECT_PLAY, playback.playMethod)
-        assertTrue(playback.url.startsWith("http://192.168.1.20:32400/library/parts/5/123/file.mkv?"))
-        assertEquals(playback.playSessionId, playback.url.toHttpUrl().queryParameter("X-Plex-Session-Identifier"))
+        assertTrue(
+            playback.url.startsWith("http://192.168.1.20:32400/library/parts/5/123/file.mkv?")
+        )
+        assertEquals(
+            playback.playSessionId,
+            playback.url.toHttpUrl().queryParameter("X-Plex-Session-Identifier")
+        )
         assertEquals("server-token", playback.headers["X-Plex-Token"])
         assertFalse(playback.url.contains("server-token"))
         val subtitle = playback.subtitles.single()
         assertEquals("http://192.168.1.20:32400/library/streams/101", subtitle.url)
         assertEquals("server-token", subtitle.headers?.get("X-Plex-Token"))
-        assertEquals("bytes=0-0", http.requests("/library/parts/5/123/file.mkv").single().header("Range"))
+        assertEquals(
+            "bytes=0-0",
+            http.requests("/library/parts/5/123/file.mkv").single().header("Range")
+        )
     }
 
     @Test
@@ -227,7 +273,9 @@ class PlexProviderTest {
             if (request.url.encodedPath.startsWith("/library/parts/")) 403 to "" else ok(movieItem)
         }
 
-        val error = runCatching { plex.preparePlayback(session, request) }.exceptionOrNull() as ServerException
+        val error = runCatching {
+            plex.preparePlayback(session, request)
+        }.exceptionOrNull() as ServerException
 
         assertEquals(ServerFailure.REMOTE_PLAYBACK_BLOCKED, error.failure)
     }
@@ -237,30 +285,77 @@ class PlexProviderTest {
         val (plex, http) = provider { request ->
             when (request.url.encodedPath) {
                 "/video/:/transcode/universal/decision" ->
-                    ok("""{"MediaContainer":{"generalDecisionCode":1001,"transcodeDecisionText":"Video is transcoding"}}""")
+                    ok(
+                        """{"MediaContainer":{"generalDecisionCode":1001,"transcodeDecisionText":"Video is transcoding"}}"""
+                    )
+
                 "/library/parts/5" -> ok("")
+
                 "/:/timeline", "/video/:/transcode/universal/stop" -> ok("")
+
                 else -> ok(movieItem)
             }
         }
 
         val playback = plex.preparePlayback(
             session,
-            request.copy(capabilities = ServerPlayerCapabilities(allowDirectPlay = false), subtitleStreamIndex = 102)
+            request.copy(
+                capabilities = ServerPlayerCapabilities(allowDirectPlay = false),
+                subtitleStreamIndex = 102
+            )
         )
-        plex.report(session, playback, ServerPlaybackEvent(ServerPlaybackEventType.START, positionMs = 60_000L, isPaused = false))
-        plex.report(session, playback, ServerPlaybackEvent(ServerPlaybackEventType.STOP, positionMs = 120_000L, isPaused = true))
+        plex.report(
+            session,
+            playback,
+            ServerPlaybackEvent(
+                ServerPlaybackEventType.START,
+                positionMs = 60_000L,
+                isPaused = false
+            )
+        )
+        plex.report(
+            session,
+            playback,
+            ServerPlaybackEvent(
+                ServerPlaybackEventType.STOP,
+                positionMs = 120_000L,
+                isPaused = true
+            )
+        )
 
         assertEquals(ServerPlayMethod.TRANSCODE, playback.playMethod)
-        assertTrue(playback.url.startsWith("http://192.168.1.20:32400/video/:/transcode/universal/start.m3u8?"))
+        assertTrue(
+            playback.url.startsWith(
+                "http://192.168.1.20:32400/video/:/transcode/universal/start.m3u8?"
+            )
+        )
         assertEquals(listOf("Video is transcoding"), playback.transcodeReasons)
-        assertEquals(listOf(101 to false, 102 to true), playback.burnInSubtitles.map { it.index to it.selected })
-        assertEquals("102", http.requests("/library/parts/5").single().url.queryParameter("subtitleStreamID"))
+        assertEquals(
+            listOf(101 to false, 102 to true),
+            playback.burnInSubtitles.map {
+                it.index to
+                    it.selected
+            }
+        )
+        assertEquals(
+            "102",
+            http.requests("/library/parts/5").single().url.queryParameter("subtitleStreamID")
+        )
         val timeline = http.requests("/:/timeline").last().url
-        assertEquals(listOf("playing", "stopped"), http.requests("/:/timeline").map { it.url.queryParameter("state") })
+        assertEquals(
+            listOf("playing", "stopped"),
+            http.requests("/:/timeline").map {
+                it.url.queryParameter("state")
+            }
+        )
         assertEquals("stopped", timeline.queryParameter("state"))
         assertEquals("120000", timeline.queryParameter("time"))
-        assertEquals(playback.playSessionId, http.requests("/video/:/transcode/universal/stop").single().url.queryParameter("session"))
+        assertEquals(
+            playback.playSessionId,
+            http.requests(
+                "/video/:/transcode/universal/stop"
+            ).single().url.queryParameter("session")
+        )
     }
 
     @Test
@@ -268,15 +363,27 @@ class PlexProviderTest {
         val (plex, http) = provider { request ->
             when (request.url.encodedPath) {
                 "/video/:/transcode/universal/decision" ->
-                    ok("""{"MediaContainer":{"generalDecisionCode":1001,"transcodeDecisionText":"Video is transcoding"}}""")
+                    ok(
+                        """{"MediaContainer":{"generalDecisionCode":1001,"transcodeDecisionText":"Video is transcoding"}}"""
+                    )
+
                 "/library/parts/5" -> ok("")
+
                 "/:/timeline", "/video/:/transcode/universal/stop" -> ok("")
+
                 else -> ok(movieItem)
             }
         }
-        val playback = plex.preparePlayback(session, request.copy(capabilities = ServerPlayerCapabilities(allowDirectPlay = false)))
+        val playback = plex.preparePlayback(
+            session,
+            request.copy(capabilities = ServerPlayerCapabilities(allowDirectPlay = false))
+        )
 
-        plex.report(session, playback, ServerPlaybackEvent(ServerPlaybackEventType.STOP, positionMs = 0L, isPaused = true))
+        plex.report(
+            session,
+            playback,
+            ServerPlaybackEvent(ServerPlaybackEventType.STOP, positionMs = 0L, isPaused = true)
+        )
 
         assertTrue(http.requests("/:/timeline").isEmpty())
         assertEquals(1, http.requests("/video/:/transcode/universal/stop").size)
@@ -286,14 +393,19 @@ class PlexProviderTest {
     fun aConversionThatCopiesTheVideoIsADirectStream() = runTest {
         val (plex, _) = provider { request ->
             if (request.url.encodedPath == "/video/:/transcode/universal/decision") {
-                ok("""{"MediaContainer":{"generalDecisionCode":1001,"transcodeDecisionText":"Direct play not available; Conversion OK.",
-                    "Metadata":[{"Media":[{"Part":[{"Stream":[{"streamType":1,"decision":"copy"},{"streamType":2,"decision":"transcode"}]}]}]}]}}""")
+                ok(
+                    """{"MediaContainer":{"generalDecisionCode":1001,"transcodeDecisionText":"Direct play not available; Conversion OK.",
+                    "Metadata":[{"Media":[{"Part":[{"Stream":[{"streamType":1,"decision":"copy"},{"streamType":2,"decision":"transcode"}]}]}]}]}}"""
+                )
             } else {
                 ok(movieItem)
             }
         }
 
-        val playback = plex.preparePlayback(session, request.copy(capabilities = ServerPlayerCapabilities(allowDirectPlay = false)))
+        val playback = plex.preparePlayback(
+            session,
+            request.copy(capabilities = ServerPlayerCapabilities(allowDirectPlay = false))
+        )
 
         assertEquals(ServerPlayMethod.DIRECT_STREAM, playback.playMethod)
         assertTrue(playback.transcodeReasons.isEmpty())
@@ -303,14 +415,19 @@ class PlexProviderTest {
     fun aRefusedConversionFails() = runTest {
         val (plex, _) = provider { request ->
             if (request.url.encodedPath == "/video/:/transcode/universal/decision") {
-                ok("""{"MediaContainer":{"generalDecisionCode":2000,"generalDecisionText":"Not allowed"}}""")
+                ok(
+                    """{"MediaContainer":{"generalDecisionCode":2000,"generalDecisionText":"Not allowed"}}"""
+                )
             } else {
                 ok(movieItem)
             }
         }
 
         val error = runCatching {
-            plex.preparePlayback(session, request.copy(capabilities = ServerPlayerCapabilities(allowDirectPlay = false)))
+            plex.preparePlayback(
+                session,
+                request.copy(capabilities = ServerPlayerCapabilities(allowDirectPlay = false))
+            )
         }.exceptionOrNull() as ServerException
 
         assertEquals(ServerFailure.UNSUPPORTED, error.failure)
@@ -318,10 +435,22 @@ class PlexProviderTest {
 
     @Test
     fun readsIdsFromOlderAgents() {
-        assertEquals(TrackingExternalIds(imdb = "tt0133093"), legacyGuidIds("com.plexapp.agents.imdb://tt0133093?lang=en"))
-        assertEquals(TrackingExternalIds(tmdb = 603), legacyGuidIds("com.plexapp.agents.themoviedb://603?lang=en"))
-        assertEquals(TrackingExternalIds(tvdb = "121361"), legacyGuidIds("com.plexapp.agents.thetvdb://121361?lang=en"))
-        assertEquals(TrackingExternalIds(anidb = 23), legacyGuidIds("com.plexapp.agents.hama://anidb-23?lang=en"))
+        assertEquals(
+            TrackingExternalIds(imdb = "tt0133093"),
+            legacyGuidIds("com.plexapp.agents.imdb://tt0133093?lang=en")
+        )
+        assertEquals(
+            TrackingExternalIds(tmdb = 603),
+            legacyGuidIds("com.plexapp.agents.themoviedb://603?lang=en")
+        )
+        assertEquals(
+            TrackingExternalIds(tvdb = "121361"),
+            legacyGuidIds("com.plexapp.agents.thetvdb://121361?lang=en")
+        )
+        assertEquals(
+            TrackingExternalIds(anidb = 23),
+            legacyGuidIds("com.plexapp.agents.hama://anidb-23?lang=en")
+        )
         assertEquals(TrackingExternalIds(), legacyGuidIds("plex://movie/5d776825880197001ec967c6"))
     }
 }

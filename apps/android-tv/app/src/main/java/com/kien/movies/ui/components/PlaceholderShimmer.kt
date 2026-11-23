@@ -51,7 +51,8 @@ fun Modifier.placeholderCardShimmer(
                 colorStops = PLACEHOLDER_SHIMMER_COLOR_STOPS,
                 start = Offset(shimmerOffset * PLACEHOLDER_SHIMMER_DISTANCE_PX, 0f),
                 end = Offset(
-                    (shimmerOffset + PLACEHOLDER_SHIMMER_WIDTH_FRACTION) * PLACEHOLDER_SHIMMER_DISTANCE_PX,
+                    (shimmerOffset + PLACEHOLDER_SHIMMER_WIDTH_FRACTION) *
+                        PLACEHOLDER_SHIMMER_DISTANCE_PX,
                     0f
                 )
             )

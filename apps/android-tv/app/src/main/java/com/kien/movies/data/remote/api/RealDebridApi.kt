@@ -15,9 +15,7 @@ import retrofit2.http.Path
 
 interface RealDebridApi {
     @GET("user")
-    suspend fun getUser(
-        @Header("Authorization") authorization: String
-    ): Response<ResponseBody>
+    suspend fun getUser(@Header("Authorization") authorization: String): Response<ResponseBody>
 
     @FormUrlEncoded
     @POST("torrents/addMagnet")

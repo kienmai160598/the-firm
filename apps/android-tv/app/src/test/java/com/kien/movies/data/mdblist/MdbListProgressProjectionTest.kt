@@ -29,9 +29,15 @@ class MdbListProgressProjectionTest {
         for (percent in listOf(0f, 0.99f, 1f, 79.99f, 80f, 99f, 100f)) {
             val projection = projection(playback = listOf(mdbListTestPlayback(percent)))
             assertEquals(percent < 80f, projection.progress.isNotEmpty())
-            if (percent < 80f) assertEquals(percent > 0f, projection.progress.single().isInProgress())
+            if (percent <
+                80f
+            ) {
+                assertEquals(percent > 0f, projection.progress.single().isInProgress())
+            }
         }
-        val progress = projection(playback = listOf(mdbListTestPlayback(79f))).progress.single().copy(progressPercent = 80f)
+        val progress = projection(
+            playback = listOf(mdbListTestPlayback(79f))
+        ).progress.single().copy(progressPercent = 80f)
         assertTrue(progress.isCompleted())
         assertFalse(progress.isInProgress())
     }
@@ -39,8 +45,10 @@ class MdbListProgressProjectionTest {
     @Test
     fun `completed history suppresses stale sessions but allows a later rewatch`() {
         val watched = listOf(mdbListTestMovie())
-        val stale = projection(watched, listOf(mdbListTestPlayback(timestamp = "2026-09-05T00:00:00Z")))
-        val rewatch = projection(watched, listOf(mdbListTestPlayback(timestamp = "2026-09-06T00:10:00Z")))
+        val stale =
+            projection(watched, listOf(mdbListTestPlayback(timestamp = "2026-09-05T00:00:00Z")))
+        val rewatch =
+            projection(watched, listOf(mdbListTestPlayback(timestamp = "2026-09-06T00:10:00Z")))
         assertTrue(stale.progress.isEmpty())
         assertEquals(1, rewatch.progress.size)
         assertTrue(rewatch.isWatched("tt1", null, null))
@@ -60,10 +68,12 @@ class MdbListProgressProjectionTest {
 
     @Test
     fun `next up respects furthest episode and most recently watched preferences`() {
-        val projection = projection(watched = listOf(
-            mdbListTestEpisode(1, 2, "2026-09-06T00:00:00Z"),
-            mdbListTestEpisode(3, 7, "2026-09-05T00:00:00Z")
-        ))
+        val projection = projection(
+            watched = listOf(
+                mdbListTestEpisode(1, 2, "2026-09-06T00:00:00Z"),
+                mdbListTestEpisode(3, 7, "2026-09-05T00:00:00Z")
+            )
+        )
         assertEquals(3, projection.nextUp(true).single().season)
         assertEquals(7, projection.nextUp(true).single().episode)
         assertEquals(1, projection.nextUp(false).single().season)
@@ -74,7 +84,11 @@ class MdbListProgressProjectionTest {
     fun `dropped show suppresses progress and next up through aliases while keeping history`() {
         val projection = projection(
             watched = listOf(mdbListTestEpisode()),
-            playback = listOf(mdbListTestPlayback(timestamp = "2026-09-06T01:00:00Z").copy(type = MdbListItemType.EPISODE, season = 1, episode = 2)),
+            playback = listOf(
+                mdbListTestPlayback(
+                    timestamp = "2026-09-06T01:00:00Z"
+                ).copy(type = MdbListItemType.EPISODE, season = 1, episode = 2)
+            ),
             dropped = listOf(MdbListDroppedRecord(MdbListIds(tmdb = 1)))
         )
         assertTrue(projection.isHidden("tt1"))
@@ -125,5 +139,7 @@ class MdbListProgressProjectionTest {
         watched: List<MdbListWatchedRecord> = emptyList(),
         playback: List<MdbListPlayback> = emptyList(),
         dropped: List<MdbListDroppedRecord> = emptyList()
-    ) = MdbListProgressProjection(MdbListSyncSnapshot(42, watched, playback, dropped).normalizeMedia())
+    ) = MdbListProgressProjection(
+        MdbListSyncSnapshot(42, watched, playback, dropped).normalizeMedia()
+    )
 }

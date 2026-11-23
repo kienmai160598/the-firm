@@ -6,8 +6,8 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SimklAuthRepositoryTest {
@@ -32,7 +32,8 @@ class SimklAuthRepositoryTest {
 
     @Test
     fun `pending poll keeps the original pin session`() = runTest {
-        val harness = Harness(response(200, """{"result":"KO","message":"Authorization pending"}"""))
+        val harness =
+            Harness(response(200, """{"result":"KO","message":"Authorization pending"}"""))
         harness.storage.savePinSession(session())
 
         assertEquals(SimklPinPollResult.Pending, harness.repository.pollPin())
@@ -138,7 +139,8 @@ class SimklAuthRepositoryTest {
 
     @Test
     fun `approved pin is discarded when the active profile changes during polling`() = runTest {
-        val harness = Harness(response(200, """{"result":"OK","access_token":"profile-one-token"}"""))
+        val harness =
+            Harness(response(200, """{"result":"OK","access_token":"profile-one-token"}"""))
         harness.storage.savePinSession(session())
         harness.engine.beforeResponse = { harness.storage.switchProfile(2) }
 
@@ -154,9 +156,15 @@ class SimklAuthRepositoryTest {
     @Test
     fun `delayed unauthorized response cannot disconnect the newly active profile`() {
         val harness = Harness(response(401))
-        harness.storage.completePinAuthorization("profile-one-token", harness.storage.currentScope())
+        harness.storage.completePinAuthorization(
+            "profile-one-token",
+            harness.storage.currentScope()
+        )
         harness.storage.switchProfile(2)
-        harness.storage.completePinAuthorization("profile-two-token", harness.storage.currentScope())
+        harness.storage.completePinAuthorization(
+            "profile-two-token",
+            harness.storage.currentScope()
+        )
         harness.storage.switchProfile(1)
         harness.engine.beforeResponse = { harness.storage.switchProfile(2) }
 
@@ -210,25 +218,22 @@ class SimklAuthRepositoryTest {
             return SimklAuthorization(currentScope(), token)
         }
 
-        override fun savePinSession(session: SimklPinSession, scope: SimklAuthScope): Boolean =
-            mutate(scope) { profile ->
-                profile.state = profile.state.copy(pinSession = session, error = null)
-            }
+        override fun savePinSession(session: SimklPinSession, scope: SimklAuthScope): Boolean = mutate(scope) { profile ->
+            profile.state = profile.state.copy(pinSession = session, error = null)
+        }
 
-        override fun clearPinSession(error: SimklAuthError?, scope: SimklAuthScope): Boolean =
-            mutate(scope) { profile ->
-                profile.state = profile.state.copy(pinSession = null, error = error)
-            }
+        override fun clearPinSession(error: SimklAuthError?, scope: SimklAuthScope): Boolean = mutate(scope) { profile ->
+            profile.state = profile.state.copy(pinSession = null, error = error)
+        }
 
-        override fun completePinAuthorization(token: String, scope: SimklAuthScope): Boolean =
-            mutate(scope) { profile ->
-                profile.token = token
-                profile.state = profile.state.copy(
-                    isAuthenticated = true,
-                    pinSession = null,
-                    error = null
-                )
-            }
+        override fun completePinAuthorization(token: String, scope: SimklAuthScope): Boolean = mutate(scope) { profile ->
+            profile.token = token
+            profile.state = profile.state.copy(
+                isAuthenticated = true,
+                pinSession = null,
+                error = null
+            )
+        }
 
         override fun saveIdentity(
             username: String?,

@@ -14,9 +14,8 @@ data class MDBListSettings(
     val showOnHero: Boolean = false,
     val ratingOrder: List<String> = DEFAULT_RATING_ORDER
 ) {
-    fun hasEnabledProviders(): Boolean =
-        showTrakt || showImdb || showTmdb || showLetterboxd ||
-            showTomatoes || showAudience || showMetacritic || showMal
+    fun hasEnabledProviders(): Boolean = showTrakt || showImdb || showTmdb || showLetterboxd ||
+        showTomatoes || showAudience || showMetacritic || showMal
 
     /** Returns the rating order filtered to only include enabled providers. */
     fun enabledRatingOrder(): List<String> = ratingOrder.filter { provider ->
@@ -35,8 +34,14 @@ data class MDBListSettings(
 
     companion object {
         val DEFAULT_RATING_ORDER = listOf(
-            "imdb", "trakt", "tmdb", "tomatoes", "audience",
-            "letterboxd", "metacritic", "mal"
+            "imdb",
+            "trakt",
+            "tmdb",
+            "tomatoes",
+            "audience",
+            "letterboxd",
+            "metacritic",
+            "mal"
         )
     }
 }

@@ -60,14 +60,19 @@ internal fun PlaybackAudioSection(
         title = stringResource(R.string.audio_remember_delay_per_device),
         subtitle = stringResource(R.string.audio_remember_delay_per_device_sub),
         checked = settings.rememberAudioDelayPerDevice,
-        onToggle = { onUpdate { setRememberAudioDelayPerDevice(!settings.rememberAudioDelayPerDevice) } },
+        onToggle = {
+            onUpdate { setRememberAudioDelayPerDevice(!settings.rememberAudioDelayPerDevice) }
+        },
         enabled = enabled
     )
 
     if (!isExoEngine) return
 
     SettingsSectionLabel(text = stringResource(R.string.audio_advanced_section))
-    SettingsNote(text = stringResource(R.string.audio_advanced_warning), tone = SettingsNoteTone.Warning)
+    SettingsNote(
+        text = stringResource(R.string.audio_advanced_warning),
+        tone = SettingsNoteTone.Warning
+    )
 
     SettingsActionRow(
         title = stringResource(R.string.audio_decoder_priority),
@@ -95,7 +100,11 @@ internal fun PlaybackAudioSection(
             title = stringResource(R.string.audio_maintain_original_audio_on_downmix_title),
             subtitle = stringResource(R.string.audio_maintain_original_audio_on_downmix_subtitle),
             checked = settings.maintainOriginalAudioOnDownmix,
-            onToggle = { onUpdate { setMaintainOriginalAudioOnDownmix(!settings.maintainOriginalAudioOnDownmix) } },
+            onToggle = {
+                onUpdate {
+                    setMaintainOriginalAudioOnDownmix(!settings.maintainOriginalAudioOnDownmix)
+                }
+            },
             enabled = enabled
         )
         SettingsActionRow(
@@ -133,7 +142,12 @@ internal fun audioLanguageLabel(code: String): String = when (code) {
 @Composable
 private fun secondaryAudioLanguageLabel(code: String?): String = when {
     code == null -> stringResource(R.string.sub_not_set)
-    code.equals(AudioLanguageOption.ORIGINAL, ignoreCase = true) -> stringResource(R.string.audio_lang_original)
+
+    code.equals(
+        AudioLanguageOption.ORIGINAL,
+        ignoreCase = true
+    ) -> stringResource(R.string.audio_lang_original)
+
     else -> AVAILABLE_SUBTITLE_LANGUAGES.find { it.code == code }?.displayName ?: code
 }
 
@@ -175,6 +189,7 @@ internal fun AudioSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.SECONDARY_AUDIO_LANGUAGE -> LanguageSelectionDialog(
             title = stringResource(R.string.sub_secondary_lang),
             selectedLanguage = settings.secondaryPreferredAudioLanguage,
@@ -188,6 +203,7 @@ internal fun AudioSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.AUDIO_OUTPUT_CHANNELS -> AudioOutputChannelsDialog(
             selectedChannels = settings.audioOutputChannels,
             onChannelsSelected = { channels ->
@@ -196,10 +212,13 @@ internal fun AudioSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.DOWNMIX_LFE_LEVEL -> SettingsSingleChoiceDialog(
             title = stringResource(R.string.audio_downmix_lfe_level),
             subtitle = stringResource(R.string.audio_downmix_lfe_level_desc),
-            options = DownmixLfeLevel.entries.map { SettingsPickerOption(it, downmixLfeLevelLabel(it)) },
+            options = DownmixLfeLevel.entries.map {
+                SettingsPickerOption(it, downmixLfeLevelLabel(it))
+            },
             selectedValue = settings.downmixLfeLevel,
             onOptionSelected = { level ->
                 onUpdate { setDownmixLfeLevel(level) }
@@ -209,6 +228,7 @@ internal fun AudioSettingsDialogs(
             width = 420.dp,
             maxHeight = 320.dp
         )
+
         PlaybackDialog.NIGHT_MODE -> NightModeDialog(
             selectedMode = settings.nightMode,
             onModeSelected = { mode ->
@@ -217,6 +237,7 @@ internal fun AudioSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.DECODER_PRIORITY -> DecoderPriorityDialog(
             selectedPriority = settings.decoderPriority,
             onPrioritySelected = { priority ->
@@ -225,6 +246,7 @@ internal fun AudioSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         else -> Unit
     }
 }
@@ -328,9 +350,21 @@ internal fun DecoderPriorityDialog(
     onDismiss: () -> Unit
 ) {
     val options = listOf(
-        SettingsPickerOption(0, stringResource(R.string.audio_decoder_device_only), stringResource(R.string.audio_decoder_device_only_desc)),
-        SettingsPickerOption(1, stringResource(R.string.audio_decoder_prefer_device), stringResource(R.string.audio_decoder_prefer_device_desc)),
-        SettingsPickerOption(2, stringResource(R.string.audio_decoder_prefer_app), stringResource(R.string.audio_decoder_prefer_app_desc))
+        SettingsPickerOption(
+            0,
+            stringResource(R.string.audio_decoder_device_only),
+            stringResource(R.string.audio_decoder_device_only_desc)
+        ),
+        SettingsPickerOption(
+            1,
+            stringResource(R.string.audio_decoder_prefer_device),
+            stringResource(R.string.audio_decoder_prefer_device_desc)
+        ),
+        SettingsPickerOption(
+            2,
+            stringResource(R.string.audio_decoder_prefer_app),
+            stringResource(R.string.audio_decoder_prefer_app_desc)
+        )
     )
 
     SettingsSingleChoiceDialog(

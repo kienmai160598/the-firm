@@ -25,12 +25,7 @@ data class MoviesRailSpacing(
 )
 
 @Immutable
-data class MoviesPanelSpacing(
-    val outer: Dp,
-    val inner: Dp,
-    val gap: Dp,
-    val compactGap: Dp
-)
+data class MoviesPanelSpacing(val outer: Dp, val inner: Dp, val gap: Dp, val compactGap: Dp)
 
 @Immutable
 data class MoviesSpacingTokens(

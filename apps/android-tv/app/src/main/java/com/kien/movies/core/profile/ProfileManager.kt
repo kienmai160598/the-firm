@@ -6,18 +6,18 @@ import com.kien.movies.data.local.ProfileDataStore
 import com.kien.movies.data.local.ProfileDataStoreFactory
 import com.kien.movies.domain.model.UserProfile
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
+import kotlinx.coroutines.withContext
 
 @Singleton
 class ProfileManager @Inject constructor(
@@ -52,9 +52,17 @@ class ProfileManager @Inject constructor(
         .stateIn(scope, SharingStarted.Eagerly, true)
 
     val profiles: StateFlow<List<UserProfile>> = profileDataStore.profilesList
-        .stateIn(scope, SharingStarted.Eagerly, listOf(
-            UserProfile(id = 1, name = context.getString(R.string.profile_default_name, 1), avatarColorHex = "#1E88E5")
-        ))
+        .stateIn(
+            scope,
+            SharingStarted.Eagerly,
+            listOf(
+                UserProfile(
+                    id = 1,
+                    name = context.getString(R.string.profile_default_name, 1),
+                    avatarColorHex = "#1E88E5"
+                )
+            )
+        )
 
     val activeProfile: UserProfile?
         get() = profiles.value.find { it.id == activeProfileId.value }
@@ -149,25 +157,29 @@ class ProfileManager @Inject constructor(
 
         factory.clearProfile(profileId)
 
-        val suffixWithExtension = "_p${profileId}.preferences_pb"
+        val suffixWithExtension = "_p$profileId.preferences_pb"
         val dataStoreDir = File(context.filesDir, "datastore")
         if (dataStoreDir.exists()) {
             dataStoreDir.listFiles()?.forEach { file ->
                 // Shadow copies too: a store that fails to parse is restored from its .bak.
-                if (file.name.endsWith(suffixWithExtension) || file.name.endsWith("$suffixWithExtension.bak")) {
+                if (file.name.endsWith(suffixWithExtension) ||
+                    file.name.endsWith("$suffixWithExtension.bak")
+                ) {
                     file.delete()
                 }
             }
         }
 
-        val pluginCodeDir = File(context.filesDir, "plugin_code_p${profileId}")
+        val pluginCodeDir = File(context.filesDir, "plugin_code_p$profileId")
         if (pluginCodeDir.exists()) {
             pluginCodeDir.deleteRecursively()
         }
 
         // Continue Watching cache that Home shows before its pipeline has run.
         File(context.filesDir, "cw_enrichment").listFiles()?.forEach { file ->
-            if (file.name == "inprogress_$profileId.json" || file.name == "nextup_$profileId.json") {
+            if (file.name == "inprogress_$profileId.json" ||
+                file.name == "nextup_$profileId.json"
+            ) {
                 file.delete()
             }
         }

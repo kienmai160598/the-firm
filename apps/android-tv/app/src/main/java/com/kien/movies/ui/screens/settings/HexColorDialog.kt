@@ -39,11 +39,7 @@ import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
-internal fun HexColorDialog(
-    initialColor: Int,
-    onConfirm: (Int) -> Unit,
-    onDismiss: () -> Unit
-) {
+internal fun HexColorDialog(initialColor: Int, onConfirm: (Int) -> Unit, onDismiss: () -> Unit) {
     MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.custom_theme_hex_title),
@@ -57,11 +53,7 @@ internal fun HexColorDialog(
 }
 
 @Composable
-internal fun HexColorEditor(
-    initialColor: Int,
-    onConfirm: (Int) -> Unit,
-    onDismiss: () -> Unit
-) {
+internal fun HexColorEditor(initialColor: Int, onConfirm: (Int) -> Unit, onDismiss: () -> Unit) {
     var digits by remember { mutableStateOf(formatHexColor(initialColor).removePrefix("#")) }
     var replaceOnInput by remember { mutableStateOf(true) }
     val firstKeyFocusRequester = remember { FocusRequester() }
@@ -88,17 +80,23 @@ internal fun HexColorEditor(
     Column(
         modifier = Modifier.onPreviewKeyEvent { event ->
             val native = event.nativeKeyEvent
-            if (native.isCtrlPressed || native.isAltPressed || native.isMetaPressed) return@onPreviewKeyEvent false
+            if (native.isCtrlPressed || native.isAltPressed ||
+                native.isMetaPressed
+            ) {
+                return@onPreviewKeyEvent false
+            }
             val character = native.unicodeChar.toChar().uppercaseChar()
             when {
                 character in "0123456789ABCDEF" -> {
                     if (native.action == KeyEvent.ACTION_DOWN) enter(character)
                     true
                 }
+
                 native.keyCode == KeyEvent.KEYCODE_DEL -> {
                     if (native.action == KeyEvent.ACTION_DOWN) delete()
                     true
                 }
+
                 else -> false
             }
         },
@@ -115,7 +113,10 @@ internal fun HexColorEditor(
             Box(
                 Modifier
                     .size(32.dp)
-                    .background(Color((color ?: initialColor) or 0xFF000000.toInt()), RoundedCornerShape(8.dp))
+                    .background(
+                        Color((color ?: initialColor) or 0xFF000000.toInt()),
+                        RoundedCornerShape(8.dp)
+                    )
             )
             Text(
                 text = "#" + digits.padEnd(6, '–'),
@@ -141,12 +142,20 @@ internal fun HexColorEditor(
                                 .weight(1f)
                                 .height(36.dp)
                                 .then(
-                                    if (rowIndex == 0 && columnIndex == 0) Modifier.focusRequester(firstKeyFocusRequester)
-                                    else Modifier
+                                    if (rowIndex == 0 &&
+                                        columnIndex == 0
+                                    ) {
+                                        Modifier.focusRequester(firstKeyFocusRequester)
+                                    } else {
+                                        Modifier
+                                    }
                                 )
                         ) {
                             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                Text(character.toString(), style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    character.toString(),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                             }
                         }
                     }
@@ -159,7 +168,10 @@ internal fun HexColorEditor(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             MoviesButton(
-                onClick = { digits = ""; replaceOnInput = false },
+                onClick = {
+                    digits = ""
+                    replaceOnInput = false
+                },
                 modifier = Modifier
                     .tvControlHeight()
                     .weight(1f)

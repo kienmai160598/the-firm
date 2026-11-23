@@ -30,6 +30,7 @@ import com.kien.movies.domain.model.ContentType
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,7 +46,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import retrofit2.Response
-import java.util.concurrent.atomic.AtomicInteger
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TmdbMetadataServiceTest {
@@ -64,10 +64,14 @@ class TmdbMetadataServiceTest {
                 )
             )
         )
-        coEvery { api.getMovieCredits(any(), any(), any()) } returns Response.success(TmdbCreditsResponse())
-        coEvery { api.getMovieImages(any(), any(), any()) } returns Response.success(TmdbImagesResponse())
-        coEvery { api.getMovieReleaseDates(any(), any()) } returns Response.success(TmdbMovieReleaseDatesResponse())
-        coEvery { api.getMovieVideos(any(), any(), any()) } returns Response.success(TmdbVideosResponse(id = 10))
+        coEvery { api.getMovieCredits(any(), any(), any()) } returns
+            Response.success(TmdbCreditsResponse())
+        coEvery { api.getMovieImages(any(), any(), any()) } returns
+            Response.success(TmdbImagesResponse())
+        coEvery { api.getMovieReleaseDates(any(), any()) } returns
+            Response.success(TmdbMovieReleaseDatesResponse())
+        coEvery { api.getMovieVideos(any(), any(), any()) } returns
+            Response.success(TmdbVideosResponse(id = 10))
 
         val service = TmdbMetadataService(api)
 
@@ -94,10 +98,14 @@ class TmdbMetadataServiceTest {
                 status = "Returning Series"
             )
         )
-        coEvery { api.getTvAggregateCredits(any(), any(), any()) } returns Response.success(TmdbAggregateCreditsResponse())
-        coEvery { api.getTvImages(any(), any(), any()) } returns Response.success(TmdbImagesResponse())
-        coEvery { api.getTvContentRatings(any(), any()) } returns Response.success(TmdbTvContentRatingsResponse())
-        coEvery { api.getTvVideos(any(), any(), any()) } returns Response.success(TmdbVideosResponse(id = 20))
+        coEvery { api.getTvAggregateCredits(any(), any(), any()) } returns
+            Response.success(TmdbAggregateCreditsResponse())
+        coEvery { api.getTvImages(any(), any(), any()) } returns
+            Response.success(TmdbImagesResponse())
+        coEvery { api.getTvContentRatings(any(), any()) } returns
+            Response.success(TmdbTvContentRatingsResponse())
+        coEvery { api.getTvVideos(any(), any(), any()) } returns
+            Response.success(TmdbVideosResponse(id = 20))
 
         val service = TmdbMetadataService(api)
 
@@ -122,10 +130,14 @@ class TmdbMetadataServiceTest {
                 status = "Ended"
             )
         )
-        coEvery { api.getTvAggregateCredits(any(), any(), any()) } returns Response.success(TmdbAggregateCreditsResponse())
-        coEvery { api.getTvImages(any(), any(), any()) } returns Response.success(TmdbImagesResponse())
-        coEvery { api.getTvContentRatings(any(), any()) } returns Response.success(TmdbTvContentRatingsResponse())
-        coEvery { api.getTvVideos(any(), any(), any()) } returns Response.success(TmdbVideosResponse(id = 21))
+        coEvery { api.getTvAggregateCredits(any(), any(), any()) } returns
+            Response.success(TmdbAggregateCreditsResponse())
+        coEvery { api.getTvImages(any(), any(), any()) } returns
+            Response.success(TmdbImagesResponse())
+        coEvery { api.getTvContentRatings(any(), any()) } returns
+            Response.success(TmdbTvContentRatingsResponse())
+        coEvery { api.getTvVideos(any(), any(), any()) } returns
+            Response.success(TmdbVideosResponse(id = 21))
 
         val service = TmdbMetadataService(api)
 
@@ -164,12 +176,27 @@ class TmdbMetadataServiceTest {
             releaseCalls += 1
             Response.success(TmdbMovieReleaseDatesResponse())
         }
-        coEvery { api.getMovieVideos(any(), any(), any()) } returns Response.success(TmdbVideosResponse(id = 10))
+        coEvery { api.getMovieVideos(any(), any(), any()) } returns
+            Response.success(TmdbVideosResponse(id = 10))
 
         val service = TmdbMetadataService(api, StandardTestDispatcher(testScheduler))
 
-        val first = async { service.fetchEnrichment(tmdbId = "10", contentType = ContentType.MOVIE, language = "en") }
-        val second = async { service.fetchEnrichment(tmdbId = "10", contentType = ContentType.MOVIE, language = "en") }
+        val first =
+            async {
+                service.fetchEnrichment(
+                    tmdbId = "10",
+                    contentType = ContentType.MOVIE,
+                    language = "en"
+                )
+            }
+        val second =
+            async {
+                service.fetchEnrichment(
+                    tmdbId = "10",
+                    contentType = ContentType.MOVIE,
+                    language = "en"
+                )
+            }
 
         advanceUntilIdle()
         assertEquals(1, detailsCalls)
@@ -332,7 +359,11 @@ class TmdbMetadataServiceTest {
         assertTrue(tvCalls.all { it.withCompanies == "99" })
         assertTrue(tvCalls.all { it.withNetworks == null })
         assertEquals(200, movieCalls.first { it.sortBy == "vote_average.desc" }.voteCountGte)
-        assertTrue(movieCalls.first { it.sortBy == "primary_release_date.desc" }.releaseDateLte != null)
+        assertTrue(
+            movieCalls.first {
+                it.sortBy == "primary_release_date.desc"
+            }.releaseDateLte != null
+        )
         assertTrue(tvCalls.first { it.sortBy == "first_air_date.desc" }.firstAirDateLte != null)
         assertTrue(data?.rails?.flatMap { it.items }.orEmpty().all { it.id.startsWith("tmdb:") })
     }
@@ -551,7 +582,10 @@ class TmdbMetadataServiceTest {
     @Test
     fun `resolveDisplayLabel handles null and blank inputs`() {
         assertEquals("Takuya Kimura", resolveDisplayLabel(null, "Takuya Kimura", null, "tr-TR"))
-        assertEquals("Scarlett Johansson", resolveDisplayLabel("Scarlett Johansson", null, null, "tr-TR"))
+        assertEquals(
+            "Scarlett Johansson",
+            resolveDisplayLabel("Scarlett Johansson", null, null, "tr-TR")
+        )
         assertNull(resolveDisplayLabel(null, null, null, "tr-TR"))
         assertEquals(
             "Takuya Kimura",
@@ -623,9 +657,12 @@ class TmdbMetadataServiceTest {
                 )
             )
         )
-        coEvery { api.getMovieImages(any(), any(), any()) } returns Response.success(TmdbImagesResponse())
-        coEvery { api.getMovieReleaseDates(any(), any()) } returns Response.success(TmdbMovieReleaseDatesResponse())
-        coEvery { api.getMovieVideos(any(), any(), any()) } returns Response.success(TmdbVideosResponse(id = 100))
+        coEvery { api.getMovieImages(any(), any(), any()) } returns
+            Response.success(TmdbImagesResponse())
+        coEvery { api.getMovieReleaseDates(any(), any()) } returns
+            Response.success(TmdbMovieReleaseDatesResponse())
+        coEvery { api.getMovieVideos(any(), any(), any()) } returns
+            Response.success(TmdbVideosResponse(id = 100))
 
         val service = TmdbMetadataService(api)
         val enrichment = service.fetchEnrichment(
@@ -661,10 +698,14 @@ class TmdbMetadataServiceTest {
                 originalLanguage = "ja"
             )
         )
-        coEvery { api.getMovieCredits(any(), any(), any()) } returns Response.success(TmdbCreditsResponse())
-        coEvery { api.getMovieImages(any(), any(), any()) } returns Response.success(TmdbImagesResponse())
-        coEvery { api.getMovieReleaseDates(any(), any()) } returns Response.success(TmdbMovieReleaseDatesResponse())
-        coEvery { api.getMovieVideos(any(), any(), any()) } returns Response.success(TmdbVideosResponse(id = 10))
+        coEvery { api.getMovieCredits(any(), any(), any()) } returns
+            Response.success(TmdbCreditsResponse())
+        coEvery { api.getMovieImages(any(), any(), any()) } returns
+            Response.success(TmdbImagesResponse())
+        coEvery { api.getMovieReleaseDates(any(), any()) } returns
+            Response.success(TmdbMovieReleaseDatesResponse())
+        coEvery { api.getMovieVideos(any(), any(), any()) } returns
+            Response.success(TmdbVideosResponse(id = 10))
 
         val service = TmdbMetadataService(api)
         val enrichment = service.fetchEnrichment(
@@ -688,10 +729,14 @@ class TmdbMetadataServiceTest {
                 originalLanguage = "ja"
             )
         )
-        coEvery { api.getMovieCredits(any(), any(), any()) } returns Response.success(TmdbCreditsResponse())
-        coEvery { api.getMovieImages(any(), any(), any()) } returns Response.success(TmdbImagesResponse())
-        coEvery { api.getMovieReleaseDates(any(), any()) } returns Response.success(TmdbMovieReleaseDatesResponse())
-        coEvery { api.getMovieVideos(any(), any(), any()) } returns Response.success(TmdbVideosResponse(id = 10))
+        coEvery { api.getMovieCredits(any(), any(), any()) } returns
+            Response.success(TmdbCreditsResponse())
+        coEvery { api.getMovieImages(any(), any(), any()) } returns
+            Response.success(TmdbImagesResponse())
+        coEvery { api.getMovieReleaseDates(any(), any()) } returns
+            Response.success(TmdbMovieReleaseDatesResponse())
+        coEvery { api.getMovieVideos(any(), any(), any()) } returns
+            Response.success(TmdbVideosResponse(id = 10))
 
         val service = TmdbMetadataService(api)
         val enrichment = service.fetchEnrichment(
@@ -723,7 +768,9 @@ class TmdbMetadataServiceTest {
                         id = 1,
                         name = "田中敦子",
                         originalName = "田中敦子",
-                        roles = listOf(TmdbAggregateRole(character = "Motoko Kusanagi", episodeCount = 12))
+                        roles = listOf(
+                            TmdbAggregateRole(character = "Motoko Kusanagi", episodeCount = 12)
+                        )
                     )
                 )
             )
@@ -735,7 +782,9 @@ class TmdbMetadataServiceTest {
                         id = 1,
                         name = "Atsuko Tanaka",
                         originalName = "田中敦子",
-                        roles = listOf(TmdbAggregateRole(character = "Motoko Kusanagi", episodeCount = 12))
+                        roles = listOf(
+                            TmdbAggregateRole(character = "Motoko Kusanagi", episodeCount = 12)
+                        )
                     )
                 )
             )
@@ -749,9 +798,12 @@ class TmdbMetadataServiceTest {
                 )
             )
         )
-        coEvery { api.getTvImages(any(), any(), any()) } returns Response.success(TmdbImagesResponse())
-        coEvery { api.getTvContentRatings(any(), any()) } returns Response.success(TmdbTvContentRatingsResponse())
-        coEvery { api.getTvVideos(any(), any(), any()) } returns Response.success(TmdbVideosResponse(id = 255358))
+        coEvery { api.getTvImages(any(), any(), any()) } returns
+            Response.success(TmdbImagesResponse())
+        coEvery { api.getTvContentRatings(any(), any()) } returns
+            Response.success(TmdbTvContentRatingsResponse())
+        coEvery { api.getTvVideos(any(), any(), any()) } returns
+            Response.success(TmdbVideosResponse(id = 255358))
 
         val service = TmdbMetadataService(api)
         val enrichment = service.fetchEnrichment(
@@ -784,7 +836,8 @@ class TmdbMetadataServiceTest {
                 biography = "Atsuko Tanaka was a Japanese voice actress."
             )
         )
-        coEvery { api.getPersonCombinedCredits(500, any(), "tr-TR") } returns Response.success(null)
+        coEvery { api.getPersonCombinedCredits(500, any(), "tr-TR") } returns
+            Response.success(null)
 
         val service = TmdbMetadataService(api)
         val detail = service.fetchPersonDetail(personId = 500, language = "tr-TR")
@@ -953,15 +1006,26 @@ class TmdbMetadataServiceTest {
                 )
             )
         )
-        coEvery { api.getMovieImages(any(), any(), any()) } returns Response.success(TmdbImagesResponse())
+        coEvery { api.getMovieImages(any(), any(), any()) } returns
+            Response.success(TmdbImagesResponse())
 
         val service = TmdbMetadataService(api)
         val collection = service.fetchMovieCollection(collectionId = 10, language = "tr-TR")
 
         assertEquals("Chainsaw Man Collection", collection.name)
         assertEquals("Movie: Reze Arc", collection.items.single { it.id == "tmdb:1" }.name)
-        assertEquals("Chainsaw Man Compilation Movie 1", collection.items.single { it.id == "tmdb:2" }.name)
-        assertEquals("Chainsaw Man Compilation Movie 2", collection.items.single { it.id == "tmdb:3" }.name)
+        assertEquals(
+            "Chainsaw Man Compilation Movie 1",
+            collection.items.single {
+                it.id == "tmdb:2"
+            }.name
+        )
+        assertEquals(
+            "Chainsaw Man Compilation Movie 2",
+            collection.items.single {
+                it.id == "tmdb:3"
+            }.name
+        )
         coVerify(exactly = 1) { api.getCollectionDetails(10, any(), "en") }
     }
 
@@ -982,7 +1046,8 @@ class TmdbMetadataServiceTest {
                 )
             )
         )
-        coEvery { api.getMovieImages(any(), any(), any()) } returns Response.success(TmdbImagesResponse())
+        coEvery { api.getMovieImages(any(), any(), any()) } returns
+            Response.success(TmdbImagesResponse())
 
         val service = TmdbMetadataService(api)
         val collection = service.fetchMovieCollection(collectionId = 10, language = "ja-JP")

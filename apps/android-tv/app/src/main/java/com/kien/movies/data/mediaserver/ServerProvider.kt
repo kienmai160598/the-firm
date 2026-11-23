@@ -35,9 +35,16 @@ interface ServerProvider {
 
     suspend fun candidates(session: ServerSession, itemId: String): List<ServerCandidate>
 
-    suspend fun preparePlayback(session: ServerSession, request: ServerPlaybackRequest): ServerPlaybackSession
+    suspend fun preparePlayback(
+        session: ServerSession,
+        request: ServerPlaybackRequest
+    ): ServerPlaybackSession
 
-    suspend fun report(session: ServerSession, playback: ServerPlaybackSession, event: ServerPlaybackEvent) = Unit
+    suspend fun report(
+        session: ServerSession,
+        playback: ServerPlaybackSession,
+        event: ServerPlaybackEvent
+    ) = Unit
 
     suspend fun signOut(session: ServerSession) = Unit
 
@@ -100,11 +107,7 @@ interface ServerProvider {
     ): ServerEpisode? = unsupported()
 }
 
-data class ServerIndexEntry(
-    val itemId: String,
-    val ids: TrackingExternalIds,
-    val year: Int? = null
-)
+data class ServerIndexEntry(val itemId: String, val ids: TrackingExternalIds, val year: Int? = null)
 
 data class ServerTitleQuery(
     val ids: TrackingExternalIds,
@@ -113,10 +116,7 @@ data class ServerTitleQuery(
     val originalName: String? = null
 )
 
-data class ServerEpisode(
-    val itemId: String,
-    val premiereDate: String?
-)
+data class ServerEpisode(val itemId: String, val premiereDate: String?)
 
 fun ServerProvider.supports(capability: ServerCapability): Boolean = capability in capabilities
 

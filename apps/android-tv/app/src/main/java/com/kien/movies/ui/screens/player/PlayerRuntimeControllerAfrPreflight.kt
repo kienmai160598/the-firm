@@ -9,8 +9,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * AFR preflight probe budgets.
@@ -23,6 +23,7 @@ internal const val AFR_PREFLIGHT_OKHTTP_TIMEOUT_MS = 15_000L
 internal const val AFR_PREFLIGHT_NEXTLIB_TIMEOUT_MS = 10_000L
 internal const val AFR_PREFLIGHT_FALLBACK_TIMEOUT_MS = 5_000L
 internal const val AFR_PREFLIGHT_TOTAL_TIMEOUT_MS = 18_000L
+
 /** Minimum remaining time to attempt NextLib / extractor after OkHttp. */
 internal const val AFR_PREFLIGHT_MIN_STAGE_MS = 2_000L
 
@@ -58,7 +59,10 @@ internal suspend fun PlayerRuntimeController.runAfrPreflightIfEnabled(
     }
 
     if (_uiState.value.afrProbeRunning || _uiState.value.detectedFrameRateSource != null) {
-        Log.d(PlayerRuntimeController.TAG, "AFR preflight: already running or completed, skipping duplicate execution")
+        Log.d(
+            PlayerRuntimeController.TAG,
+            "AFR preflight: already running or completed, skipping duplicate execution"
+        )
         return
     }
 
@@ -75,13 +79,15 @@ internal suspend fun PlayerRuntimeController.runAfrPreflightIfEnabled(
     val filename = currentFilename
     val deadlineElapsedRealtime = SystemClock.elapsedRealtime() + AFR_PREFLIGHT_TOTAL_TIMEOUT_MS
 
-    fun remainingMs(): Long =
-        (deadlineElapsedRealtime - SystemClock.elapsedRealtime()).coerceAtLeast(0L)
+    fun remainingMs(): Long = (deadlineElapsedRealtime - SystemClock.elapsedRealtime()).coerceAtLeast(0L)
 
     try {
         val cached = FrameRateUtils.getCachedFrameRate(url, headers, filename)
         if (cached != null) {
-            Log.d(PlayerRuntimeController.TAG, "AFR preflight: cache hit! Using cached FPS=${cached.snapped}")
+            Log.d(
+                PlayerRuntimeController.TAG,
+                "AFR preflight: cache hit! Using cached FPS=${cached.snapped}"
+            )
             _uiState.update {
                 it.copy(
                     detectedFrameRateRaw = cached.raw,
@@ -155,7 +161,10 @@ internal suspend fun PlayerRuntimeController.runAfrPreflightIfEnabled(
 
         if (isStale()) return
         val detection = if (okHttpDetection != null) {
-            Log.d(PlayerRuntimeController.TAG, "AFR preflight: OkHttp probe succeeded! FPS=${okHttpDetection.snapped}")
+            Log.d(
+                PlayerRuntimeController.TAG,
+                "AFR preflight: OkHttp probe succeeded! FPS=${okHttpDetection.snapped}"
+            )
             okHttpDetection
         } else {
             val nextLibBudget = minOf(AFR_PREFLIGHT_NEXTLIB_TIMEOUT_MS, remainingMs())

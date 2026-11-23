@@ -6,14 +6,14 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.kien.movies.core.profile.ProfileManager
 import io.mockk.every
 import io.mockk.mockk
+import java.io.File
+import java.nio.file.Files
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import java.io.File
-import java.nio.file.Files
 
 class WatchedSeriesStateHolderProfileTest {
 
@@ -43,7 +43,10 @@ class WatchedSeriesStateHolderProfileTest {
 
     @Test
     fun `loading another profile replaces the previous profile's series`() = runTest {
-        factory.get(1, "watched_series_cache").edit { it[stringSetPreferencesKey("fully_watched_ids")] = setOf("tt0000001") }
+        factory.get(1, "watched_series_cache").edit {
+            it[stringSetPreferencesKey("fully_watched_ids")] =
+                setOf("tt0000001")
+        }
 
         holder.loadFromDisk(profileId = 1)
         assertEquals(setOf("tt0000001"), holder.fullyWatchedSeriesIds.value)

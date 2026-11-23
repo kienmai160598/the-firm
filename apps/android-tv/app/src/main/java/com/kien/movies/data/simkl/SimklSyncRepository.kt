@@ -30,7 +30,12 @@ class SimklSyncRepository @Inject constructor(
     private val authStorage: SimklAuthStorage,
     private val profileManager: ProfileManager
 ) {
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true; explicitNulls = false }
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+            explicitNulls = false
+        }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val loadMutex = Mutex()
     private val snapshotMutex = Mutex()
@@ -120,12 +125,16 @@ class SimklSyncRepository @Inject constructor(
         snapshotMutex.withLock {
             val profileId = profileManager.activeProfileId.value
             val current = _state.value
-            val playback = current.snapshot.playback.filterNot { session -> session.id in sessionIds }
+            val playback = current.snapshot.playback.filterNot { session ->
+                session.id in sessionIds
+            }
             if (playback.size == current.snapshot.playback.size) return@withLock
             val snapshot = current.snapshot.copy(playback = playback)
             val onlyPlaybackChanged = snapshot.entries === current.snapshot.entries
             val storedSnapshot = if (onlyPlaybackChanged) snapshot else snapshot.withFreshStorageRevision()
-            val projection = if (onlyPlaybackChanged && _projection.value !== SimklSnapshotProjection.Empty) {
+            val projection = if (onlyPlaybackChanged &&
+                _projection.value !== SimklSnapshotProjection.Empty
+            ) {
                 _projection.value.withUpdatedPlayback(snapshot)
             } else {
                 buildProjection(snapshot)
@@ -149,7 +158,9 @@ class SimklSyncRepository @Inject constructor(
         snapshotMutex.withLock {
             if (!isCurrent(profileId, generation)) return@withLock
             val current = _state.value
-            val index = _projection.value.entryIndex.takeIf { it.matchesEntries(current.snapshot.entries) }
+            val index = _projection.value.entryIndex.takeIf {
+                it.matchesEntries(current.snapshot.entries)
+            }
             val (snapshot, updatedIndex) = current.snapshot.applyScrobbleResultWithIndex(
                 result = result,
                 committedAtEpochMs = System.currentTimeMillis(),
@@ -158,7 +169,9 @@ class SimklSyncRepository @Inject constructor(
             if (snapshot == current.snapshot) return@withLock
             val onlyPlaybackChanged = snapshot.entries === current.snapshot.entries
             val storedSnapshot = if (onlyPlaybackChanged) snapshot else snapshot.withFreshStorageRevision()
-            val projection = if (onlyPlaybackChanged && _projection.value !== SimklSnapshotProjection.Empty) {
+            val projection = if (onlyPlaybackChanged &&
+                _projection.value !== SimklSnapshotProjection.Empty
+            ) {
                 _projection.value.withUpdatedPlayback(snapshot)
             } else {
                 buildProjection(snapshot, updatedIndex)
@@ -182,7 +195,9 @@ class SimklSyncRepository @Inject constructor(
         snapshotMutex.withLock {
             if (!isCurrent(profileId, generation)) return@withLock
             val current = _state.value
-            val index = _projection.value.entryIndex.takeIf { it.matchesEntries(current.snapshot.entries) }
+            val index = _projection.value.entryIndex.takeIf {
+                it.matchesEntries(current.snapshot.entries)
+            }
             val snapshot = current.snapshot.applyMutationReceipt(
                 receipt = receipt,
                 committedAtEpochMs = System.currentTimeMillis(),
@@ -207,7 +222,8 @@ class SimklSyncRepository @Inject constructor(
         val committed = snapshotMutex.withLock {
             if (!isCurrent(profileId, generation)) return@withLock true
             val current = _state.value
-            val snapshot = current.snapshot.withRating(media, rating, ratedAt) ?: return@withLock false
+            val snapshot =
+                current.snapshot.withRating(media, rating, ratedAt) ?: return@withLock false
             val projection = buildProjection(snapshot)
             val storedSnapshot = snapshot.withFreshStorageRevision()
             storage.save(profileId, encodeSnapshot(storedSnapshot))
@@ -236,7 +252,9 @@ class SimklSyncRepository @Inject constructor(
             ?.takeIf(String::isNotEmpty)
             ?.let { payload ->
                 runCatching { decodePlaybackOverride(payload, persistedSnapshot) }
-                    .onFailure { error -> Log.w(TAG, "Unable to decode Simkl playback override", error) }
+                    .onFailure { error ->
+                        Log.w(TAG, "Unable to decode Simkl playback override", error)
+                    }
                     .getOrNull()
             }
         if (playbackOverride != null) {
@@ -280,7 +298,9 @@ class SimklSyncRepository @Inject constructor(
             merged.playback === previous.snapshot.playback
         ) {
             _projection.value
-        } else if (merged.entries === previous.snapshot.entries && _projection.value !== SimklSnapshotProjection.Empty) {
+        } else if (merged.entries === previous.snapshot.entries &&
+            _projection.value !== SimklSnapshotProjection.Empty
+        ) {
             _projection.value.withUpdatedPlayback(merged)
         } else {
             buildProjection(merged)
@@ -295,8 +315,7 @@ class SimklSyncRepository @Inject constructor(
         }
     }
 
-    private fun isCurrent(profileId: Int, generation: Long): Boolean =
-        profileId == profileManager.activeProfileId.value && generation == profileGeneration
+    private fun isCurrent(profileId: Int, generation: Long): Boolean = profileId == profileManager.activeProfileId.value && generation == profileGeneration
 
     fun invalidateProjections(animeIdPreference: SimklAnimeIdPreference? = null) {
         animeIdPreference?.let { preference -> SimklAnimeIdPreferenceHolder.current = preference }
@@ -307,7 +326,9 @@ class SimklSyncRepository @Inject constructor(
                 if (!isCurrent(profileId, generation)) return@withLock
                 val current = _state.value
                 val projection = buildProjection(current.snapshot)
-                if (!isCurrent(profileId, generation) || current.snapshot !== _state.value.snapshot) {
+                if (!isCurrent(profileId, generation) ||
+                    current.snapshot !== _state.value.snapshot
+                ) {
                     return@withLock
                 }
                 _projection.value = projection
@@ -319,14 +340,11 @@ class SimklSyncRepository @Inject constructor(
     private suspend fun buildProjection(
         snapshot: SimklSyncSnapshot,
         entryIndex: SimklEntryIndex? = null
-    ): SimklSnapshotProjection =
-        withContext(Dispatchers.Default) { SimklSnapshotProjection.create(snapshot, entryIndex) }
+    ): SimklSnapshotProjection = withContext(Dispatchers.Default) { SimklSnapshotProjection.create(snapshot, entryIndex) }
 
-    private suspend fun decodeSnapshot(payload: String): SimklSyncSnapshot =
-        withContext(Dispatchers.Default) { json.decodeFromString(payload) }
+    private suspend fun decodeSnapshot(payload: String): SimklSyncSnapshot = withContext(Dispatchers.Default) { json.decodeFromString(payload) }
 
-    private suspend fun encodeSnapshot(snapshot: SimklSyncSnapshot): String =
-        withContext(Dispatchers.Default) { json.encodeToString(snapshot) }
+    private suspend fun encodeSnapshot(snapshot: SimklSyncSnapshot): String = withContext(Dispatchers.Default) { json.encodeToString(snapshot) }
 
     private suspend fun decodePlaybackOverride(
         payload: String,
@@ -337,20 +355,19 @@ class SimklSyncRepository @Inject constructor(
         }.getOrNull()
         if (override != null) {
             return@withContext override.playback.takeIf {
-                persistedSnapshot != null && override.storageRevision == persistedSnapshot.storageRevision
+                persistedSnapshot != null &&
+                    override.storageRevision == persistedSnapshot.storageRevision
             }
         }
         runCatching { json.decodeFromString<List<SimklPlaybackSession>>(payload) }.getOrNull()
             ?.takeIf { persistedSnapshot != null && persistedSnapshot.storageRevision == null }
     }
 
-    private suspend fun encodePlayback(snapshot: SimklSyncSnapshot): String =
-        withContext(Dispatchers.Default) {
-            json.encodeToString(SimklPlaybackOverride(snapshot.storageRevision, snapshot.playback))
-        }
+    private suspend fun encodePlayback(snapshot: SimklSyncSnapshot): String = withContext(Dispatchers.Default) {
+        json.encodeToString(SimklPlaybackOverride(snapshot.storageRevision, snapshot.playback))
+    }
 
-    private fun SimklSyncSnapshot.withFreshStorageRevision(): SimklSyncSnapshot =
-        copy(storageRevision = UUID.randomUUID().toString())
+    private fun SimklSyncSnapshot.withFreshStorageRevision(): SimklSyncSnapshot = copy(storageRevision = UUID.randomUUID().toString())
 
     private companion object {
         const val TAG = "SimklSync"

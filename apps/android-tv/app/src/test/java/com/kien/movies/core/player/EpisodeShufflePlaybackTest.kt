@@ -24,10 +24,24 @@ import org.junit.Test
 
 class EpisodeShufflePlaybackTest {
     private val show = "tmdb:123"
-    private val episodes = (1..5).map { Video("$show:1:$it", "Episode $it", "2020-01-01", null,
-        season = 1, episode = it, overview = null) }
-    private val settings = MutableStateFlow(EpisodeShuffleProfile(1, true,
-        mapOf(show to EpisodeShuffleSettings(true, false))))
+    private val episodes = (1..5).map {
+        Video(
+            "$show:1:$it",
+            "Episode $it",
+            "2020-01-01",
+            null,
+            season = 1,
+            episode = it,
+            overview = null
+        )
+    }
+    private val settings = MutableStateFlow(
+        EpisodeShuffleProfile(
+            1,
+            true,
+            mapOf(show to EpisodeShuffleSettings(true, false))
+        )
+    )
     private val progress = MutableStateFlow<Map<Pair<Int, Int>, WatchProgress>>(emptyMap())
     private val watched = MutableStateFlow<Set<Pair<Int, Int>>>(emptySet())
     private val active = MutableStateFlow(1)
@@ -44,8 +58,10 @@ class EpisodeShufflePlaybackTest {
     private val profiles = mockk<ProfileManager> { every { activeProfileId } returns active }
     private fun service() = EpisodeShufflePlayback(store, EpisodeShuffle(), repository, watchedPreferences, profiles)
     private val service = service()
-    private val metadata = ExternalPlaybackMetadata(show, "series", "Show", null, null, null,
-        "$show:1:1", 1, 1, null, null, 1)
+    private val metadata = ExternalPlaybackMetadata(
+        show, "series", "Show", null, null, null,
+        "$show:1:1", 1, 1, null, null, 1
+    )
 
     @Test
     fun `namespaced content ids are passed intact to progress sources`() = runTest {
@@ -93,13 +109,20 @@ class EpisodeShufflePlaybackTest {
 
     @Test
     fun `missing launch season uses the current video to prevent replaying itself`() = runTest {
-        settings.value = settings.value.copy(shows = mapOf(show to EpisodeShuffleSettings(true, true)))
-        assertFalse(service.externalSnapshot(metadata.copy(season = null), episodes.take(1)).hasNextEpisode!!)
+        settings.value =
+            settings.value.copy(shows = mapOf(show to EpisodeShuffleSettings(true, true)))
+        assertFalse(
+            service.externalSnapshot(
+                metadata.copy(season = null),
+                episodes.take(1)
+            ).hasNextEpisode!!
+        )
     }
 
     @Test
     fun `disabled shuffle restores the sequential successor`() = runTest {
-        settings.value = settings.value.copy(shows = mapOf(show to EpisodeShuffleSettings(false, true)))
+        settings.value =
+            settings.value.copy(shows = mapOf(show to EpisodeShuffleSettings(false, true)))
         assertEquals(2, service.externalSnapshot(metadata, episodes).nextEpisode)
         assertFalse(service.externalSnapshot(metadata, episodes).shufflePlayback)
     }
@@ -109,7 +132,9 @@ class EpisodeShufflePlaybackTest {
         settings.value = settings.value.copy(available = false)
         assertEquals(2, service.externalSnapshot(metadata, episodes).nextEpisode)
         settings.value = settings.value.copy(available = true)
-        assertFalse(service.externalSnapshot(metadata.copy(contentType = "movie"), episodes).shufflePlayback)
+        assertFalse(
+            service.externalSnapshot(metadata.copy(contentType = "movie"), episodes).shufflePlayback
+        )
     }
 
     @Test
@@ -128,7 +153,8 @@ class EpisodeShufflePlaybackTest {
 
     @Test
     fun `all mode can revisit completed episodes`() = runTest {
-        settings.value = settings.value.copy(shows = mapOf(show to EpisodeShuffleSettings(true, true)))
+        settings.value =
+            settings.value.copy(shows = mapOf(show to EpisodeShuffleSettings(true, true)))
         watched.value = (1..5).map { 1 to it }.toSet()
         assertTrue(service.externalSnapshot(metadata, episodes).hasNextEpisode!!)
     }

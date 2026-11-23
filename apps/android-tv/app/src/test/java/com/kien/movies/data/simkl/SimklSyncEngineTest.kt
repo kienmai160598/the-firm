@@ -44,7 +44,12 @@ class SimklSyncEngineTest {
 
         assertTrue(result.isInitialized)
         assertEquals("v1", result.watermark)
-        assertEquals(listOf("1", "2", "3"), result.entries.mapNotNull { it.media?.ids?.idValue("simkl") })
+        assertEquals(
+            listOf("1", "2", "3"),
+            result.entries.mapNotNull {
+                it.media?.ids?.idValue("simkl")
+            }
+        )
         assertEquals(1, result.playback.size)
         assertEquals(500L, result.lastSyncedAtEpochMs)
         assertTrue(remote.isExhausted)
@@ -286,7 +291,12 @@ class SimklSyncEngineTest {
 
         val result = SimklSyncEngine(remote) { 900L }.synchronize(current)
 
-        assertEquals(setOf("2", "3"), result.entries.mapNotNull { it.media?.ids?.idValue("simkl") }.toSet())
+        assertEquals(
+            setOf("2", "3"),
+            result.entries.mapNotNull {
+                it.media?.ids?.idValue("simkl")
+            }.toSet()
+        )
         assertEquals(
             SimklListStatus.DROPPED,
             result.entries.single { it.media?.ids?.idValue("simkl") == "2" }.status
@@ -433,7 +443,9 @@ class SimklSyncEngineTest {
                     assertEquals(step.type, request.type)
                     step.value
                 }
+
                 is Step.Failure -> throw step.error
+
                 else -> error("Expected all-items, got $step")
             }
         }
@@ -485,16 +497,15 @@ class SimklSyncEngineTest {
             show = media(id)
         )
 
-        fun watchedShowEntry(id: String, watchedAt: String) =
-            entry(SimklMediaType.SHOWS, id).copy(
-                lastWatchedAt = watchedAt,
-                seasons = listOf(
-                    SimklSeason(
-                        number = 1,
-                        episodes = listOf(SimklEpisode(number = 5, watchedAt = watchedAt))
-                    )
+        fun watchedShowEntry(id: String, watchedAt: String) = entry(SimklMediaType.SHOWS, id).copy(
+            lastWatchedAt = watchedAt,
+            seasons = listOf(
+                SimklSeason(
+                    number = 1,
+                    episodes = listOf(SimklEpisode(number = 5, watchedAt = watchedAt))
                 )
             )
+        )
 
         fun activities(
             all: String,

@@ -55,7 +55,13 @@ class RealtimeSocketFactoryTest {
 
     @Test
     fun realtimeUrlOptsIntoTheServerRoute() {
-        assertEquals("wss://api.example.com/realtime/v1?nuvio_realtime=1", realtimeUrl("https://api.example.com/"))
-        assertEquals("ws://192.168.1.5:8000/realtime/v1?nuvio_realtime=1", realtimeUrl("http://192.168.1.5:8000"))
+        assertEquals(
+            "wss://api.example.com/realtime/v1?nuvio_realtime=1",
+            realtimeUrl("https://api.example.com/")
+        )
+        assertEquals(
+            "ws://192.168.1.5:8000/realtime/v1?nuvio_realtime=1",
+            realtimeUrl("http://192.168.1.5:8000")
+        )
     }
 }

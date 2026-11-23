@@ -16,7 +16,9 @@ class SourceFallbackTest {
         streamAutoPlayFallbackOnFailure = true,
         streamAutoPlayMode = StreamAutoPlayMode.FIRST_STREAM
     )
-    private val candidates = (1..5).map { index -> stream(name = "Source $index", url = "https://example.com/source-$index.mkv") }
+    private val candidates = (1..5).map { index ->
+        stream(name = "Source $index", url = "https://example.com/source-$index.mkv")
+    }
 
     private fun stream(
         name: String = "4K",
@@ -41,7 +43,12 @@ class SourceFallbackTest {
     @Test
     fun resolvedDebridCopyHasTheSameKeyAsTheTorrent() {
         val torrent = stream(infoHash = "ABC")
-        val resolved = stream(url = "https://cdn.example.com/dld/file?token=1", infoHash = "abc", debridResolved = true)
+        val resolved =
+            stream(
+                url = "https://cdn.example.com/dld/file?token=1",
+                infoHash = "abc",
+                debridResolved = true
+            )
 
         assertEquals(torrent.sourceFallbackKey(), resolved.sourceFallbackKey())
     }
@@ -56,12 +63,24 @@ class SourceFallbackTest {
 
     @Test
     fun fallbackAppliesOnlyWithAutoSelectionAndTheInternalPlayer() {
-        val enabled = PlayerSettings(streamAutoPlayFallbackOnFailure = true, streamAutoPlayMode = StreamAutoPlayMode.FIRST_STREAM)
+        val enabled =
+            PlayerSettings(
+                streamAutoPlayFallbackOnFailure = true,
+                streamAutoPlayMode = StreamAutoPlayMode.FIRST_STREAM
+            )
 
         assertTrue(enabled.streamAutoPlayFallbackActive)
-        assertFalse(enabled.copy(streamAutoPlayMode = StreamAutoPlayMode.MANUAL).streamAutoPlayFallbackActive)
-        assertFalse(enabled.copy(playerPreference = PlayerPreference.EXTERNAL).streamAutoPlayFallbackActive)
-        assertFalse(enabled.copy(streamAutoPlayFallbackOnFailure = false).streamAutoPlayFallbackActive)
+        assertFalse(
+            enabled.copy(
+                streamAutoPlayMode = StreamAutoPlayMode.MANUAL
+            ).streamAutoPlayFallbackActive
+        )
+        assertFalse(
+            enabled.copy(playerPreference = PlayerPreference.EXTERNAL).streamAutoPlayFallbackActive
+        )
+        assertFalse(
+            enabled.copy(streamAutoPlayFallbackOnFailure = false).streamAutoPlayFallbackActive
+        )
     }
 
     @Test
@@ -73,7 +92,8 @@ class SourceFallbackTest {
 
     @Test
     fun otherCopiesOfTheFailedTorrentAreSkipped() {
-        val sameTorrent = stream(name = "Same", url = "https://example.com/same.mkv", infoHash = HASH)
+        val sameTorrent =
+            stream(name = "Same", url = "https://example.com/same.mkv", infoHash = HASH)
 
         assertEquals(candidates[0], next(listOf(sameTorrent, candidates[0]), failedInfoHash = HASH))
     }
@@ -85,7 +105,10 @@ class SourceFallbackTest {
 
     @Test
     fun regexModeOnlyFallsBackToMatchingSources() {
-        val regexSettings = settings.copy(streamAutoPlayMode = StreamAutoPlayMode.REGEX_MATCH, streamAutoPlayRegex = "Source 3")
+        val regexSettings = settings.copy(
+            streamAutoPlayMode = StreamAutoPlayMode.REGEX_MATCH,
+            streamAutoPlayRegex = "Source 3"
+        )
 
         assertEquals(candidates[2], next(candidates, settings = regexSettings))
     }

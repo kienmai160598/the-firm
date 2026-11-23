@@ -25,17 +25,16 @@ class TorrentCacheDiskUsageTest {
     }
 
     @Test
-    fun `sparse files count by what the sizer reports, not by their length`() =
-        withCacheDirectory { cacheDirectory ->
-            val torrent = File(cacheDirectory, "payload/$FIRST_TORRENT_ID").apply { mkdirs() }
-            File(torrent, "film.mkv").writeText("x".repeat(4096))
+    fun `sparse files count by what the sizer reports, not by their length`() = withCacheDirectory { cacheDirectory ->
+        val torrent = File(cacheDirectory, "payload/$FIRST_TORRENT_ID").apply { mkdirs() }
+        File(torrent, "film.mkv").writeText("x".repeat(4096))
 
-            val storage = measureTorrentCacheStorage(cacheDirectory) { entry ->
-                if (entry.isDirectory) StoredEntry.Directory else StoredEntry.RegularFile(512L)
-            }
-
-            assertEquals(512L, storage.cachedBytes)
+        val storage = measureTorrentCacheStorage(cacheDirectory) { entry ->
+            if (entry.isDirectory) StoredEntry.Directory else StoredEntry.RegularFile(512L)
         }
+
+        assertEquals(512L, storage.cachedBytes)
+    }
 
     @Test
     fun `missing payload directory holds nothing`() = withCacheDirectory { cacheDirectory ->
@@ -43,19 +42,18 @@ class TorrentCacheDiskUsageTest {
     }
 
     @Test
-    fun `entries that are not real files or directories are not followed or counted`() =
-        withCacheDirectory { cacheDirectory ->
-            val torrent = File(cacheDirectory, "payload/$FIRST_TORRENT_ID").apply { mkdirs() }
-            val linkedElsewhere = File(torrent, "linked").apply { mkdirs() }
-            File(torrent, "film.mkv").writeText("12345")
-            File(linkedElsewhere, "outside.bin").writeText("1234567")
+    fun `entries that are not real files or directories are not followed or counted`() = withCacheDirectory { cacheDirectory ->
+        val torrent = File(cacheDirectory, "payload/$FIRST_TORRENT_ID").apply { mkdirs() }
+        val linkedElsewhere = File(torrent, "linked").apply { mkdirs() }
+        File(torrent, "film.mkv").writeText("12345")
+        File(linkedElsewhere, "outside.bin").writeText("1234567")
 
-            val storage = measureTorrentCacheStorage(cacheDirectory) { entry ->
-                if (entry.name == "linked") StoredEntry.Skipped else lengthOnDisk(entry)
-            }
-
-            assertEquals(5L, storage.cachedBytes)
+        val storage = measureTorrentCacheStorage(cacheDirectory) { entry ->
+            if (entry.name == "linked") StoredEntry.Skipped else lengthOnDisk(entry)
         }
+
+        assertEquals(5L, storage.cachedBytes)
+    }
 
     @Test
     fun `walk stops at the entry bound`() = withCacheDirectory { cacheDirectory ->
@@ -67,25 +65,23 @@ class TorrentCacheDiskUsageTest {
     }
 
     @Test
-    fun `title bytes come from that torrent's directory only`() =
-        withCacheDirectory { cacheDirectory ->
-            val current = File(cacheDirectory, "payload/$FIRST_TORRENT_ID").apply { mkdirs() }
-            val other = File(cacheDirectory, "payload/$SECOND_TORRENT_ID").apply { mkdirs() }
-            File(current, "film.mkv").writeText("12345")
-            File(other, "episode.mkv").writeText("123")
+    fun `title bytes come from that torrent's directory only`() = withCacheDirectory { cacheDirectory ->
+        val current = File(cacheDirectory, "payload/$FIRST_TORRENT_ID").apply { mkdirs() }
+        val other = File(cacheDirectory, "payload/$SECOND_TORRENT_ID").apply { mkdirs() }
+        File(current, "film.mkv").writeText("12345")
+        File(other, "episode.mkv").writeText("123")
 
-            val uppercaseId = FIRST_TORRENT_ID.uppercase()
-            val absentId = "f".repeat(40)
+        val uppercaseId = FIRST_TORRENT_ID.uppercase()
+        val absentId = "f".repeat(40)
 
-            assertEquals(5L, measureTorrentTitleBytes(cacheDirectory, uppercaseId, ::lengthOnDisk))
-            assertEquals(0L, measureTorrentTitleBytes(cacheDirectory, absentId, ::lengthOnDisk))
-        }
+        assertEquals(5L, measureTorrentTitleBytes(cacheDirectory, uppercaseId, ::lengthOnDisk))
+        assertEquals(0L, measureTorrentTitleBytes(cacheDirectory, absentId, ::lengthOnDisk))
+    }
 
     @Test(expected = IllegalArgumentException::class)
-    fun `a torrent id that is not a hash never becomes a path`() =
-        withCacheDirectory { cacheDirectory ->
-            measureTorrentTitleBytes(cacheDirectory, "../state", ::lengthOnDisk)
-        }
+    fun `a torrent id that is not a hash never becomes a path`() = withCacheDirectory { cacheDirectory ->
+        measureTorrentTitleBytes(cacheDirectory, "../state", ::lengthOnDisk)
+    }
 
     private fun withCacheDirectory(test: (File) -> Unit) {
         val cacheDirectory = Files.createTempDirectory("nuvio-engine-cache-").toFile()

@@ -1,22 +1,25 @@
 package com.kien.movies.ui.screens.search
 
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.screens.home.HeroBackdropState
-
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.KeyEvent
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
+import android.view.KeyEvent
+import android.view.inputmethod.CompletionInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,16 +33,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.focusGroup
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
@@ -59,60 +61,57 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
-import com.kien.movies.ui.util.recompositionHighlighter
-import com.kien.movies.ui.util.dpadRepeatThrottle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
-import com.kien.movies.ui.util.RtlKeyUtils
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
+import com.kien.movies.LocalSidebarExpanded
+import com.kien.movies.R
+import com.kien.movies.domain.model.DiscoverLocation
+import com.kien.movies.domain.model.stableKey
 import com.kien.movies.ui.components.CatalogRowSection
 import com.kien.movies.ui.components.EmptyScreenState
 import com.kien.movies.ui.components.ErrorState
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.PosterCardDefaults
 import com.kien.movies.ui.components.PosterCardStyle
-import com.kien.movies.domain.model.DiscoverLocation
-import com.kien.movies.domain.model.stableKey
-import android.view.inputmethod.CompletionInfo
-import android.view.inputmethod.InputMethodManager
-import androidx.compose.ui.platform.LocalView
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
-import androidx.compose.ui.res.stringResource
-import com.kien.movies.R
-import com.kien.movies.LocalSidebarExpanded
-import com.kien.movies.ui.navigation.toptabbar.LocalTopTabBarInset
-import com.kien.movies.ui.navigation.toptabbar.ReportTopTabBarScroll
-import com.kien.movies.ui.navigation.toptabbar.isScrolledDown
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.MoviesIconButton
+import com.kien.movies.ui.navigation.toptabbar.LocalTopTabBarInset
+import com.kien.movies.ui.navigation.toptabbar.ReportTopTabBarScroll
+import com.kien.movies.ui.navigation.toptabbar.isScrolledDown
 import com.kien.movies.ui.screens.detail.TvSizeFloors
 import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.screens.detail.buttonLabelStyle
 import com.kien.movies.ui.screens.detail.tvControlHeight
+import com.kien.movies.ui.screens.home.HeroBackdropState
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.util.RtlKeyUtils
+import com.kien.movies.ui.util.dpadRepeatThrottle
+import com.kien.movies.ui.util.recompositionHighlighter
+import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /** Skeleton rows shown while a search is pending, matching the two mobile renders. */
 private const val SEARCH_SKELETON_ROW_COUNT = 2
@@ -181,19 +180,26 @@ fun SearchScreen(
             pendingFocusMoveSawSearching = false
             pendingFocusMoveHadExistingSearchRows =
                 uiState.submittedQuery.trim().length >= MIN_SEARCH_QUERY_LENGTH &&
-                    uiState.catalogRows.any { it.items.isNotEmpty() }
+                uiState.catalogRows.any { it.items.isNotEmpty() }
         } else {
             Toast.makeText(context, strVoiceNoSpeech, Toast.LENGTH_SHORT).show()
         }
     }
-    val isVoiceSearchAvailable = remember(context) { SpeechRecognizer.isRecognitionAvailable(context) }
+    val isVoiceSearchAvailable =
+        remember(context) { SpeechRecognizer.isRecognitionAvailable(context) }
     val topInputFocusRequester = remember(isVoiceSearchAvailable) {
         if (isVoiceSearchAvailable) voiceFocusRequester else searchFocusRequester
     }
     // Whichever of voice/text field was focused last is where Up or Back from results returns to.
     var lastInputWasVoice by remember { mutableStateOf(isVoiceSearchAvailable) }
     val lastInputFocusRequester =
-        if (isVoiceSearchAvailable && lastInputWasVoice) voiceFocusRequester else searchFocusRequester
+        if (isVoiceSearchAvailable &&
+            lastInputWasVoice
+        ) {
+            voiceFocusRequester
+        } else {
+            searchFocusRequester
+        }
     val speechRecognizer = remember(context, isVoiceSearchAvailable) {
         if (isVoiceSearchAvailable) {
             runCatching { SpeechRecognizer.createSpeechRecognizer(context) }.getOrNull()
@@ -203,7 +209,10 @@ fun SearchScreen(
     }
     val buildRecognizeIntent: () -> Intent = {
         Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false)
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
             putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, context.packageName)
@@ -261,10 +270,13 @@ fun SearchScreen(
                     SpeechRecognizer.ERROR_NO_MATCH,
                     SpeechRecognizer.ERROR_SPEECH_TIMEOUT ->
                         Toast.makeText(context, strVoiceNoSpeech, Toast.LENGTH_SHORT).show()
+
                     SpeechRecognizer.ERROR_RECOGNIZER_BUSY,
                     SpeechRecognizer.ERROR_CLIENT -> Unit
+
                     SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS ->
                         Toast.makeText(context, strVoiceMicPermission, Toast.LENGTH_SHORT).show()
+
                     else ->
                         Toast.makeText(context, strVoiceFailed, Toast.LENGTH_SHORT).show()
                 }
@@ -330,7 +342,8 @@ fun SearchScreen(
     var focusResetRowKey by remember { mutableStateOf<String?>(null) }
     // Mirrors the focused index for the active row. The map above is a plain MutableMap,
     // so its values cannot drive recomposition of the Back handler.
-    val focusedResultItemIndex = remember { mutableIntStateOf(viewModel.savedFocusItemIndex.coerceAtLeast(0)) }
+    val focusedResultItemIndex =
+        remember { mutableIntStateOf(viewModel.savedFocusItemIndex.coerceAtLeast(0)) }
     var lastFocusedRowKey by remember { mutableStateOf(viewModel.savedFocusRowKey) }
     var posterOptionsRowKey by remember { mutableStateOf<String?>(null) }
 
@@ -406,7 +419,7 @@ fun SearchScreen(
             pendingFocusMoveSawSearching = false
             pendingFocusMoveHadExistingSearchRows =
                 trimmedSubmittedQuery.length >= MIN_SEARCH_QUERY_LENGTH &&
-                    uiState.catalogRows.any { row -> row.items.isNotEmpty() }
+                uiState.catalogRows.any { row -> row.items.isNotEmpty() }
         } else {
             pendingFocusMoveToResultsQuery = null
             pendingFocusMoveSawSearching = false
@@ -517,8 +530,11 @@ fun SearchScreen(
     // as the list: the keyboard rebuilds its strip as the query changes, so completions have to
     // be pushed again even when the list is unchanged.
     LaunchedEffect(uiState.query, uiState.suggestions) {
-        val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-            ?: return@LaunchedEffect
+        val imm =
+            context.getSystemService(
+                android.content.Context.INPUT_METHOD_SERVICE
+            ) as? InputMethodManager
+                ?: return@LaunchedEffect
         val completions = uiState.suggestions.mapIndexed { index, name ->
             CompletionInfo(index.toLong(), index, name)
         }.toTypedArray()
@@ -629,7 +645,9 @@ fun SearchScreen(
                 .dpadRepeatThrottle(),
             state = listState,
             contentPadding = PaddingValues(
-                top = LocalTopTabBarInset.current + if (isDiscoverMode) 10.dp else MoviesTheme.spacing.lg,
+                top =
+                    LocalTopTabBarInset.current +
+                        if (isDiscoverMode) 10.dp else MoviesTheme.spacing.lg,
                 bottom = MoviesTheme.spacing.lg
             ),
             verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
@@ -687,7 +705,10 @@ fun SearchScreen(
                             onRemoveSearch = { query ->
                                 viewModel.onEvent(SearchEvent.RemoveRecentSearch(query))
                             },
-                            onSectionFocusChanged = { focused -> isRecentSearchSectionFocused = focused },
+                            onSectionFocusChanged = { focused ->
+                                isRecentSearchSectionFocused =
+                                    focused
+                            },
                             clearHistoryFocusRequester = recentClearHistoryFocusRequester,
                             emptyHistoryFocusRequester = searchFocusRequester,
                             modifier = Modifier.padding(horizontal = 52.dp)
@@ -708,7 +729,8 @@ fun SearchScreen(
                 // mobile nor the desktop client shows an equivalent message.
 
                 when {
-                    trimmedSubmittedQuery.length < MIN_SEARCH_QUERY_LENGTH && !hasPendingUnsubmittedQuery -> {
+                    trimmedSubmittedQuery.length < MIN_SEARCH_QUERY_LENGTH &&
+                        !hasPendingUnsubmittedQuery -> {
                         item {
                             if (showRecentSearches) {
                                 RecentSearchesSection(
@@ -730,7 +752,9 @@ fun SearchScreen(
                             } else {
                                 EmptyScreenState(
                                     title = stringResource(R.string.search_start_title),
-                                    subtitle = if (uiState.discoverLocation == DiscoverLocation.OFF) {
+                                    subtitle = if (uiState.discoverLocation ==
+                                        DiscoverLocation.OFF
+                                    ) {
                                         stringResource(R.string.search_start_subtitle_no_discover)
                                     } else {
                                         stringResource(R.string.search_start_subtitle)
@@ -746,7 +770,8 @@ fun SearchScreen(
                     // mobile it only applies with an empty screen: mobile swaps results out for
                     // skeletons on every keystroke, which on a remote reads as flicker because each
                     // letter outlasts the debounce, so existing results are kept instead.
-                    (hasPendingUnsubmittedQuery || uiState.isSearching) && visibleCatalogRows.isEmpty() -> {
+                    (hasPendingUnsubmittedQuery || uiState.isSearching) &&
+                        visibleCatalogRows.isEmpty() -> {
                         items(SEARCH_SKELETON_ROW_COUNT, key = { "search_skeleton_$it" }) { index ->
                             val skeletonRow = remember(index) {
                                 com.kien.movies.domain.model.CatalogRow(
@@ -787,13 +812,15 @@ fun SearchScreen(
                     uiState.error != null && uiState.catalogRows.isEmpty() -> {
                         item {
                             ErrorState(
-                                message = uiState.error ?: stringResource(R.string.search_error_failed),
+                                message =
+                                    uiState.error ?: stringResource(R.string.search_error_failed),
                                 onRetry = { viewModel.onEvent(SearchEvent.Retry) }
                             )
                         }
                     }
 
-                    !uiState.isSearching && !hasPendingUnsubmittedQuery && visibleCatalogRows.isEmpty() -> {
+                    !uiState.isSearching && !hasPendingUnsubmittedQuery &&
+                        visibleCatalogRows.isEmpty() -> {
                         item {
                             EmptyScreenState(
                                 title = stringResource(R.string.search_no_results_title),
@@ -813,7 +840,8 @@ fun SearchScreen(
                         ) { index, catalogRow ->
                             val catalogKey = catalogRow.stableKey()
                             val isPlaceholder = catalogRow.isLoading &&
-                                catalogRow.items.firstOrNull()?.id?.startsWith("__placeholder_") == true
+                                catalogRow.items.firstOrNull()?.id?.startsWith("__placeholder_") ==
+                                true
                             val hasEnoughForSeeAll = !isPlaceholder && catalogRow.items.size >= 15
 
                             val listState = searchRowStates.getOrPut(catalogKey) {
@@ -823,8 +851,14 @@ fun SearchScreen(
                                     firstVisibleItemScrollOffset = saved?.second ?: 0
                                 )
                             }
-                            val rowFocusRequester = searchRowFocusRequesters.getOrPut(catalogKey) { FocusRequester() }
-                            val entryFocusRequester = searchRowEntryFocusRequesters.getOrPut(catalogKey) { FocusRequester() }
+                            val rowFocusRequester = searchRowFocusRequesters.getOrPut(catalogKey) {
+                                FocusRequester()
+                            }
+                            val entryFocusRequester = searchRowEntryFocusRequesters.getOrPut(
+                                catalogKey
+                            ) {
+                                FocusRequester()
+                            }
 
                             CatalogRowSection(
                                 catalogRow = catalogRow,
@@ -837,9 +871,17 @@ fun SearchScreen(
                                 rowFocusRequester = rowFocusRequester,
                                 entryFocusRequester = entryFocusRequester,
                                 // Anchor Up to the field; geometric focus varies with the card.
-                                upFocusRequester = if (index == 0) lastInputFocusRequester else null,
+                                upFocusRequester = if (index ==
+                                    0
+                                ) {
+                                    lastInputFocusRequester
+                                } else {
+                                    null
+                                },
                                 listState = listState,
-                                restorerFocusedIndex = if (restoringSearchFocus.value && catalogKey == viewModel.savedFocusRowKey) {
+                                restorerFocusedIndex = if (restoringSearchFocus.value &&
+                                    catalogKey == viewModel.savedFocusRowKey
+                                ) {
                                     viewModel.savedFocusItemIndex
                                 } else {
                                     searchRowFocusedItemIndex[catalogKey] ?: -1
@@ -850,16 +892,26 @@ fun SearchScreen(
                                     uiState.query
                                 },
                                 isItemWatched = { item ->
-                                    val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
-                                    if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
+                                    val isSeries =
+                                        item.apiType.equals("series", ignoreCase = true) ||
+                                            item.apiType.equals("tv", ignoreCase = true)
+                                    if (isSeries) {
+                                        item.id in watchedSeriesIds
+                                    } else {
+                                        item.id in
+                                            watchedMovieIds
+                                    }
                                 },
                                 focusedItemIndex = when {
-                                    restoringSearchFocus.value && catalogKey == viewModel.savedFocusRowKey ->
+                                    restoringSearchFocus.value &&
+                                        catalogKey == viewModel.savedFocusRowKey ->
                                         viewModel.savedFocusItemIndex
+
                                     // The remembered card, not item 0. A query change clears
                                     // the map, so a new search still lands on the first item.
                                     focusResults && index == 0 ->
                                         searchRowFocusedItemIndex[catalogKey] ?: 0
+
                                     else -> -1
                                 },
                                 onItemFocused = { itemIndex ->
@@ -1088,11 +1140,13 @@ private fun RecentSearchesSection(
                                 nextQuery != null -> {
                                     pendingDownwardFocus = recentQuery to nextQuery
                                 }
+
                                 previousQuery != null -> {
                                     runCatching {
                                         removeFocusRequesters.getValue(previousQuery).requestFocus()
                                     }
                                 }
+
                                 else -> {
                                     runCatching { emptyHistoryFocusRequester.requestFocus() }
                                 }
@@ -1302,9 +1356,9 @@ private fun SearchInputField(
                     false
                 },
             keyboardOptions = KeyboardOptions.Default.copy(
-                 imeAction = ImeAction.Done,
-                 autoCorrectEnabled = false
-             ),
+                imeAction = ImeAction.Done,
+                autoCorrectEnabled = false
+            ),
             keyboardActions = KeyboardActions(
                 onDone = {
                     onSubmit()

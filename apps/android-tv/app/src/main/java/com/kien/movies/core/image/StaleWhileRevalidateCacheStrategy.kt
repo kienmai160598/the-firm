@@ -8,6 +8,7 @@ import coil3.network.NetworkRequest
 import coil3.network.NetworkResponse
 import coil3.network.cachecontrol.CacheControlCacheStrategy
 import coil3.request.Options
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,7 +16,6 @@ import kotlinx.coroutines.launch
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Stale-while-revalidate [CacheStrategy]:
@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap
 @OptIn(ExperimentalCoilApi::class)
 class StaleWhileRevalidateCacheStrategy(
     private val revalidationClient: () -> OkHttpClient,
-    private val imageLoaderProvider: () -> ImageLoader,
+    private val imageLoaderProvider: () -> ImageLoader
 ) : CacheStrategy {
 
     companion object {
@@ -56,14 +56,14 @@ class StaleWhileRevalidateCacheStrategy(
     override suspend fun read(
         cacheResponse: NetworkResponse,
         networkRequest: NetworkRequest,
-        options: Options,
+        options: Options
     ): CacheStrategy.ReadResult {
         val delegateResult = delegate.read(cacheResponse, networkRequest, options)
         if (delegateResult.response != null) return delegateResult
 
         if (cachedResponseCanRevalidate(
                 cacheResponse.headers["etag"],
-                cacheResponse.headers["last-modified"],
+                cacheResponse.headers["last-modified"]
             )
         ) {
             val url = networkRequest.url
@@ -80,7 +80,7 @@ class StaleWhileRevalidateCacheStrategy(
         cacheResponse: NetworkResponse?,
         networkRequest: NetworkRequest,
         networkResponse: NetworkResponse,
-        options: Options,
+        options: Options
     ): CacheStrategy.WriteResult {
         return delegate.write(cacheResponse, networkRequest, networkResponse, options)
     }
@@ -116,7 +116,7 @@ class StaleWhileRevalidateCacheStrategy(
                             cachedLastModified = cachedResponse.headers["last-modified"],
                             responseCode = response.code,
                             responseEtag = response.header("ETag"),
-                            responseLastModified = response.header("Last-Modified"),
+                            responseLastModified = response.header("Last-Modified")
                         )
                     ) {
                         StaleRevalidationResult.Changed -> {
@@ -124,6 +124,7 @@ class StaleWhileRevalidateCacheStrategy(
                             evictFromMemoryCache(url)
                             ImageInvalidationBus.notifyInvalidated(url)
                         }
+
                         StaleRevalidationResult.Unchanged -> {
                             if (response.code != 304 && response.code !in 200..299) {
                                 Log.w(TAG, "Revalidation ${response.code}: ${url.take(80)}")
@@ -159,15 +160,13 @@ class StaleWhileRevalidateCacheStrategy(
             diskCache.openSnapshot(url)?.use { diskCache.remove(url) }
         } catch (_: Exception) { }
     }
-
 }
 
-internal fun cachedResponseCanRevalidate(etag: String?, lastModified: String?): Boolean =
-    !etag.isNullOrBlank() || !lastModified.isNullOrBlank()
+internal fun cachedResponseCanRevalidate(etag: String?, lastModified: String?): Boolean = !etag.isNullOrBlank() || !lastModified.isNullOrBlank()
 
 internal enum class StaleRevalidationResult {
     Unchanged,
-    Changed,
+    Changed
 }
 
 /**
@@ -180,7 +179,7 @@ internal fun classifyRevalidationResponse(
     cachedLastModified: String?,
     responseCode: Int,
     responseEtag: String?,
-    responseLastModified: String?,
+    responseLastModified: String?
 ): StaleRevalidationResult {
     if (responseCode == 304 || responseCode !in 200..299) {
         return StaleRevalidationResult.Unchanged

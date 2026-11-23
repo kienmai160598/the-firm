@@ -95,11 +95,9 @@ fun SimklSyncSnapshot.toSimklLibraryProjection(): SimklLibraryProjection {
     )
 }
 
-fun simklLibraryStatusDefinition(key: String): SimklLibraryStatusDefinition? =
-    simklLibraryStatusDefinitions.firstOrNull { definition -> definition.key == key }
+fun simklLibraryStatusDefinition(key: String): SimklLibraryStatusDefinition? = simklLibraryStatusDefinitions.firstOrNull { definition -> definition.key == key }
 
-fun simklLibraryStatusDefinition(status: TrackingListStatus): SimklLibraryStatusDefinition? =
-    simklLibraryStatusDefinitions.firstOrNull { definition -> definition.trackingStatus == status }
+fun simklLibraryStatusDefinition(status: TrackingListStatus): SimklLibraryStatusDefinition? = simklLibraryStatusDefinitions.firstOrNull { definition -> definition.trackingStatus == status }
 
 private fun SimklLibraryEntry.toLibraryEntry(
     listKey: String,

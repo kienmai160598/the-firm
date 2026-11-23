@@ -5,19 +5,17 @@ import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.ScraperInfo
 import com.kien.movies.domain.model.Video
 
-internal fun Addon.supportsStreamResource(type: String, videoId: String): Boolean =
-    supportsResource("stream", type, videoId)
+internal fun Addon.supportsStreamResource(type: String, videoId: String): Boolean = supportsResource("stream", type, videoId)
 
-internal fun Addon.supportsResource(name: String, type: String, id: String): Boolean =
-    resources.any { resource ->
-        resource.name == name &&
-            (resource.types.isEmpty() || resource.types.contains(type)) &&
-            run {
-                val prefixes = resource.idPrefixes?.takeIf { it.isNotEmpty() }
-                    ?: idPrefixes.takeIf { it.isNotEmpty() }
-                prefixes == null || prefixes.any { id.startsWith(it) }
-            }
-    }
+internal fun Addon.supportsResource(name: String, type: String, id: String): Boolean = resources.any { resource ->
+    resource.name == name &&
+        (resource.types.isEmpty() || resource.types.contains(type)) &&
+        run {
+            val prefixes = resource.idPrefixes?.takeIf { it.isNotEmpty() }
+                ?: idPrefixes.takeIf { it.isNotEmpty() }
+            prefixes == null || prefixes.any { id.startsWith(it) }
+        }
+}
 
 internal data class PlaybackAvailability(
     val addons: List<Addon> = emptyList(),
@@ -32,7 +30,8 @@ internal data class PlaybackAvailability(
         contentId: String = videoId,
         video: Video? = null
     ): Boolean = video?.takeIf { it.id == videoId }?.streams?.isNotEmpty() == true ||
-        cachedMeta(type, contentId)?.videos?.any { it.id == videoId && it.streams.isNotEmpty() } == true ||
+        cachedMeta(type, contentId)?.videos?.any { it.id == videoId && it.streams.isNotEmpty() } ==
+        true ||
         addons.any { it.enabled && it.supportsStreamResource(type, videoId) } ||
         scrapers.any { it.enabled && it.supportsType(type) } ||
         serverStreams(type, videoId)

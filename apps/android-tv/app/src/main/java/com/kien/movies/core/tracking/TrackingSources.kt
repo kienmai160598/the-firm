@@ -24,7 +24,8 @@ fun effectiveWatchProgressSource(
     isProviderAuthenticated: (TrackingProviderId) -> Boolean
 ): WatchProgressSource {
     val providerId = requestedSource.providerId ?: return WatchProgressSource.NUVIO_SYNC
-    return requestedSource.takeIf { isProviderAuthenticated(providerId) } ?: WatchProgressSource.NUVIO_SYNC
+    return requestedSource.takeIf { isProviderAuthenticated(providerId) }
+        ?: WatchProgressSource.NUVIO_SYNC
 }
 
 fun effectiveLibrarySourceMode(

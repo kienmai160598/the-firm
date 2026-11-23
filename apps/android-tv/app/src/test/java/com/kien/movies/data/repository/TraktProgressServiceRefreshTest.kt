@@ -143,7 +143,9 @@ class TraktProgressServiceRefreshTest {
     }
 
     private fun resetCounters() {
-        listOf(lastActivitiesCalls, playbackCalls, watchedMoviesCalls, watchedShowsCalls).forEach { it.set(0) }
+        listOf(lastActivitiesCalls, playbackCalls, watchedMoviesCalls, watchedShowsCalls).forEach {
+            it.set(0)
+        }
     }
 
     private suspend fun waitUntil(condition: () -> Boolean) {
@@ -160,7 +162,9 @@ class TraktProgressServiceRefreshTest {
             } else {
                 Response.success(
                     TraktLastActivitiesResponseDto(
-                        movies = TraktLastActivitiesMediaDto(watchedAt = "2026-01-01T00:00:00.000Z"),
+                        movies = TraktLastActivitiesMediaDto(
+                            watchedAt = "2026-01-01T00:00:00.000Z"
+                        ),
                         episodes = TraktLastActivitiesMediaDto(watchedAt = episodesWatchedAt)
                     )
                 )
@@ -177,7 +181,10 @@ class TraktProgressServiceRefreshTest {
                             type = "movie",
                             progress = 40f,
                             pausedAt = "2026-01-01T00:00:00.000Z",
-                            movie = TraktMovieDto(title = "Movie", ids = TraktIdsDto(trakt = 1, imdb = MOVIE_ID))
+                            movie = TraktMovieDto(
+                                title = "Movie",
+                                ids = TraktIdsDto(trakt = 1, imdb = MOVIE_ID)
+                            )
                         )
                     )
                 )
@@ -185,8 +192,10 @@ class TraktProgressServiceRefreshTest {
                 Response.success(emptyList())
             }
         }
-        coEvery { traktApi.getEpisodeHistory(any(), any(), any(), any(), any()) } returns Response.success(emptyList())
-        coEvery { traktApi.getHiddenItems(any(), any(), any(), any(), any()) } returns Response.success(emptyList())
+        coEvery { traktApi.getEpisodeHistory(any(), any(), any(), any(), any()) } returns
+            Response.success(emptyList())
+        coEvery { traktApi.getHiddenItems(any(), any(), any(), any(), any()) } returns
+            Response.success(emptyList())
         coEvery { traktApi.getWatched(any(), any(), any(), any(), any()) } answers {
             watchedMoviesCalls.incrementAndGet()
             Response.success(emptyList())
@@ -199,7 +208,14 @@ class TraktProgressServiceRefreshTest {
         val authService = mockk<TraktAuthService>()
         every { authService.isCircuitClosed() } returns true
         coEvery { authService.getCurrentAuthState() } answers {
-            if (signedIn) TraktAuthState(accessToken = "access", refreshToken = "refresh") else TraktAuthState()
+            if (signedIn) {
+                TraktAuthState(
+                    accessToken = "access",
+                    refreshToken = "refresh"
+                )
+            } else {
+                TraktAuthState()
+            }
         }
         coEvery { authService.executeAuthorizedRequest<Any?>(any()) } coAnswers {
             firstArg<suspend (String) -> Response<Any?>>().invoke("Bearer test")

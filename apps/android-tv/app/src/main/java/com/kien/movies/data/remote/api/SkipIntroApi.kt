@@ -94,9 +94,7 @@ data class AnimeSkipRequest(
 )
 
 @JsonClass(generateAdapter = true)
-data class AnimeSkipResponse(
-    @Json(name = "data") val data: AnimeSkipData? = null
-)
+data class AnimeSkipResponse(@Json(name = "data") val data: AnimeSkipData? = null)
 
 @JsonClass(generateAdapter = true)
 data class AnimeSkipData(
@@ -105,9 +103,7 @@ data class AnimeSkipData(
 )
 
 @JsonClass(generateAdapter = true)
-data class AnimeSkipShow(
-    @Json(name = "id") val id: String
-)
+data class AnimeSkipShow(@Json(name = "id") val id: String)
 
 @JsonClass(generateAdapter = true)
 data class AnimeSkipEpisode(
@@ -124,6 +120,4 @@ data class AnimeSkipTimestamp(
 )
 
 @JsonClass(generateAdapter = true)
-data class AnimeSkipTimestampType(
-    @Json(name = "name") val name: String
-)
+data class AnimeSkipTimestampType(@Json(name = "name") val name: String)

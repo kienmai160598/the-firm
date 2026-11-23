@@ -14,8 +14,11 @@ internal fun decodeMdbListWatched(body: String): MdbListPage<MdbListWatchedRecor
                 val row = item.objectValue()
                 val target = row.objectValue(name) ?: throw MdbListDecodingException()
                 val parent = if (type in setOf(MdbListItemType.SEASON, MdbListItemType.EPISODE)) {
-                    row.objectValue("show") ?: target.objectValue("show") ?: throw MdbListDecodingException()
-                } else target
+                    row.objectValue("show") ?: target.objectValue("show")
+                        ?: throw MdbListDecodingException()
+                } else {
+                    target
+                }
                 val media = decodeMdbListMedia(parent)
                 watchedRecord(type, row, target, media)?.let(::add)
                 if (type == MdbListItemType.SHOW) addAll(nestedEpisodes(row, media))
@@ -39,13 +42,23 @@ private fun watchedRecord(
         else -> null
     }
     val episode = if (type == MdbListItemType.EPISODE) target.integer("number", "episode") else null
-    if (type in setOf(MdbListItemType.SEASON, MdbListItemType.EPISODE) && (season == null || season < 0)) {
+    if (type in setOf(MdbListItemType.SEASON, MdbListItemType.EPISODE) &&
+        (season == null || season < 0)
+    ) {
         throw MdbListDecodingException()
     }
-    if (type == MdbListItemType.EPISODE && (episode == null || episode < 1)) throw MdbListDecodingException()
+    if (type == MdbListItemType.EPISODE &&
+        (episode == null || episode < 1)
+    ) {
+        throw MdbListDecodingException()
+    }
     val ids = target.objectValue("ids")
     return MdbListWatchedRecord(
-        type, media, watchedAt, season, episode,
+        type,
+        media,
+        watchedAt,
+        season,
+        episode,
         episodeTitle = target.text("title", "name").takeIf { type == MdbListItemType.EPISODE },
         episodeTmdbId = ids?.number("tmdb", "tmdbid").takeIf { type == MdbListItemType.EPISODE },
         episodeTvdbId = ids?.number("tvdb", "tvdbid").takeIf { type == MdbListItemType.EPISODE }

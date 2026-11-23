@@ -60,12 +60,10 @@ internal fun ReportTopTabBarScroll(isScrolledDown: () -> Boolean) {
 }
 
 /** Pixels the page is scrolled from its top while its first item is still in view, else null. */
-internal fun LazyListState.scrollFromTop(): Int? =
-    if (firstVisibleItemIndex == 0) firstVisibleItemScrollOffset else null
+internal fun LazyListState.scrollFromTop(): Int? = if (firstVisibleItemIndex == 0) firstVisibleItemScrollOffset else null
 
 /** Pixels the page is scrolled from its top while its first item is still in view, else null. */
-internal fun LazyGridState.scrollFromTop(): Int? =
-    if (firstVisibleItemIndex == 0) firstVisibleItemScrollOffset else null
+internal fun LazyGridState.scrollFromTop(): Int? = if (firstVisibleItemIndex == 0) firstVisibleItemScrollOffset else null
 
 internal fun LazyListState.isScrolledDown(): Boolean = scrollFromTop() != 0
 

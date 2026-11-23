@@ -1,7 +1,5 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -18,12 +16,11 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.ui.theme.MoviesTheme
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun MoviesTopBar(
-    modifier: Modifier = Modifier
-) {
+fun MoviesTopBar(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -56,11 +53,7 @@ fun MoviesTopBar(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun TopBarNavItem(
-    text: String,
-    isSelected: Boolean,
-    modifier: Modifier = Modifier
-) {
+private fun TopBarNavItem(text: String, isSelected: Boolean, modifier: Modifier = Modifier) {
     Text(
         text = text,
         style = MaterialTheme.typography.titleMedium,

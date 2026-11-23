@@ -1,7 +1,5 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -25,42 +23,43 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.kien.movies.R
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.kien.movies.domain.model.MetaPreview
-import com.kien.movies.domain.model.PosterShape
-import com.kien.movies.domain.model.CardDepthSurface
-import androidx.compose.ui.platform.LocalContext
-import com.kien.movies.ui.theme.rememberMetaFloor
-import com.kien.movies.ui.util.recompositionHighlighter
-import com.kien.movies.ui.util.rememberLongPressKeyTracker
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.kien.movies.R
+import com.kien.movies.domain.model.CardDepthSurface
+import com.kien.movies.domain.model.MetaPreview
+import com.kien.movies.domain.model.PosterShape
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.rememberMetaFloor
+import com.kien.movies.ui.util.recompositionHighlighter
+import com.kien.movies.ui.util.rememberLongPressKeyTracker
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -81,7 +80,8 @@ fun GridContentCard(
     onLongPress: (() -> Unit)? = null,
     onFocused: () -> Unit = {}
 ) {
-    val cardShape = remember(posterCardStyle.cornerRadius) { RoundedCornerShape(posterCardStyle.cornerRadius) }
+    val cardShape =
+        remember(posterCardStyle.cornerRadius) { RoundedCornerShape(posterCardStyle.cornerRadius) }
     val cardDepthStyle = LocalCardDepthStyle.current
     val density = LocalDensity.current
     val globalLandscape = LocalLandscapePosterMode.current
@@ -91,10 +91,12 @@ fun GridContentCard(
     // This ensures grids and rows display landscape/square shapes correctly.
     val cardHeight = when (effectivePosterShape) {
         PosterShape.POSTER -> posterCardStyle.height
+
         PosterShape.LANDSCAPE -> {
             val landscapeWidth = if (globalLandscape) posterCardStyle.height else posterCardStyle.width
             landscapeWidth / PosterShape.LANDSCAPE.aspectRatio()
         }
+
         PosterShape.SQUARE -> posterCardStyle.width
     }
 
@@ -103,11 +105,21 @@ fun GridContentCard(
     // fillMaxWidth only makes sense inside a grid where cells constrain width.
     val isNativelyLandscape = item.posterShape == PosterShape.LANDSCAPE
 
-    val landscapeCardWidth = if (globalLandscape && !isNativelyLandscape) posterCardStyle.height else posterCardStyle.width
+    val landscapeCardWidth = if (globalLandscape &&
+        !isNativelyLandscape
+    ) {
+        posterCardStyle.height
+    } else {
+        posterCardStyle.width
+    }
 
     val requestCardWidth = landscapeCardWidth
-    val requestWidthPx = remember(density, requestCardWidth) { with(density) { requestCardWidth.roundToPx() }.coerceAtLeast(1) }
-    val requestHeightPx = remember(density, cardHeight) { with(density) { cardHeight.roundToPx() }.coerceAtLeast(1) }
+    val requestWidthPx =
+        remember(density, requestCardWidth) {
+            with(density) { requestCardWidth.roundToPx() }.coerceAtLeast(1)
+        }
+    val requestHeightPx =
+        remember(density, cardHeight) { with(density) { cardHeight.roundToPx() }.coerceAtLeast(1) }
     var isFocused by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
@@ -127,13 +139,19 @@ fun GridContentCard(
             },
             modifier = Modifier
                 .then(
-                    if (globalLandscape) Modifier.fillMaxWidth().aspectRatio(PosterShape.LANDSCAPE.aspectRatio())
-                    else Modifier.width(posterCardStyle.width).height(cardHeight)
+                    if (globalLandscape) {
+                        Modifier.fillMaxWidth().aspectRatio(PosterShape.LANDSCAPE.aspectRatio())
+                    } else {
+                        Modifier.width(posterCardStyle.width).height(cardHeight)
+                    }
                 )
                 .posterFocusLift(cardShape, posterCardStyle.focusedScale)
                 .then(
-                    if (focusRequester != null) Modifier.focusRequester(focusRequester)
-                    else Modifier
+                    if (focusRequester != null) {
+                        Modifier.focusRequester(focusRequester)
+                    } else {
+                        Modifier
+                    }
                 )
                 .then(
                     if (upFocusRequester != null || downFocusRequester != null) {
@@ -175,7 +193,10 @@ fun GridContentCard(
                     }
                     if (native.action == AndroidKeyEvent.ACTION_UP &&
                         longPressTriggered &&
-                        (isSelectKey(native.keyCode) || native.keyCode == AndroidKeyEvent.KEYCODE_MENU)
+                        (
+                            isSelectKey(native.keyCode) ||
+                                native.keyCode == AndroidKeyEvent.KEYCODE_MENU
+                            )
                     ) {
                         longPressTriggered = false
                         return@onPreviewKeyEvent true
@@ -202,32 +223,51 @@ fun GridContentCard(
             ) {
                 val context = LocalContext.current
                 val bgCardColor = MoviesTheme.colors.BackgroundCard
-                val bgPainter = remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }
+                val bgPainter =
+                    remember(bgCardColor) {
+                        androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor)
+                    }
                 val alwaysBackdropWithLogo = LocalAlwaysBackdropWithLogo.current
-                val effectiveLandscapePoster = if (globalLandscape && alwaysBackdropWithLogo) null else item.landscapePoster
+                val effectiveLandscapePoster = if (globalLandscape &&
+                    alwaysBackdropWithLogo
+                ) {
+                    null
+                } else {
+                    item.landscapePoster
+                }
                 val effectiveImageUrl = if (globalLandscape) {
                     effectiveLandscapePoster ?: item.background ?: item.poster
                 } else {
                     item.poster
                 }
-                val revalidationKey = com.kien.movies.core.image.rememberImageRevalidationKey(effectiveImageUrl)
-                val imageModel = remember(effectiveImageUrl, requestWidthPx, requestHeightPx, revalidationKey) {
-                    val builder = ImageRequest.Builder(context)
-                        .data(effectiveImageUrl)
-                        .crossfade(imageCrossfade)
-                        .size(width = requestWidthPx, height = requestHeightPx)
-                        .memoryCacheKey("${effectiveImageUrl}_${requestWidthPx}x${requestHeightPx}_v$revalidationKey")
-                    if (revalidationKey > 0) {
-                        builder.placeholderMemoryCacheKey("${effectiveImageUrl}_${requestWidthPx}x${requestHeightPx}_v${revalidationKey - 1}")
+                val revalidationKey = com.kien.movies.core.image.rememberImageRevalidationKey(
+                    effectiveImageUrl
+                )
+                val imageModel =
+                    remember(effectiveImageUrl, requestWidthPx, requestHeightPx, revalidationKey) {
+                        val builder = ImageRequest.Builder(context)
+                            .data(effectiveImageUrl)
+                            .crossfade(imageCrossfade)
+                            .size(width = requestWidthPx, height = requestHeightPx)
+                            .memoryCacheKey(
+                                "${effectiveImageUrl}_${requestWidthPx}x${requestHeightPx}_v$revalidationKey"
+                            )
+                        if (revalidationKey > 0) {
+                            builder.placeholderMemoryCacheKey(
+                                "${effectiveImageUrl}_${requestWidthPx}x${requestHeightPx}_v${revalidationKey - 1}"
+                            )
+                        }
+                        val fallbackUrl = item.rawPosterUrl
+                        if (!fallbackUrl.isNullOrBlank() && fallbackUrl != effectiveImageUrl) {
+                            builder.memoryCacheKeyExtras(
+                                mapOf(
+                                    com.kien.movies.core.image.CustomPosterFallbackInterceptor.FALLBACK_URL_KEY to
+                                        fallbackUrl
+                                )
+                            )
+                        }
+                        builder.build()
                     }
-                    val fallbackUrl = item.rawPosterUrl
-                    if (!fallbackUrl.isNullOrBlank() && fallbackUrl != effectiveImageUrl) {
-                        builder.memoryCacheKeyExtras(
-                            mapOf(com.kien.movies.core.image.CustomPosterFallbackInterceptor.FALLBACK_URL_KEY to fallbackUrl)
-                        )
-                    }
-                    builder.build()
-                }
                 if (effectiveImageUrl.isNullOrBlank()) {
                     MonochromePosterPlaceholder(contentDescription = item.name)
                 } else {
@@ -276,8 +316,18 @@ fun GridContentCard(
                             modifier = Modifier
                                 .align(Alignment.BottomStart)
                                 .fillMaxWidth(0.62f)
-                                .then(if (globalLandscape) Modifier.fillMaxHeight(0.34f) else Modifier.height(cardHeight * 0.34f))
-                                .padding(start = 10.dp, end = 10.dp, bottom = MoviesTheme.spacing.sm),
+                                .then(
+                                    if (globalLandscape) {
+                                        Modifier.fillMaxHeight(0.34f)
+                                    } else {
+                                        Modifier.height(cardHeight * 0.34f)
+                                    }
+                                )
+                                .padding(
+                                    start = 10.dp,
+                                    end = 10.dp,
+                                    bottom = MoviesTheme.spacing.sm
+                                ),
                             contentScale = ContentScale.Fit,
                             alignment = Alignment.CenterStart,
                             onError = { landscapeLogoFailed = true }
@@ -361,8 +411,20 @@ fun GridContentCard(
                 style = MaterialTheme.typography.titleMedium,
                 color = MoviesTheme.colors.TextPrimary,
                 modifier = Modifier
-                    .then(if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width))
-                    .padding(top = MoviesTheme.spacing.sm, start = MoviesTheme.spacing.xxs, end = MoviesTheme.spacing.xxs)
+                    .then(
+                        if (globalLandscape) {
+                            Modifier.fillMaxWidth()
+                        } else {
+                            Modifier.width(
+                                posterCardStyle.width
+                            )
+                        }
+                    )
+                    .padding(
+                        top = MoviesTheme.spacing.sm,
+                        start = MoviesTheme.spacing.xxs,
+                        end = MoviesTheme.spacing.xxs
+                    )
             )
             item.releaseInfo?.takeIf { showReleaseInfo }?.let { info ->
                 FocusMarqueeText(
@@ -371,8 +433,20 @@ fun GridContentCard(
                     style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
                     color = MoviesTheme.extendedColors.textSecondary,
                     modifier = Modifier
-                        .then(if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width))
-                        .padding(top = 2.dp, start = MoviesTheme.spacing.xxs, end = MoviesTheme.spacing.xxs)
+                        .then(
+                            if (globalLandscape) {
+                                Modifier.fillMaxWidth()
+                            } else {
+                                Modifier.width(
+                                    posterCardStyle.width
+                                )
+                            }
+                        )
+                        .padding(
+                            top = 2.dp,
+                            start = MoviesTheme.spacing.xxs,
+                            end = MoviesTheme.spacing.xxs
+                        )
                 )
             }
         }

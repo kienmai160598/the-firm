@@ -186,7 +186,10 @@ class ContinueWatchingNextUpReconciliationTest {
         val next = nextUp("series", season = 1, episode = 2, seedSeason = 1, seedEpisode = 1)
 
         assertEquals(continueWatchingItemKey(finished), continueWatchingItemKey(next))
-        assertNotEquals(continueWatchingItemKey(finished), continueWatchingItemKey(inProgress("other")))
+        assertNotEquals(
+            continueWatchingItemKey(finished),
+            continueWatchingItemKey(inProgress("other"))
+        )
     }
 
     private fun nextUp(

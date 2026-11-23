@@ -76,7 +76,13 @@ class TraktTrackingHistoryWriter @Inject constructor(
             backdrop = null,
             logo = null,
             videoId = catalog?.videoId
-                ?: if (season != null && episodeNumber != null) "$contentId:$season:$episodeNumber" else contentId,
+                ?: if (season != null &&
+                    episodeNumber != null
+                ) {
+                    "$contentId:$season:$episodeNumber"
+                } else {
+                    contentId
+                },
             season = season,
             episode = episodeNumber,
             episodeTitle = episode?.title,
@@ -93,9 +99,8 @@ class TraktTrackingHistoryWriter @Inject constructor(
         ?: title?.trim()?.takeIf(String::isNotBlank)
         ?: throw IllegalArgumentException("Trakt history mutation requires an identity")
 
-    private fun TrackingExternalIds.preferredContentId(): String? =
-        imdb?.takeIf(String::isNotBlank)
-            ?: tmdb?.let { "tmdb:$it" }
-            ?: trakt?.let { "trakt:$it" }
-            ?: tvdb?.takeIf(String::isNotBlank)?.let { "tvdb:$it" }
+    private fun TrackingExternalIds.preferredContentId(): String? = imdb?.takeIf(String::isNotBlank)
+        ?: tmdb?.let { "tmdb:$it" }
+        ?: trakt?.let { "trakt:$it" }
+        ?: tvdb?.takeIf(String::isNotBlank)?.let { "tvdb:$it" }
 }

@@ -13,17 +13,23 @@ object NoDelaySocketFactory : SocketFactory() {
 
     override fun createSocket(): Socket = delegate.createSocket().noDelay()
 
-    override fun createSocket(host: String?, port: Int): Socket =
-        delegate.createSocket(host, port).noDelay()
+    override fun createSocket(host: String?, port: Int): Socket = delegate.createSocket(host, port).noDelay()
 
-    override fun createSocket(host: String?, port: Int, localHost: InetAddress?, localPort: Int): Socket =
-        delegate.createSocket(host, port, localHost, localPort).noDelay()
+    override fun createSocket(
+        host: String?,
+        port: Int,
+        localHost: InetAddress?,
+        localPort: Int
+    ): Socket = delegate.createSocket(host, port, localHost, localPort).noDelay()
 
-    override fun createSocket(host: InetAddress?, port: Int): Socket =
-        delegate.createSocket(host, port).noDelay()
+    override fun createSocket(host: InetAddress?, port: Int): Socket = delegate.createSocket(host, port).noDelay()
 
-    override fun createSocket(address: InetAddress?, port: Int, localAddress: InetAddress?, localPort: Int): Socket =
-        delegate.createSocket(address, port, localAddress, localPort).noDelay()
+    override fun createSocket(
+        address: InetAddress?,
+        port: Int,
+        localAddress: InetAddress?,
+        localPort: Int
+    ): Socket = delegate.createSocket(address, port, localAddress, localPort).noDelay()
 
     private fun Socket.noDelay(): Socket = apply { runCatching { tcpNoDelay = true } }
 }

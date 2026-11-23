@@ -48,12 +48,12 @@ import com.kien.movies.domain.model.TmdbCollectionSort
 import com.kien.movies.ui.components.MoviesScrollDefaults
 import com.kien.movies.ui.components.TvReorderList
 import com.kien.movies.ui.theme.MoviesTheme
+import kotlin.math.abs
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.math.abs
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @RunWith(AndroidJUnit4::class)
@@ -202,7 +202,8 @@ class CollectionFocusAndScrollTest {
                         }
                         added = if (exists) {
                             added.filterNot {
-                                it is AddonCatalogCollectionSource && it.catalogId == catalog.catalogId
+                                it is AddonCatalogCollectionSource &&
+                                    it.catalogId == catalog.catalogId
                             }
                         } else {
                             added + AddonCatalogCollectionSource(
@@ -243,7 +244,9 @@ class CollectionFocusAndScrollTest {
         }
 
         composeRule.waitForIdle()
-        composeRule.onNodeWithText(context.getString(R.string.collections_editor_done)).assertIsFocused()
+        composeRule.onNodeWithText(
+            context.getString(R.string.collections_editor_done)
+        ).assertIsFocused()
     }
 
     @Test
@@ -508,7 +511,15 @@ class CollectionFocusAndScrollTest {
                         ) { item, _, _, _ ->
                             val index = item.removePrefix("src_").toInt()
                             // Variable heights like addon sources with/without genre controls
-                            val rowHeight = if (index == 0) 72.dp else if (index % 2 == 0) 150.dp else 96.dp
+                            val rowHeight = if (index ==
+                                0
+                            ) {
+                                72.dp
+                            } else if (index % 2 == 0) {
+                                150.dp
+                            } else {
+                                96.dp
+                            }
                             Button(
                                 onClick = {
                                     pendingKey = item
@@ -699,20 +710,26 @@ class CollectionFocusAndScrollTest {
         }
 
         composeRule.waitForIdle()
-        val inputPlaceholder = context.getString(R.string.collection_editor_trakt_search_placeholder)
+        val inputPlaceholder = context.getString(
+            R.string.collection_editor_trakt_search_placeholder
+        )
         val titlePlaceholder = context.getString(R.string.collection_editor_trakt_name_placeholder)
         val movieLabel = context.getString(R.string.type_movie)
         val sortListOrderLabel = context.getString(R.string.collections_editor_sort_list_order)
         val ascLabel = context.getString(R.string.collections_editor_trakt_ascending)
         val searchLabel = context.getString(R.string.collections_editor_tmdb_search)
 
-        val inputSurface = composeRule.onNode(isFocused() and hasAnyDescendant(hasText(inputPlaceholder)))
+        val inputSurface = composeRule.onNode(
+            isFocused() and hasAnyDescendant(hasText(inputPlaceholder))
+        )
         inputSurface.assertExists()
 
         // Down -> Display Title field (single step, no ghost stop)
         inputSurface.performKeyInput { pressKey(Key.DirectionDown) }
         composeRule.waitForIdle()
-        val titleSurface = composeRule.onNode(isFocused() and hasAnyDescendant(hasText(titlePlaceholder)))
+        val titleSurface = composeRule.onNode(
+            isFocused() and hasAnyDescendant(hasText(titlePlaceholder))
+        )
         titleSurface.assertExists()
 
         // Down -> Type row must land on selected "Movie" (not rightmost "Both")
@@ -726,7 +743,9 @@ class CollectionFocusAndScrollTest {
         composeRule.onNodeWithText(sortListOrderLabel).assertIsFocused()
 
         // Down -> Direction row must land on selected "Ascending" (not rightmost "Descending")
-        composeRule.onNodeWithText(sortListOrderLabel).performKeyInput { pressKey(Key.DirectionDown) }
+        composeRule.onNodeWithText(sortListOrderLabel).performKeyInput {
+            pressKey(Key.DirectionDown)
+        }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(ascLabel).assertIsFocused()
 
@@ -770,7 +789,9 @@ class CollectionFocusAndScrollTest {
 
         composeRule.waitForIdle()
         val discoverLabel = context.getString(R.string.collections_editor_tmdb_mode_custom)
-        val titlePlaceholder = context.getString(R.string.collections_editor_tmdb_tv_title_placeholder)
+        val titlePlaceholder = context.getString(
+            R.string.collections_editor_tmdb_tv_title_placeholder
+        )
         val movieLabel = context.getString(R.string.type_movie)
         val popularLabel = context.getString(R.string.tmdb_entity_rail_popular)
 
@@ -779,7 +800,9 @@ class CollectionFocusAndScrollTest {
         // Down from mode tab -> Display Title
         composeRule.onNodeWithText(discoverLabel).performKeyInput { pressKey(Key.DirectionDown) }
         composeRule.waitForIdle()
-        val titleSurface = composeRule.onNode(isFocused() and hasAnyDescendant(hasText(titlePlaceholder)))
+        val titleSurface = composeRule.onNode(
+            isFocused() and hasAnyDescendant(hasText(titlePlaceholder))
+        )
         titleSurface.assertExists()
 
         // Down from full-width Display Title -> selected "Movie" (NOT rightmost "Both")
@@ -821,22 +844,30 @@ class CollectionFocusAndScrollTest {
         }
 
         composeRule.waitForIdle()
-        val inputPlaceholder = context.getString(R.string.collection_editor_trakt_search_placeholder)
+        val inputPlaceholder = context.getString(
+            R.string.collection_editor_trakt_search_placeholder
+        )
         val movieLabel = context.getString(R.string.type_movie)
         val seriesLabel = context.getString(R.string.type_series)
         val bothLabel = context.getString(R.string.collection_editor_choice_both)
 
-        val inputSurface = composeRule.onNode(isFocused() and hasAnyDescendant(hasText(inputPlaceholder)))
+        val inputSurface = composeRule.onNode(
+            isFocused() and hasAnyDescendant(hasText(inputPlaceholder))
+        )
         inputSurface.assertExists()
 
         // Left/Right on standalone input field must not escape to Back or elsewhere
         inputSurface.performKeyInput { pressKey(Key.DirectionLeft) }
         composeRule.waitForIdle()
-        composeRule.onNode(isFocused() and hasAnyDescendant(hasText(inputPlaceholder))).assertExists()
+        composeRule.onNode(
+            isFocused() and hasAnyDescendant(hasText(inputPlaceholder))
+        ).assertExists()
 
         inputSurface.performKeyInput { pressKey(Key.DirectionRight) }
         composeRule.waitForIdle()
-        composeRule.onNode(isFocused() and hasAnyDescendant(hasText(inputPlaceholder))).assertExists()
+        composeRule.onNode(
+            isFocused() and hasAnyDescendant(hasText(inputPlaceholder))
+        ).assertExists()
 
         // Move down to Type row ("Movie")
         inputSurface.performKeyInput {

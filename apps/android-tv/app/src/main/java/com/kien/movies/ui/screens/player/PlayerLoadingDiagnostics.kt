@@ -48,7 +48,12 @@ internal fun PlayerRuntimeController.setLoadingStatus(
     showOverlay: Boolean? = null,
     detail: String? = null
 ) {
-    recordLoadingDiagnosticEvent(phase = phase, message = message, progress = progress, detail = detail)
+    recordLoadingDiagnosticEvent(
+        phase = phase,
+        message = message,
+        progress = progress,
+        detail = detail
+    )
     _uiState.update { state ->
         state.copy(
             showLoadingOverlay = showOverlay ?: state.showLoadingOverlay,
@@ -123,8 +128,12 @@ internal fun PlayerRuntimeController.scheduleLoadingIssueReportAvailability() {
     startupLoadingReportJob = scope.launch {
         delay(LOADING_ISSUE_REPORT_DELAY_MS)
         val state = _uiState.value
-        if (state.playbackIssueReportsEnabled && !hasRenderedFirstFrame && state.error == null && state.showLoadingOverlay) {
-            val elapsedMs = (SystemClock.elapsedRealtime() - loadingDiagnosticsStartedAtMs).coerceAtLeast(0L)
+        if (state.playbackIssueReportsEnabled && !hasRenderedFirstFrame && state.error == null &&
+            state.showLoadingOverlay
+        ) {
+            val elapsedMs = (SystemClock.elapsedRealtime() - loadingDiagnosticsStartedAtMs).coerceAtLeast(
+                0L
+            )
             _uiState.update {
                 it.copy(
                     loadingIssueReportVisible = true,
@@ -135,12 +144,26 @@ internal fun PlayerRuntimeController.scheduleLoadingIssueReportAvailability() {
     }
 }
 
-internal fun PlayerRuntimeController.buildPlaybackIssueLoadingInput(reportReason: String): PlaybackIssueLoadingInput {
+internal fun PlayerRuntimeController.buildPlaybackIssueLoadingInput(
+    reportReason: String
+): PlaybackIssueLoadingInput {
     val now = SystemClock.elapsedRealtime()
     val state = _uiState.value
     val player = _exoPlayer
-    val elapsedMs = if (loadingDiagnosticsStartedAtMs > 0L) now - loadingDiagnosticsStartedAtMs else 0L
-    val phaseElapsedMs = if (currentLoadingPhaseStartedAtMs > 0L) now - currentLoadingPhaseStartedAtMs else 0L
+    val elapsedMs = if (loadingDiagnosticsStartedAtMs >
+        0L
+    ) {
+        now - loadingDiagnosticsStartedAtMs
+    } else {
+        0L
+    }
+    val phaseElapsedMs = if (currentLoadingPhaseStartedAtMs >
+        0L
+    ) {
+        now - currentLoadingPhaseStartedAtMs
+    } else {
+        0L
+    }
     return PlaybackIssueLoadingInput(
         phase = currentLoadingPhase.ifBlank { "unknown" },
         message = state.loadingMessage ?: currentLoadingMessageForReport,
@@ -188,14 +211,13 @@ private fun PlayerRuntimeController.recordLoadingDiagnosticRawEventLine(line: St
     }
 }
 
-private fun Int.playbackStateName(): String =
-    when (this) {
-        Player.STATE_IDLE -> "IDLE"
-        Player.STATE_BUFFERING -> "BUFFERING"
-        Player.STATE_READY -> "READY"
-        Player.STATE_ENDED -> "ENDED"
-        else -> "UNKNOWN"
-    }
+private fun Int.playbackStateName(): String = when (this) {
+    Player.STATE_IDLE -> "IDLE"
+    Player.STATE_BUFFERING -> "BUFFERING"
+    Player.STATE_READY -> "READY"
+    Player.STATE_ENDED -> "ENDED"
+    else -> "UNKNOWN"
+}
 
 private fun String.safePlaybackRawHost(): String {
     return runCatching {
@@ -203,12 +225,10 @@ private fun String.safePlaybackRawHost(): String {
     }.getOrDefault("unknown")
 }
 
-private fun String.compactTraceValue(): String =
-    replace('\n', ' ')
-        .replace('\r', ' ')
-        .take(160)
+private fun String.compactTraceValue(): String = replace('\n', ' ')
+    .replace('\r', ' ')
+    .take(160)
 
-private fun String.rawLoadingEventLine(): String =
-    replace('\n', ' ')
-        .replace('\r', ' ')
-        .take(2000)
+private fun String.rawLoadingEventLine(): String = replace('\n', ' ')
+    .replace('\r', ' ')
+    .take(2000)

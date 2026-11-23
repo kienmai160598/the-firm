@@ -120,7 +120,8 @@ class RandomEpisodePickerTest {
     @Test
     fun `duplicates do not bias the selection or produce repeated playback ids`() {
         val first = episode(1)
-        val picker = picker(listOf(first, first.copy(id = "alternate"), first.copy(episode = 2), episode(3)))
+        val picker =
+            picker(listOf(first, first.copy(id = "alternate"), first.copy(episode = 2), episode(3)))
 
         assertEquals(2, picker.count(true))
         assertEquals(setOf(first, episode(3)), (1..2).map { picker.pick(true) }.toSet())
@@ -157,8 +158,13 @@ class RandomEpisodePickerTest {
     )
 
     private fun episode(number: Int) = Video(
-        id = "show:1:$number", title = "Episode $number", released = "2020-01-01",
-        thumbnail = null, season = 1, episode = number, overview = null
+        id = "show:1:$number",
+        title = "Episode $number",
+        released = "2020-01-01",
+        thumbnail = null,
+        season = 1,
+        episode = number,
+        overview = null
     )
 
     private fun progress(number: Int, percent: Float) = WatchProgress(

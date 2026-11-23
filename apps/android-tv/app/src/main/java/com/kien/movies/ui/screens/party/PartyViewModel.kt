@@ -6,6 +6,4 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class PartyViewModel @Inject constructor(
-    val party: PartyRepository,
-) : ViewModel()
+class PartyViewModel @Inject constructor(val party: PartyRepository) : ViewModel()

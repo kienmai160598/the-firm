@@ -16,12 +16,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -29,32 +29,32 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.kien.movies.domain.model.LibraryListTab
+import com.kien.movies.R
+import com.kien.movies.core.tracking.TrackingListManagementCapabilities
 import com.kien.movies.domain.model.LibraryListPrivacy
-import kotlinx.coroutines.delay
+import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.localizedTitle
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.theme.MoviesTheme
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextDirection
-import com.kien.movies.R
-import com.kien.movies.core.tracking.TrackingListManagementCapabilities
 import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
 import com.kien.movies.ui.screens.detail.buttonLabelStyle
 import com.kien.movies.ui.screens.detail.tvButtonPadding
+import com.kien.movies.ui.theme.MoviesTheme
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -90,7 +90,10 @@ internal fun ManageListsDialog(
         Box(
             modifier = Modifier
                 .width(620.dp)
-                .background(MoviesTheme.colors.BackgroundElevated, RoundedCornerShape(MoviesTheme.radii.xl))
+                .background(
+                    MoviesTheme.colors.BackgroundElevated,
+                    RoundedCornerShape(MoviesTheme.radii.xl)
+                )
                 .padding(MoviesTheme.spacing.xl)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -126,13 +129,15 @@ internal fun ManageListsDialog(
                             MoviesButton(
                                 onClick = { onSelect(tab.key) },
                                 enabled = !pending,
-                                modifier = (if (tab.key == personalTabs.firstOrNull()?.key) {
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .focusRequester(firstFocusRequester)
-                                } else {
-                                    Modifier.fillMaxWidth()
-                                }).semantics {
+                                modifier = (
+                                    if (tab.key == personalTabs.firstOrNull()?.key) {
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .focusRequester(firstFocusRequester)
+                                    } else {
+                                        Modifier.fillMaxWidth()
+                                    }
+                                    ).semantics {
                                     role = Role.Tab
                                     this.selected = selected
                                 },
@@ -153,7 +158,13 @@ internal fun ManageListsDialog(
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     MoviesButton(
                         onClick = onCreate,
-                        modifier = if (personalTabs.isEmpty()) Modifier.focusRequester(firstFocusRequester) else Modifier,
+                        modifier = if (personalTabs.isEmpty()) {
+                            Modifier.focusRequester(
+                                firstFocusRequester
+                            )
+                        } else {
+                            Modifier
+                        },
                         enabled = !pending,
                         contentPadding = tvButtonPadding()
                     ) {
@@ -254,7 +265,13 @@ internal fun ListEditorDialog(
 
     MoviesDialog(
         onDismiss = onCancel,
-        title = if (state.mode == LibraryListEditorState.Mode.CREATE) stringResource(R.string.library_list_create_dialog_title) else stringResource(R.string.library_list_edit_dialog_title),
+        title = if (state.mode ==
+            LibraryListEditorState.Mode.CREATE
+        ) {
+            stringResource(R.string.library_list_create_dialog_title)
+        } else {
+            stringResource(R.string.library_list_edit_dialog_title)
+        },
         width = 560.dp
     ) {
         androidx.compose.material3.OutlinedTextField(
@@ -270,7 +287,9 @@ internal fun ListEditorDialog(
                 }
                 .onPreviewKeyEvent { event ->
                     val native = event.nativeKeyEvent
-                    if (native.action == AndroidKeyEvent.ACTION_DOWN && isSelectKey(native.keyCode)) {
+                    if (native.action == AndroidKeyEvent.ACTION_DOWN &&
+                        isSelectKey(native.keyCode)
+                    ) {
                         nameEditing = true
                         descriptionEditing = false
                         keyboardController?.show()
@@ -288,7 +307,9 @@ internal fun ListEditorDialog(
                     keyboardController?.hide()
                 }
             ),
-            label = { androidx.compose.material3.Text(stringResource(R.string.library_list_name_label)) },
+            label = {
+                androidx.compose.material3.Text(stringResource(R.string.library_list_name_label))
+            },
             textStyle = androidx.compose.material3.LocalTextStyle.current.copy(
                 textDirection = TextDirection.Content
             ),
@@ -301,7 +322,7 @@ internal fun ListEditorDialog(
                 unfocusedBorderColor = MoviesTheme.colors.Border,
                 focusedLabelColor = MoviesTheme.colors.TextSecondary,
                 unfocusedLabelColor = MoviesTheme.colors.TextTertiary,
-                cursorColor = MoviesTheme.colors.FocusRing,
+                cursorColor = MoviesTheme.colors.FocusRing
             )
         )
 
@@ -319,7 +340,9 @@ internal fun ListEditorDialog(
                     }
                     .onPreviewKeyEvent { event ->
                         val native = event.nativeKeyEvent
-                        if (native.action == AndroidKeyEvent.ACTION_DOWN && isSelectKey(native.keyCode)) {
+                        if (native.action == AndroidKeyEvent.ACTION_DOWN &&
+                            isSelectKey(native.keyCode)
+                        ) {
                             descriptionEditing = true
                             nameEditing = false
                             keyboardController?.show()
@@ -330,7 +353,11 @@ internal fun ListEditorDialog(
                 readOnly = !descriptionEditing,
                 minLines = 3,
                 maxLines = 5,
-                label = { androidx.compose.material3.Text(stringResource(R.string.library_list_description_label)) },
+                label = {
+                    androidx.compose.material3.Text(
+                        stringResource(R.string.library_list_description_label)
+                    )
+                },
                 textStyle = androidx.compose.material3.LocalTextStyle.current.copy(
                     textDirection = TextDirection.Content
                 ),
@@ -343,7 +370,7 @@ internal fun ListEditorDialog(
                     unfocusedBorderColor = MoviesTheme.colors.Border,
                     focusedLabelColor = MoviesTheme.colors.TextSecondary,
                     unfocusedLabelColor = MoviesTheme.colors.TextTertiary,
-                    cursorColor = MoviesTheme.colors.FocusRing,
+                    cursorColor = MoviesTheme.colors.FocusRing
                 )
             )
         }
@@ -396,5 +423,4 @@ internal fun ListEditorDialog(
     }
 }
 
-internal fun selectedButtonStyle(selected: Boolean): MoviesButtonStyle =
-    if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
+internal fun selectedButtonStyle(selected: Boolean): MoviesButtonStyle = if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary

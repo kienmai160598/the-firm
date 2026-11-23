@@ -61,8 +61,19 @@ internal object ServerDiscoveryPolicy {
 
     fun discoveryUrl(input: String): String {
         val normalizedInput = input.trim()
-        if (normalizedInput.isBlank()) throw ServerDiscoveryException(ServerDiscoveryFailure.INVALID_URL)
-        val withScheme = if (normalizedInput.contains("://")) normalizedInput else "https://$normalizedInput"
+        if (normalizedInput.isBlank()) {
+            throw ServerDiscoveryException(
+                ServerDiscoveryFailure.INVALID_URL
+            )
+        }
+        val withScheme = if (normalizedInput.contains(
+                "://"
+            )
+        ) {
+            normalizedInput
+        } else {
+            "https://$normalizedInput"
+        }
         val parsed = withScheme.toHttpUrlOrNull()
             ?: throw ServerDiscoveryException(ServerDiscoveryFailure.INVALID_URL)
         if (parsed.scheme != "http" && parsed.scheme != "https") {
@@ -83,12 +94,22 @@ internal object ServerDiscoveryPolicy {
 
     fun parse(discoveryUrl: String, document: String): ServerConfiguration {
         val payload = runCatching { json.decodeFromString<DiscoveryDocument>(document) }
-            .getOrElse { throw ServerDiscoveryException(ServerDiscoveryFailure.INVALID_DOCUMENT, cause = it) }
-        if (payload.version != 1) throw ServerDiscoveryException(ServerDiscoveryFailure.UNSUPPORTED_VERSION)
+            .getOrElse {
+                throw ServerDiscoveryException(ServerDiscoveryFailure.INVALID_DOCUMENT, cause = it)
+            }
+        if (payload.version !=
+            1
+        ) {
+            throw ServerDiscoveryException(ServerDiscoveryFailure.UNSUPPORTED_VERSION)
+        }
         if (!payload.service.equals("nuvio", ignoreCase = true)) {
             throw ServerDiscoveryException(ServerDiscoveryFailure.WRONG_SERVICE)
         }
-        if (!payload.selfHosted) throw ServerDiscoveryException(ServerDiscoveryFailure.NOT_SELF_HOSTED)
+        if (!payload.selfHosted) {
+            throw ServerDiscoveryException(
+                ServerDiscoveryFailure.NOT_SELF_HOSTED
+            )
+        }
         val backendUrl = normalizeBackendUrl(payload.backendUrl)
         val publishableKey = payload.publishableKey.trim()
         if (publishableKey.isBlank()) {
@@ -116,7 +137,8 @@ internal object ServerDiscoveryPolicy {
     fun matchesBackend(candidateUrl: String, backendUrl: String): Boolean {
         val candidate = candidateUrl.toHttpUrlOrNull() ?: return false
         val backend = backendUrl.trim().toHttpUrlOrNull() ?: return false
-        return candidate.host.equals(backend.host, ignoreCase = true) && candidate.port == backend.port
+        return candidate.host.equals(backend.host, ignoreCase = true) &&
+            candidate.port == backend.port
     }
 
     private fun normalizeBackendUrl(value: String): String {
@@ -155,13 +177,21 @@ class ServerDiscoveryService @Inject constructor() {
             val request = Request.Builder()
                 .url(discoveryUrl)
                 .header("Accept", "application/json")
-                .header("User-Agent", "${BuildConfig.APPLICATION_ID}/${BuildConfig.VERSION_NAME.ifBlank { "dev" }}")
+                .header(
+                    "User-Agent",
+                    "${BuildConfig.APPLICATION_ID}/${BuildConfig.VERSION_NAME.ifBlank {
+                        "dev"
+                    }}"
+                )
                 .get()
                 .build()
             val response = try {
                 client.newCall(request).execute()
             } catch (error: IOException) {
-                throw ServerDiscoveryException(ServerDiscoveryFailure.CONNECTION_FAILED, cause = error)
+                throw ServerDiscoveryException(
+                    ServerDiscoveryFailure.CONNECTION_FAILED,
+                    cause = error
+                )
             }
             response.use {
                 if (!it.isSuccessful) {

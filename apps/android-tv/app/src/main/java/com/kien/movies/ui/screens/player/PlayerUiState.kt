@@ -7,8 +7,8 @@ import com.kien.movies.core.streams.CompiledStreamBadgeFilter
 import com.kien.movies.core.streams.StreamBadgePlacement
 import com.kien.movies.data.local.FrameRateMatchingMode
 import com.kien.movies.data.local.InternalPlayerEngine
-import com.kien.movies.data.local.LibassRenderType
 import com.kien.movies.data.local.LibassRenderMode
+import com.kien.movies.data.local.LibassRenderType
 import com.kien.movies.data.local.NightMode
 import com.kien.movies.data.local.StreamAutoPlayMode
 import com.kien.movies.data.local.SubtitleStyleSettings
@@ -39,12 +39,12 @@ sealed interface PostPlayMode {
         override val nextEpisode: NextEpisodeInfo,
         val searching: Boolean = false,
         val sourceName: String? = null,
-        val countdownSec: Int? = null,
+        val countdownSec: Int? = null
     ) : PostPlayMode
 
     data class StillWatching(
         override val nextEpisode: NextEpisodeInfo,
-        val countdownSec: Int? = null,
+        val countdownSec: Int? = null
     ) : PostPlayMode
 
     fun copyWithNextEpisode(nextEpisode: NextEpisodeInfo): PostPlayMode {
@@ -280,16 +280,17 @@ internal fun PlayerUiState.clearFrameRateDetection(): PlayerUiState = copy(
 internal val PlayerUiState.showEpisodeAutoPlayLoadingOverlay: Boolean
     get() = isEpisodeAutoPlaySearching && loadingOverlayEnabled
 
-internal fun PlayerUiState.finishEpisodeAutoPlaySearch(showStreamPicker: Boolean = false): PlayerUiState =
-    copy(
-        isEpisodeAutoPlaySearching = false,
-        showEpisodeStreams = showEpisodeStreams || (isEpisodeAutoPlaySearching && showStreamPicker),
-        isLoadingEpisodeStreams = if (isEpisodeAutoPlaySearching && showStreamPicker) {
-            false
-        } else {
-            isLoadingEpisodeStreams
-        }
-    )
+internal fun PlayerUiState.finishEpisodeAutoPlaySearch(
+    showStreamPicker: Boolean = false
+): PlayerUiState = copy(
+    isEpisodeAutoPlaySearching = false,
+    showEpisodeStreams = showEpisodeStreams || (isEpisodeAutoPlaySearching && showStreamPicker),
+    isLoadingEpisodeStreams = if (isEpisodeAutoPlaySearching && showStreamPicker) {
+        false
+    } else {
+        isLoadingEpisodeStreams
+    }
+)
 
 data class PlaybackTimelineState(
     val currentPosition: Long = 0L,
@@ -328,11 +329,7 @@ data class NextEpisodeInfo(
     val isOtherType: Boolean = false
 )
 
-data class SubtitleSyncCue(
-    val startTimeMs: Long,
-    val endTimeMs: Long,
-    val text: String
-)
+data class SubtitleSyncCue(val startTimeMs: Long, val endTimeMs: Long, val text: String)
 
 sealed class PlayerEvent {
     data object OnPlayPause : PlayerEvent()
@@ -426,10 +423,7 @@ sealed class PlayerEvent {
     data object OnToggleTorrentStats : PlayerEvent()
 }
 
-data class ParentalWarning(
-    val label: String,
-    val severity: String
-)
+data class ParentalWarning(val label: String, val severity: String)
 
 data class DisplayModeInfo(
     val width: Int,

@@ -12,7 +12,7 @@ data class SpeechModelState(
     val downloading: Boolean = false,
     /** 0..1 while downloading. */
     val progress: Float = 0f,
-    val error: String? = null,
+    val error: String? = null
 )
 
 /** Download state and actions for the optional on-device English speech model. */

@@ -45,7 +45,7 @@ internal object AsrModel {
         "encoder.int8.onnx" to "encoder-epoch-30-avg-1.int8.onnx",
         "decoder.int8.onnx" to "decoder-epoch-30-avg-1.int8.onnx",
         "joiner.int8.onnx" to "joiner-epoch-30-avg-1.int8.onnx",
-        TOKENS to TOKENS,
+        TOKENS to TOKENS
     )
 
     private val downloading = AtomicBoolean(false)
@@ -59,7 +59,9 @@ internal object AsrModel {
         SubtitleSyncStatus.modelActions = object : SpeechModelActions {
             override fun download() {
                 val ctx = appContext ?: return
-                Thread({ download(ctx) }, "MoviesAsrModelDownload").apply { isDaemon = true }.start()
+                Thread({
+                    download(ctx)
+                }, "MoviesAsrModelDownload").apply { isDaemon = true }.start()
             }
 
             override fun delete() {
@@ -81,15 +83,17 @@ internal object AsrModel {
     fun directory(context: Context): File {
         val ort = ortDirectory(context)
         if (AsrModelFiles.isComplete(ort, AsrModelFiles.optimized)) return ort
-        return onnxDirectory(context).takeIf { AsrModelFiles.isComplete(it, AsrModelFiles.legacy) } ?: ort
+        return onnxDirectory(context).takeIf { AsrModelFiles.isComplete(it, AsrModelFiles.legacy) }
+            ?: ort
     }
 
-    fun isReady(context: Context): Boolean =
-        AsrModelFiles.isComplete(ortDirectory(context), AsrModelFiles.optimized) ||
-            AsrModelFiles.isComplete(onnxDirectory(context), AsrModelFiles.legacy)
+    fun isReady(context: Context): Boolean = AsrModelFiles.isComplete(ortDirectory(context), AsrModelFiles.optimized) ||
+        AsrModelFiles.isComplete(onnxDirectory(context), AsrModelFiles.legacy)
 
     fun isUnmetered(context: Context): Boolean {
-        val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return false
+        val manager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+                ?: return false
         return !manager.isActiveNetworkMetered
     }
 
@@ -101,8 +105,8 @@ internal object AsrModel {
                 downloaded = isReady(context),
                 downloading = downloading.get(),
                 progress = progress,
-                error = error,
-            ),
+                error = error
+            )
         )
     }
 
@@ -122,8 +126,14 @@ internal object AsrModel {
             publish(context)
             val ortHost = ORT_DOWNLOAD
             val ortFailure = if (ortHost != null) {
-                downloadAll(context, ortDirectory(context), AsrModelFiles.optimized) { ortHost + it }
-                    ?.also { SyncLog.w("optimized speech model unavailable ($it); downloading the upstream ONNX model") }
+                downloadAll(context, ortDirectory(context), AsrModelFiles.optimized) {
+                    ortHost + it
+                }
+                    ?.also {
+                        SyncLog.w(
+                            "optimized speech model unavailable ($it); downloading the upstream ONNX model"
+                        )
+                    }
                     ?: return true
             } else {
                 null
@@ -144,7 +154,7 @@ internal object AsrModel {
         context: Context,
         directory: File,
         assets: List<AsrModelFiles.Asset>,
-        url: (name: String) -> String,
+        url: (name: String) -> String
     ): String? {
         if (!directory.isDirectory && !directory.mkdirs()) return "could not create model directory"
         val totalBytes = assets.sumOf { it.size }
@@ -159,11 +169,24 @@ internal object AsrModel {
             }
             doneBytes += asset.size
         }
-        return if (AsrModelFiles.isComplete(directory, assets)) null else "downloaded files are incomplete"
+        return if (AsrModelFiles.isComplete(
+                directory,
+                assets
+            )
+        ) {
+            null
+        } else {
+            "downloaded files are incomplete"
+        }
     }
 
     /** Returns null on success, otherwise a short reason. */
-    private fun fetch(url: String, directory: File, asset: AsrModelFiles.Asset, onBytes: (Long) -> Unit): String? {
+    private fun fetch(
+        url: String,
+        directory: File,
+        asset: AsrModelFiles.Asset,
+        onBytes: (Long) -> Unit
+    ): String? {
         var connection: HttpURLConnection? = null
         return try {
             var location = URL(url)

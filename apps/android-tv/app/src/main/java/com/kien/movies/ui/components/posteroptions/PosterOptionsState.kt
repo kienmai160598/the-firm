@@ -1,10 +1,10 @@
 package com.kien.movies.ui.components.posteroptions
 
 import androidx.compose.runtime.Immutable
+import com.kien.movies.core.tracking.TrackingMembershipRemovalConfirmation
 import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.LibrarySourceMode
 import com.kien.movies.domain.model.MetaPreview
-import com.kien.movies.core.tracking.TrackingMembershipRemovalConfirmation
 
 @Immutable
 data class PosterOptionsState(

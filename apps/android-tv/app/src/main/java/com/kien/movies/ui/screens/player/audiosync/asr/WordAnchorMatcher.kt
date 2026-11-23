@@ -20,10 +20,11 @@ internal data class AnchorFit(
     val anchorSec: Double = 0.0,
     /** Media time of the first and last agreeing word. */
     val firstSec: Double = anchorSec,
-    val lastSec: Double = anchorSec,
+    val lastSec: Double = anchorSec
 ) {
     val isConfident: Boolean
-        get() = segments >= MIN_SEGMENTS && score >= MIN_SCORE && score >= RATIO * maxOf(runnerUp, 0.5)
+        get() = segments >= MIN_SEGMENTS && score >= MIN_SCORE &&
+            score >= RATIO * maxOf(runnerUp, 0.5)
 
     companion object {
         private const val MIN_SEGMENTS = 3
@@ -101,16 +102,29 @@ internal class WordAnchorMatcher(cues: List<Triple<Long, Long, String>>) {
                 val next = heard.getOrNull(i + 1)
                 val previous = heard.getOrNull(i - 1)
                 val segmentIndex = segments.getOrPut(h.segment) { segments.size }
-                val placeIndex = places.getOrPut((h.timeSec / LOCAL_WINDOW_SEC).toInt()) { places.size }
+                val placeIndex = places.getOrPut((h.timeSec / LOCAL_WINDOW_SEC).toInt()) {
+                    places.size
+                }
                 for (j in occurrences) {
                     var weight = WEIGHT_UNITS / occurrences.size
-                    if (next != null && next.segment == h.segment && words.getOrNull(j + 1)?.word == next.key) {
+                    if (next != null && next.segment == h.segment &&
+                        words.getOrNull(j + 1)?.word == next.key
+                    ) {
                         weight += WEIGHT_UNITS
                     }
-                    if (previous != null && previous.segment == h.segment && words.getOrNull(j - 1)?.word == previous.key) {
+                    if (previous != null && previous.segment == h.segment &&
+                        words.getOrNull(j - 1)?.word == previous.key
+                    ) {
                         weight += WEIGHT_UNITS
                     }
-                    add(h.timeSec, words[j].timeSec, weight, segmentIndex, placeIndex, words[j].firstInCue)
+                    add(
+                        h.timeSec,
+                        words[j].timeSec,
+                        weight,
+                        segmentIndex,
+                        placeIndex,
+                        words[j].firstInCue
+                    )
                 }
             }
             segmentCount = segments.size
@@ -119,7 +133,14 @@ internal class WordAnchorMatcher(cues: List<Triple<Long, Long, String>>) {
 
         internal val all: IntArray = IntArray(size) { it }
 
-        private fun add(media: Double, sub: Double, weight: Int, segmentIndex: Int, placeIndex: Int, isFirst: Boolean) {
+        private fun add(
+            media: Double,
+            sub: Double,
+            weight: Int,
+            segmentIndex: Int,
+            placeIndex: Int,
+            isFirst: Boolean
+        ) {
             if (size == mediaSec.size) {
                 val capacity = size * 2
                 mediaSec = mediaSec.copyOf(capacity)
@@ -165,7 +186,11 @@ internal class WordAnchorMatcher(cues: List<Triple<Long, Long, String>>) {
             val fit = cluster(votes, anchors, scale, maxShiftSec) ?: continue
             // A rate change drifts further every minute: it needs words from several places.
             if (fit.segments < MIN_RATE_SEGMENTS) continue
-            if (fit.score > (best?.score ?: 0.0) * RATE_MARGIN && fit.score > unitScore * RATE_MARGIN) best = fit
+            if (fit.score > (best?.score ?: 0.0) * RATE_MARGIN &&
+                fit.score > unitScore * RATE_MARGIN
+            ) {
+                best = fit
+            }
         }
         if (best !== unit) return best
         // Counted word by word, the stretch heard most (around the playhead, often the opening)
@@ -176,8 +201,14 @@ internal class WordAnchorMatcher(cues: List<Triple<Long, Long, String>>) {
         var byPlace: AnchorFit? = null
         for (scale in RATE_CANDIDATES) {
             val fit = cluster(votes, anchors, scale, maxShiftSec, PLACE_CAP_UNITS) ?: continue
-            if (fit.segments < MIN_RATE_SEGMENTS || fit.spanSec < MIN_RATE_SPAN_SEC || !fit.isConfident) continue
-            if (fit.score > (byPlace?.score ?: 0.0) * RATE_MARGIN && fit.score > (unitByPlace?.score ?: 0.0) * RATE_MARGIN) {
+            if (fit.segments < MIN_RATE_SEGMENTS || fit.spanSec < MIN_RATE_SPAN_SEC ||
+                !fit.isConfident
+            ) {
+                continue
+            }
+            if (fit.score > (byPlace?.score ?: 0.0) * RATE_MARGIN &&
+                fit.score > (unitByPlace?.score ?: 0.0) * RATE_MARGIN
+            ) {
                 byPlace = fit
             }
         }
@@ -189,16 +220,29 @@ internal class WordAnchorMatcher(cues: List<Triple<Long, Long, String>>) {
      * release differs from the subtitle by an inserted or removed scene, the offset differs between
      * regions, which one fit over all words cannot show. Sorted by [AnchorFit.anchorSec].
      */
-    fun localFits(heard: List<HeardWord>, scale: Double, windowSec: Double = LOCAL_WINDOW_SEC): List<AnchorFit> =
-        localFits(votes(heard), scale, windowSec)
+    fun localFits(
+        heard: List<HeardWord>,
+        scale: Double,
+        windowSec: Double = LOCAL_WINDOW_SEC
+    ): List<AnchorFit> = localFits(votes(heard), scale, windowSec)
 
-    fun localFits(votes: Votes, scale: Double, windowSec: Double = LOCAL_WINDOW_SEC): List<AnchorFit> {
+    fun localFits(
+        votes: Votes,
+        scale: Double,
+        windowSec: Double = LOCAL_WINDOW_SEC
+    ): List<AnchorFit> {
         require(votes.owner === this)
         if (votes.size == 0) return emptyList()
         val regions = LinkedHashMap<Int, IntArrayList>()
-        for (a in votes.all) regions.getOrPut((votes.mediaSec[a] / windowSec).toInt()) { IntArrayList() }.add(a)
+        for (a in votes.all) {
+            regions.getOrPut((votes.mediaSec[a] / windowSec).toInt()) {
+                IntArrayList()
+            }.add(a)
+        }
         return regions.values
-            .mapNotNull { region -> cluster(votes, region.toArray(), scale, MAX_SHIFT_SEC)?.takeIf { it.isConfident } }
+            .mapNotNull { region ->
+                cluster(votes, region.toArray(), scale, MAX_SHIFT_SEC)?.takeIf { it.isConfident }
+            }
             .sortedBy { it.anchorSec }
     }
 
@@ -211,7 +255,9 @@ internal class WordAnchorMatcher(cues: List<Triple<Long, Long, String>>) {
     fun fitByPlace(votes: Votes, scale: Double): AnchorFit? {
         require(votes.owner === this)
         if (votes.size == 0) return null
-        return cluster(votes, votes.all, scale, MAX_SHIFT_SEC, PLACE_CAP_UNITS)?.takeIf { it.isConfident }
+        return cluster(votes, votes.all, scale, MAX_SHIFT_SEC, PLACE_CAP_UNITS)?.takeIf {
+            it.isConfident
+        }
     }
 
     /**
@@ -265,10 +311,16 @@ internal class WordAnchorMatcher(cues: List<Triple<Long, Long, String>>) {
         anchors: IntArray,
         scale: Double,
         maxShiftSec: Double,
-        placeCapUnits: Int = NO_CAP,
+        placeCapUnits: Int = NO_CAP
     ): AnchorFit? {
         var count = 0
-        for (a in anchors) if (abs(votes.mediaSec[a] - scale * votes.subSec[a]) <= maxShiftSec) count++
+        for (a in anchors) {
+            if (abs(votes.mediaSec[a] - scale * votes.subSec[a]) <=
+                maxShiftSec
+            ) {
+                count++
+            }
+        }
         if (count == 0) return null
         val keptVotes = IntArray(count)
         val keptShifts = DoubleArray(count)
@@ -331,7 +383,7 @@ internal class WordAnchorMatcher(cues: List<Triple<Long, Long, String>>) {
             spanSec = times.max() - times.min(),
             anchorSec = median(times),
             firstSec = times.min(),
-            lastSec = times.max(),
+            lastSec = times.max()
         )
     }
 
@@ -374,7 +426,7 @@ internal class WordAnchorMatcher(cues: List<Triple<Long, Long, String>>) {
             25.0 / 23.976,
             23.976 / 25.0,
             25.0 / 24.0,
-            24.0 / 25.0,
+            24.0 / 25.0
         )
 
         private val STOP_WORDS = (
@@ -387,8 +439,9 @@ internal class WordAnchorMatcher(cues: List<Triple<Long, Long, String>>) {
 
         fun normalize(word: String): String = word.lowercase().replace(nonWord, "").trim('\'')
 
-        fun tokenize(text: String): List<String> =
-            text.replace(tagPattern, " ").split(Regex("\\s+")).map(::normalize).filter { it.isNotEmpty() }
+        fun tokenize(text: String): List<String> = text.replace(tagPattern, " ").split(Regex("\\s+")).map(::normalize).filter {
+            it.isNotEmpty()
+        }
 
         init {
             check((1..MAX_OCCURRENCES).all { WEIGHT_UNITS % it == 0 })

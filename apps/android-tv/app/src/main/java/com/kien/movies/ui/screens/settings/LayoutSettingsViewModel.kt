@@ -1,7 +1,5 @@
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.core.util.readAppLogoBytes
-import com.kien.movies.domain.model.catalogRowLegacyKey
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
@@ -12,27 +10,30 @@ import com.kien.movies.core.server.DeviceIpAddress
 import com.kien.movies.core.server.StreamBadgeConfigServer
 import com.kien.movies.core.streams.StreamBadgePlacement
 import com.kien.movies.core.streams.StreamBadgeRules
-import com.kien.movies.core.sync.HomeCatalogSettingsSyncService
 import com.kien.movies.core.streams.StreamBadgeSettings
+import com.kien.movies.core.sync.HomeCatalogSettingsSyncService
+import com.kien.movies.core.util.readAppLogoBytes
 import com.kien.movies.data.local.LayoutPreferenceDataStore
 import com.kien.movies.data.local.StreamBadgeSettingsDataStore
-import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.data.local.TrailerSettingsDataStore
+import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.domain.model.CardDepthStyle
 import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.domain.model.ContinueWatchingCardStyle
 import com.kien.movies.domain.model.ContinueWatchingClickAction
 import com.kien.movies.domain.model.ContinueWatchingSortMode
-import com.kien.movies.domain.model.DiscoverLocation
 import com.kien.movies.domain.model.DetailImdbRatingsVisibility
+import com.kien.movies.domain.model.DiscoverLocation
 import com.kien.movies.domain.model.EpisodeOptionsOverlayStyle
 import com.kien.movies.domain.model.FocusedPosterTrailerPlaybackTarget
-import com.kien.movies.domain.model.HomeLayout
 import com.kien.movies.domain.model.HomeImdbRatingsVisibility
+import com.kien.movies.domain.model.HomeLayout
+import com.kien.movies.domain.model.catalogRowLegacyKey
 import com.kien.movies.domain.model.enabledAddons
 import com.kien.movies.domain.repository.AddonRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,7 +41,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class LayoutSettingsUiState(
     val selectedLayout: HomeLayout = HomeLayout.MODERN,
@@ -98,14 +98,10 @@ data class LayoutSettingsUiState(
     val customPosterEnabledScreens: Set<com.kien.movies.core.poster.CustomPosterScreen> =
         com.kien.movies.core.poster.CustomPosterScreen.ALL,
     val alwaysShowLandscapeClearlogo: Boolean = false,
-    val heroDescriptionAutoScrollEnabled: Boolean = false,
+    val heroDescriptionAutoScrollEnabled: Boolean = false
 )
 
-data class CatalogInfo(
-    val key: String,
-    val name: String,
-    val addonName: String
-)
+data class CatalogInfo(val key: String, val name: String, val addonName: String)
 
 sealed class LayoutSettingsEvent {
     data class SelectLayout(val layout: HomeLayout) : LayoutSettingsEvent()
@@ -135,10 +131,7 @@ sealed class LayoutSettingsEvent {
     data class SetCardDepthEdgeStrength(val strength: Int) : LayoutSettingsEvent()
     data class SetCardDepthSheenStrength(val strength: Int) : LayoutSettingsEvent()
     data class SetCardDepthEdgeCoverage(val coverage: Int) : LayoutSettingsEvent()
-    data class SetCardDepthSurfaceEnabled(
-        val surface: CardDepthSurface,
-        val enabled: Boolean
-    ) : LayoutSettingsEvent()
+    data class SetCardDepthSurfaceEnabled(val surface: CardDepthSurface, val enabled: Boolean) : LayoutSettingsEvent()
     data class SetBlurUnwatchedEpisodes(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetDetailSeasonPostersEnabled(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetRandomEpisodeEnabled(val enabled: Boolean) : LayoutSettingsEvent()
@@ -211,122 +204,174 @@ class LayoutSettingsViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.selectedLayout.distinctUntilChanged().collectLatest { layout ->
+            layoutPreferenceDataStore.selectedLayout.distinctUntilChanged().collectLatest {
+                    layout
+                ->
                 updateUiStateIfChanged { it.copy(selectedLayout = layout) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.hasChosenLayout.distinctUntilChanged().collectLatest { hasChosen ->
+            layoutPreferenceDataStore.hasChosenLayout.distinctUntilChanged().collectLatest {
+                    hasChosen
+                ->
                 updateUiStateIfChanged { it.copy(hasChosen = hasChosen) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.heroCatalogSelections.distinctUntilChanged().collectLatest { keys ->
+            layoutPreferenceDataStore.heroCatalogSelections.distinctUntilChanged().collectLatest {
+                    keys
+                ->
                 updateUiStateIfChanged { it.copy(heroCatalogKeys = keys) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.sidebarCollapsedByDefault.distinctUntilChanged().collectLatest { collapsed ->
+            layoutPreferenceDataStore.sidebarCollapsedByDefault.distinctUntilChanged().collectLatest {
+                    collapsed
+                ->
                 updateUiStateIfChanged { it.copy(sidebarCollapsedByDefault = collapsed) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.modernSidebarEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.modernSidebarEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(modernSidebarEnabled = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.modernSidebarBlurEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.modernSidebarBlurEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(modernSidebarBlurEnabled = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.modernLandscapePostersEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.modernLandscapePostersEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(modernLandscapePostersEnabled = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.modernHeroFullScreenBackdropEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.modernHeroFullScreenBackdropEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(modernHeroFullScreenBackdropEnabled = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.heroSectionEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.heroSectionEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(heroSectionEnabled = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.discoverLocation.distinctUntilChanged().collectLatest { location ->
+            layoutPreferenceDataStore.discoverLocation.distinctUntilChanged().collectLatest {
+                    location
+                ->
                 updateUiStateIfChanged { it.copy(discoverLocation = location) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.lastNonOffDiscoverLocation.distinctUntilChanged().collectLatest { location ->
+            layoutPreferenceDataStore.lastNonOffDiscoverLocation.distinctUntilChanged().collectLatest {
+                    location
+                ->
                 updateUiStateIfChanged { it.copy(lastNonOffDiscoverLocation = location) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.posterLabelsEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.posterLabelsEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(posterLabelsEnabled = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.catalogAddonNameEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.catalogAddonNameEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(catalogAddonNameEnabled = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.catalogTypeSuffixEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.catalogTypeSuffixEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(catalogTypeSuffixEnabled = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.classicFocusGradientEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.classicFocusGradientEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(classicFocusGradientEnabled = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.focusedPosterBackdropExpandEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.focusedPosterBackdropExpandEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(focusedPosterBackdropExpandEnabled = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.focusedPosterBackdropExpandDelaySeconds.distinctUntilChanged().collectLatest { seconds ->
-                updateUiStateIfChanged { it.copy(focusedPosterBackdropExpandDelaySeconds = seconds) }
+            layoutPreferenceDataStore.focusedPosterBackdropExpandDelaySeconds.distinctUntilChanged().collectLatest {
+                    seconds
+                ->
+                updateUiStateIfChanged {
+                    it.copy(focusedPosterBackdropExpandDelaySeconds = seconds)
+                }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.focusedPosterBackdropTrailerEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.focusedPosterBackdropTrailerEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(focusedPosterBackdropTrailerEnabled = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.focusedPosterBackdropTrailerMuted.distinctUntilChanged().collectLatest { muted ->
+            layoutPreferenceDataStore.focusedPosterBackdropTrailerMuted.distinctUntilChanged().collectLatest {
+                    muted
+                ->
                 updateUiStateIfChanged { it.copy(focusedPosterBackdropTrailerMuted = muted) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.focusedPosterTrailerContinueInDetails.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.focusedPosterTrailerContinueInDetails.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(focusedPosterTrailerContinueInDetails = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.focusedPosterBackdropTrailerPlaybackTarget.distinctUntilChanged().collectLatest { target ->
-                updateUiStateIfChanged { it.copy(focusedPosterBackdropTrailerPlaybackTarget = target) }
+            layoutPreferenceDataStore.focusedPosterBackdropTrailerPlaybackTarget.distinctUntilChanged().collectLatest {
+                    target
+                ->
+                updateUiStateIfChanged {
+                    it.copy(focusedPosterBackdropTrailerPlaybackTarget = target)
+                }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.posterCardWidthDp.distinctUntilChanged().collectLatest { widthDp ->
+            layoutPreferenceDataStore.posterCardWidthDp.distinctUntilChanged().collectLatest {
+                    widthDp
+                ->
                 updateUiStateIfChanged { it.copy(posterCardWidthDp = widthDp) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.posterCardHeightDp.distinctUntilChanged().collectLatest { heightDp ->
+            layoutPreferenceDataStore.posterCardHeightDp.distinctUntilChanged().collectLatest {
+                    heightDp
+                ->
                 updateUiStateIfChanged { it.copy(posterCardHeightDp = heightDp) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.posterCardCornerRadiusDp.distinctUntilChanged().collectLatest { cornerRadiusDp ->
+            layoutPreferenceDataStore.posterCardCornerRadiusDp.distinctUntilChanged().collectLatest {
+                    cornerRadiusDp
+                ->
                 updateUiStateIfChanged { it.copy(posterCardCornerRadiusDp = cornerRadiusDp) }
             }
         }
@@ -336,47 +381,65 @@ class LayoutSettingsViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.blurUnwatchedEpisodes.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.blurUnwatchedEpisodes.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(blurUnwatchedEpisodes = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.detailSeasonPostersEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.detailSeasonPostersEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(detailSeasonPostersEnabled = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.randomEpisodeEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.randomEpisodeEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(randomEpisodeEnabled = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.episodeOptionsOverlayStyle.distinctUntilChanged().collectLatest { style ->
+            layoutPreferenceDataStore.episodeOptionsOverlayStyle.distinctUntilChanged().collectLatest {
+                    style
+                ->
                 updateUiStateIfChanged { it.copy(episodeOptionsOverlayStyle = style) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.homeImdbRatingsVisibility.distinctUntilChanged().collectLatest { visibility ->
+            layoutPreferenceDataStore.homeImdbRatingsVisibility.distinctUntilChanged().collectLatest {
+                    visibility
+                ->
                 updateUiStateIfChanged { it.copy(homeImdbRatingsVisibility = visibility) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.detailImdbRatingsVisibility.distinctUntilChanged().collectLatest { visibility ->
+            layoutPreferenceDataStore.detailImdbRatingsVisibility.distinctUntilChanged().collectLatest {
+                    visibility
+                ->
                 updateUiStateIfChanged { it.copy(detailImdbRatingsVisibility = visibility) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.blurContinueWatchingNextUp.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.blurContinueWatchingNextUp.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(blurContinueWatchingNextUp = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.useEpisodeThumbnailsInCw.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.useEpisodeThumbnailsInCw.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(useEpisodeThumbnailsInCw = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.detailPageTrailerButtonEnabled.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.detailPageTrailerButtonEnabled.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(detailPageTrailerButtonEnabled = enabled) }
             }
         }
@@ -400,12 +463,16 @@ class LayoutSettingsViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.hideUnreleasedContent.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.hideUnreleasedContent.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(hideUnreleasedContent = enabled) }
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.showFullReleaseDate.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.showFullReleaseDate.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(showFullReleaseDate = enabled) }
             }
         }
@@ -415,7 +482,9 @@ class LayoutSettingsViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.showUnairedNextUp.distinctUntilChanged().collectLatest { enabled ->
+            layoutPreferenceDataStore.showUnairedNextUp.distinctUntilChanged().collectLatest {
+                    enabled
+                ->
                 updateUiStateIfChanged { it.copy(showUnairedNextUp = enabled) }
             }
         }
@@ -481,71 +550,208 @@ class LayoutSettingsViewModel @Inject constructor(
     fun onEvent(event: LayoutSettingsEvent) {
         when (event) {
             is LayoutSettingsEvent.SelectLayout -> selectLayout(event.layout)
+
             is LayoutSettingsEvent.ToggleHeroCatalog -> toggleHeroCatalog(event.catalogKey)
+
             is LayoutSettingsEvent.SetSidebarCollapsed -> setSidebarCollapsed(event.collapsed)
+
             is LayoutSettingsEvent.SetModernSidebarEnabled -> setModernSidebarEnabled(event.enabled)
-            is LayoutSettingsEvent.SetModernSidebarBlurEnabled -> setModernSidebarBlurEnabled(event.enabled)
-            is LayoutSettingsEvent.SetModernLandscapePostersEnabled -> setModernLandscapePostersEnabled(event.enabled)
-            is LayoutSettingsEvent.SetModernHeroFullScreenBackdropEnabled -> setModernHeroFullScreenBackdropEnabled(event.enabled)
+
+            is LayoutSettingsEvent.SetModernSidebarBlurEnabled -> setModernSidebarBlurEnabled(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetModernLandscapePostersEnabled -> setModernLandscapePostersEnabled(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetModernHeroFullScreenBackdropEnabled -> setModernHeroFullScreenBackdropEnabled(
+                event.enabled
+            )
+
             is LayoutSettingsEvent.SetHeroSectionEnabled -> setHeroSectionEnabled(event.enabled)
+
             is LayoutSettingsEvent.SetDiscoverLocation -> setDiscoverLocation(event.location)
+
             is LayoutSettingsEvent.SetPosterLabelsEnabled -> setPosterLabelsEnabled(event.enabled)
-            is LayoutSettingsEvent.SetCatalogAddonNameEnabled -> setCatalogAddonNameEnabled(event.enabled)
-            is LayoutSettingsEvent.SetCatalogTypeSuffixEnabled -> setCatalogTypeSuffixEnabled(event.enabled)
-            is LayoutSettingsEvent.SetClassicFocusGradientEnabled -> setClassicFocusGradientEnabled(event.enabled)
-            is LayoutSettingsEvent.SetFocusedPosterBackdropExpandEnabled -> setFocusedPosterBackdropExpandEnabled(event.enabled)
-            is LayoutSettingsEvent.SetFocusedPosterBackdropExpandDelaySeconds -> setFocusedPosterBackdropExpandDelaySeconds(event.seconds)
-            is LayoutSettingsEvent.SetFocusedPosterBackdropTrailerEnabled -> setFocusedPosterBackdropTrailerEnabled(event.enabled)
-            is LayoutSettingsEvent.SetFocusedPosterBackdropTrailerMuted -> setFocusedPosterBackdropTrailerMuted(event.muted)
-            is LayoutSettingsEvent.SetFocusedPosterTrailerContinueInDetails -> setFocusedPosterTrailerContinueInDetails(event.enabled)
+
+            is LayoutSettingsEvent.SetCatalogAddonNameEnabled -> setCatalogAddonNameEnabled(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetCatalogTypeSuffixEnabled -> setCatalogTypeSuffixEnabled(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetClassicFocusGradientEnabled -> setClassicFocusGradientEnabled(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetFocusedPosterBackdropExpandEnabled -> setFocusedPosterBackdropExpandEnabled(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetFocusedPosterBackdropExpandDelaySeconds -> setFocusedPosterBackdropExpandDelaySeconds(
+                event.seconds
+            )
+
+            is LayoutSettingsEvent.SetFocusedPosterBackdropTrailerEnabled -> setFocusedPosterBackdropTrailerEnabled(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetFocusedPosterBackdropTrailerMuted -> setFocusedPosterBackdropTrailerMuted(
+                event.muted
+            )
+
+            is LayoutSettingsEvent.SetFocusedPosterTrailerContinueInDetails -> setFocusedPosterTrailerContinueInDetails(
+                event.enabled
+            )
+
             is LayoutSettingsEvent.SetFocusedPosterBackdropTrailerPlaybackTarget ->
                 setFocusedPosterBackdropTrailerPlaybackTarget(event.target)
+
             is LayoutSettingsEvent.SetPosterCardWidth -> setPosterCardWidth(event.widthDp)
-            is LayoutSettingsEvent.SetPosterCardCornerRadius -> setPosterCardCornerRadius(event.cornerRadiusDp)
+
+            is LayoutSettingsEvent.SetPosterCardCornerRadius -> setPosterCardCornerRadius(
+                event.cornerRadiusDp
+            )
+
             is LayoutSettingsEvent.SetCardDepthEnabled -> setCardDepthEnabled(event.enabled)
-            is LayoutSettingsEvent.SetCardDepthEdgeStrength -> setCardDepthEdgeStrength(event.strength)
-            is LayoutSettingsEvent.SetCardDepthSheenStrength -> setCardDepthSheenStrength(event.strength)
-            is LayoutSettingsEvent.SetCardDepthEdgeCoverage -> setCardDepthEdgeCoverage(event.coverage)
+
+            is LayoutSettingsEvent.SetCardDepthEdgeStrength -> setCardDepthEdgeStrength(
+                event.strength
+            )
+
+            is LayoutSettingsEvent.SetCardDepthSheenStrength -> setCardDepthSheenStrength(
+                event.strength
+            )
+
+            is LayoutSettingsEvent.SetCardDepthEdgeCoverage -> setCardDepthEdgeCoverage(
+                event.coverage
+            )
+
             is LayoutSettingsEvent.SetCardDepthSurfaceEnabled ->
                 setCardDepthSurfaceEnabled(event.surface, event.enabled)
-            is LayoutSettingsEvent.SetBlurUnwatchedEpisodes -> setBlurUnwatchedEpisodes(event.enabled)
-            is LayoutSettingsEvent.SetDetailSeasonPostersEnabled -> setDetailSeasonPostersEnabled(event.enabled)
+
+            is LayoutSettingsEvent.SetBlurUnwatchedEpisodes -> setBlurUnwatchedEpisodes(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetDetailSeasonPostersEnabled -> setDetailSeasonPostersEnabled(
+                event.enabled
+            )
+
             is LayoutSettingsEvent.SetRandomEpisodeEnabled -> setRandomEpisodeEnabled(event.enabled)
-            is LayoutSettingsEvent.SetEpisodeOptionsOverlayStyle -> setEpisodeOptionsOverlayStyle(event.style)
-            is LayoutSettingsEvent.SetHomeImdbRatingsVisibility -> setHomeImdbRatingsVisibility(event.visibility)
-            is LayoutSettingsEvent.SetDetailImdbRatingsVisibility -> setDetailImdbRatingsVisibility(event.visibility)
-            is LayoutSettingsEvent.SetBlurContinueWatchingNextUp -> setBlurContinueWatchingNextUp(event.enabled)
-            is LayoutSettingsEvent.SetUseEpisodeThumbnailsInCw -> setUseEpisodeThumbnailsInCw(event.enabled)
-            is LayoutSettingsEvent.SetDetailPageTrailerButtonEnabled -> setDetailPageTrailerButtonEnabled(event.enabled)
-            is LayoutSettingsEvent.SetDetailPageTrailerAutoplayEnabled -> setDetailPageTrailerAutoplayEnabled(event.enabled)
-            is LayoutSettingsEvent.SetDetailPageTrailerAutoplayDelaySeconds -> setDetailPageTrailerAutoplayDelaySeconds(event.seconds)
-            is LayoutSettingsEvent.SetDetailPageTrailerPlayInBackground -> setDetailPageTrailerPlayInBackground(event.enabled)
-            is LayoutSettingsEvent.SetDetailPageTrailerPauseOnScroll -> setDetailPageTrailerPauseOnScroll(event.enabled)
+
+            is LayoutSettingsEvent.SetEpisodeOptionsOverlayStyle -> setEpisodeOptionsOverlayStyle(
+                event.style
+            )
+
+            is LayoutSettingsEvent.SetHomeImdbRatingsVisibility -> setHomeImdbRatingsVisibility(
+                event.visibility
+            )
+
+            is LayoutSettingsEvent.SetDetailImdbRatingsVisibility -> setDetailImdbRatingsVisibility(
+                event.visibility
+            )
+
+            is LayoutSettingsEvent.SetBlurContinueWatchingNextUp -> setBlurContinueWatchingNextUp(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetUseEpisodeThumbnailsInCw -> setUseEpisodeThumbnailsInCw(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetDetailPageTrailerButtonEnabled -> setDetailPageTrailerButtonEnabled(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetDetailPageTrailerAutoplayEnabled -> setDetailPageTrailerAutoplayEnabled(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetDetailPageTrailerAutoplayDelaySeconds -> setDetailPageTrailerAutoplayDelaySeconds(
+                event.seconds
+            )
+
+            is LayoutSettingsEvent.SetDetailPageTrailerPlayInBackground -> setDetailPageTrailerPlayInBackground(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetDetailPageTrailerPauseOnScroll -> setDetailPageTrailerPauseOnScroll(
+                event.enabled
+            )
+
             is LayoutSettingsEvent.SetTrailer4kEnabled -> setTrailer4kEnabled(event.enabled)
-            is LayoutSettingsEvent.SetTrailerSubtitlesEnabled -> setTrailerSubtitlesEnabled(event.enabled)
-            is LayoutSettingsEvent.SetPreferExternalMetaAddonDetail -> setPreferExternalMetaAddonDetail(event.enabled)
-            is LayoutSettingsEvent.SetHideUnreleasedContent -> setHideUnreleasedContent(event.enabled)
+
+            is LayoutSettingsEvent.SetTrailerSubtitlesEnabled -> setTrailerSubtitlesEnabled(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetPreferExternalMetaAddonDetail -> setPreferExternalMetaAddonDetail(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetHideUnreleasedContent -> setHideUnreleasedContent(
+                event.enabled
+            )
+
             is LayoutSettingsEvent.SetShowFullReleaseDate -> setShowFullReleaseDate(event.enabled)
-            is LayoutSettingsEvent.SetNextUpFromFurthestEpisode -> setNextUpFromFurthestEpisode(event.enabled)
+
+            is LayoutSettingsEvent.SetNextUpFromFurthestEpisode -> setNextUpFromFurthestEpisode(
+                event.enabled
+            )
+
             is LayoutSettingsEvent.SetShowUnairedNextUp -> setShowUnairedNextUp(event.enabled)
-            is LayoutSettingsEvent.SetContinueWatchingEnabled -> setContinueWatchingEnabled(event.enabled)
-            is LayoutSettingsEvent.SetContinueWatchingSortMode -> setContinueWatchingSortMode(event.mode)
-            is LayoutSettingsEvent.SetContinueWatchingClickAction -> setContinueWatchingClickAction(event.action)
-            is LayoutSettingsEvent.SetContinueWatchingCardStyle -> setContinueWatchingCardStyle(event.style)
-            is LayoutSettingsEvent.SetAlwaysShowLandscapeClearlogo -> setAlwaysShowLandscapeClearlogo(event.enabled)
-            is LayoutSettingsEvent.SetHeroDescriptionAutoScrollEnabled -> setHeroDescriptionAutoScrollEnabled(event.enabled)
+
+            is LayoutSettingsEvent.SetContinueWatchingEnabled -> setContinueWatchingEnabled(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetContinueWatchingSortMode -> setContinueWatchingSortMode(
+                event.mode
+            )
+
+            is LayoutSettingsEvent.SetContinueWatchingClickAction -> setContinueWatchingClickAction(
+                event.action
+            )
+
+            is LayoutSettingsEvent.SetContinueWatchingCardStyle -> setContinueWatchingCardStyle(
+                event.style
+            )
+
+            is LayoutSettingsEvent.SetAlwaysShowLandscapeClearlogo -> setAlwaysShowLandscapeClearlogo(
+                event.enabled
+            )
+
+            is LayoutSettingsEvent.SetHeroDescriptionAutoScrollEnabled -> setHeroDescriptionAutoScrollEnabled(
+                event.enabled
+            )
+
             LayoutSettingsEvent.ResetPosterCardStyle -> resetPosterCardStyle()
+
             LayoutSettingsEvent.ResetCardDepthStyle -> resetCardDepthStyle()
-            is LayoutSettingsEvent.SetCustomPosterUrlPattern -> setCustomPosterUrlPattern(event.pattern)
+
+            is LayoutSettingsEvent.SetCustomPosterUrlPattern -> setCustomPosterUrlPattern(
+                event.pattern
+            )
+
             LayoutSettingsEvent.ClearCustomPosterSettings -> clearCustomPosterSettings()
-            is LayoutSettingsEvent.SetCustomPosterScreenEnabled -> setCustomPosterScreenEnabled(event.screen, event.enabled)
+
+            is LayoutSettingsEvent.SetCustomPosterScreenEnabled -> setCustomPosterScreenEnabled(
+                event.screen,
+                event.enabled
+            )
         }
     }
 
     fun startStreamBadgeQrMode() {
         val ip = DeviceIpAddress.get(context)
         if (ip == null) {
-            _streamBadgeUiState.update { it.copy(serverError = context.getString(R.string.error_network_required)) }
+            _streamBadgeUiState.update {
+                it.copy(serverError = context.getString(R.string.error_network_required))
+            }
             return
         }
         stopStreamBadgeServer()
@@ -560,7 +766,9 @@ class LayoutSettingsViewModel @Inject constructor(
         )
         val server = streamBadgeServer
         if (server == null) {
-            _streamBadgeUiState.update { it.copy(serverError = context.getString(R.string.error_server_ports_unavailable)) }
+            _streamBadgeUiState.update {
+                it.copy(serverError = context.getString(R.string.error_server_ports_unavailable))
+            }
             return
         }
         val url = "http://$ip:${server.listeningPort}"
@@ -741,7 +949,9 @@ class LayoutSettingsViewModel @Inject constructor(
         }
     }
 
-    private fun setFocusedPosterBackdropTrailerPlaybackTarget(target: FocusedPosterTrailerPlaybackTarget) {
+    private fun setFocusedPosterBackdropTrailerPlaybackTarget(
+        target: FocusedPosterTrailerPlaybackTarget
+    ) {
         if (_uiState.value.focusedPosterBackdropTrailerPlaybackTarget == target) return
         viewModelScope.launch {
             layoutPreferenceDataStore.setFocusedPosterBackdropTrailerPlaybackTarget(target)
@@ -1016,7 +1226,10 @@ class LayoutSettingsViewModel @Inject constructor(
         }
     }
 
-    private fun setCustomPosterScreenEnabled(screen: com.kien.movies.core.poster.CustomPosterScreen, enabled: Boolean) {
+    private fun setCustomPosterScreenEnabled(
+        screen: com.kien.movies.core.poster.CustomPosterScreen,
+        enabled: Boolean
+    ) {
         viewModelScope.launch {
             val current = _uiState.value.customPosterEnabledScreens
             val updated = if (enabled) current + screen else current - screen
@@ -1034,21 +1247,34 @@ class LayoutSettingsViewModel @Inject constructor(
     fun startCustomPosterQrMode() {
         val ip = DeviceIpAddress.get(context)
         if (ip == null) {
-            _customPosterQrState.update { it.copy(serverError = context.getString(com.kien.movies.R.string.error_network_required)) }
+            _customPosterQrState.update {
+                it.copy(
+                    serverError = context.getString(com.kien.movies.R.string.error_network_required)
+                )
+            }
             return
         }
         stopCustomPosterServer()
-        customPosterServer = com.kien.movies.core.server.CustomPosterConfigServer.startOnAvailablePort(
-            currentPatternProvider = { _uiState.value.customPosterUrlPattern },
-            onPatternChanged = { pattern ->
-                _uiState.update { it.copy(customPosterUrlPattern = pattern) }
-                viewModelScope.launch { layoutPreferenceDataStore.setCustomPosterUrlPattern(pattern) }
-            },
-            context = context
-        )
+        customPosterServer =
+            com.kien.movies.core.server.CustomPosterConfigServer.startOnAvailablePort(
+                currentPatternProvider = { _uiState.value.customPosterUrlPattern },
+                onPatternChanged = { pattern ->
+                    _uiState.update { it.copy(customPosterUrlPattern = pattern) }
+                    viewModelScope.launch {
+                        layoutPreferenceDataStore.setCustomPosterUrlPattern(pattern)
+                    }
+                },
+                context = context
+            )
         val server = customPosterServer
         if (server == null) {
-            _customPosterQrState.update { it.copy(serverError = context.getString(com.kien.movies.R.string.error_server_ports_unavailable)) }
+            _customPosterQrState.update {
+                it.copy(
+                    serverError = context.getString(
+                        com.kien.movies.R.string.error_server_ports_unavailable
+                    )
+                )
+            }
             return
         }
         val url = "http://$ip:${server.listeningPort}"

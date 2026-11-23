@@ -45,20 +45,28 @@ internal object PartySync {
         localPositionMs: Long,
         expectedPositionMs: Long,
         playback: PartyPlayback,
-        nudging: Boolean,
+        nudging: Boolean
     ): PartyCorrection {
         val drift = localPositionMs - expectedPositionMs
         val distance = abs(drift)
         if (playback.paused) {
-            return if (distance > PAUSED_TOLERANCE_MS) PartyCorrection.Seek(expectedPositionMs) else PartyCorrection.InSync
+            return if (distance >
+                PAUSED_TOLERANCE_MS
+            ) {
+                PartyCorrection.Seek(expectedPositionMs)
+            } else {
+                PartyCorrection.InSync
+            }
         }
         val threshold = if (nudging) NUDGE_STOP_MS else NUDGE_START_MS
         return when {
             distance > SEEK_THRESHOLD_MS -> PartyCorrection.Seek(expectedPositionMs)
+
             distance > threshold -> {
                 val factor = if (drift > 0L) 1f - NUDGE_FACTOR else 1f + NUDGE_FACTOR
                 PartyCorrection.Nudge(playback.rate * factor)
             }
+
             else -> PartyCorrection.InSync
         }
     }
@@ -76,8 +84,13 @@ internal object PartySync {
         if (previous.mediaKey != next.mediaKey) return null
         return when {
             previous.paused != next.paused -> if (next.paused) PartyAction.Paused else PartyAction.Resumed
+
             abs(previous.rate - next.rate) > 0.01f -> PartyAction.Speed
-            abs(next.positionMs - expectedPositionMs(previous, next.at)) > SEEK_NOTICE_MS -> PartyAction.Seeked
+
+            abs(
+                next.positionMs - expectedPositionMs(previous, next.at)
+            ) > SEEK_NOTICE_MS -> PartyAction.Seeked
+
             else -> null
         }
     }
@@ -90,13 +103,20 @@ internal object PartySync {
 
     fun shouldRejoin(gapMs: Long, playing: Boolean): Boolean = playing && gapMs <= REJOIN_GAP_MS
 
-    fun reportedGapMs(gapMs: Long): Long =
-        ((gapMs.coerceAtLeast(0L) + BEHIND_STEP_MS / 2) / BEHIND_STEP_MS * BEHIND_STEP_MS).coerceAtLeast(BEHIND_STEP_MS)
+    fun reportedGapMs(gapMs: Long): Long = (
+        (
+            gapMs.coerceAtLeast(
+                0L
+            ) + BEHIND_STEP_MS / 2
+            ) / BEHIND_STEP_MS * BEHIND_STEP_MS
+        ).coerceAtLeast(BEHIND_STEP_MS)
 
-    fun waitingMemberIds(party: ActiveParty, ignored: Set<String>): List<String> =
-        party.presence.values
-            .filter { it.mediaKey == party.media.key }
-            .filter { it.status == PartyMemberStatus.Loading || it.status == PartyMemberStatus.Buffering }
-            .map { it.memberId }
-            .filterNot { it in ignored }
+    fun waitingMemberIds(party: ActiveParty, ignored: Set<String>): List<String> = party.presence.values
+        .filter { it.mediaKey == party.media.key }
+        .filter {
+            it.status == PartyMemberStatus.Loading ||
+                it.status == PartyMemberStatus.Buffering
+        }
+        .map { it.memberId }
+        .filterNot { it in ignored }
 }

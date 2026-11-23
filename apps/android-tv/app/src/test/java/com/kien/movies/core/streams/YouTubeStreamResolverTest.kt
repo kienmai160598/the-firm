@@ -88,7 +88,10 @@ class YouTubeStreamResolverTest {
 
     @Test
     fun `the watch url is built from the video id`() {
-        assertEquals("https://www.youtube.com/watch?v=aqz-KE-bpKQ", YouTubeStreamResolver.watchUrl("aqz-KE-bpKQ"))
+        assertEquals(
+            "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+            YouTubeStreamResolver.watchUrl("aqz-KE-bpKQ")
+        )
     }
 
     private fun youTubeStream(): Stream = Stream(

@@ -2,14 +2,14 @@ package com.kien.movies.data.repository
 
 import android.util.Log
 import com.kien.movies.data.simkl.SimklApiConfiguration
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.json.JSONArray
-import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONArray
+import org.json.JSONObject
 
 private data class RedirectResult(val type: String, val simklId: Long)
 
@@ -40,25 +40,35 @@ class SimklIdResolver @Inject constructor(
         val tvdbSeason: Int? = null
     )
 
-    data class EpisodeMapping(
-        val animeEpisode: Int,
-        val tvdbSeason: Int,
-        val tvdbEpisode: Int
-    )
+    data class EpisodeMapping(val animeEpisode: Int, val tvdbSeason: Int, val tvdbEpisode: Int)
 
     private val idsCache = ConcurrentHashMap<String, ResolvedIds?>()
     private val episodeCache = ConcurrentHashMap<Long, List<EpisodeMapping>>()
     private val animeSeasonCache = ConcurrentHashMap<String, List<AnimeSeasonEntry>>()
 
-    suspend fun resolveIds(source: String, id: String, contentTypeHint: String? = null): ResolvedIds? {
-        val cacheKey = if (contentTypeHint != null) "$source:$id:$contentTypeHint" else "$source:$id"
+    suspend fun resolveIds(
+        source: String,
+        id: String,
+        contentTypeHint: String? = null
+    ): ResolvedIds? {
+        val cacheKey = if (contentTypeHint !=
+            null
+        ) {
+            "$source:$id:$contentTypeHint"
+        } else {
+            "$source:$id"
+        }
         idsCache[cacheKey]?.let { return it }
         if (clientId.isBlank()) return null
 
         return try {
             val redirect = resolveViaRedirect(source, id, contentTypeHint) ?: return null
 
-            val detailsBody = httpGet("$baseUrl/${redirect.type}/${redirect.simklId}?extended=full&${commonParams()}") ?: return null
+            val detailsBody =
+                httpGet(
+                    "$baseUrl/${redirect.type}/${redirect.simklId}?extended=full&${commonParams()}"
+                )
+                    ?: return null
             val details = JSONObject(detailsBody)
             val ids = details.optJSONObject("ids")
 
@@ -82,7 +92,8 @@ class SimklIdResolver @Inject constructor(
         if (clientId.isBlank()) return emptyList()
 
         return try {
-            val body = httpGet("$baseUrl/$type/episodes/$simklId?${commonParams()}") ?: return emptyList()
+            val body =
+                httpGet("$baseUrl/$type/episodes/$simklId?${commonParams()}") ?: return emptyList()
             val episodes = JSONArray(body)
             val mapping = mutableListOf<EpisodeMapping>()
             for (i in 0 until episodes.length()) {
@@ -104,7 +115,10 @@ class SimklIdResolver @Inject constructor(
 
     suspend fun resolveEpisodeTvdb(source: String, id: String, episode: Int): Pair<Int, Int>? {
         val ids = resolveIds(source, id) ?: return null
-        val entry = getEpisodeMapping(ids.simklId, ids.type).firstOrNull { it.animeEpisode == episode }
+        val entry = getEpisodeMapping(ids.simklId, ids.type).firstOrNull {
+            it.animeEpisode ==
+                episode
+        }
         return entry?.let { it.tvdbSeason to it.tvdbEpisode }
     }
 
@@ -112,11 +126,7 @@ class SimklIdResolver @Inject constructor(
      * Given an IMDB ID and a TVDB-style season+episode, resolve the anime-specific IDs
      * (MAL, AniList, Kitsu) for the correct season entry.
      */
-    suspend fun resolveIdsForImdbEpisode(
-        imdbId: String,
-        season: Int,
-        episode: Int
-    ): ResolvedIds? {
+    suspend fun resolveIdsForImdbEpisode(imdbId: String, season: Int, episode: Int): ResolvedIds? {
         val base = resolveIds("imdb", imdbId) ?: return null
         if (base.type != "anime") return base
 
@@ -134,7 +144,11 @@ class SimklIdResolver @Inject constructor(
         return base
     }
 
-    private suspend fun resolveSeasonSimklId(parentSimklId: Long, type: String, tvdbSeason: Int): Long? {
+    private suspend fun resolveSeasonSimklId(
+        parentSimklId: Long,
+        type: String,
+        tvdbSeason: Int
+    ): Long? {
         val cacheKey = "anime_seasons:$parentSimklId"
         animeSeasonCache[cacheKey]?.let { seasons ->
             return seasons.firstOrNull { it.tvdbSeason == tvdbSeason }?.simklId
@@ -157,7 +171,10 @@ class SimklIdResolver @Inject constructor(
             animeSeasonCache[cacheKey] = seasons
             seasons.firstOrNull { it.tvdbSeason == tvdbSeason }?.simklId
         } catch (e: Exception) {
-            Log.d(TAG, "resolveSeasonSimklId anime:$parentSimklId season:$tvdbSeason failed: ${e.message}")
+            Log.d(
+                TAG,
+                "resolveSeasonSimklId anime:$parentSimklId season:$tvdbSeason failed: ${e.message}"
+            )
             null
         }
     }
@@ -167,7 +184,8 @@ class SimklIdResolver @Inject constructor(
         idsCache[cacheKey]?.let { return it }
 
         return try {
-            val detailsBody = httpGet("$baseUrl/$type/$simklId?extended=full&${commonParams()}") ?: return null
+            val detailsBody =
+                httpGet("$baseUrl/$type/$simklId?extended=full&${commonParams()}") ?: return null
             val details = JSONObject(detailsBody)
             val ids = details.optJSONObject("ids")
 
@@ -186,7 +204,11 @@ class SimklIdResolver @Inject constructor(
         }
     }
 
-    private suspend fun resolveViaRedirect(source: String, id: String, contentTypeHint: String? = null): RedirectResult? {
+    private suspend fun resolveViaRedirect(
+        source: String,
+        id: String,
+        contentTypeHint: String? = null
+    ): RedirectResult? {
         return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
             val typeParam = when (contentTypeHint?.trim()?.lowercase()) {
                 "movie", "film" -> "&type=movie"

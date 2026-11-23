@@ -2,19 +2,19 @@ package com.kien.movies.core.di
 
 import com.kien.movies.BuildConfig
 import com.kien.movies.core.network.NoDelaySocketFactory
-import com.kien.movies.core.profile.ProfileScopedCredentialStore
 import com.kien.movies.core.profile.ProfileManager
+import com.kien.movies.core.profile.ProfileScopedCredentialStore
 import com.kien.movies.core.tracking.TrackingProviderId
-import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.data.local.ProfileDataStore
+import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.data.mdblist.AndroidMdbListAuthPersistence
 import com.kien.movies.data.mdblist.AndroidMdbListSyncStorage
-import com.kien.movies.data.mdblist.MdbListSyncRepository
 import com.kien.movies.data.mdblist.MdbListApiClient
 import com.kien.movies.data.mdblist.MdbListAuthRepository
 import com.kien.movies.data.mdblist.MdbListAuthStore
 import com.kien.movies.data.mdblist.MdbListConfiguration
 import com.kien.movies.data.mdblist.MdbListHttpClient
+import com.kien.movies.data.mdblist.MdbListSyncRepository
 import com.kien.movies.data.mdblist.OkHttpMdbListEngine
 import dagger.Module
 import dagger.Provides
@@ -40,7 +40,11 @@ object MdbListModule {
         auth: MdbListAuthStore,
         profiles: ProfileManager
     ) = com.kien.movies.data.mdblist.MdbListLibraryService(
-        api, sync, auth, profiles.activeProfileId, CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        api,
+        sync,
+        auth,
+        profiles.activeProfileId,
+        CoroutineScope(SupervisorJob() + Dispatchers.IO)
     )
 
     @Provides
@@ -66,7 +70,10 @@ object MdbListModule {
 
     @Provides
     @Singleton
-    fun authStore(persistence: AndroidMdbListAuthPersistence, profileDataStore: ProfileDataStore): MdbListAuthStore {
+    fun authStore(
+        persistence: AndroidMdbListAuthPersistence,
+        profileDataStore: ProfileDataStore
+    ): MdbListAuthStore {
         val store = MdbListAuthStore(persistence)
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             profileDataStore.activeProfileId.collect(store::selectProfile)
@@ -80,13 +87,15 @@ object MdbListModule {
 
     @Provides
     @Singleton
-    fun auth(http: MdbListHttpClient, configuration: MdbListConfiguration, store: MdbListAuthStore) =
-        MdbListAuthRepository(http, configuration, store)
+    fun auth(
+        http: MdbListHttpClient,
+        configuration: MdbListConfiguration,
+        store: MdbListAuthStore
+    ) = MdbListAuthRepository(http, configuration, store)
 
     @Provides
     @Singleton
-    fun api(http: MdbListHttpClient, auth: MdbListAuthRepository, store: MdbListAuthStore) =
-        MdbListApiClient(http, auth, store)
+    fun api(http: MdbListHttpClient, auth: MdbListAuthRepository, store: MdbListAuthStore) = MdbListApiClient(http, auth, store)
 
     @Provides
     @Singleton
@@ -97,7 +106,10 @@ object MdbListModule {
         profiles: ProfileManager,
         settings: TraktSettingsDataStore
     ) = MdbListSyncRepository(
-        storage, auth, api, profiles.activeProfileId,
+        storage,
+        auth,
+        api,
+        profiles.activeProfileId,
         CoroutineScope(SupervisorJob() + Dispatchers.IO),
         ratingsEnabled = { settings.ratingSource.value == TrackingProviderId.MDBLIST }
     )

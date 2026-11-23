@@ -5,10 +5,10 @@ import com.kien.movies.domain.model.PluginRepository
 import com.kien.movies.domain.model.RemotePluginInfo
 import com.kien.movies.domain.model.ScraperInfo
 import com.kien.movies.domain.model.Stream
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import javax.inject.Singleton
 
 @Singleton
 class PluginManager {
@@ -24,8 +24,7 @@ class PluginManager {
 
     fun discardPendingSync() = Unit
 
-    suspend fun addRepository(manifestUrl: String): Result<PluginRepository> =
-        Result.failure(UnsupportedOperationException("Plugins are not available in this build."))
+    suspend fun addRepository(manifestUrl: String): Result<PluginRepository> = Result.failure(UnsupportedOperationException("Plugins are not available in this build."))
 
     suspend fun removeRepository(repoId: String) = Unit
 
@@ -40,8 +39,7 @@ class PluginManager {
         removeMissingLocal: Boolean = true
     ) = Unit
 
-    suspend fun refreshRepository(repoId: String): Result<Unit> =
-        Result.failure(UnsupportedOperationException("Plugins are not available in this build."))
+    suspend fun refreshRepository(repoId: String): Result<Unit> = Result.failure(UnsupportedOperationException("Plugins are not available in this build."))
 
     suspend fun toggleScraper(scraperId: String, enabled: Boolean) = Unit
 
@@ -80,6 +78,7 @@ class PluginManager {
         episode: Int?
     ): List<LocalScraperResult> = emptyList()
 
-    suspend fun testScraper(scraperId: String): Result<Pair<List<LocalScraperResult>, TestDiagnostics>> =
-        Result.failure(UnsupportedOperationException("Plugins are not available in this build."))
+    suspend fun testScraper(
+        scraperId: String
+    ): Result<Pair<List<LocalScraperResult>, TestDiagnostics>> = Result.failure(UnsupportedOperationException("Plugins are not available in this build."))
 }

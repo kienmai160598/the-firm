@@ -37,7 +37,7 @@ internal class AudioSyncDecoder(
      */
     private val allowVendorDecoders: Boolean = true,
     /** Called once per audio format that has no usable decoder. */
-    private val onUnsupportedFormat: (mimeType: String) -> Unit = {},
+    private val onUnsupportedFormat: (mimeType: String) -> Unit = {}
 ) {
     private sealed interface Item {
         class Sample(val format: Format, val timeUs: Long, val data: ByteArray) : Item
@@ -69,19 +69,32 @@ internal class AudioSyncDecoder(
     private val playbackUs = AtomicLong()
     private val droppedSamples = AtomicLong()
     private val droppedPlaybackBuffers = AtomicLong()
+
     @Volatile private var lastPcmAtMs = 0L
+
     @Volatile private var lastPcmTimeUs = Long.MIN_VALUE
+
     @Volatile private var workerState = "not started"
+
     @Volatile private var decoderName = "none"
+
     @Volatile private var lastError: String? = null
+
     @Volatile private var lastDecodedPcm = "none"
+
     @Volatile private var lastPlaybackPcm = "none"
 
     /** Metadata only; no audio, subtitle text or stream URLs are retained. */
     fun diagnostics(): String {
         val bytes = synchronized(lock) { queuedBytes }
         val lastOutput = lastPcmAtMs
-        val age = if (lastOutput == 0L) "never" else "${(SystemClock.elapsedRealtime() - lastOutput) / 1_000}s ago"
+        val age = if (lastOutput ==
+            0L
+        ) {
+            "never"
+        } else {
+            "${(SystemClock.elapsedRealtime() - lastOutput) / 1_000}s ago"
+        }
         val mediaMs = lastPcmTimeUs.takeUnless { it == Long.MIN_VALUE }?.div(1_000L)
         return "decoder=$decoderName worker=$workerState input=${encodedSamples.get()}" +
             " decoded=${decodedUs.get() / 1_000}ms playback=${playbackUs.get() / 1_000}ms" +
@@ -139,8 +152,7 @@ internal class AudioSyncDecoder(
     }
 
     /** False once [format] turned out to have no usable decoder (or after [release]). */
-    fun accepts(format: Format): Boolean =
-        !released && format.sampleMimeType.let { it != null && it !in unsupportedMimesSnapshot }
+    fun accepts(format: Format): Boolean = !released && format.sampleMimeType.let { it != null && it !in unsupportedMimesSnapshot }
 
     /** Waits up to [timeoutMs] until everything offered so far has been taken for decoding. */
     fun awaitDrained(timeoutMs: Long) {
@@ -217,12 +229,22 @@ internal class AudioSyncDecoder(
                         flushCodec()
                         analyzer.reset()
                     }
+
                     is Item.Sample -> decode(item)
+
                     is Item.Pcm -> {
-                        lastPlaybackPcm = "${item.samples.size}frames@${item.sampleRate}Hz timeUs=${item.timeUs}"
-                        playbackUs.addAndGet(item.samples.size * 1_000_000L / item.sampleRate.coerceAtLeast(1))
+                        lastPlaybackPcm =
+                            "${item.samples.size}frames@${item.sampleRate}Hz timeUs=${item.timeUs}"
+                        playbackUs.addAndGet(
+                            item.samples.size * 1_000_000L / item.sampleRate.coerceAtLeast(1)
+                        )
                         recordPcm(item.timeUs)
-                        liveAnalyzer.accept(item.samples, item.samples.size, item.sampleRate, item.timeUs)
+                        liveAnalyzer.accept(
+                            item.samples,
+                            item.samples.size,
+                            item.sampleRate,
+                            item.timeUs
+                        )
                     }
                 }
                 stayInBackground()
@@ -239,7 +261,10 @@ internal class AudioSyncDecoder(
 
     private fun decode(sample: Item.Sample) {
         if (!prepareDecoder(sample.format)) return
-        ffmpeg?.let { decodeWithFfmpeg(it, sample); return }
+        ffmpeg?.let {
+            decodeWithFfmpeg(it, sample)
+            return
+        }
         val codec = codec ?: return
         try {
             var inputIndex = codec.dequeueInputBuffer(INPUT_TIMEOUT_US)
@@ -306,16 +331,23 @@ internal class AudioSyncDecoder(
         while (true) {
             val index = codec.dequeueOutputBuffer(bufferInfo, 0)
             when {
-                index == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> readOutputFormat(codec.outputFormat)
+                index == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> readOutputFormat(
+                    codec.outputFormat
+                )
+
                 index >= 0 -> {
                     val output = codec.getOutputBuffer(index)
                     if (output != null && bufferInfo.size > 0) {
                         output.position(bufferInfo.offset)
                         output.limit(bufferInfo.offset + bufferInfo.size)
-                        deliverPcm(output.slice().order(ByteOrder.nativeOrder()), bufferInfo.presentationTimeUs)
+                        deliverPcm(
+                            output.slice().order(ByteOrder.nativeOrder()),
+                            bufferInfo.presentationTimeUs
+                        )
                     }
                     codec.releaseOutputBuffer(index, false)
                 }
+
                 else -> return
             }
         }
@@ -333,9 +365,15 @@ internal class AudioSyncDecoder(
         }
         centerIndex = when {
             outputChannels < 3 -> -1
+
             mask != 0 && mask and AudioFormat.CHANNEL_OUT_FRONT_CENTER != 0 ->
-                Integer.bitCount(mask and (AudioFormat.CHANNEL_OUT_FRONT_LEFT or AudioFormat.CHANNEL_OUT_FRONT_RIGHT))
+                Integer.bitCount(
+                    mask and
+                        (AudioFormat.CHANNEL_OUT_FRONT_LEFT or AudioFormat.CHANNEL_OUT_FRONT_RIGHT)
+                )
+
             mask != 0 -> -1
+
             // Android decoders emit the WAVE order (FL, FR, FC, LFE, ...) for 3+ channel layouts.
             else -> 2
         }
@@ -348,11 +386,20 @@ internal class AudioSyncDecoder(
         val frames = buffer.remaining() / ((if (outputFloat) 4 else 2) * channels)
         if (frames <= 0) return
         val mediaTimeUs = pcmClock.resolve(timeUs, frames, rate)
-        lastDecodedPcm = "${frames}frames@${rate}Hz ${channels}ch ${if (outputFloat) "float" else "s16"} rawUs=$timeUs timeUs=$mediaTimeUs"
+        lastDecodedPcm =
+            "${frames}frames@${rate}Hz ${channels}ch ${if (outputFloat) "float" else "s16"} rawUs=$timeUs timeUs=$mediaTimeUs"
         decodedUs.addAndGet(frames * 1_000_000L / rate)
         recordPcm(mediaTimeUs)
         if (mono.size < frames) mono = FloatArray(frames)
-        PcmDownmix.toMono(buffer, buffer.position(), frames, channels, outputFloat, centerIndex, mono)
+        PcmDownmix.toMono(
+            buffer,
+            buffer.position(),
+            frames,
+            channels,
+            outputFloat,
+            centerIndex,
+            mono
+        )
         analyzer.accept(mono, frames, rate, mediaTimeUs)
     }
 
@@ -374,7 +421,9 @@ internal class AudioSyncDecoder(
             codec = created
             codecFormat = format
             decoderName = created.name
-            SyncLog.i("decoding $mime ${format.channelCount}ch ${format.sampleRate}Hz with ${created.name}")
+            SyncLog.i(
+                "decoding $mime ${format.channelCount}ch ${format.sampleRate}Hz with ${created.name}"
+            )
             return true
         }
         val software = if (AudioSyncFfmpegDecoder.supports(mime)) {
@@ -390,7 +439,9 @@ internal class AudioSyncDecoder(
             // FFmpeg emits float PCM in its native layout, where the centre is the third channel.
             outputFloat = true
             decoderName = software.name
-            SyncLog.i("decoding $mime ${format.channelCount}ch ${format.sampleRate}Hz with ${software.name}")
+            SyncLog.i(
+                "decoding $mime ${format.channelCount}ch ${format.sampleRate}Hz with ${software.name}"
+            )
             return true
         }
         unsupportedMimes += mime
@@ -435,8 +486,11 @@ internal class AudioSyncDecoder(
             !info.isEncoder && info.supportedTypes.any { it.equals(mime, ignoreCase = true) }
         }
         infos.forEach { info ->
-            SyncLog.d("decoder candidate ${info.name} for $mime: software=${info.isSoftwareOnlyCompat()} " +
-                    "hardware=${info.isHardwareAcceleratedCompat()} instances=${info.maxInstances(mime)}",
+            SyncLog.d(
+                "decoder candidate ${info.name} for $mime: software=${info.isSoftwareOnlyCompat()} " +
+                    "hardware=${info.isHardwareAcceleratedCompat()} instances=${info.maxInstances(
+                        mime
+                    )}"
             )
         }
         infos.firstOrNull { it.isSoftwareOnlyCompat() }?.let { return it.name }
@@ -454,16 +508,16 @@ internal class AudioSyncDecoder(
     }
 
     /** Null when the platform cannot tell (before Android 10). */
-    private fun MediaCodecInfo.isHardwareAcceleratedCompat(): Boolean? =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) isHardwareAccelerated else null
+    private fun MediaCodecInfo.isHardwareAcceleratedCompat(): Boolean? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) isHardwareAccelerated else null
 
-    private fun MediaCodecInfo.maxInstances(mime: String): Int =
-        runCatching { getCapabilitiesForType(mime).maxSupportedInstances }.getOrDefault(0)
+    private fun MediaCodecInfo.maxInstances(mime: String): Int = runCatching { getCapabilitiesForType(mime).maxSupportedInstances }.getOrDefault(0)
 
-    private fun Format?.isSameStream(other: Format): Boolean =
-        this != null && sampleMimeType == other.sampleMimeType && sampleRate == other.sampleRate &&
-            channelCount == other.channelCount && initializationData.size == other.initializationData.size &&
-            initializationData.indices.all { initializationData[it].contentEquals(other.initializationData[it]) }
+    private fun Format?.isSameStream(other: Format): Boolean = this != null && sampleMimeType == other.sampleMimeType && sampleRate == other.sampleRate &&
+        channelCount == other.channelCount &&
+        initializationData.size == other.initializationData.size &&
+        initializationData.indices.all {
+            initializationData[it].contentEquals(other.initializationData[it])
+        }
 
     private fun flushCodec() {
         pcmClock.reset()

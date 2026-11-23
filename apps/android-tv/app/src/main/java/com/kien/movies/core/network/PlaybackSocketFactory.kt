@@ -13,6 +13,7 @@ import javax.net.SocketFactory
 internal object ReceiveWindow {
     private const val TAG = "ReceiveWindow"
     const val REQUEST_BYTES = 8 * 1024 * 1024
+
     // Ceiling unreadable: ask only when the whole request was granted (the kernel doubles it).
     const val UNKNOWN_CEILING_MIN_GRANT = 2 * REQUEST_BYTES
 
@@ -24,16 +25,27 @@ internal object ReceiveWindow {
         val tuningMax = ceiling()
         val ask = shouldAsk(granted, tuningMax)
         runCatching {
-            Log.i(TAG, "RECEIVE_WINDOW: requestedKb=${REQUEST_BYTES / 1024} grantedKb=${granted / 1024} " +
-                "tuningMaxKb=${tuningMax?.let { it / 1024 } ?: "-"} used=$ask")
+            Log.i(
+                TAG,
+                "RECEIVE_WINDOW: requestedKb=${REQUEST_BYTES / 1024} grantedKb=${granted / 1024} " +
+                    "tuningMaxKb=${tuningMax?.let { it / 1024 } ?: "-"} used=$ask"
+            )
         }
         return if (ask) REQUEST_BYTES else 0
     }
 
-    fun shouldAsk(grantedBytes: Int, tuningCeilingBytes: Int?): Boolean =
-        if (tuningCeilingBytes != null) grantedBytes > tuningCeilingBytes else grantedBytes >= UNKNOWN_CEILING_MIN_GRANT
+    fun shouldAsk(grantedBytes: Int, tuningCeilingBytes: Int?): Boolean = if (tuningCeilingBytes !=
+        null
+    ) {
+        grantedBytes > tuningCeilingBytes
+    } else {
+        grantedBytes >= UNKNOWN_CEILING_MIN_GRANT
+    }
 
-    private fun grantFor(bytes: Int): Int = Socket().use { it.receiveBufferSize = bytes; it.receiveBufferSize }
+    private fun grantFor(bytes: Int): Int = Socket().use {
+        it.receiveBufferSize = bytes
+        it.receiveBufferSize
+    }
 
     private fun readTuningCeiling(): Int? = runCatching {
         File("/proc/sys/net/ipv4/tcp_rmem").readText().trim().split(Regex("\\s+")).last().toInt()
@@ -49,13 +61,21 @@ object PlaybackSocketFactory : SocketFactory() {
 
     override fun createSocket(host: String?, port: Int): Socket = delegate.createSocket(host, port)
 
-    override fun createSocket(host: String?, port: Int, localHost: InetAddress?, localPort: Int): Socket =
-        delegate.createSocket(host, port, localHost, localPort)
+    override fun createSocket(
+        host: String?,
+        port: Int,
+        localHost: InetAddress?,
+        localPort: Int
+    ): Socket = delegate.createSocket(host, port, localHost, localPort)
 
     override fun createSocket(host: InetAddress?, port: Int): Socket = delegate.createSocket(host, port)
 
-    override fun createSocket(address: InetAddress?, port: Int, localAddress: InetAddress?, localPort: Int): Socket =
-        delegate.createSocket(address, port, localAddress, localPort)
+    override fun createSocket(
+        address: InetAddress?,
+        port: Int,
+        localAddress: InetAddress?,
+        localPort: Int
+    ): Socket = delegate.createSocket(address, port, localAddress, localPort)
 
     private fun Socket.window(): Socket = apply {
         val bytes = ReceiveWindow.bytes

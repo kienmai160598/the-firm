@@ -30,9 +30,15 @@ internal fun PlayerRuntimeController.scheduleSourceStartupTimeout() {
         if (_uiState.value.error != null || isInBackground) return@launch
         // The last source allowed keeps loading, as it would without the fallback.
         if (sourceFallbackAttempts >= streamAutoPlayFallbackMaxSources) return@launch
-        val message = context.getString(R.string.player_error_source_startup_timeout, timeoutSeconds)
+        val message = context.getString(
+            R.string.player_error_source_startup_timeout,
+            timeoutSeconds
+        )
         if (tryFallbackToNextSourceAfterError(message)) {
-            Log.w(PlayerRuntimeController.TAG, "Source showed no first frame in ${timeoutSeconds}s, falling back")
+            Log.w(
+                PlayerRuntimeController.TAG,
+                "Source showed no first frame in ${timeoutSeconds}s, falling back"
+            )
         }
     }
 }
@@ -75,7 +81,9 @@ internal fun PlayerRuntimeController.showErrorUnlessSourceFallback(errorMessage:
  *
  * Returns `true` when a fallback was started and the error must not be shown yet.
  */
-internal fun PlayerRuntimeController.tryFallbackToNextSourceAfterError(errorMessage: String): Boolean {
+internal fun PlayerRuntimeController.tryFallbackToNextSourceAfterError(
+    errorMessage: String
+): Boolean {
     if (sourceFallbackJob?.isActive == true) return true
     if (!streamAutoPlayFallbackActive || autoSwitchInternalPlayerOnErrorEnabled) return false
     if (hasRenderedFirstFrame && !tunneledFirstFrameAssumed) return false
@@ -124,11 +132,16 @@ internal fun PlayerRuntimeController.tryFallbackToNextSourceAfterError(errorMess
             sourceFallbackTriedKeys += next.sourceFallbackKey()
             sourceFallbackAttempts++
 
-            val playable = (directDebridResolver.resolveToPlayableStream(next, season, episode)
-                as? DirectDebridPlayableResult.Success)?.stream
+            val playable = (
+                directDebridResolver.resolveToPlayableStream(next, season, episode)
+                    as? DirectDebridPlayableResult.Success
+                )?.stream
             val url = playable?.getStreamUrl()
             if (playable == null || url.isNullOrBlank() || url == failedUrl) {
-                Log.d(PlayerRuntimeController.TAG, "Fallback source from ${next.addonName} has no playable link, trying the next one")
+                Log.d(
+                    PlayerRuntimeController.TAG,
+                    "Fallback source from ${next.addonName} has no playable link, trying the next one"
+                )
                 continue
             }
             Log.i(
@@ -169,8 +182,10 @@ internal fun nextSourceFallbackCandidate(
 ): Stream? {
     val untried = streams.filterNot { stream ->
         stream.sourceFallbackKey() in triedKeys ||
-            (failedInfoHash != null && stream.addonName == failedAddonName &&
-                stream.getEffectiveInfoHash().equals(failedInfoHash, ignoreCase = true))
+            (
+                failedInfoHash != null && stream.addonName == failedAddonName &&
+                    stream.getEffectiveInfoHash().equals(failedInfoHash, ignoreCase = true)
+                )
     }
     return StreamAutoPlaySelector.selectAutoPlayStream(
         streams = untried,
@@ -184,7 +199,8 @@ internal fun nextSourceFallbackCandidate(
 }
 
 /** Identifies a source across fresh, prepared and resolved copies of the same stream. */
-internal fun Stream.sourceFallbackKey(): String =
-    getEffectiveInfoHash()?.lowercase()?.let { hash -> "torrent:$addonName:$hash:${getEffectiveFileIdx() ?: -1}" }
-        ?: getStreamUrl()?.let { url -> "url:$url" }
-        ?: "meta:$addonName:${name.orEmpty()}:${description.orEmpty()}"
+internal fun Stream.sourceFallbackKey(): String = getEffectiveInfoHash()?.lowercase()?.let { hash ->
+    "torrent:$addonName:$hash:${getEffectiveFileIdx() ?: -1}"
+}
+    ?: getStreamUrl()?.let { url -> "url:$url" }
+    ?: "meta:$addonName:${name.orEmpty()}:${description.orEmpty()}"

@@ -7,10 +7,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,13 +26,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -68,7 +68,10 @@ fun ProfileBackgroundPicker(
 ) {
     FlowRow(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.CenterHorizontally),
+        horizontalArrangement = Arrangement.spacedBy(
+            MoviesTheme.spacing.md,
+            Alignment.CenterHorizontally
+        ),
         verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         ProfileBackgroundItem(
@@ -82,7 +85,11 @@ fun ProfileBackgroundPicker(
                     .background(
                         Brush.verticalGradient(
                             colors = listOf(
-                                lerp(MoviesTheme.colors.BackgroundElevated, standardBackgroundColor, 0.3f),
+                                lerp(
+                                    MoviesTheme.colors.BackgroundElevated,
+                                    standardBackgroundColor,
+                                    0.3f
+                                ),
                                 lerp(MoviesTheme.colors.Background, standardBackgroundColor, 0.14f),
                                 MoviesTheme.colors.Background
                             )
@@ -134,12 +141,24 @@ private fun ProfileBackgroundItem(
         label = "profileBackgroundScale"
     )
     val borderWidth by animateDpAsState(
-        targetValue = if (isSelected) 3.dp else if (isFocused) 2.dp else 1.dp,
+        targetValue = if (isSelected) {
+            3.dp
+        } else if (isFocused) {
+            2.dp
+        } else {
+            1.dp
+        },
         animationSpec = ExpressiveMotion.defaultEffects(),
         label = "profileBackgroundBorder"
     )
     val labelColor by animateColorAsState(
-        targetValue = if (isSelected || isFocused) Color.White else MoviesTheme.colors.TextSecondary,
+        targetValue = if (isSelected ||
+            isFocused
+        ) {
+            Color.White
+        } else {
+            MoviesTheme.colors.TextSecondary
+        },
         animationSpec = ExpressiveMotion.defaultEffects(),
         label = "profileBackgroundLabel"
     )

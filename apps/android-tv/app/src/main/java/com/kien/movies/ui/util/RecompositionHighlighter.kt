@@ -12,18 +12,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.debugInspectorInfo
-import kotlinx.coroutines.delay
 import kotlin.math.min
+import kotlinx.coroutines.delay
 
 val LocalRecompositionHighlighterEnabled = compositionLocalOf { false }
 
 /**
  * A [Modifier] that draws a border around elements that are recomposing.
- * 
+ *
  * - Green: 1-2 recompositions
  * - Yellow: 3-5 recompositions
  * - Red: 6+ recompositions
- * 
+ *
  * Includes a "cool down" mechanism: if no recompositions occur for 3 seconds,
  * the counter resets and the highlighter disappears.
  */
@@ -31,9 +31,11 @@ val LocalRecompositionHighlighterEnabled = compositionLocalOf { false }
 fun Modifier.recompositionHighlighter(): Modifier = if (!RecompositionHighlighterFlag.enabled) {
     this
 } else {
-    this.composed(inspectorInfo = debugInspectorInfo {
-        name = "recompositionHighlighter"
-    }) {
+    this.composed(
+        inspectorInfo = debugInspectorInfo {
+            name = "recompositionHighlighter"
+        }
+    ) {
         val numRecompositions = remember { LongArray(1) { 0L } }
         numRecompositions[0]++
 

@@ -27,12 +27,19 @@ class GitHubContributorsRepository @Inject constructor(
 
     suspend fun getContributors(): Result<List<GitHubContributor>> = runCatching {
         if (contributionsBaseUrl.isBlank()) {
-            error(appContext.getString(com.kien.movies.R.string.contributors_error_api_not_configured))
+            error(
+                appContext.getString(com.kien.movies.R.string.contributors_error_api_not_configured)
+            )
         }
 
         val response = contributionsApi.getUniqueContributions()
         if (!response.isSuccessful) {
-            error(appContext.getString(com.kien.movies.R.string.contributors_error_api_http, response.code()))
+            error(
+                appContext.getString(
+                    com.kien.movies.R.string.contributors_error_api_http,
+                    response.code()
+                )
+            )
         }
 
         response.body()

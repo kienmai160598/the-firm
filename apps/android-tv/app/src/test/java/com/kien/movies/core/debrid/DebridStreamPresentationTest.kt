@@ -22,7 +22,9 @@ class DebridStreamPresentationTest {
     private val settings = DebridSettings(
         enabled = true,
         torboxApiKey = "key",
-        streamPreferences = DebridStreamPreferences(excludedEncodes = listOf(DebridStreamEncode.AVC)),
+        streamPreferences = DebridStreamPreferences(
+            excludedEncodes = listOf(DebridStreamEncode.AVC)
+        ),
         streamNameTemplate = "{stream.resolution} {stream.quality} {stream.encode}",
         streamDescriptionTemplate = "{stream.filename}"
     )
@@ -50,7 +52,14 @@ class DebridStreamPresentationTest {
         )
 
         val result = presentation.apply(
-            groups = listOf(AddonStreams(addonName = "Addon", addonLogo = null, streams = debridStreams + passthrough)),
+            groups = listOf(
+                AddonStreams(
+                    addonName = "Addon",
+                    addonLogo = null,
+                    streams =
+                        debridStreams + passthrough
+                )
+            ),
             settings = settings,
             includeBadgeMatches = false
         ).single().streams

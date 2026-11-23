@@ -28,8 +28,7 @@ data class PremiumizeDirectDownloadFileDto(
     @Json(name = "size") val size: Long? = null,
     @Json(name = "link") val link: String? = null
 ) {
-    fun displayName(): String =
-        path.orEmpty().substringAfterLast('/').substringAfterLast('\\').ifBlank { path.orEmpty() }
+    fun displayName(): String = path.orEmpty().substringAfterLast('/').substringAfterLast('\\').ifBlank { path.orEmpty() }
 }
 
 @JsonClass(generateAdapter = true)

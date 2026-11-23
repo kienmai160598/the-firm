@@ -2,8 +2,8 @@ package com.kien.movies.core.streams
 
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.StreamBadge
-import java.util.regex.Pattern
 import java.util.regex.Matcher
+import java.util.regex.Pattern
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -16,9 +16,7 @@ import kotlinx.serialization.json.JsonNames
 const val STREAM_BADGE_IMPORT_LIMIT = 3
 
 @Serializable
-data class StreamBadgeRules(
-    val imports: List<StreamBadgeImport> = emptyList()
-) {
+data class StreamBadgeRules(val imports: List<StreamBadgeImport> = emptyList()) {
     val hasImport: Boolean
         get() = imports.isNotEmpty()
 
@@ -34,7 +32,9 @@ data class StreamBadgeRules(
             val normalizedUrl = import.sourceUrl.trim()
             if (normalizedUrl.isBlank() || import.filters.isEmpty()) return@forEach
             val normalizedImport = import.copy(sourceUrl = normalizedUrl)
-            val existingIndex = normalizedImports.indexOfFirst { it.sourceUrl.equals(normalizedUrl, ignoreCase = true) }
+            val existingIndex = normalizedImports.indexOfFirst {
+                it.sourceUrl.equals(normalizedUrl, ignoreCase = true)
+            }
             if (existingIndex >= 0) {
                 normalizedImports[existingIndex] = normalizedImport
             } else if (normalizedImports.size < STREAM_BADGE_IMPORT_LIMIT) {
@@ -55,16 +55,29 @@ data class StreamBadgeRules(
         if (normalizedUrl.isBlank()) return normalized()
         val normalizedImport = import.copy(sourceUrl = normalizedUrl, isActive = activate)
         val replaced = imports.map { existing ->
-            if (existing.sourceUrl.equals(normalizedUrl, ignoreCase = true)) normalizedImport else existing
+            if (existing.sourceUrl.equals(
+                    normalizedUrl,
+                    ignoreCase = true
+                )
+            ) {
+                normalizedImport
+            } else {
+                existing
+            }
         }
-        val nextImports = if (imports.any { it.sourceUrl.equals(normalizedUrl, ignoreCase = true) }) {
+        val nextImports = if (imports.any {
+                it.sourceUrl.equals(normalizedUrl, ignoreCase = true)
+            }
+        ) {
             replaced
         } else {
             imports + normalizedImport
         }
         val activeImports = if (activate) {
             nextImports.map { existing ->
-                existing.copy(isActive = existing.sourceUrl.equals(normalizedUrl, ignoreCase = true))
+                existing.copy(
+                    isActive = existing.sourceUrl.equals(normalizedUrl, ignoreCase = true)
+                )
             }
         } else {
             nextImports
@@ -74,7 +87,9 @@ data class StreamBadgeRules(
 
     fun setActiveSource(sourceUrl: String): StreamBadgeRules {
         val normalizedUrl = sourceUrl.trim()
-        if (normalizedUrl.isBlank() || imports.none { it.sourceUrl.equals(normalizedUrl, ignoreCase = true) }) {
+        if (normalizedUrl.isBlank() ||
+            imports.none { it.sourceUrl.equals(normalizedUrl, ignoreCase = true) }
+        ) {
             return normalized()
         }
         return copy(
@@ -84,14 +99,17 @@ data class StreamBadgeRules(
         ).normalized()
     }
 
-    fun forPlayer(sourceUrl: String): StreamBadgeRules =
-        if (sourceUrl.isBlank()) normalized() else setActiveSource(sourceUrl)
+    fun forPlayer(sourceUrl: String): StreamBadgeRules = if (sourceUrl.isBlank()) normalized() else setActiveSource(sourceUrl)
 
-    fun removeSource(sourceUrl: String): StreamBadgeRules =
-        copy(imports = imports.filterNot { it.sourceUrl.equals(sourceUrl.trim(), ignoreCase = true) }).normalized()
+    fun removeSource(sourceUrl: String): StreamBadgeRules = copy(
+        imports = imports.filterNot {
+            it.sourceUrl.equals(sourceUrl.trim(), ignoreCase = true)
+        }
+    ).normalized()
 
-    override fun toString(): String =
-        "StreamBadgeRules(imports=${imports.size}, activeFilters=$enabledFilterCount, groups=${imports.sumOf { it.groups.size }})"
+    override fun toString(): String = "StreamBadgeRules(imports=${imports.size}, activeFilters=$enabledFilterCount, groups=${imports.sumOf {
+        it.groups.size
+    }})"
 }
 
 @Serializable
@@ -108,8 +126,7 @@ data class StreamBadgeImport(
     val enabledFilterCount: Int
         get() = filters.count { it.isEnabled }
 
-    override fun toString(): String =
-        "StreamBadgeImport(sourceUrl=$sourceUrl, filters=${filters.size}, groups=${groups.size}, isActive=$isActive)"
+    override fun toString(): String = "StreamBadgeImport(sourceUrl=$sourceUrl, filters=${filters.size}, groups=${groups.size}, isActive=$isActive)"
 }
 
 @Serializable
@@ -250,8 +267,7 @@ internal object StreamBadgeMatcher {
         return null
     }
 
-    fun matchedNames(stream: Stream, rules: StreamBadgeRules): List<String> =
-        matchedNames(stream, compile(rules))
+    fun matchedNames(stream: Stream, rules: StreamBadgeRules): List<String> = matchedNames(stream, compile(rules))
 
     fun matchedNames(stream: Stream, filters: List<CompiledStreamBadgeFilter>): List<String> {
         return matchedBadges(stream, filters).map { it.name }
@@ -262,7 +278,10 @@ internal object StreamBadgeMatcher {
         return matchedBadges(badgeMatchCandidates(stream), filters)
     }
 
-    fun matchedBadges(candidates: List<String>, filters: List<CompiledStreamBadgeFilter>): List<StreamBadge> {
+    fun matchedBadges(
+        candidates: List<String>,
+        filters: List<CompiledStreamBadgeFilter>
+    ): List<StreamBadge> {
         if (filters.isEmpty() || candidates.isEmpty()) return emptyList()
 
         val normalized = candidates.map { it.replace(WHITESPACE_PATTERN, " ") }
@@ -296,8 +315,13 @@ internal object StreamBadgeMatcher {
         if (filters.isEmpty()) return emptyList()
         val playback = playbackCandidate?.replace(WHITESPACE_PATTERN, " ")
         val meta = metaCandidates.map { it.replace(WHITESPACE_PATTERN, " ") }
-        val playbackHits = filters.map { playback != null && matchesCandidateReusable(it, playback) }
-        val coveredGroups = filters.filterIndexed { i, f -> playbackHits[i] && f.groupId.isNotBlank() }
+        val playbackHits = filters.map {
+            playback != null && matchesCandidateReusable(it, playback)
+        }
+        val coveredGroups = filters.filterIndexed { i, f ->
+            playbackHits[i] &&
+                f.groupId.isNotBlank()
+        }
             .mapTo(hashSetOf()) { it.groupId }
         val matched = linkedMapOf<String, StreamBadge>()
         filters.forEachIndexed { i, filter ->
@@ -333,6 +357,7 @@ internal object StreamBadgeMatcher {
                     firstMatch == null && matched == null -> {
                         firstMatch = pooled
                     }
+
                     matched == null -> {
                         // Second match — promote to map.
                         val firstKey = firstMatch!!.dedupeKey()
@@ -342,6 +367,7 @@ internal object StreamBadgeMatcher {
                             it[key] = pooled
                         }
                     }
+
                     else -> {
                         matched!!.putIfAbsent(key, pooled)
                     }
@@ -457,8 +483,7 @@ class CompiledStreamBadgeFilter(
     }
 }
 
-internal fun StreamBadge.dedupeKey(): String =
-    imageURL.takeIf { it.isNotBlank() } ?: name
+internal fun StreamBadge.dedupeKey(): String = imageURL.takeIf { it.isNotBlank() } ?: name
 
 @Serializable
 private data class StreamBadgePayload(

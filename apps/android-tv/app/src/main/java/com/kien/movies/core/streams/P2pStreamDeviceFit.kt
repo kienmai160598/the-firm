@@ -34,11 +34,13 @@ internal fun exceedsP2pBitrateBudget(stream: Stream, title: TitleDuration): Bool
 
 // Marks the streams this device cannot keep up with and moves them behind the others, keeping the
 // addon's own order inside each half.
-internal fun rankP2pStreamsForDevice(streams: List<Stream>, title: TitleDuration): List<Stream> =
-    streams
-        .map { stream ->
-            val exceeds = exceedsP2pBitrateBudget(stream, title)
-            if (stream.exceedsDeviceBudget == exceeds) stream
-            else stream.copy(exceedsDeviceBudget = exceeds)
+internal fun rankP2pStreamsForDevice(streams: List<Stream>, title: TitleDuration): List<Stream> = streams
+    .map { stream ->
+        val exceeds = exceedsP2pBitrateBudget(stream, title)
+        if (stream.exceedsDeviceBudget == exceeds) {
+            stream
+        } else {
+            stream.copy(exceedsDeviceBudget = exceeds)
         }
-        .sortedBy { it.exceedsDeviceBudget }
+    }
+    .sortedBy { it.exceedsDeviceBudget }

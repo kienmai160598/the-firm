@@ -10,6 +10,8 @@ import com.kien.movies.core.streams.StreamBadgeImport
 import com.kien.movies.core.streams.StreamBadgePlacement
 import com.kien.movies.core.streams.StreamBadgeRules
 import com.kien.movies.core.streams.StreamBadgeSettings
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,8 +28,6 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class StreamBadgeSettingsDataStore @Inject constructor(
@@ -45,11 +45,9 @@ class StreamBadgeSettingsDataStore @Inject constructor(
         private const val LEGACY_DEBRID_FEATURE = "debrid_settings"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
-    private fun legacyDebridStore(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, LEGACY_DEBRID_FEATURE)
+    private fun legacyDebridStore(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, LEGACY_DEBRID_FEATURE)
 
     private val streamBadgeRulesKey = stringPreferencesKey("stream_badge_rules")
     private val showFileSizeBadgesKey = booleanPreferencesKey("show_file_size_badges")
@@ -127,7 +125,8 @@ class StreamBadgeSettingsDataStore @Inject constructor(
         val currentPrefs = store(profileId).data.first()
         if (currentPrefs[streamBadgeRulesKey] != null) return
         val legacyPrefs = legacyDebridStore(profileId).data.first()
-        val legacyRules = parseStreamBadgeRules(legacyPrefs[legacyDebridStreamBadgeRulesKey]) ?: return
+        val legacyRules =
+            parseStreamBadgeRules(legacyPrefs[legacyDebridStreamBadgeRulesKey]) ?: return
         store(profileId).edit {
             if (it[streamBadgeRulesKey] == null) {
                 it[streamBadgeRulesKey] = json.encodeToString(legacyRules.normalized())
@@ -159,10 +158,9 @@ class StreamBadgeSettingsDataStore @Inject constructor(
         return legacyRules?.takeIf { it.hasImport } ?: decodedRules
     }
 
-    private fun String?.toStreamBadgePlacement(): StreamBadgePlacement =
-        StreamBadgePlacement.entries.firstOrNull { placement ->
-            placement.name.equals(this, ignoreCase = true)
-        } ?: StreamBadgePlacement.BOTTOM
+    private fun String?.toStreamBadgePlacement(): StreamBadgePlacement = StreamBadgePlacement.entries.firstOrNull { placement ->
+        placement.name.equals(this, ignoreCase = true)
+    } ?: StreamBadgePlacement.BOTTOM
 }
 
 @Serializable
@@ -171,14 +169,13 @@ private data class LegacyStreamBadgeRules(
     val filters: List<StreamBadgeFilter> = emptyList(),
     val groups: List<StreamBadgeGroup> = emptyList()
 ) {
-    fun toBadgeRules(): StreamBadgeRules =
-        StreamBadgeRules(
-            imports = listOf(
-                StreamBadgeImport(
-                    sourceUrl = sourceUrl.ifBlank { "Local badge rules" },
-                    filters = filters,
-                    groups = groups
-                )
+    fun toBadgeRules(): StreamBadgeRules = StreamBadgeRules(
+        imports = listOf(
+            StreamBadgeImport(
+                sourceUrl = sourceUrl.ifBlank { "Local badge rules" },
+                filters = filters,
+                groups = groups
             )
         )
+    )
 }

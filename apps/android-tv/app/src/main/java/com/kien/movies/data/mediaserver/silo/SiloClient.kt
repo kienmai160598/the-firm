@@ -24,10 +24,7 @@ import okio.Buffer
 import okio.BufferedSource
 
 /** Requests to Silo's own API (`/api/v2`). Failures keep Silo's problem code, which the sign-in and playback act on. */
-internal class SiloClient(
-    http: OkHttpClient,
-    private val identity: ServerClientIdentity
-) {
+internal class SiloClient(http: OkHttpClient, private val identity: ServerClientIdentity) {
     private val http = http.newBuilder()
         .followRedirects(false)
         .followSslRedirects(false)
@@ -73,7 +70,13 @@ internal class SiloClient(
                 .method(
                     method,
                     body?.toRequestBody(JSON_MEDIA_TYPE)
-                        ?: if (method == "POST" || method == "PUT") ByteArray(0).toRequestBody() else null
+                        ?: if (method == "POST" ||
+                            method == "PUT"
+                        ) {
+                            ByteArray(0).toRequestBody()
+                        } else {
+                            null
+                        }
                 )
                 .build()
         } catch (_: IllegalArgumentException) {
@@ -86,7 +89,11 @@ internal class SiloClient(
         } catch (_: Exception) {
             throw ServerException(ServerFailure.UNREACHABLE)
         }
-        if (response.status in 200..299 || allowRedirect && response.status in 300..399) return response
+        if (response.status in 200..299 ||
+            allowRedirect && response.status in 300..399
+        ) {
+            return response
+        }
         throw SiloProblem.from(response, json).toServerException()
     }
 
@@ -109,8 +116,14 @@ internal class SiloClient(
             override fun onResponse(call: Call, response: Response) {
                 response.use {
                     try {
-                        val body = response.body?.let { readBounded(it.source(), it.contentLength()) }.orEmpty()
-                        if (continuation.isActive) continuation.resume(SiloResponse(response.code, body, response.header("Location")))
+                        val body = response.body?.let {
+                            readBounded(it.source(), it.contentLength())
+                        }.orEmpty()
+                        if (continuation.isActive) {
+                            continuation.resume(
+                                SiloResponse(response.code, body, response.header("Location"))
+                            )
+                        }
                     } catch (error: IOException) {
                         if (continuation.isActive) continuation.resumeWithException(error)
                     }
@@ -171,7 +184,8 @@ internal class SiloProblem(val status: Int, val code: String?) {
 
         /** The status and code a [ServerException] thrown for a Silo reply carries; null for any other failure. */
         fun of(error: ServerException): SiloProblem? {
-            val text = error.message?.takeIf { it.startsWith(PREFIX) }?.removePrefix(PREFIX) ?: return null
+            val text =
+                error.message?.takeIf { it.startsWith(PREFIX) }?.removePrefix(PREFIX) ?: return null
             val status = text.substringBefore(' ').toIntOrNull() ?: return null
             return SiloProblem(status, text.substringAfter(' ', "").takeIf { it.isNotBlank() })
         }

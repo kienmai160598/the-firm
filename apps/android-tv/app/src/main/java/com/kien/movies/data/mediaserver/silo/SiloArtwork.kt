@@ -25,7 +25,11 @@ import okhttp3.Response
 enum class SiloArtworkKind { POSTER, BACKGROUND, LOGO }
 
 /** The title a Silo artwork link belongs to, carried in the link's fragment (never sent to the server). */
-data class SiloArtworkMark(val connectionId: String, val contentId: String, val kind: SiloArtworkKind) {
+data class SiloArtworkMark(
+    val connectionId: String,
+    val contentId: String,
+    val kind: SiloArtworkKind
+) {
     val key: String
         get() = "$connectionId|$contentId|$kind"
 }
@@ -43,10 +47,14 @@ object SiloArtworkLink {
     }
 
     fun parse(url: HttpUrl): SiloArtworkMark? {
-        val value = url.encodedFragment?.split('&')?.firstOrNull { it.startsWith(MARK) }?.removePrefix(MARK) ?: return null
+        val value =
+            url.encodedFragment?.split('&')?.firstOrNull { it.startsWith(MARK) }?.removePrefix(MARK)
+                ?: return null
         val parts = value.split('.')
         if (parts.size != 3) return null
-        val kind = SiloArtworkKind.entries.firstOrNull { it.name.equals(parts[2], ignoreCase = true) } ?: return null
+        val kind =
+            SiloArtworkKind.entries.firstOrNull { it.name.equals(parts[2], ignoreCase = true) }
+                ?: return null
         val connectionId = decode(parts[0])?.takeIf { it.isNotBlank() } ?: return null
         val contentId = decode(parts[1])?.takeIf { it.isNotBlank() } ?: return null
         return SiloArtworkMark(connectionId, contentId, kind)
@@ -57,7 +65,9 @@ object SiloArtworkLink {
 
     private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8").replace(".", "%2E")
 
-    private fun decode(value: String): String? = runCatching { URLDecoder.decode(value, "UTF-8") }.getOrNull()
+    private fun decode(value: String): String? = runCatching {
+        URLDecoder.decode(value, "UTF-8")
+    }.getOrNull()
 }
 
 /** Fresh Silo artwork links by title, fetched at most a few at a time and kept until shortly before they expire. */
@@ -115,8 +125,12 @@ class SiloArtworkRefresher internal constructor(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: ServerException) {
-                Log.w(TAG, "Fresh Silo artwork failed: ${error.failure} ${error.siloCode.orEmpty()}")
-                unreachable = error.failure == ServerFailure.UNREACHABLE || error.siloCode == "rate_limited"
+                Log.w(
+                    TAG,
+                    "Fresh Silo artwork failed: ${error.failure} ${error.siloCode.orEmpty()}"
+                )
+                unreachable =
+                    error.failure == ServerFailure.UNREACHABLE || error.siloCode == "rate_limited"
                 null
             } catch (error: Exception) {
                 Log.w(TAG, "Fresh Silo artwork failed: ${error.javaClass.simpleName}")
@@ -129,7 +143,9 @@ class SiloArtworkRefresher internal constructor(
             if (unreachable) pausedUntil[mark.connectionId] = until
             return Entry(null, until)
         }
-        val expiry = links.values.mapNotNull { it.toHttpUrlOrNull()?.let(SiloArtworkLink::expiresAt) }.minOrNull()
+        val expiry = links.values.mapNotNull {
+            it.toHttpUrlOrNull()?.let(SiloArtworkLink::expiresAt)
+        }.minOrNull()
         val until = expiry?.let { it * 1_000L - RENEW_BEFORE_MS } ?: (now() + KEEP_MS)
         return Entry(links, until.coerceIn(now() + RETRY_AFTER_MS, now() + KEEP_MS))
     }
@@ -166,7 +182,9 @@ class SiloArtworkInterceptor(
         val refresh = refresher() ?: return chain.proceed(request)
         val expiresAt = SiloArtworkLink.expiresAt(request.url)
         if (expiresAt != null && expiresAt - EXPIRY_MARGIN_S <= nowSeconds()) {
-            refresh.fresh(mark, request.url)?.let { return chain.proceed(request.newBuilder().url(it).build()) }
+            refresh.fresh(mark, request.url)?.let {
+                return chain.proceed(request.newBuilder().url(it).build())
+            }
         }
         val response = chain.proceed(request)
         if (response.code !in REFUSED) return response

@@ -94,10 +94,7 @@ data class MoviesSourceColors(
 )
 
 @Immutable
-data class MoviesContrastPair(
-    val foreground: Color,
-    val background: Color
-)
+data class MoviesContrastPair(val foreground: Color, val background: Color)
 
 class MoviesColorScheme(
     palette: ThemeColorPalette,

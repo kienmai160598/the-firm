@@ -9,10 +9,10 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 private val Context.appOnboardingDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "app_onboarding",
@@ -20,11 +20,10 @@ private val Context.appOnboardingDataStore: DataStore<Preferences> by preference
 )
 
 @Singleton
-class AppOnboardingDataStore @Inject constructor(
-    @ApplicationContext private val context: Context
-) {
+class AppOnboardingDataStore @Inject constructor(@ApplicationContext private val context: Context) {
     private val dataStore = context.appOnboardingDataStore
-    private val hasSeenAuthQrOnFirstLaunchKey = booleanPreferencesKey("has_seen_auth_qr_on_first_launch")
+    private val hasSeenAuthQrOnFirstLaunchKey =
+        booleanPreferencesKey("has_seen_auth_qr_on_first_launch")
 
     val hasSeenAuthQrOnFirstLaunch: Flow<Boolean> = dataStore.data.map { prefs ->
         prefs[hasSeenAuthQrOnFirstLaunchKey] ?: false

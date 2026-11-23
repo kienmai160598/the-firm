@@ -17,7 +17,9 @@ class SpotSamplingTest {
 
     @Test
     fun shortPlaybackBuffersBuildEvidenceWhenCaptureHasNone() {
-        val weights = File("src/main/res/raw/silero_vad_v5_16k.bin").inputStream().use(SileroVadWeights::read)
+        val weights = File(
+            "src/main/res/raw/silero_vad_v5_16k.bin"
+        ).inputStream().use(SileroVadWeights::read)
         for ((rate, frames) in listOf(48_000 to 960, 16_000 to 320, 48_000 to 320)) {
             val timeline = SpeechTimeline()
             val analyzer = SpeechAnalyzer(SileroVad(weights), timeline)
@@ -32,10 +34,17 @@ class SpotSamplingTest {
                 }
             }
             assertEquals(1L, analyzer.starts, "continuous $frames-frame buffers at $rate Hz")
-            assertTrue(timeline.diagnostics().analysedSeconds > 5.7, "short PCM never got past warm-up at $rate Hz")
+            assertTrue(
+                timeline.diagnostics().analysedSeconds > 5.7,
+                "short PCM never got past warm-up at $rate Hz"
+            )
             val known = timeline.knownRange()!!
-            assertFalse(timeline.needsAnalysis(known.first * SpeechTimeline.FRAME_DURATION_US, 20_000L))
-            assertTrue(timeline.needsAnalysis(known.last * SpeechTimeline.FRAME_DURATION_US, 40_000L))
+            assertFalse(
+                timeline.needsAnalysis(known.first * SpeechTimeline.FRAME_DURATION_US, 20_000L)
+            )
+            assertTrue(
+                timeline.needsAnalysis(known.last * SpeechTimeline.FRAME_DURATION_US, 40_000L)
+            )
         }
     }
 
@@ -45,16 +54,30 @@ class SpotSamplingTest {
         val engine = AsrSyncEngine(timeline, onLock = { error("Recognition must remain idle") })
         engine.setListening(false) // Japanese audio, or no usable English reference.
         engine.setRecognizer { error("Sampled speech must not invoke English recognition") }
-        val weights = File("src/main/res/raw/silero_vad_v5_16k.bin").inputStream().use(SileroVadWeights::read)
-        val segmenter = SpeechSegmenter { frame, samples -> engine.offerSegment(frame, samples, spread = true) }
-        val analyzer = SpeechAnalyzer(SileroVad(weights), timeline).apply { chunkListener = segmenter }
+        val weights = File(
+            "src/main/res/raw/silero_vad_v5_16k.bin"
+        ).inputStream().use(SileroVadWeights::read)
+        val segmenter =
+            SpeechSegmenter { frame, samples -> engine.offerSegment(frame, samples, spread = true) }
+        val analyzer = SpeechAnalyzer(SileroVad(weights), timeline).apply {
+            chunkListener =
+                segmenter
+        }
         val random = Random(721)
         try {
             // Two disconnected sampled spots, neither at the playhead. Each must warm up its VAD.
             for (startUs in listOf(60_000_000L, 420_000_000L)) {
                 repeat(100) { index ->
-                    val samples = FloatArray(SileroVad.CHUNK_SAMPLES) { random.nextFloat() * 0.4f - 0.2f }
-                    analyzer.accept(samples, samples.size, SileroVad.SAMPLE_RATE, startUs + index * SileroVad.CHUNK_DURATION_US)
+                    val samples = FloatArray(SileroVad.CHUNK_SAMPLES) {
+                        random.nextFloat() * 0.4f -
+                            0.2f
+                    }
+                    analyzer.accept(
+                        samples,
+                        samples.size,
+                        SileroVad.SAMPLE_RATE,
+                        startUs + index * SileroVad.CHUNK_DURATION_US
+                    )
                 }
                 segmenter.flush()
             }
@@ -74,12 +97,28 @@ class SpotSamplingTest {
         // Dialogue only in a few scenes; the subtitle used for planning is 8 s late.
         val scenes = listOf(12L, 31L, 47L, 66L, 83L).map { it * 60_000L }
         val spoken = scenes.flatMap { scene -> cues(Random(scene), scene, scene + 90_000L) }
-        val lateSubtitle = SubtitleSpeechTrack.fromCues(spoken.map { (a, b, t) -> Triple(a + 8_000L, b + 8_000L, t) })
-        val spots = DialogueSpotPlanner.plan(listOf(lateSubtitle), filmMs, count = 4, spotMs = 30_000L)
+        val lateSubtitle = SubtitleSpeechTrack.fromCues(
+            spoken.map { (a, b, t) ->
+                Triple(
+                    a + 8_000L,
+                    b + 8_000L,
+                    t
+                )
+            }
+        )
+        val spots = DialogueSpotPlanner.plan(
+            listOf(lateSubtitle),
+            filmMs,
+            count = 4,
+            spotMs = 30_000L
+        )
         assertEquals(4, spots.size)
         for (spot in spots) {
             val speech = spoken.sumOf { (a, b, _) -> overlap(a, b, spot, spot + 30_000L) }
-            assertTrue(speech > 10_000L, "spot at ${spot / 1_000}s has only ${speech / 1_000}s of dialogue")
+            assertTrue(
+                speech > 10_000L,
+                "spot at ${spot / 1_000}s has only ${speech / 1_000}s of dialogue"
+            )
         }
         // Spread over the film, widest first.
         assertTrue(abs(spots[0] - spots[1]) > 20 * 60_000L, "spots $spots")
@@ -95,22 +134,46 @@ class SpotSamplingTest {
             cues(Random(70L + part), base, base + 25_000L) +
                 cues(Random(80L + part), base + 9 * 60_000L, base + 12 * 60_000L)
         }
-        val earlySubtitle = SubtitleSpeechTrack.fromCues(spoken.map { (a, b, t) -> Triple(a - 15_000L, b - 15_000L, t) })
-        val spots = DialogueSpotPlanner.plan(listOf(earlySubtitle), filmMs, count = 4, spotMs = 30_000L)
+        val earlySubtitle = SubtitleSpeechTrack.fromCues(
+            spoken.map { (a, b, t) ->
+                Triple(a - 15_000L, b - 15_000L, t)
+            }
+        )
+        val spots = DialogueSpotPlanner.plan(
+            listOf(earlySubtitle),
+            filmMs,
+            count = 4,
+            spotMs = 30_000L
+        )
         assertEquals(4, spots.size)
         for (spot in spots) {
             val speech = spoken.sumOf { (a, b, _) -> overlap(a, b, spot, spot + 8_000L) }
-            assertTrue(speech > 4_000L, "spot at ${spot / 1_000}s opens with only ${speech / 1_000}s of dialogue")
+            assertTrue(
+                speech > 4_000L,
+                "spot at ${spot / 1_000}s opens with only ${speech / 1_000}s of dialogue"
+            )
         }
     }
 
     @Test
     fun spotsAreEvenlySpreadWithoutSubtitles() {
-        val spots = DialogueSpotPlanner.plan(emptyList(), filmMs, count = 4, spotMs = 30_000L, notBeforeMs = 5 * 60_000L)
+        val spots = DialogueSpotPlanner.plan(
+            emptyList(),
+            filmMs,
+            count = 4,
+            spotMs = 30_000L,
+            notBeforeMs =
+                5 * 60_000L
+        )
         assertEquals(4, spots.size)
         assertTrue(spots.all { it >= 5 * 60_000L && it <= filmMs - 6 * 60_000L }, "spots $spots")
         val sorted = spots.sorted()
-        for (i in 1 until sorted.size) assertTrue(sorted[i] - sorted[i - 1] > 15 * 60_000L, "spots $spots")
+        for (i in 1 until sorted.size) {
+            assertTrue(
+                sorted[i] - sorted[i - 1] > 15 * 60_000L,
+                "spots $spots"
+            )
+        }
     }
 
     @Test
@@ -119,18 +182,35 @@ class SpotSamplingTest {
         // Subtitle made for 25 fps, video at 23.976 fps, plus a 1.2 s offset.
         val truth = SubtitleSyncSegment(0L, 25.0 / 23.976, -1_200.0)
         val subtitle = spoken.map { (a, b, t) ->
-            Triple(((a - truth.shiftMs) / truth.scale).toLong(), ((b - truth.shiftMs) / truth.scale).toLong(), t)
+            Triple(
+                ((a - truth.shiftMs) / truth.scale).toLong(),
+                ((b - truth.shiftMs) / truth.scale).toLong(),
+                t
+            )
         }
         val track = SubtitleSpeechTrack.fromCues(subtitle)
         val full = speechFor(spoken, Random(41))
         // Only the first 90 s near the playhead plus four sampled spots are known.
         val live = SpeechTimeline()
-        val spots = DialogueSpotPlanner.plan(listOf(track), filmMs, count = 4, spotMs = 30_000L, notBeforeMs = 90_000L)
+        val spots = DialogueSpotPlanner.plan(
+            listOf(track),
+            filmMs,
+            count = 4,
+            spotMs = 30_000L,
+            notBeforeMs = 90_000L
+        )
         val frameMs = SpeechTimeline.FRAME_DURATION_MS
         val known = listOf(0L to 90_000L) + spots.map { it to it + 30_000L }
         val all = full.snapshot(0, (filmMs / frameMs).toInt())
         for ((from, to) in known) {
-            for (f in (from / frameMs).toInt() until (to / frameMs).toInt()) if (!all[f].isNaN()) live.record(f, all[f])
+            for (f in (from / frameMs).toInt() until (to / frameMs).toInt()) {
+                if (!all[f].isNaN()) {
+                    live.record(
+                        f,
+                        all[f]
+                    )
+                }
+            }
         }
         val tracker = AudioSyncTracker(track)
         tracker.update(live, 10_000L)
@@ -145,7 +225,15 @@ class SpotSamplingTest {
     @Test
     fun stretchesMatchOneArrayExactly() {
         val spoken = cues(Random(50), 20_000L, 30 * 60_000L)
-        val track = SubtitleSpeechTrack.fromCues(spoken.map { (a, b, t) -> Triple(a - 2_000L, b - 2_000L, t) })
+        val track = SubtitleSpeechTrack.fromCues(
+            spoken.map { (a, b, t) ->
+                Triple(
+                    a - 2_000L,
+                    b - 2_000L,
+                    t
+                )
+            }
+        )
         val timeline = speechFor(spoken, Random(51))
         val frames = (25 * 60_000 / SpeechTimeline.FRAME_DURATION_MS).toInt()
         val whole = timeline.snapshot(0, frames)
@@ -157,10 +245,18 @@ class SpotSamplingTest {
         val segments = holed.segments()
         assertEquals(2, segments.size)
         val single = SubtitleAudioAligner.estimate(
-            probabilities = holed.snapshot(0, frames), fromFrame = 0, track = track,
-            minShiftMs = -60_000.0, maxShiftMs = 60_000.0,
+            probabilities = holed.snapshot(0, frames),
+            fromFrame = 0,
+            track = track,
+            minShiftMs = -60_000.0,
+            maxShiftMs = 60_000.0
         )!!
-        val split = SubtitleAudioAligner.estimate(segments, track, minShiftMs = -60_000.0, maxShiftMs = 60_000.0)!!
+        val split = SubtitleAudioAligner.estimate(
+            segments,
+            track,
+            minShiftMs = -60_000.0,
+            maxShiftMs = 60_000.0
+        )!!
         assertEquals(single.scale, split.scale)
         assertEquals(single.shiftMs, split.shiftMs, 1e-6)
         assertEquals(single.peak, split.peak, 1e-9)
@@ -171,15 +267,27 @@ class SpotSamplingTest {
     @Test
     fun correlationMatchesDirectComputationWithAndWithoutGaps() {
         val spoken = cues(Random(60), 5_000L, 90_000L)
-        val track = SubtitleSpeechTrack.fromCues(spoken.map { (a, b, t) -> Triple(a - 1_300L, b - 1_300L, t) })
+        val track = SubtitleSpeechTrack.fromCues(
+            spoken.map { (a, b, t) ->
+                Triple(
+                    a - 1_300L,
+                    b - 1_300L,
+                    t
+                )
+            }
+        )
         val base = speechFor(spoken, Random(61)).snapshot(0, 2_500)
         val withGaps = base.copyOf().also { for (f in 900 until 960) it[f] = Float.NaN }
         for (probabilities in listOf(base, withGaps)) {
             val fromFrame = 40
             val slice = probabilities.copyOfRange(fromFrame, probabilities.size)
             val estimate = SubtitleAudioAligner.estimate(
-                probabilities = slice, fromFrame = fromFrame, track = track, scales = doubleArrayOf(1.0),
-                minShiftMs = -10_000.0, maxShiftMs = 10_000.0,
+                probabilities = slice,
+                fromFrame = fromFrame,
+                track = track,
+                scales = doubleArrayOf(1.0),
+                minShiftMs = -10_000.0,
+                maxShiftMs = 10_000.0
             )!!
             // Direct masked Pearson correlation per lag.
             val frameMs = SpeechTimeline.FRAME_DURATION_MS
@@ -192,19 +300,30 @@ class SpotSamplingTest {
             var bestPeak = Double.NEGATIVE_INFINITY
             for (lag in minLag..maxLag) {
                 val g = track.render(fromFrame - lag, fromFrame - lag + slice.size, 1.0)
-                var c1 = 0.0; var cm = 0.0; var cm2 = 0.0
+                var c1 = 0.0
+                var cm = 0.0
+                var cm2 = 0.0
                 for (i in known) {
-                    c1 += (slice[i] - mean) * g[i]; cm += g[i]; cm2 += g[i] * g[i]
+                    c1 += (slice[i] - mean) * g[i]
+                    cm += g[i]
+                    cm2 += g[i] * g[i]
                 }
                 val variance = cm2 - cm * cm / known.size
-                if (variance > 1e-6 * known.size && cm > 0.5) bestPeak = maxOf(bestPeak, c1 / (norm * kotlin.math.sqrt(variance)))
+                if (variance > 1e-6 * known.size &&
+                    cm > 0.5
+                ) {
+                    bestPeak = maxOf(bestPeak, c1 / (norm * kotlin.math.sqrt(variance)))
+                }
             }
             assertEquals(bestPeak, estimate.peak, 1e-9)
             assertTrue(abs(estimate.shiftMs - 1_300.0) < 64.0, "shift ${estimate.shiftMs}")
         }
     }
 
-    private fun overlap(a: Long, b: Long, from: Long, to: Long): Long = (minOf(b, to) - maxOf(a, from)).coerceAtLeast(0L)
+    private fun overlap(a: Long, b: Long, from: Long, to: Long): Long = (
+        minOf(b, to) -
+            maxOf(a, from)
+        ).coerceAtLeast(0L)
 
     private fun cues(random: Random, fromMs: Long, toMs: Long): List<Triple<Long, Long, String>> {
         val cues = mutableListOf<Triple<Long, Long, String>>()
@@ -230,9 +349,21 @@ class SpotSamplingTest {
         val timeline = SpeechTimeline()
         for (f in 0 until frames) {
             val p = if (speaking[f]) {
-                if (random.nextFloat() < 0.25f) random.nextFloat() * 0.3f else 0.7f + random.nextFloat() * 0.3f
+                if (random.nextFloat() <
+                    0.25f
+                ) {
+                    random.nextFloat() * 0.3f
+                } else {
+                    0.7f + random.nextFloat() * 0.3f
+                }
             } else {
-                if (random.nextFloat() < 0.08f) 0.4f + random.nextFloat() * 0.5f else random.nextFloat() * 0.1f
+                if (random.nextFloat() <
+                    0.08f
+                ) {
+                    0.4f + random.nextFloat() * 0.5f
+                } else {
+                    random.nextFloat() * 0.1f
+                }
             }
             timeline.record(f, p)
         }

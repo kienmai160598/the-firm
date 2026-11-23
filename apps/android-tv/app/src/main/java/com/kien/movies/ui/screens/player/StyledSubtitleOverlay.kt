@@ -17,7 +17,11 @@ internal data class SubtitleBottomPlacement(val paddingPx: Int, val fraction: Fl
     fun insetPx(heightPx: Int): Float = paddingPx + (heightPx - paddingPx) * fraction
 }
 
-internal fun subtitleBottomPlacement(heightPx: Int, verticalOffset: Int, liftPx: Float): SubtitleBottomPlacement {
+internal fun subtitleBottomPlacement(
+    heightPx: Int,
+    verticalOffset: Int,
+    liftPx: Float
+): SubtitleBottomPlacement {
     val paddingPx = (heightPx * (verticalOffset / 400f)).toInt().coerceAtLeast(0)
     val baseFraction = (0.06f + verticalOffset / 250f).coerceIn(0f, 0.4f)
     val availableHeight = heightPx - paddingPx
@@ -42,13 +46,20 @@ internal fun StyledSubtitleOverlay(
     val density = LocalDensity.current
     BoxWithConstraints(modifier.fillMaxSize()) {
         val heightPx = constraints.maxHeight
-        val sideInset = with(density) { (constraints.maxWidth * SIDE_SUBTITLE_INSET_FRACTION).toDp() }
+        val sideInset =
+            with(density) { (constraints.maxWidth * SIDE_SUBTITLE_INSET_FRACTION).toDp() }
         val bottomInset = with(density) {
             subtitleBottomPlacement(heightPx, style.verticalOffset, liftPx).insetPx(heightPx).toDp()
         }
         val topInset = with(density) { (heightPx * TOP_SUBTITLE_INSET_FRACTION).toDp() }
         cues.blocks.forEach { block ->
-            val sidePadding = if (block.horizontal == SubtitleHorizontalPosition.CENTER) 0.dp else sideInset
+            val sidePadding = if (block.horizontal ==
+                SubtitleHorizontalPosition.CENTER
+            ) {
+                0.dp
+            } else {
+                sideInset
+            }
             StyledSubtitleText(
                 text = block.text,
                 style = style,
@@ -60,8 +71,20 @@ internal fun StyledSubtitleOverlay(
                     .padding(
                         start = sidePadding,
                         end = sidePadding,
-                        top = if (block.vertical == SubtitleVerticalPosition.TOP) topInset else 0.dp,
-                        bottom = if (block.vertical == SubtitleVerticalPosition.BOTTOM) bottomInset else 0.dp
+                        top = if (block.vertical ==
+                            SubtitleVerticalPosition.TOP
+                        ) {
+                            topInset
+                        } else {
+                            0.dp
+                        },
+                        bottom = if (block.vertical ==
+                            SubtitleVerticalPosition.BOTTOM
+                        ) {
+                            bottomInset
+                        } else {
+                            0.dp
+                        }
                     )
             )
         }
@@ -74,11 +97,13 @@ private fun StyledSubtitleBlock.alignment(): Alignment = when (vertical) {
         SubtitleHorizontalPosition.CENTER -> Alignment.TopCenter
         SubtitleHorizontalPosition.END -> Alignment.TopEnd
     }
+
     SubtitleVerticalPosition.MIDDLE -> when (horizontal) {
         SubtitleHorizontalPosition.START -> Alignment.CenterStart
         SubtitleHorizontalPosition.CENTER -> Alignment.Center
         SubtitleHorizontalPosition.END -> Alignment.CenterEnd
     }
+
     SubtitleVerticalPosition.BOTTOM -> when (horizontal) {
         SubtitleHorizontalPosition.START -> Alignment.BottomStart
         SubtitleHorizontalPosition.CENTER -> Alignment.BottomCenter

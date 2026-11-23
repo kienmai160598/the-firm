@@ -29,7 +29,13 @@ class LanguageLookupCacheTest {
 
     @Test
     fun `normalized language codes are stable across repeated lookups`() {
-        listOf("Brazilian Portuguese", "pt_BR", "Spanish (Latin America)", "pol", "English").forEach { raw ->
+        listOf(
+            "Brazilian Portuguese",
+            "pt_BR",
+            "Spanish (Latin America)",
+            "pol",
+            "English"
+        ).forEach { raw ->
             val first = PlayerSubtitleUtils.normalizeLanguageCode(raw)
             repeat(3) { assertEquals(first, PlayerSubtitleUtils.normalizeLanguageCode(raw)) }
         }

@@ -15,7 +15,9 @@ fun buildSimklApiUrl(
     path: String,
     query: Map<String, String> = emptyMap()
 ): String {
-    val normalizedPath = path.trim().let { value -> if (value.startsWith('/')) value else "/$value" }
+    val normalizedPath = path.trim().let { value ->
+        if (value.startsWith('/')) value else "/$value"
+    }
     val builder = configuration.baseUrl.toHttpUrl().newBuilder().encodedPath(normalizedPath)
     query.filterKeys { it !in SIMKL_REQUIRED_QUERY_KEYS }.forEach { (key, value) ->
         builder.addQueryParameter(key, value)

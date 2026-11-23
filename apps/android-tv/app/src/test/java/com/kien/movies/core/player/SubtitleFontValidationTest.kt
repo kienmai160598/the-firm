@@ -1,9 +1,9 @@
 package com.kien.movies.core.player
 
+import java.nio.ByteBuffer
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.nio.ByteBuffer
 
 class SubtitleFontValidationTest {
 
@@ -36,7 +36,12 @@ class SubtitleFontValidationTest {
 
     @Test
     fun `rejects files over the size limit`() {
-        assertFalse(isSupportedSubtitleFont("Font.ttf", fontBytes(trueType).copyOf(SubtitleFonts.MAX_BYTES + 1)))
+        assertFalse(
+            isSupportedSubtitleFont(
+                "Font.ttf",
+                fontBytes(trueType).copyOf(SubtitleFonts.MAX_BYTES + 1)
+            )
+        )
     }
 
     private val trueType = byteArrayOf(0, 1, 0, 0)

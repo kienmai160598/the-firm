@@ -5,8 +5,8 @@ import com.kien.movies.core.auth.AuthManager
 import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.core.sync.LibrarySyncService
 import com.kien.movies.core.tracking.TrackingLibraryProvider
-import com.kien.movies.core.tracking.TrackingListManager
 import com.kien.movies.core.tracking.TrackingLibraryProviderRegistry
+import com.kien.movies.core.tracking.TrackingListManager
 import com.kien.movies.core.tracking.TrackingMembershipRemovalConfirmation
 import com.kien.movies.core.tracking.TrackingMembershipRemovalImpact
 import com.kien.movies.core.tracking.TrackingProviderId
@@ -15,8 +15,8 @@ import com.kien.movies.data.local.LibraryPreferences
 import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.domain.model.LibraryEntry
 import com.kien.movies.domain.model.LibraryEntryInput
-import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.LibraryListPrivacy
+import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.LibrarySourceMode
 import com.kien.movies.domain.model.ListMembershipChanges
 import com.kien.movies.domain.model.ListMembershipSnapshot
@@ -151,14 +151,39 @@ class LibraryRepositoryTrackingTest {
         val source = MutableStateFlow(LibrarySourceMode.MDBLIST)
         val mdblistManager = mockk<TrackingListManager>(relaxed = true)
         val traktManager = mockk<TrackingListManager>(relaxed = true)
-        val mdblist = FakeLibraryProvider(TrackingProviderId.MDBLIST, tab("mdblist:watchlist", TrackingProviderId.MDBLIST), listManager = mdblistManager)
-        val trakt = FakeLibraryProvider(TrackingProviderId.TRAKT, tab("watchlist", TrackingProviderId.TRAKT), listManager = traktManager)
+        val mdblist =
+            FakeLibraryProvider(
+                TrackingProviderId.MDBLIST,
+                tab("mdblist:watchlist", TrackingProviderId.MDBLIST),
+                listManager = mdblistManager
+            )
+        val trakt =
+            FakeLibraryProvider(
+                TrackingProviderId.TRAKT,
+                tab("watchlist", TrackingProviderId.TRAKT),
+                listManager = traktManager
+            )
         val repository = repository(source, setOf(mdblist, trakt))
-        repository.createPersonalList("List", null, LibraryListPrivacy.PRIVATE, LibrarySourceMode.MDBLIST)
-        repository.updatePersonalList("mdblist:list:7", "Renamed", null, LibraryListPrivacy.PUBLIC, LibrarySourceMode.MDBLIST)
+        repository.createPersonalList(
+            "List",
+            null,
+            LibraryListPrivacy.PRIVATE,
+            LibrarySourceMode.MDBLIST
+        )
+        repository.updatePersonalList(
+            "mdblist:list:7",
+            "Renamed",
+            null,
+            LibraryListPrivacy.PUBLIC,
+            LibrarySourceMode.MDBLIST
+        )
         repository.deletePersonalList("mdblist:list:7", LibrarySourceMode.MDBLIST)
-        coVerify(exactly = 1) { mdblistManager.createList("List", null, LibraryListPrivacy.PRIVATE) }
-        coVerify(exactly = 1) { mdblistManager.updateList("mdblist:list:7", "Renamed", null, LibraryListPrivacy.PUBLIC) }
+        coVerify(exactly = 1) {
+            mdblistManager.createList("List", null, LibraryListPrivacy.PRIVATE)
+        }
+        coVerify(exactly = 1) {
+            mdblistManager.updateList("mdblist:list:7", "Renamed", null, LibraryListPrivacy.PUBLIC)
+        }
         coVerify(exactly = 1) { mdblistManager.deleteList("mdblist:list:7") }
         coVerify(exactly = 0) { traktManager.createList(any(), any(), any()) }
         coVerify(exactly = 0) { traktManager.updateList(any(), any(), any(), any()) }
@@ -169,12 +194,26 @@ class LibraryRepositoryTrackingTest {
     fun `source changes and foreign list keys are rejected before management writes`() = runTest {
         val source = MutableStateFlow(LibrarySourceMode.MDBLIST)
         val manager = mockk<TrackingListManager>(relaxed = true)
-        val provider = FakeLibraryProvider(TrackingProviderId.MDBLIST, tab("mdblist:watchlist", TrackingProviderId.MDBLIST), listManager = manager)
+        val provider =
+            FakeLibraryProvider(
+                TrackingProviderId.MDBLIST,
+                tab("mdblist:watchlist", TrackingProviderId.MDBLIST),
+                listManager = manager
+            )
         val repository = repository(source, setOf(provider))
-        val foreign = runCatching { repository.deletePersonalList("personal:7", LibrarySourceMode.MDBLIST) }
+        val foreign =
+            runCatching { repository.deletePersonalList("personal:7", LibrarySourceMode.MDBLIST) }
         assertTrue(foreign.exceptionOrNull() is IllegalArgumentException)
         source.value = LibrarySourceMode.LOCAL
-        val changed = runCatching { repository.createPersonalList("List", null, LibraryListPrivacy.PRIVATE, LibrarySourceMode.MDBLIST) }
+        val changed =
+            runCatching {
+                repository.createPersonalList(
+                    "List",
+                    null,
+                    LibraryListPrivacy.PRIVATE,
+                    LibrarySourceMode.MDBLIST
+                )
+            }
         assertTrue(changed.exceptionOrNull() is IllegalStateException)
         coVerify(exactly = 0) { manager.createList(any(), any(), any()) }
         coVerify(exactly = 0) { manager.deleteList(any()) }
@@ -182,8 +221,15 @@ class LibraryRepositoryTrackingTest {
 
     @Test
     fun `MDBList participates in membership alongside both existing providers`() = runTest {
-        val tabs = listOf(tab("watchlist", TrackingProviderId.TRAKT), tab("simkl:plantowatch", TrackingProviderId.SIMKL), tab("mdblist:watchlist", TrackingProviderId.MDBLIST))
-        val providers = TrackingProviderId.entries.zip(tabs).map { (id, tab) -> FakeLibraryProvider(id, tab) }
+        val tabs =
+            listOf(
+                tab("watchlist", TrackingProviderId.TRAKT),
+                tab("simkl:plantowatch", TrackingProviderId.SIMKL),
+                tab("mdblist:watchlist", TrackingProviderId.MDBLIST)
+            )
+        val providers = TrackingProviderId.entries.zip(tabs).map { (id, tab) ->
+            FakeLibraryProvider(id, tab)
+        }
         val source = MutableStateFlow(LibrarySourceMode.MDBLIST)
         val repository = repository(source, providers.toSet())
         assertEquals(listOf(tabs.last()), repository.listTabs.first())
@@ -208,7 +254,10 @@ class LibraryRepositoryTrackingTest {
             authManager = mockk<AuthManager>(relaxed = true),
             metaRepository = mockk<MetaRepository>(relaxed = true),
             trackingProviders = TrackingLibraryProviderRegistry(providers),
-            profileManager = mockk<ProfileManager> { every { activeProfileId } returns MutableStateFlow(1) },
+            profileManager = mockk<ProfileManager> {
+                every { activeProfileId } returns
+                    MutableStateFlow(1)
+            },
             addonEventDispatcher = mockk(relaxed = true)
         )
     }
@@ -238,16 +287,13 @@ class LibraryRepositoryTrackingTest {
 
         override fun recognizesListKey(key: String): Boolean = key == tab.key || key.startsWith("${providerId.storageId}:")
 
-        override fun observeMembership(itemId: String, itemType: String): Flow<Set<String>> =
-            flowOf(emptySet())
+        override fun observeMembership(itemId: String, itemType: String): Flow<Set<String>> = flowOf(emptySet())
 
         override fun toggledDefaultMembership(
             currentMembership: Map<String, Boolean>
-        ): Map<String, Boolean> =
-            currentMembership + (tab.key to (currentMembership[tab.key] != true))
+        ): Map<String, Boolean> = currentMembership + (tab.key to (currentMembership[tab.key] != true))
 
-        override suspend fun getMembershipSnapshot(item: LibraryEntryInput) =
-            ListMembershipSnapshot(membership)
+        override suspend fun getMembershipSnapshot(item: LibraryEntryInput) = ListMembershipSnapshot(membership)
 
         override suspend fun membershipRemovalConfirmation(
             item: LibraryEntryInput,

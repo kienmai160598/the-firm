@@ -1,30 +1,30 @@
 package com.kien.movies.core.di
 
-import com.kien.movies.data.simkl.AndroidSimklAuthStorage
-import com.kien.movies.data.simkl.AndroidSimklSyncStorage
-import com.kien.movies.data.simkl.SimklAuthStorage
-import com.kien.movies.data.simkl.SimklApiSyncRemote
-import com.kien.movies.data.simkl.SimklSyncRemote
-import com.kien.movies.data.simkl.SimklSyncStorage
-import com.kien.movies.core.tracking.TrackingLibraryProvider
-import com.kien.movies.core.tracking.TrackingProvider
-import com.kien.movies.data.repository.TraktTrackingLibraryProvider
-import com.kien.movies.data.repository.TraktTrackingProvider
-import com.kien.movies.data.simkl.SimklLibraryService
-import com.kien.movies.core.tracking.TrackingHistoryWriter
-import com.kien.movies.core.tracking.TrackingProgressProvider
-import com.kien.movies.core.tracking.TrackingRatingProvider
-import com.kien.movies.data.repository.TraktTrackingHistoryWriter
-import com.kien.movies.data.repository.TraktTrackingProgressProvider
-import com.kien.movies.data.simkl.SimklTrackingHistoryWriter
-import com.kien.movies.data.simkl.SimklTrackingProgressProvider
-import com.kien.movies.data.simkl.SimklTrackingProvider
 import com.kien.movies.core.profile.ProfileScopedCredentialStore
+import com.kien.movies.core.tracking.TrackingHistoryWriter
+import com.kien.movies.core.tracking.TrackingLibraryProvider
+import com.kien.movies.core.tracking.TrackingProgressProvider
+import com.kien.movies.core.tracking.TrackingProvider
+import com.kien.movies.core.tracking.TrackingRatingProvider
 import com.kien.movies.data.mdblist.MdbListTrackingHistoryWriter
 import com.kien.movies.data.mdblist.MdbListTrackingProgressProvider
 import com.kien.movies.data.mdblist.MdbListTrackingProvider
 import com.kien.movies.data.mdblist.MdbListUserRatings
+import com.kien.movies.data.repository.TraktTrackingHistoryWriter
+import com.kien.movies.data.repository.TraktTrackingLibraryProvider
+import com.kien.movies.data.repository.TraktTrackingProgressProvider
+import com.kien.movies.data.repository.TraktTrackingProvider
+import com.kien.movies.data.simkl.AndroidSimklAuthStorage
+import com.kien.movies.data.simkl.AndroidSimklSyncStorage
+import com.kien.movies.data.simkl.SimklApiSyncRemote
+import com.kien.movies.data.simkl.SimklAuthStorage
+import com.kien.movies.data.simkl.SimklLibraryService
 import com.kien.movies.data.simkl.SimklRatings
+import com.kien.movies.data.simkl.SimklSyncRemote
+import com.kien.movies.data.simkl.SimklSyncStorage
+import com.kien.movies.data.simkl.SimklTrackingHistoryWriter
+import com.kien.movies.data.simkl.SimklTrackingProgressProvider
+import com.kien.movies.data.simkl.SimklTrackingProvider
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -37,7 +37,9 @@ import javax.inject.Singleton
 abstract class TrackingModule {
     @Binds
     @IntoSet
-    abstract fun bindMdbListLibrary(provider: com.kien.movies.data.mdblist.MdbListTrackingLibraryProvider): TrackingLibraryProvider
+    abstract fun bindMdbListLibrary(
+        provider: com.kien.movies.data.mdblist.MdbListTrackingLibraryProvider
+    ): TrackingLibraryProvider
 
     @Binds
     @IntoSet
@@ -45,7 +47,9 @@ abstract class TrackingModule {
 
     @Binds
     @IntoSet
-    abstract fun bindMdbListProgress(provider: MdbListTrackingProgressProvider): TrackingProgressProvider
+    abstract fun bindMdbListProgress(
+        provider: MdbListTrackingProgressProvider
+    ): TrackingProgressProvider
 
     @Binds
     @IntoSet
@@ -115,13 +119,9 @@ abstract class TrackingModule {
 
     @Binds
     @IntoSet
-    abstract fun bindTraktTrackingProvider(
-        provider: TraktTrackingProvider
-    ): TrackingProvider
+    abstract fun bindTraktTrackingProvider(provider: TraktTrackingProvider): TrackingProvider
 
     @Binds
     @IntoSet
-    abstract fun bindSimklTrackingProvider(
-        provider: SimklTrackingProvider
-    ): TrackingProvider
+    abstract fun bindSimklTrackingProvider(provider: SimklTrackingProvider): TrackingProvider
 }

@@ -54,8 +54,7 @@ internal class SimklSnapshotProjection private constructor(
         )
     }
 
-    fun nextUp(preferFurthestEpisode: Boolean): List<WatchProgress> =
-        if (preferFurthestEpisode) furthestNextUp else recentNextUp
+    fun nextUp(preferFurthestEpisode: Boolean): List<WatchProgress> = if (preferFurthestEpisode) furthestNextUp else recentNextUp
 
     fun episodeProgress(contentId: String): Map<Pair<Int, Int>, WatchProgress> {
         val key = contentId.simklLookupKey()
@@ -69,22 +68,22 @@ internal class SimklSnapshotProjection private constructor(
             }
         }
         progress.filter { item ->
-            item.contentId.simklLookupKey() in matchKeys && item.season != null && item.episode != null
+            item.contentId.simklLookupKey() in matchKeys && item.season != null &&
+                item.episode != null
         }.forEach { item ->
             completed[requireNotNull(item.season) to requireNotNull(item.episode)] = item
         }
         return completed
     }
 
-    fun isWatched(
-        contentId: String,
-        videoId: String?,
-        season: Int?,
-        episode: Int?
-    ): Boolean {
+    fun isWatched(contentId: String, videoId: String?, season: Int?, episode: Int?): Boolean {
         val directKey = SimklProjectionItemKey(contentId.simklLookupKey(), season, episode)
         val playback = playbackByEpisode[directKey]
-        if (playback != null && playback.progressPercentage > 0f && !playback.isCompleted()) return false
+        if (playback != null && playback.progressPercentage > 0f &&
+            !playback.isCompleted()
+        ) {
+            return false
+        }
         if (directKey in watchedKeys) return true
         val resolvedId = canonicalIdByAlias[directKey.contentId]
         if (resolvedId != null) {
@@ -101,10 +100,9 @@ internal class SimklSnapshotProjection private constructor(
         return (parsed.episode ?: episode) in watchedAnimeEpisodes[parsed.lookupKey].orEmpty()
     }
 
-    fun membershipKey(contentId: String, contentType: String): String? =
-        membershipByContent[
-            SimklProjectionMembershipKey(contentId.simklLookupKey(), contentType.simklLookupKey())
-        ]?.listKey
+    fun membershipKey(contentId: String, contentType: String): String? = membershipByContent[
+        SimklProjectionMembershipKey(contentId.simklLookupKey(), contentType.simklLookupKey())
+    ]?.listKey
 
     companion object {
         val Empty = create(SimklSyncSnapshot())
@@ -122,7 +120,8 @@ internal class SimklSnapshotProjection private constructor(
             val canonicalIdByAlias = linkedMapOf<String, String>()
             val siblings = linkedMapOf<String, MutableSet<String>>()
             val hiddenContentIds = linkedSetOf<String>()
-            val membershipByContent = linkedMapOf<SimklProjectionMembershipKey, SimklProjectionMembership>()
+            val membershipByContent =
+                linkedMapOf<SimklProjectionMembershipKey, SimklProjectionMembership>()
             val watchedAnimeEpisodes = linkedMapOf<String, Set<Int>>()
 
             snapshot.entries.forEach { entry ->
@@ -137,9 +136,18 @@ internal class SimklSnapshotProjection private constructor(
                     ids.mapTo(hiddenContentIds, String::simklLookupKey)
                 }
                 val listKey = entry.status?.let { status ->
-                    simklLibraryStatusDefinitions.firstOrNull { definition -> definition.status == status }?.key
+                    simklLibraryStatusDefinitions.firstOrNull { definition ->
+                        definition.status ==
+                            status
+                    }?.key
                 }
-                val membershipType = if (entry.mediaType == SimklMediaType.MOVIES) "movie" else "series"
+                val membershipType = if (entry.mediaType ==
+                    SimklMediaType.MOVIES
+                ) {
+                    "movie"
+                } else {
+                    "series"
+                }
                 ids.forEach { id ->
                     membershipByContent.putIfAbsent(
                         SimklProjectionMembershipKey(id.simklLookupKey(), membershipType),
@@ -166,7 +174,11 @@ internal class SimklSnapshotProjection private constructor(
             val playbackByEpisode = linkedMapOf<SimklProjectionItemKey, WatchProgress>()
             progress.forEach { item ->
                 playbackByEpisode.putIfAbsent(
-                    SimklProjectionItemKey(item.contentId.simklLookupKey(), item.season, item.episode),
+                    SimklProjectionItemKey(
+                        item.contentId.simklLookupKey(),
+                        item.season,
+                        item.episode
+                    ),
                     item
                 )
             }
@@ -227,7 +239,9 @@ private fun SimklSyncSnapshot.simklBaseWatchedMovieIds(): Set<String> {
         if (entry.mediaType == SimklMediaType.ANIME) {
             media.ids.idValue("mal")?.takeIf(String::isNotBlank)?.let { watched.add("mal:$it") }
             media.ids.idValue("anidb")?.takeIf(String::isNotBlank)?.let { watched.add("anidb:$it") }
-            media.ids.idValue("anilist")?.takeIf(String::isNotBlank)?.let { watched.add("anilist:$it") }
+            media.ids.idValue("anilist")?.takeIf(String::isNotBlank)?.let {
+                watched.add("anilist:$it")
+            }
             media.ids.idValue("kitsu")?.takeIf(String::isNotBlank)?.let { watched.add("kitsu:$it") }
         }
     }

@@ -6,14 +6,14 @@ import com.kien.movies.data.remote.api.TorboxApi
 import com.kien.movies.data.remote.dto.TorboxCreateTorrentDataDto
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.StreamClientResolve
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "TorboxResolver"
 
@@ -23,11 +23,7 @@ class TorboxDirectDebridResolver @Inject constructor(
     private val api: TorboxApi,
     private val fileSelector: TorboxFileSelector
 ) {
-    suspend fun resolve(
-        stream: Stream,
-        season: Int?,
-        episode: Int?
-    ): DirectDebridResolveResult {
+    suspend fun resolve(stream: Stream, season: Int?, episode: Int?): DirectDebridResolveResult {
         val resolve = stream.clientResolve ?: return DirectDebridResolveResult.Error
         val apiKey = dataStore.settings.first().torboxApiKey.trim()
         if (apiKey.isBlank()) return DirectDebridResolveResult.MissingApiKey
@@ -45,7 +41,10 @@ class TorboxDirectDebridResolver @Inject constructor(
                 addOnlyIfCached = "true".toTextPart(),
                 allowZip = "false".toTextPart()
             )
-            Log.d(TAG, "resolve: createTorrent done in ${System.currentTimeMillis() - createStartMs}ms code=${create.code()}")
+            Log.d(
+                TAG,
+                "resolve: createTorrent done in ${System.currentTimeMillis() - createStartMs}ms code=${create.code()}"
+            )
             val torrentId = create.extractTorrentId() ?: return create.toFailureForCreate()
 
             Log.d(TAG, "resolve: getTorrent id=$torrentId")
@@ -55,7 +54,10 @@ class TorboxDirectDebridResolver @Inject constructor(
                 id = torrentId,
                 bypassCache = true
             )
-            Log.d(TAG, "resolve: getTorrent done in ${System.currentTimeMillis() - getTorrentStartMs}ms code=${torrent.code()}")
+            Log.d(
+                TAG,
+                "resolve: getTorrent done in ${System.currentTimeMillis() - getTorrentStartMs}ms code=${torrent.code()}"
+            )
             if (!torrent.isSuccessful) return DirectDebridResolveResult.Stale
             val files = torrent.body()?.data?.files.orEmpty()
             val file = fileSelector.selectFile(files, resolve, season, episode)
@@ -73,7 +75,10 @@ class TorboxDirectDebridResolver @Inject constructor(
                 redirect = false,
                 appendName = false
             )
-            Log.d(TAG, "resolve: requestDownloadLink done in ${System.currentTimeMillis() - linkStartMs}ms code=${link.code()}")
+            Log.d(
+                TAG,
+                "resolve: requestDownloadLink done in ${System.currentTimeMillis() - linkStartMs}ms code=${link.code()}"
+            )
             if (!link.isSuccessful) return DirectDebridResolveResult.Stale
             val url = link.body()?.data?.takeIf { it.isNotBlank() }
                 ?: return DirectDebridResolveResult.Stale
@@ -125,11 +130,7 @@ class TorboxDirectDebridResolver @Inject constructor(
 }
 
 sealed class DirectDebridResolveResult {
-    data class Success(
-        val url: String,
-        val filename: String?,
-        val videoSize: Long?
-    ) : DirectDebridResolveResult()
+    data class Success(val url: String, val filename: String?, val videoSize: Long?) : DirectDebridResolveResult()
 
     data object MissingApiKey : DirectDebridResolveResult()
     data object NotCached : DirectDebridResolveResult()

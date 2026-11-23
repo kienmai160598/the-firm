@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
@@ -20,8 +22,6 @@ import com.kien.movies.domain.model.MDBListRatings
 import com.kien.movies.domain.model.MDBListSettings
 import com.kien.movies.domain.model.RottenTomatoesStatus
 import com.kien.movies.ui.theme.MoviesTheme
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.Dp
 
 @Composable
 fun MDBListRatingsRow(
@@ -43,7 +43,12 @@ fun MDBListRatingsRow(
     ) {
         orderedProviders.forEach { provider ->
             val rating = getRatingValue(ratings, provider) ?: return@forEach
-            RatingBadge(provider = provider, rating = rating, ratings = ratings, iconSize = iconSize)
+            RatingBadge(
+                provider = provider,
+                rating = rating,
+                ratings = ratings,
+                iconSize = iconSize
+            )
         }
     }
 }
@@ -76,6 +81,7 @@ private fun RatingBadge(
                     modifier = Modifier.size(squareIconSize)
                 )
             }
+
             "metacritic" -> {
                 Image(
                     painter = painterResource(id = R.drawable.mdblist_metacritic),
@@ -83,19 +89,26 @@ private fun RatingBadge(
                     modifier = Modifier.size(squareIconSize)
                 )
             }
+
             else -> {
                 val isImdb = provider == "imdb"
                 val rawRes = when (provider) {
                     "trakt" -> R.raw.mdblist_trakt
+
                     "imdb" -> R.raw.imdb_logo_2016
+
                     "tmdb" -> R.raw.mdblist_tmdb
+
                     "letterboxd" -> R.raw.mdblist_letterboxd
+
                     "mal" -> R.raw.mdblist_mal
+
                     "tomatoes" -> when (ratings.tomatoesStatus) {
                         RottenTomatoesStatus.CERTIFIED_FRESH -> R.raw.mdblist_tomatoes_certified
                         RottenTomatoesStatus.ROTTEN -> R.raw.mdblist_tomatoes_rotten
                         else -> R.raw.mdblist_tomatoes
                     }
+
                     else -> return
                 }
                 val model = remember(context, rawRes) {
@@ -134,6 +147,7 @@ private fun getRatingValue(ratings: MDBListRatings, provider: String): Double? =
 private fun formatMDBListRating(provider: String, rating: Double): String {
     return when (provider) {
         "imdb", "tmdb", "letterboxd" -> String.format("%.1f", rating)
+
         else -> {
             if (rating % 1.0 == 0.0) rating.toInt().toString() else String.format("%.1f", rating)
         }

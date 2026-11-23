@@ -15,7 +15,10 @@ class SubtitleSdhFilterTest {
         assertEquals("He said:", filter("He said:"))
         assertEquals("Here's what I think:", filter("Here's what I think:"))
         assertEquals("And the winner is:", filter("And the winner is:"))
-        assertEquals("You know what he told me:\nnever again.", filter("You know what he told me:\nnever again."))
+        assertEquals(
+            "You know what he told me:\nnever again.",
+            filter("You know what he told me:\nnever again.")
+        )
         assertEquals("John:", filter("John:"))
     }
 
@@ -45,7 +48,10 @@ class SubtitleSdhFilterTest {
 
     @Test
     fun dialogueDashesKeepTheirDash() {
-        assertEquals("- Where are you?\n- Outside.", filter("- JOHN: Where are you?\n- Mary: Outside."))
+        assertEquals(
+            "- Where are you?\n- Outside.",
+            filter("- JOHN: Where are you?\n- Mary: Outside.")
+        )
     }
 
     @Test
@@ -64,7 +70,9 @@ class SubtitleSdhFilterTest {
         assertTrue(SubtitleSdhFilter.isSpeakerLabel("John", textFollows = true))
         assertFalse(SubtitleSdhFilter.isSpeakerLabel("John", textFollows = false))
         assertFalse(SubtitleSdhFilter.isSpeakerLabel("He said", textFollows = true))
-        assertFalse(SubtitleSdhFilter.isSpeakerLabel("The One Who Knocks Twice", textFollows = true))
+        assertFalse(
+            SubtitleSdhFilter.isSpeakerLabel("The One Who Knocks Twice", textFollows = true)
+        )
         assertFalse(SubtitleSdhFilter.isSpeakerLabel("10", textFollows = true))
     }
 }

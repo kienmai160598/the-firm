@@ -30,8 +30,7 @@ object LetterboxDetector {
         }
     }
 
-    fun isSampleWindowOver(positionMs: Long, durationMs: Long): Boolean =
-        durationMs > 0 && positionMs >= durationMs * SAMPLE_WINDOW_FRACTION
+    fun isSampleWindowOver(positionMs: Long, durationMs: Long): Boolean = durationMs > 0 && positionMs >= durationMs * SAMPLE_WINDOW_FRACTION
 
     fun zoomFor(bar: Float): Float = if (bar <= 0f) 1f else 1f / (1f - 2f * bar)
 

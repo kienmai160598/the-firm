@@ -10,6 +10,7 @@ import com.kien.movies.domain.repository.AddonRepository
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import java.io.IOException
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.test.runTest
@@ -20,7 +21,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import retrofit2.Response
-import java.io.IOException
 
 /**
  * A meta lookup that produced no result has to say why. An addon answering "no such item" is a
@@ -59,7 +59,14 @@ class MetaRepositoryNotFoundClassificationTest {
         // on the order the repository happens to try the addons in.
         val api = mockk<AddonApi>()
         coEvery { api.getMeta(any()) } coAnswers {
-            if (firstArg<String>().startsWith("https://a.")) notFound() else throw IOException("offline")
+            if (firstArg<String>().startsWith(
+                    "https://a."
+                )
+            ) {
+                notFound()
+            } else {
+                throw IOException("offline")
+            }
         }
         val repository = newRepository(api, addon("a"), addon("b"))
 
@@ -151,8 +158,7 @@ class MetaRepositoryNotFoundClassificationTest {
         assertTrue(result is NetworkResult.Success)
     }
 
-    private fun notFound(): Response<com.kien.movies.data.remote.dto.MetaResponseDto> =
-        Response.error(404, "".toResponseBody("application/json".toMediaType()))
+    private fun notFound(): Response<com.kien.movies.data.remote.dto.MetaResponseDto> = Response.error(404, "".toResponseBody("application/json".toMediaType()))
 
     private fun apiAnswering(
         answer: suspend () -> Response<com.kien.movies.data.remote.dto.MetaResponseDto>
@@ -186,6 +192,11 @@ class MetaRepositoryNotFoundClassificationTest {
         val addonRepository = mockk<AddonRepository>(relaxed = true) {
             every { getInstalledAddons() } returns flowOf(addons.toList())
         }
-        return MetaRepositoryImpl(context = context, api = api, addonRepository = addonRepository, serverCatalog = mockk(relaxed = true))
+        return MetaRepositoryImpl(
+            context = context,
+            api = api,
+            addonRepository = addonRepository,
+            serverCatalog = mockk(relaxed = true)
+        )
     }
 }

@@ -76,12 +76,7 @@ class TrackingProgressProjectionTest {
         lastWatched = lastWatched
     )
 
-    private fun watchedItem(
-        contentId: String,
-        contentType: String,
-        season: Int?,
-        episode: Int?
-    ) = WatchedItem(
+    private fun watchedItem(contentId: String, contentType: String, season: Int?, episode: Int?) = WatchedItem(
         contentId = contentId,
         contentType = contentType,
         title = contentId,

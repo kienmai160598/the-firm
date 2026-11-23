@@ -18,8 +18,9 @@ import org.junit.Test
 class EpisodeShuffleStoreTest {
     private class MemoryPreferences : DataStore<Preferences> {
         override val data = MutableStateFlow(emptyPreferences())
-        override suspend fun updateData(transform: suspend (Preferences) -> Preferences): Preferences =
-            transform(data.value).also { data.value = it }
+        override suspend fun updateData(
+            transform: suspend (Preferences) -> Preferences
+        ): Preferences = transform(data.value).also { data.value = it }
     }
 
     private val activeProfile = MutableStateFlow(1)
@@ -30,7 +31,10 @@ class EpisodeShuffleStoreTest {
             stores.getOrPut(firstArg<Int>() to secondArg<String>(), ::MemoryPreferences)
         }
     }
-    private val profiles = mockk<ProfileManager> { every { activeProfileId } returns this@EpisodeShuffleStoreTest.activeProfile }
+    private val profiles = mockk<ProfileManager> {
+        every { activeProfileId } returns
+            this@EpisodeShuffleStoreTest.activeProfile
+    }
     private val layout = mockk<LayoutPreferenceDataStore> {
         every { randomEpisodeEnabledForProfile(any()) } answers {
             available.getOrPut(firstArg()) { MutableStateFlow(true) }
@@ -54,7 +58,10 @@ class EpisodeShuffleStoreTest {
         val store = store()
         store.save("show", EpisodeShuffleSettings(true, true), 1)
         store.save("show", EpisodeShuffleSettings(false, true), 1)
-        assertEquals(EpisodeShuffleSettings(false, true), store.observeProfile(1).first().shows["show"])
+        assertEquals(
+            EpisodeShuffleSettings(false, true),
+            store.observeProfile(1).first().shows["show"]
+        )
     }
 
     @Test

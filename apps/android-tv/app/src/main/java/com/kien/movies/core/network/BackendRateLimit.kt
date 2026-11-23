@@ -3,9 +3,9 @@ package com.kien.movies.core.network
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.http.HttpHeaders
 import io.ktor.http.fromHttpToGmtDate
-import kotlinx.coroutines.delay
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
+import kotlinx.coroutines.delay
 
 private const val DefaultRetryDelayMs = 1_000L
 private const val MaximumFallbackDelayMs = 30_000L
@@ -26,7 +26,11 @@ internal class BackendRateLimitCoordinator(
         val candidate = saturatedAdd(now, delayMs)
         while (true) {
             val current = cooldownUntilEpochMs.get()
-            if (candidate <= current || cooldownUntilEpochMs.compareAndSet(current, candidate)) return
+            if (candidate <= current ||
+                cooldownUntilEpochMs.compareAndSet(current, candidate)
+            ) {
+                return
+            }
         }
     }
 
@@ -60,14 +64,16 @@ internal val BackendRateLimitPlugin = createClientPlugin(
     }
 }
 
-internal fun isRetryableBackendResponse(statusCode: Int): Boolean =
-    statusCode == 429 || statusCode == 503
+internal fun isRetryableBackendResponse(statusCode: Int): Boolean = statusCode == 429 || statusCode == 503
 
-internal fun shouldApplyBackendCooldown(statusCode: Int, retryAfterHeader: String?): Boolean =
-    statusCode == 429 || (statusCode == 503 && !retryAfterHeader.isNullOrBlank())
+internal fun shouldApplyBackendCooldown(statusCode: Int, retryAfterHeader: String?): Boolean = statusCode == 429 || (statusCode == 503 && !retryAfterHeader.isNullOrBlank())
 
 internal fun isSafeBackendRetryRequest(method: String, encodedPath: String): Boolean {
-    if (method.equals("GET", ignoreCase = true) || method.equals("HEAD", ignoreCase = true)) return true
+    if (method.equals("GET", ignoreCase = true) ||
+        method.equals("HEAD", ignoreCase = true)
+    ) {
+        return true
+    }
     if (!method.equals("POST", ignoreCase = true)) return false
 
     val rpcName = encodedPath.substringAfter("/rpc/", missingDelimiterValue = "")
@@ -113,11 +119,9 @@ internal fun backendRetryDelayMillis(
     return saturatedAdd(retryDelay, jitterMs.coerceIn(0L, MaximumJitterMs))
 }
 
-private fun saturatedAdd(left: Long, right: Long): Long =
-    if (right > 0L && left > Long.MAX_VALUE - right) Long.MAX_VALUE else left + right
+private fun saturatedAdd(left: Long, right: Long): Long = if (right > 0L && left > Long.MAX_VALUE - right) Long.MAX_VALUE else left + right
 
-private fun saturatedMultiply(left: Long, right: Long): Long =
-    if (left > Long.MAX_VALUE / right) Long.MAX_VALUE else left * right
+private fun saturatedMultiply(left: Long, right: Long): Long = if (left > Long.MAX_VALUE / right) Long.MAX_VALUE else left * right
 
 private val safeReadRpcNames = setOf(
     "get_avatar_catalog",

@@ -17,7 +17,10 @@ fun BrandWordmark(
     drawableOverride: Int? = null
 ) {
     Image(
-        painter = painterResource(id = drawableOverride ?: MoviesTheme.currentTheme.brandWordmarkResource),
+        painter = painterResource(
+            id =
+                drawableOverride ?: MoviesTheme.currentTheme.brandWordmarkResource
+        ),
         contentDescription = contentDescription,
         modifier = modifier,
         contentScale = contentScale,

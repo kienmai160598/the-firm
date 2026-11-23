@@ -2,12 +2,12 @@ package com.kien.movies.ui.screens.player
 
 import androidx.media3.common.C
 import androidx.media3.common.MimeTypes
+import java.util.Base64
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.util.Base64
 
 class PlayerMediaSourceFactoryTest {
 
@@ -45,7 +45,9 @@ class PlayerMediaSourceFactoryTest {
         val mimeType = PlayerMediaSourceFactory.inferMimeType(
             url = "https://example.com/playback?id=42",
             filename = null,
-            responseHeaders = mapOf("Content-Type" to "application/vnd.apple.mpegurl; charset=UTF-8")
+            responseHeaders = mapOf(
+                "Content-Type" to "application/vnd.apple.mpegurl; charset=UTF-8"
+            )
         )
 
         assertEquals(MimeTypes.APPLICATION_M3U8, mimeType)
@@ -205,7 +207,9 @@ class PlayerMediaSourceFactoryTest {
     fun `normalizePlaybackRequest preserves encoded path query and fragment when stripping userinfo`() {
         val userInfo = "user:p@ss"
         val request = PlayerMediaSourceFactory.normalizePlaybackRequest(
-            url = "https://" + userInfo.replace("@", "%40") + "@webdav.example.org/files/Show%2FSeason%201/Episode%2001.mkv?name=a%2Fb#frag%2Fment",
+            url =
+                "https://" + userInfo.replace("@", "%40") +
+                    "@webdav.example.org/files/Show%2FSeason%201/Episode%2001.mkv?name=a%2Fb#frag%2Fment",
             headers = emptyMap()
         )
 
@@ -230,19 +234,30 @@ class PlayerMediaSourceFactoryTest {
 
     @Test
     fun `isLoopbackUrl returns true for engine and local proxy loopback streams`() {
-        assertTrue(PlayerMediaSourceFactory.isLoopbackUrl("http://127.0.0.1:51234/stream/movie.mkv"))
-        assertTrue(PlayerMediaSourceFactory.isLoopbackUrl("http://localhost:51234/stream/movie.mkv"))
+        assertTrue(
+            PlayerMediaSourceFactory.isLoopbackUrl("http://127.0.0.1:51234/stream/movie.mkv")
+        )
+        assertTrue(
+            PlayerMediaSourceFactory.isLoopbackUrl("http://localhost:51234/stream/movie.mkv")
+        )
         assertTrue(PlayerMediaSourceFactory.isLoopbackUrl("http://[::1]:51234/stream/movie.mkv"))
-        assertTrue(PlayerMediaSourceFactory.isLoopbackUrl("http://127.0.0.1:8080/stream/video.mkv?token=abc"))
+        assertTrue(
+            PlayerMediaSourceFactory.isLoopbackUrl(
+                "http://127.0.0.1:8080/stream/video.mkv?token=abc"
+            )
+        )
     }
 
     @Test
     fun `isLoopbackUrl returns false for external and non-loopback urls`() {
-        assertFalse(PlayerMediaSourceFactory.isLoopbackUrl("https://debrid.example.com/stream/movie.mkv"))
-        assertFalse(PlayerMediaSourceFactory.isLoopbackUrl("http://192.168.1.100:8091/stream?link=123"))
+        assertFalse(
+            PlayerMediaSourceFactory.isLoopbackUrl("https://debrid.example.com/stream/movie.mkv")
+        )
+        assertFalse(
+            PlayerMediaSourceFactory.isLoopbackUrl("http://192.168.1.100:8091/stream?link=123")
+        )
         assertFalse(PlayerMediaSourceFactory.isLoopbackUrl(""))
     }
 
-    private fun String.basicAuthHeader(): String =
-        "Basic " + Base64.getEncoder().encodeToString(toByteArray(Charsets.UTF_8))
+    private fun String.basicAuthHeader(): String = "Basic " + Base64.getEncoder().encodeToString(toByteArray(Charsets.UTF_8))
 }

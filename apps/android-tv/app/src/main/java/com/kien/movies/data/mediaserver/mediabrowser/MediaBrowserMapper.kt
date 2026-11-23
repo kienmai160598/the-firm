@@ -18,10 +18,7 @@ import com.kien.movies.domain.model.Video
 import java.time.Instant
 import kotlin.math.roundToInt
 
-internal class MediaBrowserMapper(
-    private val baseUrl: String,
-    private val connectionId: String
-) {
+internal class MediaBrowserMapper(private val baseUrl: String, private val connectionId: String) {
     fun ref(itemId: String): String = ServerItemRef(connectionId, itemId).encode()
 
     fun preview(item: BaseItem): MetaPreview? {
@@ -43,7 +40,9 @@ internal class MediaBrowserMapper(
         )
     }
 
-    fun title(item: BaseItem): ServerTitle? = preview(item)?.let { ServerTitle(it, item.externalIds()) }
+    fun title(item: BaseItem): ServerTitle? = preview(item)?.let {
+        ServerTitle(it, item.externalIds())
+    }
 
     fun resumeTitle(item: BaseItem): ServerTitle? {
         val preview = resumePreview(item) ?: return null
@@ -58,7 +57,9 @@ internal class MediaBrowserMapper(
             id = ref(seriesId),
             type = ContentType.SERIES,
             name = item.seriesName ?: item.name.orEmpty(),
-            poster = item.seriesPrimaryImageTag?.let { image(seriesId, "Primary", it, maxHeight = 600) },
+            poster = item.seriesPrimaryImageTag?.let {
+                image(seriesId, "Primary", it, maxHeight = 600)
+            },
             posterShape = PosterShape.POSTER,
             background = item.backdropImage(),
             logo = item.logoImage(),
@@ -71,7 +72,10 @@ internal class MediaBrowserMapper(
 
     fun details(item: BaseItem, episodes: List<BaseItem>): Meta {
         val kind = item.mediaKind() ?: ServerMediaKind.MOVIE
-        val cast = item.people.filter { it.type.equals("Actor", ignoreCase = true) && !it.name.isNullOrBlank() }
+        val cast = item.people.filter {
+            it.type.equals("Actor", ignoreCase = true) &&
+                !it.name.isNullOrBlank()
+        }
         return Meta(
             id = ref(item.id),
             type = kind.domainType(),
@@ -87,14 +91,20 @@ internal class MediaBrowserMapper(
             imdbRating = item.communityRating?.formatRating(),
             genres = item.genres,
             runtime = item.runTimeTicks?.let { "${ticksToMinutes(it)} min" },
-            director = item.people.filter { it.type.equals("Director", ignoreCase = true) }.mapNotNull { it.name },
-            writer = item.people.filter { it.type.equals("Writer", ignoreCase = true) }.mapNotNull { it.name },
+            director = item.people.filter {
+                it.type.equals("Director", ignoreCase = true)
+            }.mapNotNull { it.name },
+            writer = item.people.filter {
+                it.type.equals("Writer", ignoreCase = true)
+            }.mapNotNull { it.name },
             cast = cast.mapNotNull { it.name },
             castMembers = cast.map { person ->
                 MetaCastMember(
                     name = person.name.orEmpty(),
                     character = person.role,
-                    photo = person.id?.let { id -> person.primaryImageTag?.let { image(id, "Primary", it, maxHeight = 300) } }
+                    photo = person.id?.let { id ->
+                        person.primaryImageTag?.let { image(id, "Primary", it, maxHeight = 300) }
+                    }
                 )
             },
             videos = episodes.map(::video),
@@ -115,7 +125,9 @@ internal class MediaBrowserMapper(
             positionMs = (data.playbackPositionTicks ?: 0L) / TICKS_PER_MS,
             durationMs = (item.runTimeTicks ?: 0L) / TICKS_PER_MS,
             played = data.played,
-            lastPlayedEpochMs = data.lastPlayedDate?.let { runCatching { Instant.parse(it).toEpochMilli() }.getOrNull() },
+            lastPlayedEpochMs = data.lastPlayedDate?.let {
+                runCatching { Instant.parse(it).toEpochMilli() }.getOrNull()
+            },
             season = item.parentIndexNumber,
             episode = item.indexNumber,
             title = item.name
@@ -126,7 +138,9 @@ internal class MediaBrowserMapper(
         id = ref(item.id),
         title = item.name.orEmpty(),
         released = item.premiereDate,
-        thumbnail = item.imageTags["Primary"]?.let { image(item.id, "Primary", it, maxWidth = 640) },
+        thumbnail = item.imageTags["Primary"]?.let {
+            image(item.id, "Primary", it, maxWidth = 640)
+        },
         season = item.parentIndexNumber,
         episode = item.indexNumber,
         overview = item.overview,
@@ -140,8 +154,12 @@ internal class MediaBrowserMapper(
         val itemRef = ServerItemRef(connectionId, item.id)
         val sources = item.mediaSources.filterNot { it.isPlaceholder }
         return sources.map { source ->
-            val video = source.mediaStreams.firstOrNull { it.type.equals("Video", ignoreCase = true) }
-            val audio = source.mediaStreams.firstOrNull { it.type.equals("Audio", ignoreCase = true) }
+            val video = source.mediaStreams.firstOrNull {
+                it.type.equals("Video", ignoreCase = true)
+            }
+            val audio = source.mediaStreams.firstOrNull {
+                it.type.equals("Audio", ignoreCase = true)
+            }
             ServerCandidate(
                 target = ServerPlaybackTarget(item = itemRef, mediaSourceId = source.id),
                 title = source.name?.takeIf { it.isNotBlank() && sources.size > 1 }
@@ -158,30 +176,36 @@ internal class MediaBrowserMapper(
         }
     }
 
-    fun image(itemId: String, type: String, tag: String, maxWidth: Int? = null, maxHeight: Int? = null): String =
-        buildUrl(
-            baseUrl,
-            "/Items/${pathSegment(itemId)}/Images/$type",
-            mapOf(
-                "tag" to tag,
-                "maxWidth" to maxWidth?.toString(),
-                "maxHeight" to maxHeight?.toString(),
-                "quality" to "90"
-            )
+    fun image(
+        itemId: String,
+        type: String,
+        tag: String,
+        maxWidth: Int? = null,
+        maxHeight: Int? = null
+    ): String = buildUrl(
+        baseUrl,
+        "/Items/${pathSegment(itemId)}/Images/$type",
+        mapOf(
+            "tag" to tag,
+            "maxWidth" to maxWidth?.toString(),
+            "maxHeight" to maxHeight?.toString(),
+            "quality" to "90"
         )
+    )
 
-    private fun BaseItem.primaryImage(): String? =
-        imageTags["Primary"]?.let { image(id, "Primary", it, maxHeight = 600) }
+    private fun BaseItem.primaryImage(): String? = imageTags["Primary"]?.let { image(id, "Primary", it, maxHeight = 600) }
 
-    private fun BaseItem.backdropImage(): String? =
-        backdropImageTags.firstOrNull()?.let { image(id, "Backdrop/0", it, maxWidth = 1920) }
-            ?: parentBackdropItemId?.let { parentId ->
-                parentBackdropImageTags.firstOrNull()?.let { image(parentId, "Backdrop/0", it, maxWidth = 1920) }
+    private fun BaseItem.backdropImage(): String? = backdropImageTags.firstOrNull()?.let { image(id, "Backdrop/0", it, maxWidth = 1920) }
+        ?: parentBackdropItemId?.let { parentId ->
+            parentBackdropImageTags.firstOrNull()?.let {
+                image(parentId, "Backdrop/0", it, maxWidth = 1920)
             }
+        }
 
-    private fun BaseItem.logoImage(): String? =
-        imageTags["Logo"]?.let { image(id, "Logo", it, maxWidth = 800) }
-            ?: parentLogoItemId?.let { parentId -> parentLogoImageTag?.let { image(parentId, "Logo", it, maxWidth = 800) } }
+    private fun BaseItem.logoImage(): String? = imageTags["Logo"]?.let { image(id, "Logo", it, maxWidth = 800) }
+        ?: parentLogoItemId?.let { parentId ->
+            parentLogoImageTag?.let { image(parentId, "Logo", it, maxWidth = 800) }
+        }
 
     private fun BaseItem.releaseInfo(kind: ServerMediaKind): String? {
         val start = productionYear ?: return null
@@ -197,8 +221,14 @@ internal class MediaBrowserMapper(
 
 internal fun BaseItem.mediaKind(): ServerMediaKind? = when {
     type.equals("Movie", ignoreCase = true) -> ServerMediaKind.MOVIE
+
     type.equals("Series", ignoreCase = true) -> ServerMediaKind.SERIES
-    type.equals("BoxSet", ignoreCase = true) || type.equals("Folder", ignoreCase = true) -> ServerMediaKind.COLLECTION
+
+    type.equals(
+        "BoxSet",
+        ignoreCase = true
+    ) || type.equals("Folder", ignoreCase = true) -> ServerMediaKind.COLLECTION
+
     else -> null
 }
 
@@ -217,9 +247,15 @@ private fun providerNamespace(key: String): String = when (val name = key.trim()
 
 internal fun libraryKind(collectionType: String?, type: String? = null): ServerMediaKind? = when (collectionType?.lowercase()) {
     "movies" -> ServerMediaKind.MOVIE
+
     "tvshows" -> ServerMediaKind.SERIES
+
     "boxsets" -> ServerMediaKind.COLLECTION
-    null, "", "mixed" -> ServerMediaKind.MIXED.takeIf { type.equals("CollectionFolder", ignoreCase = true) }
+
+    null, "", "mixed" -> ServerMediaKind.MIXED.takeIf {
+        type.equals("CollectionFolder", ignoreCase = true)
+    }
+
     else -> null
 }
 

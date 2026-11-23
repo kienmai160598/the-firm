@@ -19,9 +19,7 @@ internal data class TitleDuration(val runtimeMinutes: Int?, val isEpisode: Boole
 // usually cached the meta already. Opened from elsewhere, the lookup waits a short while for the
 // meta addon and then gives up. A lookup that fails only leaves the streams unranked: it must
 // never fail the stream search it runs beside.
-class TitleRuntimeLookup @Inject constructor(
-    private val metaRepository: MetaRepository
-) {
+class TitleRuntimeLookup @Inject constructor(private val metaRepository: MetaRepository) {
     internal suspend fun titleDuration(
         type: String,
         videoId: String,
@@ -41,12 +39,11 @@ class TitleRuntimeLookup @Inject constructor(
         return TitleDuration(runtimeMinutes, isEpisode = season != null && episode != null)
     }
 
-    private suspend fun cachedOrFetchedMeta(type: String, metaId: String): Meta? =
-        metaRepository.getCachedMeta(type, metaId) ?: withTimeoutOrNull(META_LOOKUP_TIMEOUT_MS) {
-            val result = metaRepository.getMetaFromAllAddons(type = type, id = metaId)
-                .firstOrNull { it !is NetworkResult.Loading }
-            (result as? NetworkResult.Success)?.data
-        }
+    private suspend fun cachedOrFetchedMeta(type: String, metaId: String): Meta? = metaRepository.getCachedMeta(type, metaId) ?: withTimeoutOrNull(META_LOOKUP_TIMEOUT_MS) {
+        val result = metaRepository.getMetaFromAllAddons(type = type, id = metaId)
+            .firstOrNull { it !is NetworkResult.Loading }
+        (result as? NetworkResult.Success)?.data
+    }
 }
 
 internal fun titleRuntimeMinutes(meta: Meta, season: Int?, episode: Int?): Int? {

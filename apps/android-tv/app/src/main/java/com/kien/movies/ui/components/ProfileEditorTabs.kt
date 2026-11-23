@@ -45,11 +45,7 @@ fun ProfileEditorTabs(
 }
 
 @Composable
-private fun ProfileEditorTabItem(
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
+private fun ProfileEditorTabItem(label: String, isSelected: Boolean, onClick: () -> Unit) {
     MoviesChip(
         label = label,
         selected = isSelected,

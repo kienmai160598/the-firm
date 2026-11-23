@@ -24,7 +24,10 @@ internal fun MdbListAccountDialog(
                 brand = TrackingDialogBrand.MDBLIST,
                 logo = logo,
                 logoContentDescription = stringResource(R.string.mdblist_name),
-                connectedLabel = stringResource(R.string.mdblist_connected_as, state.username ?: stringResource(R.string.mdblist_account_fallback)),
+                connectedLabel = stringResource(
+                    R.string.mdblist_connected_as,
+                    state.username ?: stringResource(R.string.mdblist_account_fallback)
+                ),
                 connectedDescription = stringResource(R.string.mdblist_tracking_description),
                 statusMessage = state.statusMessage,
                 errorMessage = state.errorMessage,
@@ -34,7 +37,13 @@ internal fun MdbListAccountDialog(
             )
         }
     } else {
-        MoviesDialog(onDismiss = onDismiss, title = "", width = 720.dp, titleTextAlign = TextAlign.Center, suppressFirstKeyUp = false) {
+        MoviesDialog(
+            onDismiss = onDismiss,
+            title = "",
+            width = 720.dp,
+            titleTextAlign = TextAlign.Center,
+            suppressFirstKeyUp = false
+        ) {
             TrackingDeviceAuthContent(
                 providerName = stringResource(R.string.mdblist_name),
                 logo = logo,

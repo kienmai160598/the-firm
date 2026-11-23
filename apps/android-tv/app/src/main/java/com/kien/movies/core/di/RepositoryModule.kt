@@ -1,10 +1,10 @@
 package com.kien.movies.core.di
 
+import com.kien.movies.core.streams.DeviceFitStreamRepository
 import com.kien.movies.data.repository.AddonRepositoryImpl
 import com.kien.movies.data.repository.CatalogRepositoryImpl
 import com.kien.movies.data.repository.LibraryRepositoryImpl
 import com.kien.movies.data.repository.MetaRepositoryImpl
-import com.kien.movies.core.streams.DeviceFitStreamRepository
 import com.kien.movies.data.repository.SubtitleRepositoryImpl
 import com.kien.movies.data.repository.SyncRepositoryImpl
 import com.kien.movies.data.repository.WatchProgressRepositoryImpl
@@ -56,5 +56,7 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindWatchProgressRepository(impl: WatchProgressRepositoryImpl): WatchProgressRepository
+    abstract fun bindWatchProgressRepository(
+        impl: WatchProgressRepositoryImpl
+    ): WatchProgressRepository
 }

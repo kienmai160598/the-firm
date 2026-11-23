@@ -22,7 +22,11 @@ class TrackingSourcePendingMarksTest {
         every { provider.providerId } returns TrackingProviderId.TRAKT
         val watchedItems = mockk<WatchedItemsPreferences>(relaxed = true)
         val controller = TrackingSourceController(
-            settings, TrackingProgressProviderRegistry(setOf(provider)), TrackingLibraryProviderRegistry(emptySet()),
+            settings,
+            TrackingProgressProviderRegistry(
+                setOf(provider)
+            ),
+            TrackingLibraryProviderRegistry(emptySet()),
             mockk(relaxed = true), watchedItems, mockk(relaxed = true), mockk(relaxed = true),
             mockk(relaxed = true), mockk(relaxed = true),
             mockk<ProfileManager> { every { activeProfileId } returns MutableStateFlow(1) }

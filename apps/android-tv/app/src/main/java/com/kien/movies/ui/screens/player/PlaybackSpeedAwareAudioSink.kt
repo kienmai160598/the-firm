@@ -61,7 +61,8 @@ internal class PlaybackSpeedAwareAudioSink(
             // Session was not built as PCM-only; leaving Bluetooth can restore passthrough.
             forcePcmForCurrentSession = false
         }
-        return wasBluetoothForce != bluetoothForcePcm || wasSessionForce != forcePcmForCurrentSession
+        return wasBluetoothForce != bluetoothForcePcm ||
+            wasSessionForce != forcePcmForCurrentSession
     }
 
     fun isBluetoothForcePcm(): Boolean = bluetoothForcePcm
@@ -71,7 +72,11 @@ internal class PlaybackSpeedAwareAudioSink(
         super.setListener(listener)
     }
 
-    override fun configure(inputFormat: Format, specifiedBufferSize: Int, outputChannels: IntArray?) {
+    override fun configure(
+        inputFormat: Format,
+        specifiedBufferSize: Int,
+        outputChannels: IntArray?
+    ) {
         currentInputFormat = inputFormat
         markPcmFallbackIfNeeded(inputFormat, playbackSpeed)
         super.configure(inputFormat, specifiedBufferSize, outputChannels)

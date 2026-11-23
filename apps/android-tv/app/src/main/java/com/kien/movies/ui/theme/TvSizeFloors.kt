@@ -20,8 +20,7 @@ internal object TvSizeFloors {
     val controlIcon: Dp = 24.dp
 
     /** [size] raised to [floor]. */
-    fun atLeast(size: TextUnit, floor: TextUnit): TextUnit =
-        if (size.value < floor.value) floor else size
+    fun atLeast(size: TextUnit, floor: TextUnit): TextUnit = if (size.value < floor.value) floor else size
 
     /** [size] raised to [floor]. */
     fun atLeast(size: Dp, floor: Dp): Dp = if (size < floor) floor else size

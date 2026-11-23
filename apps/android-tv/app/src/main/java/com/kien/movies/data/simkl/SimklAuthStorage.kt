@@ -2,15 +2,9 @@ package com.kien.movies.data.simkl
 
 import kotlinx.coroutines.flow.StateFlow
 
-data class SimklAuthScope(
-    val profileId: Int,
-    val generation: Long
-)
+data class SimklAuthScope(val profileId: Int, val generation: Long)
 
-data class SimklAuthorization(
-    val scope: SimklAuthScope,
-    val accessToken: String
-)
+data class SimklAuthorization(val scope: SimklAuthScope, val accessToken: String)
 
 interface SimklAuthStorage {
     val state: StateFlow<SimklAuthState>

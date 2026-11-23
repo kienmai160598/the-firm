@@ -30,12 +30,7 @@ data class SyncedServer(
 }
 
 @Serializable
-data class SyncedLibrary(
-    val id: String,
-    val name: String,
-    val kind: String,
-    val selected: Boolean
-)
+data class SyncedLibrary(val id: String, val name: String, val kind: String, val selected: Boolean)
 
 class ServerSyncSnapshot(
     val profileId: Int,
@@ -60,7 +55,10 @@ internal class RefusedServerTypes(private val now: () -> Long) {
     }
 
     /** Sends [snapshot] without any refused type and returns what the backend accepted. */
-    suspend fun upload(snapshot: ServerSyncSnapshot, send: suspend (ServerSyncSnapshot) -> Unit): ServerSyncSnapshot {
+    suspend fun upload(
+        snapshot: ServerSyncSnapshot,
+        send: suspend (ServerSyncSnapshot) -> Unit
+    ): ServerSyncSnapshot {
         var allowed = accepted(snapshot)
         while (true) {
             try {
@@ -69,8 +67,11 @@ internal class RefusedServerTypes(private val now: () -> Long) {
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                val provider = refusedProvider(error)?.takeIf { id -> allowed.servers.any { it.providerId == id } }
-                    ?: throw error
+                val provider =
+                    refusedProvider(error)?.takeIf { id ->
+                        allowed.servers.any { it.providerId == id }
+                    }
+                        ?: throw error
                 refusedAt[provider] = now()
                 allowed = accepted(allowed)
             }
@@ -85,9 +86,10 @@ internal class RefusedServerTypes(private val now: () -> Long) {
         syncedKeys = snapshot.syncedKeys
     )
 
-    private fun refusedProvider(error: Throwable): String? =
-        generateSequence(error) { it.cause }
-            .firstNotNullOfOrNull { failure -> failure.message?.let(REFUSED_PROVIDER::find)?.groupValues?.get(1) }
+    private fun refusedProvider(error: Throwable): String? = generateSequence(error) { it.cause }
+        .firstNotNullOfOrNull { failure ->
+            failure.message?.let(REFUSED_PROVIDER::find)?.groupValues?.get(1)
+        }
 
     private companion object {
         const val RETRY_AFTER_MS = 24 * 60 * 60_000L
@@ -99,8 +101,7 @@ private val syncJson = Json { encodeDefaults = true }
 
 fun List<SyncedServer>.toSyncPayload(): JsonElement = syncJson.encodeToJsonElement(this)
 
-fun serverKey(providerId: String, remoteServerId: String, remoteUserId: String): String =
-    "$providerId|$remoteServerId|$remoteUserId"
+fun serverKey(providerId: String, remoteServerId: String, remoteUserId: String): String = "$providerId|$remoteServerId|$remoteUserId"
 
 internal fun mergeSyncedServers(
     local: List<SyncedServer>,
@@ -111,10 +112,17 @@ internal fun mergeSyncedServers(
     val remoteKeys = remote.mapTo(mutableSetOf()) { it.key }
     val kept = remote.map { server ->
         localByKey[server.key]?.let { local ->
-            server.copy(id = local.id, importWatchState = server.importWatchState ?: local.importWatchState)
+            server.copy(
+                id = local.id,
+                importWatchState =
+                    server.importWatchState ?: local.importWatchState
+            )
         } ?: server
     }
-    val added = local.filter { it.key !in remoteKeys && (syncedKeys == null || it.key !in syncedKeys) }
+    val added = local.filter {
+        it.key !in remoteKeys &&
+            (syncedKeys == null || it.key !in syncedKeys)
+    }
     return kept + added
 }
 

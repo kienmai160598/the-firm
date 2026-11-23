@@ -9,13 +9,13 @@ import com.kien.movies.domain.repository.AddonRepository
 import com.kien.movies.ui.screens.ambient.AmbientCatalog
 import com.kien.movies.ui.screens.ambient.ambientCatalogs
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class AmbientModeSettingsUiState(
     val settings: AmbientModeSettings = AmbientModeSettings(),

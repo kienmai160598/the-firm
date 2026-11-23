@@ -104,19 +104,26 @@ class SiloSignInFlow(
         if (state.code == null || state.codePhase != SiloCodePhase.WAITING) {
             newCode()
         } else {
-            mutableState.update { it.copy(step = SiloSignInStep.CODE, error = null, problem = null) }
+            mutableState.update {
+                it.copy(step = SiloSignInStep.CODE, error = null, problem = null)
+            }
         }
     }
 
     fun usePassword() {
         if (mutableState.value.server?.passwordSignIn != true) return
-        mutableState.update { it.copy(step = SiloSignInStep.PASSWORD, busy = false, error = null, problem = null) }
+        mutableState.update {
+            it.copy(step = SiloSignInStep.PASSWORD, busy = false, error = null, problem = null)
+        }
     }
 
     private fun startCode(server: SiloServer) {
         val provider = provider ?: return
         val previous = codeJob
-        val previousCode = mutableState.value.code.takeIf { mutableState.value.codePhase == SiloCodePhase.WAITING }
+        val previousCode = mutableState.value.code.takeIf {
+            mutableState.value.codePhase ==
+                SiloCodePhase.WAITING
+        }
         previous?.cancel()
         mutableState.update { it.copy(code = null, codePhase = SiloCodePhase.STARTING) }
         codeJob = scope.launch {
@@ -135,14 +142,28 @@ class SiloSignInFlow(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                val phase = if (error.serverFailure() == ServerFailure.NOT_FOUND) SiloCodePhase.UNAVAILABLE else SiloCodePhase.EXPIRED
+                val phase = if (error.serverFailure() ==
+                    ServerFailure.NOT_FOUND
+                ) {
+                    SiloCodePhase.UNAVAILABLE
+                } else {
+                    SiloCodePhase.EXPIRED
+                }
                 mutableState.update { it.copy(codePhase = phase).withError(error) }
                 return
             }
-            mutableState.update { it.copy(code = code, codePhase = SiloCodePhase.WAITING, error = null, problem = null) }
+            mutableState.update {
+                it.copy(
+                    code = code,
+                    codePhase = SiloCodePhase.WAITING,
+                    error = null,
+                    problem = null
+                )
+            }
             var opened = false
             when (awaitCode(provider, server, code) { opened = true }) {
                 null -> return
+
                 SiloCodeEnd.EXPIRED -> {
                     if (opened || clock() - startedAt >= CODE_RENEW_FOR_MS) {
                         mutableState.update { it.copy(codePhase = SiloCodePhase.EXPIRED) }
@@ -150,10 +171,12 @@ class SiloSignInFlow(
                     }
                     provider.cancelCode(server, code)
                 }
+
                 SiloCodeEnd.DENIED, SiloCodeEnd.CANCELED -> {
                     mutableState.update { it.copy(codePhase = SiloCodePhase.DENIED) }
                     return
                 }
+
                 SiloCodeEnd.USED -> {
                     mutableState.update { it.copy(codePhase = SiloCodePhase.EXPIRED) }
                     return
@@ -163,12 +186,21 @@ class SiloSignInFlow(
     }
 
     /** Null once approved (and handed on), otherwise why the code ended. */
-    private suspend fun awaitCode(provider: SiloProvider, server: SiloServer, code: SiloCode, onOpened: () -> Unit): SiloCodeEnd? {
+    private suspend fun awaitCode(
+        provider: SiloProvider,
+        server: SiloServer,
+        code: SiloCode,
+        onOpened: () -> Unit
+    ): SiloCodeEnd? {
         var waitMs = 0L
         var backoffMs = code.pollEveryMs
         var deadline = code.expiresAtMs
         while (true) {
-            if (waitMs > 0L) delay(waitMs.coerceAtMost((deadline - clock()).coerceAtLeast(POLL_MIN_MS)))
+            if (waitMs >
+                0L
+            ) {
+                delay(waitMs.coerceAtMost((deadline - clock()).coerceAtLeast(POLL_MIN_MS)))
+            }
             if (clock() >= deadline) return SiloCodeEnd.EXPIRED
             val status = try {
                 provider.pollCode(server, code)
@@ -186,10 +218,12 @@ class SiloSignInFlow(
                     if (status.opened) onOpened()
                     waitMs = status.pollAfterMs
                 }
+
                 is SiloCodeStatus.Approved -> {
                     signedIn(server, status.tokens)
                     return null
                 }
+
                 is SiloCodeStatus.Ended -> return status.reason
             }
         }
@@ -221,7 +255,9 @@ class SiloSignInFlow(
             withdrawCode()
         }
         tokens = signedIn
-        mutableState.update { it.copy(step = SiloSignInStep.SIGNING_IN, busy = true, error = null, problem = null) }
+        mutableState.update {
+            it.copy(step = SiloSignInStep.SIGNING_IN, busy = true, error = null, problem = null)
+        }
         val profiles = try {
             provider.checkUsable(server, signedIn)
             provider.profiles(server, signedIn)
@@ -238,18 +274,31 @@ class SiloSignInFlow(
                 abandon()
                 fail(ServerException(ServerFailure.FAILED))
             }
+
             only != null && !only.hasPin -> finish(only, null)
+
             only != null -> mutableState.update {
-                it.copy(step = SiloSignInStep.PIN, busy = false, profiles = profiles, pinFor = only, pinWrong = false)
+                it.copy(
+                    step = SiloSignInStep.PIN,
+                    busy = false,
+                    profiles = profiles,
+                    pinFor = only,
+                    pinWrong = false
+                )
             }
-            else -> mutableState.update { it.copy(step = SiloSignInStep.PROFILES, busy = false, profiles = profiles) }
+
+            else -> mutableState.update {
+                it.copy(step = SiloSignInStep.PROFILES, busy = false, profiles = profiles)
+            }
         }
     }
 
     fun pickProfile(profile: SiloProfile) {
         if (mutableState.value.busy) return
         if (profile.hasPin) {
-            mutableState.update { it.copy(step = SiloSignInStep.PIN, pinFor = profile, pinWrong = false, error = null) }
+            mutableState.update {
+                it.copy(step = SiloSignInStep.PIN, pinFor = profile, pinWrong = false, error = null)
+            }
         } else {
             job = scope.launch { finish(profile, null) }
         }
@@ -257,7 +306,9 @@ class SiloSignInFlow(
 
     fun backToProfiles() {
         if (mutableState.value.busy || mutableState.value.profiles.size < 2) return
-        mutableState.update { it.copy(step = SiloSignInStep.PROFILES, pinFor = null, pinWrong = false, error = null) }
+        mutableState.update {
+            it.copy(step = SiloSignInStep.PROFILES, pinFor = null, pinWrong = false, error = null)
+        }
     }
 
     fun submitPin(pin: String) {
@@ -292,7 +343,9 @@ class SiloSignInFlow(
         val signedIn = tokens ?: return
         mutableState.update { it.copy(step = SiloSignInStep.SIGNING_IN, busy = true, error = null) }
         val connection = try {
-            repository.connect(provider) { provider.signIn(server, signedIn, profile, profileToken, state.profiles.size) }
+            repository.connect(provider) {
+                provider.signIn(server, signedIn, profile, profileToken, state.profiles.size)
+            }
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {
@@ -338,8 +391,7 @@ class SiloSignInFlow(
         mutableState.update { it.copy(step = SiloSignInStep.FAILED, busy = false).withError(error) }
     }
 
-    private fun SiloSignInState.withError(error: Exception): SiloSignInState =
-        copy(error = error.serverFailure(), problem = SiloProvider.signInProblem(error))
+    private fun SiloSignInState.withError(error: Exception): SiloSignInState = copy(error = error.serverFailure(), problem = SiloProvider.signInProblem(error))
 
     private companion object {
         const val POLL_MIN_MS = 250L

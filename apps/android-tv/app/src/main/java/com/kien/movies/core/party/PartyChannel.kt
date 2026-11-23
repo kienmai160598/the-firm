@@ -15,7 +15,7 @@ import kotlinx.serialization.json.JsonObject
 internal class PartyChannel(
     private val realtime: Realtime,
     private val partyId: String,
-    private val memberId: String,
+    private val memberId: String
 ) {
     private var channel: RealtimeChannel? = null
     private var jobs: List<Job> = emptyList()
@@ -27,7 +27,7 @@ internal class PartyChannel(
         scope: CoroutineScope,
         onMessage: (String, JsonObject) -> Unit,
         onPresence: (joins: Map<String, Presence>, leaves: Map<String, Presence>) -> Unit,
-        onConnected: (Boolean) -> Unit,
+        onConnected: (Boolean) -> Unit
     ) {
         val created = realtime.channel("watch-party:$partyId") {
             isPrivate = true
@@ -42,12 +42,18 @@ internal class PartyChannel(
         channel = created
         jobs = EVENTS.map { event ->
             scope.launch(start = CoroutineStart.UNDISPATCHED) {
-                created.broadcastFlow<JsonObject>(event).collect { payload -> onMessage(event, payload) }
+                created.broadcastFlow<JsonObject>(event).collect { payload ->
+                    onMessage(event, payload)
+                }
             }
         } + scope.launch(start = CoroutineStart.UNDISPATCHED) {
-            created.presenceChangeFlow().collect { action -> onPresence(action.joins, action.leaves) }
+            created.presenceChangeFlow().collect { action ->
+                onPresence(action.joins, action.leaves)
+            }
         } + scope.launch(start = CoroutineStart.UNDISPATCHED) {
-            created.status.collect { status -> onConnected(status == RealtimeChannel.Status.SUBSCRIBED) }
+            created.status.collect { status ->
+                onConnected(status == RealtimeChannel.Status.SUBSCRIBED)
+            }
         }
         yield()
         created.subscribe(blockUntilSubscribed = false)
@@ -74,6 +80,7 @@ internal class PartyChannel(
     }
 
     private companion object {
-        val EVENTS = listOf("state", "state_request", "status", "control", "member_joined", "member_left", "ended", "media", "stream")
+        val EVENTS =
+            listOf("state", "state_request", "status", "control", "member_joined", "member_left", "ended", "media", "stream")
     }
 }

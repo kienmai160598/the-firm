@@ -5,7 +5,12 @@ import com.kien.movies.ui.screens.player.audiosync.SubtitleAudioAligner
 import com.kien.movies.ui.screens.player.audiosync.SubtitleSpeechTrack
 
 /** Reference time = target subtitle time * [scale] + [shiftSec]. */
-internal data class BridgeFit(val scale: Double, val shiftSec: Double, val peak: Double, val prominence: Double)
+internal data class BridgeFit(
+    val scale: Double,
+    val shiftSec: Double,
+    val peak: Double,
+    val prominence: Double
+)
 
 /**
  * Aligns a subtitle in any language to a reference subtitle of the same film by their timing
@@ -31,10 +36,19 @@ internal object SubtitleBridge {
             track = target,
             minShiftMs = -WordAnchorMatcher.MAX_SHIFT_SEC * 1_000.0,
             maxShiftMs = WordAnchorMatcher.MAX_SHIFT_SEC * 1_000.0,
-            detectorBiasMs = 0.0,
+            detectorBiasMs = 0.0
         ) ?: return null
-        if (estimate.atSearchEdge || estimate.peak < MIN_PEAK || estimate.prominence < MIN_PROMINENCE) return null
-        return BridgeFit(estimate.scale, estimate.shiftMs / 1_000.0, estimate.peak, estimate.prominence)
+        if (estimate.atSearchEdge || estimate.peak < MIN_PEAK ||
+            estimate.prominence < MIN_PROMINENCE
+        ) {
+            return null
+        }
+        return BridgeFit(
+            estimate.scale,
+            estimate.shiftMs / 1_000.0,
+            estimate.peak,
+            estimate.prominence
+        )
     }
 
     /**
@@ -47,10 +61,12 @@ internal object SubtitleBridge {
         target: SubtitleSpeechTrack,
         reference: SubtitleSpeechTrack,
         bridge: BridgeFit,
-        referenceSec: Double,
+        referenceSec: Double
     ): Double? {
         val frameMs = SpeechTimeline.FRAME_DURATION_MS
-        val fromFrame = ((referenceSec - LOCAL_WINDOW_SEC) * 1_000 / frameMs).toInt().coerceAtLeast(0)
+        val fromFrame = ((referenceSec - LOCAL_WINDOW_SEC) * 1_000 / frameMs).toInt().coerceAtLeast(
+            0
+        )
         val toFrame = ((referenceSec + LOCAL_WINDOW_SEC) * 1_000 / frameMs).toInt()
         if (toFrame <= fromFrame) return null
         val coverage = reference.render(fromFrame, toFrame, 1.0)
@@ -62,9 +78,10 @@ internal object SubtitleBridge {
             scales = doubleArrayOf(bridge.scale),
             minShiftMs = (bridge.shiftSec - LOCAL_SEARCH_SEC) * 1_000.0,
             maxShiftMs = (bridge.shiftSec + LOCAL_SEARCH_SEC) * 1_000.0,
-            detectorBiasMs = 0.0,
+            detectorBiasMs = 0.0
         ) ?: return null
-        if (estimate.atSearchEdge || estimate.peak < LOCAL_MIN_PEAK || estimate.prominence < MIN_PROMINENCE ||
+        if (estimate.atSearchEdge || estimate.peak < LOCAL_MIN_PEAK ||
+            estimate.prominence < MIN_PROMINENCE ||
             estimate.cueCount < LOCAL_MIN_CUES
         ) {
             return null

@@ -9,7 +9,7 @@ internal fun <T> selectDebridFile(
     episode: Int?,
     path: (T) -> String,
     isPlayable: (T) -> Boolean,
-    size: (T) -> Long,
+    size: (T) -> Long
 ): T? {
     val playable = files.filter(isPlayable)
     if (playable.isEmpty()) return null
@@ -54,7 +54,9 @@ private fun <T> List<T>.matchingFiles(name: String, path: (T) -> String): List<T
     val basename = name.substringAfterLast('/')
     for (ignoreCase in listOf(false, true)) {
         val matches = filter {
-            path(it).normalizedPath().substringAfterLast('/').equals(basename, ignoreCase = ignoreCase)
+            path(
+                it
+            ).normalizedPath().substringAfterLast('/').equals(basename, ignoreCase = ignoreCase)
         }
         if (matches.isNotEmpty()) return matches
     }
@@ -64,12 +66,14 @@ private fun <T> List<T>.matchingFiles(name: String, path: (T) -> String): List<T
 private fun buildEpisodePattern(season: Int?, episode: Int?): Regex? {
     if (season == null || episode == null) return null
     return Regex(
-        "(?<![a-z0-9])(?:s0*${season}e0*${episode}|0*${season}x0*${episode})(?![0-9])",
-        RegexOption.IGNORE_CASE,
+        "(?<![a-z0-9])(?:s0*${season}e0*$episode|0*${season}x0*$episode)(?![0-9])",
+        RegexOption.IGNORE_CASE
     )
 }
 
-internal fun String.hasDebridVideoExtension(): Boolean = videoExtensions.any { endsWith(it, ignoreCase = true) }
+internal fun String.hasDebridVideoExtension(): Boolean = videoExtensions.any {
+    endsWith(it, ignoreCase = true)
+}
 
 private val videoExtensions = setOf(
     ".mp4",
@@ -81,5 +85,5 @@ private val videoExtensions = setOf(
     ".ts",
     ".m2ts",
     ".wmv",
-    ".flv",
+    ".flv"
 )

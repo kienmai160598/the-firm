@@ -11,21 +11,39 @@ class PlayerAudioFallbackPolicyTest {
     fun `steps run safe audio, then forced PCM, then audio disabled`() {
         assertEquals(
             PlayerAudioFallbackPolicy.Step.SAFE_AUDIO,
-            PlayerAudioFallbackPolicy.nextStep(safeAudioActive = false, pcmForced = false, audioDisabled = false)
+            PlayerAudioFallbackPolicy.nextStep(
+                safeAudioActive = false,
+                pcmForced = false,
+                audioDisabled = false
+            )
         )
         assertEquals(
             PlayerAudioFallbackPolicy.Step.FORCE_PCM,
-            PlayerAudioFallbackPolicy.nextStep(safeAudioActive = true, pcmForced = false, audioDisabled = false)
+            PlayerAudioFallbackPolicy.nextStep(
+                safeAudioActive = true,
+                pcmForced = false,
+                audioDisabled = false
+            )
         )
         assertEquals(
             PlayerAudioFallbackPolicy.Step.DISABLE_AUDIO,
-            PlayerAudioFallbackPolicy.nextStep(safeAudioActive = true, pcmForced = true, audioDisabled = false)
+            PlayerAudioFallbackPolicy.nextStep(
+                safeAudioActive = true,
+                pcmForced = true,
+                audioDisabled = false
+            )
         )
     }
 
     @Test
     fun `no step is left once every fallback is in force`() {
-        assertNull(PlayerAudioFallbackPolicy.nextStep(safeAudioActive = true, pcmForced = true, audioDisabled = true))
+        assertNull(
+            PlayerAudioFallbackPolicy.nextStep(
+                safeAudioActive = true,
+                pcmForced = true,
+                audioDisabled = true
+            )
+        )
     }
 
     // Mirrors the controller: safe audio and audio disabled are kept per stream url, while forced
@@ -39,13 +57,16 @@ class PlayerAudioFallbackPolicyTest {
         val rebuilds = mutableListOf<PlayerAudioFallbackPolicy.Step>()
 
         while (rebuilds.size < 10) {
-            val step = PlayerAudioFallbackPolicy.nextStep(safeAudio, pcmForced, audioDisabled) ?: break
+            val step =
+                PlayerAudioFallbackPolicy.nextStep(safeAudio, pcmForced, audioDisabled) ?: break
             when (step) {
                 PlayerAudioFallbackPolicy.Step.SAFE_AUDIO -> safeAudio = true
+
                 PlayerAudioFallbackPolicy.Step.FORCE_PCM -> {
                     pcmForced = true
                     pcmRebuildArmed = true
                 }
+
                 PlayerAudioFallbackPolicy.Step.DISABLE_AUDIO -> {
                     audioDisabled = true
                     pcmRebuildArmed = true

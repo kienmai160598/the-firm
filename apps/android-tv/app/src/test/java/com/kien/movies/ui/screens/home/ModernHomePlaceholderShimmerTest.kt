@@ -10,17 +10,26 @@ class ModernHomePlaceholderShimmerTest {
 
     @Test
     fun `a loading row of placeholder cards draws the shimmer`() {
-        assertTrue(showsPlaceholderShimmer(isLoading = true, firstItemImageUrl = PLACEHOLDER_IMAGE_URL))
+        assertTrue(
+            showsPlaceholderShimmer(isLoading = true, firstItemImageUrl = PLACEHOLDER_IMAGE_URL)
+        )
     }
 
     @Test
     fun `a loaded row draws no shimmer even while its cards are still placeholders`() {
-        assertFalse(showsPlaceholderShimmer(isLoading = false, firstItemImageUrl = PLACEHOLDER_IMAGE_URL))
+        assertFalse(
+            showsPlaceholderShimmer(isLoading = false, firstItemImageUrl = PLACEHOLDER_IMAGE_URL)
+        )
     }
 
     @Test
     fun `a loading row with real posters draws no shimmer`() {
-        assertFalse(showsPlaceholderShimmer(isLoading = true, firstItemImageUrl = "https://example.test/poster.jpg"))
+        assertFalse(
+            showsPlaceholderShimmer(
+                isLoading = true,
+                firstItemImageUrl = "https://example.test/poster.jpg"
+            )
+        )
     }
 
     @Test
@@ -30,12 +39,24 @@ class ModernHomePlaceholderShimmerTest {
 
     @Test
     fun `a row still loading placeholders drives the shared shimmer`() {
-        assertTrue(row(key = "loading", isLoading = true, imageUrl = PLACEHOLDER_IMAGE_URL).showsPlaceholderShimmer())
+        assertTrue(
+            row(
+                key = "loading",
+                isLoading = true,
+                imageUrl = PLACEHOLDER_IMAGE_URL
+            ).showsPlaceholderShimmer()
+        )
     }
 
     @Test
     fun `a loaded row does not drive the shared shimmer`() {
-        assertFalse(row(key = "movies", isLoading = false, imageUrl = "https://example.test/a.jpg").showsPlaceholderShimmer())
+        assertFalse(
+            row(
+                key = "movies",
+                isLoading = false,
+                imageUrl = "https://example.test/a.jpg"
+            ).showsPlaceholderShimmer()
+        )
     }
 
     @Test
@@ -43,50 +64,47 @@ class ModernHomePlaceholderShimmerTest {
         assertFalse(emptyRow(key = "empty", isLoading = true).showsPlaceholderShimmer())
     }
 
-    private fun emptyRow(key: String, isLoading: Boolean): HeroCarouselRow =
-        HeroCarouselRow(
-            key = key,
-            title = key,
-            globalRowIndex = 0,
-            items = StableList(emptyList()),
-            isLoading = isLoading
-        )
+    private fun emptyRow(key: String, isLoading: Boolean): HeroCarouselRow = HeroCarouselRow(
+        key = key,
+        title = key,
+        globalRowIndex = 0,
+        items = StableList(emptyList()),
+        isLoading = isLoading
+    )
 
-    private fun row(key: String, isLoading: Boolean, imageUrl: String?): HeroCarouselRow =
-        HeroCarouselRow(
-            key = key,
-            title = key,
-            globalRowIndex = 0,
-            items = StableList(listOf(item(key = key, imageUrl = imageUrl))),
-            isLoading = isLoading
-        )
+    private fun row(key: String, isLoading: Boolean, imageUrl: String?): HeroCarouselRow = HeroCarouselRow(
+        key = key,
+        title = key,
+        globalRowIndex = 0,
+        items = StableList(listOf(item(key = key, imageUrl = imageUrl))),
+        isLoading = isLoading
+    )
 
-    private fun item(key: String, imageUrl: String?): ModernCarouselItem =
-        ModernCarouselItem(
-            key = key,
+    private fun item(key: String, imageUrl: String?): ModernCarouselItem = ModernCarouselItem(
+        key = key,
+        title = key,
+        subtitle = null,
+        imageUrl = imageUrl,
+        heroPreview = HeroPreview(
             title = key,
-            subtitle = null,
-            imageUrl = imageUrl,
-            heroPreview = HeroPreview(
-                title = key,
-                logo = null,
-                description = null,
-                contentTypeText = null,
-                yearText = null,
-                imdbText = null,
-                genres = StableList(emptyList()),
-                poster = imageUrl,
-                backdrop = null,
-                imageUrl = imageUrl
-            ),
-            payload = ModernPayload.Catalog(
-                focusKey = key,
-                itemId = key,
-                itemType = "movie",
-                addonBaseUrl = "https://example.test/manifest.json",
-                trailerTitle = key,
-                trailerReleaseInfo = null,
-                trailerApiType = "movie"
-            )
+            logo = null,
+            description = null,
+            contentTypeText = null,
+            yearText = null,
+            imdbText = null,
+            genres = StableList(emptyList()),
+            poster = imageUrl,
+            backdrop = null,
+            imageUrl = imageUrl
+        ),
+        payload = ModernPayload.Catalog(
+            focusKey = key,
+            itemId = key,
+            itemType = "movie",
+            addonBaseUrl = "https://example.test/manifest.json",
+            trailerTitle = key,
+            trailerReleaseInfo = null,
+            trailerApiType = "movie"
         )
+    )
 }

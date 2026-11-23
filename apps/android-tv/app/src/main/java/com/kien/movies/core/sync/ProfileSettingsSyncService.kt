@@ -21,11 +21,13 @@ import com.kien.movies.data.local.PluginDataStore
 import com.kien.movies.data.local.ProfileDataStoreFactory
 import com.kien.movies.data.local.StreamBadgeSettingsDataStore
 import com.kien.movies.data.local.TmdbSettingsDataStore
-import com.kien.movies.data.remote.supabase.SupabaseProfileSetupCopyResult
 import com.kien.movies.data.remote.supabase.SupabaseProfileSettingsBlob
+import com.kien.movies.data.remote.supabase.SupabaseProfileSetupCopyResult
 import com.kien.movies.domain.model.DiscoverLocation
 import com.kien.movies.domain.repository.MetaRepository
 import io.github.jan.supabase.postgrest.Postgrest
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,8 +60,6 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "ProfileSettingsSyncService"
 private const val SETTINGS_PUSH_DEBOUNCE_MS = 1500L
@@ -164,7 +164,10 @@ private val credentialProfileSettingsKeys = mapOf(
     "animeskip_settings" to setOf("animeskip_client_id")
 )
 
-internal fun shouldExcludePreferenceFromProfileSettingsSync(feature: String, keyName: String): Boolean {
+internal fun shouldExcludePreferenceFromProfileSettingsSync(
+    feature: String,
+    keyName: String
+): Boolean {
     return when {
         feature == "layout_settings" && keyName in catalogKeysExcludedFromProfileSettingsBlob -> true
         feature == "layout_settings" && keyName in localOnlyLayoutProfileSettingsKeys -> true
@@ -231,8 +234,7 @@ class ProfileSettingsSyncService @Inject constructor(
         }
     }
 
-    suspend fun pushCurrentProfileToRemote(): Result<Unit> =
-        pushProfileSettingsToRemote(profileManager.activeProfileId.value)
+    suspend fun pushCurrentProfileToRemote(): Result<Unit> = pushProfileSettingsToRemote(profileManager.activeProfileId.value)
 
     private suspend fun pushProfileSettingsToRemote(profileId: Int): Result<Unit> = withContext(Dispatchers.IO) {
         syncMutex.withLock {
@@ -255,7 +257,10 @@ class ProfileSettingsSyncService @Inject constructor(
                 val blob = pullProfileFromRemote(profileId)
                 lastForegroundPullAtMs = SystemClock.elapsedRealtime()
                 if (blob == null) {
-                    Log.d(TAG, "No remote profile settings blob for profile $profileId; keeping local settings")
+                    Log.d(
+                        TAG,
+                        "No remote profile settings blob for profile $profileId; keeping local settings"
+                    )
                     return@withLock Result.success(inheritedPluginSettingsApplied)
                 }
 
@@ -282,95 +287,104 @@ class ProfileSettingsSyncService @Inject constructor(
         sourceProfileId: Int,
         targetProfileId: Int,
         copyProviderCredentials: Boolean = false
-    ): Result<Unit> =
-        withContext(Dispatchers.IO) {
-            syncMutex.withLock {
-                try {
-                    require(sourceProfileId != targetProfileId)
-                    require(profileManager.profiles.value.any { it.id == sourceProfileId })
-                    require(profileManager.profiles.value.any { it.id == targetProfileId })
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        syncMutex.withLock {
+            try {
+                require(sourceProfileId != targetProfileId)
+                require(profileManager.profiles.value.any { it.id == sourceProfileId })
+                require(profileManager.profiles.value.any { it.id == targetProfileId })
 
-                    val targetFeatures = if (authManager.isAuthenticated) {
-                        if (
-                            copyProviderCredentials &&
-                            profileManager.activeProfileId.value in setOf(sourceProfileId, targetProfileId)
-                        ) {
-                            providerCredentialSyncService.syncFromRemote().getOrThrow()
+                val targetFeatures = if (authManager.isAuthenticated) {
+                    if (
+                        copyProviderCredentials &&
+                        profileManager.activeProfileId.value in
+                        setOf(sourceProfileId, targetProfileId)
+                    ) {
+                        providerCredentialSyncService.syncFromRemote().getOrThrow()
+                    }
+                    val sourceBlob = if (sourceProfileId ==
+                        profileManager.activeProfileId.value
+                    ) {
+                        exportSettingsBlob(sourceProfileId).also { blob ->
+                            pushProfileToRemote(sourceProfileId, blob)
                         }
-                        val sourceBlob = if (sourceProfileId == profileManager.activeProfileId.value) {
-                            exportSettingsBlob(sourceProfileId).also { blob ->
+                    } else {
+                        pullProfileFromRemote(sourceProfileId)
+                            ?: exportSettingsBlob(sourceProfileId).also { blob ->
                                 pushProfileToRemote(sourceProfileId, blob)
                             }
-                        } else {
-                            pullProfileFromRemote(sourceProfileId)
-                                ?: exportSettingsBlob(sourceProfileId).also { blob ->
-                                    pushProfileToRemote(sourceProfileId, blob)
-                                }
-                        }
-                        require(sourceBlob["features"] is JsonObject)
+                    }
+                    require(sourceBlob["features"] is JsonObject)
 
-                        val params = buildJsonObject {
-                            put("p_source_profile_id", sourceProfileId)
-                            put("p_target_profile_id", targetProfileId)
-                            put("p_copy_tv", true)
-                            put("p_copy_mobile", false)
-                            put("p_copy_desktop", false)
-                            put("p_copy_provider_credentials", copyProviderCredentials)
-                            put("p_replace_provider_credentials", false)
-                            putSyncOriginClientId(syncClientIdentity)
-                        }
-                        val response = withJwtRefreshRetry {
-                            postgrest.rpc("sync_copy_profile_setup", params)
-                        }
-                        val copyResult = response.decodeList<SupabaseProfileSetupCopyResult>().firstOrNull()
+                    val params = buildJsonObject {
+                        put("p_source_profile_id", sourceProfileId)
+                        put("p_target_profile_id", targetProfileId)
+                        put("p_copy_tv", true)
+                        put("p_copy_mobile", false)
+                        put("p_copy_desktop", false)
+                        put("p_copy_provider_credentials", copyProviderCredentials)
+                        put("p_replace_provider_credentials", false)
+                        putSyncOriginClientId(syncClientIdentity)
+                    }
+                    val response = withJwtRefreshRetry {
+                        postgrest.rpc("sync_copy_profile_setup", params)
+                    }
+                    val copyResult =
+                        response.decodeList<SupabaseProfileSetupCopyResult>().firstOrNull()
                             ?: error("Profile settings copy returned no result")
-                        check(copyResult.sourceProfileId == sourceProfileId)
-                        check(copyResult.targetProfileId == targetProfileId)
-                        check(copyResult.tvStatus == "copied" || copyResult.tvStatus == "unchanged")
-                        if (copyProviderCredentials) {
-                            check(
-                                copyResult.providerCredentialsStatus in setOf(
-                                    "copied",
-                                    "copied_partial",
-                                    "kept_existing",
-                                    "unchanged",
-                                    "source_missing"
-                                )
-                            )
-                        }
-                        pullProfileFromRemote(targetProfileId)
-                            ?.get("features")
-                            ?.jsonObject
-                            ?: error("Copied TV settings are unavailable")
-                    } else {
-                        exportSettingsBlob(sourceProfileId)["features"]?.jsonObject
-                            ?: error("Source TV settings are unavailable")
-                    }
-
-                    applySettingsBlob(
-                        profileId = targetProfileId,
-                        featuresJson = targetFeatures,
-                        signature = buildSettingsSignature(targetFeatures)
-                    )
+                    check(copyResult.sourceProfileId == sourceProfileId)
+                    check(copyResult.targetProfileId == targetProfileId)
+                    check(copyResult.tvStatus == "copied" || copyResult.tvStatus == "unchanged")
                     if (copyProviderCredentials) {
-                        if (authManager.isAuthenticated) {
-                            if (profileManager.activeProfileId.value == targetProfileId) {
-                                providerCredentialSyncService.syncFromRemote(targetProfileId).getOrThrow()
-                            }
-                        } else {
-                            copyProviderCredentialsLocally(sourceProfileId, targetProfileId)
-                        }
+                        check(
+                            copyResult.providerCredentialsStatus in setOf(
+                                "copied",
+                                "copied_partial",
+                                "kept_existing",
+                                "unchanged",
+                                "source_missing"
+                            )
+                        )
                     }
-                    Log.d(TAG, "Copied profile setup from $sourceProfileId to $targetProfileId")
-                    Result.success(Unit)
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to copy profile setup from $sourceProfileId to $targetProfileId", e)
-                    Result.failure(e)
+                    pullProfileFromRemote(targetProfileId)
+                        ?.get("features")
+                        ?.jsonObject
+                        ?: error("Copied TV settings are unavailable")
+                } else {
+                    exportSettingsBlob(sourceProfileId)["features"]?.jsonObject
+                        ?: error("Source TV settings are unavailable")
                 }
+
+                applySettingsBlob(
+                    profileId = targetProfileId,
+                    featuresJson = targetFeatures,
+                    signature = buildSettingsSignature(targetFeatures)
+                )
+                if (copyProviderCredentials) {
+                    if (authManager.isAuthenticated) {
+                        if (profileManager.activeProfileId.value == targetProfileId) {
+                            providerCredentialSyncService.syncFromRemote(
+                                targetProfileId
+                            ).getOrThrow()
+                        }
+                    } else {
+                        copyProviderCredentialsLocally(sourceProfileId, targetProfileId)
+                    }
+                }
+                Log.d(TAG, "Copied profile setup from $sourceProfileId to $targetProfileId")
+                Result.success(Unit)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(
+                    TAG,
+                    "Failed to copy profile setup from $sourceProfileId to $targetProfileId",
+                    e
+                )
+                Result.failure(e)
             }
         }
+    }
 
     fun requestForegroundPull(force: Boolean = false) {
         providerCredentialSyncService.requestForegroundPull(force)
@@ -392,10 +406,7 @@ class ProfileSettingsSyncService @Inject constructor(
         }
     }
 
-    private suspend fun pushProfileToRemote(
-        profileId: Int,
-        settingsJson: JsonObject? = null
-    ) {
+    private suspend fun pushProfileToRemote(profileId: Int, settingsJson: JsonObject? = null) {
         val resolvedSettingsJson = settingsJson ?: exportSettingsBlob(profileId)
         val params = buildJsonObject {
             put("p_profile_id", profileId)
@@ -456,7 +467,10 @@ class ProfileSettingsSyncService @Inject constructor(
 
     private suspend fun copyProviderCredentialsLocally(sourceProfileId: Int, targetProfileId: Int) {
         credentialProfileSettingsKeys.forEach { (feature, keyNames) ->
-            val sourcePreferences = profileDataStoreFactory.get(sourceProfileId, feature).data.first()
+            val sourcePreferences = profileDataStoreFactory.get(
+                sourceProfileId,
+                feature
+            ).data.first()
             profileDataStoreFactory.get(targetProfileId, feature).edit { targetPreferences ->
                 keyNames.forEach { keyName ->
                     val key = stringPreferencesKey(keyName)
@@ -476,7 +490,13 @@ class ProfileSettingsSyncService @Inject constructor(
                 val prefs = profileDataStoreFactory.get(profileId, feature).data.first()
                 val serialized = buildJsonObject {
                     prefs.asMap().forEach { (key, rawValue) ->
-                        if (shouldExcludePreferenceFromProfileSettingsSync(feature, key.name)) return@forEach
+                        if (shouldExcludePreferenceFromProfileSettingsSync(
+                                feature,
+                                key.name
+                            )
+                        ) {
+                            return@forEach
+                        }
                         val encoded = encodePreferenceValue(rawValue) ?: return@forEach
                         put(key.name, encoded)
                     }
@@ -504,43 +524,77 @@ class ProfileSettingsSyncService @Inject constructor(
                     val preservedEntries = captureLocalOnlyPreferenceEntries(feature, mutablePrefs)
                     val priorDiscoverLocation = if (feature == "layout_settings") {
                         mutablePrefs[stringPreferencesKey("discover_location")]
-                    } else null
+                    } else {
+                        null
+                    }
                     val priorLastNonOff = if (feature == "layout_settings") {
                         mutablePrefs[stringPreferencesKey("last_non_off_discover_location")]?.let {
                             runCatching { DiscoverLocation.valueOf(it) }.getOrNull()
                         }?.takeIf { it != DiscoverLocation.OFF }
-                    } else null
+                    } else {
+                        null
+                    }
 
                     mutablePrefs.clear()
                     val hasWellFormedNewDiscoverKey = feature == "layout_settings" &&
                         extractDiscoverLocationString(featureJson) != null
                     featureJson.forEach { (keyName, encodedValue) ->
                         if (shouldExcludePreferenceFromProfileSettingsSync(feature, keyName)) {
-                            if (feature != "layout_settings" || keyName != "search_discover_enabled") return@forEach
+                            if (feature != "layout_settings" ||
+                                keyName != "search_discover_enabled"
+                            ) {
+                                return@forEach
+                            }
                             if (!hasWellFormedNewDiscoverKey) {
                                 val legacy = (encodedValue as? JsonObject)
                                     ?.get("value")?.jsonPrimitive?.contentOrNull
                                     ?.toBooleanStrictOrNull()
                                 if (legacy != null) {
-                                    val translated = DiscoverLocation.fromLegacySearchDiscoverEnabled(legacy)
+                                    val translated = DiscoverLocation.fromLegacySearchDiscoverEnabled(
+                                        legacy
+                                    )
                                     val priorLocation = priorDiscoverLocation?.let {
                                         runCatching { DiscoverLocation.valueOf(it) }.getOrNull()
                                     }
-                                    val priorIsValidNonOff = priorLocation != null && priorLocation != DiscoverLocation.OFF
+                                    val priorIsValidNonOff =
+                                        priorLocation != null &&
+                                            priorLocation != DiscoverLocation.OFF
                                     when {
                                         translated == DiscoverLocation.OFF ->
-                                            mutablePrefs[stringPreferencesKey("discover_location")] = translated.name
+                                            mutablePrefs[
+                                                stringPreferencesKey(
+                                                    "discover_location"
+                                                )
+                                            ] =
+                                                translated.name
+
                                         priorIsValidNonOff -> {}
+
                                         priorLastNonOff != null ->
-                                            mutablePrefs[stringPreferencesKey("discover_location")] = priorLastNonOff.name
+                                            mutablePrefs[
+                                                stringPreferencesKey(
+                                                    "discover_location"
+                                                )
+                                            ] =
+                                                priorLastNonOff.name
+
                                         else ->
-                                            mutablePrefs[stringPreferencesKey("discover_location")] = translated.name
+                                            mutablePrefs[
+                                                stringPreferencesKey(
+                                                    "discover_location"
+                                                )
+                                            ] =
+                                                translated.name
                                     }
                                 }
                             }
                             return@forEach
                         }
-                        if (feature == "layout_settings" && keyName == "discover_location" && !hasWellFormedNewDiscoverKey) return@forEach
+                        if (feature == "layout_settings" && keyName == "discover_location" &&
+                            !hasWellFormedNewDiscoverKey
+                        ) {
+                            return@forEach
+                        }
                         applyEncodedPreference(mutablePrefs, keyName, encodedValue)
                     }
 
@@ -552,7 +606,11 @@ class ProfileSettingsSyncService @Inject constructor(
                         }
                     }
                     if (feature == "layout_settings") {
-                        val finalDiscover = mutablePrefs[stringPreferencesKey("discover_location")]?.let {
+                        val finalDiscover = mutablePrefs[
+                            stringPreferencesKey(
+                                "discover_location"
+                            )
+                        ]?.let {
                             runCatching { DiscoverLocation.valueOf(it) }.getOrNull()
                         }
                         if (finalDiscover != null && finalDiscover != DiscoverLocation.OFF) {
@@ -591,7 +649,10 @@ class ProfileSettingsSyncService @Inject constructor(
                     if (!authManager.isAuthenticated) return@collect
                     if (applyingRemoteBlob) return@collect
                     if (profileDataStoreFactory.corruptedFileNames.isNotEmpty()) {
-                        Log.w(TAG, "DataStore corruption detected (${profileDataStoreFactory.corruptedFileNames}) — pulling from remote instead of pushing")
+                        Log.w(
+                            TAG,
+                            "DataStore corruption detected (${profileDataStoreFactory.corruptedFileNames}) — pulling from remote instead of pushing"
+                        )
                         profileDataStoreFactory.corruptedFileNames.clear()
                         pullCurrentProfileFromRemote()
                         return@collect
@@ -674,7 +735,13 @@ class ProfileSettingsSyncService @Inject constructor(
         return prefs.asMap()
             .entries
             .mapNotNull { (key, rawValue) ->
-                if (shouldExcludePreferenceFromProfileSettingsSync(feature, key.name)) return@mapNotNull null
+                if (shouldExcludePreferenceFromProfileSettingsSync(
+                        feature,
+                        key.name
+                    )
+                ) {
+                    return@mapNotNull null
+                }
                 encodePreferenceValue(rawValue)?.let { encoded ->
                     key.name to encoded.toString()
                 }
@@ -695,9 +762,14 @@ class ProfileSettingsSyncService @Inject constructor(
         mutablePrefs: MutablePreferences
     ): Map<Preferences.Key<*>, Any> {
         val keyNames = when (feature) {
-            "layout_settings" -> catalogKeysExcludedFromProfileSettingsBlob + localOnlyLayoutProfileSettingsKeys
+            "layout_settings" ->
+                catalogKeysExcludedFromProfileSettingsBlob +
+                    localOnlyLayoutProfileSettingsKeys
+
             PLAYER_SETTINGS_FEATURE -> localOnlyPlayerProfileSettingsKeys
+
             "trailer_settings" -> localOnlyTrailerProfileSettingsKeys
+
             else -> credentialProfileSettingsKeys[feature].orEmpty()
         }
         if (keyNames.isEmpty()) return emptyMap()
@@ -716,7 +788,9 @@ class ProfileSettingsSyncService @Inject constructor(
             val doubleKey = doublePreferencesKey(keyName)
             runCatching { mutablePrefs[doubleKey] }.getOrNull()?.let { entries[doubleKey] = it }
             val stringSetKey = stringSetPreferencesKey(keyName)
-            runCatching { mutablePrefs[stringSetKey] }.getOrNull()?.let { entries[stringSetKey] = it }
+            runCatching {
+                mutablePrefs[stringSetKey]
+            }.getOrNull()?.let { entries[stringSetKey] = it }
         }
         return entries
     }
@@ -730,11 +804,17 @@ class ProfileSettingsSyncService @Inject constructor(
         entries.forEach { (key, value) ->
             when (value) {
                 is String -> mutablePrefs[key as Preferences.Key<String>] = value
+
                 is Boolean -> mutablePrefs[key as Preferences.Key<Boolean>] = value
+
                 is Int -> mutablePrefs[key as Preferences.Key<Int>] = value
+
                 is Long -> mutablePrefs[key as Preferences.Key<Long>] = value
+
                 is Float -> mutablePrefs[key as Preferences.Key<Float>] = value
+
                 is Double -> mutablePrefs[key as Preferences.Key<Double>] = value
+
                 is Set<*> -> {
                     if (value.all { it is String }) {
                         // Catalog keys should be stored as JSON strings, not Sets.
@@ -757,26 +837,32 @@ class ProfileSettingsSyncService @Inject constructor(
                 put("type", "string")
                 put("value", rawValue)
             }
+
             is Boolean -> buildJsonObject {
                 put("type", "boolean")
                 put("value", rawValue)
             }
+
             is Int -> buildJsonObject {
                 put("type", "int")
                 put("value", rawValue)
             }
+
             is Long -> buildJsonObject {
                 put("type", "long")
                 put("value", rawValue)
             }
+
             is Float -> buildJsonObject {
                 put("type", "float")
                 put("value", rawValue)
             }
+
             is Double -> buildJsonObject {
                 put("type", "double")
                 put("value", rawValue)
             }
+
             is Set<*> -> {
                 val allStrings = rawValue.all { it is String }
                 if (!allStrings) return null
@@ -786,6 +872,7 @@ class ProfileSettingsSyncService @Inject constructor(
                     put("value", JsonArray(values.map { JsonPrimitive(it) }))
                 }
             }
+
             else -> null
         }
     }
@@ -804,26 +891,32 @@ class ProfileSettingsSyncService @Inject constructor(
                 val parsed = value.jsonPrimitive.contentOrNull ?: return
                 mutablePrefs[stringPreferencesKey(keyName)] = parsed
             }
+
             "boolean" -> {
                 val parsed = value.jsonPrimitive.contentOrNull?.toBooleanStrictOrNull() ?: return
                 mutablePrefs[booleanPreferencesKey(keyName)] = parsed
             }
+
             "int" -> {
                 val parsed = value.jsonPrimitive.intOrNull ?: return
                 mutablePrefs[intPreferencesKey(keyName)] = parsed
             }
+
             "long" -> {
                 val parsed = value.jsonPrimitive.longOrNull ?: return
                 mutablePrefs[longPreferencesKey(keyName)] = parsed
             }
+
             "float" -> {
                 val parsed = value.jsonPrimitive.floatOrNull ?: return
                 mutablePrefs[floatPreferencesKey(keyName)] = parsed
             }
+
             "double" -> {
                 val parsed = value.jsonPrimitive.doubleOrNull ?: return
                 mutablePrefs[doublePreferencesKey(keyName)] = parsed
             }
+
             "string_set" -> {
                 val parsed = value.jsonArray.mapNotNull { it.jsonPrimitive.contentOrNull }.toSet()
                 mutablePrefs[stringSetPreferencesKey(keyName)] = parsed

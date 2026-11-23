@@ -1,11 +1,11 @@
 package com.kien.movies.ui.screens.player
 
+import androidx.media3.common.Format
+import androidx.media3.common.MimeTypes
 import com.kien.movies.core.streams.StreamBadgeFilter
 import com.kien.movies.core.streams.StreamBadgeImport
 import com.kien.movies.core.streams.StreamBadgeMatcher
 import com.kien.movies.core.streams.StreamBadgeRules
-import androidx.media3.common.Format
-import androidx.media3.common.MimeTypes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -32,11 +32,18 @@ class PlaybackMatchTextTest {
         )
     )
 
-    private fun filter(name: String, pattern: String) =
-        StreamBadgeFilter(name = name, pattern = pattern, imageURL = "https://example.com/$name.png")
+    private fun filter(name: String, pattern: String) = StreamBadgeFilter(
+        name = name,
+        pattern = pattern,
+        imageURL = "https://example.com/$name.png"
+    )
 
-    private fun matchedNames(info: PlayerMediaInfo, languages: List<String> = emptyList()): List<String> =
-        StreamBadgeMatcher.matchedBadges(listOf(playbackMatchText(info, languages)), filters).map { it.name }
+    private fun matchedNames(
+        info: PlayerMediaInfo,
+        languages: List<String> = emptyList()
+    ): List<String> = StreamBadgeMatcher.matchedBadges(listOf(playbackMatchText(info, languages)), filters).map {
+        it.name
+    }
 
     @Test
     fun `matches what is playing`() {
@@ -57,13 +64,24 @@ class PlaybackMatchTextTest {
 
     @Test
     fun `skips badges the playback does not have`() {
-        val info = PlayerMediaInfo(videoCodec = "AVC", videoWidth = 1920, videoHeight = 1080, audioCodec = "AAC", audioChannels = 2)
+        val info =
+            PlayerMediaInfo(
+                videoCodec = "AVC",
+                videoWidth = 1920,
+                videoHeight = 1080,
+                audioCodec = "AAC",
+                audioChannels = 2
+            )
         assertEquals(emptyList<String>(), matchedNames(info))
     }
 
     @Test
     fun `reads atmos from mpv audio profile`() {
-        val info = PlayerMediaInfo(audioCodec = "TrueHD", audioProfiles = listOf("Dolby TrueHD + Dolby Atmos"))
+        val info =
+            PlayerMediaInfo(
+                audioCodec = "TrueHD",
+                audioProfiles = listOf("Dolby TrueHD + Dolby Atmos")
+            )
         assertEquals(listOf("Atmos"), matchedNames(info))
     }
 
@@ -78,9 +96,14 @@ class PlaybackMatchTextTest {
             filters = listOf(filter("Player4K", "(?i)\\b2160p\\b"))
         )
         val rules = StreamBadgeRules(imports = listOf(streamPack, playerPack)).normalized()
-        val text = playbackMatchText(PlayerMediaInfo(videoWidth = 3840, videoHeight = 2160), emptyList())
-        fun namesFor(source: String) =
-            StreamBadgeMatcher.matchedBadges(listOf(text), StreamBadgeMatcher.compile(rules.forPlayer(source))).map { it.name }
+        val text =
+            playbackMatchText(PlayerMediaInfo(videoWidth = 3840, videoHeight = 2160), emptyList())
+        fun namesFor(source: String) = StreamBadgeMatcher.matchedBadges(
+            listOf(text),
+            StreamBadgeMatcher.compile(rules.forPlayer(source))
+        ).map {
+            it.name
+        }
 
         assertEquals(emptyList<String>(), namesFor(""))
         assertEquals(listOf("Player4K"), namesFor("https://example.com/player.json"))
@@ -101,7 +124,10 @@ class PlaybackMatchTextTest {
             .setLabel("German DTS-HD HRA 7.1")
             .build()
         val profiles = exoAudioProfiles(format)
-        assertFalse("DTS-HD MA should not appear for German DTS-HD HRA", profiles.contains("DTS-HD MA"))
+        assertFalse(
+            "DTS-HD MA should not appear for German DTS-HD HRA",
+            profiles.contains("DTS-HD MA")
+        )
         assertTrue("DTS-HD should appear", profiles.contains("DTS-HD"))
     }
 
@@ -147,9 +173,24 @@ class PlaybackMatchTextTest {
                     StreamBadgeImport(
                         sourceUrl = "https://example.com/badges.json",
                         filters = listOf(
-                            StreamBadgeFilter(name = "English", pattern = "(?i)\\benglish\\b", imageURL = "eng.png", groupId = langGroup),
-                            StreamBadgeFilter(name = "Polish", pattern = "(?i)\\bpol\\b", imageURL = "pol.png", groupId = langGroup),
-                            StreamBadgeFilter(name = "WebDL", pattern = "(?i)\\bweb[-.]?dl\\b", imageURL = "webdl.png", groupId = sourceGroup)
+                            StreamBadgeFilter(
+                                name = "English",
+                                pattern = "(?i)\\benglish\\b",
+                                imageURL = "eng.png",
+                                groupId = langGroup
+                            ),
+                            StreamBadgeFilter(
+                                name = "Polish",
+                                pattern = "(?i)\\bpol\\b",
+                                imageURL = "pol.png",
+                                groupId = langGroup
+                            ),
+                            StreamBadgeFilter(
+                                name = "WebDL",
+                                pattern = "(?i)\\bweb[-.]?dl\\b",
+                                imageURL = "webdl.png",
+                                groupId = sourceGroup
+                            )
                         )
                     )
                 )
@@ -157,7 +198,9 @@ class PlaybackMatchTextTest {
         )
         val playback = "DD+ 5.1 English"
         val filename = listOf("Movie.POL.ENG.WebDL.mkv")
-        val badges = StreamBadgeMatcher.matchedPlayerBadges(playback, filename, playerFilters).map { it.name }
+        val badges = StreamBadgeMatcher.matchedPlayerBadges(playback, filename, playerFilters).map {
+            it.name
+        }
         assertTrue("English should appear (decoder match)", "English" in badges)
         assertFalse("Polish should NOT appear (group covered by decoder)", "Polish" in badges)
         assertTrue("WebDL should appear (different group)", "WebDL" in badges)
@@ -192,9 +235,21 @@ class PlaybackMatchTextTest {
                     StreamBadgeImport(
                         sourceUrl = "https://example.com/badges.json",
                         filters = listOf(
-                            StreamBadgeFilter(name = "Remux", pattern = "(?i)\\bremux\\b", imageURL = "remux.png"),
-                            StreamBadgeFilter(name = "HEVC", pattern = "(?i)\\bhevc\\b", imageURL = "hevc.png"),
-                            StreamBadgeFilter(name = "HEVC-alt", pattern = "(?i)\\bh\\.?265\\b", imageURL = "hevc.png")
+                            StreamBadgeFilter(
+                                name = "Remux",
+                                pattern = "(?i)\\bremux\\b",
+                                imageURL = "remux.png"
+                            ),
+                            StreamBadgeFilter(
+                                name = "HEVC",
+                                pattern = "(?i)\\bhevc\\b",
+                                imageURL = "hevc.png"
+                            ),
+                            StreamBadgeFilter(
+                                name = "HEVC-alt",
+                                pattern = "(?i)\\bh\\.?265\\b",
+                                imageURL = "hevc.png"
+                            )
                         )
                     )
                 )
@@ -202,7 +257,11 @@ class PlaybackMatchTextTest {
         )
         // HEVC matches decoder (phase 1), Remux matches filename (phase 2).
         // Pack order is Remux first, so result should keep Remux before HEVC.
-        val badges = StreamBadgeMatcher.matchedPlayerBadges("HEVC 2160p", listOf("Movie.Remux.mkv"), filters)
+        val badges = StreamBadgeMatcher.matchedPlayerBadges(
+            "HEVC 2160p",
+            listOf("Movie.Remux.mkv"),
+            filters
+        )
         assertEquals("Remux", badges[0].name)
         assertEquals("HEVC", badges[1].name)
     }

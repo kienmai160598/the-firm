@@ -21,7 +21,11 @@ class DefaultAllocatorNativeTest {
         assertNotNull("Allocation should not be null", allocation)
         assertNotNull("Allocation buffer should not be null", allocation!!.buffer)
         assertTrue("Allocation buffer must be direct", allocation.buffer!!.isDirect)
-        assertEquals("Allocation buffer capacity should match size", size, allocation.buffer!!.capacity())
+        assertEquals(
+            "Allocation buffer capacity should match size",
+            size,
+            allocation.buffer!!.capacity()
+        )
         assertTrue("Allocation native handle should be non-zero", allocation.nativeHandle != 0L)
 
         // Free allocation
@@ -51,11 +55,11 @@ class DefaultAllocatorNativeTest {
     @Test
     fun testArenaPoolExhaustionAndReplenishment() {
         val segmentSize = 65536
-        
+
         // Fetch arena field addresses via reflection
         val fieldBase = DefaultAllocatorNative::class.java.getDeclaredField("arenaBaseAddress")
         fieldBase.isAccessible = true
-        
+
         val fieldEnd = DefaultAllocatorNative::class.java.getDeclaredField("arenaEndAddress")
         fieldEnd.isAccessible = true
 
@@ -76,7 +80,10 @@ class DefaultAllocatorNativeTest {
         val arenaAllocations = (1..512).map {
             val alloc = DefaultAllocatorNative.createAllocation(segmentSize)
             assertNotNull("Allocation should succeed", alloc)
-            assertTrue("Should belong to Arena pool", alloc!!.nativeHandle in arenaBaseAddress until arenaEndAddress)
+            assertTrue(
+                "Should belong to Arena pool",
+                alloc!!.nativeHandle in arenaBaseAddress until arenaEndAddress
+            )
             alloc
         }
 
@@ -85,7 +92,8 @@ class DefaultAllocatorNativeTest {
         assertNotNull("Overflow allocation should succeed", dynamicAlloc)
         assertTrue(
             "Overflow allocation must NOT belong to Arena pool",
-            dynamicAlloc!!.nativeHandle < arenaBaseAddress || dynamicAlloc.nativeHandle >= arenaEndAddress
+            dynamicAlloc!!.nativeHandle < arenaBaseAddress ||
+                dynamicAlloc.nativeHandle >= arenaEndAddress
         )
 
         // Free one Arena allocation to replenish the pool

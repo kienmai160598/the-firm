@@ -10,6 +10,8 @@ import com.kien.movies.core.sync.SyncClientIdentity
 import com.kien.movies.domain.model.AuthState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.jan.supabase.postgrest.Postgrest
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,18 +22,13 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "DeviceSessionRegistration"
 private const val CLIENT_NAME = "Movies"
 private const val REGISTRATION_INTERVAL_MS = 15 * 60 * 1000L
 private const val MAX_DEVICE_NAME_LENGTH = 160
 
-internal data class DeviceClientMetadata(
-    val deviceName: String,
-    val platform: String
-)
+internal data class DeviceClientMetadata(val deviceName: String, val platform: String)
 
 @Singleton
 class DeviceSessionRegistration @Inject constructor(
@@ -49,9 +46,11 @@ class DeviceSessionRegistration @Inject constructor(
             authManager.authState.collect { state ->
                 when (state) {
                     is AuthState.FullAccount -> registerIfAuthenticated(force = true)
+
                     is AuthState.SignedOut -> registrationMutex.withLock {
                         lastRegistrationAtMs = 0L
                     }
+
                     is AuthState.Loading -> Unit
                 }
             }
@@ -73,7 +72,9 @@ class DeviceSessionRegistration @Inject constructor(
             }
 
             val now = SystemClock.elapsedRealtime()
-            if (!force && lastRegistrationAtMs > 0L && now - lastRegistrationAtMs < REGISTRATION_INTERVAL_MS) {
+            if (!force && lastRegistrationAtMs > 0L &&
+                now - lastRegistrationAtMs < REGISTRATION_INTERVAL_MS
+            ) {
                 return@withLock true
             }
 
@@ -156,11 +157,7 @@ internal fun selectDeviceName(
         ?: formatDeviceName(manufacturer, model, fallback)
 }
 
-internal fun formatDeviceName(
-    manufacturer: String,
-    model: String,
-    fallback: String
-): String {
+internal fun formatDeviceName(manufacturer: String, model: String, fallback: String): String {
     val normalizedManufacturer = manufacturer.trim()
     val normalizedModel = model.trim()
 

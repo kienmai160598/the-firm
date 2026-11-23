@@ -13,9 +13,14 @@ internal object SharedReferenceCache {
      */
     private const val MAX_ENTRIES = 8
 
-    private val entries = object : LinkedHashMap<String, List<Triple<Long, Long, String>>>(MAX_ENTRIES, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, List<Triple<Long, Long, String>>>?) =
-            size > MAX_ENTRIES
+    private val entries = object : LinkedHashMap<String, List<Triple<Long, Long, String>>>(
+        MAX_ENTRIES,
+        0.75f,
+        true
+    ) {
+        override fun removeEldestEntry(
+            eldest: MutableMap.MutableEntry<String, List<Triple<Long, Long, String>>>?
+        ) = size > MAX_ENTRIES
     }
 
     @Synchronized

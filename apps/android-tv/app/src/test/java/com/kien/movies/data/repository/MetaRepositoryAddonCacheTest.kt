@@ -93,14 +93,13 @@ class MetaRepositoryAddonCacheTest {
         )
     }
 
-    private fun metaResponse(name: String): Response<MetaResponseDto> =
-        Response.success(
-            MetaResponseDto(
-                meta = MetaDto(
-                    id = contentId,
-                    type = "series",
-                    name = name
-                )
+    private fun metaResponse(name: String): Response<MetaResponseDto> = Response.success(
+        MetaResponseDto(
+            meta = MetaDto(
+                id = contentId,
+                type = "series",
+                name = name
             )
         )
+    )
 }

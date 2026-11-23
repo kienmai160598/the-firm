@@ -36,7 +36,12 @@ class SharedResourceTest {
             assertTrue(entered.await(5, TimeUnit.SECONDS))
             // The readiness query completes while creation remains explicitly blocked.
             assertFalse(workers.submit<Boolean> { cache.isLoaded }.get(2, TimeUnit.SECONDS))
-            val second = workers.submit<Any> { cache.acquire { loads.incrementAndGet(); Any() } }
+            val second = workers.submit<Any> {
+                cache.acquire {
+                    loads.incrementAndGet()
+                    Any()
+                }
+            }
             continueLoading.countDown()
             assertSame(resource, first.get(5, TimeUnit.SECONDS))
             assertSame(resource, second.get(5, TimeUnit.SECONDS))

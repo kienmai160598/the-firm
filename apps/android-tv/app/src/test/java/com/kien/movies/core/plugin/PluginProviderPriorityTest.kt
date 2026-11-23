@@ -107,7 +107,10 @@ class PluginProviderPriorityTest {
         assertEquals(listOf("1080", "hdr"), pluginIdentityTokens(quality = "1080p HDR"))
         assertEquals(listOf("4k"), pluginIdentityTokens(quality = "4K"))
         assertEquals(listOf("fhd"), pluginIdentityTokens(quality = "FHD"))
-        assertEquals(listOf("français", "vostfr"), pluginIdentityTokens(title = "Français (VOSTFR)"))
+        assertEquals(
+            listOf("français", "vostfr"),
+            pluginIdentityTokens(title = "Français (VOSTFR)")
+        )
         assertEquals(listOf("español", "latino"), pluginIdentityTokens(language = "Español Latino"))
         assertEquals(listOf("1", "server"), pluginIdentityTokens(name = "Server 1"))
         assertEquals(emptyList<String>(), pluginIdentityTokens())
@@ -205,7 +208,10 @@ class PluginProviderPriorityTest {
             title = "Example Note"
         )
 
-        assertEquals(1, indexOfPluginBingeMatch(saved, listOf(sameServerOtherAudio, otherServerSameAudio)))
+        assertEquals(
+            1,
+            indexOfPluginBingeMatch(saved, listOf(sameServerOtherAudio, otherServerSameAudio))
+        )
         assertEquals(0, indexOfPluginBingeMatch(saved, listOf(exact, otherServerSameAudio)))
     }
 

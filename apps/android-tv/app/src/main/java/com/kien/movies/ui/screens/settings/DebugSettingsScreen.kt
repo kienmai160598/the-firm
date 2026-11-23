@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,8 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -37,11 +35,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.kien.movies.R
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.kien.movies.R
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.expressive.M3eShapes
@@ -49,11 +47,10 @@ import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import com.kien.movies.ui.components.expressive.MoviesSwitch
 import com.kien.movies.ui.screens.account.InputField
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
-fun DebugSettingsContent(
-    viewModel: DebugSettingsViewModel = hiltViewModel()
-) {
+fun DebugSettingsContent(viewModel: DebugSettingsViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showErrorDialog by remember { mutableStateOf(false) }
 
@@ -76,141 +73,150 @@ fun DebugSettingsContent(
 
         val debugListState = rememberLazyListState()
         Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            state = debugListState,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(top = MoviesTheme.spacing.md, bottom = MoviesTheme.spacing.xxl),
-            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
-        ) {
-            // ── Popup / Dialog Testing ──
-            item(key = "debug_popup_header") {
-                Text(
-                    text = stringResource(R.string.debug_section_popup),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MoviesTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
-                )
-            }
+            LazyColumn(
+                state = debugListState,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    top = MoviesTheme.spacing.md,
+                    bottom = MoviesTheme.spacing.xxl
+                ),
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
+            ) {
+                // ── Popup / Dialog Testing ──
+                item(key = "debug_popup_header") {
+                    Text(
+                        text = stringResource(R.string.debug_section_popup),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MoviesTheme.colors.TextTertiary,
+                        modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
+                    )
+                }
 
-            item(key = "debug_playback_error") {
-                DebugActionCard(
-                    title = stringResource(R.string.debug_playback_error_title),
-                    subtitle = stringResource(R.string.debug_playback_error_subtitle),
-                    onClick = { showErrorDialog = true }
-                )
-            }
+                item(key = "debug_playback_error") {
+                    DebugActionCard(
+                        title = stringResource(R.string.debug_playback_error_title),
+                        subtitle = stringResource(R.string.debug_playback_error_subtitle),
+                        onClick = { showErrorDialog = true }
+                    )
+                }
 
-            item(key = "debug_progress_header") {
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                Text(
-                    text = stringResource(R.string.debug_section_progress),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MoviesTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
-                )
-            }
+                item(key = "debug_progress_header") {
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                    Text(
+                        text = stringResource(R.string.debug_section_progress),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MoviesTheme.colors.TextTertiary,
+                        modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
+                    )
+                }
 
-            item(key = "debug_progress_indicator") {
-                DebugProgressIndicatorCard()
-            }
+                item(key = "debug_progress_indicator") {
+                    DebugProgressIndicatorCard()
+                }
 
-            // ── Feature Toggles ──
-            item(key = "debug_feature_toggles_header") {
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                Text(
-                    text = stringResource(R.string.debug_section_features),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MoviesTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
-                )
-            }
+                // ── Feature Toggles ──
+                item(key = "debug_feature_toggles_header") {
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                    Text(
+                        text = stringResource(R.string.debug_section_features),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MoviesTheme.colors.TextTertiary,
+                        modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
+                    )
+                }
 
-            item(key = "debug_toggle_account_tab") {
-                DebugToggleCard(
-                    title = stringResource(R.string.debug_account_tab_title),
-                    subtitle = stringResource(R.string.debug_account_tab_subtitle),
-                    checked = uiState.accountTabEnabled,
-                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleAccountTab(it)) }
-                )
-            }
+                item(key = "debug_toggle_account_tab") {
+                    DebugToggleCard(
+                        title = stringResource(R.string.debug_account_tab_title),
+                        subtitle = stringResource(R.string.debug_account_tab_subtitle),
+                        checked = uiState.accountTabEnabled,
+                        onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleAccountTab(it)) }
+                    )
+                }
 
-            item(key = "debug_toggle_sync_code") {
-                DebugToggleCard(
-                    title = stringResource(R.string.debug_sync_code_title),
-                    subtitle = stringResource(R.string.debug_sync_code_subtitle),
-                    checked = uiState.syncCodeFeaturesEnabled,
-                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleSyncCodeFeatures(it)) }
-                )
-            }
+                item(key = "debug_toggle_sync_code") {
+                    DebugToggleCard(
+                        title = stringResource(R.string.debug_sync_code_title),
+                        subtitle = stringResource(R.string.debug_sync_code_subtitle),
+                        checked = uiState.syncCodeFeaturesEnabled,
+                        onToggle = {
+                            viewModel.onEvent(DebugSettingsEvent.ToggleSyncCodeFeatures(it))
+                        }
+                    )
+                }
 
-            item(key = "debug_member_tier") {
-                DebugMemberTierCard(
-                    selectedTier = uiState.memberTier,
-                    onTierSelected = { viewModel.onEvent(DebugSettingsEvent.SelectMemberTier(it)) }
-                )
-            }
+                item(key = "debug_member_tier") {
+                    DebugMemberTierCard(
+                        selectedTier = uiState.memberTier,
+                        onTierSelected = {
+                            viewModel.onEvent(DebugSettingsEvent.SelectMemberTier(it))
+                        }
+                    )
+                }
 
-            item(key = "debug_toggle_compose_highlighter") {
-                DebugToggleCard(
-                    title = stringResource(R.string.advanced_compose_highlighter),
-                    subtitle = stringResource(R.string.advanced_compose_highlighter_subtitle),
-                    checked = uiState.composeHighlighterEnabled,
-                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleComposeHighlighter(it)) }
-                )
-            }
+                item(key = "debug_toggle_compose_highlighter") {
+                    DebugToggleCard(
+                        title = stringResource(R.string.advanced_compose_highlighter),
+                        subtitle = stringResource(R.string.advanced_compose_highlighter_subtitle),
+                        checked = uiState.composeHighlighterEnabled,
+                        onToggle = {
+                            viewModel.onEvent(DebugSettingsEvent.ToggleComposeHighlighter(it))
+                        }
+                    )
+                }
 
-            item(key = "debug_toggle_buffer_logs") {
-                DebugToggleCard(
-                    title = stringResource(R.string.debug_buffer_logs_title),
-                    subtitle = stringResource(R.string.debug_buffer_logs_subtitle),
-                    checked = uiState.bufferLogsEnabled,
-                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleBufferLogs(it)) }
-                )
-            }
+                item(key = "debug_toggle_buffer_logs") {
+                    DebugToggleCard(
+                        title = stringResource(R.string.debug_buffer_logs_title),
+                        subtitle = stringResource(R.string.debug_buffer_logs_subtitle),
+                        checked = uiState.bufferLogsEnabled,
+                        onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleBufferLogs(it)) }
+                    )
+                }
 
-            // ── Library Testing ──
-            item(key = "debug_library_header") {
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                Text(
-                    text = stringResource(R.string.debug_section_library),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MoviesTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
-                )
-            }
+                // ── Library Testing ──
+                item(key = "debug_library_header") {
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                    Text(
+                        text = stringResource(R.string.debug_section_library),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MoviesTheme.colors.TextTertiary,
+                        modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
+                    )
+                }
 
-            item(key = "debug_generate_library") {
-                DebugGenerateLibraryCard(
-                    isLoading = uiState.generateLibraryLoading,
-                    result = uiState.generateLibraryResult,
-                    onGenerate = { count ->
-                        viewModel.onEvent(DebugSettingsEvent.GenerateLibraryItems(count))
-                    }
-                )
-            }
+                item(key = "debug_generate_library") {
+                    DebugGenerateLibraryCard(
+                        isLoading = uiState.generateLibraryLoading,
+                        result = uiState.generateLibraryResult,
+                        onGenerate = { count ->
+                            viewModel.onEvent(DebugSettingsEvent.GenerateLibraryItems(count))
+                        }
+                    )
+                }
 
-            // ── Manual Sign In ──
-            item(key = "debug_account_header") {
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                Text(
-                    text = stringResource(R.string.debug_section_account),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MoviesTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
-                )
-            }
+                // ── Manual Sign In ──
+                item(key = "debug_account_header") {
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                    Text(
+                        text = stringResource(R.string.debug_section_account),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MoviesTheme.colors.TextTertiary,
+                        modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
+                    )
+                }
 
-            item(key = "debug_sign_in_card") {
-                DebugSignInCard(
-                    isLoading = uiState.signInLoading,
-                    result = uiState.signInResult,
-                    onSignIn = { email, password ->
-                        viewModel.onEvent(DebugSettingsEvent.SignIn(email, password))
-                    }
-                )
+                item(key = "debug_sign_in_card") {
+                    DebugSignInCard(
+                        isLoading = uiState.signInLoading,
+                        result = uiState.signInResult,
+                        onSignIn = { email, password ->
+                            viewModel.onEvent(DebugSettingsEvent.SignIn(email, password))
+                        }
+                    )
+                }
             }
-        }
-        SettingsVerticalScrollIndicators(state = debugListState)
+            SettingsVerticalScrollIndicators(state = debugListState)
         }
     }
 
@@ -256,19 +262,25 @@ private fun DebugProgressIndicatorCard() {
                 horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                DebugProgressIndicatorPreview(stringResource(R.string.debug_progress_indicator_small), 18.dp)
-                DebugProgressIndicatorPreview(stringResource(R.string.debug_progress_indicator_default), MoviesTheme.spacing.xxxl)
-                DebugProgressIndicatorPreview(stringResource(R.string.debug_progress_indicator_large), 56.dp)
+                DebugProgressIndicatorPreview(
+                    stringResource(R.string.debug_progress_indicator_small),
+                    18.dp
+                )
+                DebugProgressIndicatorPreview(
+                    stringResource(R.string.debug_progress_indicator_default),
+                    MoviesTheme.spacing.xxxl
+                )
+                DebugProgressIndicatorPreview(
+                    stringResource(R.string.debug_progress_indicator_large),
+                    56.dp
+                )
             }
         }
     }
 }
 
 @Composable
-private fun DebugProgressIndicatorPreview(
-    label: String,
-    size: Dp
-) {
+private fun DebugProgressIndicatorPreview(label: String, size: Dp) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
@@ -329,11 +341,7 @@ private fun DebugToggleCard(
 }
 
 @Composable
-private fun DebugActionCard(
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit
-) {
+private fun DebugActionCard(title: String, subtitle: String, onClick: () -> Unit) {
     var isFocused by remember { mutableStateOf(false) }
 
     MoviesCard(
@@ -362,10 +370,7 @@ private fun DebugActionCard(
 }
 
 @Composable
-private fun DebugDialogButton(
-    text: String,
-    onClick: () -> Unit
-) {
+private fun DebugDialogButton(text: String, onClick: () -> Unit) {
     var isFocused by remember { mutableStateOf(false) }
 
     MoviesCard(
@@ -422,12 +427,25 @@ private fun DebugGenerateLibraryCard(
             Text(
                 text = result,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (result.startsWith("Failed")) MoviesTheme.colors.Error else MoviesTheme.colors.Secondary
+                color = if (result.startsWith(
+                        "Failed"
+                    )
+                ) {
+                    MoviesTheme.colors.Error
+                } else {
+                    MoviesTheme.colors.Secondary
+                }
             )
         }
 
         DebugDialogButton(
-            text = if (isLoading) stringResource(R.string.debug_generating_library) else stringResource(R.string.debug_generate_library_button),
+            text = if (isLoading) {
+                stringResource(
+                    R.string.debug_generating_library
+                )
+            } else {
+                stringResource(R.string.debug_generate_library_button)
+            },
             onClick = {
                 val count = countText.replace(Regex("[^0-9]"), "").toIntOrNull()
                 if (!isLoading && count != null && count > 0) {
@@ -482,12 +500,25 @@ private fun DebugSignInCard(
             Text(
                 text = result,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (result.startsWith("Failed")) MoviesTheme.colors.Error else MoviesTheme.colors.Secondary
+                color = if (result.startsWith(
+                        "Failed"
+                    )
+                ) {
+                    MoviesTheme.colors.Error
+                } else {
+                    MoviesTheme.colors.Secondary
+                }
             )
         }
 
         DebugDialogButton(
-            text = if (isLoading) stringResource(R.string.debug_signing_in) else stringResource(R.string.debug_sign_in),
+            text = if (isLoading) {
+                stringResource(
+                    R.string.debug_signing_in
+                )
+            } else {
+                stringResource(R.string.debug_sign_in)
+            },
             onClick = {
                 if (!isLoading && email.isNotBlank() && password.isNotBlank()) {
                     onSignIn(email.trim(), password)

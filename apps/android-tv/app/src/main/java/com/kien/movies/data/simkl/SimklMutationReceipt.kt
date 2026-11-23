@@ -20,13 +20,9 @@ internal data class SimklMutationReceipt(
 )
 
 internal sealed interface SimklCommittedMutation {
-    data class MoveToList(
-        val items: List<SimklResolvedListMutation>
-    ) : SimklCommittedMutation
+    data class MoveToList(val items: List<SimklResolvedListMutation>) : SimklCommittedMutation
 
-    data class AddToHistory(
-        val items: List<SimklResolvedHistoryMutation>
-    ) : SimklCommittedMutation
+    data class AddToHistory(val items: List<SimklResolvedHistoryMutation>) : SimklCommittedMutation
 
     data class RemoveFromHistory(
         val items: List<TrackingMediaReference>,
@@ -158,11 +154,8 @@ internal fun SimklApiResponse.toHistoryRemovalReceipt(
     )
 }
 
-private data class SimklResponseTarget(
-    val media: SimklMedia
-) {
-    fun matches(reference: TrackingMediaReference): Boolean =
-        media.matchesTarget(reference.toSimklMedia())
+private data class SimklResponseTarget(val media: SimklMedia) {
+    fun matches(reference: TrackingMediaReference): Boolean = media.matchesTarget(reference.toSimklMedia())
 }
 
 private data class SimklHistoryStatus(
@@ -172,10 +165,9 @@ private data class SimklHistoryStatus(
     val animeType: String?
 )
 
-private fun SimklApiResponse.payload(json: Json): JsonObject =
-    body.takeIf(String::isNotBlank)
-        ?.let { value -> runCatching { json.parseToJsonElement(value).jsonObject }.getOrNull() }
-        ?: JsonObject(emptyMap())
+private fun SimklApiResponse.payload(json: Json): JsonObject = body.takeIf(String::isNotBlank)
+    ?.let { value -> runCatching { json.parseToJsonElement(value).jsonObject }.getOrNull() }
+    ?: JsonObject(emptyMap())
 
 private fun JsonObject.toTrackingMutationResult(attemptedCount: Int): TrackingMutationResult {
     val notFoundCount = objectValue("not_found")
@@ -189,33 +181,31 @@ private fun JsonObject.toTrackingMutationResult(attemptedCount: Int): TrackingMu
     )
 }
 
-private fun JsonObject.notFoundTargets(): List<SimklResponseTarget> =
-    objectValue("not_found")
-        ?.values
-        ?.flatMap { value ->
-            (value as? JsonArray).orEmpty().mapNotNull { element ->
-                runCatching { element.jsonObject }.getOrNull()
-                    ?.toResponseMedia()
-                    ?.let(::SimklResponseTarget)
-            }
+private fun JsonObject.notFoundTargets(): List<SimklResponseTarget> = objectValue("not_found")
+    ?.values
+    ?.flatMap { value ->
+        (value as? JsonArray).orEmpty().mapNotNull { element ->
+            runCatching { element.jsonObject }.getOrNull()
+                ?.toResponseMedia()
+                ?.let(::SimklResponseTarget)
         }
-        .orEmpty()
+    }
+    .orEmpty()
 
-private fun JsonObject.historyStatuses(): List<SimklHistoryStatus> =
-    (objectValue("added")?.get("statuses") as? JsonArray)
-        .orEmpty()
-        .mapNotNull { element ->
-            val item = runCatching { element.jsonObject }.getOrNull()
-                ?: return@mapNotNull null
-            val request = item.objectValue("request") ?: return@mapNotNull null
-            val response = item.objectValue("response") ?: return@mapNotNull null
-            SimklHistoryStatus(
-                target = SimklResponseTarget(request.toResponseMedia()),
-                status = response.stringValue("status")?.toSimklListStatus(),
-                mediaType = response.stringValue("simkl_type")?.toSimklMediaType(),
-                animeType = response.stringValue("anime_type")
-            )
-        }
+private fun JsonObject.historyStatuses(): List<SimklHistoryStatus> = (objectValue("added")?.get("statuses") as? JsonArray)
+    .orEmpty()
+    .mapNotNull { element ->
+        val item = runCatching { element.jsonObject }.getOrNull()
+            ?: return@mapNotNull null
+        val request = item.objectValue("request") ?: return@mapNotNull null
+        val response = item.objectValue("response") ?: return@mapNotNull null
+        SimklHistoryStatus(
+            target = SimklResponseTarget(request.toResponseMedia()),
+            status = response.stringValue("status")?.toSimklListStatus(),
+            mediaType = response.stringValue("simkl_type")?.toSimklMediaType(),
+            animeType = response.stringValue("anime_type")
+        )
+    }
 
 private fun JsonObject.toMutationResolutions(): List<TrackingMutationResolution> {
     val historyResolutions = (get("statuses") as? JsonArray)
@@ -230,7 +220,10 @@ private fun JsonObject.toMutationResolutions(): List<TrackingMutationResolution>
     return entries.flatMap { (bucket, value) ->
         (value as? JsonArray).orEmpty().mapNotNull { element ->
             runCatching { element.jsonObject }.getOrNull()
-                ?.toMutationResolution(statusKey = "to", fallbackKind = bucket.toTrackingMediaKind())
+                ?.toMutationResolution(
+                    statusKey = "to",
+                    fallbackKind = bucket.toTrackingMediaKind()
+                )
         }
     }
 }
@@ -254,21 +247,18 @@ private fun JsonObject.toResponseMedia(): SimklMedia = SimklMedia(
     ids = objectValue("ids")?.toMap().orEmpty()
 )
 
-private fun JsonObject.objectValue(key: String): JsonObject? =
-    runCatching { get(key)?.jsonObject }.getOrNull()
+private fun JsonObject.objectValue(key: String): JsonObject? = runCatching { get(key)?.jsonObject }.getOrNull()
 
-private fun JsonObject.stringValue(key: String): String? =
-    runCatching { get(key)?.jsonPrimitive }
-        .getOrNull()
-        ?.takeIf { primitive -> primitive !is kotlinx.serialization.json.JsonNull }
-        ?.content
-        ?.trim()
-        ?.takeIf(String::isNotEmpty)
+private fun JsonObject.stringValue(key: String): String? = runCatching { get(key)?.jsonPrimitive }
+    .getOrNull()
+    ?.takeIf { primitive -> primitive !is kotlinx.serialization.json.JsonNull }
+    ?.content
+    ?.trim()
+    ?.takeIf(String::isNotEmpty)
 
 private fun JsonObject.intValue(key: String): Int? = stringValue(key)?.toIntOrNull()
 
-private fun String.toSimklListStatus(): SimklListStatus? =
-    SimklListStatus.entries.firstOrNull { status -> status.apiValue == lowercase() }
+private fun String.toSimklListStatus(): SimklListStatus? = SimklListStatus.entries.firstOrNull { status -> status.apiValue == lowercase() }
 
 private fun String.toSimklMediaType(): SimklMediaType? = when (lowercase()) {
     "movie", "movies" -> SimklMediaType.MOVIES

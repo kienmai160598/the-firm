@@ -34,7 +34,7 @@ internal object DialogueSpotPlanner {
         durationMs: Long,
         count: Int,
         spotMs: Long,
-        notBeforeMs: Long = 0L,
+        notBeforeMs: Long = 0L
     ): List<Long> {
         val from = maxOf(SKIP_START_MS, notBeforeMs)
         val to = durationMs - SKIP_END_MS - spotMs
@@ -52,7 +52,12 @@ internal object DialogueSpotPlanner {
                 var bestScore = 0.0
                 var start = sectionStart
                 while (start <= sectionEnd) {
-                    val score = usable.sumOf { score(it, start, start + spotMs) * (0.5 + openingShare(it, start)) } / usable.size
+                    val score =
+                        usable.sumOf {
+                            score(it, start, start + spotMs) *
+                                (0.5 + openingShare(it, start))
+                        } /
+                            usable.size
                     if (score > bestScore) {
                         bestScore = score
                         best = start
@@ -97,7 +102,13 @@ internal object DialogueSpotPlanner {
         }
         if (lines < 3) return covered
         val mean = sum / (lines - 1)
-        val variation = if (mean > 0) sqrt((squares / (lines - 1) - mean * mean).coerceAtLeast(0.0)) / mean else 0.0
+        val variation = if (mean >
+            0
+        ) {
+            sqrt((squares / (lines - 1) - mean * mean).coerceAtLeast(0.0)) / mean
+        } else {
+            0.0
+        }
         return covered * (1.0 + variation.coerceAtMost(1.0))
     }
 
@@ -117,8 +128,7 @@ internal object DialogueSpotPlanner {
         return (covered / (toMs - fromMs)).coerceAtMost(1.0)
     }
 
-    private fun overlap(a: Long, b: Long, from: Long, to: Long): Double =
-        (minOf(b, to) - maxOf(a, from)).coerceAtLeast(0L).toDouble()
+    private fun overlap(a: Long, b: Long, from: Long, to: Long): Double = (minOf(b, to) - maxOf(a, from)).coerceAtLeast(0L).toDouble()
 
     /** Middle first, then always the spot farthest from those already taken. */
     private fun spreadOrder(spots: List<Long>): List<Long> {

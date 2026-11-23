@@ -1,10 +1,10 @@
 package com.kien.movies.core.player.dvmkv
 
+import java.io.ByteArrayOutputStream
+import java.util.zip.Deflater
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.io.ByteArrayOutputStream
-import java.util.zip.Deflater
 
 class MatroskaZlibSampleDecompressorTest {
 

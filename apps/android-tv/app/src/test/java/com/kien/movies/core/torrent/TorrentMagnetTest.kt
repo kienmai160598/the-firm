@@ -14,7 +14,9 @@ class TorrentMagnetTest {
 
         assertTrue(magnet.startsWith("magnet:?xt=urn:btih:${hash.lowercase()}"))
         assertEquals(1, magnet.windowed("&tr=".length).count { it == "&tr=" })
-        assertTrue(magnet.endsWith("udp%3A%2F%2Ftracker.example%3A80%2Fannounce%3Fkey%3Dhello%20world"))
+        assertTrue(
+            magnet.endsWith("udp%3A%2F%2Ftracker.example%3A80%2Fannounce%3Fkey%3Dhello%20world")
+        )
     }
 
     @Test

@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -61,6 +59,7 @@ import com.kien.movies.core.cloud.PremiumizeCloudLibraryPosterUrl
 import com.kien.movies.core.cloud.TorboxCloudLibraryPosterUrl
 import com.kien.movies.core.cloud.cloudLibraryDisplayArtworkUrl
 import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.rememberRawSvgPainter
 
 private const val NuvioRepositoryUrl = "https://github.com/NuvioMedia/NuvioTV"
@@ -91,9 +90,7 @@ private data class LicenseAttributionItem(
 )
 
 @Composable
-fun LicensesAttributionsScreen(
-    onBackPress: () -> Unit
-) {
+fun LicensesAttributionsScreen(onBackPress: () -> Unit) {
     BackHandler { onBackPress() }
 
     val firstFocusRequester = remember { FocusRequester() }
@@ -125,9 +122,7 @@ fun LicensesAttributionsScreen(
 }
 
 @Composable
-private fun LicensesAttributionsBrandPanel(
-    modifier: Modifier = Modifier
-) {
+private fun LicensesAttributionsBrandPanel(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center
@@ -157,8 +152,15 @@ private fun LicensesAttributionsDetailsPanel(
 
     Column(
         modifier = modifier
-            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border.copy(alpha = 0.5f), RoundedCornerShape(18.dp))
-            .background(MoviesTheme.colors.BackgroundElevated.copy(alpha = 0.35f), RoundedCornerShape(18.dp))
+            .border(
+                MoviesTheme.spacing.hairline,
+                MoviesTheme.colors.Border.copy(alpha = 0.5f),
+                RoundedCornerShape(18.dp)
+            )
+            .background(
+                MoviesTheme.colors.BackgroundElevated.copy(alpha = 0.35f),
+                RoundedCornerShape(18.dp)
+            )
             .padding(20.dp)
     ) {
         Box(
@@ -215,10 +217,7 @@ private fun LicensesAttributionsDetailsPanel(
 }
 
 @Composable
-private fun AttributionSection(
-    title: String,
-    content: @Composable ColumnScope.() -> Unit
-) {
+private fun AttributionSection(title: String, content: @Composable ColumnScope.() -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
@@ -234,10 +233,7 @@ private fun AttributionSection(
 }
 
 @Composable
-private fun AttributionDetailRow(
-    item: LicenseAttributionItem,
-    modifier: Modifier = Modifier
-) {
+private fun AttributionDetailRow(item: LicenseAttributionItem, modifier: Modifier = Modifier) {
     val context = LocalContext.current
 
     MoviesCard(
@@ -298,9 +294,7 @@ private fun AttributionDetailRow(
 }
 
 @Composable
-private fun AttributionLogo(
-    logo: LicenseLogo
-) {
+private fun AttributionLogo(logo: LicenseLogo) {
     Box(
         modifier = Modifier
             .size(52.dp)
@@ -311,7 +305,12 @@ private fun AttributionLogo(
         Image(
             painter = when (logo) {
                 is LicenseLogo.Drawable -> painterResource(id = logo.resId)
-                is LicenseLogo.Raw -> rememberRawSvgPainter(rawIconRes = logo.resId, targetSize = MoviesTheme.spacing.xxxl)
+
+                is LicenseLogo.Raw -> rememberRawSvgPainter(
+                    rawIconRes = logo.resId,
+                    targetSize = MoviesTheme.spacing.xxxl
+                )
+
                 is LicenseLogo.Url -> rememberUrlSvgPainter(url = logo.url)
             },
             contentDescription = null,

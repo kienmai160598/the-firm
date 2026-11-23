@@ -101,7 +101,8 @@ class TrailerServiceCandidateRankingTest {
         val tmdbApi = mockk<TmdbApi>()
         val extractor = mockk<InAppYouTubeExtractor>(relaxed = true)
         val tmdbSettingsDataStore = mockk<TmdbSettingsDataStore> {
-            every { settings } returns MutableStateFlow(TmdbSettings(language = "hi", useTrailers = true))
+            every { settings } returns
+                MutableStateFlow(TmdbSettings(language = "hi", useTrailers = true))
         }
         val tmdbService = mockk<TmdbService> {
             every { apiKey() } returns "tmdb-key"
@@ -122,7 +123,12 @@ class TrailerServiceCandidateRankingTest {
             TmdbVideosResponse(
                 id = 123,
                 results = listOf(
-                    youtubeVideo(key = HIGH_RESOLUTION_KEY, size = 2160, official = true, iso6391 = "en")
+                    youtubeVideo(
+                        key = HIGH_RESOLUTION_KEY,
+                        size = 2160,
+                        official = true,
+                        iso6391 = "en"
+                    )
                 )
             )
         )
@@ -150,7 +156,8 @@ class TrailerServiceCandidateRankingTest {
         val tmdbApi = mockk<TmdbApi>()
         val extractor = mockk<InAppYouTubeExtractor>(relaxed = true)
         val tmdbSettingsDataStore = mockk<TmdbSettingsDataStore> {
-            every { settings } returns MutableStateFlow(TmdbSettings(language = "hi", useTrailers = true))
+            every { settings } returns
+                MutableStateFlow(TmdbSettings(language = "hi", useTrailers = true))
         }
         val tmdbService = mockk<TmdbService> {
             every { apiKey() } returns "tmdb-key"
@@ -164,7 +171,12 @@ class TrailerServiceCandidateRankingTest {
             TmdbVideosResponse(
                 id = 123,
                 results = listOf(
-                    youtubeVideo(key = HIGH_RESOLUTION_KEY, size = 1080, official = true, iso6391 = "en")
+                    youtubeVideo(
+                        key = HIGH_RESOLUTION_KEY,
+                        size = 1080,
+                        official = true,
+                        iso6391 = "en"
+                    )
                 )
             )
         )

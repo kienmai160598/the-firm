@@ -159,7 +159,9 @@ internal fun buildModernHomePresentation(
                         }
                     } else {
                         val rowItemOccurrenceCounts = mutableMapOf<String, Int>()
-                        val rowItemCache = cache.catalogItemCache.getOrPut(rowKey) { mutableMapOf() }
+                        val rowItemCache = cache.catalogItemCache.getOrPut(rowKey) {
+                            mutableMapOf()
+                        }
                         HeroCarouselRow(
                             key = rowKey,
                             title = catalogRowTitle(
@@ -188,8 +190,11 @@ internal fun buildModernHomePresentation(
                                 ) {
                                     cachedItem.carouselItem.let { cached ->
                                         val stableItemKey = row.stableItemKey(item, occurrence)
-                                        if (cached.key == stableItemKey) cached
-                                        else cached.copy(key = stableItemKey)
+                                        if (cached.key == stableItemKey) {
+                                            cached
+                                        } else {
+                                            cached.copy(key = stableItemKey)
+                                        }
                                     }
                                 } else {
                                     val built = buildCatalogItem(
@@ -289,7 +294,10 @@ internal fun buildModernHomePresentation(
                             heroPreview = HeroPreview(
                                 title = "", logo = null, description = null,
                                 contentTypeText = null, yearText = null, imdbText = null,
-                                genres = com.kien.movies.ui.util.StableList(emptyList()), poster = null, backdrop = null,
+                                genres = com.kien.movies.ui.util.StableList(
+                                    emptyList()
+                                ),
+                                poster = null, backdrop = null,
                                 imageUrl = PLACEHOLDER_IMAGE_URL
                             ),
                             payload = ModernPayload.Catalog(
@@ -344,9 +352,13 @@ private fun resolveVisibleHomeRows(input: ModernHomePresentationInput): List<Hom
                     val latest = latestCatalogByKey[catalogRowKey(homeRow.row)] ?: homeRow.row
                     latest.takeIf { it.items.isNotEmpty() }?.let(HomeRow::Catalog)
                 }
+
                 is HomeRow.CollectionRow -> {
-                    homeRow.collection.takeIf(Collection::hasVisibleFolders)?.let(HomeRow::CollectionRow)
+                    homeRow.collection.takeIf(
+                        Collection::hasVisibleFolders
+                    )?.let(HomeRow::CollectionRow)
                 }
+
                 is HomeRow.PlaceholderCatalog -> {
                     // Keep placeholder rows as-is — they'll be rendered as shimmer skeletons
                     homeRow
@@ -400,9 +412,11 @@ internal fun buildCarouselRowLookups(carouselRows: List<HeroCarouselRow>): Carou
                     itemIdentities += "${payload.itemType}:${payload.itemId}"
                     activeCatalogItemIds += payload.itemId
                 }
+
                 is ModernPayload.CollectionFolder -> {
                     itemIdentities += "folder:${payload.folderId}"
                 }
+
                 is ModernPayload.ContinueWatching -> {
                     // The card's key, one per title: a hash of the item changes with its progress,
                     // so a card that was just watched would not be found again when it moves.

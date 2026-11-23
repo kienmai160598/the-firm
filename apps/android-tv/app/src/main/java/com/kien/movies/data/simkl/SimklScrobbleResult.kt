@@ -45,6 +45,7 @@ internal fun SimklApiResponse.toSimklScrobbleResult(
         ?: event.progressPercent.coerceIn(0.0, 100.0)
     val outcome = when {
         isSoftSuccess && status == 409 -> SimklScrobbleOutcome.SCROBBLE
+
         else -> payload.stringValue("action")
             ?.toSimklScrobbleOutcome()
             ?: requestedAction.fallbackOutcome(progress)
@@ -89,10 +90,7 @@ private fun JsonObject.media(type: SimklMediaType, json: Json): SimklMedia? {
     return runCatching { json.decodeFromJsonElement<SimklMedia>(value) }.getOrNull()
 }
 
-private fun JsonObject.episode(
-    json: Json,
-    event: TrackingScrobbleEvent
-): SimklPlaybackEpisode? {
+private fun JsonObject.episode(json: Json, event: TrackingScrobbleEvent): SimklPlaybackEpisode? {
     val responseEpisode = get("episode")
         ?.let { value ->
             runCatching { json.decodeFromJsonElement<SimklPlaybackEpisode>(value) }.getOrNull()
@@ -123,14 +121,15 @@ internal fun TrackingMediaKind.toSimklMediaType(): SimklMediaType = when (this) 
     TrackingMediaKind.ANIME -> SimklMediaType.ANIME
 }
 
-private fun TrackingScrobbleAction.fallbackOutcome(progress: Double): SimklScrobbleOutcome =
-    when (this) {
-        TrackingScrobbleAction.START -> SimklScrobbleOutcome.START
-        TrackingScrobbleAction.PAUSE -> SimklScrobbleOutcome.PAUSE
-        TrackingScrobbleAction.STOP -> {
-            if (progress >= 80.0) SimklScrobbleOutcome.SCROBBLE else SimklScrobbleOutcome.PAUSE
-        }
+private fun TrackingScrobbleAction.fallbackOutcome(progress: Double): SimklScrobbleOutcome = when (this) {
+    TrackingScrobbleAction.START -> SimklScrobbleOutcome.START
+
+    TrackingScrobbleAction.PAUSE -> SimklScrobbleOutcome.PAUSE
+
+    TrackingScrobbleAction.STOP -> {
+        if (progress >= 80.0) SimklScrobbleOutcome.SCROBBLE else SimklScrobbleOutcome.PAUSE
     }
+}
 
 private fun String.toSimklScrobbleOutcome(): SimklScrobbleOutcome? = when (lowercase()) {
     "start" -> SimklScrobbleOutcome.START
@@ -139,11 +138,10 @@ private fun String.toSimklScrobbleOutcome(): SimklScrobbleOutcome? = when (lower
     else -> null
 }
 
-private fun JsonObject.stringValue(key: String): String? =
-    runCatching { get(key)?.jsonPrimitive?.content }
-        .getOrNull()
-        ?.trim()
-        ?.takeIf(String::isNotEmpty)
+private fun JsonObject.stringValue(key: String): String? = runCatching { get(key)?.jsonPrimitive?.content }
+    .getOrNull()
+    ?.trim()
+    ?.takeIf(String::isNotEmpty)
 
 private fun JsonObject.longValue(key: String): Long? = stringValue(key)?.toLongOrNull()
 

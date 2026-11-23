@@ -45,9 +45,8 @@ private val CAPTION_FORMAT_PARAM = Regex("(?<=[?&])fmt=[^&]*")
  * YouTube serves XML timedtext by default and some clients pin `fmt=srv3` in the URL;
  * vtt is the only format Media3 parses out of the box.
  */
-internal fun captionUrlAsVtt(baseUrl: String): String =
-    if (CAPTION_FORMAT_PARAM.containsMatchIn(baseUrl)) {
-        CAPTION_FORMAT_PARAM.replace(baseUrl, "fmt=vtt")
-    } else {
-        "$baseUrl&fmt=vtt"
-    }
+internal fun captionUrlAsVtt(baseUrl: String): String = if (CAPTION_FORMAT_PARAM.containsMatchIn(baseUrl)) {
+    CAPTION_FORMAT_PARAM.replace(baseUrl, "fmt=vtt")
+} else {
+    "$baseUrl&fmt=vtt"
+}

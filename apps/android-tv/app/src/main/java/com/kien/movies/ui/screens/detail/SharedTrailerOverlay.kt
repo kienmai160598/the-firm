@@ -1,13 +1,13 @@
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.theme.MoviesTheme
-
+import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +28,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.foundation.focusable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -49,10 +48,10 @@ import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.TrailerPlayer
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.MoviesTextButton
-import com.kien.movies.ui.theme.ExpressiveMotion
-import kotlinx.coroutines.delay
-import android.view.KeyEvent
 import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
+import com.kien.movies.ui.theme.ExpressiveMotion
+import com.kien.movies.ui.theme.MoviesTheme
+import kotlinx.coroutines.delay
 
 @Stable
 class TrailerSeekOverlayState {
@@ -212,7 +211,10 @@ fun SharedTrailerOverlay(
             Column(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(horizontal = MoviesTheme.spacing.xxl, vertical = MoviesTheme.spacing.xl),
+                    .padding(
+                        horizontal = MoviesTheme.spacing.xxl,
+                        vertical = MoviesTheme.spacing.xl
+                    ),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
@@ -287,10 +289,7 @@ fun TrailerSeekOverlayHost(
 }
 
 @Composable
-fun TrailerSeekOverlay(
-    currentPosition: Long,
-    duration: Long
-) {
+fun TrailerSeekOverlay(currentPosition: Long, duration: Long) {
     val progress = if (duration > 0) {
         (currentPosition.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
     } else {
@@ -303,7 +302,8 @@ fun TrailerSeekOverlay(
     )
 
     androidx.compose.runtime.CompositionLocalProvider(
-        androidx.compose.ui.platform.LocalLayoutDirection provides androidx.compose.ui.unit.LayoutDirection.Ltr
+        androidx.compose.ui.platform.LocalLayoutDirection provides
+            androidx.compose.ui.unit.LayoutDirection.Ltr
     ) {
         Column(
             modifier = Modifier
@@ -325,22 +325,24 @@ fun TrailerSeekOverlay(
                         .background(MoviesTheme.colors.Secondary)
                 )
             }
-    
+
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
-    
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${formatPlaybackTime(currentPosition)} / ${formatPlaybackTime(duration)}",
+                    text = "${formatPlaybackTime(
+                        currentPosition
+                    )} / ${formatPlaybackTime(duration)}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White.copy(alpha = 0.9f)
                 )
             }
         }
-    }  
+    }
 }
 
 fun formatPlaybackTime(milliseconds: Long): String {

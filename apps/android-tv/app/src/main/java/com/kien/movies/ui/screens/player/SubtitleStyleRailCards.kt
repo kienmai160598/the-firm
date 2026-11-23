@@ -34,8 +34,19 @@ internal fun SubtitleFontStyleCard(
             value = subtitleFontLabel(subtitleStyle.fontId, fonts),
             valueWidth = 160.dp,
             valueFontFamily = rememberSubtitleFontFamily(subtitleStyle.fontId),
-            onDecrease = { onEvent(PlayerEvent.OnSetSubtitleFont(fontIds[(index - 1 + fontIds.size) % fontIds.size])) },
-            onIncrease = { onEvent(PlayerEvent.OnSetSubtitleFont(fontIds[(index + 1) % fontIds.size])) },
+            onDecrease = {
+                onEvent(
+                    PlayerEvent.OnSetSubtitleFont(
+                        fontIds[
+                            (index - 1 + fontIds.size) %
+                                fontIds.size
+                        ]
+                    )
+                )
+            },
+            onIncrease = {
+                onEvent(PlayerEvent.OnSetSubtitleFont(fontIds[(index + 1) % fontIds.size]))
+            },
             onMoveLeft = onMoveLeft,
             decrementFocusRequester = focusRequesters[StyleFocusKey.FontDecrease],
             incrementFocusRequester = focusRequesters[StyleFocusKey.FontIncrease],
@@ -67,7 +78,11 @@ internal fun SubtitleBackgroundStyleCard(
                 focusKeyPrefix = StyleFocusKey.BackgroundColorPrefix,
                 onFocused = onFocused,
                 onColorSelected = { color ->
-                    onEvent(PlayerEvent.OnSetSubtitleBackgroundColor(subtitleBackgroundColorFor(Color(color), subtitleStyle.backgroundColor)))
+                    onEvent(
+                        PlayerEvent.OnSetSubtitleBackgroundColor(
+                            subtitleBackgroundColorFor(Color(color), subtitleStyle.backgroundColor)
+                        )
+                    )
                 }
             )
             RailStepperLabel(stringResource(R.string.sub_opacity))
@@ -75,11 +90,19 @@ internal fun SubtitleBackgroundStyleCard(
                 value = "$opacityPercent%",
                 onDecrease = {
                     val alpha = (opacityPercent - 10).coerceAtLeast(0) / 100f
-                    onEvent(PlayerEvent.OnSetSubtitleBackgroundColor(background.copy(alpha = alpha).toArgb()))
+                    onEvent(
+                        PlayerEvent.OnSetSubtitleBackgroundColor(
+                            background.copy(alpha = alpha).toArgb()
+                        )
+                    )
                 },
                 onIncrease = {
                     val alpha = (opacityPercent + 10).coerceAtMost(100) / 100f
-                    onEvent(PlayerEvent.OnSetSubtitleBackgroundColor(background.copy(alpha = alpha).toArgb()))
+                    onEvent(
+                        PlayerEvent.OnSetSubtitleBackgroundColor(
+                            background.copy(alpha = alpha).toArgb()
+                        )
+                    )
                 },
                 onMoveLeft = onMoveLeft,
                 decrementFocusRequester = focusRequesters[StyleFocusKey.BackgroundOpacityDecrease],
@@ -95,8 +118,20 @@ internal fun SubtitleBackgroundStyleCard(
                 RailStepperLabel(stringResource(R.string.sub_bg_roundness))
                 StepperRow(
                     value = subtitleStyle.backgroundRadius.toString(),
-                    onDecrease = { onEvent(PlayerEvent.OnSetSubtitleBackgroundRadius(subtitleStyle.backgroundRadius - 2)) },
-                    onIncrease = { onEvent(PlayerEvent.OnSetSubtitleBackgroundRadius(subtitleStyle.backgroundRadius + 2)) },
+                    onDecrease = {
+                        onEvent(
+                            PlayerEvent.OnSetSubtitleBackgroundRadius(
+                                subtitleStyle.backgroundRadius - 2
+                            )
+                        )
+                    },
+                    onIncrease = {
+                        onEvent(
+                            PlayerEvent.OnSetSubtitleBackgroundRadius(
+                                subtitleStyle.backgroundRadius + 2
+                            )
+                        )
+                    },
                     onMoveLeft = onMoveLeft,
                     decrementFocusRequester = focusRequesters[StyleFocusKey.RoundnessDecrease],
                     incrementFocusRequester = focusRequesters[StyleFocusKey.RoundnessIncrease],
@@ -118,17 +153,23 @@ internal fun SubtitleShadowStyleCard(
     onEvent: (PlayerEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val enableShadow = { if (!subtitleStyle.shadowEnabled) onEvent(PlayerEvent.OnSetSubtitleShadowEnabled(true)) }
+    val enableShadow = {
+        if (!subtitleStyle.shadowEnabled) onEvent(PlayerEvent.OnSetSubtitleShadowEnabled(true))
+    }
     OverlaySectionCard(title = stringResource(R.string.sub_shadow), modifier = modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
             ToggleChip(
-                label = stringResource(if (subtitleStyle.shadowEnabled) R.string.subtitle_style_on else R.string.subtitle_style_off),
+                label = stringResource(
+                    if (subtitleStyle.shadowEnabled) R.string.subtitle_style_on else R.string.subtitle_style_off
+                ),
                 isEnabled = subtitleStyle.shadowEnabled,
                 onMoveLeft = onMoveLeft,
                 focusRequester = focusRequesters[StyleFocusKey.ShadowToggle],
                 focusKey = StyleFocusKey.ShadowToggle,
                 onFocused = onFocused,
-                onClick = { onEvent(PlayerEvent.OnSetSubtitleShadowEnabled(!subtitleStyle.shadowEnabled)) }
+                onClick = {
+                    onEvent(PlayerEvent.OnSetSubtitleShadowEnabled(!subtitleStyle.shadowEnabled))
+                }
             )
             Column(
                 modifier = Modifier.alpha(if (subtitleStyle.shadowEnabled) 1f else 0.35f),
@@ -139,11 +180,15 @@ internal fun SubtitleShadowStyleCard(
                     value = "${subtitleStyle.shadowOpacity}%",
                     onDecrease = {
                         enableShadow()
-                        onEvent(PlayerEvent.OnSetSubtitleShadowOpacity(subtitleStyle.shadowOpacity - 10))
+                        onEvent(
+                            PlayerEvent.OnSetSubtitleShadowOpacity(subtitleStyle.shadowOpacity - 10)
+                        )
                     },
                     onIncrease = {
                         enableShadow()
-                        onEvent(PlayerEvent.OnSetSubtitleShadowOpacity(subtitleStyle.shadowOpacity + 10))
+                        onEvent(
+                            PlayerEvent.OnSetSubtitleShadowOpacity(subtitleStyle.shadowOpacity + 10)
+                        )
                     },
                     onMoveLeft = onMoveLeft,
                     decrementFocusRequester = focusRequesters[StyleFocusKey.ShadowOpacityDecrease],

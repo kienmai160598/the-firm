@@ -10,6 +10,10 @@ import androidx.media3.extractor.mp4.BoxParser
 import androidx.media3.extractor.mp4.TrackSampleTable
 import com.kien.movies.core.network.NoDelaySocketFactory
 import com.kien.movies.ui.screens.player.SubtitleSyncCue
+import java.util.ArrayDeque
+import java.util.LinkedHashMap
+import java.util.concurrent.TimeUnit
+import kotlin.math.max
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -26,10 +30,6 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import java.util.ArrayDeque
-import java.util.LinkedHashMap
-import java.util.concurrent.TimeUnit
-import kotlin.math.max
 
 /**
  * Player-independent embedded subtitle timeline loader.
@@ -122,10 +122,10 @@ internal object EmbeddedSubtitleTimelineLoader {
     private val cache = object : LinkedHashMap<String, CachedLoadResult>(
         MAX_CACHE_ENTRIES,
         0.75f,
-        true,
+        true
     ) {
         override fun removeEldestEntry(
-            eldest: MutableMap.MutableEntry<String, CachedLoadResult>?,
+            eldest: MutableMap.MutableEntry<String, CachedLoadResult>?
         ): Boolean = size > MAX_CACHE_ENTRIES
     }
     private val inFlight = mutableMapOf<String, CompletableDeferred<IndexedEmbeddedTimeline?>>()
@@ -137,14 +137,14 @@ internal object EmbeddedSubtitleTimelineLoader {
     fun prefetch(
         scope: CoroutineScope,
         sourceUrl: String,
-        sourceHeaders: Map<String, String> = emptyMap(),
+        sourceHeaders: Map<String, String> = emptyMap()
     ) {
         scope.launch { load(sourceUrl, sourceHeaders) }
     }
 
     suspend fun load(
         sourceUrl: String,
-        sourceHeaders: Map<String, String> = emptyMap(),
+        sourceHeaders: Map<String, String> = emptyMap()
     ): IndexedEmbeddedTimeline? {
         if (!sourceUrl.startsWith("http://", ignoreCase = true) &&
             !sourceUrl.startsWith("https://", ignoreCase = true)
@@ -194,7 +194,7 @@ internal object EmbeddedSubtitleTimelineLoader {
     private suspend fun loadAndCache(
         cacheKey: String,
         sourceUrl: String,
-        sourceHeaders: Map<String, String>,
+        sourceHeaders: Map<String, String>
     ): IndexedEmbeddedTimeline? {
         return try {
             val loaded = try {
@@ -212,7 +212,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             synchronized(cacheLock) {
                 cache[cacheKey] = CachedLoadResult(
                     timeline = loaded,
-                    createdAtNs = System.nanoTime(),
+                    createdAtNs = System.nanoTime()
                 )
             }
             loaded
@@ -223,7 +223,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             synchronized(cacheLock) {
                 cache[cacheKey] = CachedLoadResult(
                     timeline = null,
-                    createdAtNs = System.nanoTime(),
+                    createdAtNs = System.nanoTime()
                 )
             }
             null
@@ -232,13 +232,13 @@ internal object EmbeddedSubtitleTimelineLoader {
 
     private suspend fun loadMatroskaCueIndex(
         sourceUrl: String,
-        sourceHeaders: Map<String, String>,
+        sourceHeaders: Map<String, String>
     ): IndexedEmbeddedTimeline? {
         val startedAtNs = System.nanoTime()
         val stats = RangeStats(
             deadlineNs = System.nanoTime() + TOTAL_TIMEOUT_MS * 1_000_000L,
             maxBytes = MAX_TOTAL_DOWNLOAD_BYTES,
-            maxRequests = MAX_RANGE_REQUESTS,
+            maxRequests = MAX_RANGE_REQUESTS
         )
         val initial = fetchRange(
             sourceUrl = sourceUrl,
@@ -246,7 +246,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             start = 0L,
             length = INITIAL_PROBE_BYTES,
             requirePartialContent = false,
-            stats = stats,
+            stats = stats
         ) ?: return null
 
         val segment = findSegment(initial.bytes)
@@ -256,7 +256,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                 sourceHeaders = sourceHeaders,
                 initial = initial,
                 stats = stats,
-                startedAtNs = startedAtNs,
+                startedAtNs = startedAtNs
             )
         }
 
@@ -264,10 +264,10 @@ internal object EmbeddedSubtitleTimelineLoader {
             segmentDataStart = segment.dataStart.toLong(),
             directPositions = findInitialTopLevelPositions(
                 bytes = initial.bytes,
-                segment = segment,
+                segment = segment
             ),
             totalLength = initial.totalLength,
-            initialBytes = initial.bytes,
+            initialBytes = initial.bytes
         )
         val segmentDataStart = initialMetadata.segmentDataStart
         val directPositions = initialMetadata.directPositions
@@ -290,14 +290,14 @@ internal object EmbeddedSubtitleTimelineLoader {
                 initialBytes = initialMetadata.initialBytes,
                 absolutePosition = seekHeadPosition,
                 expectedId = ID_SEEK_HEAD,
-                maxElementBytes = MAX_SEEK_HEAD_BYTES,
+                maxElementBytes = MAX_SEEK_HEAD_BYTES
             ) ?: fetchElementAt(
                 sourceUrl = sourceUrl,
                 sourceHeaders = sourceHeaders,
                 absolutePosition = seekHeadPosition,
                 expectedId = ID_SEEK_HEAD,
                 maxElementBytes = MAX_SEEK_HEAD_BYTES,
-                stats = stats,
+                stats = stats
             ) ?: continue
 
             parseSeekHead(seekHeadBytes).forEach { (id, relativePosition) ->
@@ -317,14 +317,14 @@ internal object EmbeddedSubtitleTimelineLoader {
                     initialBytes = initialMetadata.initialBytes,
                     absolutePosition = position,
                     expectedId = ID_INFO,
-                    maxElementBytes = MAX_INFO_BYTES,
+                    maxElementBytes = MAX_INFO_BYTES
                 ) ?: fetchElementAt(
                     sourceUrl = sourceUrl,
                     sourceHeaders = sourceHeaders,
                     absolutePosition = position,
                     expectedId = ID_INFO,
                     maxElementBytes = MAX_INFO_BYTES,
-                    stats = stats,
+                    stats = stats
                 )
             }
             ?.let(::parseTimestampScaleNs)
@@ -337,14 +337,14 @@ internal object EmbeddedSubtitleTimelineLoader {
                 initialBytes = initialMetadata.initialBytes,
                 absolutePosition = tracksPosition,
                 expectedId = ID_TRACKS,
-                maxElementBytes = MAX_TRACKS_BYTES,
+                maxElementBytes = MAX_TRACKS_BYTES
             ) ?: fetchElementAt(
                 sourceUrl = sourceUrl,
                 sourceHeaders = sourceHeaders,
                 absolutePosition = tracksPosition,
                 expectedId = ID_TRACKS,
                 maxElementBytes = MAX_TRACKS_BYTES,
-                stats = stats,
+                stats = stats
             )
             )?.let(::parseSubtitleTracks).orEmpty()
         if (subtitleTracks.isEmpty()) {
@@ -355,7 +355,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                 rangeRequests = stats.requests,
                 loadMs = (System.nanoTime() - startedAtNs) / 1_000_000L,
                 skipLiveFallbackWait = true,
-                noSubtitleTracks = true,
+                noSubtitleTracks = true
             )
         }
 
@@ -366,20 +366,20 @@ internal object EmbeddedSubtitleTimelineLoader {
                     initialBytes = initialMetadata.initialBytes,
                     absolutePosition = cuesPosition,
                     expectedId = ID_CUES,
-                    maxElementBytes = MAX_CUES_BYTES,
+                    maxElementBytes = MAX_CUES_BYTES
                 ) ?: fetchElementAt(
                     sourceUrl = sourceUrl,
                     sourceHeaders = sourceHeaders,
                     absolutePosition = cuesPosition,
                     expectedId = ID_CUES,
                     maxElementBytes = MAX_CUES_BYTES,
-                    stats = stats,
+                    stats = stats
                 )
                 )?.let { cuesBytes ->
                 parseSubtitleCueTimelines(
                     cuesElement = cuesBytes,
                     subtitleTracks = subtitleTracks,
-                    timestampScaleNs = timestampScaleNs,
+                    timestampScaleNs = timestampScaleNs
                 )
             }
         } else {
@@ -390,7 +390,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             totalLength = initialMetadata.totalLength,
             subtitleTracks = subtitleTracks,
             timestampScaleNs = timestampScaleNs,
-            stats = stats,
+            stats = stats
         ) ?: return null
 
         if (subtitleTracks.all { track -> parsedCues[track.number]?.cues.orEmpty().isEmpty() }) {
@@ -400,7 +400,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                 bytesDownloaded = stats.bytesDownloaded,
                 rangeRequests = stats.requests,
                 loadMs = (System.nanoTime() - startedAtNs) / 1_000_000L,
-                skipLiveFallbackWait = true,
+                skipLiveFallbackWait = true
             )
         }
 
@@ -413,7 +413,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             val cues = if (isMatroskaAssCodec(track.codecId)) {
                 AutoSyncAssDialogueFilter.indexedDialogueCues(
                     cues = indexedCues,
-                    estimatedEndStartsMs = parsedTimeline.estimatedEndStartsMs,
+                    estimatedEndStartsMs = parsedTimeline.estimatedEndStartsMs
                 )
             } else {
                 indexedCues
@@ -444,7 +444,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                 selectionFlags = selectionFlags,
                 roleFlags = roleFlags,
                 generation = -1L,
-                estimatedEndStartsMs = parsedTimeline.estimatedEndStartsMs,
+                estimatedEndStartsMs = parsedTimeline.estimatedEndStartsMs
             )
         }
 
@@ -457,7 +457,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             source = "matroska-cues",
             bytesDownloaded = stats.bytesDownloaded,
             rangeRequests = stats.requests,
-            loadMs = (System.nanoTime() - startedAtNs) / 1_000_000L,
+            loadMs = (System.nanoTime() - startedAtNs) / 1_000_000L
         )
     }
 
@@ -470,13 +470,13 @@ internal object EmbeddedSubtitleTimelineLoader {
         sourceHeaders: Map<String, String>,
         initial: RangeResponse,
         stats: RangeStats,
-        startedAtNs: Long,
+        startedAtNs: Long
     ): IndexedEmbeddedTimeline? {
         val moovLocation = findMp4Moov(
             sourceUrl = sourceUrl,
             sourceHeaders = sourceHeaders,
             initial = initial,
-            stats = stats,
+            stats = stats
         ) ?: return null
 
         if (moovLocation.size <= 0L || moovLocation.size > MAX_MP4_MOOV_BYTES.toLong()) {
@@ -501,7 +501,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                     length = moovLocation.size.toInt(),
                     requirePartialContent = moovLocation.position > 0L,
                     stats = stats,
-                    requireExactLength = true,
+                    requireExactLength = true
                 )?.bytes ?: return null
             }
 
@@ -514,7 +514,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                 rangeRequests = stats.requests,
                 loadMs = (System.nanoTime() - startedAtNs) / 1_000_000L,
                 skipLiveFallbackWait = true,
-                noSubtitleTracks = true,
+                noSubtitleTracks = true
             )
         }
 
@@ -525,7 +525,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                 C.TIME_UNSET,
                 null,
                 false,
-                isQuickTimeContainer(initial.bytes, sourceUrl),
+                isQuickTimeContainer(initial.bytes, sourceUrl)
             ) { track ->
                 track?.takeIf {
                     it.type == C.TRACK_TYPE_TEXT &&
@@ -546,7 +546,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             source = "mp4-sample-table",
             bytesDownloaded = stats.bytesDownloaded,
             rangeRequests = stats.requests,
-            loadMs = (System.nanoTime() - startedAtNs) / 1_000_000L,
+            loadMs = (System.nanoTime() - startedAtNs) / 1_000_000L
         )
     }
 
@@ -555,7 +555,7 @@ internal object EmbeddedSubtitleTimelineLoader {
         sourceUrl: String,
         sourceHeaders: Map<String, String>,
         initial: RangeResponse,
-        stats: RangeStats,
+        stats: RangeStats
     ): Mp4BoxLocation? {
         var position = 0L
         var boxCount = 0
@@ -582,7 +582,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                     start = position,
                     length = MP4_BOX_HEADER_BYTES,
                     requirePartialContent = position > 0L,
-                    stats = stats,
+                    stats = stats
                 )?.bytes ?: return null
                 headerOffset = 0
             }
@@ -592,7 +592,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                 offset = headerOffset,
                 limit = headerBytes.size,
                 extendsToEndSize = totalLength?.minus(position)?.takeIf { it > 0L }
-                    ?: Long.MAX_VALUE,
+                    ?: Long.MAX_VALUE
             ) ?: return null
 
             if (firstBox) {
@@ -618,7 +618,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             bytes = bytes,
             offset = 0,
             limit = bytes.size,
-            extendsToEndSize = bytes.size.toLong(),
+            extendsToEndSize = bytes.size.toLong()
         ) ?: return null
         if (root.type != Mp4Box.TYPE_moov || root.size != bytes.size.toLong()) {
             return null
@@ -637,12 +637,13 @@ internal object EmbeddedSubtitleTimelineLoader {
                 bytes = bytes,
                 offset = position,
                 limit = rootEnd,
-                extendsToEndSize = (rootEnd - position).toLong(),
+                extendsToEndSize = (rootEnd - position).toLong()
             ) ?: return null
             val childEnd = mp4BoxEnd(position, child, rootEnd) ?: return null
 
             when (child.type) {
                 Mp4Box.TYPE_mvhd -> addMp4Leaf(moov, bytes, position, childEnd, child.type)
+
                 Mp4Box.TYPE_trak -> {
                     if (isMp4TextTrack(bytes, child.dataStart(position), childEnd)) {
                         val parsed = parseMp4Container(bytes, position, childEnd, child)
@@ -660,7 +661,7 @@ internal object EmbeddedSubtitleTimelineLoader {
         bytes: ByteArray,
         boxStart: Int,
         boxEnd: Int,
-        header: Mp4BoxHeader,
+        header: Mp4BoxHeader
     ): Mp4Box.ContainerBox? {
         val container = Mp4Box.ContainerBox(header.type, boxEnd.toLong())
         var position = header.dataStart(boxStart)
@@ -670,7 +671,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                 bytes = bytes,
                 offset = position,
                 limit = boxEnd,
-                extendsToEndSize = (boxEnd - position).toLong(),
+                extendsToEndSize = (boxEnd - position).toLong()
             ) ?: return null
             val childEnd = mp4BoxEnd(position, child, boxEnd) ?: return null
 
@@ -690,7 +691,7 @@ internal object EmbeddedSubtitleTimelineLoader {
         bytes: ByteArray,
         start: Int,
         end: Int,
-        type: Int,
+        type: Int
     ) {
         parent.add(Mp4Box.LeafBox(type, ParsableByteArray(bytes.copyOfRange(start, end))))
     }
@@ -738,7 +739,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             cues += SubtitleSyncCue(
                 startTimeMs = startMs,
                 endTimeMs = max(startMs + 1L, endUs / 1_000L),
-                text = "",
+                text = ""
             )
         }
 
@@ -757,20 +758,18 @@ internal object EmbeddedSubtitleTimelineLoader {
                 ?: ((language ?: "Subtitle") + " [Full]"),
             selectionFlags = format.selectionFlags,
             roleFlags = format.roleFlags,
-            generation = -1L,
+            generation = -1L
         )
     }
 
-    private fun isSupportedIndexedMp4SubtitleMime(mimeType: String?): Boolean =
-        mimeType == MimeTypes.APPLICATION_TX3G || mimeType == MimeTypes.APPLICATION_MP4VTT
+    private fun isSupportedIndexedMp4SubtitleMime(mimeType: String?): Boolean = mimeType == MimeTypes.APPLICATION_TX3G || mimeType == MimeTypes.APPLICATION_MP4VTT
 
     /** Keep gap samples as timing boundaries, but don't emit them as dialogue cues. */
-    private fun isEmptyMp4SubtitleSample(mimeType: String, sampleSize: Int): Boolean =
-        when (mimeType) {
-            MimeTypes.APPLICATION_TX3G -> sampleSize <= 2
-            MimeTypes.APPLICATION_MP4VTT -> sampleSize <= 8
-            else -> true
-        }
+    private fun isEmptyMp4SubtitleSample(mimeType: String, sampleSize: Int): Boolean = when (mimeType) {
+        MimeTypes.APPLICATION_TX3G -> sampleSize <= 2
+        MimeTypes.APPLICATION_MP4VTT -> sampleSize <= 8
+        else -> true
+    }
 
     private fun isQuickTimeContainer(initialBytes: ByteArray, sourceUrl: String): Boolean {
         var position = 0
@@ -779,7 +778,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                 bytes = initialBytes,
                 offset = position,
                 limit = initialBytes.size,
-                extendsToEndSize = (initialBytes.size - position).toLong(),
+                extendsToEndSize = (initialBytes.size - position).toLong()
             ) ?: break
             val end = mp4BoxEnd(position, header, initialBytes.size) ?: break
             if (header.type == 0x66747970) { // ftyp
@@ -797,14 +796,13 @@ internal object EmbeddedSubtitleTimelineLoader {
         return path.endsWith(".mov") || path.contains(".mov/")
     }
 
-    private fun hasDirectMp4Child(bytes: ByteArray, start: Int, end: Int, type: Int): Boolean =
-        findDirectMp4Child(bytes, start, end, type) != null
+    private fun hasDirectMp4Child(bytes: ByteArray, start: Int, end: Int, type: Int): Boolean = findDirectMp4Child(bytes, start, end, type) != null
 
     private fun findDirectMp4Child(
         bytes: ByteArray,
         start: Int,
         end: Int,
-        type: Int,
+        type: Int
     ): Mp4ChildRange? {
         var position = start
         while (position < end) {
@@ -812,7 +810,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                 bytes = bytes,
                 offset = position,
                 limit = end,
-                extendsToEndSize = (end - position).toLong(),
+                extendsToEndSize = (end - position).toLong()
             ) ?: return null
             val childEnd = mp4BoxEnd(position, header, end) ?: return null
             if (header.type == type) {
@@ -820,7 +818,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                     start = position,
                     dataStart = header.dataStart(position),
                     end = childEnd,
-                    headerSize = header.headerSize,
+                    headerSize = header.headerSize
                 )
             }
             position = childEnd
@@ -828,46 +826,43 @@ internal object EmbeddedSubtitleTimelineLoader {
         return null
     }
 
-    private fun isNeededMp4ContainerType(type: Int): Boolean =
-        type == Mp4Box.TYPE_mdia ||
-            type == Mp4Box.TYPE_minf ||
-            type == Mp4Box.TYPE_stbl ||
-            type == Mp4Box.TYPE_edts
+    private fun isNeededMp4ContainerType(type: Int): Boolean = type == Mp4Box.TYPE_mdia ||
+        type == Mp4Box.TYPE_minf ||
+        type == Mp4Box.TYPE_stbl ||
+        type == Mp4Box.TYPE_edts
 
-    private fun isNeededMp4LeafType(type: Int): Boolean =
-        type == Mp4Box.TYPE_tkhd ||
-            type == Mp4Box.TYPE_mdhd ||
-            type == Mp4Box.TYPE_hdlr ||
-            type == Mp4Box.TYPE_stsd ||
-            type == Mp4Box.TYPE_stts ||
-            type == Mp4Box.TYPE_ctts ||
-            type == Mp4Box.TYPE_stsc ||
-            type == Mp4Box.TYPE_stsz ||
-            type == Mp4Box.TYPE_stz2 ||
-            type == Mp4Box.TYPE_stco ||
-            type == Mp4Box.TYPE_co64 ||
-            type == Mp4Box.TYPE_stss ||
-            type == Mp4Box.TYPE_elst
+    private fun isNeededMp4LeafType(type: Int): Boolean = type == Mp4Box.TYPE_tkhd ||
+        type == Mp4Box.TYPE_mdhd ||
+        type == Mp4Box.TYPE_hdlr ||
+        type == Mp4Box.TYPE_stsd ||
+        type == Mp4Box.TYPE_stts ||
+        type == Mp4Box.TYPE_ctts ||
+        type == Mp4Box.TYPE_stsc ||
+        type == Mp4Box.TYPE_stsz ||
+        type == Mp4Box.TYPE_stz2 ||
+        type == Mp4Box.TYPE_stco ||
+        type == Mp4Box.TYPE_co64 ||
+        type == Mp4Box.TYPE_stss ||
+        type == Mp4Box.TYPE_elst
 
-    private fun isPlausibleMp4TopLevelType(type: Int): Boolean =
-        type == 0x66747970 || // ftyp
-            type == Mp4Box.TYPE_moov ||
-            type == 0x6d646174 || // mdat
-            type == 0x66726565 || // free
-            type == 0x736b6970 || // skip
-            type == 0x77696465 || // wide
-            type == 0x706e6f74 || // pnot (older QuickTime)
-            type == 0x75756964 || // uuid
-            type == 0x7064696e || // pdin
-            type == 0x6d6f6f66 || // moof
-            type == 0x73696478 || // sidx
-            type == 0x73747970 // styp
+    private fun isPlausibleMp4TopLevelType(type: Int): Boolean = type == 0x66747970 || // ftyp
+        type == Mp4Box.TYPE_moov ||
+        type == 0x6d646174 || // mdat
+        type == 0x66726565 || // free
+        type == 0x736b6970 || // skip
+        type == 0x77696465 || // wide
+        type == 0x706e6f74 || // pnot (older QuickTime)
+        type == 0x75756964 || // uuid
+        type == 0x7064696e || // pdin
+        type == 0x6d6f6f66 || // moof
+        type == 0x73696478 || // sidx
+        type == 0x73747970 // styp
 
     private fun readMp4BoxHeader(
         bytes: ByteArray,
         offset: Int,
         limit: Int,
-        extendsToEndSize: Long,
+        extendsToEndSize: Long
     ): Mp4BoxHeader? {
         if (offset < 0 || limit > bytes.size || offset + 8 > limit) return null
 
@@ -876,11 +871,13 @@ internal object EmbeddedSubtitleTimelineLoader {
         var headerSize = 8
         val size = when (size32) {
             0L -> extendsToEndSize
+
             1L -> {
                 if (offset + 16 > limit) return null
                 headerSize = 16
                 readMp4UnsignedLong(bytes, offset + 8) ?: return null
             }
+
             else -> size32
         }
         if (size < headerSize.toLong()) return null
@@ -894,17 +891,15 @@ internal object EmbeddedSubtitleTimelineLoader {
         return end.toInt()
     }
 
-    private fun readMp4UnsignedInt(bytes: ByteArray, offset: Int): Long =
-        ((bytes[offset].toLong() and 0xFFL) shl 24) or
-            ((bytes[offset + 1].toLong() and 0xFFL) shl 16) or
-            ((bytes[offset + 2].toLong() and 0xFFL) shl 8) or
-            (bytes[offset + 3].toLong() and 0xFFL)
+    private fun readMp4UnsignedInt(bytes: ByteArray, offset: Int): Long = ((bytes[offset].toLong() and 0xFFL) shl 24) or
+        ((bytes[offset + 1].toLong() and 0xFFL) shl 16) or
+        ((bytes[offset + 2].toLong() and 0xFFL) shl 8) or
+        (bytes[offset + 3].toLong() and 0xFFL)
 
-    private fun readMp4Int(bytes: ByteArray, offset: Int): Int =
-        ((bytes[offset].toInt() and 0xFF) shl 24) or
-            ((bytes[offset + 1].toInt() and 0xFF) shl 16) or
-            ((bytes[offset + 2].toInt() and 0xFF) shl 8) or
-            (bytes[offset + 3].toInt() and 0xFF)
+    private fun readMp4Int(bytes: ByteArray, offset: Int): Int = ((bytes[offset].toInt() and 0xFF) shl 24) or
+        ((bytes[offset + 1].toInt() and 0xFF) shl 16) or
+        ((bytes[offset + 2].toInt() and 0xFF) shl 8) or
+        (bytes[offset + 3].toInt() and 0xFF)
 
     private fun readMp4UnsignedLong(bytes: ByteArray, offset: Int): Long? {
         if ((bytes[offset].toInt() and 0x80) != 0) return null
@@ -921,7 +916,7 @@ internal object EmbeddedSubtitleTimelineLoader {
         totalLength: Long?,
         subtitleTracks: List<MatroskaSubtitleTrack>,
         timestampScaleNs: Long,
-        stats: RangeStats,
+        stats: RangeStats
     ): Map<Int, IndexedSubtitleTimeline>? {
         val fileLength = totalLength?.takeIf { it > 0L } ?: return null
         val start = max(0L, fileLength - TAIL_PROBE_BYTES)
@@ -933,7 +928,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             start = start,
             length = tailLength,
             requirePartialContent = true,
-            stats = stats,
+            stats = stats
         )?.let { tail ->
             findElementIdOffsets(tail.bytes, ID_CUES).asReversed()
         } ?: return null
@@ -945,14 +940,19 @@ internal object EmbeddedSubtitleTimelineLoader {
                 absolutePosition = absolute,
                 expectedId = ID_CUES,
                 maxElementBytes = MAX_CUES_BYTES,
-                stats = stats,
+                stats = stats
             ) ?: continue
             val parsed = parseSubtitleCueTimelines(
                 cuesElement = cuesBytes,
                 subtitleTracks = subtitleTracks,
-                timestampScaleNs = timestampScaleNs,
+                timestampScaleNs = timestampScaleNs
             )
-            if (parsed.values.any { timeline -> timeline.cues.size >= MIN_INDEXED_CUES }) return parsed
+            if (parsed.values.any { timeline ->
+                    timeline.cues.size >= MIN_INDEXED_CUES
+                }
+            ) {
+                return parsed
+            }
         }
         return null
     }
@@ -976,7 +976,7 @@ internal object EmbeddedSubtitleTimelineLoader {
 
     private fun findInitialTopLevelPositions(
         bytes: ByteArray,
-        segment: EbmlElement,
+        segment: EbmlElement
     ): Map<Long, Long> {
         val result = mutableMapOf<Long, Long>()
         var position = segment.dataStart
@@ -986,6 +986,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             when (element.id) {
                 ID_SEEK_HEAD, ID_INFO, ID_TRACKS, ID_CUES ->
                     result.putIfAbsent(element.id, position.toLong())
+
                 ID_CLUSTER -> break
             }
             val end = element.endWithin(bytes.size) ?: break
@@ -1021,7 +1022,8 @@ internal object EmbeddedSubtitleTimelineLoader {
     }
 
     private fun parseTimestampScaleNs(infoElement: ByteArray): Long {
-        val root = readElement(infoElement, 0, infoElement.size) ?: return DEFAULT_TIMESTAMP_SCALE_NS
+        val root =
+            readElement(infoElement, 0, infoElement.size) ?: return DEFAULT_TIMESTAMP_SCALE_NS
         if (root.id != ID_INFO) return DEFAULT_TIMESTAMP_SCALE_NS
         val rootEnd = root.endWithin(infoElement.size) ?: return DEFAULT_TIMESTAMP_SCALE_NS
         var scale = DEFAULT_TIMESTAMP_SCALE_NS
@@ -1059,16 +1061,33 @@ internal object EmbeddedSubtitleTimelineLoader {
             forEachChild(tracksElement, entry.dataStart, entryEnd) { child ->
                 when (child.id) {
                     ID_TRACK_NUMBER -> number = readUnsigned(tracksElement, child)?.toInt()
+
                     ID_TRACK_TYPE -> type = readUnsigned(tracksElement, child)
+
                     ID_NAME -> name = readUtf8(tracksElement, child)
+
                     ID_LANGUAGE -> language = readUtf8(tracksElement, child)
+
                     ID_LANGUAGE_IETF -> languageIetf = readUtf8(tracksElement, child)
+
                     ID_CODEC_ID -> codecId = readUtf8(tracksElement, child)
+
                     ID_FLAG_DEFAULT -> isDefault = readUnsigned(tracksElement, child) != 0L
+
                     ID_FLAG_FORCED -> forced = readUnsigned(tracksElement, child) == 1L
-                    ID_FLAG_HEARING_IMPAIRED -> hearingImpaired = readUnsigned(tracksElement, child) == 1L
-                    ID_FLAG_VISUAL_IMPAIRED -> visualImpaired = readUnsigned(tracksElement, child) == 1L
-                    ID_FLAG_TEXT_DESCRIPTIONS -> textDescriptions = readUnsigned(tracksElement, child) == 1L
+
+                    ID_FLAG_HEARING_IMPAIRED ->
+                        hearingImpaired =
+                            readUnsigned(tracksElement, child) == 1L
+
+                    ID_FLAG_VISUAL_IMPAIRED ->
+                        visualImpaired =
+                            readUnsigned(tracksElement, child) == 1L
+
+                    ID_FLAG_TEXT_DESCRIPTIONS ->
+                        textDescriptions =
+                            readUnsigned(tracksElement, child) == 1L
+
                     ID_FLAG_COMMENTARY -> commentary = readUnsigned(tracksElement, child) == 1L
                 }
             }
@@ -1086,7 +1105,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                     hearingImpaired = hearingImpaired,
                     visualImpaired = visualImpaired,
                     textDescriptions = textDescriptions,
-                    commentary = commentary,
+                    commentary = commentary
                 )
             }
         }
@@ -1096,13 +1115,15 @@ internal object EmbeddedSubtitleTimelineLoader {
     private fun parseSubtitleCueTimelines(
         cuesElement: ByteArray,
         subtitleTracks: List<MatroskaSubtitleTrack>,
-        timestampScaleNs: Long,
+        timestampScaleNs: Long
     ): Map<Int, IndexedSubtitleTimeline> {
         val root = readElement(cuesElement, 0, cuesElement.size) ?: return emptyMap()
         if (root.id != ID_CUES) return emptyMap()
         val rootEnd = root.endWithin(cuesElement.size) ?: return emptyMap()
         val subtitleTrackNumbers = subtitleTracks.mapTo(mutableSetOf()) { it.number }
-        val pendingByTrack = subtitleTrackNumbers.associateWith { mutableListOf<PendingIndexedCue>() }
+        val pendingByTrack = subtitleTrackNumbers.associateWith {
+            mutableListOf<PendingIndexedCue>()
+        }
             .toMutableMap()
 
         forEachChild(cuesElement, root.dataStart, rootEnd) { cuePoint ->
@@ -1114,15 +1135,25 @@ internal object EmbeddedSubtitleTimelineLoader {
             forEachChild(cuesElement, cuePoint.dataStart, pointEnd) { child ->
                 when (child.id) {
                     ID_CUE_TIME -> cueTimeTicks = readUnsigned(cuesElement, child)
+
                     ID_CUE_TRACK_POSITIONS -> {
                         val positionEnd = child.endWithin(pointEnd)
                         if (positionEnd != null) {
                             var trackNumber: Int? = null
                             var durationTicks: Long? = null
-                            forEachChild(cuesElement, child.dataStart, positionEnd) { positionChild ->
+                            forEachChild(
+                                cuesElement,
+                                child.dataStart,
+                                positionEnd
+                            ) { positionChild ->
                                 when (positionChild.id) {
-                                    ID_CUE_TRACK -> trackNumber = readUnsigned(cuesElement, positionChild)?.toInt()
-                                    ID_CUE_DURATION -> durationTicks = readUnsigned(cuesElement, positionChild)
+                                    ID_CUE_TRACK ->
+                                        trackNumber =
+                                            readUnsigned(cuesElement, positionChild)?.toInt()
+
+                                    ID_CUE_DURATION ->
+                                        durationTicks =
+                                            readUnsigned(cuesElement, positionChild)
                                 }
                             }
                             trackNumber?.let { positions += CueTrackPosition(it, durationTicks) }
@@ -1141,8 +1172,8 @@ internal object EmbeddedSubtitleTimelineLoader {
                 pendingByTrack[position.trackNumber]?.add(
                     PendingIndexedCue(
                         startTimeMs = startMs,
-                        explicitDurationMs = durationMs,
-                    ),
+                        explicitDurationMs = durationMs
+                    )
                 )
             }
         }
@@ -1171,10 +1202,14 @@ internal object EmbeddedSubtitleTimelineLoader {
                 .sortedBy { it.startTimeMs }
                 .distinctBy { it.startTimeMs }
 
-            if (tracksByNumber[trackNumber]?.codecId.equals(MATROSKA_PGS_CODEC_ID, ignoreCase = true)) {
+            if (tracksByNumber[trackNumber]?.codecId.equals(
+                    MATROSKA_PGS_CODEC_ID,
+                    ignoreCase = true
+                )
+            ) {
                 buildPgsIndexedTimeline(
                     sorted = sorted,
-                    peerDialogueCueCount = peerDialogueCueCount,
+                    peerDialogueCueCount = peerDialogueCueCount
                 )
             } else {
                 buildDefaultIndexedTimeline(sorted)
@@ -1190,12 +1225,12 @@ internal object EmbeddedSubtitleTimelineLoader {
      */
     private fun buildPgsIndexedTimeline(
         sorted: List<PendingIndexedCue>,
-        peerDialogueCueCount: Int?,
+        peerDialogueCueCount: Int?
     ): IndexedSubtitleTimeline {
         if (sorted.size < 2) {
             return IndexedSubtitleTimeline(
                 cues = emptyList(),
-                estimatedEndStartsMs = emptySet(),
+                estimatedEndStartsMs = emptySet()
             )
         }
 
@@ -1244,7 +1279,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                     cues += SubtitleSyncCue(
                         startTimeMs = display.startTimeMs,
                         endTimeMs = endTimeMs,
-                        text = "",
+                        text = ""
                     )
                 }
             }
@@ -1253,12 +1288,12 @@ internal object EmbeddedSubtitleTimelineLoader {
 
         return IndexedSubtitleTimeline(
             cues = cues,
-            estimatedEndStartsMs = emptySet(),
+            estimatedEndStartsMs = emptySet()
         )
     }
 
     private fun buildDefaultIndexedTimeline(
-        sorted: List<PendingIndexedCue>,
+        sorted: List<PendingIndexedCue>
     ): IndexedSubtitleTimeline {
         val estimatedEndStartsMs = HashSet<Long>()
 
@@ -1277,19 +1312,18 @@ internal object EmbeddedSubtitleTimelineLoader {
             SubtitleSyncCue(
                 startTimeMs = cue.startTimeMs,
                 endTimeMs = cue.startTimeMs + durationMs,
-                text = "",
+                text = ""
             )
         }
 
         return IndexedSubtitleTimeline(
             cues = cues,
-            estimatedEndStartsMs = estimatedEndStartsMs,
+            estimatedEndStartsMs = estimatedEndStartsMs
         )
     }
 
-    private fun isMatroskaAssCodec(codecId: String?): Boolean =
-        codecId.equals(MATROSKA_ASS_CODEC_ID, ignoreCase = true) ||
-            codecId.equals(MATROSKA_SSA_CODEC_ID, ignoreCase = true)
+    private fun isMatroskaAssCodec(codecId: String?): Boolean = codecId.equals(MATROSKA_ASS_CODEC_ID, ignoreCase = true) ||
+        codecId.equals(MATROSKA_SSA_CODEC_ID, ignoreCase = true)
 
     private fun buildFallbackTrackLabel(track: MatroskaSubtitleTrack): String {
         val language = track.languageIetf?.takeIf { it.isNotBlank() }
@@ -1323,7 +1357,7 @@ internal object EmbeddedSubtitleTimelineLoader {
         initialBytes: ByteArray,
         absolutePosition: Long,
         expectedId: Long,
-        maxElementBytes: Int,
+        maxElementBytes: Int
     ): ByteArray? {
         if (absolutePosition < 0L || absolutePosition > Int.MAX_VALUE.toLong()) return null
         val start = absolutePosition.toInt()
@@ -1345,7 +1379,7 @@ internal object EmbeddedSubtitleTimelineLoader {
         absolutePosition: Long,
         expectedId: Long,
         maxElementBytes: Int,
-        stats: RangeStats,
+        stats: RangeStats
     ): ByteArray? {
         if (absolutePosition < 0L) return null
         val headerProbe = fetchRange(
@@ -1354,7 +1388,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             start = absolutePosition,
             length = HEADER_PROBE_BYTES,
             requirePartialContent = absolutePosition > 0L,
-            stats = stats,
+            stats = stats
         ) ?: return null
         val header = readElement(headerProbe.bytes, 0, headerProbe.bytes.size) ?: return null
         if (header.id != expectedId || header.size == null) return null
@@ -1384,7 +1418,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             length = totalSize.toInt(),
             requirePartialContent = absolutePosition > 0L,
             stats = stats,
-            requireExactLength = true,
+            requireExactLength = true
         )?.bytes
     }
 
@@ -1395,7 +1429,7 @@ internal object EmbeddedSubtitleTimelineLoader {
         length: Int,
         requirePartialContent: Boolean,
         stats: RangeStats,
-        requireExactLength: Boolean = false,
+        requireExactLength: Boolean = false
     ): RangeResponse? {
         if (length <= 0 || start < 0L) return null
         if (!stats.canRequest(length)) return null
@@ -1424,7 +1458,7 @@ internal object EmbeddedSubtitleTimelineLoader {
         val call = httpClient.newCall(requestBuilder.build())
         call.timeout().timeout(
             minOf(remainingBudgetMs.coerceAtLeast(1L), 5_000L),
-            TimeUnit.MILLISECONDS,
+            TimeUnit.MILLISECONDS
         )
 
         return suspendCancellableCoroutine { continuation ->
@@ -1442,9 +1476,9 @@ internal object EmbeddedSubtitleTimelineLoader {
                             continuation.resumeWith(
                                 Result.failure(
                                     CancellationException(
-                                        "Cancelled embedded index HTTP request",
-                                    ).also { it.initCause(error) },
-                                ),
+                                        "Cancelled embedded index HTTP request"
+                                    ).also { it.initCause(error) }
+                                )
                             )
                         } else {
                             continuation.resumeWith(Result.failure(error))
@@ -1464,7 +1498,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                                 if (start > 0L && current.code != 206) return@use null
 
                                 val contentRange = parseContentRange(
-                                    current.header("Content-Range"),
+                                    current.header("Content-Range")
                                 )
                                 if (current.code == 206) {
                                     val parsedRange = contentRange ?: return@use null
@@ -1486,7 +1520,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                                         length - offset,
                                         stats.remainingByteBudget()
                                             .coerceAtMost(Int.MAX_VALUE.toLong())
-                                            .toInt(),
+                                            .toInt()
                                     )
                                     if (allowedRead <= 0) return@use null
                                     val read = input.read(bytes, offset, allowedRead)
@@ -1508,7 +1542,7 @@ internal object EmbeddedSubtitleTimelineLoader {
                                     }
                                 RangeResponse(
                                     bytes = returnedBytes,
-                                    totalLength = totalLength,
+                                    totalLength = totalLength
                                 )
                             }
 
@@ -1521,16 +1555,16 @@ internal object EmbeddedSubtitleTimelineLoader {
                                 continuation.resumeWith(
                                     Result.failure(
                                         CancellationException(
-                                            "Cancelled embedded index HTTP request",
-                                        ).also { it.initCause(error) },
-                                    ),
+                                            "Cancelled embedded index HTTP request"
+                                        ).also { it.initCause(error) }
+                                    )
                                 )
                             } else {
                                 continuation.resumeWith(Result.failure(error))
                             }
                         }
                     }
-                },
+                }
             )
         }
     }
@@ -1575,7 +1609,7 @@ internal object EmbeddedSubtitleTimelineLoader {
         bytes: ByteArray,
         start: Int,
         endExclusive: Int,
-        action: (EbmlElement) -> Unit,
+        action: (EbmlElement) -> Unit
     ) {
         var position = start
         var count = 0
@@ -1614,7 +1648,7 @@ internal object EmbeddedSubtitleTimelineLoader {
             size = size,
             headerStart = offset,
             dataStart = dataStart,
-            headerSize = dataStart - offset,
+            headerSize = dataStart - offset
         )
     }
 
@@ -1664,16 +1698,9 @@ internal object EmbeddedSubtitleTimelineLoader {
             .trimEnd('\u0000')
     }
 
-    private data class Mp4BoxLocation(
-        val position: Long,
-        val size: Long,
-    )
+    private data class Mp4BoxLocation(val position: Long, val size: Long)
 
-    private data class Mp4BoxHeader(
-        val type: Int,
-        val size: Long,
-        val headerSize: Int,
-    ) {
+    private data class Mp4BoxHeader(val type: Int, val size: Long, val headerSize: Int) {
         fun dataStart(boxStart: Int): Int = boxStart + headerSize
     }
 
@@ -1681,50 +1708,40 @@ internal object EmbeddedSubtitleTimelineLoader {
         val start: Int,
         val dataStart: Int,
         val end: Int,
-        val headerSize: Int,
+        val headerSize: Int
     )
 
     private data class CachedLoadResult(
         val timeline: IndexedEmbeddedTimeline?,
-        val createdAtNs: Long,
+        val createdAtNs: Long
     )
 
-    private data class RangeResponse(
-        val bytes: ByteArray,
-        val totalLength: Long?,
-    )
+    private data class RangeResponse(val bytes: ByteArray, val totalLength: Long?)
 
     private data class RangeStats(
         var requests: Int = 0,
         var bytesDownloaded: Long = 0L,
         val deadlineNs: Long,
         val maxBytes: Long,
-        val maxRequests: Int,
+        val maxRequests: Int
     ) {
-        fun remainingBudgetMs(): Long =
-            ((deadlineNs - System.nanoTime()) / 1_000_000L).coerceAtLeast(0L)
+        fun remainingBudgetMs(): Long = ((deadlineNs - System.nanoTime()) / 1_000_000L).coerceAtLeast(0L)
 
-        fun remainingByteBudget(): Long =
-            (maxBytes - bytesDownloaded).coerceAtLeast(0L)
+        fun remainingByteBudget(): Long = (maxBytes - bytesDownloaded).coerceAtLeast(0L)
 
-        fun canRequest(length: Int): Boolean =
-            length > 0 &&
-                requests < maxRequests &&
-                length.toLong() <= remainingByteBudget() &&
-                remainingBudgetMs() > 0L
+        fun canRequest(length: Int): Boolean = length > 0 &&
+            requests < maxRequests &&
+            length.toLong() <= remainingByteBudget() &&
+            remainingBudgetMs() > 0L
     }
 
-    private data class ContentRange(
-        val start: Long?,
-        val end: Long?,
-        val total: Long?,
-    )
+    private data class ContentRange(val start: Long?, val end: Long?, val total: Long?)
 
     private data class InitialMetadata(
         val segmentDataStart: Long,
         val directPositions: Map<Long, Long>,
         val totalLength: Long?,
-        val initialBytes: ByteArray,
+        val initialBytes: ByteArray
     )
 
     private data class EbmlElement(
@@ -1732,7 +1749,7 @@ internal object EmbeddedSubtitleTimelineLoader {
         val size: Long?,
         val headerStart: Int,
         val dataStart: Int,
-        val headerSize: Int,
+        val headerSize: Int
     ) {
         fun endWithin(limit: Int): Int? {
             val contentSize = size ?: return null
@@ -1754,22 +1771,16 @@ internal object EmbeddedSubtitleTimelineLoader {
         val hearingImpaired: Boolean,
         val visualImpaired: Boolean,
         val textDescriptions: Boolean,
-        val commentary: Boolean,
+        val commentary: Boolean
     )
 
-    private data class CueTrackPosition(
-        val trackNumber: Int,
-        val durationTicks: Long?,
-    )
+    private data class CueTrackPosition(val trackNumber: Int, val durationTicks: Long?)
 
-    private data class PendingIndexedCue(
-        val startTimeMs: Long,
-        val explicitDurationMs: Long?,
-    )
+    private data class PendingIndexedCue(val startTimeMs: Long, val explicitDurationMs: Long?)
 
     private data class IndexedSubtitleTimeline(
         val cues: List<SubtitleSyncCue>,
-        val estimatedEndStartsMs: Set<Long>,
+        val estimatedEndStartsMs: Set<Long>
     )
 }
 
@@ -1780,5 +1791,5 @@ internal data class IndexedEmbeddedTimeline(
     val rangeRequests: Int,
     val loadMs: Long,
     val skipLiveFallbackWait: Boolean = false,
-    val noSubtitleTracks: Boolean = false,
+    val noSubtitleTracks: Boolean = false
 )

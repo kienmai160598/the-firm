@@ -104,11 +104,9 @@ class TrackingProgressRefreshCoordinatorTest {
         var refreshCount = 0
         var lastIntent: TrackingRefreshIntent? = null
 
-        override fun episodeProgress(contentId: String): Flow<Map<Pair<Int, Int>, WatchProgress>> =
-            flowOf(emptyMap())
+        override fun episodeProgress(contentId: String): Flow<Map<Pair<Int, Int>, WatchProgress>> = flowOf(emptyMap())
 
-        override fun airedEpisodeOrder(contentId: String): Flow<List<Pair<Int, Int>>> =
-            flowOf(emptyList())
+        override fun airedEpisodeOrder(contentId: String): Flow<List<Pair<Int, Int>>> = flowOf(emptyList())
 
         override fun isWatched(
             contentId: String,

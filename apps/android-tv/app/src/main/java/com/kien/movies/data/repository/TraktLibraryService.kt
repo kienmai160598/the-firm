@@ -18,19 +18,21 @@ import com.kien.movies.data.remote.dto.trakt.TraktListSummaryDto
 import com.kien.movies.data.remote.dto.trakt.TraktReorderListsRequestDto
 import com.kien.movies.domain.model.LibraryEntry
 import com.kien.movies.domain.model.LibraryEntryInput
+import com.kien.movies.domain.model.LibraryListPrivacy
 import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.ListMembershipChanges
 import com.kien.movies.domain.model.ListMembershipSnapshot
-import com.kien.movies.domain.model.LibraryListPrivacy
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -39,8 +41,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
-import javax.inject.Inject
-import javax.inject.Singleton
 import retrofit2.Response
 
 @Singleton
@@ -114,10 +114,7 @@ class TraktLibraryService @Inject constructor(
         return ListMembershipSnapshot(listMembership = map)
     }
 
-    suspend fun applyMembershipChanges(
-        item: LibraryEntryInput,
-        changes: ListMembershipChanges
-    ) {
+    suspend fun applyMembershipChanges(item: LibraryEntryInput, changes: ListMembershipChanges) {
         ensureFresh()
         val current = getMembershipSnapshot(item).listMembership
         val desired = changes.desiredMembership
@@ -137,7 +134,9 @@ class TraktLibraryService @Inject constructor(
                     }
                 } else {
                     performOptimisticMutation(
-                        optimistic = { snapshot -> removeItemFromList(snapshot, item, WATCHLIST_KEY) }
+                        optimistic = { snapshot ->
+                            removeItemFromList(snapshot, item, WATCHLIST_KEY)
+                        }
                     ) {
                         removeFromWatchlist(item)
                     }
@@ -176,10 +175,20 @@ class TraktLibraryService @Inject constructor(
                     privacy = privacy.apiValue
                 )
             )
-        } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_request_failed))
+        }
+            ?: throw IllegalStateException(
+                appContext.getString(com.kien.movies.R.string.trakt_library_error_request_failed)
+            )
 
         if (!response.isSuccessful) {
-            throw IllegalStateException(errorMessageForCode(response.code(), appContext.getString(com.kien.movies.R.string.trakt_library_error_create_list_failed)))
+            throw IllegalStateException(
+                errorMessageForCode(
+                    response.code(),
+                    appContext.getString(
+                        com.kien.movies.R.string.trakt_library_error_create_list_failed
+                    )
+                )
+            )
         }
 
         val createdTab = response.body()?.let(::mapListTab)
@@ -228,10 +237,22 @@ class TraktLibraryService @Inject constructor(
                         privacy = privacy.apiValue
                     )
                 )
-            } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_request_failed))
+            }
+                ?: throw IllegalStateException(
+                    appContext.getString(
+                        com.kien.movies.R.string.trakt_library_error_request_failed
+                    )
+                )
 
             if (!response.isSuccessful) {
-                throw IllegalStateException(errorMessageForCode(response.code(), appContext.getString(com.kien.movies.R.string.trakt_library_error_update_list_failed)))
+                throw IllegalStateException(
+                    errorMessageForCode(
+                        response.code(),
+                        appContext.getString(
+                            com.kien.movies.R.string.trakt_library_error_update_list_failed
+                        )
+                    )
+                )
             }
         }
     }
@@ -254,10 +275,22 @@ class TraktLibraryService @Inject constructor(
                     id = ME_PATH,
                     listId = listId
                 )
-            } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_request_failed))
+            }
+                ?: throw IllegalStateException(
+                    appContext.getString(
+                        com.kien.movies.R.string.trakt_library_error_request_failed
+                    )
+                )
 
             if (!response.isSuccessful && response.code() != 204) {
-                throw IllegalStateException(errorMessageForCode(response.code(), appContext.getString(com.kien.movies.R.string.trakt_library_error_delete_list_failed)))
+                throw IllegalStateException(
+                    errorMessageForCode(
+                        response.code(),
+                        appContext.getString(
+                            com.kien.movies.R.string.trakt_library_error_delete_list_failed
+                        )
+                    )
+                )
             }
         }
     }
@@ -270,12 +303,16 @@ class TraktLibraryService @Inject constructor(
 
         performOptimisticMutation(
             optimistic = { snapshot ->
-                val personalTabs = snapshot.listTabs.filter { it.type == LibraryListTab.Type.PERSONAL }
+                val personalTabs = snapshot.listTabs.filter {
+                    it.type ==
+                        LibraryListTab.Type.PERSONAL
+                }
                 val orderedTabs = orderedListIds.mapNotNull { id ->
                     personalTabs.firstOrNull { matchesPersonalListIdentifier(it, id) }
                 }.distinctBy { it.key }
                 val remainingTabs = snapshot.listTabs.filter { tab ->
-                    tab.type != LibraryListTab.Type.PERSONAL || orderedTabs.none { it.key == tab.key }
+                    tab.type != LibraryListTab.Type.PERSONAL ||
+                        orderedTabs.none { it.key == tab.key }
                 }
                 rebuildSnapshot(
                     tabs = remainingTabs + orderedTabs,
@@ -289,10 +326,22 @@ class TraktLibraryService @Inject constructor(
                     id = ME_PATH,
                     body = TraktReorderListsRequestDto(rank = rank)
                 )
-            } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_request_failed))
+            }
+                ?: throw IllegalStateException(
+                    appContext.getString(
+                        com.kien.movies.R.string.trakt_library_error_request_failed
+                    )
+                )
 
             if (!response.isSuccessful) {
-                throw IllegalStateException(errorMessageForCode(response.code(), appContext.getString(com.kien.movies.R.string.trakt_library_error_reorder_lists_failed)))
+                throw IllegalStateException(
+                    errorMessageForCode(
+                        response.code(),
+                        appContext.getString(
+                            com.kien.movies.R.string.trakt_library_error_reorder_lists_failed
+                        )
+                    )
+                )
             }
         }
     }
@@ -300,7 +349,6 @@ class TraktLibraryService @Inject constructor(
     suspend fun refreshNow() {
         refresh(force = true)
     }
-
 
     private suspend fun resetProfileScopedState() {
         refreshMutex.withLock {
@@ -316,7 +364,9 @@ class TraktLibraryService @Inject constructor(
     private suspend fun refresh(force: Boolean): Boolean {
         val now = System.currentTimeMillis()
         return refreshMutex.withLock {
-            if (!force && now - lastRefreshMs <= cacheTtlMs && snapshotState.value.updatedAtMs > 0L) {
+            if (!force && now - lastRefreshMs <= cacheTtlMs &&
+                snapshotState.value.updatedAtMs > 0L
+            ) {
                 return@withLock true
             }
 
@@ -349,46 +399,57 @@ class TraktLibraryService @Inject constructor(
         }
     }
 
-    private fun addItemToList(snapshot: Snapshot, item: LibraryEntryInput, listKey: String): Snapshot {
+    private fun addItemToList(
+        snapshot: Snapshot,
+        item: LibraryEntryInput,
+        listKey: String
+    ): Snapshot {
         val key = contentKey(item.itemId, item.itemType)
         val normalizedType = normalizeItemType(item.itemType)
         val normalizedId = normalizeContentId(resolveIds(item), fallback = item.itemId.trim())
             .ifBlank { item.itemId.trim() }
         val existing = snapshot.allEntries.firstOrNull { contentKey(it.id, it.type) == key }
-        val entry = (existing ?: LibraryEntry(
-            id = normalizedId,
-            type = normalizedType,
-            name = item.title.ifBlank { normalizedId },
-            poster = item.poster,
-            posterShape = item.posterShape,
-            background = item.background,
-            logo = item.logo,
-            description = item.description,
-            releaseInfo = item.releaseInfo ?: item.year?.toString(),
-            imdbRating = item.imdbRating,
-            genres = item.genres,
-            addonBaseUrl = item.addonBaseUrl,
-            imdbId = item.imdbId,
-            tmdbId = item.tmdbId,
-            traktId = item.traktId,
-            rawPosterUrl = item.poster
-        )).copy(
+        val entry = (
+            existing ?: LibraryEntry(
+                id = normalizedId,
+                type = normalizedType,
+                name = item.title.ifBlank { normalizedId },
+                poster = item.poster,
+                posterShape = item.posterShape,
+                background = item.background,
+                logo = item.logo,
+                description = item.description,
+                releaseInfo = item.releaseInfo ?: item.year?.toString(),
+                imdbRating = item.imdbRating,
+                genres = item.genres,
+                addonBaseUrl = item.addonBaseUrl,
+                imdbId = item.imdbId,
+                tmdbId = item.tmdbId,
+                traktId = item.traktId,
+                rawPosterUrl = item.poster
+            )
+            ).copy(
             listedAt = System.currentTimeMillis(),
             listKeys = existing?.listKeys.orEmpty() + listKey
         )
 
         val existingEntries = snapshot.entriesByList[listKey].orEmpty()
-        val updatedListEntries = listOf(entry) + existingEntries.filterNot { contentKey(it.id, it.type) == key }
+        val updatedListEntries =
+            listOf(entry) + existingEntries.filterNot { contentKey(it.id, it.type) == key }
         val updatedEntriesByList = snapshot.entriesByList + (listKey to updatedListEntries)
         return rebuildSnapshot(snapshot.listTabs, updatedEntriesByList)
     }
 
-    private fun removeItemFromList(snapshot: Snapshot, item: LibraryEntryInput, listKey: String): Snapshot {
+    private fun removeItemFromList(
+        snapshot: Snapshot,
+        item: LibraryEntryInput,
+        listKey: String
+    ): Snapshot {
         val key = contentKey(item.itemId, item.itemType)
         val updatedEntriesByList = snapshot.entriesByList + (
             listKey to snapshot.entriesByList[listKey].orEmpty()
                 .filterNot { contentKey(it.id, it.type) == key }
-        )
+            )
         return rebuildSnapshot(snapshot.listTabs, updatedEntriesByList)
     }
 
@@ -506,7 +567,12 @@ class TraktLibraryService @Inject constructor(
                     sort = "rank",
                     page = page
                 )
-            } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_fetch_watchlist_movies))
+            }
+                ?: throw IllegalStateException(
+                    appContext.getString(
+                        com.kien.movies.R.string.trakt_library_error_fetch_watchlist_movies
+                    )
+                )
         }
 
         val shows = fetchAllPages<TraktListItemDto> { page ->
@@ -518,7 +584,12 @@ class TraktLibraryService @Inject constructor(
                     sort = "rank",
                     page = page
                 )
-            } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_fetch_watchlist_shows))
+            }
+                ?: throw IllegalStateException(
+                    appContext.getString(
+                        com.kien.movies.R.string.trakt_library_error_fetch_watchlist_shows
+                    )
+                )
         }
 
         return (movies + shows)
@@ -540,10 +611,19 @@ class TraktLibraryService @Inject constructor(
                 authorization = authHeader,
                 id = ME_PATH
             )
-        } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_fetch_personal_lists))
+        }
+            ?: throw IllegalStateException(
+                appContext.getString(
+                    com.kien.movies.R.string.trakt_library_error_fetch_personal_lists
+                )
+            )
 
         if (!response.isSuccessful) {
-            throw IllegalStateException("${appContext.getString(com.kien.movies.R.string.trakt_library_error_fetch_personal_lists)} (${response.code()})")
+            throw IllegalStateException(
+                "${appContext.getString(
+                    com.kien.movies.R.string.trakt_library_error_fetch_personal_lists
+                )} (${response.code()})"
+            )
         }
 
         val personal = response.body().orEmpty()
@@ -607,7 +687,12 @@ class TraktLibraryService @Inject constructor(
                     sortBy = sortBy?.takeIf { it.isNotBlank() },
                     sortHow = sortHow?.takeIf { it.isNotBlank() }
                 )
-            } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_fetch_list_items))
+            }
+                ?: throw IllegalStateException(
+                    appContext.getString(
+                        com.kien.movies.R.string.trakt_library_error_fetch_list_items
+                    )
+                )
         }
         return items.mapNotNull { mapListItem(listKey = listKey, item = it) }
     }
@@ -619,7 +704,9 @@ class TraktLibraryService @Inject constructor(
 
         return LibraryListTab(
             key = PERSONAL_KEY_PREFIX + listIdPath,
-            title = dto.name?.takeIf { it.isNotBlank() } ?: appContext.getString(com.kien.movies.R.string.library_list_fallback_title),
+            title =
+                dto.name?.takeIf { it.isNotBlank() }
+                    ?: appContext.getString(com.kien.movies.R.string.library_list_fallback_title),
             type = LibraryListTab.Type.PERSONAL,
             traktListId = traktId,
             slug = slug,
@@ -682,7 +769,7 @@ class TraktLibraryService @Inject constructor(
         val fallbackId = when {
             ids?.trakt != null -> "trakt:${ids.trakt}"
             item.id != null -> "trakt-item:${item.id}"
-            !mediaTitle.isNullOrBlank() -> "${normalizedType}:${mediaTitle.lowercase()}:${mediaYear ?: 0}"
+            !mediaTitle.isNullOrBlank() -> "$normalizedType:${mediaTitle.lowercase()}:${mediaYear ?: 0}"
             else -> null
         } ?: return null
 
@@ -718,10 +805,20 @@ class TraktLibraryService @Inject constructor(
                 authorization = authHeader,
                 body = body
             )
-        } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_request_failed))
+        }
+            ?: throw IllegalStateException(
+                appContext.getString(com.kien.movies.R.string.trakt_library_error_request_failed)
+            )
 
         if (!response.isSuccessful || !isSuccessfulAddResponse(response.body())) {
-            throw IllegalStateException(errorMessageForCode(response.code(), appContext.getString(com.kien.movies.R.string.trakt_library_error_add_watchlist_failed)))
+            throw IllegalStateException(
+                errorMessageForCode(
+                    response.code(),
+                    appContext.getString(
+                        com.kien.movies.R.string.trakt_library_error_add_watchlist_failed
+                    )
+                )
+            )
         }
     }
 
@@ -732,10 +829,20 @@ class TraktLibraryService @Inject constructor(
                 authorization = authHeader,
                 body = body
             )
-        } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_request_failed))
+        }
+            ?: throw IllegalStateException(
+                appContext.getString(com.kien.movies.R.string.trakt_library_error_request_failed)
+            )
 
         if (!response.isSuccessful) {
-            throw IllegalStateException(errorMessageForCode(response.code(), appContext.getString(com.kien.movies.R.string.trakt_library_error_remove_watchlist_failed)))
+            throw IllegalStateException(
+                errorMessageForCode(
+                    response.code(),
+                    appContext.getString(
+                        com.kien.movies.R.string.trakt_library_error_remove_watchlist_failed
+                    )
+                )
+            )
         }
     }
 
@@ -748,10 +855,20 @@ class TraktLibraryService @Inject constructor(
                 listId = listId,
                 body = body
             )
-        } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_request_failed))
+        }
+            ?: throw IllegalStateException(
+                appContext.getString(com.kien.movies.R.string.trakt_library_error_request_failed)
+            )
 
         if (!response.isSuccessful || !isSuccessfulAddResponse(response.body())) {
-            throw IllegalStateException(errorMessageForCode(response.code(), appContext.getString(com.kien.movies.R.string.trakt_library_error_add_to_list_failed)))
+            throw IllegalStateException(
+                errorMessageForCode(
+                    response.code(),
+                    appContext.getString(
+                        com.kien.movies.R.string.trakt_library_error_add_to_list_failed
+                    )
+                )
+            )
         }
     }
 
@@ -764,17 +881,31 @@ class TraktLibraryService @Inject constructor(
                 listId = listId,
                 body = body
             )
-        } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_request_failed))
+        }
+            ?: throw IllegalStateException(
+                appContext.getString(com.kien.movies.R.string.trakt_library_error_request_failed)
+            )
 
         if (!response.isSuccessful) {
-            throw IllegalStateException(errorMessageForCode(response.code(), appContext.getString(com.kien.movies.R.string.trakt_library_error_remove_from_list_failed)))
+            throw IllegalStateException(
+                errorMessageForCode(
+                    response.code(),
+                    appContext.getString(
+                        com.kien.movies.R.string.trakt_library_error_remove_from_list_failed
+                    )
+                )
+            )
         }
     }
 
     private fun buildMutationBody(item: LibraryEntryInput): TraktListItemsMutationRequestDto {
         val ids = resolveIds(item)
         if (!ids.hasAnyId()) {
-            throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_missing_compatible_ids))
+            throw IllegalStateException(
+                appContext.getString(
+                    com.kien.movies.R.string.trakt_library_error_missing_compatible_ids
+                )
+            )
         }
 
         val normalizedType = normalizeItemType(item.itemType)
@@ -813,16 +944,27 @@ class TraktLibraryService @Inject constructor(
     private fun isSuccessfulAddResponse(body: TraktListItemsMutationResponseDto?): Boolean {
         val added = body?.added
         val existing = body?.existing
-        val addCount = (added?.movies ?: 0) + (added?.shows ?: 0) + (added?.seasons ?: 0) + (added?.episodes ?: 0)
-        val existingCount = (existing?.movies ?: 0) + (existing?.shows ?: 0) + (existing?.seasons ?: 0) + (existing?.episodes ?: 0)
+        val addCount =
+            (added?.movies ?: 0) + (added?.shows ?: 0) + (added?.seasons ?: 0) +
+                (added?.episodes ?: 0)
+        val existingCount =
+            (existing?.movies ?: 0) + (existing?.shows ?: 0) + (existing?.seasons ?: 0) +
+                (existing?.episodes ?: 0)
         return addCount > 0 || existingCount > 0
     }
 
     private fun errorMessageForCode(code: Int, defaultMessage: String): String {
         return when (code) {
-            401, 403 -> appContext.getString(com.kien.movies.R.string.trakt_library_error_auth_expired)
+            401, 403 -> appContext.getString(
+                com.kien.movies.R.string.trakt_library_error_auth_expired
+            )
+
             404 -> appContext.getString(com.kien.movies.R.string.trakt_library_error_list_not_found)
-            420 -> appContext.getString(com.kien.movies.R.string.trakt_library_error_list_limit_reached)
+
+            420 -> appContext.getString(
+                com.kien.movies.R.string.trakt_library_error_list_limit_reached
+            )
+
             else -> "$defaultMessage ($code)"
         }
     }
@@ -875,7 +1017,12 @@ class TraktLibraryService @Inject constructor(
         while (true) {
             val response = fetch(currentPage)
             if (!response.isSuccessful) {
-                throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_library_error_paginated_fetch_failed, response.code()))
+                throw IllegalStateException(
+                    appContext.getString(
+                        com.kien.movies.R.string.trakt_library_error_paginated_fetch_failed,
+                        response.code()
+                    )
+                )
             }
             allItems.addAll(response.body().orEmpty())
             val pageCount = response.headers()["X-Pagination-Page-Count"]?.toIntOrNull() ?: 1

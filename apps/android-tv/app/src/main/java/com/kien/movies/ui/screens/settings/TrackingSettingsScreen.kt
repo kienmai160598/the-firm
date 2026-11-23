@@ -41,9 +41,7 @@ import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.delay
 
 @Composable
-fun TrackingSettingsScreen(
-    onBackPress: () -> Unit
-) {
+fun TrackingSettingsScreen(onBackPress: () -> Unit) {
     val initialFocusRequester = remember { FocusRequester() }
 
     BackHandler { onBackPress() }
@@ -159,21 +157,27 @@ fun TrackingSettingsContent(
                     dismissOnConnected = null
                 } else {
                     dismissOnConnected = provider
-                    if (traktState.mode == TraktConnectionMode.DISCONNECTED && !traktState.isLoading) {
+                    if (traktState.mode == TraktConnectionMode.DISCONNECTED &&
+                        !traktState.isLoading
+                    ) {
                         traktViewModel.onConnectClick()
                     }
                 }
             }
+
             TrackingProviderId.SIMKL -> {
                 if (simklState.mode == SimklConnectionMode.CONNECTED) {
                     dismissOnConnected = null
                 } else {
                     dismissOnConnected = provider
-                    if (simklState.mode == SimklConnectionMode.DISCONNECTED && !simklState.isLoading) {
+                    if (simklState.mode == SimklConnectionMode.DISCONNECTED &&
+                        !simklState.isLoading
+                    ) {
                         simklViewModel.onConnect()
                     }
                 }
             }
+
             TrackingProviderId.MDBLIST -> {
                 if (mdbListState.isConnected) {
                     dismissOnConnected = null
@@ -253,6 +257,7 @@ fun TrackingSettingsContent(
                 }
             )
         }
+
         TrackingProviderId.SIMKL -> {
             SimklAccountDialog(
                 state = simklState,
@@ -273,6 +278,7 @@ fun TrackingSettingsContent(
                 }
             )
         }
+
         TrackingProviderId.MDBLIST -> {
             MdbListAccountDialog(
                 state = mdbListState,
@@ -291,6 +297,7 @@ fun TrackingSettingsContent(
                 }
             )
         }
+
         null -> Unit
     }
 
@@ -627,7 +634,9 @@ internal fun TrackingSettingsOverview(
                         if (traktConnected || simklState.mode == SimklConnectionMode.CONNECTED) {
                             SettingsActionRow(
                                 title = stringResource(R.string.trakt_more_like_this_source_title),
-                                subtitle = stringResource(R.string.trakt_more_like_this_source_subtitle),
+                                subtitle = stringResource(
+                                    R.string.trakt_more_like_this_source_subtitle
+                                ),
                                 value = moreLikeThisSourceLabel(traktState.moreLikeThisSource),
                                 enabled = true,
                                 onClick = onMoreLikeThisClick,
@@ -643,7 +652,10 @@ internal fun TrackingSettingsOverview(
                                 value = ratingSourceLabel(trackingState.ratingSource),
                                 onClick = onRatingsClick,
                                 modifier = Modifier
-                                    .then(ratingsFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier)
+                                    .then(
+                                        ratingsFocusRequester?.let { Modifier.focusRequester(it) }
+                                            ?: Modifier
+                                    )
                                     .testTag(TrackingSettingsTestTags.RATINGS)
                             )
                         }
@@ -662,7 +674,9 @@ internal fun TrackingSettingsOverview(
                                 } else {
                                     stringResource(R.string.trakt_continue_watching_subtitle)
                                 },
-                                value = continueWatchingWindowLabel(traktState.continueWatchingDaysCap),
+                                value = continueWatchingWindowLabel(
+                                    traktState.continueWatchingDaysCap
+                                ),
                                 enabled = traktProgressActive,
                                 onClick = onContinueWatchingWindowClick,
                                 modifier = Modifier
@@ -690,8 +704,12 @@ internal fun TrackingSettingsOverview(
                         ) {
                             SettingsActionRow(
                                 title = stringResource(R.string.tracking_simkl_anime_id_title),
-                                subtitle = stringResource(R.string.tracking_simkl_anime_id_subtitle),
-                                value = animeIdPreferenceLabel(trackingState.simklAnimeIdPreference),
+                                subtitle = stringResource(
+                                    R.string.tracking_simkl_anime_id_subtitle
+                                ),
+                                value = animeIdPreferenceLabel(
+                                    trackingState.simklAnimeIdPreference
+                                ),
                                 onClick = onAnimeIdClick,
                                 modifier = Modifier.testTag("tracking_simkl_anime_id")
                             )
@@ -706,12 +724,24 @@ internal fun TrackingSettingsOverview(
                         ) {
                             SettingsActionRow(
                                 title = stringResource(R.string.mdblist_library_lists),
-                                subtitle = stringResource(R.string.mdblist_library_lists_description),
-                                value = mdbListLibraryLists.lists.takeIf { it.isNotEmpty() }?.let { lists ->
-                                    stringResource(R.string.mdblist_library_lists_summary, lists.count { it.visible }, lists.size)
+                                subtitle = stringResource(
+                                    R.string.mdblist_library_lists_description
+                                ),
+                                value = mdbListLibraryLists.lists.takeIf {
+                                    it.isNotEmpty()
+                                }?.let { lists ->
+                                    stringResource(
+                                        R.string.mdblist_library_lists_summary,
+                                        lists.count {
+                                            it.visible
+                                        },
+                                        lists.size
+                                    )
                                 },
                                 onClick = onMdbListLibraryListsClick,
-                                modifier = Modifier.testTag(TrackingSettingsTestTags.MDBLIST_LIBRARY_LISTS)
+                                modifier = Modifier.testTag(
+                                    TrackingSettingsTestTags.MDBLIST_LIBRARY_LISTS
+                                )
                             )
                         }
                     }
@@ -732,10 +762,14 @@ private data class TrackingConnectionPresentation(
 private fun traktConnectionPresentation(state: TraktUiState): TrackingConnectionPresentation {
     return when {
         state.isLoading && state.mode != TraktConnectionMode.CONNECTED -> TrackingConnectionPresentation(
-            subtitle = stringResource(R.string.tracking_connecting_provider, stringResource(R.string.trakt_name)),
+            subtitle = stringResource(
+                R.string.tracking_connecting_provider,
+                stringResource(R.string.trakt_name)
+            ),
             value = stringResource(R.string.tracking_status_connecting),
             color = MoviesTheme.colors.Info
         )
+
         state.mode == TraktConnectionMode.CONNECTED -> TrackingConnectionPresentation(
             subtitle = stringResource(
                 R.string.trakt_connected_as,
@@ -744,11 +778,13 @@ private fun traktConnectionPresentation(state: TraktUiState): TrackingConnection
             value = stringResource(R.string.tracking_status_connected),
             color = MoviesTheme.colors.Success
         )
+
         state.mode == TraktConnectionMode.AWAITING_APPROVAL -> TrackingConnectionPresentation(
             subtitle = stringResource(R.string.tracking_finish_connection),
             value = stringResource(R.string.tracking_status_waiting),
             color = MoviesTheme.colors.Warning
         )
+
         else -> TrackingConnectionPresentation(
             subtitle = stringResource(R.string.trakt_description),
             value = stringResource(R.string.tracking_status_disconnected),
@@ -758,13 +794,19 @@ private fun traktConnectionPresentation(state: TraktUiState): TrackingConnection
 }
 
 @Composable
-private fun simklConnectionPresentation(state: SimklSettingsUiState): TrackingConnectionPresentation {
+private fun simklConnectionPresentation(
+    state: SimklSettingsUiState
+): TrackingConnectionPresentation {
     return when {
         state.isLoading && state.mode != SimklConnectionMode.CONNECTED -> TrackingConnectionPresentation(
-            subtitle = stringResource(R.string.tracking_connecting_provider, stringResource(R.string.simkl_name)),
+            subtitle = stringResource(
+                R.string.tracking_connecting_provider,
+                stringResource(R.string.simkl_name)
+            ),
             value = stringResource(R.string.tracking_status_connecting),
             color = MoviesTheme.colors.Info
         )
+
         state.mode == SimklConnectionMode.CONNECTED -> TrackingConnectionPresentation(
             subtitle = stringResource(
                 R.string.simkl_connected_as,
@@ -773,11 +815,13 @@ private fun simklConnectionPresentation(state: SimklSettingsUiState): TrackingCo
             value = stringResource(R.string.tracking_status_connected),
             color = MoviesTheme.colors.Success
         )
+
         state.mode == SimklConnectionMode.AWAITING_APPROVAL -> TrackingConnectionPresentation(
             subtitle = stringResource(R.string.tracking_finish_connection),
             value = stringResource(R.string.tracking_status_waiting),
             color = MoviesTheme.colors.Warning
         )
+
         else -> TrackingConnectionPresentation(
             subtitle = stringResource(R.string.simkl_description),
             value = stringResource(R.string.tracking_status_disconnected),
@@ -787,22 +831,37 @@ private fun simklConnectionPresentation(state: SimklSettingsUiState): TrackingCo
 }
 
 @Composable
-private fun mdbListConnectionPresentation(state: MdbListTrackerUiState): TrackingConnectionPresentation = when {
+private fun mdbListConnectionPresentation(
+    state: MdbListTrackerUiState
+): TrackingConnectionPresentation = when {
     state.isLoading && !state.isConnected -> TrackingConnectionPresentation(
-        stringResource(R.string.tracking_connecting_provider, stringResource(R.string.mdblist_name)),
-        stringResource(R.string.tracking_status_connecting), MoviesTheme.colors.Info
+        stringResource(
+            R.string.tracking_connecting_provider,
+            stringResource(R.string.mdblist_name)
+        ),
+        stringResource(R.string.tracking_status_connecting),
+        MoviesTheme.colors.Info
     )
+
     state.isConnected -> TrackingConnectionPresentation(
-        stringResource(R.string.mdblist_connected_as, state.username ?: stringResource(R.string.mdblist_account_fallback)),
-        stringResource(R.string.tracking_status_connected), MoviesTheme.colors.Success
+        stringResource(
+            R.string.mdblist_connected_as,
+            state.username ?: stringResource(R.string.mdblist_account_fallback)
+        ),
+        stringResource(R.string.tracking_status_connected),
+        MoviesTheme.colors.Success
     )
+
     state.session != null -> TrackingConnectionPresentation(
         state.errorMessage ?: stringResource(R.string.tracking_finish_connection),
-        stringResource(R.string.tracking_status_waiting), MoviesTheme.colors.Warning
+        stringResource(R.string.tracking_status_waiting),
+        MoviesTheme.colors.Warning
     )
+
     else -> TrackingConnectionPresentation(
         state.errorMessage ?: stringResource(R.string.mdblist_tracking_description),
-        stringResource(R.string.tracking_status_disconnected), MoviesTheme.colors.TextSecondary
+        stringResource(R.string.tracking_status_disconnected),
+        MoviesTheme.colors.TextSecondary
     )
 }
 

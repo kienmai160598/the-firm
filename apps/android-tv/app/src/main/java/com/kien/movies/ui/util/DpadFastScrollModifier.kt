@@ -100,7 +100,7 @@ fun Modifier.dpadVerticalFastScroll(
     verticalVelocityDpPerSec: Float = DEFAULT_VERTICAL_VELOCITY_DP_PER_SEC,
     endTimeoutMs: Long = DEFAULT_END_TIMEOUT_MS,
     maxFrameDtSec: Float = DEFAULT_MAX_FRAME_DT_SEC,
-    throttleHorizontalRepeats: Boolean = true,
+    throttleHorizontalRepeats: Boolean = true
 ): Modifier = composed {
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
@@ -254,7 +254,7 @@ fun Modifier.dpadVerticalFastScroll(
                 // so they never reach the throttle. `Long.MAX_VALUE` keeps the
                 // throttle as a pure horizontal gate without any accidental
                 // vertical side effects if a key somehow slips past.
-                verticalGateMs = Long.MAX_VALUE,
+                verticalGateMs = Long.MAX_VALUE
             )
         } else {
             verticalKeys

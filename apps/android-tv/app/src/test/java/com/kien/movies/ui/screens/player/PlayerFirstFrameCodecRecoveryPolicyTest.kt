@@ -11,9 +11,12 @@ class PlayerFirstFrameCodecRecoveryPolicyTest {
             playWhenReady = false,
             isManualDv81Mode2Active = false,
             dv7Mode1AlreadyForced = false,
-            currentVideoTrackIsLikelyVc1 = true,
+            currentVideoTrackIsLikelyVc1 = true
         )
-        assertEquals(PlayerFirstFrameCodecRecoveryPolicy.RecoveryAction.None, PlayerFirstFrameCodecRecoveryPolicy.evaluateAfterWatchdogTimeout(input))
+        assertEquals(
+            PlayerFirstFrameCodecRecoveryPolicy.RecoveryAction.None,
+            PlayerFirstFrameCodecRecoveryPolicy.evaluateAfterWatchdogTimeout(input)
+        )
     }
 
     @Test
@@ -22,7 +25,7 @@ class PlayerFirstFrameCodecRecoveryPolicyTest {
             playWhenReady = true,
             isManualDv81Mode2Active = false,
             dv7Mode1AlreadyForced = false,
-            currentVideoTrackIsLikelyVc1 = true,
+            currentVideoTrackIsLikelyVc1 = true
         )
         assertEquals(
             PlayerFirstFrameCodecRecoveryPolicy.RecoveryAction.FailVc1Unsupported,

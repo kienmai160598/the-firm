@@ -4,10 +4,10 @@ import android.content.Context
 import com.kien.movies.core.network.NetworkResult
 import com.kien.movies.data.local.TmdbSettingsDataStore
 import com.kien.movies.data.remote.api.TmdbApi
-import com.kien.movies.data.remote.api.TmdbDiscoverResponse
-import com.kien.movies.data.remote.api.TmdbDiscoverResult
 import com.kien.movies.data.remote.api.TmdbCollectionResponse
 import com.kien.movies.data.remote.api.TmdbCompanyDetailsResponse
+import com.kien.movies.data.remote.api.TmdbDiscoverResponse
+import com.kien.movies.data.remote.api.TmdbDiscoverResult
 import com.kien.movies.data.remote.api.TmdbListDetailsResponse
 import com.kien.movies.data.remote.api.TmdbListItem
 import com.kien.movies.data.remote.api.TmdbNetworkDetailsResponse
@@ -23,8 +23,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import retrofit2.Response

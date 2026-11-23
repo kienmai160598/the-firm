@@ -103,7 +103,9 @@ internal fun TraktAccountDialog(
                 tokenRefreshText = state.tokenExpiresAtMillis?.let { expiresAt ->
                     stringResource(
                         R.string.trakt_token_refreshes,
-                        formatTrackingDuration((expiresAt - System.currentTimeMillis()).coerceAtLeast(0L))
+                        formatTrackingDuration(
+                            (expiresAt - System.currentTimeMillis()).coerceAtLeast(0L)
+                        )
                     )
                 },
                 stats = state.connectedStats,
@@ -309,6 +311,7 @@ internal fun TrackingDeviceAuthContent(
                 )
             }
         }
+
         !userCode.isNullOrBlank() && !qrUrl.isNullOrBlank() -> {
             val qrBitmap = remember(qrUrl) {
                 runCatching { QrCodeGenerator.generate(qrUrl, 420, margin = 1) }.getOrNull()
@@ -349,7 +352,9 @@ internal fun TrackingDeviceAuthContent(
             ) {
                 Text(
                     text = userCode,
-                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
                     color = MoviesTheme.colors.TextPrimary,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -377,6 +382,7 @@ internal fun TrackingDeviceAuthContent(
                 }
             }
         }
+
         else -> {
             Text(
                 text = errorMessage ?: if (credentialsConfigured) {
@@ -656,9 +662,16 @@ private fun TrackingConnectedWordmark(
     contentDescription: String
 ) {
     if (brand == TrackingDialogBrand.MDBLIST) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             Image(painter = logo, contentDescription = null, modifier = Modifier.size(40.dp))
-            Text(stringResource(R.string.mdblist_name), color = Color.White, style = MaterialTheme.typography.headlineSmall)
+            Text(
+                stringResource(R.string.mdblist_name),
+                color = Color.White,
+                style = MaterialTheme.typography.headlineSmall
+            )
         }
         return
     }
@@ -666,12 +679,16 @@ private fun TrackingConnectedWordmark(
         painter = logo,
         contentDescription = contentDescription,
         modifier = when (brand) {
-            TrackingDialogBrand.TRAKT -> Modifier
-                .width(86.dp)
-                .height(38.dp)
-            TrackingDialogBrand.SIMKL -> Modifier
-                .width(124.dp)
-                .height(30.dp)
+            TrackingDialogBrand.TRAKT ->
+                Modifier
+                    .width(86.dp)
+                    .height(38.dp)
+
+            TrackingDialogBrand.SIMKL ->
+                Modifier
+                    .width(124.dp)
+                    .height(30.dp)
+
             TrackingDialogBrand.MDBLIST -> Modifier.size(40.dp)
         },
         contentScale = ContentScale.Fit,
@@ -751,10 +768,7 @@ private fun TrackingBrandFooterButton(
 }
 
 @Composable
-private fun TrackingBrandMessage(
-    text: String,
-    isError: Boolean
-) {
+private fun TrackingBrandMessage(text: String, isError: Boolean) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -793,7 +807,11 @@ private fun TrackingProviderWordmark(
             horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
         ) {
             Image(painter = logo, contentDescription = null, modifier = Modifier.size(40.dp))
-            Text(label, color = MoviesTheme.colors.TextPrimary, style = MaterialTheme.typography.headlineSmall)
+            Text(
+                label,
+                color = MoviesTheme.colors.TextPrimary,
+                style = MaterialTheme.typography.headlineSmall
+            )
         }
         return
     }
@@ -817,9 +835,11 @@ private fun TrackingDialogBrand.cardBrush(): Brush = when (this) {
     TrackingDialogBrand.TRAKT -> Brush.linearGradient(
         colors = listOf(Color(0xFF7D279B), Color(0xFFD61F56), Color(0xFFF22125))
     )
+
     TrackingDialogBrand.SIMKL -> Brush.linearGradient(
         colors = listOf(Color(0xFF050505), Color(0xFF292929), MoviesPrimitives.neutral925)
     )
+
     TrackingDialogBrand.MDBLIST -> Brush.linearGradient(
         colors = listOf(Color(0xFF173D69), Color(0xFF225C97), Color(0xFF16385D))
     )

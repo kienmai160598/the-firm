@@ -2,14 +2,19 @@ package com.kien.movies.core.player
 
 import java.io.ByteArrayOutputStream
 import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class Av1Hdr10PlusStripperTest {
 
-    private fun obu(type: Int, payload: ByteArray, hasSizeField: Boolean = true, extension: Boolean = false): ByteArray {
+    private fun obu(
+        type: Int,
+        payload: ByteArray,
+        hasSizeField: Boolean = true,
+        extension: Boolean = false
+    ): ByteArray {
         val out = ByteArrayOutputStream()
         var header = (type shl 3) or if (hasSizeField) 0x02 else 0
         if (extension) header = header or 0x04
@@ -29,7 +34,10 @@ class Av1Hdr10PlusStripperTest {
         return out.toByteArray()
     }
 
-    private fun t35MetadataObu(countryProviderPoc: ByteArray, tail: ByteArray = ba(0x04, 0x01, 0x40)): ByteArray {
+    private fun t35MetadataObu(
+        countryProviderPoc: ByteArray,
+        tail: ByteArray = ba(0x04, 0x01, 0x40)
+    ): ByteArray {
         val payload = ByteArrayOutputStream()
         payload.write(0x04) // METADATA_TYPE_ITUT_T35
         payload.write(countryProviderPoc, 0, countryProviderPoc.size)
@@ -103,9 +111,15 @@ class Av1Hdr10PlusStripperTest {
 
     @Test
     fun `handles OBU extension flag`() {
-        val extObu = obu(5, ByteArrayOutputStream().apply {
-            write(0x04); write(ba(0xB5, 0x00, 0x3C, 0x00, 0x01)); write(ba(0x04, 0x01, 0x40))
-        }.toByteArray(), extension = true)
+        val extObu = obu(
+            5,
+            ByteArrayOutputStream().apply {
+                write(0x04)
+                write(ba(0xB5, 0x00, 0x3C, 0x00, 0x01))
+                write(ba(0x04, 0x01, 0x40))
+            }.toByteArray(),
+            extension = true
+        )
         val sample = concat(sequenceHeader, extObu, frame)
         val result = strip(sample)!!
         assertArrayEquals(concat(sequenceHeader, frame), result)
@@ -113,7 +127,10 @@ class Av1Hdr10PlusStripperTest {
 
     @Test
     fun `returns -1 on truncated OBU`() {
-        val truncated = concat(sequenceHeader, hdr10Plus).copyOf(concat(sequenceHeader, hdr10Plus).size - 3)
+        val truncated = concat(
+            sequenceHeader,
+            hdr10Plus
+        ).copyOf(concat(sequenceHeader, hdr10Plus).size - 3)
         assertNull(strip(truncated))
     }
 

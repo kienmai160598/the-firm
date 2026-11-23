@@ -10,10 +10,10 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.kien.movies.ui.screens.player.AspectMode
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * Device-local player preferences that are NOT tied to any profile.
@@ -44,7 +44,8 @@ class DeviceLocalPlayerPreferences @Inject constructor(
     private val tunneledSurfaceFillKey = booleanPreferencesKey("tunneled_surface_fill")
     private val playerStatsHudButtonEnabledKey = booleanPreferencesKey("player_stats_hud_enabled")
     private val playerStatsHudActiveKey = booleanPreferencesKey("player_stats_hud_active")
-    private val releaseDecoderOnBackgroundKey = booleanPreferencesKey("release_decoder_on_background")
+    private val releaseDecoderOnBackgroundKey =
+        booleanPreferencesKey("release_decoder_on_background")
 
     val aspectMode: Flow<AspectMode> = store.data.map { prefs ->
         prefs[aspectModeKey]?.let {

@@ -65,35 +65,33 @@ class TraktTrackingProgressProvider @Inject constructor(
 
     override suspend fun refresh(intent: TrackingRefreshIntent) = service.refreshNow()
 
-    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?) =
-        service.removeProgress(contentId, season, episode)
+    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?) = service.removeProgress(contentId, season, episode)
 
     override fun applyOptimisticProgress(progress: WatchProgress, quiet: Boolean) {
-        if (quiet) service.updateOptimisticProgressQuietly(progress) else service.applyOptimisticProgress(progress)
+        if (quiet) {
+            service.updateOptimisticProgressQuietly(
+                progress
+            )
+        } else {
+            service.applyOptimisticProgress(progress)
+        }
     }
 
-    override fun applyOptimisticRemoval(contentId: String, season: Int?, episode: Int?) =
-        service.applyOptimisticRemoval(contentId, season, episode)
+    override fun applyOptimisticRemoval(contentId: String, season: Int?, episode: Int?) = service.applyOptimisticRemoval(contentId, season, episode)
 
     override fun clearOptimistic() = service.clearOptimistic()
 
-    override fun retainsLocalProgress(contentId: String): Boolean =
-        shouldRetainTraktLocalProgress(contentId)
+    override fun retainsLocalProgress(contentId: String): Boolean = shouldRetainTraktLocalProgress(contentId)
 
-    override fun retainsLocalWatchedEpisode(item: WatchedItem): Boolean =
-        shouldRetainTraktLocalWatchedEpisode(item)
+    override fun retainsLocalWatchedEpisode(item: WatchedItem): Boolean = shouldRetainTraktLocalWatchedEpisode(item)
 
-    override fun isHiddenFromProgress(contentId: String): Boolean =
-        service.isShowHiddenFromProgress(contentId)
+    override fun isHiddenFromProgress(contentId: String): Boolean = service.isShowHiddenFromProgress(contentId)
 
-    override fun continueWatchingCutoffEpochMs(daysCap: Int, nowEpochMs: Long): Long? =
-        traktContinueWatchingCutoffEpochMs(daysCap, nowEpochMs)
+    override fun continueWatchingCutoffEpochMs(daysCap: Int, nowEpochMs: Long): Long? = traktContinueWatchingCutoffEpochMs(daysCap, nowEpochMs)
 
-    override fun shouldUseAsNextUpSeed(progress: WatchProgress, nowEpochMs: Long): Boolean =
-        shouldUseTraktNextUpSeed(progress, nowEpochMs)
+    override fun shouldUseAsNextUpSeed(progress: WatchProgress, nowEpochMs: Long): Boolean = shouldUseTraktNextUpSeed(progress, nowEpochMs)
 
-    override fun normalizeParentContentId(parentContentId: String, videoId: String?): String =
-        resolveEffectiveContentId(parentContentId, videoId)
+    override fun normalizeParentContentId(parentContentId: String, videoId: String?): String = resolveEffectiveContentId(parentContentId, videoId)
 
     override suspend fun prepareNextUpSeed(progress: WatchProgress): WatchProgress {
         val season = progress.season ?: return progress
@@ -114,14 +112,14 @@ class TraktTrackingProgressProvider @Inject constructor(
     }
 }
 
-internal fun shouldRetainTraktLocalProgress(contentId: String): Boolean =
-    !isTraktCompatibleId(contentId)
+internal fun shouldRetainTraktLocalProgress(contentId: String): Boolean = !isTraktCompatibleId(contentId)
 
-internal fun shouldRetainTraktLocalWatchedEpisode(item: WatchedItem): Boolean =
-    item.season != null &&
-        item.episode != null &&
-        (item.contentType.equals("series", ignoreCase = true) ||
-            item.contentType.equals("tv", ignoreCase = true))
+internal fun shouldRetainTraktLocalWatchedEpisode(item: WatchedItem): Boolean = item.season != null &&
+    item.episode != null &&
+    (
+        item.contentType.equals("series", ignoreCase = true) ||
+            item.contentType.equals("tv", ignoreCase = true)
+        )
 
 internal fun traktContinueWatchingCutoffEpochMs(daysCap: Int, nowEpochMs: Long): Long? {
     if (daysCap == TraktSettingsDataStore.CONTINUE_WATCHING_DAYS_CAP_ALL) return null
@@ -160,8 +158,7 @@ private fun mergeTrackingNextUpSeeds(
     return merged.values.sortedByDescending(WatchProgress::lastWatched)
 }
 
-private fun trackingNextUpKey(progress: WatchProgress): String =
-    progress.traktShowId?.let { "trakt_show:$it" } ?: progress.contentId.trim()
+private fun trackingNextUpKey(progress: WatchProgress): String = progress.traktShowId?.let { "trakt_show:$it" } ?: progress.contentId.trim()
 
 private fun shouldReplaceTrackingSeed(
     existing: WatchProgress,
@@ -173,7 +170,9 @@ private fun shouldReplaceTrackingSeed(
     val existingPosition = (existing.season ?: -1) to (existing.episode ?: -1)
     return candidatePosition.first > existingPosition.first ||
         candidatePosition.first == existingPosition.first &&
-        (candidatePosition.second > existingPosition.second ||
-            candidatePosition.second == existingPosition.second &&
-            candidate.lastWatched >= existing.lastWatched)
+        (
+            candidatePosition.second > existingPosition.second ||
+                candidatePosition.second == existingPosition.second &&
+                candidate.lastWatched >= existing.lastWatched
+            )
 }

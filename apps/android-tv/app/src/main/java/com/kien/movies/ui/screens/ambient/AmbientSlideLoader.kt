@@ -17,13 +17,13 @@ import com.kien.movies.domain.repository.CatalogRepository
 import com.kien.movies.ui.screens.home.shouldShowOnHome
 import com.kien.movies.ui.util.localizedGenreLabel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.LocalDate
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
-import java.time.LocalDate
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val ITEMS_PER_CATALOG = 10
 private const val MAX_SLIDES = 30
@@ -61,7 +61,10 @@ class AmbientSlideLoader @Inject constructor(
         enriched.mapNotNull { it.toSlide() }.shuffled()
     }
 
-    private suspend fun fetchItems(entry: AmbientCatalog, hideUnreleased: Boolean): List<MetaPreview> {
+    private suspend fun fetchItems(
+        entry: AmbientCatalog,
+        hideUnreleased: Boolean
+    ): List<MetaPreview> {
         val result = catalogRepository.getCatalog(
             addonBaseUrl = entry.addon.baseUrl,
             addonId = entry.addon.id,

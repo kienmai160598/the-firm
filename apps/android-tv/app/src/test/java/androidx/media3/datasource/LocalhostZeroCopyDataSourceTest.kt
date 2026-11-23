@@ -3,13 +3,13 @@ package androidx.media3.datasource
 import android.net.Uri
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Assert.assertThrows
-import org.junit.Test
 import java.net.ServerSocket
 import java.nio.ByteBuffer
 import kotlin.concurrent.thread
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class LocalhostZeroCopyDataSourceTest {
 
@@ -20,9 +20,9 @@ class LocalhostZeroCopyDataSourceTest {
 
         val expectedData = "Hello, zero-copy socket loopback data pipeline!"
         val responseHeaders = "HTTP/1.1 200 OK\r\n" +
-                "Content-Length: ${expectedData.length}\r\n" +
-                "Connection: close\r\n" +
-                "\r\n"
+            "Content-Length: ${expectedData.length}\r\n" +
+            "Connection: close\r\n" +
+            "\r\n"
 
         thread {
             try {
@@ -52,7 +52,7 @@ class LocalhostZeroCopyDataSourceTest {
         val dataSpec = DataSpec.Builder()
             .setUri(mockUri)
             .build()
-        
+
         try {
             val bytesRemaining = dataSource.open(dataSpec)
             assertEquals(expectedData.length.toLong(), bytesRemaining)
@@ -61,7 +61,7 @@ class LocalhostZeroCopyDataSourceTest {
             val buffer = ByteBuffer.allocateDirect(100)
             val bytesRead = dataSource.read(buffer, expectedData.length)
             assertEquals(expectedData.length, bytesRead)
-            
+
             buffer.flip()
             val bytes = ByteArray(bytesRead)
             buffer.get(bytes)
@@ -80,9 +80,9 @@ class LocalhostZeroCopyDataSourceTest {
 
         val expectedData = "Partial payload"
         val responseHeaders = "HTTP/1.1 206 Partial Content\r\n" +
-                "cOnTeNt-LeNgTh: ${expectedData.length}\r\n" +
-                "Connection: close\r\n" +
-                "\r\n"
+            "cOnTeNt-LeNgTh: ${expectedData.length}\r\n" +
+            "Connection: close\r\n" +
+            "\r\n"
 
         thread {
             try {
@@ -112,7 +112,7 @@ class LocalhostZeroCopyDataSourceTest {
         val dataSpec = DataSpec.Builder()
             .setUri(mockUri)
             .build()
-        
+
         try {
             val bytesRemaining = dataSource.open(dataSpec)
             assertEquals(expectedData.length.toLong(), bytesRemaining)
@@ -120,7 +120,7 @@ class LocalhostZeroCopyDataSourceTest {
             val buffer = ByteBuffer.allocateDirect(100)
             val bytesRead = dataSource.read(buffer, expectedData.length)
             assertEquals(expectedData.length, bytesRead)
-            
+
             buffer.flip()
             val bytes = ByteArray(bytesRead)
             buffer.get(bytes)
@@ -139,8 +139,8 @@ class LocalhostZeroCopyDataSourceTest {
         // 15 bytes of body
         val expectedData = "BufferLookAhead"
         val responseHeaders = "HTTP/1.1 200 OK\r\n" +
-                "Content-Length: ${expectedData.length}\r\n" +
-                "\r\n"
+            "Content-Length: ${expectedData.length}\r\n" +
+            "\r\n"
 
         thread {
             try {
@@ -165,7 +165,7 @@ class LocalhostZeroCopyDataSourceTest {
         val dataSpec = DataSpec.Builder()
             .setUri(mockUri)
             .build()
-        
+
         try {
             val bytesRemaining = dataSource.open(dataSpec)
             assertEquals(expectedData.length.toLong(), bytesRemaining)
@@ -173,7 +173,7 @@ class LocalhostZeroCopyDataSourceTest {
             val buffer = ByteBuffer.allocateDirect(100)
             val bytesRead = dataSource.read(buffer, expectedData.length)
             assertEquals(expectedData.length, bytesRead)
-            
+
             buffer.flip()
             val bytes = ByteArray(bytesRead)
             buffer.get(bytes)
@@ -190,8 +190,8 @@ class LocalhostZeroCopyDataSourceTest {
         val port = serverSocket.localPort
 
         val responseHeaders = "HTTP/1.1 404 Not Found\r\n" +
-                "Content-Length: 0\r\n" +
-                "\r\n"
+            "Content-Length: 0\r\n" +
+            "\r\n"
 
         thread {
             try {
@@ -215,7 +215,7 @@ class LocalhostZeroCopyDataSourceTest {
         val dataSpec = DataSpec.Builder()
             .setUri(mockUri)
             .build()
-        
+
         try {
             assertThrows(HttpDataSource.InvalidResponseCodeException::class.java) {
                 dataSource.open(dataSpec)

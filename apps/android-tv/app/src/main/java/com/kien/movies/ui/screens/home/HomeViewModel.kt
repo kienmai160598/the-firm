@@ -1,8 +1,8 @@
 package com.kien.movies.ui.screens.home
 
-import android.util.Log
 import android.content.Context
 import android.os.SystemClock
+import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,14 +14,15 @@ import com.kien.movies.core.tmdb.TmdbMetadataService
 import com.kien.movies.core.tmdb.TmdbService
 import com.kien.movies.data.local.AuthSessionNoticeDataStore
 import com.kien.movies.data.local.CollectionsDataStore
+import com.kien.movies.data.local.ContinueWatchingEnrichmentCache
 import com.kien.movies.data.local.LayoutPreferenceDataStore
+import com.kien.movies.data.local.MDBListSettingsDataStore
 import com.kien.movies.data.local.PlayerSettingsDataStore
 import com.kien.movies.data.local.StartupAuthNotice
-import com.kien.movies.data.local.MDBListSettingsDataStore
 import com.kien.movies.data.local.TmdbSettingsDataStore
 import com.kien.movies.data.local.TraktSettingsDataStore
-import com.kien.movies.data.local.ContinueWatchingEnrichmentCache
 import com.kien.movies.data.mediaserver.ServerCatalog
+import com.kien.movies.data.repository.MDBListRepository
 import com.kien.movies.data.trailer.TrailerService
 import com.kien.movies.domain.model.Addon
 import com.kien.movies.domain.model.CatalogDescriptor
@@ -30,35 +31,34 @@ import com.kien.movies.domain.model.Collection
 import com.kien.movies.domain.model.ContinueWatchingSortMode
 import com.kien.movies.domain.model.LibraryEntryInput
 import com.kien.movies.domain.model.ListMembershipChanges
+import com.kien.movies.domain.model.MDBListSettings
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MetaPreview
-import com.kien.movies.data.repository.MDBListRepository
-import com.kien.movies.domain.model.MDBListSettings
 import com.kien.movies.domain.model.TmdbSettings
 import com.kien.movies.domain.repository.AddonRepository
 import com.kien.movies.domain.repository.CatalogRepository
 import com.kien.movies.domain.repository.LibraryRepository
 import com.kien.movies.domain.repository.MetaRepository
 import com.kien.movies.domain.repository.WatchProgressRepository
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
-import java.util.Collections
-import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
 
 @OptIn(kotlinx.coroutines.FlowPreview::class)
 @HiltViewModel
@@ -117,8 +117,7 @@ class HomeViewModel @Inject constructor(
 
         private fun <K, V> createLruMap(maxSize: Int): MutableMap<K, V> {
             val lru = object : LinkedHashMap<K, V>(maxSize + 4, 0.75f, true) {
-                override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?): Boolean =
-                    size > maxSize
+                override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?): Boolean = size > maxSize
             }
             return java.util.Collections.synchronizedMap(lru)
         }
@@ -140,6 +139,7 @@ class HomeViewModel @Inject constructor(
 
     // Pending batch of watched status updates — debounced before emission.
     internal val _pendingWatchedBatch = MutableStateFlow<Map<String, Boolean>>(emptyMap())
+
     /** True once the CW pipeline has completed its first emission (items or empty). */
     internal val _initialCwResolved = MutableStateFlow(false)
     val initialCwResolved: StateFlow<Boolean> = _initialCwResolved.asStateFlow()
@@ -178,7 +178,9 @@ class HomeViewModel @Inject constructor(
 
     internal val _enrichingItemId = MutableStateFlow<String?>(null)
     val enrichingItemId: StateFlow<String?> = _enrichingItemId.asStateFlow()
-    internal fun setEnrichingItemId(id: String?) { _enrichingItemId.value = id }
+    internal fun setEnrichingItemId(id: String?) {
+        _enrichingItemId.value = id
+    }
 
     internal val _lastEnrichedPreview = MutableStateFlow<MetaPreview?>(null)
     val lastEnrichedPreview: StateFlow<MetaPreview?> = _lastEnrichedPreview.asStateFlow()
@@ -189,8 +191,17 @@ class HomeViewModel @Inject constructor(
     internal fun addEnrichedPreview(id: String, preview: MetaPreview) {
         _enrichedPreviews.update { current ->
             val updated = current + (id to preview)
-            if (updated.size <= MAX_ENRICHMENT_CACHE_SIZE) updated
-            else LinkedHashMap(updated).apply { while (size > MAX_ENRICHMENT_CACHE_SIZE) remove(keys.first()) }
+            if (updated.size <= MAX_ENRICHMENT_CACHE_SIZE) {
+                updated
+            } else {
+                LinkedHashMap(updated).apply {
+                    while (size >
+                        MAX_ENRICHMENT_CACHE_SIZE
+                    ) {
+                        remove(keys.first())
+                    }
+                }
+            }
         }
     }
 
@@ -267,55 +278,83 @@ class HomeViewModel @Inject constructor(
     internal var lastHeroEnrichedItems: List<MetaPreview> = emptyList()
     internal var heroItemOrder: List<String> = emptyList()
     internal val modernCarouselRowBuildCache = ModernCarouselRowBuildCache()
-    internal val prefetchedExternalMetaIds: MutableSet<String> = Collections.newSetFromMap(createLruMap(MAX_PREFETCH_CACHE_SIZE))
-    internal val backgroundMetaPrefetchedIds: MutableSet<String> = Collections.newSetFromMap(createLruMap(MAX_PREFETCH_CACHE_SIZE))
+    internal val prefetchedExternalMetaIds: MutableSet<String> = Collections.newSetFromMap(
+        createLruMap(MAX_PREFETCH_CACHE_SIZE)
+    )
+    internal val backgroundMetaPrefetchedIds: MutableSet<String> = Collections.newSetFromMap(
+        createLruMap(MAX_PREFETCH_CACHE_SIZE)
+    )
     internal val externalMetaPrefetchInFlightIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     internal var externalMetaPrefetchJob: Job? = null
     internal var pendingExternalMetaPrefetchItemId: String? = null
-    internal val prefetchedTmdbIds: MutableSet<String> = Collections.newSetFromMap(createLruMap(MAX_PREFETCH_CACHE_SIZE))
+    internal val prefetchedTmdbIds: MutableSet<String> = Collections.newSetFromMap(
+        createLruMap(MAX_PREFETCH_CACHE_SIZE)
+    )
 
     /** Items an enrichment merge was applied for. */
-    internal val enrichmentMergedIds: MutableSet<String> = Collections.newSetFromMap(createLruMap(MAX_PREFETCH_CACHE_SIZE))
+    internal val enrichmentMergedIds: MutableSet<String> = Collections.newSetFromMap(
+        createLruMap(MAX_PREFETCH_CACHE_SIZE)
+    )
 
     internal val mdbBatchNegativeIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     internal var mdbBatchRowFocusJob: Job? = null
+
     @Volatile internal var mdbBatchHasFired: Boolean = false
     internal val cwMetaCache: MutableMap<String, CwMetaSummary?> = createLruMap(MAX_CW_CACHE_SIZE)
-    internal val cwMetaNegativeCacheTimestamps: MutableMap<String, Long> = createLruMap(MAX_CW_CACHE_SIZE)
+    internal val cwMetaNegativeCacheTimestamps: MutableMap<String, Long> =
+        createLruMap(MAX_CW_CACHE_SIZE)
+
     /** Ultra-light cache for badge evaluation: contentId → set of aired (season, episode) pairs. */
-    internal val cwBadgeEpisodeCache: MutableMap<String, Set<Pair<Int, Int>>?> = createLruMap(MAX_CW_CACHE_SIZE)
+    internal val cwBadgeEpisodeCache: MutableMap<String, Set<Pair<Int, Int>>?> =
+        createLruMap(MAX_CW_CACHE_SIZE)
+
     /** Per-series earliest upcoming season release date (epochMs) for smart TTL scheduling. */
     internal val cwBadgeNextSeasonMs: MutableMap<String, Long> = createLruMap(MAX_CW_CACHE_SIZE)
+
     /** Snapshot of watchedShowEpisodes keys from the last badge evaluation cycle. */
     @Volatile
     internal var cwLastBadgeEpisodeKeys: Set<String> = emptySet()
+
     /** Cached show ID siblings from the last badge evaluation cycle (for anime ID expansion). */
     @Volatile
     internal var cwLastShowIdSiblings: Map<String, Set<String>> = emptyMap()
     internal val cwTmdbIdCache: MutableMap<String, String?> = createLruMap(MAX_CW_CACHE_SIZE)
-    internal val cwNextUpResolutionCache = Collections.synchronizedMap(mutableMapOf<String, NextUpResolution?>())
+    internal val cwNextUpResolutionCache = Collections.synchronizedMap(
+        mutableMapOf<String, NextUpResolution?>()
+    )
     internal val cwNextUpNegativeCacheTimestamps = ConcurrentHashMap<String, Long>()
-    internal val discoveredOlderNextUpItems = Collections.synchronizedList(mutableListOf<ContinueWatchingItem.NextUp>())
+    internal val discoveredOlderNextUpItems = Collections.synchronizedList(
+        mutableListOf<ContinueWatchingItem.NextUp>()
+    )
     internal val cwLastProcessedNextUpContentIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     internal val cwProcessedOlderSeedContentIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     internal val cwEnrichedNextUpOverlay = ConcurrentHashMap<String, NextUpInfo>()
+
     /** Next-up overlay entries restored from the disk snapshot and not enriched yet in this session. */
     internal val cwDiskSeededNextUpOverlayIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
+
     /** Next-up seed keys an earlier launch found without a next episode, with their recheck time. */
     internal val cwNoNextUpSeeds = ConcurrentHashMap<String, Long>()
+
     /** Profile whose [cwNoNextUpSeeds] are loaded; null loads them again from disk. */
     @Volatile internal var cwNoNextUpSeedsProfileId: Int? = null
+
     /** Wall clock time the last Continue Watching cycle started, to spot releases passed since. */
     @Volatile internal var cwLastCycleStartedAtMs: Long = System.currentTimeMillis()
+
     /** In-memory cache of enriched InProgress items per contentId+episode key. */
-    internal val cwEnrichedInProgressOverlay = ConcurrentHashMap<String, ContinueWatchingItem.InProgress>()
+    internal val cwEnrichedInProgressOverlay =
+        ConcurrentHashMap<String, ContinueWatchingItem.InProgress>()
+
     /** Bumped to force the CW pipeline to re-run (e.g. after cache clear). */
     internal val cwPipelineRefreshTrigger = kotlinx.coroutines.flow.MutableStateFlow(0)
+
     /** Tracks the active CW pipeline coroutine so it can be cancelled on profile switch. */
     internal var cwPipelineJob: Job? = null
     internal val fullyWatchedSeriesIds get() = watchedSeriesStateHolder
     internal var tmdbEnrichFocusJob: Job? = null
     internal var pendingTmdbEnrichItemId: String? = null
+
     /** Item that was focused during startup grace period — will be enriched once grace ends. */
     internal var deferredEnrichItem: MetaPreview? = null
     internal var adjacentItemPrefetchJob: Job? = null
@@ -327,11 +366,14 @@ class HomeViewModel @Inject constructor(
     internal var libraryTabsObserverJob: Job? = null
     internal var activePosterListPickerInput: LibraryEntryInput? = null
     internal var pendingPosterListPickerChanges: ListMembershipChanges? = null
+
     @Volatile
     internal var externalMetaPrefetchEnabled: Boolean = false
+
     @Volatile
     internal var continueWatchingSortMode: ContinueWatchingSortMode = ContinueWatchingSortMode.DEFAULT
     internal val startupStartedAtMs: Long = SystemClock.elapsedRealtime()
+
     @Volatile
     internal var startupGracePeriodActive: Boolean = true
     internal var startupAuthNoticeJob: Job? = null
@@ -340,6 +382,7 @@ class HomeViewModel @Inject constructor(
     internal val eagerCatalogLoadCount: Int = 4
     internal val lazyLoadRequestedKeys: MutableSet<String> = ConcurrentHashMap.newKeySet()
     internal val pendingLazyCatalogs = linkedMapOf<String, Pair<Addon, CatalogDescriptor>>()
+
     /** All placeholder descriptors for homeRow construction. */
     internal data class PlaceholderDescriptor(
         val catalogKey: String,
@@ -487,7 +530,9 @@ class HomeViewModel @Inject constructor(
         cwLastBadgeEpisodeKeys = emptySet()
         cwLastShowIdSiblings = emptyMap()
         watchedSeriesStateHolder.clearValidationState()
-        _uiState.update { it.copy(continueWatchingItems = emptyList(), upcomingItems = emptyList()) }
+        _uiState.update {
+            it.copy(continueWatchingItems = emptyList(), upcomingItems = emptyList())
+        }
         // Bump trigger so the pipeline's collectLatest restarts with fresh state.
         cwPipelineRefreshTrigger.value++
     }
@@ -623,7 +668,15 @@ class HomeViewModel @Inject constructor(
         val videoUrl = trailerPreviewUrlsState[itemId] ?: return
         val audioUrl = trailerPreviewAudioUrlsState[itemId]
         val youtubeKey = trailerPreviewYoutubeKeys[itemId]
-        if (backgroundTrailerController.beginTransfer(itemId, videoUrl, audioUrl, youtubeKey)) return
+        if (backgroundTrailerController.beginTransfer(
+                itemId,
+                videoUrl,
+                audioUrl,
+                youtubeKey
+            )
+        ) {
+            return
+        }
         trailerPlayerPool.beginHandoff(
             itemId = itemId,
             videoUrl = videoUrl,
@@ -686,7 +739,8 @@ class HomeViewModel @Inject constructor(
             traktSettingsDataStore.watchProgressSource
                 .collect { source ->
                     val currentProfileId = profileManager.activeProfileId.value
-                    val profileChanged = previousProfileId != null && previousProfileId != currentProfileId
+                    val profileChanged =
+                        previousProfileId != null && previousProfileId != currentProfileId
                     if (previousSource != null && previousSource != source && !profileChanged) {
                         // Genuine in-profile source change — clear CW caches to prevent mixing.
                         cwMetaCache.clear()
@@ -697,8 +751,12 @@ class HomeViewModel @Inject constructor(
                         cwLastProcessedNextUpContentIds.clear()
                         // Clear disk cache for current profile.
                         viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                            runCatching { cwEnrichmentCache.saveNextUpSnapshot(emptyList(), force = true) }
-                            runCatching { cwEnrichmentCache.saveInProgressSnapshot(emptyList(), force = true) }
+                            runCatching {
+                                cwEnrichmentCache.saveNextUpSnapshot(emptyList(), force = true)
+                            }
+                            runCatching {
+                                cwEnrichmentCache.saveInProgressSnapshot(emptyList(), force = true)
+                            }
                         }
                         // Reload CW from fresh source.
                         loadContinueWatching()
@@ -714,7 +772,13 @@ class HomeViewModel @Inject constructor(
             authSessionNoticeDataStore.pendingNotice.collect { notice ->
                 if (notice == null) return@collect
                 _uiState.update { state ->
-                    if (state.startupAuthNotice == notice) state else state.copy(startupAuthNotice = notice)
+                    if (state.startupAuthNotice ==
+                        notice
+                    ) {
+                        state
+                    } else {
+                        state.copy(startupAuthNotice = notice)
+                    }
                 }
                 startupAuthNoticeJob?.cancel()
                 startupAuthNoticeJob = viewModelScope.launch {
@@ -739,23 +803,37 @@ class HomeViewModel @Inject constructor(
     fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.OnItemClick -> navigateToDetail(event.itemId, event.itemType)
-            is HomeEvent.OnLoadMoreCatalog -> loadMoreCatalogItems(event.catalogId, event.addonId, event.type)
+
+            is HomeEvent.OnLoadMoreCatalog -> loadMoreCatalogItems(
+                event.catalogId,
+                event.addonId,
+                event.type
+            )
+
             is HomeEvent.OnMarkContinueWatchingWatched -> markContinueWatchingWatched(event.item)
+
             is HomeEvent.OnRemoveContinueWatching -> removeContinueWatching(
                 contentId = event.contentId,
                 season = event.season,
                 episode = event.episode,
                 isNextUp = event.isNextUp
             )
-            HomeEvent.OnRetry -> viewModelScope.launch { loadAllCatalogs(addonsCache, forceReload = true) }
+
+            HomeEvent.OnRetry -> viewModelScope.launch {
+                loadAllCatalogs(addonsCache, forceReload = true)
+            }
         }
     }
 
     private fun loadContinueWatching() {
         // Immediately restore last known CW from disk cache for instant display.
         viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-            val cachedInProgress = runCatching { cwEnrichmentCache.getInProgressSnapshot() }.getOrDefault(emptyList())
-            val cachedNextUp = runCatching { cwEnrichmentCache.getNextUpSnapshot() }.getOrDefault(emptyList())
+            val cachedInProgress = runCatching {
+                cwEnrichmentCache.getInProgressSnapshot()
+            }.getOrDefault(emptyList())
+            val cachedNextUp = runCatching {
+                cwEnrichmentCache.getNextUpSnapshot()
+            }.getOrDefault(emptyList())
             if (cachedInProgress.isEmpty() && cachedNextUp.isEmpty()) return@launch
             val dismissedNextUp = traktSettingsDataStore.dismissedNextUpKeys.first()
             // Render cached items immediately — don't wait for Trakt/allProgress.
@@ -789,39 +867,42 @@ class HomeViewModel @Inject constructor(
                 }
             val nextUpItems = cachedNextUp
                 .filter { !watchProgressRepository.isDroppedShow(it.contentId) }
-                .filter { nextUpDismissKey(it.contentId, it.seedSeason, it.seedEpisode) !in dismissedNextUp }
+                .filter {
+                    nextUpDismissKey(it.contentId, it.seedSeason, it.seedEpisode) !in
+                        dismissedNextUp
+                }
                 .map { cached ->
-                ContinueWatchingItem.NextUp(
-                    info = NextUpInfo(
-                        contentId = cached.contentId,
-                        contentType = cached.contentType,
-                        name = cached.name,
-                        poster = cached.poster,
-                        backdrop = cached.backdrop,
-                        logo = cached.logo,
-                        videoId = cached.videoId,
-                        season = cached.season,
-                        episode = cached.episode,
-                        episodeTitle = cached.episodeTitle,
-                        episodeDescription = cached.episodeDescription,
-                        thumbnail = cached.thumbnail,
-                        released = cached.released,
-                        hasAired = cached.hasAired,
-                        airDateLabel = cached.airDateLabel,
-                        lastWatched = cached.lastWatched,
-                        imdbRating = if (cached.ratingVisible) cached.imdbRating else null,
-                        genres = cached.genres,
-                        releaseInfo = cached.releaseInfo,
-                        sortTimestamp = cached.sortTimestamp,
-                        releaseTimestamp = cached.releaseTimestamp,
-                        isReleaseAlert = cached.isReleaseAlert,
-                        isNewSeasonRelease = cached.isNewSeasonRelease,
-                        seedSeason = cached.seedSeason,
-                        seedEpisode = cached.seedEpisode,
-                        contentLanguage = cached.contentLanguage
+                    ContinueWatchingItem.NextUp(
+                        info = NextUpInfo(
+                            contentId = cached.contentId,
+                            contentType = cached.contentType,
+                            name = cached.name,
+                            poster = cached.poster,
+                            backdrop = cached.backdrop,
+                            logo = cached.logo,
+                            videoId = cached.videoId,
+                            season = cached.season,
+                            episode = cached.episode,
+                            episodeTitle = cached.episodeTitle,
+                            episodeDescription = cached.episodeDescription,
+                            thumbnail = cached.thumbnail,
+                            released = cached.released,
+                            hasAired = cached.hasAired,
+                            airDateLabel = cached.airDateLabel,
+                            lastWatched = cached.lastWatched,
+                            imdbRating = if (cached.ratingVisible) cached.imdbRating else null,
+                            genres = cached.genres,
+                            releaseInfo = cached.releaseInfo,
+                            sortTimestamp = cached.sortTimestamp,
+                            releaseTimestamp = cached.releaseTimestamp,
+                            isReleaseAlert = cached.isReleaseAlert,
+                            isNewSeasonRelease = cached.isNewSeasonRelease,
+                            seedSeason = cached.seedSeason,
+                            seedEpisode = cached.seedEpisode,
+                            contentLanguage = cached.contentLanguage
+                        )
                     )
-                )
-            }
+                }
             val sortMode = layoutPreferenceDataStore.continueWatchingSortMode.first()
             val items = mergeContinueWatchingItems(
                 inProgressItems = inProgressItems,
@@ -830,7 +911,9 @@ class HomeViewModel @Inject constructor(
             )
             if (items.isNotEmpty()) {
                 val (mainItems, upcomingOnly) = splitUpcomingItems(items, sortMode)
-                _uiState.update { it.copy(continueWatchingItems = mainItems, upcomingItems = upcomingOnly) }
+                _uiState.update {
+                    it.copy(continueWatchingItems = mainItems, upcomingItems = upcomingOnly)
+                }
                 _initialCwResolved.value = true
             }
         }
@@ -853,7 +936,9 @@ class HomeViewModel @Inject constructor(
         if (!item.canMarkWatched()) return
         viewModelScope.launch {
             runCatching { watchProgressRepository.markAsCompleted(item.toCompletedProgress()) }
-                .onFailure { error -> Log.w(TAG, "Failed to mark continue watching item as watched", error) }
+                .onFailure { error ->
+                    Log.w(TAG, "Failed to mark continue watching item as watched", error)
+                }
         }
     }
 
@@ -891,6 +976,7 @@ class HomeViewModel @Inject constructor(
      * refresh is older than [HOME_CATALOG_REFRESH_TTL_MS], at most once per interval, and
      * merges each result into the row that is already on screen.
      */
+
     /**
      * The user pressed refresh in addon settings. Home is still on the back stack, so its
      * catalogs are re-requested right away rather than waiting for the interval or for the
@@ -914,14 +1000,11 @@ class HomeViewModel @Inject constructor(
         refreshVisibleCatalogsPipeline()
     }
 
-    private suspend fun loadAllCatalogs(addons: List<Addon>, forceReload: Boolean = false) =
-        loadAllCatalogsPipeline(addons, forceReload)
+    private suspend fun loadAllCatalogs(addons: List<Addon>, forceReload: Boolean = false) = loadAllCatalogsPipeline(addons, forceReload)
 
-    private fun loadCatalog(addon: Addon, catalog: CatalogDescriptor, generation: Long) =
-        loadCatalogPipeline(addon, catalog, generation)
+    private fun loadCatalog(addon: Addon, catalog: CatalogDescriptor, generation: Long) = loadCatalogPipeline(addon, catalog, generation)
 
-    private fun loadMoreCatalogItems(catalogId: String, addonId: String, type: String) =
-        loadMoreCatalogItemsPipeline(catalogId, addonId, type)
+    private fun loadMoreCatalogItems(catalogId: String, addonId: String, type: String) = loadMoreCatalogItemsPipeline(catalogId, addonId, type)
 
     internal fun scheduleUpdateCatalogRows() {
         catalogUpdateJob?.cancel()
@@ -933,11 +1016,15 @@ class HomeViewModel @Inject constructor(
                     hasRenderedFirstCatalog = true
                     150L
                 }
+
                 // During bulk loading, batch aggressively — placeholders are
                 // already visible so the user won't notice the delay.
                 pendingCatalogLoads > 8 -> 300L
+
                 pendingCatalogLoads > 3 -> 250L
+
                 pendingCatalogLoads > 0 -> 200L
+
                 else -> 80L
             }
             delay(debounceMs)
@@ -992,11 +1079,9 @@ class HomeViewModel @Inject constructor(
 
     internal var posterStatusReconcileJob: Job? = null
 
-    private fun schedulePosterStatusReconcile(rows: List<CatalogRow>) =
-        schedulePosterStatusReconcilePipeline(rows)
+    private fun schedulePosterStatusReconcile(rows: List<CatalogRow>) = schedulePosterStatusReconcilePipeline(rows)
 
-    private fun reconcilePosterStatusObservers(rows: List<CatalogRow>) =
-        reconcilePosterStatusObserversPipeline(rows)
+    private fun reconcilePosterStatusObservers(rows: List<CatalogRow>) = reconcilePosterStatusObserversPipeline(rows)
 
     private fun navigateToDetail(itemId: String, itemType: String) {
         _uiState.update { it.copy(selectedItemId = itemId) }
@@ -1012,8 +1097,7 @@ class HomeViewModel @Inject constructor(
         heroItems: List<MetaPreview>
     ): List<GridItem> = replaceGridHeroItemsPipeline(gridItems, heroItems)
 
-    private fun heroEnrichmentSignature(items: List<MetaPreview>, settings: TmdbSettings): String =
-        heroEnrichmentSignaturePipeline(items, settings)
+    private fun heroEnrichmentSignature(items: List<MetaPreview>, settings: TmdbSettings): String = heroEnrichmentSignaturePipeline(items, settings)
 
     /**
      * Saves the current focus and scroll state for restoration when returning to this screen.

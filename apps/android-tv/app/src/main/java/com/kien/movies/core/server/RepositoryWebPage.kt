@@ -14,14 +14,18 @@ object RepositoryWebPage {
             val config = Configuration(baseContext.resources.configuration)
             config.setLocale(Locale.forLanguageTag(tag))
             baseContext.createConfigurationContext(config)
-        } else baseContext
+        } else {
+            baseContext
+        }
         return """
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>${context.getString(R.string.app_name)} - ${context.getString(R.string.web_manage_repos_title)}</title>
+<title>${context.getString(
+            R.string.app_name
+        )} - ${context.getString(R.string.web_manage_repos_title)}</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   * {
@@ -324,8 +328,12 @@ object RepositoryWebPage {
   <div class="add-section">
     <label>${context.getString(R.string.web_add_repo_url)}</label>
     <div class="add-row">
-      <input type="url" id="repoUrl" placeholder="${context.getString(R.string.web_placeholder_url)}" autocomplete="off" autocapitalize="off" spellcheck="false">
-      <button class="btn" id="addBtn" onclick="addRepo()">${context.getString(R.string.web_btn_add)}</button>
+      <input type="url" id="repoUrl" placeholder="${context.getString(
+            R.string.web_placeholder_url
+        )}" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="btn" id="addBtn" onclick="addRepo()">${context.getString(
+            R.string.web_btn_add
+        )}</button>
     </div>
     <div class="add-error" id="addError"></div>
   </div>
@@ -334,14 +342,18 @@ object RepositoryWebPage {
   <ul class="repo-list" id="repoList"></ul>
   <div class="empty-state" id="emptyState">${context.getString(R.string.web_no_repos)}</div>
 
-  <button class="btn btn-save" id="saveBtn" onclick="saveChanges()">${context.getString(R.string.web_btn_save)}</button>
+  <button class="btn btn-save" id="saveBtn" onclick="saveChanges()">${context.getString(
+            R.string.web_btn_save
+        )}</button>
 </div>
 
 <div class="status-overlay" id="statusOverlay">
   <div class="status-content" id="statusContent"></div>
 </div>
 
-<div class="connection-bar" id="connectionBar">${context.getString(R.string.web_connection_lost)}</div>
+<div class="connection-bar" id="connectionBar">${context.getString(
+            R.string.web_connection_lost
+        )}</div>
 
 <script>
 var repos = [];
@@ -398,13 +410,17 @@ function renderList() {
     li.innerHTML =
       '<div class="repo-info">' +
         '<div class="repo-name">' + escapeHtml(repo.name || repo.url) +
-          (repo.isNew ? '<span class="badge-new">${context.getString(R.string.web_badge_new).replace("'", "\\'")}</span>' : '') +
+          (repo.isNew ? '<span class="badge-new">${context.getString(
+            R.string.web_badge_new
+        ).replace("'", "\\'")}</span>' : '') +
         '</div>' +
         (repo.description ? '<div class="repo-desc">' + escapeHtml(repo.description) + '</div>' : '') +
         '<div class="repo-url">' + escapeHtml(repo.url) + '</div>' +
       '</div>' +
       '<div class="repo-actions">' +
-        '<button class="btn btn-remove" onclick="removeRepo(' + i + ')">${context.getString(R.string.web_btn_remove).replace("'", "\\'")}</button>' +
+        '<button class="btn btn-remove" onclick="removeRepo(' + i + ')">${context.getString(
+            R.string.web_btn_remove
+        ).replace("'", "\\'")}</button>' +
       '</div>';
 
     list.appendChild(li);
@@ -426,7 +442,9 @@ async function addRepo() {
   url = url.replace(/\/+$/, '');
 
   if (repos.some(function(r) { return r.url === url; })) {
-    errorEl.textContent = '${context.getString(R.string.web_error_repo_exists).replace("'", "\\'")}';
+    errorEl.textContent = '${context.getString(
+            R.string.web_error_repo_exists
+        ).replace("'", "\\'")}';
     errorEl.style.display = 'block';
     setTimeout(function() { errorEl.style.display = 'none'; }, 3000);
     return;
@@ -474,8 +492,12 @@ function showPendingStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="spinner"></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_waiting_tv).replace("'", "\\'")}</div>' +
-    '<div class="status-message">${context.getString(R.string.web_status_msg_waiting_tv).replace("'", "\\'")}</div>';
+    '<div class="status-title">${context.getString(
+            R.string.web_status_waiting_tv
+        ).replace("'", "\\'")}</div>' +
+    '<div class="status-message">${context.getString(
+            R.string.web_status_msg_waiting_tv
+        ).replace("'", "\\'")}</div>';
   content.className = 'status-content';
   overlay.classList.add('visible');
 }
@@ -484,8 +506,12 @@ function showSuccessStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_changes_applied).replace("'", "\\'")}</div>' +
-    '<div class="status-message">${context.getString(R.string.web_status_msg_repo_updated).replace("'", "\\'")}</div>';
+    '<div class="status-title">${context.getString(
+            R.string.web_status_changes_applied
+        ).replace("'", "\\'")}</div>' +
+    '<div class="status-message">${context.getString(
+            R.string.web_status_msg_repo_updated
+        ).replace("'", "\\'")}</div>';
   content.className = 'status-content status-success';
   setTimeout(dismissStatus, 2500);
 }
@@ -494,8 +520,12 @@ function showRejectedStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(207,102,121,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_changes_rejected).replace("'", "\\'")}</div>' +
-    '<div class="status-message">${context.getString(R.string.web_status_msg_changes_rejected).replace("'", "\\'")}</div>';
+    '<div class="status-title">${context.getString(
+            R.string.web_status_changes_rejected
+        ).replace("'", "\\'")}</div>' +
+    '<div class="status-message">${context.getString(
+            R.string.web_status_msg_changes_rejected
+        ).replace("'", "\\'")}</div>';
   content.className = 'status-content status-rejected';
   setTimeout(function() {
     repos = JSON.parse(JSON.stringify(originalRepos));
@@ -509,9 +539,13 @@ function showErrorStatus(msg) {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(207,102,121,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_error).replace("'", "\\'")}</div>' +
+    '<div class="status-title">${context.getString(
+            R.string.web_status_error
+        ).replace("'", "\\'")}</div>' +
     '<div class="status-message">' + escapeHtml(msg) + '</div>' +
-    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(R.string.web_btn_dismiss).replace("'", "\\'")}</button></div>';
+    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(
+            R.string.web_btn_dismiss
+        ).replace("'", "\\'")}</button></div>';
   content.className = 'status-content status-error';
   overlay.classList.add('visible');
 }
@@ -520,9 +554,15 @@ function showTimeoutStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(207,102,121,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_timeout).replace("'", "\\'")}</div>' +
-    '<div class="status-message">${context.getString(R.string.web_status_msg_timeout).replace("'", "\\'")}</div>' +
-    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(R.string.web_btn_dismiss).replace("'", "\\'")}</button></div>';
+    '<div class="status-title">${context.getString(
+            R.string.web_status_timeout
+        ).replace("'", "\\'")}</div>' +
+    '<div class="status-message">${context.getString(
+            R.string.web_status_msg_timeout
+        ).replace("'", "\\'")}</div>' +
+    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(
+            R.string.web_btn_dismiss
+        ).replace("'", "\\'")}</button></div>';
   content.className = 'status-content status-error';
 }
 
@@ -530,9 +570,15 @@ function showDisconnectedStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(207,102,121,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.56 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_connection_lost).replace("'", "\\'")}</div>' +
-    '<div class="status-message">${context.getString(R.string.web_status_msg_connection_lost).replace("'", "\\'")}</div>' +
-    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(R.string.web_btn_dismiss).replace("'", "\\'")}</button></div>';
+    '<div class="status-title">${context.getString(
+            R.string.web_connection_lost
+        ).replace("'", "\\'")}</div>' +
+    '<div class="status-message">${context.getString(
+            R.string.web_status_msg_connection_lost
+        ).replace("'", "\\'")}</div>' +
+    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(
+            R.string.web_btn_dismiss
+        ).replace("'", "\\'")}</button></div>';
   content.className = 'status-content status-error';
 }
 
@@ -603,6 +649,6 @@ loadRepos();
 </script>
 </body>
 </html>
-""".trimIndent()
+        """.trimIndent()
     }
 }

@@ -60,7 +60,8 @@ class SimklSettingsViewModel @Inject constructor(
                     current.copy(
                         mode = state.mode,
                         credentialsConfigured = authRepository.hasRequiredCredentials(),
-                        isPolling = state.mode == SimklConnectionMode.AWAITING_APPROVAL && current.isPolling,
+                        isPolling =
+                            state.mode == SimklConnectionMode.AWAITING_APPROVAL && current.isPolling,
                         username = state.username,
                         userCode = state.pinSession?.userCode,
                         verificationUri = state.pinSession?.verificationUri,
@@ -72,7 +73,8 @@ class SimklSettingsViewModel @Inject constructor(
                 if (
                     shouldRefreshMissingSimklIdentity(
                         state = state,
-                        isRefreshBlocked = identityRefreshJob?.isActive == true || pollJob?.isActive == true
+                        isRefreshBlocked =
+                            identityRefreshJob?.isActive == true || pollJob?.isActive == true
                     )
                 ) {
                     identityRefreshJob = viewModelScope.launch {
@@ -179,7 +181,13 @@ class SimklSettingsViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     isLoading = false,
-                    statusMessage = if (error == null) context.getString(R.string.simkl_status_synced) else null,
+                    statusMessage = if (error ==
+                        null
+                    ) {
+                        context.getString(R.string.simkl_status_synced)
+                    } else {
+                        null
+                    },
                     errorMessage = error
                 )
             }
@@ -208,24 +216,32 @@ class SimklSettingsViewModel @Inject constructor(
                 try {
                     when (authRepository.pollPin()) {
                         SimklPinPollResult.Pending -> _uiState.update {
-                            it.copy(statusMessage = context.getString(R.string.simkl_status_waiting))
+                            it.copy(
+                                statusMessage = context.getString(R.string.simkl_status_waiting)
+                            )
                         }
+
                         SimklPinPollResult.Authorized -> {
                             syncRepository.refresh(TrackingRefreshIntent.INVALIDATED)
                             _uiState.update {
                                 it.copy(
                                     isPolling = false,
-                                    statusMessage = context.getString(R.string.simkl_status_connected)
+                                    statusMessage = context.getString(
+                                        R.string.simkl_status_connected
+                                    )
                                 )
                             }
                             break
                         }
+
                         SimklPinPollResult.Expired,
                         SimklPinPollResult.Invalidated -> {
                             _uiState.update {
                                 it.copy(
                                     isPolling = false,
-                                    errorMessage = context.getString(R.string.simkl_error_code_expired)
+                                    errorMessage = context.getString(
+                                        R.string.simkl_error_code_expired
+                                    )
                                 )
                             }
                             break
@@ -245,15 +261,19 @@ class SimklSettingsViewModel @Inject constructor(
 
     private fun SimklAuthError.message(): String = when (this) {
         SimklAuthError.MISSING_CLIENT_ID -> context.getString(R.string.simkl_missing_credentials)
+
         SimklAuthError.PIN_EXPIRED,
         SimklAuthError.PIN_INVALIDATED -> context.getString(R.string.simkl_error_code_expired)
-        SimklAuthError.AUTHORIZATION_REVOKED -> context.getString(R.string.simkl_error_authorization_revoked)
+
+        SimklAuthError.AUTHORIZATION_REVOKED -> context.getString(
+            R.string.simkl_error_authorization_revoked
+        )
+
         SimklAuthError.INVALID_PIN_RESPONSE,
         SimklAuthError.NETWORK -> context.getString(R.string.simkl_error_network)
     }
 
-    private fun Throwable.toUserMessage(): String =
-        (this as? SimklAuthException)?.error?.message()
-            ?: message?.takeIf(String::isNotBlank)
-            ?: context.getString(R.string.simkl_error_network)
+    private fun Throwable.toUserMessage(): String = (this as? SimklAuthException)?.error?.message()
+        ?: message?.takeIf(String::isNotBlank)
+        ?: context.getString(R.string.simkl_error_network)
 }

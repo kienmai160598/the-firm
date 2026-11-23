@@ -20,7 +20,7 @@ internal object SubtitleAudioAligner {
         25.0 / 23.976,
         23.976 / 25.0,
         25.0 / 24.0,
-        24.0 / 25.0,
+        24.0 / 25.0
     )
 
     /**
@@ -62,7 +62,7 @@ internal object SubtitleAudioAligner {
          * match; [prominence] compares the peak with that slope 2.5 s away and so stays low for real
          * matches, while this compares it with another, separate peak.
          */
-        val separation: Double = prominence,
+        val separation: Double = prominence
     )
 
     /**
@@ -77,8 +77,15 @@ internal object SubtitleAudioAligner {
         minShiftMs: Double,
         maxShiftMs: Double,
         /** Latency of the speech detector; 0 when [probabilities] is not detector output. */
-        detectorBiasMs: Double = DETECTOR_BIAS_MS,
-    ): Estimate? = estimate(listOf(SpeechSegment(fromFrame, probabilities)), track, scales, minShiftMs, maxShiftMs, detectorBiasMs)
+        detectorBiasMs: Double = DETECTOR_BIAS_MS
+    ): Estimate? = estimate(
+        listOf(SpeechSegment(fromFrame, probabilities)),
+        track,
+        scales,
+        minShiftMs,
+        maxShiftMs,
+        detectorBiasMs
+    )
 
     /** Like the single-array form, over separate stretches of known speech (see [SpeechTimeline.segments]). */
     fun estimate(
@@ -87,7 +94,7 @@ internal object SubtitleAudioAligner {
         scales: DoubleArray = CANDIDATE_SCALES,
         minShiftMs: Double,
         maxShiftMs: Double,
-        detectorBiasMs: Double = DETECTOR_BIAS_MS,
+        detectorBiasMs: Double = DETECTOR_BIAS_MS
     ): Estimate? = prepare(segments, minShiftMs, maxShiftMs, detectorBiasMs)?.estimate(track, scales)
 
     fun prepare(
@@ -95,8 +102,13 @@ internal object SubtitleAudioAligner {
         fromFrame: Int,
         minShiftMs: Double,
         maxShiftMs: Double,
-        detectorBiasMs: Double = DETECTOR_BIAS_MS,
-    ): PreparedSpeech? = prepare(listOf(SpeechSegment(fromFrame, probabilities)), minShiftMs, maxShiftMs, detectorBiasMs)
+        detectorBiasMs: Double = DETECTOR_BIAS_MS
+    ): PreparedSpeech? = prepare(
+        listOf(SpeechSegment(fromFrame, probabilities)),
+        minShiftMs,
+        maxShiftMs,
+        detectorBiasMs
+    )
 
     /**
      * Transforms the speech side once so several subtitle files can be scored against the same
@@ -109,7 +121,7 @@ internal object SubtitleAudioAligner {
         segments: List<SpeechSegment>,
         minShiftMs: Double,
         maxShiftMs: Double,
-        detectorBiasMs: Double = DETECTOR_BIAS_MS,
+        detectorBiasMs: Double = DETECTOR_BIAS_MS
     ): PreparedSpeech? {
         val frameMs = SpeechTimeline.FRAME_DURATION_MS
         val minLag = Math.floorDiv((minShiftMs + detectorBiasMs).roundToInt(), frameMs.toInt())
@@ -119,9 +131,13 @@ internal object SubtitleAudioAligner {
         // One mean and norm over every known frame, as if the stretches were a single array.
         var count = 0
         var sum = 0.0
-        for (segment in segments) for (p in segment.probabilities) if (!p.isNaN()) {
-            count++
-            sum += p
+        for (segment in segments) {
+            for (p in segment.probabilities) {
+                if (!p.isNaN()) {
+                    count++
+                    sum += p
+                }
+            }
         }
         if (count < 2) return null
         val mean = sum / count
@@ -151,7 +167,17 @@ internal object SubtitleAudioAligner {
                     mask[i + 1] = mask[i] + if (p.isNaN()) 0.0 else 1.0
                 }
                 if (known == 0) continue
-                parts += Part(null, centered, mask, n, segment.fromFrame, gLength, fullyKnown = known == n)
+                parts +=
+                    Part(
+                        null,
+                        centered,
+                        mask,
+                        n,
+                        segment.fromFrame,
+                        gLength,
+                        fullyKnown =
+                            known == n
+                    )
                 continue
             }
             // Lags k < lagCount only read g[i + k] with i < n, so i + k < gLength: no wrap-around.
@@ -173,10 +199,19 @@ internal object SubtitleAudioAligner {
             if (known == 0) continue
             val fft = Fft.of(size)
             fft.transform(audioRe, audioIm)
-            parts += Part(fft, audioRe, audioIm, n, segment.fromFrame, gLength, fullyKnown = known == n)
+            parts +=
+                Part(fft, audioRe, audioIm, n, segment.fromFrame, gLength, fullyKnown = known == n)
         }
         if (energy <= 1e-9 || parts.isEmpty()) return null
-        return PreparedSpeech(parts, count, sqrt(energy), speechSeconds, minLag, maxLag, detectorBiasMs)
+        return PreparedSpeech(
+            parts,
+            count,
+            sqrt(energy),
+            speechSeconds,
+            minLag,
+            maxLag,
+            detectorBiasMs
+        )
     }
 
     /**
@@ -191,7 +226,7 @@ internal object SubtitleAudioAligner {
         val fromFrame: Int,
         val gLength: Int,
         /** No unknown frames: the mask terms are plain window sums (see [accumulateWindowSums]). */
-        val fullyKnown: Boolean,
+        val fullyKnown: Boolean
     )
 
     /**
@@ -206,7 +241,7 @@ internal object SubtitleAudioAligner {
         private val speechSeconds: Double,
         private val minLag: Int,
         private val maxLag: Int,
-        private val detectorBiasMs: Double,
+        private val detectorBiasMs: Double
     ) {
         private val correlations = HashMap<Pair<SubtitleSpeechTrack, Double>, DoubleArray>()
         private val scratchBySize = HashMap<Int, Scratch>()
@@ -229,15 +264,22 @@ internal object SubtitleAudioAligner {
             track: SubtitleSpeechTrack,
             scales: DoubleArray = CANDIDATE_SCALES,
             minShiftMs: Double? = null,
-            maxShiftMs: Double? = null,
+            maxShiftMs: Double? = null
         ): Estimate? {
             if (track.size == 0) return null
             val frameMs = SpeechTimeline.FRAME_DURATION_MS
             // Index k = maxLag - lag; a narrower shift range is a slice of the same lags.
-            val rangeMaxLag = maxShiftMs?.let { Math.floorDiv((it + detectorBiasMs).roundToInt(), frameMs.toInt()) + 1 }
-                ?.coerceAtMost(maxLag) ?: maxLag
-            val rangeMinLag = minShiftMs?.let { Math.floorDiv((it + detectorBiasMs).roundToInt(), frameMs.toInt()) }
-                ?.coerceAtLeast(minLag) ?: minLag
+            val rangeMaxLag =
+                maxShiftMs?.let {
+                    Math.floorDiv((it + detectorBiasMs).roundToInt(), frameMs.toInt()) +
+                        1
+                }
+                    ?.coerceAtMost(maxLag) ?: maxLag
+            val rangeMinLag =
+                minShiftMs?.let {
+                    Math.floorDiv((it + detectorBiasMs).roundToInt(), frameMs.toInt())
+                }
+                    ?.coerceAtLeast(minLag) ?: minLag
             if (rangeMinLag > rangeMaxLag) return null
             val fromIndex = maxLag - rangeMaxLag
             val toIndex = maxLag - rangeMinLag + 1
@@ -246,23 +288,29 @@ internal object SubtitleAudioAligner {
             var unitScale: Estimate? = null
             // A ratio computed as e.g. 1.0 / (24000 / 23976) differs from the listed one in the last
             // bit; use the listed value so its cached correlation is reused instead of recomputed.
-            val ratios = scales.map { s -> CANDIDATE_SCALES.firstOrNull { abs(it - s) < 1e-12 } ?: s }
+            val ratios = scales.map { s ->
+                CANDIDATE_SCALES.firstOrNull { abs(it - s) < 1e-12 } ?: s
+            }
             computeCorrelations(track, ratios.filter { (track to it) !in correlations }.distinct())
             for (scale in ratios) {
-                val correlation = correlations.getValue(track to scale).copyOfRange(fromIndex, toIndex)
-                val estimate = correlationPeak(correlation, rangeMaxLag, scale, frameMs, detectorBiasMs) ?: continue
+                val correlation = correlations.getValue(
+                    track to scale
+                ).copyOfRange(fromIndex, toIndex)
+                val estimate =
+                    correlationPeak(correlation, rangeMaxLag, scale, frameMs, detectorBiasMs)
+                        ?: continue
                 val cues = parts.sumOf { part ->
                     track.countCuesIn(
                         fromMs = part.fromFrame * frameMs,
                         toMs = (part.fromFrame + part.n) * frameMs,
                         scale = scale,
-                        shiftMs = estimate.shiftMs,
+                        shiftMs = estimate.shiftMs
                     )
                 }
                 val complete = estimate.copy(
                     analysedSeconds = count * frameMs / 1_000.0,
                     speechSeconds = speechSeconds,
-                    cueCount = cues,
+                    cueCount = cues
                 )
                 if (scale == 1.0) unitScale = complete
                 if (complete.peak > bestPeak) {
@@ -271,7 +319,8 @@ internal object SubtitleAudioAligner {
                 }
             }
             val unit = unitScale
-            if (unit != null && best != null && best !== unit && unit.peak >= best.peak - SCALE_PREFERENCE_MARGIN &&
+            if (unit != null && best != null && best !== unit &&
+                unit.peak >= best.peak - SCALE_PREFERENCE_MARGIN &&
                 isNearUnit(best.scale)
             ) {
                 return unit
@@ -292,26 +341,74 @@ internal object SubtitleAudioAligner {
             val cm2 = List(scales.size) { DoubleArray(lagCount) }
             for (part in parts) {
                 val reusable = renderBuffers(part.gLength, scales.size)
-                val g = scales.mapIndexed { j, scale -> track.renderInto(reusable[j], part.fromFrame - maxLag, scale) }
+                val g = scales.mapIndexed { j, scale ->
+                    track.renderInto(
+                        reusable[j],
+                        part.fromFrame - maxLag,
+                        scale
+                    )
+                }
                 if (part.fft == null) {
-                    for (j in scales.indices) accumulateIntervalTerms(part, g[j], lagCount, c1[j], cm[j], cm2[j])
+                    for (j in scales.indices) {
+                        accumulateIntervalTerms(
+                            part,
+                            g[j],
+                            lagCount,
+                            c1[j],
+                            cm[j],
+                            cm2[j]
+                        )
+                    }
                     continue
                 }
                 val buffers = scratch(part.fft.size)
                 if (part.fullyKnown) {
                     for (first in scales.indices step 2) {
                         val second = (first + 1).takeIf { it < scales.size }
-                        accumulateCrossTerms(part, g[first], second?.let(g::get), lagCount, c1[first], second?.let(c1::get), buffers)
+                        accumulateCrossTerms(
+                            part,
+                            g[first],
+                            second?.let(g::get),
+                            lagCount,
+                            c1[first],
+                            second?.let(c1::get),
+                            buffers
+                        )
                     }
-                    for (j in scales.indices) accumulateWindowSums(g[j], part.n, lagCount, cm[j], cm2[j], scratch(g[j].size + 1))
+                    for (j in scales.indices) {
+                        accumulateWindowSums(
+                            g[j],
+                            part.n,
+                            lagCount,
+                            cm[j],
+                            cm2[j],
+                            scratch(g[j].size + 1)
+                        )
+                    }
                 } else {
-                    for (j in scales.indices) accumulateTerms(part, g[j], lagCount, c1[j], cm[j], cm2[j], buffers)
+                    for (j in scales.indices) {
+                        accumulateTerms(
+                            part,
+                            g[j],
+                            lagCount,
+                            c1[j],
+                            cm[j],
+                            cm2[j],
+                            buffers
+                        )
+                    }
                 }
             }
             for (j in scales.indices) {
                 correlations[track to scales[j]] = DoubleArray(lagCount) { k ->
                     val variance = cm2[j][k] - cm[j][k] * cm[j][k] / count
-                    if (variance > 1e-6 * count && cm[j][k] > 0.5) c1[j][k] / (norm * sqrt(variance)) else Double.NaN
+                    if (variance > 1e-6 * count &&
+                        cm[j][k] > 0.5
+                    ) {
+                        c1[j][k] / (norm * sqrt(variance))
+                    } else {
+                        Double.NaN
+                    }
                 }
             }
         }
@@ -339,7 +436,7 @@ internal object SubtitleAudioAligner {
         c1: DoubleArray,
         cm: DoubleArray,
         cm2: DoubleArray,
-        scratch: Scratch,
+        scratch: Scratch
     ) {
         val fft = part.fft!!
         val size = fft.size
@@ -364,14 +461,22 @@ internal object SubtitleAudioAligner {
         val cm2Im = scratch.f
         for (k in 0 until size) {
             val j = if (k == 0) 0 else size - k
-            val aRe = audioRe[k]; val aIm = audioIm[k]
-            val aRej = audioRe[j]; val aImj = -audioIm[j]
-            val xRe = 0.5 * (aRe + aRej); val xIm = 0.5 * (aIm + aImj)
-            val mRe = 0.5 * (aIm - aImj); val mIm = -0.5 * (aRe - aRej)
-            val sRe = subRe[k]; val sIm = subIm[k]
-            val sRej = subRe[j]; val sImj = -subIm[j]
-            val gRe = 0.5 * (sRe + sRej); val gIm = 0.5 * (sIm + sImj)
-            val g2Re = 0.5 * (sIm - sImj); val g2Im = -0.5 * (sRe - sRej)
+            val aRe = audioRe[k]
+            val aIm = audioIm[k]
+            val aRej = audioRe[j]
+            val aImj = -audioIm[j]
+            val xRe = 0.5 * (aRe + aRej)
+            val xIm = 0.5 * (aIm + aImj)
+            val mRe = 0.5 * (aIm - aImj)
+            val mIm = -0.5 * (aRe - aRej)
+            val sRe = subRe[k]
+            val sIm = subIm[k]
+            val sRej = subRe[j]
+            val sImj = -subIm[j]
+            val gRe = 0.5 * (sRe + sRej)
+            val gIm = 0.5 * (sIm + sImj)
+            val g2Re = 0.5 * (sIm - sImj)
+            val g2Im = -0.5 * (sRe - sRej)
             // conj(X) * G
             val p1Re = xRe * gRe + xIm * gIm
             val p1Im = xRe * gIm - xIm * gRe
@@ -404,7 +509,7 @@ internal object SubtitleAudioAligner {
         lagCount: Int,
         c1A: DoubleArray,
         c1B: DoubleArray?,
-        scratch: Scratch,
+        scratch: Scratch
     ) {
         val fft = part.fft!!
         val size = fft.size
@@ -427,9 +532,12 @@ internal object SubtitleAudioAligner {
         val outIm = scratch.d
         for (k in 0 until size) {
             val j = if (k == 0) 0 else size - k
-            val xRe = 0.5 * (audioRe[k] + audioRe[j]); val xIm = 0.5 * (audioIm[k] - audioIm[j])
-            val aRe = 0.5 * (subRe[k] + subRe[j]); val aIm = 0.5 * (subIm[k] - subIm[j])
-            val bRe = 0.5 * (subIm[k] + subIm[j]); val bIm = -0.5 * (subRe[k] - subRe[j])
+            val xRe = 0.5 * (audioRe[k] + audioRe[j])
+            val xIm = 0.5 * (audioIm[k] - audioIm[j])
+            val aRe = 0.5 * (subRe[k] + subRe[j])
+            val aIm = 0.5 * (subIm[k] - subIm[j])
+            val bRe = 0.5 * (subIm[k] + subIm[j])
+            val bIm = -0.5 * (subRe[k] - subRe[j])
             val pRe = xRe * aRe + xIm * aIm
             val pIm = xRe * aIm - xIm * aRe
             val qRe = xRe * bRe + xIm * bIm
@@ -449,7 +557,14 @@ internal object SubtitleAudioAligner {
      * Adds sum(mask * g) and sum(mask * g^2) per lag for a stretch without gaps, where the mask is
      * all ones and both are sliding sums over [n] frames: g[k] + ... + g[k + n - 1].
      */
-    private fun accumulateWindowSums(g: DoubleArray, n: Int, lagCount: Int, cm: DoubleArray, cm2: DoubleArray, scratch: Scratch) {
+    private fun accumulateWindowSums(
+        g: DoubleArray,
+        n: Int,
+        lagCount: Int,
+        cm: DoubleArray,
+        cm2: DoubleArray,
+        scratch: Scratch
+    ) {
         val prefix = scratch.a
         val prefixSquares = scratch.b
         prefix[0] = 0.0
@@ -469,7 +584,14 @@ internal object SubtitleAudioAligner {
      * subtitle is constant over runs of frames, so each run adds its value times a difference of
      * running sums per lag: work grows with runs times lags rather than with the stretch's length.
      */
-    private fun accumulateIntervalTerms(part: Part, g: DoubleArray, lagCount: Int, c1: DoubleArray, cm: DoubleArray, cm2: DoubleArray) {
+    private fun accumulateIntervalTerms(
+        part: Part,
+        g: DoubleArray,
+        lagCount: Int,
+        c1: DoubleArray,
+        cm: DoubleArray,
+        cm2: DoubleArray
+    ) {
         val centered = part.audioRe
         val mask = part.audioIm
         val n = part.n
@@ -479,14 +601,16 @@ internal object SubtitleAudioAligner {
             var to = from + 1
             while (to < g.size && g[to] == value) to++
             // Audio frames i with i + k in [from, to), clipped to [0, n).
-            if (value != 0.0) for (k in maxOf(0, from - n + 1)..minOf(lagCount - 1, to - 1)) {
-                val lo = maxOf(from - k, 0)
-                val hi = minOf(to - k, n)
-                if (hi <= lo) continue
-                val known = mask[hi] - mask[lo]
-                c1[k] += value * (centered[hi] - centered[lo])
-                cm[k] += value * known
-                cm2[k] += value * value * known
+            if (value != 0.0) {
+                for (k in maxOf(0, from - n + 1)..minOf(lagCount - 1, to - 1)) {
+                    val lo = maxOf(from - k, 0)
+                    val hi = minOf(to - k, n)
+                    if (hi <= lo) continue
+                    val known = mask[hi] - mask[lo]
+                    c1[k] += value * (centered[hi] - centered[lo])
+                    cm[k] += value * known
+                    cm2[k] += value * value * known
+                }
             }
             from = to
         }
@@ -498,7 +622,7 @@ internal object SubtitleAudioAligner {
         maxLag: Int,
         scale: Double,
         frameMs: Double,
-        detectorBiasMs: Double,
+        detectorBiasMs: Double
     ): Estimate? {
         val lagCount = correlation.size
         var peakIndex = -1
@@ -512,7 +636,11 @@ internal object SubtitleAudioAligner {
         var runnerUp = Double.NEGATIVE_INFINITY
         for (k in 0 until lagCount) {
             val value = correlation[k]
-            if (!value.isNaN() && abs(k - peakIndex) > exclusion && value > runnerUp) runnerUp = value
+            if (!value.isNaN() && abs(k - peakIndex) > exclusion &&
+                value > runnerUp
+            ) {
+                runnerUp = value
+            }
         }
         // The peak's lobe: outwards from the peak while the curve keeps falling. A rise smaller than
         // LOBE_TOLERANCE is noise on the slope; a larger one starts another peak.
@@ -537,7 +665,11 @@ internal object SubtitleAudioAligner {
         var competitor = Double.NEGATIVE_INFINITY
         for (k in 0 until lagCount) {
             val value = correlation[k]
-            if (!value.isNaN() && (k < lobeFrom || k > lobeTo) && value > competitor) competitor = value
+            if (!value.isNaN() && (k < lobeFrom || k > lobeTo) &&
+                value > competitor
+            ) {
+                competitor = value
+            }
         }
         var refinedIndex = peakIndex.toDouble()
         if (peakIndex in 1 until lagCount - 1) {
@@ -559,7 +691,7 @@ internal object SubtitleAudioAligner {
             speechSeconds = 0.0,
             cueCount = 0,
             atSearchEdge = peakIndex < edgeFrames || peakIndex >= lagCount - edgeFrames,
-            separation = if (competitor.isFinite()) peak - competitor else peak,
+            separation = if (competitor.isFinite()) peak - competitor else peak
         )
     }
 
@@ -578,7 +710,13 @@ internal object SubtitleAudioAligner {
             val i = j + START_SPAN_FRAMES
             val before = p[i - START_SPAN_FRAMES]
             val after = p[i + START_SPAN_FRAMES]
-            if (before.isNaN() || after.isNaN() || p[i].isNaN()) Float.NaN else maxOf(after - before, 0f)
+            if (before.isNaN() || after.isNaN() ||
+                p[i].isNaN()
+            ) {
+                Float.NaN
+            } else {
+                maxOf(after - before, 0f)
+            }
         }
         SpeechSegment(segment.fromFrame + START_SPAN_FRAMES, rises)
     }

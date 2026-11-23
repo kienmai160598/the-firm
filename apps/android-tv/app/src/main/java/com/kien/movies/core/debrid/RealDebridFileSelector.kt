@@ -11,7 +11,7 @@ class RealDebridFileSelector @Inject constructor() {
         files: List<RealDebridTorrentFileDto>,
         resolve: StreamClientResolve,
         season: Int?,
-        episode: Int?,
+        episode: Int?
     ): RealDebridTorrentFileDto? = selectDebridFile(
         files = files,
         resolve = resolve,
@@ -19,6 +19,6 @@ class RealDebridFileSelector @Inject constructor() {
         episode = episode,
         path = { it.path.orEmpty() },
         isPlayable = { it.displayName().hasDebridVideoExtension() },
-        size = { it.bytes ?: 0L },
+        size = { it.bytes ?: 0L }
     )
 }

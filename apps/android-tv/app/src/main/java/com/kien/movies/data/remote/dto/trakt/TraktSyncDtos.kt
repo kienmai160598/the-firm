@@ -106,9 +106,7 @@ data class TraktHistorySeasonRemoveDto(
 )
 
 @JsonClass(generateAdapter = true)
-data class TraktHistoryEpisodeRemoveDto(
-    @Json(name = "number") val number: Int
-)
+data class TraktHistoryEpisodeRemoveDto(@Json(name = "number") val number: Int)
 
 @JsonClass(generateAdapter = true)
 data class TraktHistoryRemoveResponseDto(

@@ -103,7 +103,8 @@ class SimklTimestampDifferentialTest {
             "1970-01-01T00:00:00Z",
             "2024-02-29t00:00:00.5z"
         )
-        val replacements = charArrayOf('0', '9', 't', 'z', 'Z', 'T', ' ', ':', '-', '.', '+', 'x', '\n')
+        val replacements =
+            charArrayOf('0', '9', 't', 'z', 'Z', 'T', ' ', ':', '-', '.', '+', 'x', '\n')
         val values = ArrayList<String?>()
         seeds.forEach { seed ->
             values += seed
@@ -112,7 +113,9 @@ class SimklTimestampDifferentialTest {
             values += seed.uppercase(Locale.ROOT)
             seed.indices.forEach { index ->
                 values += seed.removeRange(index, index + 1)
-                values += seed.substring(0, index) + replacements[random.nextInt(replacements.size)] + seed.substring(index + 1)
+                values +=
+                    seed.substring(0, index) + replacements[random.nextInt(replacements.size)] +
+                    seed.substring(index + 1)
                 values += seed.substring(0, index) + "0" + seed.substring(index)
             }
         }
@@ -142,18 +145,24 @@ class SimklTimestampDifferentialTest {
         val minute = match.groupValues[5].toIntOrNull() ?: return null
         val second = match.groupValues[6].toIntOrNull() ?: return null
         val millis = match.groupValues[7].padEnd(3, '0').take(3).toIntOrNull() ?: 0
-        if (year < 1970 || month !in 1..12 || hour !in 0..23 || minute !in 0..59 || second !in 0..59) return null
+        if (year < 1970 || month !in 1..12 || hour !in 0..23 || minute !in 0..59 ||
+            second !in 0..59
+        ) {
+            return null
+        }
         val monthDays = legacyDaysInMonths(year)
         if (day !in 1..monthDays[month - 1]) return null
         var days = 0L
-        for (currentYear in 1970 until year) days += if (legacyIsLeapYear(currentYear)) 366L else 365L
+        for (currentYear in 1970 until year) {
+            days +=
+                if (legacyIsLeapYear(currentYear)) 366L else 365L
+        }
         for (monthIndex in 0 until month - 1) days += monthDays[monthIndex]
         days += day - 1L
         return (((days * 24L + hour) * 60L + minute) * 60L + second) * 1_000L + millis
     }
 
-    private fun legacyIsLeapYear(year: Int): Boolean =
-        (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
+    private fun legacyIsLeapYear(year: Int): Boolean = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
 
     private fun legacyDaysInMonths(year: Int): IntArray = intArrayOf(
         31, if (legacyIsLeapYear(year)) 29 else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31

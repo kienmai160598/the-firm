@@ -27,13 +27,9 @@ internal object ReleaseSelector {
         .map(ReleaseCandidate::release)
         .toList()
 
-    private fun releaseVersion(release: GitHubReleaseDto): SemanticVersion? =
-        VersionUtils.parse(release.tagName) ?: VersionUtils.parse(release.name)
+    private fun releaseVersion(release: GitHubReleaseDto): SemanticVersion? = VersionUtils.parse(release.tagName) ?: VersionUtils.parse(release.name)
 
-    private fun isPrerelease(
-        release: GitHubReleaseDto,
-        version: SemanticVersion
-    ): Boolean = release.prerelease ||
+    private fun isPrerelease(release: GitHubReleaseDto, version: SemanticVersion): Boolean = release.prerelease ||
         version.prerelease.isNotEmpty() ||
         prereleaseNamePattern.containsMatchIn(release.name.orEmpty())
 

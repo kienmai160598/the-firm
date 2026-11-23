@@ -24,7 +24,11 @@ interface TrackingRatingProvider {
 
     fun rating(media: TrackingMediaReference): Double?
 
-    suspend fun rate(profileId: Int, media: TrackingMediaReference, rating: Int?): TrackingMutationResult
+    suspend fun rate(
+        profileId: Int,
+        media: TrackingMediaReference,
+        rating: Int?
+    ): TrackingMutationResult
 
     fun onEnabled() = Unit
 }
@@ -49,12 +53,11 @@ class TrackingRatings @Inject constructor(
 
     val source: StateFlow<TrackingProviderId?> = settings.ratingSource
 
-    fun observe(media: TrackingMediaReference): Flow<TrackingRatingState> =
-        combine(
-            listOf(source, recent) +
-                trackingProviders.providers().map(TrackingProvider::isAuthenticated) +
-                providersById.values.map(TrackingRatingProvider::changes)
-        ) { current(media) }.distinctUntilChanged()
+    fun observe(media: TrackingMediaReference): Flow<TrackingRatingState> = combine(
+        listOf(source, recent) +
+            trackingProviders.providers().map(TrackingProvider::isAuthenticated) +
+            providersById.values.map(TrackingRatingProvider::changes)
+    ) { current(media) }.distinctUntilChanged()
 
     fun current(media: TrackingMediaReference): TrackingRatingState {
         val provider = provider(media) ?: return TrackingRatingState()
@@ -80,18 +83,26 @@ class TrackingRatings @Inject constructor(
         } catch (_: Exception) {
             false
         }
-        if (saved) recent.update { it + (media.ratingKey(provider.providerId) to rating?.toDouble()) }
+        if (saved) {
+            recent.update {
+                it + (media.ratingKey(provider.providerId) to rating?.toDouble())
+            }
+        }
         saved
     }
 
     suspend fun setSource(source: TrackingProviderId?) {
         settings.setRatingSource(source)
-        withTimeoutOrNull(SOURCE_APPLY_TIMEOUT_MS) { this@TrackingRatings.source.first { it == source } }
+        withTimeoutOrNull(SOURCE_APPLY_TIMEOUT_MS) {
+            this@TrackingRatings.source.first {
+                it ==
+                    source
+            }
+        }
         source?.let(providersById::get)?.onEnabled()
     }
 
-    fun availableSources(connected: Set<TrackingProviderId>): List<TrackingProviderId> =
-        providersById.keys.filter { it in connected }.sortedBy { it.ordinal }
+    fun availableSources(connected: Set<TrackingProviderId>): List<TrackingProviderId> = providersById.keys.filter { it in connected }.sortedBy { it.ordinal }
 
     private fun provider(media: TrackingMediaReference): TrackingRatingProvider? {
         val source = source.value ?: return null

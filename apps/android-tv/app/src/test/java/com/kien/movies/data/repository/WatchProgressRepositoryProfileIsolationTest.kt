@@ -144,7 +144,8 @@ class WatchProgressRepositoryProfileIsolationTest {
         val authManager = mockk<AuthManager>(relaxed = true)
         every { authManager.isAuthenticated } returns false
         val traktSettings = mockk<TraktSettingsDataStore>(relaxed = true)
-        every { traktSettings.watchProgressSource } returns MutableStateFlow(WatchProgressSource.NUVIO_SYNC)
+        every { traktSettings.watchProgressSource } returns
+            MutableStateFlow(WatchProgressSource.NUVIO_SYNC)
 
         val repository = WatchProgressRepositoryImpl(
             watchProgressPreferences = progressPreferences,

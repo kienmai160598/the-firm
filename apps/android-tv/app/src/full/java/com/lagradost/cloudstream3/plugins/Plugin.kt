@@ -53,7 +53,10 @@ open class Plugin {
     }
 
     fun registerExtractorAPI(element: ExtractorApi) {
-        Log.d("CS3Plugin", "registerExtractorAPI called: ${element.name} (${element.javaClass.name})")
+        Log.d(
+            "CS3Plugin",
+            "registerExtractorAPI called: ${element.name} (${element.javaClass.name})"
+        )
         _registeredExtractorAPIs.add(element)
         element.sourcePlugin = this.filename
         extractorApis.add(element)

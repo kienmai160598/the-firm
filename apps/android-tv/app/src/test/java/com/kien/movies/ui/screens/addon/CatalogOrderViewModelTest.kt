@@ -34,11 +34,7 @@ class CatalogOrderViewModelTest {
     @get:Rule
     val mainDispatcher = MainDispatcherRule()
 
-    private fun testAddon(
-        id: String,
-        displayName: String = id,
-        catalogIds: List<String>
-    ): Addon = Addon(
+    private fun testAddon(id: String, displayName: String = id, catalogIds: List<String>): Addon = Addon(
         id = id,
         name = displayName,
         displayName = displayName,
@@ -70,7 +66,7 @@ class CatalogOrderViewModelTest {
         val layoutPrefs: LayoutPreferenceDataStore,
         val syncService: HomeCatalogSettingsSyncService,
         val diskOrderFlow: MutableStateFlow<List<String>>,
-        val followFlow: MutableStateFlow<Boolean>,
+        val followFlow: MutableStateFlow<Boolean>
     )
 
     private fun createHarness(
@@ -78,7 +74,7 @@ class CatalogOrderViewModelTest {
         collections: List<Collection> = emptyList(),
         initialOrderKeys: List<String> = emptyList(),
         initialFollowAddons: Boolean = false,
-        layoutPrefs: LayoutPreferenceDataStore = mockk(relaxed = true),
+        layoutPrefs: LayoutPreferenceDataStore = mockk(relaxed = true)
     ): Harness {
         val diskOrderFlow = MutableStateFlow(initialOrderKeys)
         val followFlow = MutableStateFlow(initialFollowAddons)
@@ -208,7 +204,8 @@ class CatalogOrderViewModelTest {
         val keyA1 = homeCatalogKey("addonA", "movie", "a1")
         val keyA2 = homeCatalogKey("addonA", "movie", "a2")
         val layoutPrefs = mockk<LayoutPreferenceDataStore>(relaxed = true)
-        coEvery { layoutPrefs.setHomeCatalogOrderKeys(any()) } throws IllegalStateException("disk full")
+        coEvery { layoutPrefs.setHomeCatalogOrderKeys(any()) } throws
+            IllegalStateException("disk full")
 
         val h = createHarness(addons = listOf(addonA), layoutPrefs = layoutPrefs)
         runCurrent()
@@ -225,7 +222,8 @@ class CatalogOrderViewModelTest {
 
     @Test
     fun `follow addons mode moves collection across addon block grouped by addonId not displayName`() = runTest {
-        val addonA = testAddon("addonA", displayName = "Shared Name", catalogIds = listOf("a1", "a2"))
+        val addonA =
+            testAddon("addonA", displayName = "Shared Name", catalogIds = listOf("a1", "a2"))
         val addonB = testAddon("addonB", displayName = "Shared Name", catalogIds = listOf("b1"))
         val col1 = testCollection("c1")
 
@@ -244,10 +242,20 @@ class CatalogOrderViewModelTest {
 
         h.vm.enterMoveMode(keyCol1)
         assertEquals(2, h.vm.moveDuringDrag(keyCol1, -1))
-        assertEquals(listOf(keyA1, keyA2, keyCol1, keyB1), h.vm.uiState.value.items.map { it.key })
+        assertEquals(
+            listOf(keyA1, keyA2, keyCol1, keyB1),
+            h.vm.uiState.value.items.map {
+                it.key
+            }
+        )
 
         assertEquals(0, h.vm.moveDuringDrag(keyCol1, -1))
-        assertEquals(listOf(keyCol1, keyA1, keyA2, keyB1), h.vm.uiState.value.items.map { it.key })
+        assertEquals(
+            listOf(keyCol1, keyA1, keyA2, keyB1),
+            h.vm.uiState.value.items.map {
+                it.key
+            }
+        )
     }
 
     @Test
@@ -351,14 +359,29 @@ class CatalogOrderViewModelTest {
         )
         runCurrent()
 
-        assertEquals(listOf(keyPinned, keyA1, keyA2, keyUnpinned), h.vm.uiState.value.items.map { it.key })
+        assertEquals(
+            listOf(keyPinned, keyA1, keyA2, keyUnpinned),
+            h.vm.uiState.value.items.map {
+                it.key
+            }
+        )
 
         h.vm.enterMoveMode(keyUnpinned)
         assertEquals(1, h.vm.moveDuringDrag(keyUnpinned, -1))
-        assertEquals(listOf(keyPinned, keyUnpinned, keyA1, keyA2), h.vm.uiState.value.items.map { it.key })
+        assertEquals(
+            listOf(keyPinned, keyUnpinned, keyA1, keyA2),
+            h.vm.uiState.value.items.map {
+                it.key
+            }
+        )
 
         assertNull(h.vm.moveDuringDrag(keyUnpinned, -1))
-        assertEquals(listOf(keyPinned, keyUnpinned, keyA1, keyA2), h.vm.uiState.value.items.map { it.key })
+        assertEquals(
+            listOf(keyPinned, keyUnpinned, keyA1, keyA2),
+            h.vm.uiState.value.items.map {
+                it.key
+            }
+        )
     }
 
     @Test

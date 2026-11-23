@@ -37,10 +37,7 @@ data class PendingRepoChangeInfo(
     val isApplying: Boolean = false
 )
 
-data class PendingScraperEnableInfo(
-    val scraperId: String,
-    val scraperName: String
-)
+data class PendingScraperEnableInfo(val scraperId: String, val scraperName: String)
 
 sealed interface PluginUiEvent {
     data class AddRepository(val url: String) : PluginUiEvent

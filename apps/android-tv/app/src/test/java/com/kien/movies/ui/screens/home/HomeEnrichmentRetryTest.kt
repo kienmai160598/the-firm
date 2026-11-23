@@ -2,20 +2,21 @@ package com.kien.movies.ui.screens.home
 
 import androidx.lifecycle.viewModelScope
 import com.kien.movies.core.network.NetworkResult
+import com.kien.movies.core.tmdb.TmdbEnrichment
+import com.kien.movies.core.tmdb.TmdbMetadataService
+import com.kien.movies.core.tmdb.TmdbService
 import com.kien.movies.domain.model.CatalogRow
 import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.PosterShape
-import com.kien.movies.core.tmdb.TmdbEnrichment
-import com.kien.movies.core.tmdb.TmdbMetadataService
-import com.kien.movies.core.tmdb.TmdbService
 import com.kien.movies.domain.model.TmdbSettings
 import com.kien.movies.domain.repository.MetaRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -30,7 +31,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * The regression this branch exists for: an external meta fetch that failed used to mark the item
@@ -86,14 +86,22 @@ class HomeEnrichmentRetryTest {
         viewModel.seedCatalog(item(itemId))
 
         viewModel.onItemFocusPipeline(item(itemId))
-        awaitCalls(calls, expected = 1, what = "the first focus should have attempted one fetch")
+        awaitCalls(
+            calls,
+            expected = 1,
+            what = "the first focus should have attempted one fetch"
+        )
 
         // The addon comes back. Focus has to move away and back, which is what a remote does.
         reachable.set(true)
         focusAndSettle(viewModel, item(otherId))
         focusAndSettle(viewModel, item(itemId))
 
-        awaitCalls(calls, expected = 2, what = "a failed fetch should be retried on a later focus")
+        awaitCalls(
+            calls,
+            expected = 2,
+            what = "a failed fetch should be retried on a later focus"
+        )
         assertTrue(
             "the successful retry should be recorded, so it is not fetched a third time",
             itemId in viewModel.prefetchedExternalMetaIds
@@ -137,7 +145,8 @@ class HomeEnrichmentRetryTest {
             coEvery { ensureTmdbId(eq(otherId), any()) } returns "2000"
         }
         val tmdbMetadataService = mockk<TmdbMetadataService>(relaxed = true) {
-            coEvery { fetchEnrichment(any(), any(), any()) } returns mockk<TmdbEnrichment>(relaxed = true)
+            coEvery { fetchEnrichment(any(), any(), any()) } returns
+                mockk<TmdbEnrichment>(relaxed = true)
         }
         val viewModel = newViewModel(repository, tmdbService, tmdbMetadataService)
         viewModel.currentTmdbSettings = TmdbSettings(enabled = true, modernHomeEnabled = true)
@@ -169,6 +178,7 @@ class HomeEnrichmentRetryTest {
      * fetchExternalMetaOutcome promises to turn a thrown exception into Failed. The repository
      * reports request failures as NetworkResult.Error, so this covers what it does not promise.
      */
+
     /**
      * The in-flight id is claimed before the fetch is launched and released when it completes. A
      * focus that moves on during the debounce cancels the job before its body runs, so releasing
@@ -177,7 +187,8 @@ class HomeEnrichmentRetryTest {
     @Test
     fun `a focus cancelled during the debounce does not block later fetches`() = runBlocking {
         val calls = AtomicInteger()
-        val repository = metaRepository(calls, java.util.concurrent.atomic.AtomicBoolean(true), AtomicInteger())
+        val repository =
+            metaRepository(calls, java.util.concurrent.atomic.AtomicBoolean(true), AtomicInteger())
         val viewModel = newViewModel(repository)
         viewModel.seedCatalog(item(itemId))
 
@@ -232,8 +243,14 @@ class HomeEnrichmentRetryTest {
         // One past the bound: the oldest entry is dropped, the newest is kept.
         repeat(65) { viewModel.markEnrichmentFailed("id-$it") }
         assertEquals(64, viewModel.failedEnrichmentIds.value.size)
-        assertTrue("the oldest entry should be evicted", "id-0" !in viewModel.failedEnrichmentIds.value)
-        assertTrue("the newest entry should be kept", "id-64" in viewModel.failedEnrichmentIds.value)
+        assertTrue(
+            "the oldest entry should be evicted",
+            "id-0" !in viewModel.failedEnrichmentIds.value
+        )
+        assertTrue(
+            "the newest entry should be kept",
+            "id-64" in viewModel.failedEnrichmentIds.value
+        )
 
         viewModel.clearEnrichmentFailures()
         assertTrue("a reset should empty the set", viewModel.failedEnrichmentIds.value.isEmpty())
@@ -248,12 +265,14 @@ class HomeEnrichmentRetryTest {
     @Test
     fun `a cached external result does not reopen the gate for TMDB`() = runBlocking {
         val calls = AtomicInteger()
-        val repository = metaRepository(calls, java.util.concurrent.atomic.AtomicBoolean(true), AtomicInteger())
+        val repository =
+            metaRepository(calls, java.util.concurrent.atomic.AtomicBoolean(true), AtomicInteger())
         val tmdbService = mockk<TmdbService>(relaxed = true) {
             coEvery { ensureTmdbId(any(), any()) } returns "1399"
         }
         val tmdbMetadataService = mockk<TmdbMetadataService>(relaxed = true) {
-            coEvery { fetchEnrichment(any(), any(), any()) } returns mockk<TmdbEnrichment>(relaxed = true)
+            coEvery { fetchEnrichment(any(), any(), any()) } returns
+                mockk<TmdbEnrichment>(relaxed = true)
         }
         val viewModel = newViewModel(repository, tmdbService, tmdbMetadataService)
         viewModel.currentTmdbSettings = TmdbSettings(enabled = true, modernHomeEnabled = true)
@@ -269,7 +288,12 @@ class HomeEnrichmentRetryTest {
     @Test
     fun `external enrichment disabled means a TMDB-prefetched item does no external work`() = runBlocking {
         val calls = AtomicInteger()
-        val repository = metaRepository(calls, java.util.concurrent.atomic.AtomicBoolean(true), AtomicInteger())
+        val repository =
+            metaRepository(
+                calls,
+                java.util.concurrent.atomic.AtomicBoolean(true),
+                AtomicInteger()
+            )
         val viewModel = newViewModel(repository)
         viewModel.externalMetaPrefetchEnabled = false
         viewModel.prefetchedTmdbIds.add(itemId)
@@ -338,13 +362,14 @@ class HomeEnrichmentRetryTest {
      * counted, but it still needs a flow that terminates, or its first {} throws into the view
      * model scope and kotlinx-coroutines-test reports it against the next test to run.
      */
-    private fun newMetaRepository(backgroundCalls: AtomicInteger = AtomicInteger()): MetaRepository =
-        mockk(relaxed = true) {
-            coEvery { getMetaFromAllAddons(any(), any(), isNull()) } answers {
-                backgroundCalls.incrementAndGet()
-                flowOf(NetworkResult.Error("background prefetch, not part of this test"))
-            }
+    private fun newMetaRepository(
+        backgroundCalls: AtomicInteger = AtomicInteger()
+    ): MetaRepository = mockk(relaxed = true) {
+        coEvery { getMetaFromAllAddons(any(), any(), isNull()) } answers {
+            backgroundCalls.incrementAndGet()
+            flowOf(NetworkResult.Error("background prefetch, not part of this test"))
         }
+    }
 
     private fun metaRepository(
         calls: AtomicInteger,

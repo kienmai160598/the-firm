@@ -63,11 +63,11 @@ fun catalogRowStableKey(
 ): String {
     val normalizedBaseUrl = addonBaseUrl.trim().trimEnd('/').lowercase()
     val baseUrlKey = "${normalizedBaseUrl.hashCode()}_${normalizedBaseUrl.length}"
-    return "${addonId}_${baseUrlKey}_${catalogTypeKey(type)}_${catalogId}"
+    return "${addonId}_${baseUrlKey}_${catalogTypeKey(type)}_$catalogId"
 }
 
 fun catalogRowLegacyKey(addonId: String, type: String, catalogId: String): String {
-    return "${addonId}_${catalogTypeKey(type)}_${catalogId}"
+    return "${addonId}_${catalogTypeKey(type)}_$catalogId"
 }
 
 fun CatalogRow.nextCatalogSkip(): Int {
@@ -93,14 +93,25 @@ fun CatalogRow.mergeCatalogPage(
         0
     }
     val advancedSkip = if (newItems.isEmpty()) {
-        if (page.nextSkip > requestedSkip) page.nextSkip else requestedSkip + page.items.size.coerceAtLeast(1)
+        if (page.nextSkip >
+            requestedSkip
+        ) {
+            page.nextSkip
+        } else {
+            requestedSkip + page.items.size.coerceAtLeast(1)
+        }
     } else {
         page.nextSkip
     }
     val hasMore = when {
         page.items.isEmpty() -> false
+
         newItems.isNotEmpty() -> page.hasMore
-        duplicatePageCount < DUPLICATE_PAGE_ADVANCE_LIMIT -> page.hasMore && advancedSkip > requestedSkip
+
+        duplicatePageCount < DUPLICATE_PAGE_ADVANCE_LIMIT ->
+            page.hasMore &&
+                advancedSkip > requestedSkip
+
         else -> false
     }
 

@@ -1,15 +1,15 @@
 package com.kien.movies.data.simkl
 
+import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.ResponseBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
 import okio.Buffer
 import okio.BufferedSource
-import java.io.IOException
 
 class OkHttpSimklEngine(private val client: OkHttpClient) : SimklHttpEngine {
     override suspend fun execute(
@@ -43,10 +43,9 @@ class OkHttpSimklEngine(private val client: OkHttpClient) : SimklHttpEngine {
 
 internal const val SIMKL_MAX_RESPONSE_BODY_BYTES = 64L * 1024L * 1024L
 
-private fun readSimklResponseBodyOrEmpty(responseBody: ResponseBody?): String =
-    responseBody?.let { body ->
-        readSimklResponseBody(body.source(), body.contentLength())
-    }.orEmpty()
+private fun readSimklResponseBodyOrEmpty(responseBody: ResponseBody?): String = responseBody?.let { body ->
+    readSimklResponseBody(body.source(), body.contentLength())
+}.orEmpty()
 
 internal fun readSimklResponseBody(
     source: BufferedSource,

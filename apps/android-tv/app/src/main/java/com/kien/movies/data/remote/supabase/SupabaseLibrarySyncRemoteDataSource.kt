@@ -12,6 +12,8 @@ import com.kien.movies.domain.model.LibrarySyncKey
 import com.kien.movies.domain.model.PosterShape
 import com.kien.movies.domain.model.SavedLibraryItem
 import io.github.jan.supabase.postgrest.Postgrest
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -19,8 +21,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.put
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class SupabaseLibrarySyncRemoteDataSource @Inject constructor(
@@ -33,21 +33,17 @@ class SupabaseLibrarySyncRemoteDataSource @Inject constructor(
         encodeDefaults = true
     }
 
-    override suspend fun pullSnapshot(
-        profileId: Int,
-        pageSize: Int
-    ): List<SavedLibraryItem> =
-        collectOffsetPages(pageSize) { limit, offset ->
-            val params = buildJsonObject {
-                put("p_profile_id", profileId)
-                put("p_limit", limit)
-                put("p_offset", offset)
-            }
-            withJwtRefreshRetry {
-                postgrest.rpc("sync_pull_library", params)
-                    .decodeList<LibrarySnapshotDto>()
-            }.map(LibrarySnapshotDto::toSavedLibraryItem)
+    override suspend fun pullSnapshot(profileId: Int, pageSize: Int): List<SavedLibraryItem> = collectOffsetPages(pageSize) { limit, offset ->
+        val params = buildJsonObject {
+            put("p_profile_id", profileId)
+            put("p_limit", limit)
+            put("p_offset", offset)
         }
+        withJwtRefreshRetry {
+            postgrest.rpc("sync_pull_library", params)
+                .decodeList<LibrarySnapshotDto>()
+        }.map(LibrarySnapshotDto::toSavedLibraryItem)
+    }
 
     override suspend fun getDeltaCursor(profileId: Int): Long {
         val params = buildJsonObject {
@@ -80,10 +76,7 @@ class SupabaseLibrarySyncRemoteDataSource @Inject constructor(
         }
     }
 
-    override suspend fun pushItems(
-        profileId: Int,
-        items: Collection<SavedLibraryItem>
-    ) {
+    override suspend fun pushItems(profileId: Int, items: Collection<SavedLibraryItem>) {
         forEachMutationBatch(items, LIBRARY_MUTATION_BATCH_SIZE) { batch ->
             val params = buildJsonObject {
                 put(
@@ -99,10 +92,7 @@ class SupabaseLibrarySyncRemoteDataSource @Inject constructor(
         }
     }
 
-    override suspend fun deleteItems(
-        profileId: Int,
-        keys: Collection<LibrarySyncKey>
-    ) {
+    override suspend fun deleteItems(profileId: Int, keys: Collection<LibrarySyncKey>) {
         forEachMutationBatch(keys, LIBRARY_MUTATION_BATCH_SIZE) { batch ->
             val params = buildJsonObject {
                 put(

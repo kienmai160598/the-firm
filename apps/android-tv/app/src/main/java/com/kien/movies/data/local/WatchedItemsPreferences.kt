@@ -1,17 +1,21 @@
 package com.kien.movies.data.local
 
 import android.util.Log
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringSetPreferencesKey
-import com.kien.movies.core.profile.ProfileManager
 import com.google.gson.Gson
+import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.domain.model.WatchedItem
 import com.kien.movies.domain.model.WatchedMutationKey
 import com.kien.movies.domain.model.mutationKey
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicReference
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -19,10 +23,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicReference
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class WatchedItemsPreferences @Inject constructor(
@@ -34,8 +34,7 @@ class WatchedItemsPreferences @Inject constructor(
         private const val TAG = "WatchedItemsPrefs"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
     private val gson = Gson()
     private val watchedItemsKey = stringSetPreferencesKey("watched_items")
@@ -74,7 +73,9 @@ class WatchedItemsPreferences @Inject constructor(
         return items
     }
 
-    suspend fun getLastSuccessfulPushMs(profileId: Int = profileManager.activeProfileId.value): Long {
+    suspend fun getLastSuccessfulPushMs(
+        profileId: Int = profileManager.activeProfileId.value
+    ): Long {
         val prefs = store(profileId).data.first()
         return prefs[lastSuccessfulPushMsKey] ?: 0L
     }
@@ -84,7 +85,10 @@ class WatchedItemsPreferences @Inject constructor(
      * the edit, so two pushes finishing out of order cannot leave the older one on disk.
      * Nothing needs to lower it: deleting a profile removes the whole store.
      */
-    suspend fun advanceLastSuccessfulPushMs(timestampMs: Long, profileId: Int = profileManager.activeProfileId.value) {
+    suspend fun advanceLastSuccessfulPushMs(
+        timestampMs: Long,
+        profileId: Int = profileManager.activeProfileId.value
+    ) {
         store(profileId).edit { prefs ->
             val stored = prefs[lastSuccessfulPushMsKey] ?: 0L
             prefs[lastSuccessfulPushMsKey] = maxOf(stored, timestampMs)
@@ -101,15 +105,26 @@ class WatchedItemsPreferences @Inject constructor(
         return prefs[deltaInitializedKey] ?: false
     }
 
-    suspend fun setDeltaState(cursor: Long, initialized: Boolean = true, profileId: Int = profileManager.activeProfileId.value) {
+    suspend fun setDeltaState(
+        cursor: Long,
+        initialized: Boolean = true,
+        profileId: Int = profileManager.activeProfileId.value
+    ) {
         store(profileId).edit { prefs ->
             prefs[deltaCursorKey] = cursor.coerceAtLeast(0L)
             prefs[deltaInitializedKey] = initialized
         }
-        Log.d(TAG, "setDeltaState: profile=$profileId cursor=${cursor.coerceAtLeast(0L)} initialized=$initialized")
+        Log.d(
+            TAG,
+            "setDeltaState: profile=$profileId cursor=${cursor.coerceAtLeast(
+                0L
+            )} initialized=$initialized"
+        )
     }
 
-    internal val allItems: Flow<List<WatchedItem>> = profileManager.activeProfileId.flatMapLatest { pid ->
+    internal val allItems: Flow<List<WatchedItem>> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         observeAllItems(pid)
     }
 
@@ -123,7 +138,9 @@ class WatchedItemsPreferences @Inject constructor(
     }
 
     /** The active profile's pending provider marks; see [observePendingProviderMarks]. */
-    internal val pendingProviderMarks: Flow<Set<String>> = profileManager.activeProfileId.flatMapLatest { pid ->
+    internal val pendingProviderMarks: Flow<Set<String>> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         observePendingProviderMarks(pid)
     }
 
@@ -141,8 +158,14 @@ class WatchedItemsPreferences @Inject constructor(
     private fun pendingMarksStillWatched(preferences: Preferences): Set<String> {
         val pending = preferences[pendingProviderMarksKey].orEmpty()
         if (pending.isEmpty()) return emptySet()
-        val storedKeys = preferences[watchedItemsKey].orEmpty().mapTo(HashSet(), ::extractWatchedItemKey)
-        return pending.filterTo(linkedSetOf()) { contentId -> buildWatchedKey(contentId, null, null) in storedKeys }
+        val storedKeys = preferences[watchedItemsKey].orEmpty().mapTo(
+            HashSet(),
+            ::extractWatchedItemKey
+        )
+        return pending.filterTo(linkedSetOf()) { contentId ->
+            buildWatchedKey(contentId, null, null) in
+                storedKeys
+        }
     }
 
     fun isWatched(contentId: String, season: Int? = null, episode: Int? = null): Flow<Boolean> {
@@ -260,12 +283,17 @@ class WatchedItemsPreferences @Inject constructor(
         }
     }
 
-    suspend fun getAllItems(profileId: Int = profileManager.activeProfileId.value): List<WatchedItem> {
+    suspend fun getAllItems(
+        profileId: Int = profileManager.activeProfileId.value
+    ): List<WatchedItem> {
         val preferences = store(profileId).data.first()
         return decodeItems(profileId, preferences[watchedItemsKey] ?: emptySet())
     }
 
-    suspend fun mergeRemoteItems(remoteItems: List<WatchedItem>, profileId: Int = profileManager.activeProfileId.value) {
+    suspend fun mergeRemoteItems(
+        remoteItems: List<WatchedItem>,
+        profileId: Int = profileManager.activeProfileId.value
+    ) {
         store(profileId).edit { preferences ->
             val current = preferences[watchedItemsKey] ?: emptySet()
             val localItems = decodeItems(profileId, current)
@@ -313,6 +341,7 @@ class WatchedItemsPreferences @Inject constructor(
                     mutationKey in pendingDeleteKeys -> itemsByKey.remove(
                         Triple(item.contentId, item.season, item.episode)
                     )
+
                     mutationKey !in pendingUpsertKeys -> itemsByKey[
                         Triple(item.contentId, item.season, item.episode)
                     ] = item
@@ -323,7 +352,10 @@ class WatchedItemsPreferences @Inject constructor(
                 .toSet()
             afterCount = itemsByKey.size
         }
-        Log.d(TAG, "applyRemoteChanges: profile=$profileId before=$beforeCount after=$afterCount upserts=${upserts.size} deletes=${deletes.size}")
+        Log.d(
+            TAG,
+            "applyRemoteChanges: profile=$profileId before=$beforeCount after=$afterCount upserts=${upserts.size} deletes=${deletes.size}"
+        )
     }
 
     suspend fun replaceWithRemoteItems(
@@ -336,7 +368,10 @@ class WatchedItemsPreferences @Inject constructor(
         var preservedLocalItems = false
         store(profileId).edit { preferences ->
             val current = preferences[watchedItemsKey] ?: emptySet()
-            Log.d(TAG, "replaceWithRemoteItems: profile=$profileId current=${current.size} remote=${remoteItems.size}")
+            Log.d(
+                TAG,
+                "replaceWithRemoteItems: profile=$profileId current=${current.size} remote=${remoteItems.size}"
+            )
             val deduped = linkedMapOf<Triple<String, Int?, Int?>, WatchedItem>()
             remoteItems.filterNot { it.mutationKey() in pendingDeleteKeys }.forEach { item ->
                 deduped[Triple(item.contentId, item.season, item.episode)] = item
@@ -362,7 +397,10 @@ class WatchedItemsPreferences @Inject constructor(
             preferences[watchedItemsKey] = deduped.values
                 .map { gson.toJson(it) }
                 .toSet()
-            Log.d(TAG, "replaceWithRemoteItems: profile=$profileId stored=${deduped.size} preservedLocal=$preservedLocalItems")
+            Log.d(
+                TAG,
+                "replaceWithRemoteItems: profile=$profileId stored=${deduped.size} preservedLocal=$preservedLocalItems"
+            )
         }
         return preservedLocalItems
     }
@@ -381,10 +419,14 @@ class WatchedItemsPreferences @Inject constructor(
      * [clearAll] for a change of watch progress source, except for the pending provider marks,
      * which no source can bring back.
      */
-    suspend fun clearAllKeepingPendingProviderMarks(profileId: Int = profileManager.activeProfileId.value) {
+    suspend fun clearAllKeepingPendingProviderMarks(
+        profileId: Int = profileManager.activeProfileId.value
+    ) {
         store(profileId).edit { preferences ->
             val pending = pendingMarksStillWatched(preferences)
-            val keptKeys = pending.mapTo(HashSet()) { contentId -> buildWatchedKey(contentId, null, null) }
+            val keptKeys = pending.mapTo(HashSet()) { contentId ->
+                buildWatchedKey(contentId, null, null)
+            }
             val kept = preferences[watchedItemsKey].orEmpty()
                 .filterTo(linkedSetOf()) { json -> extractWatchedItemKey(json) in keptKeys }
             if (kept.isEmpty()) {
@@ -400,11 +442,9 @@ class WatchedItemsPreferences @Inject constructor(
         decodeCaches.remove(profileId)
     }
 
-    private fun watchedItemKey(item: WatchedItem): String =
-        buildWatchedKey(item.contentId, item.season, item.episode)
+    private fun watchedItemKey(item: WatchedItem): String = buildWatchedKey(item.contentId, item.season, item.episode)
 
-    private fun buildWatchedKey(contentId: String, season: Int?, episode: Int?): String =
-        "$contentId|${season ?: "_"}|${episode ?: "_"}"
+    private fun buildWatchedKey(contentId: String, season: Int?, episode: Int?): String = "$contentId|${season ?: "_"}|${episode ?: "_"}"
 
     /**
      * Extracts a composite key from a raw JSON string without full Gson deserialization.

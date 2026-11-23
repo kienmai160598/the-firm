@@ -1,53 +1,53 @@
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.data.repository.AddonEventDispatcher
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.exoplayer.ExoPlayer
+import com.kien.movies.core.cloud.CloudLibraryPlaybackProgressStore
+import com.kien.movies.core.cloud.CloudLibraryPlaybackSessionStore
+import com.kien.movies.core.cloud.CloudLibraryRepository
 import com.kien.movies.core.debrid.DirectDebridResolver
 import com.kien.movies.core.debrid.DirectDebridStreamPreparer
-import com.kien.movies.core.cloud.CloudLibraryPlaybackSessionStore
-import com.kien.movies.core.cloud.CloudLibraryPlaybackProgressStore
-import com.kien.movies.core.cloud.CloudLibraryRepository
 import com.kien.movies.core.party.PartyMedia
-import com.kien.movies.core.plugin.PluginManager
 import com.kien.movies.core.player.StreamAutoPlayPolicy
-import com.kien.movies.core.tracking.TrackingScrobbleCoordinator
+import com.kien.movies.core.plugin.PluginManager
+import com.kien.movies.core.tmdb.TmdbMetadataService
+import com.kien.movies.core.tmdb.TmdbService
 import com.kien.movies.core.torrent.TorrentService
 import com.kien.movies.core.torrent.TorrentSettings
+import com.kien.movies.core.tracking.TrackingScrobbleCoordinator
 import com.kien.movies.data.local.AudioDelayRouteDataStore
-import com.kien.movies.data.local.PlayerSettingsDataStore
 import com.kien.movies.data.local.DeviceLocalPlayerPreferences
 import com.kien.movies.data.local.MDBListSettingsDataStore
-import com.kien.movies.data.local.StreamLinkCacheDataStore
+import com.kien.movies.data.local.PlayerSettingsDataStore
 import com.kien.movies.data.local.StreamBadgeSettingsDataStore
-import com.kien.movies.data.repository.ParentalGuideRepository
+import com.kien.movies.data.local.StreamLinkCacheDataStore
+import com.kien.movies.data.local.TmdbSettingsDataStore
+import com.kien.movies.data.local.TrailerSettingsDataStore
+import com.kien.movies.data.local.TraktAuthDataStore
+import com.kien.movies.data.local.TraktSettingsDataStore
+import com.kien.movies.data.local.WatchedSeriesStateHolder
+import com.kien.movies.data.repository.AddonEventDispatcher
 import com.kien.movies.data.repository.MDBListRepository
+import com.kien.movies.data.repository.ParentalGuideRepository
 import com.kien.movies.data.repository.SkipIntroRepository
 import com.kien.movies.data.repository.TraktEpisodeMappingService
+import com.kien.movies.data.repository.TraktRelatedService
+import com.kien.movies.data.trailer.TrailerService
 import com.kien.movies.domain.repository.AddonRepository
 import com.kien.movies.domain.repository.MetaRepository
 import com.kien.movies.domain.repository.StreamRepository
 import com.kien.movies.domain.repository.WatchProgressRepository
-import com.kien.movies.core.tmdb.TmdbService
-import com.kien.movies.core.tmdb.TmdbMetadataService
-import com.kien.movies.data.local.TmdbSettingsDataStore
-import com.kien.movies.data.local.TraktAuthDataStore
-import com.kien.movies.data.local.TraktSettingsDataStore
-import com.kien.movies.data.local.TrailerSettingsDataStore
-import com.kien.movies.data.local.WatchedSeriesStateHolder
-import com.kien.movies.data.repository.TraktRelatedService
-import com.kien.movies.data.trailer.TrailerService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import javax.inject.Inject
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
@@ -179,7 +179,10 @@ class PlayerViewModel @Inject constructor(
     val partyMedia: PartyMedia
         get() = controller.currentPartyMedia()
 
-    fun switchParty() = controller.party.publishMedia(controller.currentPartyMedia(), controller.currentPlaybackPositionMs() ?: 0L)
+    fun switchParty() = controller.party.publishMedia(
+        controller.currentPartyMedia(),
+        controller.currentPlaybackPositionMs() ?: 0L
+    )
 
     fun currentPartyStream() = controller.currentPartyStream()
 
@@ -230,7 +233,9 @@ class PlayerViewModel @Inject constructor(
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     fun getPlayerNativeMemoryBytes(): Long? {
-        val allocator = controller._loadControl?.allocator as? androidx.media3.exoplayer.upstream.DefaultAllocator ?: return null
+        val allocator =
+            controller._loadControl?.allocator as? androidx.media3.exoplayer.upstream.DefaultAllocator
+                ?: return null
         return allocator.totalBytesAllocated.toLong().coerceAtLeast(0L)
     }
 
@@ -352,9 +357,9 @@ class PlayerViewModel @Inject constructor(
         val contentId = controller.contentId
             ?: controller.cloudPlaybackContext?.item?.stableKey
             ?: run {
-            onResult(false)
-            return
-        }
+                onResult(false)
+                return
+            }
         val videoId = controller.currentVideoId ?: contentId
         val metadata = com.kien.movies.core.player.ExternalPlaybackMetadata(
             contentId = contentId,
@@ -373,7 +378,9 @@ class PlayerViewModel @Inject constructor(
         val headers = controller.getCurrentHeaders()
         // Capture already-loaded addon subtitles before handing off. Preparation stays in the
         // ViewModel scope because the player screen remains alive until the intent is sent.
-        val subtitleInputs = if (controller.uiState.value.subtitleStyle.preferredLanguage.trim().lowercase() != "none") {
+        val subtitleInputs = if (controller.uiState.value.subtitleStyle.preferredLanguage.trim().lowercase() !=
+            "none"
+        ) {
             val addonSubtitles = controller.uiState.value.addonSubtitles
             if (addonSubtitles.isNotEmpty()) {
                 addonSubtitles.map {
@@ -383,8 +390,12 @@ class PlayerViewModel @Inject constructor(
                         lang = it.lang
                     )
                 }
-            } else null
-        } else null
+            } else {
+                null
+            }
+        } else {
+            null
+        }
 
         viewModelScope.launch {
             val cachedSubtitles = subtitleInputs?.let { inputs ->

@@ -22,8 +22,5 @@ interface LibrarySyncLocalStore {
 
     suspend fun queueAllItemsForPush(profileId: Int): LibrarySyncState
 
-    suspend fun acknowledgePush(
-        profileId: Int,
-        expectedMutationRevision: Long
-    ): Boolean
+    suspend fun acknowledgePush(profileId: Int, expectedMutationRevision: Long): Boolean
 }

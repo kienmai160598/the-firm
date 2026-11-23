@@ -32,7 +32,10 @@ object StreamAutoPlaySelector {
             it.streams.any { stream -> stream.isDirectDebrid() }
         }
         if (installedOrder.isEmpty()) return directDebridEntries + remainingEntries
-        val (addonEntries, pluginEntries) = remainingEntries.partition { it.addonName in addonRankByName }
+        val (addonEntries, pluginEntries) = remainingEntries.partition {
+            it.addonName in
+                addonRankByName
+        }
         val orderedAddons = addonEntries.sortedBy { addonRankByName.getValue(it.addonName) }
         return directDebridEntries + orderedAddons + pluginEntries
     }
@@ -49,6 +52,7 @@ object StreamAutoPlaySelector {
             StreamDebridCacheState.CHECKING,
             StreamDebridCacheState.NOT_CACHED,
             StreamDebridCacheState.UNKNOWN -> return false
+
             StreamDebridCacheState.CACHED,
             null -> Unit
         }
@@ -109,7 +113,9 @@ object StreamAutoPlaySelector {
     ): Stream? {
         if (streams.isEmpty()) return null
 
-        val effectiveSource = if (!AppFeaturePolicy.pluginsEnabled && source == StreamAutoPlaySource.ENABLED_PLUGINS_ONLY) {
+        val effectiveSource = if (!AppFeaturePolicy.pluginsEnabled &&
+            source == StreamAutoPlaySource.ENABLED_PLUGINS_ONLY
+        ) {
             StreamAutoPlaySource.INSTALLED_ADDONS_ONLY
         } else {
             source
@@ -117,8 +123,16 @@ object StreamAutoPlaySelector {
 
         val sourceScopedStreams = when (effectiveSource) {
             StreamAutoPlaySource.ALL_SOURCES -> streams
-            StreamAutoPlaySource.INSTALLED_ADDONS_ONLY -> streams.filter { it.serverTarget != null || it.addonName in installedAddonNames }
-            StreamAutoPlaySource.ENABLED_PLUGINS_ONLY -> streams.filter { it.addonName !in installedAddonNames }
+
+            StreamAutoPlaySource.INSTALLED_ADDONS_ONLY -> streams.filter {
+                it.serverTarget != null ||
+                    it.addonName in installedAddonNames
+            }
+
+            StreamAutoPlaySource.ENABLED_PLUGINS_ONLY -> streams.filter {
+                it.addonName !in
+                    installedAddonNames
+            }
         }
         val candidateStreams = sourceScopedStreams.filter { stream ->
             val isAddonStream = stream.addonName in installedAddonNames
@@ -153,7 +167,9 @@ object StreamAutoPlaySelector {
 
         return when (mode) {
             StreamAutoPlayMode.MANUAL -> null
+
             StreamAutoPlayMode.FIRST_STREAM -> candidateStreams.firstOrNull { isPlayable(it) }
+
             StreamAutoPlayMode.REGEX_MATCH -> {
                 val pattern = regexPattern.trim()
 
@@ -172,7 +188,9 @@ object StreamAutoPlaySelector {
 
                 val excludeRegex = if (exclusionWords.isNotEmpty()) {
                     Regex("\\b(${exclusionWords.joinToString("|")})\\b", RegexOption.IGNORE_CASE)
-                } else null
+                } else {
+                    null
+                }
 
                 // 1. Build list of ALL regex‑matching streams
                 val matchingStreams = candidateStreams.filter { stream ->
@@ -201,7 +219,6 @@ object StreamAutoPlaySelector {
                 if (matchingStreams.isEmpty()) return null
                 matchingStreams.firstOrNull { isPlayable(it) }
             }
-
         }
     }
 }

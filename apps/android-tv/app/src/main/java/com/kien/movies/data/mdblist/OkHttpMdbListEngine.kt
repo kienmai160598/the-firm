@@ -16,48 +16,44 @@ import okhttp3.Response
 import okio.Buffer
 import okio.BufferedSource
 
-class OkHttpMdbListEngine(
-    client: OkHttpClient,
-    private val configuration: MdbListConfiguration
-) : MdbListHttpEngine {
+class OkHttpMdbListEngine(client: OkHttpClient, private val configuration: MdbListConfiguration) : MdbListHttpEngine {
     private val client = client.newBuilder()
         .followRedirects(false)
         .followSslRedirects(false)
         .retryOnConnectionFailure(false)
         .build()
 
-    override suspend fun execute(request: MdbListHttpRequest): MdbListHttpResponse =
-        suspendCancellableCoroutine { continuation ->
-            val call = client.newCall(buildRequest(request))
-            continuation.invokeOnCancellation { call.cancel() }
-            call.enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    if (continuation.isActive) continuation.resumeWithException(e)
-                }
+    override suspend fun execute(request: MdbListHttpRequest): MdbListHttpResponse = suspendCancellableCoroutine { continuation ->
+        val call = client.newCall(buildRequest(request))
+        continuation.invokeOnCancellation { call.cancel() }
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                if (continuation.isActive) continuation.resumeWithException(e)
+            }
 
-                override fun onResponse(call: Call, response: Response) {
-                    response.use {
-                        try {
-                            val body = response.body?.let { body ->
-                                readMdbListResponseBody(body.source(), body.contentLength())
-                            }.orEmpty()
-                            if (continuation.isActive) {
-                                continuation.resume(
-                                    MdbListHttpResponse(
-                                        status = response.code,
-                                        body = body,
-                                        headers = response.headers.toMultimap()
-                                            .mapValues { it.value.joinToString(",") }
-                                    )
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    try {
+                        val body = response.body?.let { body ->
+                            readMdbListResponseBody(body.source(), body.contentLength())
+                        }.orEmpty()
+                        if (continuation.isActive) {
+                            continuation.resume(
+                                MdbListHttpResponse(
+                                    status = response.code,
+                                    body = body,
+                                    headers = response.headers.toMultimap()
+                                        .mapValues { it.value.joinToString(",") }
                                 )
-                            }
-                        } catch (error: IOException) {
-                            if (continuation.isActive) continuation.resumeWithException(error)
+                            )
                         }
+                    } catch (error: IOException) {
+                        if (continuation.isActive) continuation.resumeWithException(error)
                     }
                 }
-            })
-        }
+            }
+        })
+    }
 
     internal fun buildRequest(request: MdbListHttpRequest): Request {
         require(request.path.startsWith('/') && !request.path.startsWith("//"))
@@ -74,11 +70,16 @@ class OkHttpMdbListEngine(
                 request.accessToken?.let { header("Authorization", "Bearer $it") }
                 when (request.method) {
                     MdbListHttpMethod.GET -> get()
-                    MdbListHttpMethod.POST, MdbListHttpMethod.PUT -> method(request.method.name,
+
+                    MdbListHttpMethod.POST, MdbListHttpMethod.PUT -> method(
+                        request.method.name,
                         request.form?.let { fields ->
-                            FormBody.Builder().apply { fields.forEach { (key, value) -> add(key, value) } }.build()
+                            FormBody.Builder().apply {
+                                fields.forEach { (key, value) -> add(key, value) }
+                            }.build()
                         } ?: request.body.toRequestBody("application/json".toMediaType())
                     )
+
                     MdbListHttpMethod.DELETE -> delete()
                 }
             }.build()

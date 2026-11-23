@@ -4,7 +4,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
-import java.io.IOException
 import com.kien.movies.core.tracking.TrackingExternalIds
 import com.kien.movies.core.tracking.TrackingMediaKind
 import com.kien.movies.core.tracking.TrackingMediaReference
@@ -13,6 +12,7 @@ import com.kien.movies.core.tracking.TrackingScrobbleEvent
 import com.kien.movies.data.local.ProfileDataStoreFactory
 import io.mockk.every
 import io.mockk.mockk
+import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +34,10 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class MdbListSyncRepositoryStorageTest {
 
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
 
     @Test
     fun `scrobble pause updates only playback storage and skips full snapshot serialization`() = runTest {
@@ -48,7 +51,9 @@ class MdbListSyncRepositoryStorageTest {
         harness.repository.ensureLoaded()
 
         val service = MdbListScrobbleService(harness.http.api, harness.repository)
-        harness.http.reply(body = """{"action":"pause","progress":42.0,"paused_at":"$MDBLIST_TEST_TIME"}""")
+        harness.http.reply(
+            body = """{"action":"pause","progress":42.0,"paused_at":"$MDBLIST_TEST_TIME"}"""
+        )
 
         val event = TrackingScrobbleEvent(
             media = TrackingMediaReference(
@@ -86,7 +91,8 @@ class MdbListSyncRepositoryStorageTest {
             playback = emptyList()
         )
         harness.storage.profiles[1] = json.encodeToString(baseSnapshot)
-        harness.storage.playbacks[1] = json.encodeToString(listOf(mdbListTestPlayback(progress = 55.0f)))
+        harness.storage.playbacks[1] =
+            json.encodeToString(listOf(mdbListTestPlayback(progress = 55.0f)))
 
         harness.repository.ensureLoaded()
 
@@ -100,8 +106,11 @@ class MdbListSyncRepositoryStorageTest {
     fun `account change drops a persisted playback override from the previous account`() = runTest {
         val testDispatcher = StandardTestDispatcher(testScheduler)
         val harness = MdbListSyncTestHarness(TestScope(testDispatcher))
-        harness.seed(harness.snapshot(accountId = 42).copy(watched = emptyList(), playback = emptyList()))
-        harness.storage.playbacks[1] = json.encodeToString(listOf(mdbListTestPlayback(progress = 55f)))
+        harness.seed(
+            harness.snapshot(accountId = 42).copy(watched = emptyList(), playback = emptyList())
+        )
+        harness.storage.playbacks[1] =
+            json.encodeToString(listOf(mdbListTestPlayback(progress = 55f)))
         harness.repository.ensureLoaded()
         assertEquals(55f, harness.repository.currentSnapshot()!!.playback.single().progress, 0.001f)
 
@@ -110,7 +119,10 @@ class MdbListSyncRepositoryStorageTest {
 
         val current = requireNotNull(harness.repository.currentSnapshot())
         assertEquals(99L, current.accountId)
-        assertTrue("playback from account 42 must not leak into account 99", current.playback.isEmpty())
+        assertTrue(
+            "playback from account 42 must not leak into account 99",
+            current.playback.isEmpty()
+        )
     }
 
     @Test
@@ -275,14 +287,15 @@ class MdbListSyncRepositoryStorageTest {
 
         override val data: Flow<Preferences> = state.onEach { readCount += 1 }
 
-        override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences =
-            mutex.withLock {
-                opLog += "$name:edit"
-                if (failEdits) throw IOException("Disk unavailable")
-                transform(state.value).also { updated ->
-                    state.value = updated
-                }
+        override suspend fun updateData(
+            transform: suspend (t: Preferences) -> Preferences
+        ): Preferences = mutex.withLock {
+            opLog += "$name:edit"
+            if (failEdits) throw IOException("Disk unavailable")
+            transform(state.value).also { updated ->
+                state.value = updated
             }
+        }
 
         fun resetReadCount() {
             readCount = 0

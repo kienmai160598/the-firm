@@ -37,13 +37,15 @@ class CollectionEditorViewModelReorderTest {
         genre = null
     )
 
-    private fun folder(id: String, sources: List<CollectionSource> = listOf(source("1"))): CollectionFolder =
-        CollectionFolder(
-            id = id,
-            title = "Folder $id",
-            tileShape = PosterShape.POSTER,
-            sources = sources
-        )
+    private fun folder(
+        id: String,
+        sources: List<CollectionSource> = listOf(source("1"))
+    ): CollectionFolder = CollectionFolder(
+        id = id,
+        title = "Folder $id",
+        tileShape = PosterShape.POSTER,
+        sources = sources
+    )
 
     private fun createViewModel(existing: Collection): CollectionEditorViewModel {
         val context = mockk<Context>(relaxed = true) {
@@ -152,7 +154,11 @@ class CollectionEditorViewModelReorderTest {
     @Test
     fun `folder move confirm keeps reordered list and cancel restores baseline`() = runTest {
         val vm = createViewModel(
-            Collection(id = "c1", title = "Col", folders = listOf(folder("f1"), folder("f2"), folder("f3")))
+            Collection(
+                id = "c1",
+                title = "Col",
+                folders = listOf(folder("f1"), folder("f2"), folder("f3"))
+            )
         )
         runCurrent()
 

@@ -48,8 +48,7 @@ internal class BufferedReadDataSource(
         return available
     }
 
-    override fun addTransferListener(transferListener: TransferListener) =
-        delegate.addTransferListener(transferListener)
+    override fun addTransferListener(transferListener: TransferListener) = delegate.addTransferListener(transferListener)
 
     override fun getUri(): Uri? = delegate.uri
 

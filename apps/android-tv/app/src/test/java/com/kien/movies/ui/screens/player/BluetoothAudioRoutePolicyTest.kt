@@ -8,11 +8,11 @@ import androidx.media3.common.PlaybackParameters
 import androidx.media3.exoplayer.audio.AudioOffloadSupport
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.ForwardingAudioSink
+import java.nio.ByteBuffer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.nio.ByteBuffer
 
 /**
  * Bluetooth media policy mirrors Media3 1.8.0 AudioCapabilities:
@@ -153,8 +153,14 @@ class BluetoothAudioRoutePolicyTest {
 
     @Test
     fun `mpv bluetooth forces stereo and clears encoded passthrough`() {
-        assertEquals(MpvBluetoothAudioPolicy.STEREO_CHANNELS, MpvBluetoothAudioPolicy.audioChannels(true))
-        assertEquals(MpvBluetoothAudioPolicy.AUTO_CHANNELS, MpvBluetoothAudioPolicy.audioChannels(false))
+        assertEquals(
+            MpvBluetoothAudioPolicy.STEREO_CHANNELS,
+            MpvBluetoothAudioPolicy.audioChannels(true)
+        )
+        assertEquals(
+            MpvBluetoothAudioPolicy.AUTO_CHANNELS,
+            MpvBluetoothAudioPolicy.audioChannels(false)
+        )
         assertTrue(MpvBluetoothAudioPolicy.shouldClearAudioSpdif(true))
         assertFalse(MpvBluetoothAudioPolicy.shouldClearAudioSpdif(false))
     }
@@ -273,11 +279,14 @@ class BluetoothAudioRoutePolicyTest {
         override fun setListener(listener: AudioSink.Listener) = Unit
         override fun supportsFormat(format: Format): Boolean = true
         override fun getFormatSupport(format: Format): Int = AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY
-        override fun getFormatOffloadSupport(format: Format): AudioOffloadSupport =
-            AudioOffloadSupport.DEFAULT_UNSUPPORTED
+        override fun getFormatOffloadSupport(format: Format): AudioOffloadSupport = AudioOffloadSupport.DEFAULT_UNSUPPORTED
         override fun getCurrentPositionUs(sourceEnded: Boolean): Long = 0L
         override fun getAudioTrackBufferSizeUs(): Long = C.TIME_UNSET
-        override fun configure(inputFormat: Format, specifiedBufferSize: Int, outputChannels: IntArray?) = Unit
+        override fun configure(
+            inputFormat: Format,
+            specifiedBufferSize: Int,
+            outputChannels: IntArray?
+        ) = Unit
         override fun play() = Unit
         override fun handleDiscontinuity() = Unit
         override fun handleBuffer(

@@ -31,7 +31,9 @@ internal fun HomeViewModel.onCatalogRowItemsChanged(rowKey: String) {
 
     viewModelScope.launch(Dispatchers.IO) {
         val row = readCatalogRow(rowKey) ?: return@launch
-        val newItems = row.items.filter { it.mdbListRatings == null && it.id !in mdbBatchNegativeIds }
+        val newItems = row.items.filter {
+            it.mdbListRatings == null && it.id !in mdbBatchNegativeIds
+        }
         if (newItems.isEmpty()) return@launch
         batchFetchRatingsForItems(newItems)
     }
@@ -40,7 +42,9 @@ internal fun HomeViewModel.onCatalogRowItemsChanged(rowKey: String) {
 private suspend fun HomeViewModel.batchFetchRatingsForRowAndNext(focusedRowKey: String) {
     if (focusedRowKey == MODERN_CONTINUE_WATCHING_ROW_KEY ||
         focusedRowKey == MODERN_UPCOMING_ROW_KEY
-    ) return
+    ) {
+        return
+    }
 
     val allRows = _modernHomePresentation.value.rows.list
     val focusedIdx = allRows.indexOfFirst { it.key == focusedRowKey }

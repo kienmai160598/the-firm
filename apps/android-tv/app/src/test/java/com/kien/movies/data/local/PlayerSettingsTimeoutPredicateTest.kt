@@ -67,7 +67,9 @@ class PlayerSettingsTimeoutPredicateTest {
 
     @Test
     fun `isBoundedTimeout returns false for the unlimited sentinel`() {
-        assertFalse(PlayerSettings.isBoundedTimeout(PlayerSettings.STREAM_AUTOPLAY_TIMEOUT_UNLIMITED))
+        assertFalse(
+            PlayerSettings.isBoundedTimeout(PlayerSettings.STREAM_AUTOPLAY_TIMEOUT_UNLIMITED)
+        )
     }
 
     @Test

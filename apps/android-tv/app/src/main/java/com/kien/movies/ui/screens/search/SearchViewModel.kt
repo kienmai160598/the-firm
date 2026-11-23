@@ -1,11 +1,12 @@
 package com.kien.movies.ui.screens.search
 
-import com.kien.movies.domain.model.catalogRowLegacyKey
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kien.movies.R
 import com.kien.movies.core.network.NetworkResult
+import com.kien.movies.core.util.filterReleasedItems
+import com.kien.movies.core.util.isUnreleased
 import com.kien.movies.data.local.DiscoverSelectionDataStore
 import com.kien.movies.data.local.LayoutPreferenceDataStore
 import com.kien.movies.data.local.SearchHistoryDataStore
@@ -13,25 +14,25 @@ import com.kien.movies.data.mediaserver.ServerCatalog
 import com.kien.movies.domain.model.Addon
 import com.kien.movies.domain.model.CatalogDescriptor
 import com.kien.movies.domain.model.CatalogRow
+import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.DiscoverLocation
+import com.kien.movies.domain.model.MetaPreview
+import com.kien.movies.domain.model.PLACEHOLDER_IMAGE_URL
+import com.kien.movies.domain.model.PosterShape
+import com.kien.movies.domain.model.catalogRowLegacyKey
 import com.kien.movies.domain.model.catalogRowStableKey
+import com.kien.movies.domain.model.enabledAddons
 import com.kien.movies.domain.model.mergeCatalogPage
 import com.kien.movies.domain.model.nextCatalogSkip
 import com.kien.movies.domain.model.skipStep
 import com.kien.movies.domain.model.stableKey
 import com.kien.movies.domain.model.supportsExtra
-import com.kien.movies.core.util.filterReleasedItems
-import com.kien.movies.core.util.isUnreleased
 import com.kien.movies.domain.repository.AddonRepository
-import java.time.LocalDate
-import com.kien.movies.domain.model.ContentType
-import com.kien.movies.domain.model.MetaPreview
-import com.kien.movies.domain.model.PosterShape
-import com.kien.movies.domain.model.enabledAddons
-import com.kien.movies.domain.model.PLACEHOLDER_IMAGE_URL
 import com.kien.movies.domain.repository.CatalogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.LocalDate
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -45,7 +46,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -113,6 +113,7 @@ class SearchViewModel @Inject constructor(
         const val LIVE_SEARCH_DEBOUNCE_MS = 350L
 
         const val MAX_SUGGESTIONS = 8
+
         /** Splits titles and queries into words. */
         private val WORD_SEPARATOR = Regex("[^\\p{L}\\p{N}]+")
         const val MAX_RECENT_SEARCHES = 8
@@ -125,7 +126,9 @@ class SearchViewModel @Inject constructor(
                 .collect { ids -> _watchedMovieIds.value = ids }
         }
         viewModelScope.launch {
-            layoutPreferenceDataStore.discoverLocation.distinctUntilChanged().collectLatest { location ->
+            layoutPreferenceDataStore.discoverLocation.distinctUntilChanged().collectLatest {
+                    location
+                ->
                 _uiState.update { it.copy(discoverLocation = location) }
                 if (location == DiscoverLocation.OFF) {
                     discoverJob?.cancel()
@@ -235,20 +238,31 @@ class SearchViewModel @Inject constructor(
     fun onEvent(event: SearchEvent) {
         when (event) {
             is SearchEvent.QueryChanged -> onQueryChanged(event.query)
+
             SearchEvent.ClearQuery -> clearQuery()
+
             SearchEvent.SubmitSearch -> submitSearch()
+
             SearchEvent.RememberSearchFromTextInput -> rememberSearchFromTextInput()
+
             SearchEvent.ClearRecentSearches -> clearRecentSearches()
+
             is SearchEvent.RemoveRecentSearch -> removeRecentSearch(event.query)
+
             is SearchEvent.LoadMoreCatalog -> loadMoreCatalogItems(
                 catalogId = event.catalogId,
                 addonId = event.addonId,
                 type = event.type
             )
+
             is SearchEvent.SelectDiscoverType -> selectDiscoverType(event.type)
+
             is SearchEvent.SelectDiscoverCatalog -> selectDiscoverCatalog(event.catalogKey)
+
             is SearchEvent.SelectDiscoverGenre -> selectDiscoverGenre(event.genre)
+
             SearchEvent.LoadNextDiscoverResults -> loadNextDiscoverResults()
+
             SearchEvent.Retry -> {
                 // An explicit retry must refetch even though nothing about the request changed.
                 lastRequestKey = null
@@ -269,11 +283,13 @@ class SearchViewModel @Inject constructor(
         if (query == _uiState.value.query) {
             return
         }
-        
+
         // Detect if this is a recomposition artifact: transitioning to empty from the current
         // non-empty query. This happens when focus changes and Compose recomposes the text field.
-        val isRecompositionArtifact = query.isEmpty() && query != _uiState.value.query && _uiState.value.query == lastNonEmptyQuery
-        
+        val isRecompositionArtifact =
+            query.isEmpty() && query != _uiState.value.query &&
+                _uiState.value.query == lastNonEmptyQuery
+
         // Track non-empty queries for recomposition detection
         if (query.isNotEmpty()) {
             lastNonEmptyQuery = query
@@ -341,7 +357,9 @@ class SearchViewModel @Inject constructor(
         // Each query word must consume a different title word.
         val queryWords = queryLower.split(WORD_SEPARATOR).filter { it.isNotEmpty() }
         if (queryWords.size < 2) return null
-        val unmatchedTitleWords = titleLower.split(WORD_SEPARATOR).filterTo(mutableListOf()) { it.isNotEmpty() }
+        val unmatchedTitleWords = titleLower.split(WORD_SEPARATOR).filterTo(mutableListOf()) {
+            it.isNotEmpty()
+        }
         val everyWordMatches = queryWords.all { word ->
             val index = unmatchedTitleWords.indexOfFirst { it.startsWith(word) }
             if (index >= 0) unmatchedTitleWords.removeAt(index)
@@ -357,19 +375,21 @@ class SearchViewModel @Inject constructor(
      * Sorting them alphabetically put five titles ahead of "Jurassic Park" for "juras", and of
      * "Slow Horses" for "slo", past the few completions a TV keyboard shows.
      */
-    private fun rankedSuggestions(names: Collection<String>, queryLower: String): List<String> =
-        names
-            .mapNotNull { name -> suggestionRank(name, queryLower)?.let { name to it } }
-            .sortedBy { it.second }
-            .map { it.first }
-            .take(MAX_SUGGESTIONS)
+    private fun rankedSuggestions(names: Collection<String>, queryLower: String): List<String> = names
+        .mapNotNull { name -> suggestionRank(name, queryLower)?.let { name to it } }
+        .sortedBy { it.second }
+        .map { it.first }
+        .take(MAX_SUGGESTIONS)
 
     /**
      * Every catalog's titles, taken one position at a time: each catalog's first title, then each
      * one's second, and so on, in catalog order. Each catalog's best matches lead, and the result
      * does not depend on which catalog happened to answer first.
      */
-    private fun mergedCatalogNames(namesByCatalog: Map<Int, List<String>>, catalogCount: Int): List<String> {
+    private fun mergedCatalogNames(
+        namesByCatalog: Map<Int, List<String>>,
+        catalogCount: Int
+    ): List<String> {
         val catalogs = (0 until catalogCount).mapNotNull { namesByCatalog[it] }
         val merged = LinkedHashSet<String>()
         for (position in 0 until (catalogs.maxOfOrNull { it.size } ?: 0)) {
@@ -389,7 +409,9 @@ class SearchViewModel @Inject constructor(
         // Already searched, so a fetch would repeat itself and the strip is current. Leave it
         // standing: live search submits as the user types, so typing a space between words
         // trims back to the submitted query and lands here mid-query.
-        if (query == _uiState.value.submittedQuery.trim() && _uiState.value.catalogRows.isNotEmpty()) {
+        if (query == _uiState.value.submittedQuery.trim() &&
+            _uiState.value.catalogRows.isNotEmpty()
+        ) {
             return
         }
 
@@ -404,7 +426,13 @@ class SearchViewModel @Inject constructor(
 
             val allTargets = buildSearchTargets(addons)
             val firstAddonId = allTargets.firstOrNull()?.first?.id
-            val searchTargets = if (firstAddonId != null) allTargets.filter { it.first.id == firstAddonId } else emptyList()
+            val searchTargets = if (firstAddonId !=
+                null
+            ) {
+                allTargets.filter { it.first.id == firstAddonId }
+            } else {
+                emptyList()
+            }
             if (searchTargets.isEmpty()) {
                 _uiState.update { it.copy(suggestions = emptyList()) }
                 return@launch
@@ -429,7 +457,9 @@ class SearchViewModel @Inject constructor(
                             supportsSkip = false,
                             posterScreen = com.kien.movies.core.poster.CustomPosterScreen.SEARCH
                         ).collect { result ->
-                            if (result is NetworkResult.Success && _uiState.value.query.trim() == query) {
+                            if (result is NetworkResult.Success &&
+                                _uiState.value.query.trim() == query
+                            ) {
                                 val names = result.data.items.map { it.name }
                                 val previous = namesByCatalog.put(catalogIndex, names)
                                 // Catalog results arrive independently and are merged, so a batch
@@ -465,7 +495,11 @@ class SearchViewModel @Inject constructor(
             // rather than blinking on every keystroke. It must be cleared here or it would go
             // on captioning text the field no longer contains.
             if (_uiState.value.query.trim() == query) {
-                val ranked = rankedSuggestions(mergedCatalogNames(namesByCatalog, searchTargets.size), queryLower)
+                val ranked =
+                    rankedSuggestions(
+                        mergedCatalogNames(namesByCatalog, searchTargets.size),
+                        queryLower
+                    )
                 _uiState.update { it.copy(suggestions = ranked) }
             }
         }
@@ -548,7 +582,6 @@ class SearchViewModel @Inject constructor(
         )
     }
 
-
     /**
      * @param keepSuggestions live search runs this on every keystroke, while the field is still
      * being typed into and the suggestion strip is the whole point. Those runs leave the strip
@@ -602,7 +635,16 @@ class SearchViewModel @Inject constructor(
                 throw e
             } catch (e: Exception) {
                 if (generation == searchGeneration && activeSearchQuery == query) {
-                    _uiState.update { it.copy(isSearching = false, error = e.message ?: context.getString(com.kien.movies.R.string.search_error_load_addons_failed)) }
+                    _uiState.update {
+                        it.copy(
+                            isSearching = false,
+                            error =
+                                e.message
+                                    ?: context.getString(
+                                        com.kien.movies.R.string.search_error_load_addons_failed
+                                    )
+                        )
+                    }
                 }
                 return@launch
             }
@@ -741,7 +783,9 @@ class SearchViewModel @Inject constructor(
                     // rememberSearchFromTextInput)
                     // writes history. Live search fires per keystroke and would otherwise record
                     // every prefix ("do", "dog") even when the user never confirmed the search.
-                    if (rememberToHistory && catalogsMap.values.any { row -> row.items.isNotEmpty() }) {
+                    if (rememberToHistory &&
+                        catalogsMap.values.any { row -> row.items.isNotEmpty() }
+                    ) {
                         viewModelScope.launch {
                             searchHistoryDataStore.saveRecentSearch(query, MAX_RECENT_SEARCHES)
                         }
@@ -786,15 +830,25 @@ class SearchViewModel @Inject constructor(
                     pendingCatalogResponses = (pendingCatalogResponses - 1).coerceAtLeast(0)
                     scheduleCatalogRowsUpdate()
                 }
+
                 is NetworkResult.Error -> {
                     if (!isCurrentSearch(generation, query)) return@collect
                     pendingCatalogResponses = (pendingCatalogResponses - 1).coerceAtLeast(0)
                     // Ignore per-catalog errors unless we have nothing to show.
                     if (catalogsMap.isEmpty()) {
-                        _uiState.update { it.copy(error = result.message ?: context.getString(com.kien.movies.R.string.search_error_failed)) }
+                        _uiState.update {
+                            it.copy(
+                                error =
+                                    result.message
+                                        ?: context.getString(
+                                            com.kien.movies.R.string.search_error_failed
+                                        )
+                            )
+                        }
                     }
                     scheduleCatalogRowsUpdate()
                 }
+
                 NetworkResult.Loading -> {
                     // No-op; screen shows global loading when empty.
                 }
@@ -802,8 +856,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    private fun isCurrentSearch(generation: Long, query: String): Boolean =
-        generation == searchGeneration && uiState.value.submittedQuery.trim() == query
+    private fun isCurrentSearch(generation: Long, query: String): Boolean = generation == searchGeneration && uiState.value.submittedQuery.trim() == query
 
     /**
      * Pages one row of the current search. The page belongs to the search run that created it:
@@ -830,11 +883,15 @@ class SearchViewModel @Inject constructor(
         scheduleCatalogRowsUpdate()
 
         val job = viewModelScope.launch {
-            val addon = uiState.value.installedAddons.find { it.id == addonId && it.baseUrl == currentRow.addonBaseUrl }
-                ?: uiState.value.installedAddons.find { it.id == addonId } ?: run {
-                clearRowLoading(key, generation, query)
-                return@launch
-            }
+            val addon =
+                uiState.value.installedAddons.find {
+                    it.id == addonId &&
+                        it.baseUrl == currentRow.addonBaseUrl
+                }
+                    ?: uiState.value.installedAddons.find { it.id == addonId } ?: run {
+                    clearRowLoading(key, generation, query)
+                    return@launch
+                }
 
             val nextSkip = currentRow.nextCatalogSkip()
             catalogRepository.getCatalog(
@@ -857,9 +914,11 @@ class SearchViewModel @Inject constructor(
                         catalogsMap[key] = latestRow.mergeCatalogPage(result.data)
                         scheduleCatalogRowsUpdate()
                     }
+
                     is NetworkResult.Error -> {
                         clearRowLoading(key, generation, query)
                     }
+
                     NetworkResult.Loading -> Unit
                 }
             }
@@ -912,7 +971,9 @@ class SearchViewModel @Inject constructor(
             val filteredRows = if (hideUnreleasedContent) {
                 val today = LocalDate.now()
                 orderedRows.map { row ->
-                    if (row.isLoading && row.items.firstOrNull()?.id?.startsWith("__placeholder_") == true) {
+                    if (row.isLoading &&
+                        row.items.firstOrNull()?.id?.startsWith("__placeholder_") == true
+                    ) {
                         row
                     } else {
                         row.filterReleasedItems(today)
@@ -927,8 +988,8 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    private suspend fun searchAddons(): List<Addon> =
-        addonRepository.getInstalledAddons().first().enabledAddons() + serverCatalog.searchAddons.first()
+    private suspend fun searchAddons(): List<Addon> = addonRepository.getInstalledAddons().first().enabledAddons() +
+        serverCatalog.searchAddons.first()
 
     private suspend fun loadDiscoverCatalogs() {
         if (_uiState.value.discoverLocation == DiscoverLocation.OFF) return
@@ -943,8 +1004,13 @@ class SearchViewModel @Inject constructor(
         val discoverCatalogs = addons.flatMap { addon ->
             addon.catalogs
                 .filter { catalog ->
-                    !(catalog.supportsExtra("search") &&
-                        catalog.extra.any { it.name.equals("search", ignoreCase = true) && it.isRequired })
+                    !(
+                        catalog.supportsExtra("search") &&
+                            catalog.extra.any {
+                                it.name.equals("search", ignoreCase = true) &&
+                                    it.isRequired
+                            }
+                        )
                 }
                 .map { catalog ->
                     val genres = catalog.extra
@@ -1081,7 +1147,11 @@ class SearchViewModel @Inject constructor(
     private fun loadMoreDiscoverResults() {
         val state = _uiState.value
         if (state.query.trim().isNotEmpty()) return
-        if (!state.discoverHasMore || state.discoverLoadingMore || state.pendingDiscoverResults.isNotEmpty()) return
+        if (!state.discoverHasMore || state.discoverLoadingMore ||
+            state.pendingDiscoverResults.isNotEmpty()
+        ) {
+            return
+        }
         fetchDiscoverContent(reset = false)
     }
 
@@ -1090,8 +1160,9 @@ class SearchViewModel @Inject constructor(
         discoverJob = viewModelScope.launch {
             val state = _uiState.value
             if (state.query.trim().isNotEmpty()) return@launch
-            val selectedCatalog = state.discoverCatalogs.firstOrNull { it.key == state.selectedDiscoverCatalogKey }
-                ?: return@launch
+            val selectedCatalog =
+                state.discoverCatalogs.firstOrNull { it.key == state.selectedDiscoverCatalogKey }
+                    ?: return@launch
 
             if (reset) {
                 revealBatchAfterNextDiscoverFetch = false
@@ -1175,6 +1246,7 @@ class SearchViewModel @Inject constructor(
                         }
                         revealBatchAfterNextDiscoverFetch = false
                     }
+
                     is NetworkResult.Error -> {
                         revealBatchAfterNextDiscoverFetch = false
                         _uiState.update {
@@ -1185,6 +1257,7 @@ class SearchViewModel @Inject constructor(
                             )
                         }
                     }
+
                     NetworkResult.Loading -> Unit
                 }
             }
@@ -1215,13 +1288,17 @@ class SearchViewModel @Inject constructor(
      * cannot supply, a mandatory genre for instance, answers with an error or nothing at all, so
      * querying it just costs a request per keystroke and leaves a row that never fills in.
      */
-    private fun CatalogDescriptor.isSearchable(): Boolean =
-        supportsExtra("search") &&
-            extra.none { property ->
-                property.isRequired && !property.name.equals("search", ignoreCase = true)
-            }
+    private fun CatalogDescriptor.isSearchable(): Boolean = supportsExtra("search") &&
+        extra.none { property ->
+            property.isRequired && !property.name.equals("search", ignoreCase = true)
+        }
 
-    private fun catalogKey(addonId: String, addonBaseUrl: String, type: String, catalogId: String): String {
+    private fun catalogKey(
+        addonId: String,
+        addonBaseUrl: String,
+        type: String,
+        catalogId: String
+    ): String {
         return catalogRowStableKey(addonId, addonBaseUrl, type, catalogId)
     }
 }
@@ -1230,7 +1307,6 @@ internal fun resolveDiscoverCatalog(
     catalogs: List<DiscoverCatalog>,
     preferredKey: String?,
     currentKey: String?
-): DiscoverCatalog? =
-    catalogs.firstOrNull { it.key == preferredKey }
-        ?: catalogs.firstOrNull { it.key == currentKey }
-        ?: catalogs.firstOrNull()
+): DiscoverCatalog? = catalogs.firstOrNull { it.key == preferredKey }
+    ?: catalogs.firstOrNull { it.key == currentKey }
+    ?: catalogs.firstOrNull()

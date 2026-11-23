@@ -12,7 +12,6 @@ import com.kien.movies.data.remote.dto.PlaybackIssueDiagnosticsDto
 import com.kien.movies.data.remote.dto.PlaybackIssueErrorDto
 import com.kien.movies.data.remote.dto.PlaybackIssueLoadingDto
 import com.kien.movies.data.remote.dto.PlaybackIssueLoadingEventDto
-import com.kien.movies.data.remote.dto.PlaybackIssuePlayerDto
 import com.kien.movies.data.remote.dto.PlaybackIssuePlaybackAnalyticsDto
 import com.kien.movies.data.remote.dto.PlaybackIssuePlaybackEventDto
 import com.kien.movies.data.remote.dto.PlaybackIssuePlaybackFormatDto
@@ -20,6 +19,7 @@ import com.kien.movies.data.remote.dto.PlaybackIssuePlaybackHealthSnapshotDto
 import com.kien.movies.data.remote.dto.PlaybackIssuePlaybackLoadDto
 import com.kien.movies.data.remote.dto.PlaybackIssuePlaybackLoadErrorDto
 import com.kien.movies.data.remote.dto.PlaybackIssuePlaybackSettingsDto
+import com.kien.movies.data.remote.dto.PlaybackIssuePlayerDto
 import com.kien.movies.data.remote.dto.PlaybackIssueReportRequestDto
 import com.kien.movies.data.remote.dto.PlaybackIssueStreamDto
 import java.security.MessageDigest
@@ -278,330 +278,325 @@ class PlaybackIssueReportRepository @Inject constructor(
         )
     }
 
-    private fun PlaybackIssueLoadingInput.toDto(): PlaybackIssueLoadingDto =
-        PlaybackIssueLoadingDto(
-            phase = phase.limit(80),
-            message = message.cleanText(240),
-            progress = progress?.coerceIn(0f, 1f),
-            elapsedMs = elapsedMs.coerceAtLeast(0L),
-            phaseElapsedMs = phaseElapsedMs.coerceAtLeast(0L),
-            reportReason = reportReason.limit(80),
-            loadingOverlayVisible = loadingOverlayVisible,
-            loadingStatusVisible = loadingStatusVisible,
-            hasRenderedFirstFrame = hasRenderedFirstFrame,
-            exoPlayerCreated = exoPlayerCreated,
-            exoPlaybackState = exoPlaybackState,
-            exoPlaybackStateName = exoPlaybackStateName.cleanText(80),
-            exoIsLoading = exoIsLoading,
-            exoPlayWhenReady = exoPlayWhenReady,
-            mpvAttached = mpvAttached,
-            startupRetryCount = startupRetryCount.coerceAtLeast(0),
-            errorRetryCount = errorRetryCount.coerceAtLeast(0),
-            timeoutRecoveryAttempts = timeoutRecoveryAttempts.coerceAtLeast(0),
-            isLoadingAddonSubtitles = isLoadingAddonSubtitles,
-            addonSubtitlesCount = addonSubtitlesCount.coerceAtLeast(0),
-            isLoadingSourceStreams = isLoadingSourceStreams,
-            isLoadingEpisodeStreams = isLoadingEpisodeStreams,
-            torrentDownloadSpeed = torrentDownloadSpeed.coerceAtLeast(0L),
-            torrentPeers = torrentPeers.coerceAtLeast(0),
-            torrentSeeds = torrentSeeds.coerceAtLeast(0),
-            rawEventLines = rawEventLines.takeLast(120).mapNotNull { it.rawLogLine(2000) },
-            events = events.takeLast(80).map { event ->
-                PlaybackIssueLoadingEventDto(
-                    timeMs = event.timeMs,
-                    elapsedMs = event.elapsedMs.coerceAtLeast(0L),
-                    phase = event.phase.limit(80),
-                    message = event.message.cleanText(240),
-                    progress = event.progress?.coerceIn(0f, 1f),
-                    detail = event.detail.cleanText(240)
-                )
-            }
-        )
+    private fun PlaybackIssueLoadingInput.toDto(): PlaybackIssueLoadingDto = PlaybackIssueLoadingDto(
+        phase = phase.limit(80),
+        message = message.cleanText(240),
+        progress = progress?.coerceIn(0f, 1f),
+        elapsedMs = elapsedMs.coerceAtLeast(0L),
+        phaseElapsedMs = phaseElapsedMs.coerceAtLeast(0L),
+        reportReason = reportReason.limit(80),
+        loadingOverlayVisible = loadingOverlayVisible,
+        loadingStatusVisible = loadingStatusVisible,
+        hasRenderedFirstFrame = hasRenderedFirstFrame,
+        exoPlayerCreated = exoPlayerCreated,
+        exoPlaybackState = exoPlaybackState,
+        exoPlaybackStateName = exoPlaybackStateName.cleanText(80),
+        exoIsLoading = exoIsLoading,
+        exoPlayWhenReady = exoPlayWhenReady,
+        mpvAttached = mpvAttached,
+        startupRetryCount = startupRetryCount.coerceAtLeast(0),
+        errorRetryCount = errorRetryCount.coerceAtLeast(0),
+        timeoutRecoveryAttempts = timeoutRecoveryAttempts.coerceAtLeast(0),
+        isLoadingAddonSubtitles = isLoadingAddonSubtitles,
+        addonSubtitlesCount = addonSubtitlesCount.coerceAtLeast(0),
+        isLoadingSourceStreams = isLoadingSourceStreams,
+        isLoadingEpisodeStreams = isLoadingEpisodeStreams,
+        torrentDownloadSpeed = torrentDownloadSpeed.coerceAtLeast(0L),
+        torrentPeers = torrentPeers.coerceAtLeast(0),
+        torrentSeeds = torrentSeeds.coerceAtLeast(0),
+        rawEventLines = rawEventLines.takeLast(120).mapNotNull { it.rawLogLine(2000) },
+        events = events.takeLast(80).map { event ->
+            PlaybackIssueLoadingEventDto(
+                timeMs = event.timeMs,
+                elapsedMs = event.elapsedMs.coerceAtLeast(0L),
+                phase = event.phase.limit(80),
+                message = event.message.cleanText(240),
+                progress = event.progress?.coerceIn(0f, 1f),
+                detail = event.detail.cleanText(240)
+            )
+        }
+    )
 
-    private fun LastPlaybackDiagnostics.toDto(): PlaybackIssueDiagnosticsDto =
-        PlaybackIssueDiagnosticsDto(
-            timestampMs = timestampMs,
-            host = host.limit(160),
-            hdrCapsKnown = hdrCapsKnown,
-            displayDv = displayDv,
-            displayHdr10 = displayHdr10,
-            displayHdr10Plus = displayHdr10Plus,
-            codecDv7Supported = codecDv7Supported,
-            dv81DecoderName = dv81DecoderName.cleanText(160),
-            bridgeReady = bridgeReady,
-            bridgeVersion = bridgeVersion.cleanText(120),
-            bridgeReason = bridgeReason.cleanText(180),
-            dv7ModeRequested = dv7ModeRequested.limit(80),
-            dv7ModeEffective = dv7ModeEffective.limit(80),
-            dv7AutoDecision = dv7AutoDecision.cleanText(80),
-            bufferEngineEnabled = bufferEngineEnabled,
-            parallelNetworkEnabled = parallelNetworkEnabled,
-            firstFrameMs = firstFrameMs,
-            dv7DoviCalls = dv7DoviCalls,
-            dv7DoviSuccess = dv7DoviSuccess,
-            dv7DoviSignalRewrites = dv7DoviSignalRewrites,
-            dvSourceProfile = dvSourceProfile.cleanText(80),
-            videoResolution = videoResolution.cleanText(80),
-            videoCodec = videoCodec.cleanText(120),
-            videoHdrType = videoHdrType.cleanText(120),
-            rebufferCount = rebufferCount,
-            rebufferTotalMs = rebufferTotalMs,
-            result = result.limit(1000)
-        )
+    private fun LastPlaybackDiagnostics.toDto(): PlaybackIssueDiagnosticsDto = PlaybackIssueDiagnosticsDto(
+        timestampMs = timestampMs,
+        host = host.limit(160),
+        hdrCapsKnown = hdrCapsKnown,
+        displayDv = displayDv,
+        displayHdr10 = displayHdr10,
+        displayHdr10Plus = displayHdr10Plus,
+        codecDv7Supported = codecDv7Supported,
+        dv81DecoderName = dv81DecoderName.cleanText(160),
+        bridgeReady = bridgeReady,
+        bridgeVersion = bridgeVersion.cleanText(120),
+        bridgeReason = bridgeReason.cleanText(180),
+        dv7ModeRequested = dv7ModeRequested.limit(80),
+        dv7ModeEffective = dv7ModeEffective.limit(80),
+        dv7AutoDecision = dv7AutoDecision.cleanText(80),
+        bufferEngineEnabled = bufferEngineEnabled,
+        parallelNetworkEnabled = parallelNetworkEnabled,
+        firstFrameMs = firstFrameMs,
+        dv7DoviCalls = dv7DoviCalls,
+        dv7DoviSuccess = dv7DoviSuccess,
+        dv7DoviSignalRewrites = dv7DoviSignalRewrites,
+        dvSourceProfile = dvSourceProfile.cleanText(80),
+        videoResolution = videoResolution.cleanText(80),
+        videoCodec = videoCodec.cleanText(120),
+        videoHdrType = videoHdrType.cleanText(120),
+        rebufferCount = rebufferCount,
+        rebufferTotalMs = rebufferTotalMs,
+        result = result.limit(1000)
+    )
 
-    private fun PlaybackIssuePlaybackSettingsInput.toDto(): PlaybackIssuePlaybackSettingsDto =
-        PlaybackIssuePlaybackSettingsDto(
-            playerPreference = playerPreference.limit(60),
-            internalPlayerEngine = internalPlayerEngine.limit(60),
-            resolvedInternalPlayerEngine = resolvedInternalPlayerEngine.limit(60),
-            autoSwitchInternalPlayerOnError = autoSwitchInternalPlayerOnError,
-            decoderPriority = decoderPriority.coerceIn(0, 2),
-            decoderPriorityName = decoderPriorityName.limit(80),
-            effectiveDecoderPriority = effectiveDecoderPriority.coerceIn(0, 2),
-            effectiveDecoderPriorityName = effectiveDecoderPriorityName.limit(80),
-            downmixEnabled = downmixEnabled,
-            audioOutputChannels = audioOutputChannels.limit(40),
-            maintainOriginalAudioOnDownmix = maintainOriginalAudioOnDownmix,
-            tunnelingEnabled = tunnelingEnabled,
-            tunnelingEffective = tunnelingEffective,
-            forceOpticalPassthrough = forceOpticalPassthrough,
-            skipSilence = skipSilence,
-            audioAmplificationDb = audioAmplificationDb.coerceIn(0, 10),
-            centerMixLevelDb = centerMixLevelDb.coerceIn(-10, 30),
-            persistAudioAmplification = persistAudioAmplification,
-            rememberAudioDelayPerDevice = rememberAudioDelayPerDevice,
-            preferredAudioLanguage = preferredAudioLanguage.limit(40),
-            secondaryPreferredAudioLanguage = secondaryPreferredAudioLanguage.cleanText(40),
-            preferredSubtitleLanguage = preferredSubtitleLanguage.limit(40),
-            secondaryPreferredSubtitleLanguage = secondaryPreferredSubtitleLanguage.cleanText(40),
-            useForcedSubtitles = useForcedSubtitles,
-            showOnlyPreferredSubtitleLanguages = showOnlyPreferredSubtitleLanguages,
-            useLibass = useLibass,
-            activePlayerUsesLibass = activePlayerUsesLibass,
-            libassRenderType = libassRenderType.limit(80),
-            addonSubtitleStartupMode = addonSubtitleStartupMode.limit(80),
-            externalPlayerForwardSubtitles = externalPlayerForwardSubtitles,
-            subtitleOrganizationMode = subtitleOrganizationMode.limit(80),
-            loadingOverlayEnabled = loadingOverlayEnabled,
-            showPlayerLoadingStatus = showPlayerLoadingStatus,
-            playbackIssueReportsEnabled = playbackIssueReportsEnabled,
-            dv5ToDv81Enabled = dv5ToDv81Enabled,
-            dv7ToDv81PreserveMappingEnabled = dv7ToDv81PreserveMappingEnabled,
-            dv7HandlingMode = dv7HandlingMode.limit(80),
-            dv7LibdoviModeOverride = dv7LibdoviModeOverride.coerceIn(-1, 4),
-            stripHdr10PlusSei = stripHdr10PlusSei,
-            mpvHardwareDecodeMode = mpvHardwareDecodeMode.limit(80),
-            frameRateMatchingMode = frameRateMatchingMode.limit(80),
-            resolutionMatchingEnabled = resolutionMatchingEnabled,
-            resizeMode = resizeMode.coerceIn(0, 4),
-            aspectMode = aspectMode.limit(80),
-            bufferEngineEnabled = bufferEngineEnabled,
-            minBufferMs = minBufferMs.coerceAtLeast(0),
-            maxBufferMs = maxBufferMs.coerceAtLeast(0),
-            bufferForPlaybackMs = bufferForPlaybackMs.coerceAtLeast(0),
-            bufferForPlaybackAfterRebufferMs = bufferForPlaybackAfterRebufferMs.coerceAtLeast(0),
-            targetBufferSizeMb = targetBufferSizeMb.coerceAtLeast(0),
-            backBufferDurationMs = backBufferDurationMs.coerceAtLeast(0),
-            effectiveBackBufferDurationMs = effectiveBackBufferDurationMs.coerceAtLeast(0),
-            retainBackBufferFromKeyframe = retainBackBufferFromKeyframe,
-            parallelNetworkEnabled = parallelNetworkEnabled,
-            bufferBudgetManaged = bufferBudgetManaged,
-            allowLargeTargetBuffer = allowLargeTargetBuffer,
-            vodCacheEnabled = vodCacheEnabled,
-            vodCacheSizeMode = vodCacheSizeMode.limit(60),
-            vodCacheSizeMb = vodCacheSizeMb.coerceAtLeast(0),
-            useParallelConnections = useParallelConnections,
-            parallelConnectionCount = parallelConnectionCount.coerceAtLeast(0),
-            parallelChunkSizeKb = parallelChunkSizeKb.coerceAtLeast(0),
-            enableHttp2 = enableHttp2,
-            moviesPerformanceModeEnabled = moviesPerformanceModeEnabled,
-            streamAutoPlayMode = streamAutoPlayMode.limit(80),
-            streamAutoPlaySource = streamAutoPlaySource.limit(80),
-            streamAutoPlayNextEpisodeEnabled = streamAutoPlayNextEpisodeEnabled,
-            streamAutoPlayPreferBingeGroupForNextEpisode = streamAutoPlayPreferBingeGroupForNextEpisode,
-            streamAutoPlayReuseBingeGroup = streamAutoPlayReuseBingeGroup,
-            streamAutoPlayTimeoutSeconds = streamAutoPlayTimeoutSeconds.coerceAtLeast(0),
-            stillWatchingEnabled = stillWatchingEnabled,
-            stillWatchingEpisodeThreshold = stillWatchingEpisodeThreshold.coerceAtLeast(0),
-            nextEpisodeThresholdMode = nextEpisodeThresholdMode.limit(80),
-            nextEpisodeThresholdPercent = nextEpisodeThresholdPercent.coerceIn(0f, 100f),
-            nextEpisodeThresholdMinutesBeforeEnd = nextEpisodeThresholdMinutesBeforeEnd.coerceAtLeast(0f),
-            streamReuseLastLinkEnabled = streamReuseLastLinkEnabled,
-            streamReuseLastLinkCacheHours = streamReuseLastLinkCacheHours.coerceAtLeast(0)
-        )
+    private fun PlaybackIssuePlaybackSettingsInput.toDto(): PlaybackIssuePlaybackSettingsDto = PlaybackIssuePlaybackSettingsDto(
+        playerPreference = playerPreference.limit(60),
+        internalPlayerEngine = internalPlayerEngine.limit(60),
+        resolvedInternalPlayerEngine = resolvedInternalPlayerEngine.limit(60),
+        autoSwitchInternalPlayerOnError = autoSwitchInternalPlayerOnError,
+        decoderPriority = decoderPriority.coerceIn(0, 2),
+        decoderPriorityName = decoderPriorityName.limit(80),
+        effectiveDecoderPriority = effectiveDecoderPriority.coerceIn(0, 2),
+        effectiveDecoderPriorityName = effectiveDecoderPriorityName.limit(80),
+        downmixEnabled = downmixEnabled,
+        audioOutputChannels = audioOutputChannels.limit(40),
+        maintainOriginalAudioOnDownmix = maintainOriginalAudioOnDownmix,
+        tunnelingEnabled = tunnelingEnabled,
+        tunnelingEffective = tunnelingEffective,
+        forceOpticalPassthrough = forceOpticalPassthrough,
+        skipSilence = skipSilence,
+        audioAmplificationDb = audioAmplificationDb.coerceIn(0, 10),
+        centerMixLevelDb = centerMixLevelDb.coerceIn(-10, 30),
+        persistAudioAmplification = persistAudioAmplification,
+        rememberAudioDelayPerDevice = rememberAudioDelayPerDevice,
+        preferredAudioLanguage = preferredAudioLanguage.limit(40),
+        secondaryPreferredAudioLanguage = secondaryPreferredAudioLanguage.cleanText(40),
+        preferredSubtitleLanguage = preferredSubtitleLanguage.limit(40),
+        secondaryPreferredSubtitleLanguage = secondaryPreferredSubtitleLanguage.cleanText(40),
+        useForcedSubtitles = useForcedSubtitles,
+        showOnlyPreferredSubtitleLanguages = showOnlyPreferredSubtitleLanguages,
+        useLibass = useLibass,
+        activePlayerUsesLibass = activePlayerUsesLibass,
+        libassRenderType = libassRenderType.limit(80),
+        addonSubtitleStartupMode = addonSubtitleStartupMode.limit(80),
+        externalPlayerForwardSubtitles = externalPlayerForwardSubtitles,
+        subtitleOrganizationMode = subtitleOrganizationMode.limit(80),
+        loadingOverlayEnabled = loadingOverlayEnabled,
+        showPlayerLoadingStatus = showPlayerLoadingStatus,
+        playbackIssueReportsEnabled = playbackIssueReportsEnabled,
+        dv5ToDv81Enabled = dv5ToDv81Enabled,
+        dv7ToDv81PreserveMappingEnabled = dv7ToDv81PreserveMappingEnabled,
+        dv7HandlingMode = dv7HandlingMode.limit(80),
+        dv7LibdoviModeOverride = dv7LibdoviModeOverride.coerceIn(-1, 4),
+        stripHdr10PlusSei = stripHdr10PlusSei,
+        mpvHardwareDecodeMode = mpvHardwareDecodeMode.limit(80),
+        frameRateMatchingMode = frameRateMatchingMode.limit(80),
+        resolutionMatchingEnabled = resolutionMatchingEnabled,
+        resizeMode = resizeMode.coerceIn(0, 4),
+        aspectMode = aspectMode.limit(80),
+        bufferEngineEnabled = bufferEngineEnabled,
+        minBufferMs = minBufferMs.coerceAtLeast(0),
+        maxBufferMs = maxBufferMs.coerceAtLeast(0),
+        bufferForPlaybackMs = bufferForPlaybackMs.coerceAtLeast(0),
+        bufferForPlaybackAfterRebufferMs = bufferForPlaybackAfterRebufferMs.coerceAtLeast(0),
+        targetBufferSizeMb = targetBufferSizeMb.coerceAtLeast(0),
+        backBufferDurationMs = backBufferDurationMs.coerceAtLeast(0),
+        effectiveBackBufferDurationMs = effectiveBackBufferDurationMs.coerceAtLeast(0),
+        retainBackBufferFromKeyframe = retainBackBufferFromKeyframe,
+        parallelNetworkEnabled = parallelNetworkEnabled,
+        bufferBudgetManaged = bufferBudgetManaged,
+        allowLargeTargetBuffer = allowLargeTargetBuffer,
+        vodCacheEnabled = vodCacheEnabled,
+        vodCacheSizeMode = vodCacheSizeMode.limit(60),
+        vodCacheSizeMb = vodCacheSizeMb.coerceAtLeast(0),
+        useParallelConnections = useParallelConnections,
+        parallelConnectionCount = parallelConnectionCount.coerceAtLeast(0),
+        parallelChunkSizeKb = parallelChunkSizeKb.coerceAtLeast(0),
+        enableHttp2 = enableHttp2,
+        moviesPerformanceModeEnabled = moviesPerformanceModeEnabled,
+        streamAutoPlayMode = streamAutoPlayMode.limit(80),
+        streamAutoPlaySource = streamAutoPlaySource.limit(80),
+        streamAutoPlayNextEpisodeEnabled = streamAutoPlayNextEpisodeEnabled,
+        streamAutoPlayPreferBingeGroupForNextEpisode = streamAutoPlayPreferBingeGroupForNextEpisode,
+        streamAutoPlayReuseBingeGroup = streamAutoPlayReuseBingeGroup,
+        streamAutoPlayTimeoutSeconds = streamAutoPlayTimeoutSeconds.coerceAtLeast(0),
+        stillWatchingEnabled = stillWatchingEnabled,
+        stillWatchingEpisodeThreshold = stillWatchingEpisodeThreshold.coerceAtLeast(0),
+        nextEpisodeThresholdMode = nextEpisodeThresholdMode.limit(80),
+        nextEpisodeThresholdPercent = nextEpisodeThresholdPercent.coerceIn(0f, 100f),
+        nextEpisodeThresholdMinutesBeforeEnd = nextEpisodeThresholdMinutesBeforeEnd.coerceAtLeast(
+            0f
+        ),
+        streamReuseLastLinkEnabled = streamReuseLastLinkEnabled,
+        streamReuseLastLinkCacheHours = streamReuseLastLinkCacheHours.coerceAtLeast(0)
+    )
 
-    private fun PlaybackIssuePlaybackAnalyticsInput.toDto(): PlaybackIssuePlaybackAnalyticsDto =
-        PlaybackIssuePlaybackAnalyticsDto(
-            schemaVersion = schemaVersion,
-            sessionStartedAtMs = sessionStartedAtMs,
-            capturedAtMs = capturedAtMs,
-            elapsedMs = elapsedMs.coerceAtLeast(0L),
-            clickToFirstFrameMs = clickToFirstFrameMs?.coerceAtLeast(0L),
-            initToFirstFrameMs = initToFirstFrameMs?.coerceAtLeast(0L),
-            startPositionMs = startPositionMs?.coerceAtLeast(0L),
-            eventCount = eventCount.coerceAtLeast(0),
-            lastEventElapsedMs = lastEventElapsedMs?.coerceAtLeast(0L),
-            playbackState = playbackState,
-            playbackStateName = playbackStateName.cleanText(80),
-            playWhenReady = playWhenReady,
-            isPlaying = isPlaying,
-            isLoading = isLoading,
-            playbackSpeed = playbackSpeed?.takeIf { it.isFinite() && it > 0f },
-            playbackPitch = playbackPitch?.takeIf { it.isFinite() && it > 0f },
-            positionMs = positionMs?.coerceAtLeast(0L),
-            bufferedPositionMs = bufferedPositionMs?.coerceAtLeast(0L),
-            durationMs = durationMs?.coerceAtLeast(0L),
-            bufferedPercentage = bufferedPercentage?.coerceIn(0, 100),
-            firstFrameElapsedMs = firstFrameElapsedMs?.coerceAtLeast(0L),
-            renderedFirstFrameCount = renderedFirstFrameCount.coerceAtLeast(0),
-            rebufferCount = rebufferCount.coerceAtLeast(0),
-            rebufferTotalMs = rebufferTotalMs.coerceAtLeast(0L),
-            currentRebufferMs = currentRebufferMs.coerceAtLeast(0L),
-            positionStallCount = positionStallCount.coerceAtLeast(0),
-            longestPositionStallMs = longestPositionStallMs.coerceAtLeast(0L),
-            droppedFrames = droppedFrames.coerceAtLeast(0),
-            maxDroppedFramesInEvent = maxDroppedFramesInEvent.coerceAtLeast(0),
-            videoDecoderName = videoDecoderName.cleanText(160),
-            videoDecoderInitMs = videoDecoderInitMs?.coerceAtLeast(0L),
-            videoDecoderReleaseCount = videoDecoderReleaseCount.coerceAtLeast(0),
-            videoRenderedOutputBuffers = videoRenderedOutputBuffers?.coerceAtLeast(0),
-            videoDroppedBuffers = videoDroppedBuffers?.coerceAtLeast(0),
-            videoMaxConsecutiveDroppedBuffers = videoMaxConsecutiveDroppedBuffers?.coerceAtLeast(0),
-            videoFrameProcessingOffsetAverageUs = videoFrameProcessingOffsetAverageUs,
-            videoFormat = videoFormat?.toDto(),
-            audioDecoderName = audioDecoderName.cleanText(160),
-            audioDecoderInitMs = audioDecoderInitMs?.coerceAtLeast(0L),
-            audioDecoderReleaseCount = audioDecoderReleaseCount.coerceAtLeast(0),
-            audioUnderrunCount = audioUnderrunCount.coerceAtLeast(0),
-            audioUnderrunBufferSize = audioUnderrunBufferSize?.coerceAtLeast(0),
-            audioUnderrunBufferSizeMs = audioUnderrunBufferSizeMs?.coerceAtLeast(0L),
-            audioUnderrunElapsedSinceLastFeedMs = audioUnderrunElapsedSinceLastFeedMs?.coerceAtLeast(0L),
-            audioFormat = audioFormat?.toDto(),
-            bandwidthEstimateBps = bandwidthEstimateBps?.coerceAtLeast(0L),
-            bandwidthTransferDurationMs = bandwidthTransferDurationMs?.coerceAtLeast(0),
-            bandwidthBytesTransferred = bandwidthBytesTransferred?.coerceAtLeast(0L),
-            loadStartedCount = loadStartedCount.coerceAtLeast(0),
-            loadCompletedCount = loadCompletedCount.coerceAtLeast(0),
-            loadCanceledCount = loadCanceledCount.coerceAtLeast(0),
-            loadErrorCount = loadErrorCount.coerceAtLeast(0),
-            totalBytesLoaded = totalBytesLoaded.coerceAtLeast(0L),
-            lastLoad = lastLoad?.toDto(),
-            lastLoadError = lastLoadError?.toDto(),
-            rawEventLines = rawEventLines.takeLast(220).mapNotNull { it.rawLogLine(2000) },
-            events = events.takeLast(140).map { it.toDto() },
-            rawEvents = rawEvents.takeLast(220).mapNotNull { it.rawLogLine(2000) },
-            deepExoEvents = deepExoEvents.takeLast(220).map { it.toDto() },
-            exoEvents = deepExoEvents.takeLast(220).map { it.toDto() },
-            stutterSignals = stutterSignals.takeLast(120).map { it.toDto() },
-            healthSnapshots = healthSnapshots.takeLast(80).map { it.toDto() },
-            startupStages = startupStages.takeLast(80).map {
-                PlaybackIssueLoadingEventDto(
-                    timeMs = it.timeMs,
-                    elapsedMs = it.elapsedMs.coerceAtLeast(0L),
-                    phase = it.phase.limit(80),
-                    message = it.message.cleanText(240),
-                    progress = it.progress?.coerceIn(0f, 1f),
-                    detail = it.detail.cleanText(240)
-                )
-            }
-        )
+    private fun PlaybackIssuePlaybackAnalyticsInput.toDto(): PlaybackIssuePlaybackAnalyticsDto = PlaybackIssuePlaybackAnalyticsDto(
+        schemaVersion = schemaVersion,
+        sessionStartedAtMs = sessionStartedAtMs,
+        capturedAtMs = capturedAtMs,
+        elapsedMs = elapsedMs.coerceAtLeast(0L),
+        clickToFirstFrameMs = clickToFirstFrameMs?.coerceAtLeast(0L),
+        initToFirstFrameMs = initToFirstFrameMs?.coerceAtLeast(0L),
+        startPositionMs = startPositionMs?.coerceAtLeast(0L),
+        eventCount = eventCount.coerceAtLeast(0),
+        lastEventElapsedMs = lastEventElapsedMs?.coerceAtLeast(0L),
+        playbackState = playbackState,
+        playbackStateName = playbackStateName.cleanText(80),
+        playWhenReady = playWhenReady,
+        isPlaying = isPlaying,
+        isLoading = isLoading,
+        playbackSpeed = playbackSpeed?.takeIf { it.isFinite() && it > 0f },
+        playbackPitch = playbackPitch?.takeIf { it.isFinite() && it > 0f },
+        positionMs = positionMs?.coerceAtLeast(0L),
+        bufferedPositionMs = bufferedPositionMs?.coerceAtLeast(0L),
+        durationMs = durationMs?.coerceAtLeast(0L),
+        bufferedPercentage = bufferedPercentage?.coerceIn(0, 100),
+        firstFrameElapsedMs = firstFrameElapsedMs?.coerceAtLeast(0L),
+        renderedFirstFrameCount = renderedFirstFrameCount.coerceAtLeast(0),
+        rebufferCount = rebufferCount.coerceAtLeast(0),
+        rebufferTotalMs = rebufferTotalMs.coerceAtLeast(0L),
+        currentRebufferMs = currentRebufferMs.coerceAtLeast(0L),
+        positionStallCount = positionStallCount.coerceAtLeast(0),
+        longestPositionStallMs = longestPositionStallMs.coerceAtLeast(0L),
+        droppedFrames = droppedFrames.coerceAtLeast(0),
+        maxDroppedFramesInEvent = maxDroppedFramesInEvent.coerceAtLeast(0),
+        videoDecoderName = videoDecoderName.cleanText(160),
+        videoDecoderInitMs = videoDecoderInitMs?.coerceAtLeast(0L),
+        videoDecoderReleaseCount = videoDecoderReleaseCount.coerceAtLeast(0),
+        videoRenderedOutputBuffers = videoRenderedOutputBuffers?.coerceAtLeast(0),
+        videoDroppedBuffers = videoDroppedBuffers?.coerceAtLeast(0),
+        videoMaxConsecutiveDroppedBuffers = videoMaxConsecutiveDroppedBuffers?.coerceAtLeast(0),
+        videoFrameProcessingOffsetAverageUs = videoFrameProcessingOffsetAverageUs,
+        videoFormat = videoFormat?.toDto(),
+        audioDecoderName = audioDecoderName.cleanText(160),
+        audioDecoderInitMs = audioDecoderInitMs?.coerceAtLeast(0L),
+        audioDecoderReleaseCount = audioDecoderReleaseCount.coerceAtLeast(0),
+        audioUnderrunCount = audioUnderrunCount.coerceAtLeast(0),
+        audioUnderrunBufferSize = audioUnderrunBufferSize?.coerceAtLeast(0),
+        audioUnderrunBufferSizeMs = audioUnderrunBufferSizeMs?.coerceAtLeast(0L),
+        audioUnderrunElapsedSinceLastFeedMs = audioUnderrunElapsedSinceLastFeedMs?.coerceAtLeast(
+            0L
+        ),
+        audioFormat = audioFormat?.toDto(),
+        bandwidthEstimateBps = bandwidthEstimateBps?.coerceAtLeast(0L),
+        bandwidthTransferDurationMs = bandwidthTransferDurationMs?.coerceAtLeast(0),
+        bandwidthBytesTransferred = bandwidthBytesTransferred?.coerceAtLeast(0L),
+        loadStartedCount = loadStartedCount.coerceAtLeast(0),
+        loadCompletedCount = loadCompletedCount.coerceAtLeast(0),
+        loadCanceledCount = loadCanceledCount.coerceAtLeast(0),
+        loadErrorCount = loadErrorCount.coerceAtLeast(0),
+        totalBytesLoaded = totalBytesLoaded.coerceAtLeast(0L),
+        lastLoad = lastLoad?.toDto(),
+        lastLoadError = lastLoadError?.toDto(),
+        rawEventLines = rawEventLines.takeLast(220).mapNotNull { it.rawLogLine(2000) },
+        events = events.takeLast(140).map { it.toDto() },
+        rawEvents = rawEvents.takeLast(220).mapNotNull { it.rawLogLine(2000) },
+        deepExoEvents = deepExoEvents.takeLast(220).map { it.toDto() },
+        exoEvents = deepExoEvents.takeLast(220).map { it.toDto() },
+        stutterSignals = stutterSignals.takeLast(120).map { it.toDto() },
+        healthSnapshots = healthSnapshots.takeLast(80).map { it.toDto() },
+        startupStages = startupStages.takeLast(80).map {
+            PlaybackIssueLoadingEventDto(
+                timeMs = it.timeMs,
+                elapsedMs = it.elapsedMs.coerceAtLeast(0L),
+                phase = it.phase.limit(80),
+                message = it.message.cleanText(240),
+                progress = it.progress?.coerceIn(0f, 1f),
+                detail = it.detail.cleanText(240)
+            )
+        }
+    )
 
-    private fun PlaybackIssuePlaybackHealthSnapshotInput.toDto(): PlaybackIssuePlaybackHealthSnapshotDto =
-        PlaybackIssuePlaybackHealthSnapshotDto(
-            timeMs = timeMs,
-            elapsedMs = elapsedMs.coerceAtLeast(0L),
-            playbackState = playbackState.cleanText(80),
-            playWhenReady = playWhenReady,
-            isPlaying = isPlaying,
-            isLoading = isLoading,
-            playbackSpeed = playbackSpeed?.takeIf { it.isFinite() && it > 0f },
-            playbackPitch = playbackPitch?.takeIf { it.isFinite() && it > 0f },
-            positionMs = positionMs?.coerceAtLeast(0L),
-            bufferedPositionMs = bufferedPositionMs?.coerceAtLeast(0L),
-            durationMs = durationMs?.coerceAtLeast(0L),
-            bufferedPercentage = bufferedPercentage?.coerceIn(0, 100),
-            droppedFrames = droppedFrames.coerceAtLeast(0),
-            audioUnderrunCount = audioUnderrunCount.coerceAtLeast(0),
-            rebufferCount = rebufferCount.coerceAtLeast(0),
-            rebufferTotalMs = rebufferTotalMs.coerceAtLeast(0L),
-            bandwidthEstimateBps = bandwidthEstimateBps?.coerceAtLeast(0L),
-            totalBytesLoaded = totalBytesLoaded.coerceAtLeast(0L),
-            loadStartedCount = loadStartedCount.coerceAtLeast(0),
-            loadCompletedCount = loadCompletedCount.coerceAtLeast(0),
-            loadCanceledCount = loadCanceledCount.coerceAtLeast(0),
-            loadErrorCount = loadErrorCount.coerceAtLeast(0)
-        )
+    private fun PlaybackIssuePlaybackHealthSnapshotInput.toDto(): PlaybackIssuePlaybackHealthSnapshotDto = PlaybackIssuePlaybackHealthSnapshotDto(
+        timeMs = timeMs,
+        elapsedMs = elapsedMs.coerceAtLeast(0L),
+        playbackState = playbackState.cleanText(80),
+        playWhenReady = playWhenReady,
+        isPlaying = isPlaying,
+        isLoading = isLoading,
+        playbackSpeed = playbackSpeed?.takeIf { it.isFinite() && it > 0f },
+        playbackPitch = playbackPitch?.takeIf { it.isFinite() && it > 0f },
+        positionMs = positionMs?.coerceAtLeast(0L),
+        bufferedPositionMs = bufferedPositionMs?.coerceAtLeast(0L),
+        durationMs = durationMs?.coerceAtLeast(0L),
+        bufferedPercentage = bufferedPercentage?.coerceIn(0, 100),
+        droppedFrames = droppedFrames.coerceAtLeast(0),
+        audioUnderrunCount = audioUnderrunCount.coerceAtLeast(0),
+        rebufferCount = rebufferCount.coerceAtLeast(0),
+        rebufferTotalMs = rebufferTotalMs.coerceAtLeast(0L),
+        bandwidthEstimateBps = bandwidthEstimateBps?.coerceAtLeast(0L),
+        totalBytesLoaded = totalBytesLoaded.coerceAtLeast(0L),
+        loadStartedCount = loadStartedCount.coerceAtLeast(0),
+        loadCompletedCount = loadCompletedCount.coerceAtLeast(0),
+        loadCanceledCount = loadCanceledCount.coerceAtLeast(0),
+        loadErrorCount = loadErrorCount.coerceAtLeast(0)
+    )
 
-    private fun PlaybackIssuePlaybackFormatInput.toDto(): PlaybackIssuePlaybackFormatDto =
-        PlaybackIssuePlaybackFormatDto(
-            trackType = trackType.cleanText(40),
-            sampleMimeType = sampleMimeType.cleanText(120),
-            containerMimeType = containerMimeType.cleanText(120),
-            codecs = codecs.cleanText(160),
-            id = id.cleanText(160),
-            label = label.cleanText(160),
-            language = language.cleanText(40),
-            width = width?.coerceAtLeast(0),
-            height = height?.coerceAtLeast(0),
-            frameRate = frameRate?.takeIf { it > 0f },
-            bitrate = bitrate?.coerceAtLeast(0),
-            channelCount = channelCount?.coerceAtLeast(0),
-            sampleRate = sampleRate?.coerceAtLeast(0),
-            colorTransfer = colorTransfer,
-            selectionFlags = selectionFlags,
-            roleFlags = roleFlags,
-            support = support.cleanText(80),
-            decoderReuseResult = decoderReuseResult.cleanText(80),
-            decoderDiscardReasons = decoderDiscardReasons
-        )
+    private fun PlaybackIssuePlaybackFormatInput.toDto(): PlaybackIssuePlaybackFormatDto = PlaybackIssuePlaybackFormatDto(
+        trackType = trackType.cleanText(40),
+        sampleMimeType = sampleMimeType.cleanText(120),
+        containerMimeType = containerMimeType.cleanText(120),
+        codecs = codecs.cleanText(160),
+        id = id.cleanText(160),
+        label = label.cleanText(160),
+        language = language.cleanText(40),
+        width = width?.coerceAtLeast(0),
+        height = height?.coerceAtLeast(0),
+        frameRate = frameRate?.takeIf { it > 0f },
+        bitrate = bitrate?.coerceAtLeast(0),
+        channelCount = channelCount?.coerceAtLeast(0),
+        sampleRate = sampleRate?.coerceAtLeast(0),
+        colorTransfer = colorTransfer,
+        selectionFlags = selectionFlags,
+        roleFlags = roleFlags,
+        support = support.cleanText(80),
+        decoderReuseResult = decoderReuseResult.cleanText(80),
+        decoderDiscardReasons = decoderDiscardReasons
+    )
 
-    private fun PlaybackIssuePlaybackLoadInput.toDto(): PlaybackIssuePlaybackLoadDto =
-        PlaybackIssuePlaybackLoadDto(
-            host = host.cleanText(160),
-            scheme = scheme.cleanText(24),
-            dataType = dataType.cleanText(80),
-            trackType = trackType.cleanText(40),
-            httpMethod = httpMethod.cleanText(12),
-            position = position?.coerceAtLeast(0L),
-            length = length?.coerceAtLeast(0L),
-            durationMs = durationMs?.coerceAtLeast(0L),
-            bytesLoaded = bytesLoaded?.coerceAtLeast(0L),
-            responseHeaderNames = responseHeaderNames.mapNotNull { it.cleanText(80)?.lowercase() }
-                .distinct()
-                .sorted()
-                .take(40)
-        )
+    private fun PlaybackIssuePlaybackLoadInput.toDto(): PlaybackIssuePlaybackLoadDto = PlaybackIssuePlaybackLoadDto(
+        host = host.cleanText(160),
+        scheme = scheme.cleanText(24),
+        dataType = dataType.cleanText(80),
+        trackType = trackType.cleanText(40),
+        httpMethod = httpMethod.cleanText(12),
+        position = position?.coerceAtLeast(0L),
+        length = length?.coerceAtLeast(0L),
+        durationMs = durationMs?.coerceAtLeast(0L),
+        bytesLoaded = bytesLoaded?.coerceAtLeast(0L),
+        responseHeaderNames = responseHeaderNames.mapNotNull { it.cleanText(80)?.lowercase() }
+            .distinct()
+            .sorted()
+            .take(40)
+    )
 
-    private fun PlaybackIssuePlaybackLoadErrorInput.toDto(): PlaybackIssuePlaybackLoadErrorDto =
-        PlaybackIssuePlaybackLoadErrorDto(
-            host = host.cleanText(160),
-            dataType = dataType.cleanText(80),
-            trackType = trackType.cleanText(40),
-            exceptionClass = exceptionClass.cleanText(160),
-            message = message.cleanText(500),
-            httpStatus = httpStatus,
-            wasCanceled = wasCanceled,
-            bytesLoaded = bytesLoaded?.coerceAtLeast(0L),
-            durationMs = durationMs?.coerceAtLeast(0L)
-        )
+    private fun PlaybackIssuePlaybackLoadErrorInput.toDto(): PlaybackIssuePlaybackLoadErrorDto = PlaybackIssuePlaybackLoadErrorDto(
+        host = host.cleanText(160),
+        dataType = dataType.cleanText(80),
+        trackType = trackType.cleanText(40),
+        exceptionClass = exceptionClass.cleanText(160),
+        message = message.cleanText(500),
+        httpStatus = httpStatus,
+        wasCanceled = wasCanceled,
+        bytesLoaded = bytesLoaded?.coerceAtLeast(0L),
+        durationMs = durationMs?.coerceAtLeast(0L)
+    )
 
-    private fun PlaybackIssuePlaybackEventInput.toDto(): PlaybackIssuePlaybackEventDto =
-        PlaybackIssuePlaybackEventDto(
-            timeMs = timeMs,
-            elapsedMs = elapsedMs.coerceAtLeast(0L),
-            name = name.limit(80),
-            playbackState = playbackState.cleanText(80),
-            positionMs = positionMs?.coerceAtLeast(0L),
-            bufferedPositionMs = bufferedPositionMs?.coerceAtLeast(0L),
-            details = details.entries
-                .mapNotNull { (key, value) ->
-                    key.cleanText(50)?.let { safeKey ->
-                        value.cleanText(240)?.let { safeValue -> safeKey to safeValue }
-                    }
+    private fun PlaybackIssuePlaybackEventInput.toDto(): PlaybackIssuePlaybackEventDto = PlaybackIssuePlaybackEventDto(
+        timeMs = timeMs,
+        elapsedMs = elapsedMs.coerceAtLeast(0L),
+        name = name.limit(80),
+        playbackState = playbackState.cleanText(80),
+        positionMs = positionMs?.coerceAtLeast(0L),
+        bufferedPositionMs = bufferedPositionMs?.coerceAtLeast(0L),
+        details = details.entries
+            .mapNotNull { (key, value) ->
+                key.cleanText(50)?.let { safeKey ->
+                    value.cleanText(240)?.let { safeValue -> safeKey to safeValue }
                 }
-                .take(16)
-                .toMap()
-        )
+            }
+            .take(16)
+            .toMap()
+    )
 
     private fun Uri.withoutQueryAndFragment(): String? {
         val safeScheme = scheme?.takeIf { it.isNotBlank() } ?: return null
@@ -626,11 +621,10 @@ class PlaybackIssueReportRepository @Inject constructor(
         return extension
     }
 
-    private fun Map<String, String>.safeHeaderNames(): List<String> =
-        keys.mapNotNull { it.cleanText(80)?.lowercase() }
-            .distinct()
-            .sorted()
-            .take(40)
+    private fun Map<String, String>.safeHeaderNames(): List<String> = keys.mapNotNull { it.cleanText(80)?.lowercase() }
+        .distinct()
+        .sorted()
+        .take(40)
 
     private fun String?.sha256OrNull(): String? {
         val value = this?.takeIf { it.isNotBlank() } ?: return null
@@ -638,29 +632,35 @@ class PlaybackIssueReportRepository @Inject constructor(
         return digest.joinToString("") { "%02x".format(it) }
     }
 
-    private fun String?.cleanText(maxLength: Int): String? =
-        this?.trim()
-            ?.redactSensitiveText()
-            ?.replace(Regex("\\s+"), " ")
-            ?.takeIf { it.isNotBlank() }
-            ?.limit(maxLength)
+    private fun String?.cleanText(maxLength: Int): String? = this?.trim()
+        ?.redactSensitiveText()
+        ?.replace(Regex("\\s+"), " ")
+        ?.takeIf { it.isNotBlank() }
+        ?.limit(maxLength)
 
-    private fun String.rawLogLine(maxLength: Int): String? =
-        replace('\n', ' ')
-            .replace('\r', ' ')
-            .trim()
-            .takeIf { it.isNotBlank() }
-            ?.limit(maxLength)
+    private fun String.rawLogLine(maxLength: Int): String? = replace('\n', ' ')
+        .replace('\r', ' ')
+        .trim()
+        .takeIf { it.isNotBlank() }
+        ?.limit(maxLength)
 
-    private fun String.redactSensitiveText(): String =
-        replace(Regex("""https?://\S+""", RegexOption.IGNORE_CASE), "[redacted-url]")
-            .replace(
-                Regex("""(?i)\b(authorization|proxy-authorization|cookie|set-cookie)\b\s*:\s*[^\r\n]+"""),
-                "$1: [redacted]"
-            )
-            .replace(Regex("""(?i)\b(bearer|token|apikey|api_key)\b\s*[:=]\s*\S+"""), "$1=[redacted]")
-            .replace(Regex("""(?i)\b(authorization|proxy-authorization|cookie|set-cookie)\b\s*=\s*\S+"""), "$1=[redacted]")
+    private fun String.redactSensitiveText(): String = replace(Regex("""https?://\S+""", RegexOption.IGNORE_CASE), "[redacted-url]")
+        .replace(
+            Regex(
+                """(?i)\b(authorization|proxy-authorization|cookie|set-cookie)\b\s*:\s*[^\r\n]+"""
+            ),
+            "$1: [redacted]"
+        )
+        .replace(
+            Regex("""(?i)\b(bearer|token|apikey|api_key)\b\s*[:=]\s*\S+"""),
+            "$1=[redacted]"
+        )
+        .replace(
+            Regex(
+                """(?i)\b(authorization|proxy-authorization|cookie|set-cookie)\b\s*=\s*\S+"""
+            ),
+            "$1=[redacted]"
+        )
 
-    private fun String.limit(maxLength: Int): String =
-        if (length <= maxLength) this else take(maxLength)
+    private fun String.limit(maxLength: Int): String = if (length <= maxLength) this else take(maxLength)
 }

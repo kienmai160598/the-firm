@@ -53,8 +53,16 @@ class GitHubContributorsRepositoryTest {
                 uniqueContributions = Response.success(
                     UniqueContributionsResponseDto(
                         contributors = listOf(
-                            contributor(name = "Alex", profile = "https://github.com/alex-one", total = 2),
-                            contributor(name = "Alex", profile = "https://github.com/alex-two", total = 1)
+                            contributor(
+                                name = "Alex",
+                                profile = "https://github.com/alex-one",
+                                total = 2
+                            ),
+                            contributor(
+                                name = "Alex",
+                                profile = "https://github.com/alex-two",
+                                total = 1
+                            )
                         )
                     )
                 )

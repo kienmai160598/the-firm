@@ -42,15 +42,17 @@ class LibraryIndex(entries: List<ServerIndexEntry>) {
         .groupBy({ it.first }, { it.second })
         .mapValues { it.value.toSet() }
 
-    fun lookup(ids: TrackingExternalIds): List<String> =
-        ids.keys()
-            .flatMap { itemsByKey[it].orEmpty() }
-            .distinct()
-            .filterNot { itemId -> idsByItem[itemId]?.conflictsWith(ids) == true }
+    fun lookup(ids: TrackingExternalIds): List<String> = ids.keys()
+        .flatMap { itemsByKey[it].orEmpty() }
+        .distinct()
+        .filterNot { itemId -> idsByItem[itemId]?.conflictsWith(ids) == true }
 }
 
 /** Items among [entries] whose provider ids are [query]'s; the year only guards matches that do not rest on the IMDb id. */
-internal fun verifiedTitleMatches(entries: List<ServerIndexEntry>, query: ServerTitleQuery): List<String> {
+internal fun verifiedTitleMatches(
+    entries: List<ServerIndexEntry>,
+    query: ServerTitleQuery
+): List<String> {
     val byItem = entries.associateBy { it.itemId }
     return LibraryIndex(entries).lookup(query.ids).filter { itemId ->
         val entry = byItem.getValue(itemId)
@@ -76,7 +78,10 @@ class ServerMatcher internal constructor(
         tmdbService = tmdbService,
         metaRepository = metaRepository,
         originalTitle = { tmdbId, kind ->
-            tmdbMetadata.cachedOriginalTitle(tmdbId.toString(), ContentType.fromString(kind.contentType))
+            tmdbMetadata.cachedOriginalTitle(
+                tmdbId.toString(),
+                ContentType.fromString(kind.contentType)
+            )
         }
     )
 
@@ -84,19 +89,26 @@ class ServerMatcher internal constructor(
     private val lock = Any()
     private val indexes = mutableMapOf<String, IndexBuild>()
     private val lookups = object : LinkedHashMap<LookupKey, TitleLookup>(16, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<LookupKey, TitleLookup>): Boolean =
-            size > LOOKUP_CACHE_SIZE
+        override fun removeEldestEntry(
+            eldest: MutableMap.MutableEntry<LookupKey, TitleLookup>
+        ): Boolean = size > LOOKUP_CACHE_SIZE
     }
     private val convertedImdb = mutableMapOf<Long, String>()
     private val titleNames = object : LinkedHashMap<String, TitleName>(16, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, TitleName>): Boolean =
-            size > TITLE_NAME_CACHE_SIZE
+        override fun removeEldestEntry(
+            eldest: MutableMap.MutableEntry<String, TitleName>
+        ): Boolean = size > TITLE_NAME_CACHE_SIZE
     }
 
     fun request(type: String, videoId: String, season: Int?, episode: Int?): MatchRequest? {
         val title = titleRequest(type, videoId) ?: return null
         if (title.kind == ServerMediaKind.MOVIE) return title
-        val position = videoId.split(':').drop(parentSize(videoId)).map { it.toIntOrNull() }.takeIf { it.size == 2 }
+        val position = videoId.split(':').drop(parentSize(videoId)).map {
+            it.toIntOrNull()
+        }.takeIf {
+            it.size ==
+                2
+        }
         val requestedSeason = season ?: position?.get(0) ?: return null
         val requestedEpisode = episode ?: position?.get(1) ?: return null
         return title.copy(season = requestedSeason, episode = requestedEpisode)
@@ -108,7 +120,9 @@ class ServerMatcher internal constructor(
         val parentId = contentId.split(':').take(parentSize(contentId)).joinToString(":")
         val meta = metaRepository.getCachedMeta(type, parentId)
         val metaImdb = meta?.imdbId?.takeIf { it.startsWith("tt") }
-        val ids = parseTrackingExternalIds(parentId).mergeMissing(TrackingExternalIds(imdb = metaImdb))
+        val ids = parseTrackingExternalIds(
+            parentId
+        ).mergeMissing(TrackingExternalIds(imdb = metaImdb))
         if (ids.catalogIds().isEmpty()) return null
         val nameKey = "${kind.contentType}:$parentId"
         val title = meta?.titleName()?.also { synchronized(lock) { titleNames[nameKey] = it } }
@@ -118,13 +132,20 @@ class ServerMatcher internal constructor(
 
     private fun parentSize(id: String): Int = if (id.startsWith("tt")) 1 else 2
 
-    fun supports(connection: ServerConnection, kind: ServerMediaKind): Boolean =
-        connection.selectedLibraries(kind).isNotEmpty() &&
-            repository.provider(connection)?.supports(ServerCapability.EXTERNAL_ID_LOOKUP) == true
+    fun supports(connection: ServerConnection, kind: ServerMediaKind): Boolean = connection.selectedLibraries(kind).isNotEmpty() &&
+        repository.provider(connection)?.supports(ServerCapability.EXTERNAL_ID_LOOKUP) == true
 
-    suspend fun match(connection: ServerConnection, request: MatchRequest, forceRefresh: Boolean): List<ServerItemRef> {
+    suspend fun match(
+        connection: ServerConnection,
+        request: MatchRequest,
+        forceRefresh: Boolean
+    ): List<ServerItemRef> {
         val itemIds = titleItemIds(connection, request, forceRefresh)
-        if (request.kind == ServerMediaKind.MOVIE) return itemIds.map { ServerItemRef(connection.id, it) }
+        if (request.kind ==
+            ServerMediaKind.MOVIE
+        ) {
+            return itemIds.map { ServerItemRef(connection.id, it) }
+        }
         val season = request.season ?: return emptyList()
         val episode = request.episode ?: return emptyList()
         val catalogDate = metaRepository.getCachedMeta(request.kind.contentType, request.parentId)
@@ -135,11 +156,17 @@ class ServerMatcher internal constructor(
             val match = repository.call(connection.id) { provider, session ->
                 provider.findEpisode(session, seriesId, season, episode)
             } ?: return@mapNotNull null
-            match.takeIf { datesCompatible(catalogDate, it.premiereDate) }?.let { ServerItemRef(connection.id, it.itemId) }
+            match.takeIf {
+                datesCompatible(catalogDate, it.premiereDate)
+            }?.let { ServerItemRef(connection.id, it.itemId) }
         }
     }
 
-    private suspend fun titleItemIds(connection: ServerConnection, request: MatchRequest, forceRefresh: Boolean): List<String> {
+    private suspend fun titleItemIds(
+        connection: ServerConnection,
+        request: MatchRequest,
+        forceRefresh: Boolean
+    ): List<String> {
         val ids = withConvertedIds(request)
         val libraries = connection.selectedLibraries(request.kind)
         val original = ids.tmdb?.let { originalTitle(it, request.kind) }?.takeIf { it.isNotBlank() }
@@ -148,7 +175,9 @@ class ServerMatcher internal constructor(
         if (request.name == null) {
             fetchTitleName(request)?.let { title ->
                 val named = query.copy(name = title.name, year = title.year)
-                lookupItemIds(connection, request.kind, named, libraries, forceRefresh)?.let { return it }
+                lookupItemIds(connection, request.kind, named, libraries, forceRefresh)?.let {
+                    return it
+                }
             }
         }
         return libraries
@@ -165,7 +194,12 @@ class ServerMatcher internal constructor(
     ): List<String>? {
         val lookup = lookup(connection, kind, query, libraries, forceRefresh)
         var answered = false
-        val itemIds = withTimeoutOrNull(LOOKUP_WAIT_MS) { lookup.result.await().also { answered = true } }
+        val itemIds = withTimeoutOrNull(LOOKUP_WAIT_MS) {
+            lookup.result.await().also {
+                answered =
+                    true
+            }
+        }
         if (!answered) throw ServerException(ServerFailure.INCOMPLETE)
         return itemIds
     }
@@ -182,7 +216,8 @@ class ServerMatcher internal constructor(
         val now = System.currentTimeMillis()
         val lookup = synchronized(lock) {
             lookups[key]?.takeIf { existing ->
-                !forceRefresh && !existing.failed && existing.revision == revision && now - existing.startedAtMs < LOOKUP_TTL_MS
+                !forceRefresh && !existing.failed && existing.revision == revision &&
+                    now - existing.startedAtMs < LOOKUP_TTL_MS
             }?.let { return it }
             TitleLookup(revision, now).also { lookups[key] = it }
         }
@@ -204,27 +239,43 @@ class ServerMatcher internal constructor(
         libraries: List<ServerLibrary>
     ): List<String>? = coroutineScope {
         val found = libraries.map { library ->
-            async { repository.call(connection.id) { provider, session -> provider.lookupTitle(session, library, query) } }
+            async {
+                repository.call(connection.id) { provider, session ->
+                    provider.lookupTitle(session, library, query)
+                }
+            }
         }.awaitAll()
         if (found.any { it == null }) return@coroutineScope null
         found.flatMap { verifiedTitleMatches(it.orEmpty(), query) }.distinct()
     }
 
-    private suspend fun index(connection: ServerConnection, library: ServerLibrary, forceRefresh: Boolean): LibraryIndex {
+    private suspend fun index(
+        connection: ServerConnection,
+        library: ServerLibrary,
+        forceRefresh: Boolean
+    ): LibraryIndex {
         val build = build(connection, library, forceRefresh)
         return withTimeoutOrNull(INDEX_WAIT_MS) { build.result.await() } ?: run {
-            Log.w(TAG, "${connection.providerId} library ${library.name} was not indexed within ${INDEX_WAIT_MS}ms")
+            Log.w(
+                TAG,
+                "${connection.providerId} library ${library.name} was not indexed within ${INDEX_WAIT_MS}ms"
+            )
             throw ServerException(ServerFailure.INCOMPLETE)
         }
     }
 
-    private fun build(connection: ServerConnection, library: ServerLibrary, forceRefresh: Boolean): IndexBuild {
+    private fun build(
+        connection: ServerConnection,
+        library: ServerLibrary,
+        forceRefresh: Boolean
+    ): IndexBuild {
         val key = "${connection.id}:${library.id}"
         val revision = repository.uiState.value.revision
         val now = System.currentTimeMillis()
         val build = synchronized(lock) {
             indexes[key]?.takeIf { existing ->
-                !forceRefresh && !existing.failed && existing.revision == revision && now - existing.startedAtMs < INDEX_TTL_MS
+                !forceRefresh && !existing.failed && existing.revision == revision &&
+                    now - existing.startedAtMs < INDEX_TTL_MS
             }?.let { return it }
             indexes.values.removeAll { it.revision != revision }
             IndexBuild(revision, now).also { indexes[key] = it }
@@ -232,19 +283,29 @@ class ServerMatcher internal constructor(
         scope.launch {
             try {
                 val entries = fetchEntries(connection, library)
-                Log.i(TAG, "Indexed ${entries.size} items in ${connection.providerId} library ${library.name} in ${System.currentTimeMillis() - now}ms")
+                Log.i(
+                    TAG,
+                    "Indexed ${entries.size} items in ${connection.providerId} library ${library.name} in ${System.currentTimeMillis() - now}ms"
+                )
                 build.result.complete(LibraryIndex(entries))
             } catch (error: Throwable) {
                 build.failed = true
                 build.result.completeExceptionally(error)
                 if (error is CancellationException) throw error
-                Log.w(TAG, "Indexing ${connection.providerId} library ${library.name} failed", error)
+                Log.w(
+                    TAG,
+                    "Indexing ${connection.providerId} library ${library.name} failed",
+                    error
+                )
             }
         }
         return build
     }
 
-    private suspend fun fetchEntries(connection: ServerConnection, library: ServerLibrary): List<ServerIndexEntry> {
+    private suspend fun fetchEntries(
+        connection: ServerConnection,
+        library: ServerLibrary
+    ): List<ServerIndexEntry> {
         val entries = mutableListOf<ServerIndexEntry>()
         while (true) {
             val page = repository.call(connection.id) { provider, session ->
@@ -252,14 +313,22 @@ class ServerMatcher internal constructor(
             }
             entries += page.items
             val total = page.totalCount
-            if (page.items.size < INDEX_PAGE_SIZE || (total != null && entries.size >= total)) return entries
+            if (page.items.size < INDEX_PAGE_SIZE ||
+                (total != null && entries.size >= total)
+            ) {
+                return entries
+            }
         }
     }
 
     private suspend fun fetchTitleName(request: MatchRequest): TitleName? {
         val type = request.kind.contentType
         val result = withTimeoutOrNull(META_WAIT_MS) {
-            runCatching { metaRepository.getMetaFromAllAddons(type, request.parentId).first { it !is NetworkResult.Loading } }.getOrNull()
+            runCatching {
+                metaRepository.getMetaFromAllAddons(type, request.parentId).first {
+                    it !is NetworkResult.Loading
+                }
+            }.getOrNull()
         }
         val title = (result as? NetworkResult.Success)?.data?.titleName() ?: return null
         synchronized(lock) { titleNames["$type:${request.parentId}"] = title }
@@ -282,7 +351,9 @@ class ServerMatcher internal constructor(
         if (ids.imdb != null || tmdb == null) return ids
         synchronized(lock) { convertedImdb[tmdb] }?.let { return ids.copy(imdb = it) }
         val imdb = withTimeoutOrNull(CONVERSION_TIMEOUT_MS) {
-            runCatching { tmdbService.tmdbToImdb(tmdb.toInt(), request.kind.contentType) }.getOrNull()
+            runCatching {
+                tmdbService.tmdbToImdb(tmdb.toInt(), request.kind.contentType)
+            }.getOrNull()
         }?.takeIf { it.startsWith("tt") } ?: return ids
         synchronized(lock) { convertedImdb[tmdb] = imdb }
         return ids.copy(imdb = imdb)
@@ -297,7 +368,9 @@ class ServerMatcher internal constructor(
 
     private data class TitleName(val name: String, val year: Int?)
 
-    private fun Meta.titleName(): TitleName? = name.takeIf { it.isNotBlank() }?.let { TitleName(it, releaseYear()) }
+    private fun Meta.titleName(): TitleName? = name.takeIf {
+        it.isNotBlank()
+    }?.let { TitleName(it, releaseYear()) }
 
     private data class LookupKey(
         val connectionId: String,
@@ -332,13 +405,15 @@ internal fun datesCompatible(catalogDate: String?, serverDate: String?): Boolean
     return abs(catalogDay - serverDay) <= MAX_AIR_DATE_DRIFT_DAYS
 }
 
-private fun String.epochDay(): Long? = runCatching { LocalDate.parse(take(10)).toEpochDay() }.getOrNull()
+private fun String.epochDay(): Long? = runCatching {
+    LocalDate.parse(take(10)).toEpochDay()
+}.getOrNull()
 
-private fun Meta.releaseYear(): Int? =
-    listOfNotNull(releaseInfo, released).firstNotNullOfOrNull { YEAR.find(it)?.value?.toIntOrNull() }
+private fun Meta.releaseYear(): Int? = listOfNotNull(releaseInfo, released).firstNotNullOfOrNull {
+    YEAR.find(it)?.value?.toIntOrNull()
+}
 
-private fun yearsClose(requested: Int?, server: Int?): Boolean =
-    requested == null || server == null || abs(requested - server) <= MAX_YEAR_DRIFT
+private fun yearsClose(requested: Int?, server: Int?): Boolean = requested == null || server == null || abs(requested - server) <= MAX_YEAR_DRIFT
 
 fun TrackingExternalIds.catalogIds(): List<String> = listOfNotNull(
     imdb,

@@ -2,19 +2,19 @@ package com.kien.movies.data.mapper
 
 import com.kien.movies.data.remote.dto.BehaviorHintsDto
 import com.kien.movies.data.remote.dto.ProxyHeadersDto
+import com.kien.movies.data.remote.dto.StreamClientResolveDto
 import com.kien.movies.data.remote.dto.StreamClientResolveParsedDto
 import com.kien.movies.data.remote.dto.StreamClientResolveRawDto
 import com.kien.movies.data.remote.dto.StreamClientResolveStreamDto
-import com.kien.movies.data.remote.dto.StreamClientResolveDto
 import com.kien.movies.data.remote.dto.StreamDto
 import com.kien.movies.domain.model.ProxyHeaders
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.StreamBehaviorHints
-import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.domain.model.StreamClientResolve
 import com.kien.movies.domain.model.StreamClientResolveParsed
 import com.kien.movies.domain.model.StreamClientResolveRaw
 import com.kien.movies.domain.model.StreamClientResolveStream
+import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.domain.model.toStreamAudioDelayLanguage
 import com.kien.movies.domain.model.toStreamAudioDelayMs
 

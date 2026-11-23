@@ -1,7 +1,5 @@
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,18 +20,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
-import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Text
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -41,13 +33,19 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Card
+import androidx.tv.material3.CardDefaults
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.Video
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.components.expressive.moviesCardBorder
 import com.kien.movies.ui.components.expressive.moviesCardScale
-
+import com.kien.movies.ui.theme.MoviesTheme
 
 // The episode label grows to the TV floor on the box, so its cell grows to keep both lines.
 private val RatingCellHeight = 52.dp
@@ -81,7 +79,8 @@ fun EpisodeRatingsSection(
         seasonNumbers.associateWith { FocusRequester() }
     }
     val internalRatingsGridFocusRequester = remember { FocusRequester() }
-    val effectiveRatingsGridFocusRequester = ratingsGridFocusRequester ?: internalRatingsGridFocusRequester
+    val effectiveRatingsGridFocusRequester =
+        ratingsGridFocusRequester ?: internalRatingsGridFocusRequester
     val firstEpisodeRatingFocusRequester = remember { FocusRequester() }
     val defaultSeason = remember(seasonNumbers) {
         seasonNumbers.firstOrNull { it > 0 } ?: seasonNumbers.firstOrNull() ?: 0
@@ -149,32 +148,47 @@ fun EpisodeRatingsSection(
                     text = stringResource(R.string.ratings_loading),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MoviesTheme.colors.TextSecondary,
-                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.md)
+                    modifier = Modifier.padding(
+                        horizontal = MoviesTheme.spacing.xxxl,
+                        vertical = MoviesTheme.spacing.md
+                    )
                 )
             }
+
             error != null -> {
                 Text(
                     text = error,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MoviesTheme.colors.TextSecondary,
-                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.md)
+                    modifier = Modifier.padding(
+                        horizontal = MoviesTheme.spacing.xxxl,
+                        vertical = MoviesTheme.spacing.md
+                    )
                 )
             }
+
             seasonNumbers.isEmpty() -> {
                 Text(
                     text = stringResource(R.string.ratings_unavailable),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MoviesTheme.colors.TextSecondary,
-                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.md)
+                    modifier = Modifier.padding(
+                        horizontal = MoviesTheme.spacing.xxxl,
+                        vertical = MoviesTheme.spacing.md
+                    )
                 )
             }
+
             else -> {
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRestorer { selectedSeasonRequester }
                         .focusGroup(),
-                    contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = 6.dp),
+                    contentPadding = PaddingValues(
+                        horizontal = MoviesTheme.spacing.xxxl,
+                        vertical = 6.dp
+                    ),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     items(seasonNumbers, key = { it }) { season ->
@@ -217,11 +231,18 @@ fun EpisodeRatingsSection(
                 }
 
                 Text(
-                    text = stringResource(R.string.ratings_season_summary, selectedSeason, episodesForSeason.size),
+                    text = stringResource(
+                        R.string.ratings_season_summary,
+                        selectedSeason,
+                        episodesForSeason.size
+                    ),
                     style = MaterialTheme.typography.labelSmall
                         .atLeastOnBox(TvSizeFloors.metaText),
                     color = MoviesTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xxs)
+                    modifier = Modifier.padding(
+                        horizontal = MoviesTheme.spacing.xxxl,
+                        vertical = MoviesTheme.spacing.xxs
+                    )
                 )
 
                 LazyRow(
@@ -230,10 +251,15 @@ fun EpisodeRatingsSection(
                         .focusRequester(effectiveRatingsGridFocusRequester)
                         .focusRestorer(firstEpisodeRatingFocusRequester)
                         .focusGroup(),
-                    contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = 6.dp),
+                    contentPadding = PaddingValues(
+                        horizontal = MoviesTheme.spacing.xxxl,
+                        vertical = 6.dp
+                    ),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    items(seasonRatings, key = { "${it.seasonNumber}:${it.episodeNumber}" }) { episodeRating ->
+                    items(seasonRatings, key = {
+                        "${it.seasonNumber}:${it.episodeNumber}"
+                    }) { episodeRating ->
                         val isFirstEpisode = episodeRating == seasonRatings.firstOrNull()
 
                         // These chips only display a rating and have no action, but their focus is
@@ -252,7 +278,13 @@ fun EpisodeRatingsSection(
                                     if (downRequester != null) down = downRequester
                                 }
                                 .then(
-                                    if (isFirstEpisode) Modifier.focusRequester(firstEpisodeRatingFocusRequester) else Modifier
+                                    if (isFirstEpisode) {
+                                        Modifier.focusRequester(
+                                            firstEpisodeRatingFocusRequester
+                                        )
+                                    } else {
+                                        Modifier
+                                    }
                                 )
                                 // (tv-material3's Card only has the clickable overload, so the
                                 // empty onClick stays; clearAndSetSemantics replaces the chip's two
@@ -274,7 +306,10 @@ fun EpisodeRatingsSection(
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = stringResource(R.string.ratings_episode_label, episodeRating.episodeNumber),
+                                    text = stringResource(
+                                        R.string.ratings_episode_label,
+                                        episodeRating.episodeNumber
+                                    ),
                                     style = MaterialTheme.typography.labelSmall
                                         .atLeastOnBox(TvSizeFloors.metaText),
                                     color = episodeRating.chipTextColor

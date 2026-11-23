@@ -59,8 +59,16 @@ class StyledSubtitlePresenterTest {
         assertEquals(
             listOf(
                 Triple("Top left", SubtitleVerticalPosition.TOP, SubtitleHorizontalPosition.START),
-                Triple("Middle", SubtitleVerticalPosition.MIDDLE, SubtitleHorizontalPosition.CENTER),
-                Triple("First caption", SubtitleVerticalPosition.BOTTOM, SubtitleHorizontalPosition.CENTER)
+                Triple(
+                    "Middle",
+                    SubtitleVerticalPosition.MIDDLE,
+                    SubtitleHorizontalPosition.CENTER
+                ),
+                Triple(
+                    "First caption",
+                    SubtitleVerticalPosition.BOTTOM,
+                    SubtitleHorizontalPosition.CENTER
+                )
             ),
             presenter.cues.value.blocks.map { Triple(it.text.text, it.vertical, it.horizontal) }
         )
@@ -133,7 +141,11 @@ class StyledSubtitlePresenterTest {
 
         assertFalse(defaults.usesStyledRenderer)
         assertTrue(defaults.copy(fontId = SubtitleFonts.SERIF).usesStyledRenderer)
-        assertTrue(defaults.copy(backgroundColor = Color.Black.copy(alpha = 0.5f).toArgb()).usesStyledRenderer)
+        assertTrue(
+            defaults.copy(
+                backgroundColor = Color.Black.copy(alpha = 0.5f).toArgb()
+            ).usesStyledRenderer
+        )
         assertTrue(defaults.copy(shadowEnabled = true).usesStyledRenderer)
         assertFalse(defaults.copy(backgroundRadius = 12, outlineEnabled = false).usesStyledRenderer)
     }

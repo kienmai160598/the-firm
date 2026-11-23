@@ -33,7 +33,8 @@ internal fun PlaybackPlayerSection(
     )
     // Excludes falling back to the next source: both react to the same failure. Only the switch
     // that is off is locked, so both stay reachable if both ended up on.
-    val blockedBySourceFallback = settings.streamAutoPlayFallbackActive && !settings.autoSwitchInternalPlayerOnError
+    val blockedBySourceFallback =
+        settings.streamAutoPlayFallbackActive && !settings.autoSwitchInternalPlayerOnError
     SettingsToggleRow(
         title = stringResource(R.string.playback_auto_switch_internal_player_on_error),
         subtitle = stringResource(
@@ -44,7 +45,11 @@ internal fun PlaybackPlayerSection(
             }
         ),
         checked = settings.autoSwitchInternalPlayerOnError,
-        onToggle = { onUpdate { setAutoSwitchInternalPlayerOnError(!settings.autoSwitchInternalPlayerOnError) } },
+        onToggle = {
+            onUpdate {
+                setAutoSwitchInternalPlayerOnError(!settings.autoSwitchInternalPlayerOnError)
+            }
+        },
         enabled = !usesExternalPlayer && !blockedBySourceFallback
     )
     if (!usesExternalPlayer) {
@@ -62,13 +67,21 @@ internal fun PlaybackPlayerSection(
             title = stringResource(R.string.playback_external_forward_subtitles),
             subtitle = stringResource(R.string.playback_external_forward_subtitles_sub),
             checked = settings.externalPlayerForwardSubtitles,
-            onToggle = { onUpdate { setExternalPlayerForwardSubtitles(!settings.externalPlayerForwardSubtitles) } }
+            onToggle = {
+                onUpdate {
+                    setExternalPlayerForwardSubtitles(!settings.externalPlayerForwardSubtitles)
+                }
+            }
         )
         SettingsToggleRow(
             title = stringResource(R.string.playback_external_send_skip_segments),
             subtitle = stringResource(R.string.playback_external_send_skip_segments_sub),
             checked = settings.externalPlayerSendSkipSegments,
-            onToggle = { onUpdate { setExternalPlayerSendSkipSegments(!settings.externalPlayerSendSkipSegments) } }
+            onToggle = {
+                onUpdate {
+                    setExternalPlayerSendSkipSegments(!settings.externalPlayerSendSkipSegments)
+                }
+            }
         )
     }
 }
@@ -225,9 +238,21 @@ internal fun PlayerPreferenceDialog(
     onDismiss: () -> Unit
 ) {
     val options = listOf(
-        SettingsPickerOption(PlayerPreference.INTERNAL, stringResource(R.string.playback_player_internal), stringResource(R.string.playback_player_internal_desc)),
-        SettingsPickerOption(PlayerPreference.EXTERNAL, stringResource(R.string.playback_player_external), stringResource(R.string.playback_player_external_desc)),
-        SettingsPickerOption(PlayerPreference.ASK_EVERY_TIME, stringResource(R.string.playback_player_ask), stringResource(R.string.playback_player_ask_desc))
+        SettingsPickerOption(
+            PlayerPreference.INTERNAL,
+            stringResource(R.string.playback_player_internal),
+            stringResource(R.string.playback_player_internal_desc)
+        ),
+        SettingsPickerOption(
+            PlayerPreference.EXTERNAL,
+            stringResource(R.string.playback_player_external),
+            stringResource(R.string.playback_player_external_desc)
+        ),
+        SettingsPickerOption(
+            PlayerPreference.ASK_EVERY_TIME,
+            stringResource(R.string.playback_player_ask),
+            stringResource(R.string.playback_player_ask_desc)
+        )
     )
 
     SettingsSingleChoiceDialog(

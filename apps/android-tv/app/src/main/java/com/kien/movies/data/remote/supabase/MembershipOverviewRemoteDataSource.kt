@@ -3,15 +3,13 @@ package com.kien.movies.data.remote.supabase
 import com.kien.movies.domain.model.MemberTier
 import com.kien.movies.domain.model.MembershipOverview
 import io.github.jan.supabase.postgrest.Postgrest
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Singleton
-class MembershipOverviewRemoteDataSource @Inject constructor(
-    private val postgrest: Postgrest
-) {
+class MembershipOverviewRemoteDataSource @Inject constructor(private val postgrest: Postgrest) {
     suspend fun getMembershipOverview(): MembershipOverview {
         val response = postgrest.rpc("get_my_membership_overview")
             .decodeList<MembershipOverviewResponse>()
@@ -36,13 +34,14 @@ class MembershipOverviewRemoteDataSource @Inject constructor(
             grantKind = response.grantKind.takeIf { hasActiveGrant },
             grantTier = response.grantTier.toMemberTier().takeIf { hasActiveGrant },
             hasLifetimeGrant = hasLifetimeGrant,
-            lifetimeGrantTier = response.lifetimeGrantTier.toMemberTier().takeIf { hasLifetimeGrant }
+            lifetimeGrantTier = response.lifetimeGrantTier.toMemberTier().takeIf {
+                hasLifetimeGrant
+            }
         )
     }
 }
 
-private fun String?.toMemberTier(): MemberTier? =
-    MemberTier.entries.firstOrNull { tier -> tier.name == this }
+private fun String?.toMemberTier(): MemberTier? = MemberTier.entries.firstOrNull { tier -> tier.name == this }
 
 @Serializable
 private data class MembershipOverviewResponse(

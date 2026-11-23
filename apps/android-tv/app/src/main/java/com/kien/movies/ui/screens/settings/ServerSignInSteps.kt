@@ -41,8 +41,17 @@ import com.kien.movies.ui.theme.MoviesTheme
 
 /** A sign-in code approved on another device: the instructions, a QR code for [link], the code and the page to type it on. */
 @Composable
-internal fun ColumnScope.ServerSignInCode(instructions: String, link: String, code: String, page: String, waiting: String) {
-    val qr = remember(link) { runCatching { QrCodeGenerator.generate(link, 420, margin = 1) }.getOrNull() }
+internal fun ColumnScope.ServerSignInCode(
+    instructions: String,
+    link: String,
+    code: String,
+    page: String,
+    waiting: String
+) {
+    val qr =
+        remember(link) {
+            runCatching { QrCodeGenerator.generate(link, 420, margin = 1) }.getOrNull()
+        }
     Text(
         text = instructions,
         style = MaterialTheme.typography.bodyMedium,
@@ -136,7 +145,9 @@ internal fun ServerSignInPin(
     SettingsDialogActionRow {
         SettingsDialogActionButton(text = backText, onClick = onBack, enabled = !busy)
         SettingsDialogActionButton(
-            text = stringResource(if (busy) R.string.servers_connecting else R.string.servers_connect),
+            text = stringResource(
+                if (busy) R.string.servers_connecting else R.string.servers_connect
+            ),
             onClick = submit,
             primary = true,
             enabled = !busy && pin.isNotBlank()
@@ -148,7 +159,10 @@ internal fun ServerSignInPin(
 internal fun ServerSignInStatus(text: String, loading: Boolean = false, error: Boolean = false) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm, Alignment.CenterHorizontally),
+        horizontalArrangement = Arrangement.spacedBy(
+            MoviesTheme.spacing.sm,
+            Alignment.CenterHorizontally
+        ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (loading) LoadingIndicator(modifier = Modifier.size(MoviesTheme.spacing.lg))

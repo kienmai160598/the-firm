@@ -3,30 +3,28 @@ package com.kien.movies.data.repository
 import android.util.Log
 import com.kien.movies.data.remote.api.ImdbTapframeApi
 import com.kien.movies.data.remote.api.SeriesGraphApi
+import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class ImdbEpisodeRatingsRepository @Inject constructor(
     private val imdbTapframeApi: ImdbTapframeApi,
     private val seriesGraphApi: SeriesGraphApi
 ) {
-    private data class CacheEntry(
-        val episodes: List<ExternalEpisodeRating>,
-        val expiresAtMs: Long
-    )
+    private data class CacheEntry(val episodes: List<ExternalEpisodeRating>, val expiresAtMs: Long)
 
     private val tag = "ImdbEpisodeRatingsRepo"
     private val cacheTtlMs = 30L * 60L * 1000L
     private val cache = ConcurrentHashMap<String, CacheEntry>()
-    private val inFlight = mutableMapOf<String, kotlinx.coroutines.Deferred<List<ExternalEpisodeRating>>>()
+    private val inFlight =
+        mutableMapOf<String, kotlinx.coroutines.Deferred<List<ExternalEpisodeRating>>>()
     private val inFlightMutex = Mutex()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -130,7 +128,9 @@ class ImdbEpisodeRatingsRepository @Inject constructor(
         }
     }
 
-    private fun toEpisodeRatings(payload: List<com.kien.movies.data.remote.api.SeriesGraphSeasonRatingsDto>): List<ExternalEpisodeRating> {
+    private fun toEpisodeRatings(
+        payload: List<com.kien.movies.data.remote.api.SeriesGraphSeasonRatingsDto>
+    ): List<ExternalEpisodeRating> {
         return payload.flatMap { season ->
             season.episodes.orEmpty().mapNotNull { episode ->
                 ExternalEpisodeRating(

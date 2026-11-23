@@ -177,12 +177,10 @@ class MpvMediaSessionPlayerTest {
         isBuffering = false,
         isEnded = false,
         isSeekable = isSeekable,
-        speed = 1f,
+        speed = 1f
     )
 
-    private class RecordingTarget(
-        private val onSetPlayWhenReady: (Boolean) -> Unit = {},
-    ) : MpvMediaSessionCommandTarget {
+    private class RecordingTarget(private val onSetPlayWhenReady: (Boolean) -> Unit = {}) : MpvMediaSessionCommandTarget {
         val playWhenReadyCalls = mutableListOf<Boolean>()
         val seekCalls = mutableListOf<Long>()
 

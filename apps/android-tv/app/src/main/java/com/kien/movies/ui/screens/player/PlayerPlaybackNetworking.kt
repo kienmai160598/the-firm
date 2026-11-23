@@ -6,10 +6,6 @@ import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import com.kien.movies.core.network.IPv4FirstDns
 import com.kien.movies.core.network.PlaybackSocketFactory
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import okhttp3.Protocol
-import okhttp3.Response
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -24,6 +20,10 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLException
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.Protocol
+import okhttp3.Response
 
 internal object PlayerPlaybackNetworking {
     private const val LOOPBACK_READ_TIMEOUT_SECONDS = 65L
@@ -228,7 +228,10 @@ internal object PlayerPlaybackNetworking {
             connectTimeout = connectTimeoutMs
             readTimeout = readTimeoutMs
             requestMethod = method
-            setRequestProperty("User-Agent", headers["User-Agent"] ?: PlayerMediaSourceFactory.DEFAULT_USER_AGENT)
+            setRequestProperty(
+                "User-Agent",
+                headers["User-Agent"] ?: PlayerMediaSourceFactory.DEFAULT_USER_AGENT
+            )
             headers.forEach { (key, value) ->
                 if (key.equals("Range", ignoreCase = true)) return@forEach
                 if (key.equals("User-Agent", ignoreCase = true)) return@forEach

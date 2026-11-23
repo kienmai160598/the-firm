@@ -6,14 +6,14 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.domain.model.AmbientModeSettings
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import org.json.JSONArray
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
@@ -35,7 +35,8 @@ class AmbientModeDataStore @Inject constructor(
         factory.get(pid, FEATURE).data.map { prefs ->
             AmbientModeSettings(
                 enabled = prefs[enabledKey] ?: true,
-                timeoutMinutes = prefs[timeoutMinutesKey] ?: AmbientModeSettings.DEFAULT_TIMEOUT_MINUTES,
+                timeoutMinutes =
+                    prefs[timeoutMinutesKey] ?: AmbientModeSettings.DEFAULT_TIMEOUT_MINUTES,
                 catalogKeys = decodeKeys(prefs[catalogKeysKey])
             )
         }

@@ -12,21 +12,21 @@ import com.kien.movies.domain.model.CosmeticEntitlements
 import com.kien.movies.domain.model.MemberAccess
 import com.kien.movies.domain.model.MemberTier
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private val Context.memberAccessDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "member_access",
-    corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler { androidx.datastore.preferences.core.emptyPreferences() }
+    corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler {
+        androidx.datastore.preferences.core.emptyPreferences()
+    }
 )
 
 @Singleton
-class MemberAccessDataStore @Inject constructor(
-    @ApplicationContext private val context: Context
-) {
+class MemberAccessDataStore @Inject constructor(@ApplicationContext private val context: Context) {
     private val dataStore = context.memberAccessDataStore
     private val snapshotPreferences = context.getSharedPreferences(
         "member_access_snapshot",
@@ -74,7 +74,8 @@ class MemberAccessDataStore @Inject constructor(
                 preferences.remove(entitlementsKey)
             } else {
                 preferences[tierKey] = tier.name
-                preferences[entitlementsKey] = access.entitlements.unlocked.map { it.name }.toSet()
+                preferences[entitlementsKey] =
+                    access.entitlements.unlocked.map { it.name }.toSet()
             }
         }
 
@@ -120,7 +121,12 @@ class MemberAccessDataStore @Inject constructor(
                     remove(SnapshotEntitlementsKey)
                 } else {
                     putString(SnapshotTierKey, tier.name)
-                    putStringSet(SnapshotEntitlementsKey, access.entitlements.unlocked.map { it.name }.toSet())
+                    putStringSet(
+                        SnapshotEntitlementsKey,
+                        access.entitlements.unlocked.map {
+                            it.name
+                        }.toSet()
+                    )
                 }
             }
             .apply()

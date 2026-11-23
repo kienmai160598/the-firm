@@ -16,61 +16,61 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.Key
-import com.kien.movies.ui.components.expressive.MoviesCard
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
+import com.kien.movies.R
 import com.kien.movies.core.streams.StreamBadgePlacement
 import com.kien.movies.domain.model.Stream
+import com.kien.movies.ui.components.RefreshFilterChip
 import com.kien.movies.ui.components.SourceChipItem
 import com.kien.movies.ui.components.SourceChipStatus
 import com.kien.movies.ui.components.SourceStatusFilterChip
 import com.kien.movies.ui.components.StreamBadgeChips
+import com.kien.movies.ui.components.StreamLabelBadge
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.toAbsoluteAlignment
-import androidx.compose.ui.res.stringResource
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.launch as coroutineLaunch
-import com.kien.movies.ui.components.RefreshFilterChip
-import com.kien.movies.ui.components.StreamLabelBadge
-import com.kien.movies.R
 
 @Composable
 internal fun StreamItem(
@@ -88,9 +88,14 @@ internal fun StreamItem(
     val context = LocalContext.current
     val density = LocalDensity.current
     val unknownStreamLabel = stringResource(R.string.stream_unknown)
-    val streamName = remember(stream, unknownStreamLabel) { stream.getDisplayNameOrNull() ?: unknownStreamLabel }
+    val streamName = remember(stream, unknownStreamLabel) {
+        stream.getDisplayNameOrNull()
+            ?: unknownStreamLabel
+    }
     val streamDescription = remember(stream) { stream.getDisplayDescription() }
-    val hasBadges = stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null)
+    val hasBadges =
+        stream.badges.isNotEmpty() ||
+            (showFileSizeBadges && stream.behaviorHints?.videoSize != null)
     // Pre-upscale: decode at 2× target pixels so the hardware compositor
     // has enough pixel data for smooth edges inside Card RenderNodes.
     val logoDecodeSize = remember(density) {
@@ -101,7 +106,7 @@ internal fun StreamItem(
             ImageRequest.Builder(context)
                 .data(logo)
                 .size(width = logoDecodeSize, height = logoDecodeSize)
-                .memoryCacheKey("${logo}_${logoDecodeSize}x${logoDecodeSize}")
+                .memoryCacheKey("${logo}_${logoDecodeSize}x$logoDecodeSize")
                 .crossfade(true)
                 .build()
         }
@@ -111,16 +116,34 @@ internal fun StreamItem(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (focusRequester != null && requestInitialFocus) Modifier.focusRequester(focusRequester) else Modifier)
+            .then(
+                if (focusRequester != null &&
+                    requestInitialFocus
+                ) {
+                    Modifier.focusRequester(focusRequester)
+                } else {
+                    Modifier
+                }
+            )
             .onFocusChanged {
                 onFocusChanged?.invoke(it.isFocused)
             }
-            .then(if (onUpKey != null) Modifier.onKeyEvent { event ->
-                if (event.nativeKeyEvent.action == android.view.KeyEvent.ACTION_DOWN &&
-                    event.key == Key.DirectionUp) {
-                    onUpKey(); true
-                } else false
-            } else Modifier),
+            .then(
+                if (onUpKey != null) {
+                    Modifier.onKeyEvent { event ->
+                        if (event.nativeKeyEvent.action == android.view.KeyEvent.ACTION_DOWN &&
+                            event.key == Key.DirectionUp
+                        ) {
+                            onUpKey()
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                } else {
+                    Modifier
+                }
+            ),
         selected = isCurrentStream
     ) {
         Row(
@@ -145,7 +168,9 @@ internal fun StreamItem(
 
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     Row(
-                        modifier = Modifier.align(streamName.contentTextDirection().toAbsoluteAlignment()),
+                        modifier = Modifier.align(
+                            streamName.contentTextDirection().toAbsoluteAlignment()
+                        ),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                     ) {
@@ -162,8 +187,13 @@ internal fun StreamItem(
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(999.dp))
-                                    .background(PlayerListItemStyle.labelColor().copy(alpha = 0.16f))
-                                    .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs)
+                                    .background(
+                                        PlayerListItemStyle.labelColor().copy(alpha = 0.16f)
+                                    )
+                                    .padding(
+                                        horizontal = MoviesTheme.spacing.sm,
+                                        vertical = MoviesTheme.spacing.xs
+                                    )
                             ) {
                                 Text(
                                     text = stringResource(R.string.sources_playing),
@@ -183,7 +213,9 @@ internal fun StreamItem(
                     if (description != streamName) {
                         Text(
                             text = description,
-                            modifier = Modifier.align(description.contentTextDirection().toAbsoluteAlignment()),
+                            modifier = Modifier.align(
+                                description.contentTextDirection().toAbsoluteAlignment()
+                            ),
                             style = MaterialTheme.typography.bodySmall.copy(
                                 textDirection = description.contentTextDirection()
                             ),
@@ -240,7 +272,10 @@ internal fun StreamItem(
  * Chips sit in a LazyRow, so a chip scrolled out of view has no focus node and
  * requestFocus() on it fails without moving focus. Scroll it into the row first.
  */
-internal suspend fun LazyListState.focusChip(index: Int, chipFocusRequesters: List<FocusRequester>): Boolean {
+internal suspend fun LazyListState.focusChip(
+    index: Int,
+    chipFocusRequesters: List<FocusRequester>
+): Boolean {
     val requester = chipFocusRequesters.getOrNull(index) ?: return false
     if (layoutInfo.visibleItemsInfo.none { it.index == index }) {
         scrollToItem(index)
@@ -265,7 +300,9 @@ internal fun AddonFilterChips(
     chipListState: LazyListState = rememberLazyListState(),
     debugTag: String = "AddonFilterChips"
 ) {
-    val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+    val isRtl =
+        androidx.compose.ui.platform.LocalLayoutDirection.current ==
+            androidx.compose.ui.unit.LayoutDirection.Rtl
     val chipMap = sourceChips.associateBy { it.name }
     val orderedNames = externalOrderedNames ?: remember(addons, sourceChips) {
         buildList {
@@ -289,13 +326,27 @@ internal fun AddonFilterChips(
 
     var chipRowHasFocus by remember { mutableStateOf(false) }
     var refreshHasFocus by remember { mutableStateOf(false) }
-    var focusedChipIndex by remember { mutableStateOf(
-        if (hasRefresh) {
-            if (selectedAddon == null) 1 else (orderedNames.indexOf(selectedAddon) + 2).coerceAtLeast(1)
-        } else {
-            if (selectedAddon == null) 0 else (orderedNames.indexOf(selectedAddon) + 1).coerceAtLeast(0)
-        }
-    ) }
+    var focusedChipIndex by remember {
+        mutableStateOf(
+            if (hasRefresh) {
+                if (selectedAddon ==
+                    null
+                ) {
+                    1
+                } else {
+                    (orderedNames.indexOf(selectedAddon) + 2).coerceAtLeast(1)
+                }
+            } else {
+                if (selectedAddon ==
+                    null
+                ) {
+                    0
+                } else {
+                    (orderedNames.indexOf(selectedAddon) + 1).coerceAtLeast(0)
+                }
+            }
+        )
+    }
     LaunchedEffect(selectedAddon, orderedNames) {
         if (refreshHasFocus || focusedChipIndex == 0) return@LaunchedEffect
         val maxIndex = if (hasRefresh) orderedNames.size + 1 else orderedNames.size
@@ -309,9 +360,21 @@ internal fun AddonFilterChips(
         }
         if (currentAddonAtFocus == selectedAddon) return@LaunchedEffect
         val idx = if (hasRefresh) {
-            if (selectedAddon == null) 1 else (orderedNames.indexOf(selectedAddon) + 2).coerceAtLeast(1)
+            if (selectedAddon ==
+                null
+            ) {
+                1
+            } else {
+                (orderedNames.indexOf(selectedAddon) + 2).coerceAtLeast(1)
+            }
         } else {
-            if (selectedAddon == null) 0 else (orderedNames.indexOf(selectedAddon) + 1).coerceAtLeast(0)
+            if (selectedAddon ==
+                null
+            ) {
+                0
+            } else {
+                (orderedNames.indexOf(selectedAddon) + 1).coerceAtLeast(0)
+            }
         }
         focusedChipIndex = idx.coerceIn(0, maxIndex)
         // When orderedNames changed (new addon arrived) and chip row has focus,
@@ -369,7 +432,10 @@ internal fun AddonFilterChips(
     LazyRow(
         state = chipListState,
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
-        contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs),
+        contentPadding = PaddingValues(
+            horizontal = MoviesTheme.spacing.sm,
+            vertical = MoviesTheme.spacing.xs
+        ),
         modifier = Modifier
             .onFocusChanged { focusState ->
                 val hasFocus = focusState.hasFocus
@@ -382,7 +448,11 @@ internal fun AddonFilterChips(
                 chipRowHasFocus = hasFocus
             }
             .onKeyEvent { event ->
-                if (event.nativeKeyEvent.action != android.view.KeyEvent.ACTION_DOWN) return@onKeyEvent false
+                if (event.nativeKeyEvent.action !=
+                    android.view.KeyEvent.ACTION_DOWN
+                ) {
+                    return@onKeyEvent false
+                }
 
                 // Throttle rapid key repeats (long-press)
                 if (event.nativeKeyEvent.repeatCount > 0) {
@@ -401,18 +471,44 @@ internal fun AddonFilterChips(
                 when (event.key) {
                     androidx.compose.ui.input.key.Key.DirectionLeft -> {
                         if (isRtl) {
-                            if (currentIdx < lastIndex) { moveFocusTo(currentIdx + 1); true } else true
+                            if (currentIdx <
+                                lastIndex
+                            ) {
+                                moveFocusTo(currentIdx + 1)
+                                true
+                            } else {
+                                true
+                            }
                         } else {
-                            if (currentIdx > 0) { moveFocusTo(currentIdx - 1); true } else true
+                            if (currentIdx > 0) {
+                                moveFocusTo(currentIdx - 1)
+                                true
+                            } else {
+                                true
+                            }
                         }
                     }
+
                     androidx.compose.ui.input.key.Key.DirectionRight -> {
                         if (isRtl) {
-                            if (currentIdx > 0) { moveFocusTo(currentIdx - 1); true } else true
+                            if (currentIdx > 0) {
+                                moveFocusTo(currentIdx - 1)
+                                true
+                            } else {
+                                true
+                            }
                         } else {
-                            if (currentIdx < lastIndex) { moveFocusTo(currentIdx + 1); true } else true
+                            if (currentIdx <
+                                lastIndex
+                            ) {
+                                moveFocusTo(currentIdx + 1)
+                                true
+                            } else {
+                                true
+                            }
                         }
                     }
+
                     else -> false
                 }
             }

@@ -8,8 +8,7 @@ class ChapterSkipIntervalsTest {
 
     private val durationMs = 24 * 60_000L // 24 minutes
 
-    private fun chapters(vararg entries: Pair<Long, String?>): List<PlayerChapter> =
-        PlayerChapters.normalize(entries.map { (ms, title) -> PlayerChapter(ms, title) })
+    private fun chapters(vararg entries: Pair<Long, String?>): List<PlayerChapter> = PlayerChapters.normalize(entries.map { (ms, title) -> PlayerChapter(ms, title) })
 
     @Test
     fun `OP chapter produces intro interval`() {
@@ -134,7 +133,7 @@ class ChapterSkipIntervalsTest {
         // Chapter longer than 4 minutes (MAX_DURATION_SEC = 240)
         val chapters = chapters(
             0L to "OP",
-            300_000L to "Episode"  // 5 minutes - too long for an opening
+            300_000L to "Episode" // 5 minutes - too long for an opening
         )
         val intervals = ChapterSkipIntervals.fromChapters(chapters, durationMs)
         assertTrue(intervals.none { it.type == "intro" })

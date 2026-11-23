@@ -5,10 +5,10 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.domain.model.EpisodeShuffleSettings
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 
 data class EpisodeShuffleProfile(
     val profileId: Int,
@@ -17,8 +17,10 @@ data class EpisodeShuffleProfile(
 ) {
     fun settings(contentId: String, contentType: String): EpisodeShuffleSettings {
         val saved = shows[contentId] ?: EpisodeShuffleSettings()
-        return saved.copy(enabled = saved.enabled && available &&
-            (contentType.equals("series", true) || contentType.equals("tv", true)))
+        return saved.copy(
+            enabled = saved.enabled && available &&
+                (contentType.equals("series", true) || contentType.equals("tv", true))
+        )
     }
 }
 
@@ -46,13 +48,12 @@ class EpisodeShuffleStore @Inject constructor(
     }
 }
 
-internal fun readShuffleSettings(preferences: Preferences): Map<String, EpisodeShuffleSettings> =
-    preferences.asMap().keys.mapNotNull { key ->
-        key.name.takeIf { it.startsWith("enabled:") || it.startsWith("watched:") }
-            ?.substringAfter(':')?.takeIf(String::isNotBlank)
-    }.distinct().associateWith { id ->
-        EpisodeShuffleSettings(
-            enabled = preferences[booleanPreferencesKey("enabled:$id")] ?: false,
-            includeWatched = preferences[booleanPreferencesKey("watched:$id")] ?: false
-        )
-    }
+internal fun readShuffleSettings(preferences: Preferences): Map<String, EpisodeShuffleSettings> = preferences.asMap().keys.mapNotNull { key ->
+    key.name.takeIf { it.startsWith("enabled:") || it.startsWith("watched:") }
+        ?.substringAfter(':')?.takeIf(String::isNotBlank)
+}.distinct().associateWith { id ->
+    EpisodeShuffleSettings(
+        enabled = preferences[booleanPreferencesKey("enabled:$id")] ?: false,
+        includeWatched = preferences[booleanPreferencesKey("watched:$id")] ?: false
+    )
+}

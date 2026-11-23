@@ -33,7 +33,9 @@ private fun ratingRecord(type: MdbListItemType, row: JsonObject): MdbListRatingR
     val target = row.objectValue(type.name.lowercase()) ?: row
     val parent = when (type) {
         MdbListItemType.MOVIE, MdbListItemType.SHOW -> target
-        else -> row.objectValue("show") ?: target.objectValue("show") ?: throw MdbListDecodingException()
+
+        else -> row.objectValue("show") ?: target.objectValue("show")
+            ?: throw MdbListDecodingException()
     }
     val rating = row.text("rating_precise", "rating")?.toDoubleOrNull()
         ?.takeIf { it > 0.0 && it <= 10.0 } ?: throw MdbListDecodingException()
@@ -43,10 +45,16 @@ private fun ratingRecord(type: MdbListItemType, row: JsonObject): MdbListRatingR
         else -> null
     }
     val episode = if (type == MdbListItemType.EPISODE) target.integer("number", "episode") else null
-    if (type in setOf(MdbListItemType.SEASON, MdbListItemType.EPISODE) && (season == null || season < 0)) {
+    if (type in setOf(MdbListItemType.SEASON, MdbListItemType.EPISODE) &&
+        (season == null || season < 0)
+    ) {
         throw MdbListDecodingException()
     }
-    if (type == MdbListItemType.EPISODE && (episode == null || episode < 1)) throw MdbListDecodingException()
+    if (type == MdbListItemType.EPISODE &&
+        (episode == null || episode < 1)
+    ) {
+        throw MdbListDecodingException()
+    }
     val ids = target.objectValue("ids").takeIf { type == MdbListItemType.EPISODE }
     return MdbListRatingRecord(
         type = type,

@@ -27,8 +27,7 @@ internal fun heroBadgeShape(): Shape = CircleShape
 
 /** The star row fills with the focus tone instead of tinting and ringing. */
 @Composable
-internal fun ratingStarsContainer(focused: Boolean): Color =
-    if (focused) MoviesTheme.colors.FocusBackground else Color.Transparent
+internal fun ratingStarsContainer(focused: Boolean): Color = if (focused) MoviesTheme.colors.FocusBackground else Color.Transparent
 
 /** The episode overlay sits on the theme's background, not a near-black. */
 @Composable

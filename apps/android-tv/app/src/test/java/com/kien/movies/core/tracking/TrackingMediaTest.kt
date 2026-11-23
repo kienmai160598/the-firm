@@ -58,8 +58,19 @@ class TrackingMediaTest {
 
     @Test
     fun `history marks without episode coordinates only pass for films`() {
-        fun mark(contentType: String, contentId: String, season: Int? = null, episode: Int? = null) =
-            TrackingHistoryItem(buildTrackingMediaReference(contentType, contentId, seasonNumber = season, episodeNumber = episode))
+        fun mark(
+            contentType: String,
+            contentId: String,
+            season: Int? = null,
+            episode: Int? = null
+        ) = TrackingHistoryItem(
+            buildTrackingMediaReference(
+                contentType,
+                contentId,
+                seasonNumber = season,
+                episodeNumber = episode
+            )
+        )
 
         assertFalse(mark("movie", "tt0111161").isWholeSeriesMark)
         assertFalse(mark("series", "tt0903747", season = 1, episode = 2).isWholeSeriesMark)

@@ -24,11 +24,13 @@ internal object PlayerFrameRateHeuristics {
         } else {
             state.detectedFrameRate
         }
-        val trackIsAmbiguous = isAmbiguousCinema24(trackRaw) || isAmbiguousCinema24(state.detectedFrameRate)
+        val trackIsAmbiguous =
+            isAmbiguousCinema24(trackRaw) || isAmbiguousCinema24(state.detectedFrameRate)
         if (!trackIsAmbiguous) return false
 
         val probeIsNtscFilm = abs(detection.snapped - NTSC_FILM_FPS) < 0.01f
-        val differsEnough = abs(detection.snapped - state.detectedFrameRate) > FRAME_RATE_CORRECTION_EPSILON
+        val differsEnough =
+            abs(detection.snapped - state.detectedFrameRate) > FRAME_RATE_CORRECTION_EPSILON
         return probeIsNtscFilm && differsEnough
     }
 }

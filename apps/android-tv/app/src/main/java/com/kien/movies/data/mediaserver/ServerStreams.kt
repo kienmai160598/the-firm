@@ -24,7 +24,10 @@ class ServerStreams @Inject constructor(
     fun isNativeRequest(videoId: String): Boolean = ServerItemRef.isServerId(videoId)
 
     fun canServe(type: String, videoId: String): Boolean {
-        ServerItemRef.parse(videoId)?.let { ref -> return repository.connection(ref.connectionId)?.enabled == true }
+        ServerItemRef.parse(videoId)?.let { ref ->
+            return repository.connection(ref.connectionId)?.enabled ==
+                true
+        }
         val connections = repository.enabledConnections().ifEmpty { return false }
         val request = matcher.request(type, videoId, season = null, episode = null) ?: return false
         return connections.any { matcher.supports(it, request.kind) }
@@ -52,10 +55,9 @@ class ServerStreams @Inject constructor(
             }
     }
 
-    fun preferredSourceNames(type: String, videoId: String): Set<String> =
-        sources(type, videoId, season = null, episode = null)
-            .filter { it.preferred }
-            .mapTo(mutableSetOf()) { it.name }
+    fun preferredSourceNames(type: String, videoId: String): Set<String> = sources(type, videoId, season = null, episode = null)
+        .filter { it.preferred }
+        .mapTo(mutableSetOf()) { it.name }
 
     private fun source(
         connection: ServerConnection,
@@ -64,9 +66,13 @@ class ServerStreams @Inject constructor(
     ): ServerStreamSource = ServerStreamSource(repository.sourceLabel(connection), preferred, loader)
 
     suspend fun candidates(ref: ServerItemRef): List<Stream> {
-        val connection = repository.connection(ref.connectionId) ?: throw ServerException(ServerFailure.NOT_FOUND)
+        val connection =
+            repository.connection(ref.connectionId)
+                ?: throw ServerException(ServerFailure.NOT_FOUND)
         val label = repository.sourceLabel(connection)
-        return repository.call(ref.connectionId) { provider, session -> provider.candidates(session, ref.itemId) }
+        return repository.call(ref.connectionId) { provider, session ->
+            provider.candidates(session, ref.itemId)
+        }
             .map { candidate ->
                 Stream(
                     name = candidate.title,

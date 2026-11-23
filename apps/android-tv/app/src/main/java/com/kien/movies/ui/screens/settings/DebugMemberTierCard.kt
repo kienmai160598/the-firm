@@ -21,10 +21,7 @@ import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
-internal fun DebugMemberTierCard(
-    selectedTier: MemberTier?,
-    onTierSelected: (MemberTier?) -> Unit
-) {
+internal fun DebugMemberTierCard(selectedTier: MemberTier?, onTierSelected: (MemberTier?) -> Unit) {
     val options = listOf(
         null to stringResource(R.string.debug_member_tier_none),
         MemberTier.SUPPORTER to stringResource(R.string.debug_member_tier_one),
@@ -67,7 +64,10 @@ internal fun DebugMemberTierCard(
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.lg),
+                            .padding(
+                                horizontal = MoviesTheme.spacing.md,
+                                vertical = MoviesTheme.spacing.lg
+                            ),
                         textAlign = TextAlign.Center
                     )
                 }

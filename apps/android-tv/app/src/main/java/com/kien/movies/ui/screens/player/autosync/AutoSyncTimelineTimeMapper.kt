@@ -60,10 +60,7 @@ internal class AutoSyncTimelineTimeMapper(private val timeline: AutoSyncTimeline
             ).roundToLong().coerceAtLeast(0L)
     }
 
-    private data class TimingBoundary(
-        val originalMs: Long,
-        val retimedMs: Long,
-    )
+    private data class TimingBoundary(val originalMs: Long, val retimedMs: Long)
 
     private companion object {
         const val BOUNDARY_TOLERANCE_MS = 500L

@@ -1,9 +1,5 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.components.expressive.M3eShapes
-import com.kien.movies.ui.theme.expressiveFocusScale
-import com.kien.movies.ui.util.contentTextDirection
-
 import androidx.compose.animation.core.Animatable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,6 +16,9 @@ import androidx.tv.material3.FilterChipDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.SelectableChipScale
 import androidx.tv.material3.Text
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.theme.expressiveFocusScale
+import com.kien.movies.ui.util.contentTextDirection
 
 enum class SourceChipStatus {
     LOADING,
@@ -27,10 +26,7 @@ enum class SourceChipStatus {
     ERROR
 }
 
-data class SourceChipItem(
-    val name: String,
-    val status: SourceChipStatus
-)
+data class SourceChipItem(val name: String, val status: SourceChipStatus)
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable

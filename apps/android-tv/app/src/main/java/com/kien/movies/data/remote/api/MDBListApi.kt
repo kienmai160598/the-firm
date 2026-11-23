@@ -1,7 +1,7 @@
 package com.kien.movies.data.remote.api
 
-import com.kien.movies.data.remote.dto.mdblist.MDBListMediaResponseDto
 import com.kien.movies.data.remote.dto.mdblist.MDBListMediaRequestDto
+import com.kien.movies.data.remote.dto.mdblist.MDBListMediaResponseDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -20,9 +20,7 @@ interface MDBListApi {
     ): Response<MDBListMediaResponseDto>
 
     @GET("user")
-    suspend fun getUser(
-        @Query("apikey") apiKey: String
-    ): Response<Unit>
+    suspend fun getUser(@Query("apikey") apiKey: String): Response<Unit>
 
     @POST("{provider}/{mediaType}/")
     suspend fun getMediaBatch(

@@ -15,7 +15,13 @@ class QrCodeGeneratorTest {
 
     @Test
     fun `module grid matches the encoded symbol for the login margin`() {
-        val matrix = QRCodeWriter().encode(url, BarcodeFormat.QR_CODE, 420, 420, mapOf(EncodeHintType.MARGIN to 1))
+        val matrix = QRCodeWriter().encode(
+            url,
+            BarcodeFormat.QR_CODE,
+            420,
+            420,
+            mapOf(EncodeHintType.MARGIN to 1)
+        )
         val symbol = Encoder.encode(url, ErrorCorrectionLevel.L).matrix
 
         val grid = QrCodeGenerator.moduleGrid(matrix)
@@ -34,7 +40,13 @@ class QrCodeGeneratorTest {
 
     @Test
     fun `module grid handles zero margin`() {
-        val matrix = QRCodeWriter().encode(url, BarcodeFormat.QR_CODE, 512, 512, mapOf(EncodeHintType.MARGIN to 0))
+        val matrix = QRCodeWriter().encode(
+            url,
+            BarcodeFormat.QR_CODE,
+            512,
+            512,
+            mapOf(EncodeHintType.MARGIN to 0)
+        )
         val symbol = Encoder.encode(url, ErrorCorrectionLevel.L).matrix
 
         val grid = QrCodeGenerator.moduleGrid(matrix)

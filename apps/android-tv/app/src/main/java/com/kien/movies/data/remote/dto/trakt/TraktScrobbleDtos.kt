@@ -13,7 +13,4 @@ data class TraktScrobbleRequestDto(
 )
 
 @JsonClass(generateAdapter = true)
-data class TraktScrobbleResponseDto(
-    @Json(name = "action") val action: String? = null
-)
-
+data class TraktScrobbleResponseDto(@Json(name = "action") val action: String? = null)

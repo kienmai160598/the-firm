@@ -21,13 +21,13 @@ internal object AutoSyncReferenceConsistency {
     internal data class Reference(
         val key: String,
         val activity: AutoSyncTimelineRetimer.PreparedActivity,
-        val cueCount: Int,
+        val cueCount: Int
     )
 
     /** Keys of references to drop. Empty when there are fewer than three independent sources. */
     fun findOutliers(
         references: List<Reference>,
-        cancellationCheck: (() -> Unit)? = null,
+        cancellationCheck: (() -> Unit)? = null
     ): Set<String> {
         val sources = mutableListOf<MutableList<Reference>>()
         for (reference in references.take(MAX_CHECKED_REFERENCES)) {
@@ -43,7 +43,8 @@ internal object AutoSyncReferenceConsistency {
         for (first in checked.indices) {
             for (second in first + 1 until checked.size) {
                 cancellationCheck?.invoke()
-                val agreement = agreeAtNearZeroDelay(checked[first].first(), checked[second].first())
+                val agreement =
+                    agreeAtNearZeroDelay(checked[first].first(), checked[second].first())
                 agrees[first][second] = agreement
                 agrees[second][first] = agreement
             }
@@ -66,7 +67,7 @@ internal object AutoSyncReferenceConsistency {
         val alignment = AutoSyncTimelineRetimer.findDelayOnlyAlignmentPrepared(
             referenceActivity = reference.activity,
             targetActivity = target.activity,
-            targetSize = target.cueCount,
+            targetSize = target.cueCount
         ) ?: return false
         return abs(alignment.offsetMs) <= MAX_AGREEING_OFFSET_MS
     }
@@ -74,13 +75,13 @@ internal object AutoSyncReferenceConsistency {
     /** Near-identical timing (e.g. CHS / CHT / bilingual variants of one source). */
     internal fun isSameSource(
         first: AutoSyncTimelineRetimer.PreparedActivity,
-        second: AutoSyncTimelineRetimer.PreparedActivity,
+        second: AutoSyncTimelineRetimer.PreparedActivity
     ): Boolean = fineActivityOverlap(first, second) >= SAME_SOURCE_MIN_OVERLAP
 
     /** Jaccard overlap of the 100 ms activity bins at zero offset. */
     private fun fineActivityOverlap(
         first: AutoSyncTimelineRetimer.PreparedActivity,
-        second: AutoSyncTimelineRetimer.PreparedActivity,
+        second: AutoSyncTimelineRetimer.PreparedActivity
     ): Double {
         val a = first.fine.packed
         val b = second.fine.packed

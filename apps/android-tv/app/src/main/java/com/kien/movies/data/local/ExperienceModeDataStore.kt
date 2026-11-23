@@ -5,12 +5,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.domain.model.ExperienceMode
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class ExperienceModeDataStore @Inject constructor(
@@ -24,14 +24,14 @@ class ExperienceModeDataStore @Inject constructor(
     private val modeKey = stringPreferencesKey("mode")
     private val addonSetupSkippedKey = booleanPreferencesKey("addon_setup_skipped")
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun <T> profileFlow(extract: (androidx.datastore.preferences.core.Preferences) -> T): Flow<T> =
-        profileManager.activeProfileId.flatMapLatest { pid ->
-            factory.get(pid, FEATURE).data.map { prefs -> extract(prefs) }
-        }
+    private fun <T> profileFlow(
+        extract: (androidx.datastore.preferences.core.Preferences) -> T
+    ): Flow<T> = profileManager.activeProfileId.flatMapLatest { pid ->
+        factory.get(pid, FEATURE).data.map { prefs -> extract(prefs) }
+    }
 
     val mode: Flow<ExperienceMode?> = profileFlow { prefs ->
         prefs[modeKey]?.let { value ->

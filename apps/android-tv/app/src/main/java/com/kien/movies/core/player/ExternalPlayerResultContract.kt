@@ -9,11 +9,7 @@ import androidx.activity.result.contract.ActivityResultContract
 /**
  * Subtitle data to pass to an external player.
  */
-data class SubtitleInput(
-    val url: String,
-    val name: String,
-    val lang: String
-)
+data class SubtitleInput(val url: String, val name: String, val lang: String)
 
 /**
  * Input data for launching an external video player.
@@ -80,11 +76,11 @@ class ExternalPlayerResultContract : ActivityResultContract<ExternalPlayerInput,
                 putExtra("forceresume", false)
                 putExtra("from_start", true)
             } else if (input.resumePositionMs > 0L) {
-                putExtra("position", input.resumePositionMs.toInt())  // MX Player / Just Player / mpv (Int ms)
-                putExtra("extra_position", input.resumePositionMs)    // VLC (Long ms)
+                putExtra("position", input.resumePositionMs.toInt()) // MX Player / Just Player / mpv (Int ms)
+                putExtra("extra_position", input.resumePositionMs) // VLC (Long ms)
                 putExtra("startfrom", input.resumePositionMs.toInt()) // Vimu Player (Int ms)
-                putExtra("forceresume", true)                         // Vimu: enable resume for network streams
-                putExtra("from_start", false)                         // VLC: don't force start from beginning
+                putExtra("forceresume", true) // Vimu: enable resume for network streams
+                putExtra("from_start", false) // VLC: don't force start from beginning
             }
 
             // Request that the player returns result with position/duration.
@@ -140,7 +136,10 @@ class ExternalPlayerResultContract : ActivityResultContract<ExternalPlayerInput,
     override fun parseResult(resultCode: Int, intent: Intent?): ExternalPlayerResult? {
         // Some players return RESULT_OK, others return RESULT_CANCELED even on normal exit.
         // We try to parse position regardless of resultCode.
-        android.util.Log.d("ExtPlayerContract", "parseResult: resultCode=$resultCode, intent=$intent, extras=${intent?.extras?.keySet()?.toList()}")
+        android.util.Log.d(
+            "ExtPlayerContract",
+            "parseResult: resultCode=$resultCode, intent=$intent, extras=${intent?.extras?.keySet()?.toList()}"
+        )
         val data = intent ?: return null
 
         val position = parsePosition(data)
@@ -164,7 +163,10 @@ class ExternalPlayerResultContract : ActivityResultContract<ExternalPlayerInput,
         // EOF — don't discard those, or the episode never marks watched / auto-advances. Only
         // bail when there is genuinely nothing to act on: no position AND no completion signal.
         if (position == null && !completedByEndReason && !mpvFinishedWithNoData) {
-            android.util.Log.d("ExtPlayerContract", "parseResult: no position and no completion signal; dropping")
+            android.util.Log.d(
+                "ExtPlayerContract",
+                "parseResult: no position and no completion signal; dropping"
+            )
             return null
         }
 
@@ -192,11 +194,9 @@ class ExternalPlayerResultContract : ActivityResultContract<ExternalPlayerInput,
     // Robust against key + type variants across players:
     // - VLC: extra_position (Long)
     // - MX Player / Just Player / mpv-android / Nova: position (Int)
-    private fun parsePosition(data: Intent): Long? =
-        firstPositiveExtra(data, "extra_position", "position")
+    private fun parsePosition(data: Intent): Long? = firstPositiveExtra(data, "extra_position", "position")
 
-    private fun parseDuration(data: Intent): Long? =
-        firstPositiveExtra(data, "extra_duration", "duration")
+    private fun parseDuration(data: Intent): Long? = firstPositiveExtra(data, "extra_duration", "duration")
 
     /** Reads the first key that holds a positive Long or Int value, trying both types. */
     private fun firstPositiveExtra(data: Intent, vararg keys: String): Long? {

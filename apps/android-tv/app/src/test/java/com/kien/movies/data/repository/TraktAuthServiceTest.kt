@@ -25,7 +25,8 @@ class TraktAuthServiceTest {
         coEvery { traktAuthDataStore.getCurrentState() } answers { authState }
         coEvery { traktAuthDataStore.clearAuth() } answers { authState = TraktAuthState() }
         coEvery { authSessionNoticeDataStore.markTraktReconnectRequired() } returns Unit
-        coEvery { traktApi.refreshToken(any()) } returns Response.error(400, "invalid_grant".toResponseBody())
+        coEvery { traktApi.refreshToken(any()) } returns
+            Response.error(400, "invalid_grant".toResponseBody())
 
         val service = TraktAuthService(
             context = mockk<Context>(relaxed = true),
@@ -51,7 +52,8 @@ class TraktAuthServiceTest {
         val authState = authenticatedState()
 
         coEvery { traktAuthDataStore.getCurrentState() } returns authState
-        coEvery { traktApi.refreshToken(any()) } returns Response.error(503, "unavailable".toResponseBody())
+        coEvery { traktApi.refreshToken(any()) } returns
+            Response.error(503, "unavailable".toResponseBody())
 
         val service = TraktAuthService(
             context = mockk<Context>(relaxed = true),

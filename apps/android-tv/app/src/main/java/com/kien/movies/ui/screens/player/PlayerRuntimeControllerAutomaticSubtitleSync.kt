@@ -5,18 +5,18 @@ import androidx.media3.common.C
 import androidx.media3.common.MimeTypes
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.extractor.ExtractorsFactory
+import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.ui.screens.player.audiosync.AudioSyncFallback
 import com.kien.movies.ui.screens.player.audiosync.AudioSyncSettings
 import com.kien.movies.ui.screens.player.audiosync.AudioSyncTaps
-import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.ui.screens.player.autosync.AutoSyncAnalysisOutcome
 import com.kien.movies.ui.screens.player.autosync.AutoSyncCandidateScope
 import com.kien.movies.ui.screens.player.autosync.AutoSyncExtractorsFactory
 import com.kien.movies.ui.screens.player.autosync.AutoSyncLibassSubtitles
 import com.kien.movies.ui.screens.player.autosync.AutoSyncPreferences
 import com.kien.movies.ui.screens.player.autosync.AutoSyncResolvedTimeline
-import com.kien.movies.ui.screens.player.autosync.AutoSyncSubtitleCandidate
 import com.kien.movies.ui.screens.player.autosync.AutoSyncState
+import com.kien.movies.ui.screens.player.autosync.AutoSyncSubtitleCandidate
 import com.kien.movies.ui.screens.player.autosync.AutoSyncSubtitleTextRetimer
 import com.kien.movies.ui.screens.player.autosync.AutoSyncSyncedSubtitle
 import com.kien.movies.ui.screens.player.autosync.AutomaticSubtitleSync
@@ -29,9 +29,9 @@ import java.io.File
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 
 /** Thin TV adapter around the feature-owned Mobile AutoSync V2 pipeline. */
@@ -43,7 +43,7 @@ import kotlinx.coroutines.withContext
 internal fun PlayerRuntimeController.autoSyncExtractorsFactory(
     delegate: ExtractorsFactory,
     url: String,
-    headers: Map<String, String>,
+    headers: Map<String, String>
 ): ExtractorsFactory {
     AutoSyncPreferences.ensureLoaded(context)
     if (!AutoSyncPreferences.isEnabled(context)) return delegate
@@ -64,7 +64,7 @@ internal fun PlayerRuntimeController.autoSyncExtractorsFactory(
  */
 internal fun PlayerRuntimeController.prefetchAutoSyncIndex(
     url: String,
-    headers: Map<String, String>,
+    headers: Map<String, String>
 ) {
     AutoSyncPreferences.ensureLoaded(context)
     if (!AutoSyncPreferences.isEnabled(context)) return
@@ -72,8 +72,7 @@ internal fun PlayerRuntimeController.prefetchAutoSyncIndex(
 }
 
 /** The user picked [subtitle]: check only that subtitle, never swap in another one. */
-internal fun PlayerRuntimeController.runSelectedAutomaticSubtitleSync(subtitle: Subtitle) =
-    maybeRunAutomaticSubtitleSync(subtitle, AutoSyncCandidateScope.SELECTED_ONLY)
+internal fun PlayerRuntimeController.runSelectedAutomaticSubtitleSync(subtitle: Subtitle) = maybeRunAutomaticSubtitleSync(subtitle, AutoSyncCandidateScope.SELECTED_ONLY)
 
 internal fun PlayerRuntimeController.cancelAutomaticSubtitleSync() {
     automaticSubtitleSyncJob?.cancel()
@@ -83,7 +82,7 @@ internal fun PlayerRuntimeController.cancelAutomaticSubtitleSync() {
 
 internal fun PlayerRuntimeController.maybeRunAutomaticSubtitleSync(
     selectedSubtitle: Subtitle,
-    candidateScope: AutoSyncCandidateScope = AutoSyncCandidateScope.STARTUP_SEARCH,
+    candidateScope: AutoSyncCandidateScope = AutoSyncCandidateScope.STARTUP_SEARCH
 ) {
     AutoSyncPreferences.ensureLoaded(context)
     if (!AutoSyncPreferences.isEnabled(context)) return
@@ -135,7 +134,7 @@ internal fun PlayerRuntimeController.maybeRunAutomaticSubtitleSync(
         rawBodyLoader = {
             selectedBodyDeferred.await()
                 ?: throw IllegalStateException("Subtitle body unavailable")
-        },
+        }
     )
     if (!started) {
         return
@@ -156,7 +155,7 @@ internal fun PlayerRuntimeController.maybeRunAutomaticSubtitleSync(
                 AutomaticSubtitleSync.downloadSubtitleBody(
                     url = selectedUrl,
                     headers = selectedSubtitle.headers.orEmpty(),
-                    languageHint = selectedSubtitle.lang,
+                    languageHint = selectedSubtitle.lang
                 )
             } catch (cancel: CancellationException) {
                 throw cancel
@@ -168,15 +167,14 @@ internal fun PlayerRuntimeController.maybeRunAutomaticSubtitleSync(
         }
         // The user can switch to a built-in track, turn subtitles off or open another stream while
         // this runs; the fallbacks below must then leave their choice alone.
-        fun stillRelevant(): Boolean =
-            currentStreamUrl == sourceUrlAtStart &&
-                _uiState.value.selectedAddonSubtitle?.url == selectedUrl
+        fun stillRelevant(): Boolean = currentStreamUrl == sourceUrlAtStart &&
+            _uiState.value.selectedAddonSubtitle?.url == selectedUrl
 
         try {
             Log.d(
                 PlayerRuntimeController.TAG,
                 "AUTO_SYNC_V2 start scope=${candidateScope.name} " +
-                    "lang=${selectedSubtitle.lang} candidates=${candidatesAtStart.size}",
+                    "lang=${selectedSubtitle.lang} candidates=${candidatesAtStart.size}"
             )
             var analysisOutcome: AutoSyncAnalysisOutcome? = null
             suspend fun search(withAlternatives: Boolean) = AutomaticSubtitleSync.findTimelineRetime(
@@ -197,10 +195,10 @@ internal fun PlayerRuntimeController.maybeRunAutomaticSubtitleSync(
                     null
                 },
                 onReferenceReady = {},
-                onAnalysisOutcome = { outcome -> analysisOutcome = outcome },
+                onAnalysisOutcome = { outcome -> analysisOutcome = outcome }
             )
             var resolved = search(
-                withAlternatives = candidateScope == AutoSyncCandidateScope.STARTUP_SEARCH,
+                withAlternatives = candidateScope == AutoSyncCandidateScope.STARTUP_SEARCH
             )
             if (
                 resolved == null && stillRelevant() &&
@@ -208,7 +206,7 @@ internal fun PlayerRuntimeController.maybeRunAutomaticSubtitleSync(
             ) {
                 Log.d(
                     PlayerRuntimeController.TAG,
-                    "AUTO_SYNC_V2 restored subtitle did not fit (outcome=$analysisOutcome), searching alternatives",
+                    "AUTO_SYNC_V2 restored subtitle did not fit (outcome=$analysisOutcome), searching alternatives"
                 )
                 resolved = search(withAlternatives = true)
             }
@@ -218,8 +216,9 @@ internal fun PlayerRuntimeController.maybeRunAutomaticSubtitleSync(
                 if (activeSidecarSubtitleKey == null) {
                     startSidecarAddonSubtitle(selectedSubtitle)
                 }
-                val audioTakesOver = analysisOutcome != AutoSyncAnalysisOutcome.SUBTITLE_UNAVAILABLE &&
-                    audioFallback?.takeOver(selectedUrl) == true
+                val audioTakesOver =
+                    analysisOutcome != AutoSyncAnalysisOutcome.SUBTITLE_UNAVAILABLE &&
+                        audioFallback?.takeOver(selectedUrl) == true
                 if (!audioTakesOver) {
                     audioFallback?.disarm()
                     AutoSyncSyncedSubtitle.mark(selectedUrl, analysisOutcome.failureState())
@@ -249,26 +248,29 @@ internal fun PlayerRuntimeController.maybeRunAutomaticSubtitleSync(
             }
             val applied = when {
                 withinToleranceMs != null -> activeSidecarSubtitleKey == selectedUrl
+
                 resolved.subtitleUrl == selectedUrl -> {
                     applyAutoSyncSidecarTimeline(
                         sidecar = this@maybeRunAutomaticSubtitleSync,
                         url = selectedUrl,
-                        timeline = resolved.timeline,
+                        timeline = resolved.timeline
                     )
                 }
+
                 activeSidecarSubtitleKey == null &&
                     startSidecarAddonSubtitle(
                         subtitle = chosenSubtitle,
                         rawBodyLoader = resolved.subtitleBody?.let { body ->
                             suspend { body }
-                        },
+                        }
                     ) -> {
                     applyAutoSyncSidecarTimeline(
                         sidecar = this@maybeRunAutomaticSubtitleSync,
                         url = resolved.subtitleUrl,
-                        timeline = resolved.timeline,
+                        timeline = resolved.timeline
                     )
                 }
+
                 else -> {
                     replaceAutoSyncSidecarSubtitle(
                         sidecar = this@maybeRunAutomaticSubtitleSync,
@@ -277,7 +279,7 @@ internal fun PlayerRuntimeController.maybeRunAutomaticSubtitleSync(
                         headers = resolved.subtitleHeaders,
                         rawBody = resolved.subtitleBody,
                         useLibass = useLibass,
-                        timeline = resolved.timeline,
+                        timeline = resolved.timeline
                     )
                 }
             }
@@ -295,7 +297,7 @@ internal fun PlayerRuntimeController.maybeRunAutomaticSubtitleSync(
                 _uiState.update {
                     it.copy(
                         selectedAddonSubtitle = chosenSubtitle,
-                        selectedSubtitleTrackIndex = -1,
+                        selectedSubtitleTrackIndex = -1
                     )
                 }
                 rememberAddonSubtitleSelection(chosenSubtitle)
@@ -303,7 +305,7 @@ internal fun PlayerRuntimeController.maybeRunAutomaticSubtitleSync(
             if (!resolved.reused) setSubtitleDelayMs(targetMs = 0, showOverlay = false)
             AutoSyncSyncedSubtitle.mark(
                 chosenSubtitle.url,
-                if (withinToleranceMs != null) AutoSyncState.NOT_NEEDED else AutoSyncState.SYNCED,
+                if (withinToleranceMs != null) AutoSyncState.NOT_NEEDED else AutoSyncState.SYNCED
             )
         } catch (cancel: CancellationException) {
             throw cancel
@@ -331,7 +333,7 @@ internal fun PlayerRuntimeController.maybeRunAutomaticSubtitleSync(
  */
 private fun PlayerRuntimeController.runMpvAutomaticSubtitleSync(
     selectedSubtitle: Subtitle,
-    candidateScope: AutoSyncCandidateScope,
+    candidateScope: AutoSyncCandidateScope
 ) {
     automaticSubtitleSyncJob?.cancel()
 
@@ -349,8 +351,7 @@ private fun PlayerRuntimeController.runMpvAutomaticSubtitleSync(
     val statusRun = AutoSyncSyncedSubtitle.start(selectedUrl)
 
     automaticSubtitleSyncJob = scope.launch {
-        fun streamUnchanged(): Boolean =
-            currentStreamUrl == sourceUrlAtStart && isUsingMpvEngine()
+        fun streamUnchanged(): Boolean = currentStreamUrl == sourceUrlAtStart && isUsingMpvEngine()
 
         // Every way out of this run disarms the fallback, unless it took over the subtitle. A
         // cancelled run leaves it alone: the run that replaced it has armed it again.
@@ -359,7 +360,7 @@ private fun PlayerRuntimeController.runMpvAutomaticSubtitleSync(
             Log.d(
                 PlayerRuntimeController.TAG,
                 "AUTO_SYNC_V2 mpv start scope=${candidateScope.name} " +
-                    "lang=${selectedSubtitle.lang} candidates=${candidatesAtStart.size}",
+                    "lang=${selectedSubtitle.lang} candidates=${candidatesAtStart.size}"
             )
             var analysisOutcome: AutoSyncAnalysisOutcome? = null
             suspend fun search(withAlternatives: Boolean) = AutomaticSubtitleSync.findTimelineRetime(
@@ -379,10 +380,10 @@ private fun PlayerRuntimeController.runMpvAutomaticSubtitleSync(
                     null
                 },
                 onAnalysisOutcome = { outcome -> analysisOutcome = outcome },
-                allowLiveReference = false,
+                allowLiveReference = false
             )
             var resolved = search(
-                withAlternatives = candidateScope == AutoSyncCandidateScope.STARTUP_SEARCH,
+                withAlternatives = candidateScope == AutoSyncCandidateScope.STARTUP_SEARCH
             )
             if (
                 resolved == null && streamUnchanged() &&
@@ -391,7 +392,7 @@ private fun PlayerRuntimeController.runMpvAutomaticSubtitleSync(
             ) {
                 Log.d(
                     PlayerRuntimeController.TAG,
-                    "AUTO_SYNC_V2 mpv restored subtitle did not fit (outcome=$analysisOutcome), searching alternatives",
+                    "AUTO_SYNC_V2 mpv restored subtitle did not fit (outcome=$analysisOutcome), searching alternatives"
                 )
                 resolved = search(withAlternatives = true)
             }
@@ -402,9 +403,13 @@ private fun PlayerRuntimeController.runMpvAutomaticSubtitleSync(
             if (!streamUnchanged()) return@launch
             val activeSubtitleUrl = _uiState.value.selectedAddonSubtitle?.url
             if (resolved == null) {
-                Log.d(PlayerRuntimeController.TAG, "AUTO_SYNC_V2 mpv no match outcome=$analysisOutcome")
+                Log.d(
+                    PlayerRuntimeController.TAG,
+                    "AUTO_SYNC_V2 mpv no match outcome=$analysisOutcome"
+                )
                 if (activeSubtitleUrl == selectedUrl) {
-                    audioTookOver = analysisOutcome != AutoSyncAnalysisOutcome.SUBTITLE_UNAVAILABLE &&
+                    audioTookOver =
+                        analysisOutcome != AutoSyncAnalysisOutcome.SUBTITLE_UNAVAILABLE &&
                         audioFallback?.takeOver(selectedUrl) == true
                     if (!audioTookOver) {
                         AutoSyncSyncedSubtitle.mark(selectedUrl, analysisOutcome.failureState())
@@ -428,14 +433,16 @@ private fun PlayerRuntimeController.runMpvAutomaticSubtitleSync(
                 resolved.timeline.maxAlignmentShiftMs() <= toleranceMs
             if (!withinTolerance) {
                 val path = writeMpvAutoSyncedSubtitle(chosenSubtitle, resolved)
-                if (!streamUnchanged() || _uiState.value.selectedAddonSubtitle?.url != activeSubtitleUrl) {
+                if (!streamUnchanged() ||
+                    _uiState.value.selectedAddonSubtitle?.url != activeSubtitleUrl
+                ) {
                     return@launch
                 }
                 val wasPlaying = isPlaybackCurrentlyPlaying()
                 val added = path != null && mpvView?.addAndSelectExternalSubtitle(
                     url = path,
                     title = buildAddonSubtitleTrackId(chosenSubtitle),
-                    language = PlayerSubtitleUtils.normalizeLanguageCode(chosenSubtitle.lang),
+                    language = PlayerSubtitleUtils.normalizeLanguageCode(chosenSubtitle.lang)
                 ) == true
                 if (!added) {
                     if (activeSubtitleUrl == selectedUrl) {
@@ -450,7 +457,7 @@ private fun PlayerRuntimeController.runMpvAutomaticSubtitleSync(
                 _uiState.update {
                     it.copy(
                         selectedAddonSubtitle = chosenSubtitle,
-                        selectedSubtitleTrackIndex = -1,
+                        selectedSubtitleTrackIndex = -1
                     )
                 }
                 rememberAddonSubtitleSelection(chosenSubtitle)
@@ -459,7 +466,7 @@ private fun PlayerRuntimeController.runMpvAutomaticSubtitleSync(
             if (!resolved.reused) setSubtitleDelayMs(targetMs = 0, showOverlay = false)
             AutoSyncSyncedSubtitle.mark(
                 chosenSubtitle.url,
-                if (withinTolerance) AutoSyncState.NOT_NEEDED else AutoSyncState.SYNCED,
+                if (withinTolerance) AutoSyncState.NOT_NEEDED else AutoSyncState.SYNCED
             )
             Log.d(
                 PlayerRuntimeController.TAG,
@@ -467,7 +474,7 @@ private fun PlayerRuntimeController.runMpvAutomaticSubtitleSync(
                     "switched=${chosenSubtitle.url != selectedUrl} keptTiming=$withinTolerance " +
                     "source=${resolved.timeline.alignmentSource} " +
                     "scale=${resolved.timeline.alignmentScale} " +
-                    "interceptMs=${resolved.timeline.alignmentInterceptMs.toLong()}",
+                    "interceptMs=${resolved.timeline.alignmentInterceptMs.toLong()}"
             )
         } catch (cancel: CancellationException) {
             throw cancel
@@ -484,9 +491,8 @@ private fun PlayerRuntimeController.runMpvAutomaticSubtitleSync(
     }
 }
 
-private fun PlayerRuntimeController.isLibassAddonSubtitle(subtitle: Subtitle): Boolean =
-    PlayerSubtitleUtils.mimeTypeFromUrl(subtitle.url) == MimeTypes.TEXT_SSA &&
-        _exoPlayer?.getAssHandlerCompat() != null
+private fun PlayerRuntimeController.isLibassAddonSubtitle(subtitle: Subtitle): Boolean = PlayerSubtitleUtils.mimeTypeFromUrl(subtitle.url) == MimeTypes.TEXT_SSA &&
+    _exoPlayer?.getAssHandlerCompat() != null
 
 /**
  * ExoPlayer path for ASS/SSA add-on subtitles drawn by libass. The analysis is the same as for the
@@ -500,7 +506,7 @@ private fun PlayerRuntimeController.isLibassAddonSubtitle(subtitle: Subtitle): B
  */
 private fun PlayerRuntimeController.runLibassAutomaticSubtitleSync(
     selectedSubtitle: Subtitle,
-    candidateScope: AutoSyncCandidateScope,
+    candidateScope: AutoSyncCandidateScope
 ) {
     automaticSubtitleSyncJob?.cancel()
     val player = _exoPlayer ?: return
@@ -515,17 +521,15 @@ private fun PlayerRuntimeController.runLibassAutomaticSubtitleSync(
     val statusRun = AutoSyncSyncedSubtitle.start(selectedUrl)
 
     automaticSubtitleSyncJob = scope.launch {
-        fun streamUnchanged(): Boolean =
-            currentStreamUrl == sourceUrlAtStart && _exoPlayer === player && !isUsingMpvEngine()
+        fun streamUnchanged(): Boolean = currentStreamUrl == sourceUrlAtStart && _exoPlayer === player && !isUsingMpvEngine()
 
-        fun stillRelevant(): Boolean =
-            streamUnchanged() && _uiState.value.selectedAddonSubtitle?.url == selectedUrl
+        fun stillRelevant(): Boolean = streamUnchanged() && _uiState.value.selectedAddonSubtitle?.url == selectedUrl
 
         try {
             Log.d(
                 PlayerRuntimeController.TAG,
                 "AUTO_SYNC_V2 libass start scope=${candidateScope.name} " +
-                    "lang=${selectedSubtitle.lang} candidates=${candidatesAtStart.size}",
+                    "lang=${selectedSubtitle.lang} candidates=${candidatesAtStart.size}"
             )
             var analysisOutcome: AutoSyncAnalysisOutcome? = null
             var startupSearch = candidateScope == AutoSyncCandidateScope.STARTUP_SEARCH
@@ -549,7 +553,7 @@ private fun PlayerRuntimeController.runLibassAutomaticSubtitleSync(
                 } else {
                     null
                 },
-                onAnalysisOutcome = { outcome -> analysisOutcome = outcome },
+                onAnalysisOutcome = { outcome -> analysisOutcome = outcome }
             )
             var resolved = search(ass = true)
             if (
@@ -558,7 +562,7 @@ private fun PlayerRuntimeController.runLibassAutomaticSubtitleSync(
             ) {
                 Log.d(
                     PlayerRuntimeController.TAG,
-                    "AUTO_SYNC_V2 libass restored subtitle did not fit (outcome=$analysisOutcome), searching alternatives",
+                    "AUTO_SYNC_V2 libass restored subtitle did not fit (outcome=$analysisOutcome), searching alternatives"
                 )
                 startupSearch = true
                 resolved = search(ass = true)
@@ -576,7 +580,10 @@ private fun PlayerRuntimeController.runLibassAutomaticSubtitleSync(
             if (!streamUnchanged()) return@launch
             val activeSubtitleUrl = _uiState.value.selectedAddonSubtitle?.url
             if (resolved == null) {
-                Log.d(PlayerRuntimeController.TAG, "AUTO_SYNC_V2 libass no match outcome=$analysisOutcome")
+                Log.d(
+                    PlayerRuntimeController.TAG,
+                    "AUTO_SYNC_V2 libass no match outcome=$analysisOutcome"
+                )
                 if (activeSubtitleUrl == selectedUrl) {
                     AutoSyncSyncedSubtitle.mark(selectedUrl, analysisOutcome.failureState())
                 }
@@ -606,7 +613,7 @@ private fun PlayerRuntimeController.runLibassAutomaticSubtitleSync(
                         _uiState.value.selectedAddonSubtitle?.url.let {
                             it == selectedUrl || it == chosenSubtitle.url
                         }
-                },
+                }
             )
             if (!applied) {
                 if (stillRelevant()) AutoSyncSyncedSubtitle.mark(selectedUrl, AutoSyncState.FAILED)
@@ -617,7 +624,7 @@ private fun PlayerRuntimeController.runLibassAutomaticSubtitleSync(
                 _uiState.update {
                     it.copy(
                         selectedAddonSubtitle = chosenSubtitle,
-                        selectedSubtitleTrackIndex = -1,
+                        selectedSubtitleTrackIndex = -1
                     )
                 }
                 rememberAddonSubtitleSelection(chosenSubtitle)
@@ -625,7 +632,7 @@ private fun PlayerRuntimeController.runLibassAutomaticSubtitleSync(
             if (!resolved.reused) setSubtitleDelayMs(targetMs = 0, showOverlay = false)
             AutoSyncSyncedSubtitle.mark(
                 chosenSubtitle.url,
-                if (withinTolerance) AutoSyncState.NOT_NEEDED else AutoSyncState.SYNCED,
+                if (withinTolerance) AutoSyncState.NOT_NEEDED else AutoSyncState.SYNCED
             )
             Log.d(
                 PlayerRuntimeController.TAG,
@@ -633,7 +640,7 @@ private fun PlayerRuntimeController.runLibassAutomaticSubtitleSync(
                     "switched=${chosenSubtitle.url != selectedUrl} keptTiming=$withinTolerance " +
                     "source=${resolved.timeline.alignmentSource} " +
                     "scale=${resolved.timeline.alignmentScale} " +
-                    "interceptMs=${resolved.timeline.alignmentInterceptMs.toLong()}",
+                    "interceptMs=${resolved.timeline.alignmentInterceptMs.toLong()}"
             )
         } catch (cancel: CancellationException) {
             throw cancel
@@ -657,7 +664,7 @@ private suspend fun PlayerRuntimeController.applyLibassAutoSyncResult(
     selectedSubtitle: Subtitle,
     chosenSubtitle: Subtitle,
     resolved: AutoSyncResolvedTimeline,
-    stillApplicable: () -> Boolean,
+    stillApplicable: () -> Boolean
 ): Boolean {
     val selectedUrl = selectedSubtitle.url
     if (PlayerSubtitleUtils.mimeTypeFromUrl(chosenSubtitle.url) != MimeTypes.TEXT_SSA) {
@@ -668,11 +675,11 @@ private suspend fun PlayerRuntimeController.applyLibassAutoSyncResult(
         pendingAudioSelectionAfterSubtitleRefresh = null
         val applied = startSidecarAddonSubtitle(
             subtitle = chosenSubtitle,
-            rawBodyLoader = resolved.subtitleBody?.let { body -> suspend { body } },
+            rawBodyLoader = resolved.subtitleBody?.let { body -> suspend { body } }
         ) && applyAutoSyncSidecarTimeline(
             sidecar = this,
             url = chosenSubtitle.url,
-            timeline = resolved.timeline,
+            timeline = resolved.timeline
         )
         if (!applied) {
             stopSidecarAddonSubtitle()
@@ -687,7 +694,7 @@ private suspend fun PlayerRuntimeController.applyLibassAutoSyncResult(
     val retimed = withContext(AutomaticSubtitleSync.autoSyncDispatcher) {
         AutoSyncSubtitleTextRetimer.retime(
             body = SubtitleMojibakeSanitizer.sanitize(body).toString(),
-            timeline = resolved.timeline,
+            timeline = resolved.timeline
         )
     } ?: return false
     if (!stillApplicable()) return false
@@ -695,7 +702,7 @@ private suspend fun PlayerRuntimeController.applyLibassAutoSyncResult(
     AutoSyncLibassSubtitles.apply(
         assHandler = assHandler,
         trackId = buildAddonSubtitleTrackId(chosenSubtitle),
-        retimedText = retimed,
+        retimedText = retimed
     )
     return true
 }
@@ -707,14 +714,14 @@ private suspend fun PlayerRuntimeController.applyLibassAutoSyncResult(
  */
 private suspend fun PlayerRuntimeController.writeMpvAutoSyncedSubtitle(
     subtitle: Subtitle,
-    resolved: AutoSyncResolvedTimeline,
+    resolved: AutoSyncResolvedTimeline
 ): String? {
     val body = resolved.subtitleBody
         ?: downloadSubtitleBody(subtitle.url, subtitle.lang, subtitle.headers)
     val retimed = withContext(AutomaticSubtitleSync.autoSyncDispatcher) {
         AutoSyncSubtitleTextRetimer.retime(
             body = SubtitleMojibakeSanitizer.sanitize(body).toString(),
-            timeline = resolved.timeline,
+            timeline = resolved.timeline
         )
     } ?: return null
     return withContext(Dispatchers.IO) {
@@ -736,17 +743,18 @@ private suspend fun PlayerRuntimeController.writeMpvAutoSyncedSubtitle(
 private fun Subtitle.toAutoSyncCandidate() = AutoSyncSubtitleCandidate(
     url = url,
     language = lang,
-    name = addonName.ifBlank { id },
+    name = addonName.ifBlank { id }
 )
 
-private fun AutoSyncAnalysisOutcome?.failureState(): AutoSyncState =
-    when (this) {
-        AutoSyncAnalysisOutcome.NO_FIT -> AutoSyncState.NO_FIT
-        AutoSyncAnalysisOutcome.NO_SUBTITLE_TRACKS,
-        AutoSyncAnalysisOutcome.NO_USABLE_REFERENCE,
-        -> AutoSyncState.NO_REFERENCE
-        AutoSyncAnalysisOutcome.SUBTITLE_UNAVAILABLE,
-        AutoSyncAnalysisOutcome.INCONCLUSIVE,
-        null,
-        -> AutoSyncState.FAILED
-    }
+private fun AutoSyncAnalysisOutcome?.failureState(): AutoSyncState = when (this) {
+    AutoSyncAnalysisOutcome.NO_FIT -> AutoSyncState.NO_FIT
+
+    AutoSyncAnalysisOutcome.NO_SUBTITLE_TRACKS,
+    AutoSyncAnalysisOutcome.NO_USABLE_REFERENCE
+    -> AutoSyncState.NO_REFERENCE
+
+    AutoSyncAnalysisOutcome.SUBTITLE_UNAVAILABLE,
+    AutoSyncAnalysisOutcome.INCONCLUSIVE,
+    null
+    -> AutoSyncState.FAILED
+}

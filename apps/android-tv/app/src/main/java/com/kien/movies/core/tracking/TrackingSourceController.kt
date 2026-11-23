@@ -1,8 +1,8 @@
 package com.kien.movies.core.tracking
 
+import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.core.sync.StartupSyncService
 import com.kien.movies.core.sync.WatchedItemsSyncService
-import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.data.local.ContinueWatchingEnrichmentCache
 import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.data.local.WatchProgressPreferences
@@ -65,10 +65,12 @@ class TrackingSourceController @Inject constructor(
         val rememberedLibrary = settingsDataStore.getRememberedLibrarySourceMode(profileId)
         val requested = TrackingSourceSelection(
             watchProgressSource = rememberedProgress?.takeIf {
-                stored.watchProgressSource == WatchProgressSource.NUVIO_SYNC && it.providerId in connectedProviderIds
+                stored.watchProgressSource == WatchProgressSource.NUVIO_SYNC &&
+                    it.providerId in connectedProviderIds
             } ?: stored.watchProgressSource,
             librarySourceMode = rememberedLibrary?.takeIf {
-                stored.librarySourceMode == LibrarySourceMode.LOCAL && it.providerId in connectedProviderIds
+                stored.librarySourceMode == LibrarySourceMode.LOCAL &&
+                    it.providerId in connectedProviderIds
             } ?: stored.librarySourceMode
         )
         val effective = effectiveTrackingSourceSelection(requested, connectedProviderIds)
@@ -77,8 +79,12 @@ class TrackingSourceController @Inject constructor(
             when {
                 effective.watchProgressSource == rememberedProgress ->
                     settingsDataStore.setRememberedWatchProgressSource(null, profileId)
+
                 stored.watchProgressSource.providerId != null ->
-                    settingsDataStore.setRememberedWatchProgressSource(stored.watchProgressSource, profileId)
+                    settingsDataStore.setRememberedWatchProgressSource(
+                        stored.watchProgressSource,
+                        profileId
+                    )
             }
             applyWatchProgressSource(effective.watchProgressSource, profileId)
         }
@@ -86,8 +92,12 @@ class TrackingSourceController @Inject constructor(
             when {
                 effective.librarySourceMode == rememberedLibrary ->
                     settingsDataStore.setRememberedLibrarySourceMode(null, profileId)
+
                 stored.librarySourceMode.providerId != null ->
-                    settingsDataStore.setRememberedLibrarySourceMode(stored.librarySourceMode, profileId)
+                    settingsDataStore.setRememberedLibrarySourceMode(
+                        stored.librarySourceMode,
+                        profileId
+                    )
             }
             applyLibrarySourceMode(effective.librarySourceMode, profileId)
         }
@@ -120,7 +130,9 @@ class TrackingSourceController @Inject constructor(
     private suspend fun applyLibrarySourceMode(mode: LibrarySourceMode, profileId: Int) {
         settingsDataStore.setLibrarySourceMode(mode, profileId)
         if (profileManager.activeProfileId.value != profileId) return
-        mode.providerId?.let(libraryProviders::provider)?.refresh(TrackingRefreshIntent.USER_INITIATED)
+        mode.providerId?.let(
+            libraryProviders::provider
+        )?.refresh(TrackingRefreshIntent.USER_INITIATED)
     }
 
     private suspend fun repopulateWatchedItemsFromMoviesSync(profileId: Int) {

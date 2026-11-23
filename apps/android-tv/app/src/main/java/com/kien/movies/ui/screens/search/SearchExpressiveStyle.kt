@@ -53,23 +53,20 @@ internal fun searchFieldColors(): TextFieldColors = TextFieldDefaults.colors(
 )
 
 /** The placeholder dims with the field's text and turns black with it on focus. */
-internal fun searchPlaceholderColor(fieldFocused: Boolean): Color =
-    if (fieldFocused) {
-        ExpressiveColors.onFocus.copy(alpha = PLACEHOLDER_ALPHA)
-    } else {
-        ExpressiveColors.textTertiary
-    }
+internal fun searchPlaceholderColor(fieldFocused: Boolean): Color = if (fieldFocused) {
+    ExpressiveColors.onFocus.copy(alpha = PLACEHOLDER_ALPHA)
+} else {
+    ExpressiveColors.textTertiary
+}
 
 internal fun Modifier.searchFieldSize(): Modifier = heightIn(min = SearchFieldMinHeight)
 
 /** The query in the field: the row title size, so it reads from the sofa. */
 @Composable
-internal fun searchFieldTextStyle(): TextStyle =
-    MaterialTheme.typography.titleMedium.merge(TextStyle(textDirection = TextDirection.Content))
+internal fun searchFieldTextStyle(): TextStyle = MaterialTheme.typography.titleMedium.merge(TextStyle(textDirection = TextDirection.Content))
 
 /** A magnifier leading the field. */
-internal fun searchFieldLeadingIcon(): (@Composable () -> Unit) =
-    { Icon(imageVector = Icons.Default.Search, contentDescription = null) }
+internal fun searchFieldLeadingIcon(): (@Composable () -> Unit) = { Icon(imageVector = Icons.Default.Search, contentDescription = null) }
 
 /** The listening pulse; composed only while listening, so an idle search screen runs no frames. */
 @Composable

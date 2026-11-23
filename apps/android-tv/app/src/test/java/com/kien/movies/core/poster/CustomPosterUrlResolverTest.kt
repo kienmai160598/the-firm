@@ -68,7 +68,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tt0137523")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/poster?id={id}&id_type={id_type}&type={type}",
-            ids, "movie"
+            ids,
+            "movie"
         )
         assertEquals("https://example.com/poster?id=tt0137523&id_type=imdb&type=movie", url)
     }
@@ -78,7 +79,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:1396")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/poster?id={id}&id_type={id_type}&type={type}",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals("https://example.com/poster?id=tmdb:1396&id_type=tmdb&type=series", url)
     }
@@ -88,7 +90,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("kitsu:7442")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/poster?id={id}&id_type={id_type}&type={type}",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals("https://example.com/poster?id=kitsu:7442&id_type=kitsu&type=series", url)
     }
@@ -100,7 +103,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tt0137523")
         val url = CustomPosterUrlResolver.resolve(
             "https://api.ratingposterdb.com/t1-key/imdb/poster-default/{imdb_id}.jpg?fallback=true",
-            ids, "movie"
+            ids,
+            "movie"
         )
         assertEquals(
             "https://api.ratingposterdb.com/t1-key/imdb/poster-default/tt0137523.jpg?fallback=true",
@@ -113,7 +117,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:1396")
         val url = CustomPosterUrlResolver.resolve(
             "https://api.ratingposterdb.com/t1-key/imdb/poster-default/{imdb_id}.jpg?fallback=true",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals(
             "https://api.ratingposterdb.com/t1-key/tmdb/poster-default/series-1396.jpg?fallback=true",
@@ -126,7 +131,8 @@ class CustomPosterUrlResolverTest {
         val ids = ContentIds(id = "tvdb:81189", tvdbId = "81189")
         val url = CustomPosterUrlResolver.resolve(
             "https://api.ratingposterdb.com/t1-key/imdb/poster-default/{imdb_id}.jpg?fallback=true",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals(
             "https://api.ratingposterdb.com/t1-key/tvdb/poster-default/series-81189.jpg?fallback=true",
@@ -139,7 +145,8 @@ class CustomPosterUrlResolverTest {
         val ids = ContentIds(id = "tt0903747", imdbId = "tt0903747", tmdbId = "1396")
         val url = CustomPosterUrlResolver.resolve(
             "https://api.ratingposterdb.com/t1-key/imdb/poster-default/{imdb_id}.jpg?fallback=true",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals(
             "https://api.ratingposterdb.com/t1-key/imdb/poster-default/tt0903747.jpg?fallback=true",
@@ -154,7 +161,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:550")
         val url = CustomPosterUrlResolver.resolve(
             "https://api.aioratings.com/mykey/imdb/poster-default/{imdb_id}.jpg?fallback=true",
-            ids, "movie"
+            ids,
+            "movie"
         )
         assertEquals(
             "https://api.aioratings.com/mykey/tmdb/poster-default/movie-550.jpg?fallback=true",
@@ -169,7 +177,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tt0137523")
         val url = CustomPosterUrlResolver.resolve(
             "https://btttr.cc/poster/imdb/poster-default/{imdb_id}.jpg",
-            ids, "movie"
+            ids,
+            "movie"
         )
         assertEquals("https://btttr.cc/poster/imdb/poster-default/tt0137523.jpg", url)
     }
@@ -179,7 +188,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:1396")
         val url = CustomPosterUrlResolver.resolve(
             "https://btttr.cc/poster/imdb/poster-default/{imdb_id}.jpg",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals("https://btttr.cc/poster/tmdb/poster-default/series-1396.jpg", url)
     }
@@ -191,7 +201,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:1396")
         val url = CustomPosterUrlResolver.resolve(
             "https://postersplus.example.com/poster?tmdb_id={tmdb_id}&type={type}",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals("https://postersplus.example.com/poster?tmdb_id=1396&type=series", url)
     }
@@ -201,7 +212,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:1396", explicitImdbId = "tt0903747")
         val url = CustomPosterUrlResolver.resolve(
             "https://postersplus.example.com/poster?tmdb_id={tmdb_id}&imdb_id={imdb_id?}&type={type}",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals(
             "https://postersplus.example.com/poster?tmdb_id=1396&imdb_id=tt0903747&type=series",
@@ -214,7 +226,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:1396")
         val url = CustomPosterUrlResolver.resolve(
             "https://postersplus.example.com/poster?tmdb_id={tmdb_id}&imdb_id={imdb_id?}&type={type}",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals(
             "https://postersplus.example.com/poster?tmdb_id=1396&imdb_id=&type=series",
@@ -227,7 +240,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tt0137523")
         val url = CustomPosterUrlResolver.resolve(
             "https://postersplus.example.com/poster?tmdb_id={tmdb_id}&type={type}",
-            ids, "movie"
+            ids,
+            "movie"
         )
         assertNull(url)
     }
@@ -237,7 +251,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("kitsu:7442")
         val url = CustomPosterUrlResolver.resolve(
             "https://postersplus.example.com/poster?tmdb_id={tmdb_id?}&stremio_id={id}&type={type}",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals(
             "https://postersplus.example.com/poster?tmdb_id=&stremio_id=kitsu:7442&type=series",
@@ -254,7 +269,8 @@ class CustomPosterUrlResolverTest {
             "https://postersplus.stremio.ru/poster?tmdb_id={tmdb_id}&imdb_id={imdb_id?}&type={type}" +
                 "&primary_client=stremio_tv_nuvio&fallback_to_imdb=true" +
                 "&movie_weights=letterboxd%3A0.99",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals(
             "https://postersplus.stremio.ru/poster?tmdb_id=1396&imdb_id=tt0903747&type=series" +
@@ -271,7 +287,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tt0137523")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/poster?content_id={imdb_id|tmdb_id|kitsu_id}&type={type}",
-            ids, "movie"
+            ids,
+            "movie"
         )
         assertEquals("https://example.com/poster?content_id=tt0137523&type=movie", url)
     }
@@ -281,7 +298,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("kitsu:7442")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/poster?content_id={imdb_id|kitsu_id|tvdb_id}&type={type}",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals("https://example.com/poster?content_id=7442&type=series", url)
     }
@@ -291,7 +309,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:1396")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/poster?content_id={imdb_id|kitsu_id}&type={type}",
-            ids, "series"
+            ids,
+            "series"
         )
         assertNull(url)
     }
@@ -301,7 +320,9 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:550")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/art?id={imdb_id|tmdb_id}&type={type}&shape={shape}",
-            ids, "movie", shape = "landscape"
+            ids,
+            "movie",
+            shape = "landscape"
         )
         assertEquals("https://example.com/art?id=550&type=movie&shape=landscape", url)
     }
@@ -311,7 +332,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:1396", explicitImdbId = "tt0903747")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/poster?content_id={imdb_id|tmdb_id}&type={type}",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals("https://example.com/poster?content_id=tt0903747&type=series", url)
     }
@@ -323,7 +345,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tt0137523")
         val url = CustomPosterUrlResolver.resolve(
             "https://api.aioratings.com/KEY/{id_type}/poster-default/{typed_id}.jpg",
-            ids, "movie"
+            ids,
+            "movie"
         )
         assertEquals("https://api.aioratings.com/KEY/imdb/poster-default/tt0137523.jpg", url)
     }
@@ -333,7 +356,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:550")
         val url = CustomPosterUrlResolver.resolve(
             "https://api.aioratings.com/KEY/{id_type}/poster-default/{typed_id}.jpg",
-            ids, "movie"
+            ids,
+            "movie"
         )
         assertEquals("https://api.aioratings.com/KEY/tmdb/poster-default/movie-550.jpg", url)
     }
@@ -343,7 +367,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:1396")
         val url = CustomPosterUrlResolver.resolve(
             "https://api.aioratings.com/KEY/{id_type}/poster-default/{typed_id}.jpg",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals("https://api.aioratings.com/KEY/tmdb/poster-default/series-1396.jpg", url)
     }
@@ -353,7 +378,8 @@ class CustomPosterUrlResolverTest {
         val ids = ContentIds(id = "tvdb:81189", tvdbId = "81189")
         val url = CustomPosterUrlResolver.resolve(
             "https://api.aioratings.com/KEY/{id_type}/poster-default/{typed_id}.jpg",
-            ids, "series"
+            ids,
+            "series"
         )
         assertEquals("https://api.aioratings.com/KEY/tvdb/poster-default/series-81189.jpg", url)
     }
@@ -382,7 +408,9 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:1396")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/poster?id={id}&id_type={id_type}&type={type}&shape={shape}",
-            ids, "series", shape = "landscape"
+            ids,
+            "series",
+            shape = "landscape"
         )
         assertEquals(
             "https://example.com/poster?id=tmdb:1396&id_type=tmdb&type=series&shape=landscape",
@@ -395,7 +423,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tt0137523")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/poster?id={id}&shape={shape}",
-            ids, "movie"
+            ids,
+            "movie"
         )
         assertEquals("https://example.com/poster?id=tt0137523&shape=poster", url)
     }
@@ -405,7 +434,9 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tt0137523")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/poster?id={id}&type={type}&shape={shape?}",
-            ids, "movie", shape = "square"
+            ids,
+            "movie",
+            shape = "square"
         )
         assertEquals("https://example.com/poster?id=tt0137523&type=movie&shape=square", url)
     }
@@ -424,7 +455,8 @@ class CustomPosterUrlResolverTest {
         val ids = CustomPosterUrlResolver.extractIds("tt0137523")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/static-poster.jpg",
-            ids, "movie"
+            ids,
+            "movie"
         )
         assertNull(url)
     }
@@ -434,7 +466,8 @@ class CustomPosterUrlResolverTest {
         val ids = ContentIds(id = "tt0137523", imdbId = "tt0137523", tmdbId = "550")
         val url = CustomPosterUrlResolver.resolve(
             "https://opdb.example.com/key123/tmdb/backdrop-default/{type}-{tmdb_id}.jpg",
-            ids, "movie"
+            ids,
+            "movie"
         )
         assertEquals("https://opdb.example.com/key123/tmdb/backdrop-default/movie-550.jpg", url)
     }

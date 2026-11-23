@@ -20,19 +20,35 @@ class SubtitleFontUploadServer(
             "text/html; charset=utf-8",
             SubtitleFontWebPage.html(context)
         )
+
         session.method == Method.GET && session.uri == "/logo.png" -> serveLogo()
+
         session.method == Method.POST && session.uri == "/api/font" -> handleUpload(session)
+
         else -> newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found")
     }
 
     private fun serveLogo(): Response {
-        val bytes = logoProvider() ?: return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found")
-        return newFixedLengthResponse(Response.Status.OK, "image/png", ByteArrayInputStream(bytes), bytes.size.toLong())
+        val bytes =
+            logoProvider()
+                ?: return newFixedLengthResponse(
+                    Response.Status.NOT_FOUND,
+                    MIME_PLAINTEXT,
+                    "Not found"
+                )
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "image/png",
+            ByteArrayInputStream(bytes),
+            bytes.size.toLong()
+        )
     }
 
     private fun handleUpload(session: IHTTPSession): Response {
         val fileName = session.headers["x-file-name"]
-            ?.let { runCatching { URLDecoder.decode(it, StandardCharsets.UTF_8.name()) }.getOrNull() }
+            ?.let {
+                runCatching { URLDecoder.decode(it, StandardCharsets.UTF_8.name()) }.getOrNull()
+            }
             ?.substringAfterLast('/')
             ?.takeIf { it.isNotBlank() }
         val length = session.headers["content-length"]?.toLongOrNull()
@@ -52,8 +68,7 @@ class SubtitleFontUploadServer(
         return jsonResponse(Response.Status.OK, """{"status":"added"}""")
     }
 
-    private fun jsonResponse(status: Response.Status, body: String): Response =
-        newFixedLengthResponse(status, "application/json; charset=utf-8", body)
+    private fun jsonResponse(status: Response.Status, body: String): Response = newFixedLengthResponse(status, "application/json; charset=utf-8", body)
 
     companion object {
         fun startOnAvailablePort(
@@ -65,7 +80,12 @@ class SubtitleFontUploadServer(
         ): SubtitleFontUploadServer? {
             for (port in startPort until startPort + maxAttempts) {
                 val server = SubtitleFontUploadServer(context, onFontUploaded, logoProvider, port)
-                if (runCatching { server.start(SOCKET_READ_TIMEOUT, false) }.isSuccess) return server
+                if (runCatching {
+                        server.start(SOCKET_READ_TIMEOUT, false)
+                    }.isSuccess
+                ) {
+                    return server
+                }
             }
             return null
         }

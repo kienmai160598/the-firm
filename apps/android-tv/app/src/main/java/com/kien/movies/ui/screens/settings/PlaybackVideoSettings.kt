@@ -75,12 +75,19 @@ internal fun PlaybackVideoSection(
     SettingsToggleRow(
         title = stringResource(R.string.playback_resolution_matching),
         subtitle = stringResource(
-            if (resolutionSwitchingSupported) R.string.playback_resolution_matching_sub
-            else R.string.playback_resolution_matching_unsupported_sub
+            if (resolutionSwitchingSupported) {
+                R.string.playback_resolution_matching_sub
+            } else {
+                R.string.playback_resolution_matching_unsupported_sub
+            }
         ),
         checked = settings.resolutionMatchingEnabled,
-        onToggle = { onUpdate { setResolutionMatchingEnabled(!settings.resolutionMatchingEnabled) } },
-        titleTrailingIcon = if (settings.resolutionMatchingEnabled && !resolutionSwitchingSupported) {
+        onToggle = {
+            onUpdate { setResolutionMatchingEnabled(!settings.resolutionMatchingEnabled) }
+        },
+        titleTrailingIcon = if (settings.resolutionMatchingEnabled &&
+            !resolutionSwitchingSupported
+        ) {
             Icons.Default.Warning
         } else {
             null
@@ -112,7 +119,11 @@ internal fun PlaybackVideoSection(
             title = stringResource(R.string.audio_dv7_preserve_mapping_title),
             subtitle = stringResource(R.string.audio_dv7_preserve_mapping_sub),
             checked = settings.dv7ToDv81PreserveMappingEnabled && dv81Conversion,
-            onToggle = { onUpdate { setDv7ToDv81PreserveMappingEnabled(!settings.dv7ToDv81PreserveMappingEnabled) } },
+            onToggle = {
+                onUpdate {
+                    setDv7ToDv81PreserveMappingEnabled(!settings.dv7ToDv81PreserveMappingEnabled)
+                }
+            },
             enabled = enabled && dv81Conversion
         )
         SettingsToggleRow(
@@ -152,7 +163,11 @@ internal fun PlaybackVideoSection(
             subtitle = stringResource(R.string.audio_mpv_hi10p_gnext_sw_subtitle),
             checked = settings.mpvHi10pGnextSoftwareFallbackEnabled,
             onToggle = {
-                onUpdate { setMpvHi10pGnextSoftwareFallbackEnabled(!settings.mpvHi10pGnextSoftwareFallbackEnabled) }
+                onUpdate {
+                    setMpvHi10pGnextSoftwareFallbackEnabled(
+                        !settings.mpvHi10pGnextSoftwareFallbackEnabled
+                    )
+                }
             },
             enabled = enabled
         )
@@ -169,7 +184,10 @@ private fun rememberDisplayCapabilities(): DisplayCapabilities.Snapshot {
             snapshot = DisplayCapabilities.detect(activity)
             DisplayCapabilities.logSummary(snapshot)
         } else {
-            android.util.Log.w("DisplayCapabilities", "Settings: could not resolve host Activity from LocalContext")
+            android.util.Log.w(
+                "DisplayCapabilities",
+                "Settings: could not resolve host Activity from LocalContext"
+            )
         }
     }
     return snapshot
@@ -199,10 +217,18 @@ private fun dv7HandlingModeLabel(mode: Dv7HandlingMode): String = when (mode) {
 
 @Composable
 private fun mpvHardwareDecodeModeLabel(mode: MpvHardwareDecodeMode): String = when (mode) {
-    MpvHardwareDecodeMode.LEGACY_DIRECT_COPY -> stringResource(R.string.audio_mpv_hwdec_legacy_direct_copy)
+    MpvHardwareDecodeMode.LEGACY_DIRECT_COPY -> stringResource(
+        R.string.audio_mpv_hwdec_legacy_direct_copy
+    )
+
     MpvHardwareDecodeMode.AUTO_SAFE -> stringResource(R.string.audio_mpv_hwdec_auto_safe)
+
     MpvHardwareDecodeMode.HARDWARE_COPY -> stringResource(R.string.audio_mpv_hwdec_hardware_copy)
-    MpvHardwareDecodeMode.HARDWARE_DIRECT -> stringResource(R.string.audio_mpv_hwdec_hardware_direct)
+
+    MpvHardwareDecodeMode.HARDWARE_DIRECT -> stringResource(
+        R.string.audio_mpv_hwdec_hardware_direct
+    )
+
     MpvHardwareDecodeMode.DISABLED -> stringResource(R.string.audio_mpv_hwdec_disabled)
 }
 
@@ -301,6 +327,7 @@ internal fun VideoSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.DV7_HANDLING_MODE -> Dv7HandlingModeDialog(
             selectedMode = settings.dv7HandlingMode,
             onModeSelected = { mode ->
@@ -309,6 +336,7 @@ internal fun VideoSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.MPV_HARDWARE_DECODE_MODE -> MpvHardwareDecodeModeDialog(
             selectedMode = settings.mpvHardwareDecodeMode,
             onModeSelected = { mode ->
@@ -317,6 +345,7 @@ internal fun VideoSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         else -> Unit
     }
 }

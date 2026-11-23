@@ -2,10 +2,6 @@
 
 package com.kien.movies.ui.screens.player
 
-
-import com.kien.movies.ui.theme.MoviesTheme
-import androidx.compose.foundation.layout.heightIn
-
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.updateTransition
@@ -24,6 +20,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -57,10 +54,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kien.movies.ui.util.localizeEpisodeTitle
-import com.kien.movies.ui.components.expressive.M3eShapes
-import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.ui.components.expressive.MoviesSurface
 import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
@@ -69,7 +62,12 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.request.transformations
 import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesSurface
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.BlurTransformation
+import com.kien.movies.ui.util.localizeEpisodeTitle
 
 @Composable
 fun PostPlayOverlay(
@@ -82,7 +80,7 @@ fun PostPlayOverlay(
     onPlayNext: () -> Unit,
     onContinueStillWatching: () -> Unit,
     onDismissStillWatching: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val isAutoPlay = mode is PostPlayMode.AutoPlay
     val isAutoPlayPlayable = (mode as? PostPlayMode.AutoPlay)?.nextEpisode?.hasAired == true
@@ -101,7 +99,7 @@ fun PostPlayOverlay(
             animationSpec = PlayerMotion.spatial(),
             targetOffsetX = { it / 2 }
         ) + fadeOut(animationSpec = PlayerMotion.effects()),
-        modifier = modifier,
+        modifier = modifier
     ) {
         val onCardClick: () -> Unit = when {
             isAutoPlay && isAutoPlayPlayable -> onPlayNext
@@ -130,26 +128,28 @@ fun PostPlayOverlay(
                     } else {
                         Modifier
                     }
-                ),
+                )
         ) {
             transition.AnimatedContent(
                 transitionSpec = {
                     fadeIn(PlayerMotion.effects()) togetherWith
                         fadeOut(PlayerMotion.effects())
                 },
-                contentKey = { it?.let { current -> current::class } },
+                contentKey = { it?.let { current -> current::class } }
             ) { current ->
                 when (current) {
                     is PostPlayMode.AutoPlay -> AutoPlayBody(
                         mode = current,
-                        blurUnwatchedEpisodes = blurUnwatchedEpisodes,
+                        blurUnwatchedEpisodes = blurUnwatchedEpisodes
                     )
+
                     is PostPlayMode.StillWatching -> StillWatchingBody(
                         mode = current,
                         blurUnwatchedEpisodes = blurUnwatchedEpisodes,
                         onContinue = onContinueStillWatching,
-                        onDismiss = onDismissStillWatching,
+                        onDismiss = onDismissStillWatching
                     )
+
                     null -> Unit
                 }
             }
@@ -158,20 +158,17 @@ fun PostPlayOverlay(
 }
 
 @Composable
-private fun AutoPlayBody(
-    mode: PostPlayMode.AutoPlay,
-    blurUnwatchedEpisodes: Boolean,
-) {
+private fun AutoPlayBody(mode: PostPlayMode.AutoPlay, blurUnwatchedEpisodes: Boolean) {
     val nextEpisode = mode.nextEpisode
     val isPlayable = nextEpisode.hasAired
     Row(
         modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         NextEpisodeThumbnail(
             thumbnail = nextEpisode.thumbnail,
             contentDescription = stringResource(R.string.cd_next_episode_thumbnail),
-            blurred = blurUnwatchedEpisodes,
+            blurred = blurUnwatchedEpisodes
         )
 
         Spacer(modifier = Modifier.width(10.dp))
@@ -181,7 +178,7 @@ private fun AutoPlayBody(
                 text = stringResource(R.string.next_episode_label),
                 color = postPlayInk().copy(alpha = 0.8f),
                 fontSize = PostPlayMetaSize,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Medium
             )
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
             Text(
@@ -190,13 +187,20 @@ private fun AutoPlayBody(
                 fontSize = PostPlayTitleSize,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.SemiBold
             )
             val statusText = when {
                 !isPlayable && !nextEpisode.unairedMessage.isNullOrBlank() -> nextEpisode.unairedMessage
+
                 mode.searching -> stringResource(R.string.next_episode_finding_source)
+
                 !mode.sourceName.isNullOrBlank() && mode.countdownSec != null ->
-                    stringResource(R.string.next_episode_playing_via, mode.sourceName, mode.countdownSec)
+                    stringResource(
+                        R.string.next_episode_playing_via,
+                        mode.sourceName,
+                        mode.countdownSec
+                    )
+
                 else -> null
             }
             if (statusText != null) {
@@ -211,16 +215,16 @@ private fun AutoPlayBody(
                 .clip(CircleShape)
                 .border(
                     BorderStroke(MoviesTheme.spacing.hairline, postPlayInk().copy(alpha = 0.2f)),
-                    CircleShape,
+                    CircleShape
                 )
                 .padding(horizontal = 10.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Icons.Default.PlayArrow,
                 contentDescription = null,
                 tint = if (isPlayable) postPlayInk() else postPlayInk().copy(alpha = 0.65f),
-                modifier = Modifier.size(PlayerTenFoot.atLeast(14.dp, 20.dp)),
+                modifier = Modifier.size(PlayerTenFoot.atLeast(14.dp, 20.dp))
             )
             Text(
                 text = if (isPlayable) {
@@ -230,7 +234,7 @@ private fun AutoPlayBody(
                 },
                 color = if (isPlayable) postPlayInk() else postPlayInk().copy(alpha = 0.72f),
                 fontSize = PostPlayLabelSize,
-                modifier = Modifier.padding(start = 3.dp),
+                modifier = Modifier.padding(start = 3.dp)
             )
         }
     }
@@ -241,7 +245,7 @@ private fun StillWatchingBody(
     mode: PostPlayMode.StillWatching,
     blurUnwatchedEpisodes: Boolean,
     onContinue: () -> Unit,
-    onDismiss: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     val continueFocusRequester = remember { FocusRequester() }
     val exitFocusRequester = remember { FocusRequester() }
@@ -250,25 +254,25 @@ private fun StillWatchingBody(
     val nextEpisode = mode.nextEpisode
     Row(
         modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         if (nextEpisode.thumbnail != null) {
             NextEpisodeThumbnail(
                 thumbnail = nextEpisode.thumbnail,
                 contentDescription = stringResource(R.string.cd_next_episode_thumbnail),
-                blurred = blurUnwatchedEpisodes,
+                blurred = blurUnwatchedEpisodes
             )
             Spacer(modifier = Modifier.width(10.dp))
         }
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = stringResource(R.string.still_watching_title),
                 color = postPlayInk().copy(alpha = 0.8f),
                 fontSize = PostPlayMetaSize,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Medium
             )
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
             Text(
@@ -277,12 +281,12 @@ private fun StillWatchingBody(
                 fontSize = PostPlayTitleSize,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.SemiBold
             )
             if (mode.countdownSec != null) {
                 Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
                 NextEpisodeStatusLine(
-                    text = stringResource(R.string.still_watching_countdown, mode.countdownSec),
+                    text = stringResource(R.string.still_watching_countdown, mode.countdownSec)
                 )
             }
         }
@@ -290,7 +294,7 @@ private fun StillWatchingBody(
         Row(
             modifier = Modifier.padding(start = MoviesTheme.spacing.sm),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             PostPlayPillButton(
                 icon = Icons.Default.PlayArrow,
@@ -307,7 +311,7 @@ private fun StillWatchingBody(
                     .focusProperties {
                         if (isRtl) left = exitFocusRequester else right = exitFocusRequester
                         if (isRtl) right = Cancel else left = Cancel
-                    },
+                    }
             )
             PostPlayPillButton(
                 icon = Icons.Default.Close,
@@ -317,7 +321,7 @@ private fun StillWatchingBody(
                 modifier = Modifier.focusProperties {
                     if (isRtl) right = continueFocusRequester else left = continueFocusRequester
                     if (isRtl) left = Cancel else right = Cancel
-                },
+                }
             )
         }
     }
@@ -330,28 +334,28 @@ private fun PostPlayPillButton(
     label: String,
     onClick: () -> Unit,
     focusRequester: FocusRequester,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     MoviesCard(
         onClick = onClick,
         shape = M3eShapes.capsule,
-        modifier = modifier.focusRequester(focusRequester),
+        modifier = modifier.focusRequester(focusRequester)
     ) {
         Row(
             modifier = Modifier
                 .heightIn(min = PillButtonMinHeight)
                 .padding(horizontal = MoviesTheme.spacing.lg),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(PillButtonIconSize),
+                modifier = Modifier.size(PillButtonIconSize)
             )
             Text(
                 text = label,
                 fontSize = PostPlayLabelSize,
-                modifier = Modifier.padding(start = MoviesTheme.spacing.xs),
+                modifier = Modifier.padding(start = MoviesTheme.spacing.xs)
             )
         }
     }
@@ -369,7 +373,7 @@ private fun NextEpisodeThumbnail(
     thumbnail: String?,
     contentDescription: String?,
     blurred: Boolean,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val imageRequest = remember(context, thumbnail, blurred) {
@@ -384,22 +388,22 @@ private fun NextEpisodeThumbnail(
     Box(
         modifier = modifier
             .size(width = 112.dp, height = 64.dp)
-            .clip(RoundedCornerShape(9.dp)),
+            .clip(RoundedCornerShape(9.dp))
     ) {
         AsyncImage(
             model = imageRequest,
             contentDescription = contentDescription,
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Crop
         )
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.32f)),
-                    ),
-                ),
+                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.32f))
+                    )
+                )
         )
     }
 }
@@ -412,7 +416,7 @@ private fun NextEpisodeStatusLine(text: String, modifier: Modifier = Modifier) {
         fontSize = PostPlayMetaSize,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -423,7 +427,7 @@ private fun nextEpisodeDisplayLabel(nextEpisode: NextEpisodeInfo): String {
     val code = stringResource(
         R.string.season_episode_format,
         nextEpisode.season,
-        nextEpisode.episode,
+        nextEpisode.episode
     )
     val localizedTitle = nextEpisode.title.localizeEpisodeTitle(context)
     return "$code • $localizedTitle"

@@ -1,6 +1,11 @@
 package com.kien.movies.core.network
 
 import com.kien.movies.ui.screens.player.PlayerPlaybackNetworking
+import java.net.InetAddress
+import java.net.ServerSocket
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.concurrent.thread
 import okhttp3.Call
 import okhttp3.Connection
 import okhttp3.EventListener
@@ -10,11 +15,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.net.InetAddress
-import java.net.ServerSocket
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
-import kotlin.concurrent.thread
 
 class NoDelaySocketFactoryTest {
 
@@ -27,8 +27,12 @@ class NoDelaySocketFactoryTest {
     fun `connected sockets have no delay`() {
         ServerSocket(0, 4, InetAddress.getLoopbackAddress()).use { server ->
             val loopback = InetAddress.getLoopbackAddress()
-            NoDelaySocketFactory.createSocket(loopback, server.localPort).use { assertTrue(it.tcpNoDelay) }
-            NoDelaySocketFactory.createSocket(loopback.hostAddress, server.localPort).use { assertTrue(it.tcpNoDelay) }
+            NoDelaySocketFactory.createSocket(loopback, server.localPort).use {
+                assertTrue(it.tcpNoDelay)
+            }
+            NoDelaySocketFactory.createSocket(loopback.hostAddress, server.localPort).use {
+                assertTrue(it.tcpNoDelay)
+            }
         }
     }
 
@@ -40,7 +44,9 @@ class NoDelaySocketFactoryTest {
                     val input = socket.getInputStream().bufferedReader()
                     while (!input.readLine().isNullOrEmpty()) Unit
                     socket.getOutputStream().apply {
-                        write("HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok".toByteArray())
+                        write(
+                            "HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok".toByteArray()
+                        )
                         flush()
                     }
                 }
@@ -56,7 +62,9 @@ class NoDelaySocketFactoryTest {
                 .callTimeout(10, TimeUnit.SECONDS)
                 .build()
             val url = "http://${server.inetAddress.hostAddress}:${server.localPort}/"
-            client.newCall(Request.Builder().url(url).build()).execute().use { assertEquals("ok", it.body?.string()) }
+            client.newCall(Request.Builder().url(url).build()).execute().use {
+                assertEquals("ok", it.body?.string())
+            }
             worker.join(5_000)
             assertEquals(true, noDelay.get())
         }
@@ -65,8 +73,14 @@ class NoDelaySocketFactoryTest {
     @Test
     fun `playback clients and their copies use it`() {
         assertSame(PlaybackSocketFactory, PlayerPlaybackNetworking.playbackHttpClient.socketFactory)
-        assertSame(PlaybackSocketFactory, PlayerPlaybackNetworking.trustAllPlaybackHttpClient.socketFactory)
-        assertSame(PlaybackSocketFactory, PlayerPlaybackNetworking.createHttpClient(mapOf("Authorization" to "x")).socketFactory)
+        assertSame(
+            PlaybackSocketFactory,
+            PlayerPlaybackNetworking.trustAllPlaybackHttpClient.socketFactory
+        )
+        assertSame(
+            PlaybackSocketFactory,
+            PlayerPlaybackNetworking.createHttpClient(mapOf("Authorization" to "x")).socketFactory
+        )
         PlaybackSocketFactory.createSocket().use { assertTrue(it.tcpNoDelay) }
     }
 }

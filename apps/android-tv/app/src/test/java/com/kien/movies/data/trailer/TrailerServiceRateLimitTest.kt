@@ -45,7 +45,8 @@ class TrailerServiceRateLimitTest {
         tmdbApi = tmdbApi,
         inAppYouTubeExtractor = extractor,
         tmdbSettingsDataStore = mockk<TmdbSettingsDataStore> {
-            every { settings } returns MutableStateFlow(TmdbSettings(language = "en", useTrailers = true))
+            every { settings } returns
+                MutableStateFlow(TmdbSettings(language = "en", useTrailers = true))
         },
         tmdbService = mockk<TmdbService> { every { apiKey() } returns "tmdb-key" }
     )
@@ -58,7 +59,8 @@ class TrailerServiceRateLimitTest {
         every { Log.e(any<String>(), any<String>()) } returns 0
         every { Log.e(any<String>(), any<String>(), any<Throwable>()) } returns 0
 
-        coEvery { trailerApi.getTrailer(any(), any(), any()) } returns Response.success(TrailerResponse(url = null))
+        coEvery { trailerApi.getTrailer(any(), any(), any()) } returns
+            Response.success(TrailerResponse(url = null))
         coEvery { tmdbApi.getMovieVideos(any(), any(), any()) } returns Response.success(
             TmdbVideosResponse(id = 123, results = (0 until 8).map { trailer(it) })
         )

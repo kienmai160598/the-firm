@@ -4,20 +4,22 @@ import com.kien.movies.data.local.StreamBadgeSettingsDataStore
 import com.kien.movies.domain.model.AddonStreams
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.StreamBadge
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 
 @Singleton
 class StreamBadgePresentation @Inject constructor(
     private val dataStore: StreamBadgeSettingsDataStore
 ) {
-    private val badgeFilterCache = AtomicReference<Pair<StreamBadgeRules, List<CompiledStreamBadgeFilter>>?>()
+    private val badgeFilterCache =
+        AtomicReference<Pair<StreamBadgeRules, List<CompiledStreamBadgeFilter>>?>()
 
-    private val lastRulesFilters = AtomicReference<Pair<StreamBadgeRules, List<CompiledStreamBadgeFilter>>?>()
+    private val lastRulesFilters =
+        AtomicReference<Pair<StreamBadgeRules, List<CompiledStreamBadgeFilter>>?>()
 
     private val badgeInstancePool = AtomicReference<HashMap<String, StreamBadge>>(HashMap(64))
 
@@ -27,10 +29,9 @@ class StreamBadgePresentation @Inject constructor(
         }
     }
 
-    suspend fun hasActiveFilters(): Boolean =
-        withContext(Dispatchers.Default) {
-            getBadgeFilters(dataStore.settings.first().rules).isNotEmpty()
-        }
+    suspend fun hasActiveFilters(): Boolean = withContext(Dispatchers.Default) {
+        getBadgeFilters(dataStore.settings.first().rules).isNotEmpty()
+    }
 
     fun apply(groups: List<AddonStreams>, rules: StreamBadgeRules): List<AddonStreams> {
         val filters = getBadgeFilters(rules)
@@ -39,7 +40,11 @@ class StreamBadgePresentation @Inject constructor(
         return groups.map { group ->
             group.copy(
                 streams = group.streams.map { stream ->
-                    val matchedBadges = StreamBadgeMatcher.matchedBadgesPooled(stream, filters, pool)
+                    val matchedBadges = StreamBadgeMatcher.matchedBadgesPooled(
+                        stream,
+                        filters,
+                        pool
+                    )
                     if (matchedBadges.isEmpty()) {
                         stream
                     } else {

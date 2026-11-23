@@ -14,7 +14,7 @@ class SkipIntroVisibilityRulesTest {
         startTime = 10.0,
         endTime = 70.0,
         type = "intro",
-        provider = "introdb",
+        provider = "introdb"
     )
 
     private val intervals = listOf(intro)
@@ -61,7 +61,7 @@ class SkipIntroVisibilityRulesTest {
         val afterExit = nextActiveSkipInterval(intervals, positionMs = 70_000L)
         assertNull(
             "activeSkipInterval must become null once playhead leaves the segment",
-            afterExit,
+            afterExit
         )
     }
 
@@ -74,7 +74,7 @@ class SkipIntroVisibilityRulesTest {
                 hasActiveInterval = true,
                 dismissed = false,
                 controlsVisible = false,
-                autoHidden = false,
+                autoHidden = false
             )
         )
     }
@@ -86,7 +86,7 @@ class SkipIntroVisibilityRulesTest {
                 hasActiveInterval = true,
                 dismissed = false,
                 controlsVisible = false,
-                autoHidden = true,
+                autoHidden = true
             )
         )
     }
@@ -98,7 +98,7 @@ class SkipIntroVisibilityRulesTest {
                 hasActiveInterval = true,
                 dismissed = false,
                 controlsVisible = true,
-                autoHidden = true,
+                autoHidden = true
             )
         )
         assertFalse(
@@ -106,7 +106,7 @@ class SkipIntroVisibilityRulesTest {
                 hasActiveInterval = true,
                 dismissed = false,
                 controlsVisible = false,
-                autoHidden = true,
+                autoHidden = true
             )
         )
     }
@@ -118,7 +118,7 @@ class SkipIntroVisibilityRulesTest {
                 hasActiveInterval = true,
                 dismissed = true,
                 controlsVisible = false,
-                autoHidden = false,
+                autoHidden = false
             )
         )
         assertTrue(
@@ -126,7 +126,7 @@ class SkipIntroVisibilityRulesTest {
                 hasActiveInterval = true,
                 dismissed = true,
                 controlsVisible = true,
-                autoHidden = false,
+                autoHidden = false
             )
         )
     }
@@ -138,7 +138,7 @@ class SkipIntroVisibilityRulesTest {
                 hasActiveInterval = false,
                 dismissed = false,
                 controlsVisible = true,
-                autoHidden = false,
+                autoHidden = false
             )
         )
         assertFalse(
@@ -146,7 +146,7 @@ class SkipIntroVisibilityRulesTest {
                 hasActiveInterval = false,
                 dismissed = false,
                 controlsVisible = false,
-                autoHidden = false,
+                autoHidden = false
             )
         )
     }
@@ -158,7 +158,7 @@ class SkipIntroVisibilityRulesTest {
                 hasActiveInterval = false,
                 dismissed = false,
                 controlsVisible = false,
-                autoHidden = false,
+                autoHidden = false
             )
         )
     }
@@ -182,7 +182,7 @@ class SkipIntroVisibilityRulesTest {
     fun `auto-hide remaining duration is full timeout at progress zero`() {
         assertEquals(
             SKIP_INTRO_AUTO_HIDE_TIMEOUT_MS,
-            skipIntroAutoHideRemainingMs(progress = 0f),
+            skipIntroAutoHideRemainingMs(progress = 0f)
         )
     }
 

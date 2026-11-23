@@ -14,10 +14,10 @@ import androidx.compose.material.icons.filled.Power
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -71,10 +71,12 @@ internal fun ContentDiscoverySettingsContent(
             focusPluginsOnReturn = focusPluginsOnReturn && showPlugins,
             serversFocusRequester = hubServersRequester
         )
+
         SERVERS_PAGE -> MediaServersSettingsContent(
             initialFocusRequester = serversRequester,
             onOpenServer = { serverPage = it }
         )
+
         else -> MediaServerSettingsContent(
             connectionId = page,
             initialFocusRequester = serverRequester,

@@ -9,4 +9,8 @@ internal fun jsPluginMediaType(
 ): String = if (
     mediaType.equals("tv", ignoreCase = true) && season != null && episode != null &&
     supportedTypes.any { it.equals("series", ignoreCase = true) }
-) "series" else mediaType
+) {
+    "series"
+} else {
+    mediaType
+}

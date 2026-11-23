@@ -17,11 +17,7 @@ data class WatchedItem(
         get() = contentId
 }
 
-data class WatchedMutationKey(
-    val contentId: String,
-    val season: Int?,
-    val episode: Int?
-)
+data class WatchedMutationKey(val contentId: String, val season: Int?, val episode: Int?)
 
 fun WatchedItem.mutationKey(): WatchedMutationKey = WatchedMutationKey(
     contentId = contentId,

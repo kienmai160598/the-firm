@@ -19,7 +19,7 @@ class SubtitleLiftRulesTest {
             postPlayVisible = true,
             postPlayClearancePx = 120f,
             seekVisible = true,
-            seekClearancePx = 70f,
+            seekClearancePx = 70f
         )
 
         assertEquals(0f, lift)
@@ -37,7 +37,7 @@ class SubtitleLiftRulesTest {
             postPlayVisible = false,
             postPlayClearancePx = 120f,
             seekVisible = false,
-            seekClearancePx = 70f,
+            seekClearancePx = 70f
         )
 
         assertEquals(180f, lift)
@@ -55,7 +55,7 @@ class SubtitleLiftRulesTest {
             postPlayVisible = false,
             postPlayClearancePx = 0f,
             seekVisible = false,
-            seekClearancePx = 0f,
+            seekClearancePx = 0f
         )
 
         assertEquals(0f, lift)
@@ -73,7 +73,7 @@ class SubtitleLiftRulesTest {
             postPlayVisible = true,
             postPlayClearancePx = 140f,
             seekVisible = true,
-            seekClearancePx = 60f,
+            seekClearancePx = 60f
         )
 
         assertEquals(140f, lift)
@@ -83,23 +83,79 @@ class SubtitleLiftRulesTest {
     fun `lift rises right away even while a line is showing`() {
         assertEquals(
             SubtitleLiftDecision(200f, null),
-            nextSubtitleLift(200f, 0f, cueVersion = 3, cueVisible = true, applyImmediately = false, pendingDropCueVersion = null, dropTimedOut = false)
+            nextSubtitleLift(
+                200f,
+                0f,
+                cueVersion = 3,
+                cueVisible = true,
+                applyImmediately = false,
+                pendingDropCueVersion = null,
+                dropTimedOut = false
+            )
         )
     }
 
     @Test
     fun `lift drops only after the shown line changes`() {
-        val waiting = nextSubtitleLift(0f, 200f, cueVersion = 3, cueVisible = true, applyImmediately = false, pendingDropCueVersion = null, dropTimedOut = false)
+        val waiting =
+            nextSubtitleLift(
+                0f,
+                200f,
+                cueVersion = 3,
+                cueVisible = true,
+                applyImmediately = false,
+                pendingDropCueVersion = null,
+                dropTimedOut = false
+            )
         assertEquals(SubtitleLiftDecision(200f, 3L), waiting)
-        assertEquals(waiting, nextSubtitleLift(0f, 200f, 3, true, false, waiting.pendingDropCueVersion, false))
-        assertEquals(SubtitleLiftDecision(0f, null), nextSubtitleLift(0f, 200f, 4, true, false, waiting.pendingDropCueVersion, false))
+        assertEquals(
+            waiting,
+            nextSubtitleLift(0f, 200f, 3, true, false, waiting.pendingDropCueVersion, false)
+        )
+        assertEquals(
+            SubtitleLiftDecision(0f, null),
+            nextSubtitleLift(0f, 200f, 4, true, false, waiting.pendingDropCueVersion, false)
+        )
     }
 
     @Test
     fun `lift drops right away with no line, when paused or previewing, or after the timeout`() {
-        assertEquals(SubtitleLiftDecision(0f, null), nextSubtitleLift(0f, 200f, 3, cueVisible = false, applyImmediately = false, pendingDropCueVersion = null, dropTimedOut = false))
-        assertEquals(SubtitleLiftDecision(0f, null), nextSubtitleLift(0f, 200f, 3, cueVisible = true, applyImmediately = true, pendingDropCueVersion = null, dropTimedOut = false))
-        assertEquals(SubtitleLiftDecision(0f, null), nextSubtitleLift(0f, 200f, 3, cueVisible = true, applyImmediately = false, pendingDropCueVersion = 3L, dropTimedOut = true))
+        assertEquals(
+            SubtitleLiftDecision(0f, null),
+            nextSubtitleLift(
+                0f,
+                200f,
+                3,
+                cueVisible = false,
+                applyImmediately = false,
+                pendingDropCueVersion = null,
+                dropTimedOut = false
+            )
+        )
+        assertEquals(
+            SubtitleLiftDecision(0f, null),
+            nextSubtitleLift(
+                0f,
+                200f,
+                3,
+                cueVisible = true,
+                applyImmediately = true,
+                pendingDropCueVersion = null,
+                dropTimedOut = false
+            )
+        )
+        assertEquals(
+            SubtitleLiftDecision(0f, null),
+            nextSubtitleLift(
+                0f,
+                200f,
+                3,
+                cueVisible = true,
+                applyImmediately = false,
+                pendingDropCueVersion = 3L,
+                dropTimedOut = true
+            )
+        )
     }
 
     @Test
@@ -131,7 +187,11 @@ class SubtitleLiftRulesTest {
 
     @Test
     fun `block width uses the widest line plus padding and scale`() {
-        val width = subtitleBlockWidthPx("short\na much longer line", metrics.copy(scaleX = 1.5f)) { it.length * 10f }
+        val width =
+            subtitleBlockWidthPx("short\na much longer line", metrics.copy(scaleX = 1.5f)) {
+                it.length *
+                    10f
+            }
         assertEquals((180f + 10f) * 1.5f, width)
     }
 
@@ -143,8 +203,12 @@ class SubtitleLiftRulesTest {
     @Test
     fun `subtitle clears the title only when its left edge stays right of the title`() {
         assertTrue(subtitleClearsTitle(600f, centerXPx = 960f, titleRightPx = 600f, marginPx = 16f))
-        assertFalse(subtitleClearsTitle(800f, centerXPx = 960f, titleRightPx = 600f, marginPx = 16f))
-        assertFalse(subtitleClearsTitle(null, centerXPx = 960f, titleRightPx = 600f, marginPx = 16f))
+        assertFalse(
+            subtitleClearsTitle(800f, centerXPx = 960f, titleRightPx = 600f, marginPx = 16f)
+        )
+        assertFalse(
+            subtitleClearsTitle(null, centerXPx = 960f, titleRightPx = 600f, marginPx = 16f)
+        )
         assertTrue(subtitleClearsTitle(1800f, centerXPx = 960f, titleRightPx = 0f, marginPx = 16f))
     }
 

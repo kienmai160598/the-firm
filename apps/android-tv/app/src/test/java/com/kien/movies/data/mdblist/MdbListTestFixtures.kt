@@ -33,7 +33,10 @@ internal class MdbListTestHarness {
     val store = MdbListAuthStore(persistence)
     val engine = MdbListTestEngine()
     val configuration = MdbListConfiguration("public-client", "test")
-    val http = MdbListHttpClient(engine, { now }, { sleeps += it; now += it })
+    val http = MdbListHttpClient(engine, { now }, {
+        sleeps += it
+        now += it
+    })
     val auth = MdbListAuthRepository(http, configuration, store) { now }
     val api = MdbListApiClient(http, auth, store)
 
@@ -41,7 +44,11 @@ internal class MdbListTestHarness {
         engine.responses += MdbListHttpResponse(status, body, headers)
     }
 
-    fun connected(accessToken: String = "access-one", refreshToken: String = "refresh-one", expiresIn: Long = 120_000L) {
+    fun connected(
+        accessToken: String = "access-one",
+        refreshToken: String = "refresh-one",
+        expiresIn: Long = 120_000L
+    ) {
         store.authorize(MdbListTokens(accessToken, refreshToken, now + expiresIn), store.scope())
     }
 
@@ -56,12 +63,17 @@ internal class MdbListTestHarness {
     }
 }
 
-internal suspend inline fun <reified T : Throwable> expectMdbListFailure(block: suspend () -> Unit): T {
+internal suspend inline fun <reified T : Throwable> expectMdbListFailure(
+    block: suspend () -> Unit
+): T {
     try {
         block()
     } catch (error: Throwable) {
         if (error is T) return error
-        throw AssertionError("Expected ${T::class.simpleName}, got ${error::class.simpleName}", error)
+        throw AssertionError(
+            "Expected ${T::class.simpleName}, got ${error::class.simpleName}",
+            error
+        )
     }
     throw AssertionError("Expected ${T::class.simpleName}")
 }

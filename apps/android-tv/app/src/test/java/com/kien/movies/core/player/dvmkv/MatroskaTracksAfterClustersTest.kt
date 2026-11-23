@@ -20,7 +20,14 @@ class MatroskaTracksAfterClustersTest {
     @Test
     fun `tracks in front or at an unknown position never trigger the detour`() {
         assertFalse(MatroskaExtractor.shouldSeekForTracksBeforeCluster(0, 120L, 300L, false))
-        assertFalse(MatroskaExtractor.shouldSeekForTracksBeforeCluster(0, C.INDEX_UNSET.toLong(), 300L, false))
+        assertFalse(
+            MatroskaExtractor.shouldSeekForTracksBeforeCluster(
+                0,
+                C.INDEX_UNSET.toLong(),
+                300L,
+                false
+            )
+        )
     }
 
     @Test

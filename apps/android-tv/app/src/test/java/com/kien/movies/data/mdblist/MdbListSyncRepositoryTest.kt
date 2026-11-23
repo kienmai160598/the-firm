@@ -113,7 +113,8 @@ class MdbListSyncRepositoryTest {
         harness.repository.ensureLoaded()
         val original = harness.storage.profiles[1]
         harness.storage.failSave = true
-        harness.remote.activities = harness.remote.activities.copy(serverTime = "2026-09-06T01:00:00Z")
+        harness.remote.activities =
+            harness.remote.activities.copy(serverTime = "2026-09-06T01:00:00Z")
         harness.repository.refresh(TrackingRefreshIntent.USER_INITIATED)
         assertEquals(original, harness.storage.profiles[1])
         assertEquals(MDBLIST_TEST_TIME, harness.repository.currentSnapshot()?.watermark)
@@ -144,7 +145,9 @@ class MdbListSyncRepositoryTest {
     fun `profile change while disk write is queued prevents the stale commit`() = runTest {
         val harness = MdbListSyncTestHarness(backgroundScope)
         harness.storage.beforeSave = { harness.switch(2, 84) }
-        expectMdbListFailure<CancellationException> { harness.repository.refresh(TrackingRefreshIntent.USER_INITIATED) }
+        expectMdbListFailure<CancellationException> {
+            harness.repository.refresh(TrackingRefreshIntent.USER_INITIATED)
+        }
         assertNull(harness.storage.profiles[1])
         assertNull(harness.repository.currentSnapshot())
     }
@@ -166,7 +169,9 @@ class MdbListSyncRepositoryTest {
         val harness = MdbListSyncTestHarness(backgroundScope)
         val scope = harness.repository.currentScope()
         harness.activeProfile.value = 2
-        expectMdbListFailure<CancellationException> { harness.repository.mutate(scope) { error("Must not dispatch") } }
+        expectMdbListFailure<CancellationException> {
+            harness.repository.mutate(scope) { error("Must not dispatch") }
+        }
         assertTrue(harness.http.engine.requests.isEmpty())
     }
 
@@ -186,7 +191,10 @@ class MdbListSyncRepositoryTest {
     fun `invalidated bucket bypasses freshness and only refetches the affected data`() = runTest {
         val harness = MdbListSyncTestHarness(backgroundScope)
         harness.seed()
-        harness.repository.invalidate(harness.repository.currentScope(), setOf(MdbListSyncBucket.PLAYBACK))
+        harness.repository.invalidate(
+            harness.repository.currentScope(),
+            setOf(MdbListSyncBucket.PLAYBACK)
+        )
         harness.repository.refresh(TrackingRefreshIntent.AUTOMATIC)
         assertEquals(listOf("activities", "playback"), harness.remote.calls)
         assertTrue(harness.repository.currentSnapshot()?.invalidatedBuckets?.isEmpty() == true)

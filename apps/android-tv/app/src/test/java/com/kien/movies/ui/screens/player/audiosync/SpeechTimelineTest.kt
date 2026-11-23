@@ -18,7 +18,10 @@ class SpeechTimelineTest {
             }
             val joinGap = random.nextInt(1, 5_000)
             val from = random.nextInt(0, frame + 1)
-            val expected = timeline.segments(fromFrame = from, joinGapFrames = joinGap).firstOrNull()
+            val expected = timeline.segments(
+                fromFrame = from,
+                joinGapFrames = joinGap
+            ).firstOrNull()
             val actual = timeline.firstStretch(from, joinGap)
             assertEquals(expected?.fromFrame, actual?.first)
             assertEquals(expected?.toFrame, actual?.let { it.last + 1 })

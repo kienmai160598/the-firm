@@ -45,5 +45,4 @@ private fun Typography.expressive(): Typography = copy(
     labelSmall = labelSmall.role(GoogleSansFlexLabel, FontWeight.Medium)
 )
 
-private fun TextStyle.role(family: FontFamily, weight: FontWeight): TextStyle =
-    copy(fontFamily = family, fontWeight = weight)
+private fun TextStyle.role(family: FontFamily, weight: FontWeight): TextStyle = copy(fontFamily = family, fontWeight = weight)

@@ -8,12 +8,12 @@ import com.kien.movies.data.local.StreamAutoPlayMode
 import com.kien.movies.domain.model.AddonStreams
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.StreamDebridCacheState
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val DIRECT_DEBRID_PREPARER_TAG = "DirectDebridPreparer"
 
@@ -52,7 +52,10 @@ class DirectDebridStreamPreparer @Inject constructor(
             }
 
             if (!consumeBackgroundBudget()) {
-                Log.d(DIRECT_DEBRID_PREPARER_TAG, "Skipping instant playback preparation; local Torbox budget reached")
+                Log.d(
+                    DIRECT_DEBRID_PREPARER_TAG,
+                    "Skipping instant playback preparation; local Torbox budget reached"
+                )
                 return
             }
 
@@ -63,6 +66,7 @@ class DirectDebridStreamPreparer @Inject constructor(
                             onPrepared(stream, result.stream)
                         }
                     }
+
                     else -> Unit
                 }
             } catch (error: CancellationException) {
@@ -81,7 +85,10 @@ class DirectDebridStreamPreparer @Inject constructor(
     ): List<Stream> {
         if (limit <= 0) return emptyList()
         val candidates = streams
-            .filter { (it.isDirectDebrid() || it.isCachedLocalDebridTorrent()) && it.getStreamUrl() == null }
+            .filter {
+                (it.isDirectDebrid() || it.isCachedLocalDebridTorrent()) &&
+                    it.getStreamUrl() == null
+            }
             .distinctBy { it.preparationKey() }
         if (candidates.isEmpty()) return emptyList()
 
@@ -95,7 +102,9 @@ class DirectDebridStreamPreparer @Inject constructor(
             selectedAddons = playerSettings.streamAutoPlaySelectedAddons,
             selectedPlugins = playerSettings.streamAutoPlaySelectedPlugins
         )
-        if (autoPlaySelection?.let { it.isDirectDebrid() || it.isCachedLocalDebridTorrent() } == true) {
+        if (autoPlaySelection?.let { it.isDirectDebrid() || it.isCachedLocalDebridTorrent() } ==
+            true
+        ) {
             candidates.firstOrNull { it.preparationKey() == autoPlaySelection.preparationKey() }
                 ?.let(prioritized::add)
         }
@@ -115,7 +124,12 @@ class DirectDebridStreamPreparer @Inject constructor(
         }
 
         candidates
-            .filter { candidate -> prioritized.none { it.preparationKey() == candidate.preparationKey() } }
+            .filter { candidate ->
+                prioritized.none {
+                    it.preparationKey() ==
+                        candidate.preparationKey()
+                }
+            }
             .forEach(prioritized::add)
 
         return prioritized.take(limit)
@@ -175,8 +189,7 @@ private fun ArrayDeque<Long>.removeOlderThan(cutoffMs: Long) {
     }
 }
 
-private fun Stream.preparationKey(): String =
-    preparationKeyParts().joinToString("|") { it.lowercase() }
+private fun Stream.preparationKey(): String = preparationKeyParts().joinToString("|") { it.lowercase() }
 
 private fun Stream.preparationKeyParts(): List<String> {
     val resolve = clientResolve
@@ -210,14 +223,12 @@ private fun Stream.hasPreparationKeyParts(keyParts: List<String>): Boolean {
         parts.indices.all { index -> parts[index].equals(keyParts[index], ignoreCase = true) }
 }
 
-private fun Stream.searchableText(): String =
-    buildString {
-        append(addonName).append(' ')
-        append(name.orEmpty()).append(' ')
-        append(title.orEmpty()).append(' ')
-        append(description.orEmpty()).append(' ')
-        append(getStreamUrl().orEmpty())
-    }
+private fun Stream.searchableText(): String = buildString {
+    append(addonName).append(' ')
+    append(name.orEmpty()).append(' ')
+    append(title.orEmpty()).append(' ')
+    append(description.orEmpty()).append(' ')
+    append(getStreamUrl().orEmpty())
+}
 
-private fun Stream.isCachedLocalDebridTorrent(): Boolean =
-    needsLocalDebridResolve() && debridCacheStatus?.state == StreamDebridCacheState.CACHED
+private fun Stream.isCachedLocalDebridTorrent(): Boolean = needsLocalDebridResolve() && debridCacheStatus?.state == StreamDebridCacheState.CACHED

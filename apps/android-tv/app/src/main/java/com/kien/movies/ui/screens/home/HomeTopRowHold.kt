@@ -13,10 +13,7 @@ import com.kien.movies.ui.navigation.toptabbar.topTabBarFloatsOver
 import kotlin.math.roundToInt
 
 /** Where a home page is scrolled, as its bring-into-view spec needs to see it. */
-private class HomePageScroll(
-    val scrollFromTop: () -> Int?,
-    val viewportHeight: () -> Int
-)
+private class HomePageScroll(val scrollFromTop: () -> Int?, val viewportHeight: () -> Int)
 
 /** [pageSpec] for the page scrolled by [pageState], holding its top row at the very top. */
 @Composable
@@ -86,5 +83,4 @@ private fun BringIntoViewSpec.holdingTopRow(
     }
 }
 
-private fun fitsAtTop(offsetAtTop: Float, size: Float, containerSize: Float): Boolean =
-    offsetAtTop >= 0f && offsetAtTop + size <= containerSize
+private fun fitsAtTop(offsetAtTop: Float, size: Float, containerSize: Float): Boolean = offsetAtTop >= 0f && offsetAtTop + size <= containerSize

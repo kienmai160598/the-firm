@@ -8,5 +8,5 @@ val PROFILE_AVATAR_COLORS: List<String> = listOf(
     "#FFB300", // Amber
     "#D81B60", // Rose
     "#00ACC1", // Cyan
-    "#6D4C41"  // Brown
+    "#6D4C41" // Brown
 )

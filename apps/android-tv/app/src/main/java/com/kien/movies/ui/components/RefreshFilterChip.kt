@@ -81,7 +81,12 @@ fun RefreshFilterChip(
             isFocused = it.isFocused
             onFocusChanged(it.isFocused)
         },
-        colors = filterChipColors(isFocused, selected = false, isError = false, content = contentColor),
+        colors = filterChipColors(
+            isFocused,
+            selected = false,
+            isError = false,
+            content = contentColor
+        ),
         border = borderlessFilterChip(),
         shape = FilterChipDefaults.shape(shape = M3eShapes.capsule),
         scale = SelectableChipScale.None

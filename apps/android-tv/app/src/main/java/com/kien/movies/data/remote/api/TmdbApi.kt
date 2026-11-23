@@ -8,20 +8,20 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface TmdbApi {
-    
+
     @GET("find/{external_id}")
     suspend fun findByExternalId(
         @Path("external_id") externalId: String,
         @Query("api_key") apiKey: String,
         @Query("external_source") externalSource: String = "imdb_id"
     ): Response<TmdbFindResponse>
-    
+
     @GET("movie/{movie_id}/external_ids")
     suspend fun getMovieExternalIds(
         @Path("movie_id") movieId: Int,
         @Query("api_key") apiKey: String
     ): Response<TmdbExternalIdsResponse>
-    
+
     @GET("tv/{tv_id}/external_ids")
     suspend fun getTvExternalIds(
         @Path("tv_id") tvId: Int,
@@ -369,10 +369,7 @@ data class TmdbCreatedBy(
 )
 
 @JsonClass(generateAdapter = true)
-data class TmdbGenre(
-    @Json(name = "id") val id: Int,
-    @Json(name = "name") val name: String
-)
+data class TmdbGenre(@Json(name = "id") val id: Int, @Json(name = "name") val name: String)
 
 @JsonClass(generateAdapter = true)
 data class TmdbCompany(
@@ -470,9 +467,7 @@ data class TmdbMovieReleaseDateCountry(
 )
 
 @JsonClass(generateAdapter = true)
-data class TmdbMovieReleaseDateItem(
-    @Json(name = "certification") val certification: String? = null
-)
+data class TmdbMovieReleaseDateItem(@Json(name = "certification") val certification: String? = null)
 
 @JsonClass(generateAdapter = true)
 data class TmdbTvContentRatingsResponse(
@@ -590,9 +585,7 @@ data class TmdbCollectionSearchResult(
 )
 
 @JsonClass(generateAdapter = true)
-data class TmdbGenresResponse(
-    @Json(name = "genres") val genres: List<TmdbGenre>? = null
-)
+data class TmdbGenresResponse(@Json(name = "genres") val genres: List<TmdbGenre>? = null)
 
 @JsonClass(generateAdapter = true)
 data class TmdbKeywordSearchResponse(

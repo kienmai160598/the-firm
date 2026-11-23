@@ -90,20 +90,41 @@ internal class MdbListRatingsLoader(
             }
     }
 
-    private suspend fun fetchBatch(batch: List<Pair<RequestKey, CompletableDeferred<MDBListRatings?>>>) {
+    private suspend fun fetchBatch(
+        batch: List<Pair<RequestKey, CompletableDeferred<MDBListRatings?>>>
+    ) {
         val first = batch.first().first
         try {
             client.checkCredential(first.credential)
             val ratings = if (batch.size == 1) {
-                val media = requireNotNull(client.getMedia(first.mediaProvider, first.mediaType, first.mediaId, first.credential))
+                val media =
+                    requireNotNull(
+                        client.getMedia(
+                            first.mediaProvider,
+                            first.mediaType,
+                            first.mediaId,
+                            first.credential
+                        )
+                    )
                 mapOf(first.mediaId to media.toRatings())
             } else {
                 val provider = first.mediaProvider
-                val response = requireNotNull(client.getMediaBatch(provider, first.mediaType, batch.map { it.first.mediaId }, first.credential))
+                val response =
+                    requireNotNull(
+                        client.getMediaBatch(
+                            provider,
+                            first.mediaType,
+                            batch.map {
+                                it.first.mediaId
+                            },
+                            first.credential
+                        )
+                    )
                 response.mapNotNull { media ->
-                        val responseId = resolveResponseId(media, provider) ?: return@mapNotNull null
-                        responseId to media.toRatings()
-                    }.toMap()
+                    val responseId =
+                        resolveResponseId(media, provider) ?: return@mapNotNull null
+                    responseId to media.toRatings()
+                }.toMap()
             }
             client.checkCredential(first.credential)
             synchronized(lock) {
@@ -113,17 +134,28 @@ internal class MdbListRatingsLoader(
                     inFlight.remove(key)
                     deferred.complete(result)
                     if (!result.isEmpty()) {
-                        diskCache?.put("${key.mediaProvider}:${key.mediaType}:${key.mediaId}", result)
+                        diskCache?.put(
+                            "${key.mediaProvider}:${key.mediaType}:${key.mediaId}",
+                            result
+                        )
                     }
                 }
             }
         } catch (error: Exception) {
-            if (error !is CancellationException) Log.w("MdbListRatings", "Ratings request failed for ${batch.size} items")
+            if (error !is CancellationException) {
+                Log.w(
+                    "MdbListRatings",
+                    "Ratings request failed for ${batch.size} items"
+                )
+            }
             synchronized(lock) {
                 batch.forEach { (key, deferred) ->
                     inFlight.remove(key)
-                    if (error is CancellationException) deferred.completeExceptionally(error)
-                    else deferred.complete(null)
+                    if (error is CancellationException) {
+                        deferred.completeExceptionally(error)
+                    } else {
+                        deferred.complete(null)
+                    }
                 }
             }
         }

@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,8 +37,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
@@ -48,8 +46,9 @@ import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesCard
-import kotlinx.coroutines.delay
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlin.math.abs
+import kotlinx.coroutines.delay
 
 private enum class SyncStage {
     WAIT_FOR_SYNC,
@@ -85,7 +84,15 @@ internal fun SubtitleTimingDialog(
         )
     }
     var stage by remember(capturedVideoMs) {
-        mutableStateOf(if (capturedVideoMs != null) SyncStage.PICK_LINE else SyncStage.WAIT_FOR_SYNC)
+        mutableStateOf(
+            if (capturedVideoMs !=
+                null
+            ) {
+                SyncStage.PICK_LINE
+            } else {
+                SyncStage.WAIT_FOR_SYNC
+            }
+        )
     }
 
     LaunchedEffect(capturedVideoMs) {
@@ -147,10 +154,7 @@ internal fun SubtitleTimingDialog(
 }
 
 @Composable
-private fun SyncPromptPanel(
-    onCaptureNow: () -> Unit,
-    focusRequester: FocusRequester
-) {
+private fun SyncPromptPanel(onCaptureNow: () -> Unit, focusRequester: FocusRequester) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -191,7 +195,8 @@ private fun CueSelectionPanel(
         cues.indices.minByOrNull { index -> abs(cues[index].startTimeMs - anchorMs) } ?: 0
     }
     val cueListState = rememberLazyListState()
-    val nearestCueFocusRequester = remember(capturedVideoMs, nearestCueIndex, cues.size) { FocusRequester() }
+    val nearestCueFocusRequester =
+        remember(capturedVideoMs, nearestCueIndex, cues.size) { FocusRequester() }
 
     LaunchedEffect(capturedVideoMs, nearestCueIndex, cues.size) {
         if (capturedVideoMs != null && cues.isNotEmpty()) {
@@ -216,7 +221,10 @@ private fun CueSelectionPanel(
         ) {
             Text(
                 text = if (capturedVideoMs != null) {
-                    stringResource(R.string.subtitle_timing_captured_at, formatAutoSyncTimestamp(capturedVideoMs))
+                    stringResource(
+                        R.string.subtitle_timing_captured_at,
+                        formatAutoSyncTimestamp(capturedVideoMs)
+                    )
                 } else {
                     stringResource(R.string.subtitle_timing_capturing)
                 },
@@ -297,7 +305,10 @@ private fun CueSelectionPanel(
                     MoviesTheme.spacing.sm
             ),
             state = cueListState,
-            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs),
+            contentPadding = PaddingValues(
+                horizontal = MoviesTheme.spacing.sm,
+                vertical = MoviesTheme.spacing.xs
+            ),
             verticalArrangement = Arrangement.spacedBy(CUE_ROW_SPACING)
         ) {
             itemsIndexed(
@@ -307,7 +318,13 @@ private fun CueSelectionPanel(
                 CueRow(
                     cue = cue,
                     rowHeight = CUE_ROW_HEIGHT,
-                    focusRequester = if (index == nearestCueIndex) nearestCueFocusRequester else null,
+                    focusRequester = if (index ==
+                        nearestCueIndex
+                    ) {
+                        nearestCueFocusRequester
+                    } else {
+                        null
+                    },
                     onClick = { onCueSelected(cue) }
                 )
             }

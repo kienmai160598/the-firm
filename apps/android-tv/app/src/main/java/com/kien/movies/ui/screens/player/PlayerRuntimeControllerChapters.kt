@@ -81,10 +81,12 @@ internal fun PlayerRuntimeController.loadExoChapters() {
         // Only probe for chapters if the container is Matroska/WebM.
         // This avoids the extra HTTP request for MP4, HLS, and other formats.
         val containerMime = _exoPlayer?.videoFormat?.containerMimeType
-        if (containerMime != null
-            && containerMime != "video/x-matroska"
-            && containerMime != "video/webm"
-        ) return@launch
+        if (containerMime != null &&
+            containerMime != "video/x-matroska" &&
+            containerMime != "video/webm"
+        ) {
+            return@launch
+        }
         val chapters = MatroskaChapterLoader.load(url, headers)
         if (chapters.isEmpty() || isUsingMpvEngine() || currentStreamUrl != url) return@launch
         if (settings.exoChaptersEnabled) {

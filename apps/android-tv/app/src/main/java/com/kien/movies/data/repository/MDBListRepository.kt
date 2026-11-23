@@ -9,9 +9,9 @@ import com.kien.movies.domain.model.MDBListRatings
 import com.kien.movies.domain.model.MDBListRatingsResult
 import com.kien.movies.domain.model.MDBListSettings
 import com.kien.movies.domain.model.Meta
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.first
 
 private data class MediaRef(val provider: String, val id: String, val mediaType: String)
 
@@ -27,7 +27,12 @@ class MDBListRepository internal constructor(
         settingsDataStore: MDBListSettingsDataStore,
         tmdbService: TmdbService,
         @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
-    ) : this(api, settingsDataStore, tmdbService, MdbListRatingsLoader(api, MdbListRatingsDiskCache(context)))
+    ) : this(
+        api,
+        settingsDataStore,
+        tmdbService,
+        MdbListRatingsLoader(api, MdbListRatingsDiskCache(context))
+    )
 
     fun isAvailable(settings: MDBListSettings): Boolean = settings.enabled && api.credential(settings.apiKey) != null
 
@@ -85,26 +90,33 @@ class MDBListRepository internal constructor(
         val mediaType = normalizeMediaType(meta.apiType.ifBlank { fallbackItemType })
         val ref = resolveMediaRef(meta, fallbackItemId, fallbackItemType, mediaType) ?: return null
 
-        val ratings = ratingsLoader.getRatings(ref.provider, ref.mediaType, ref.id, credential)?.let { allRatings ->
-            MDBListRatings(
-                trakt = allRatings.trakt.takeIf { settings.showTrakt },
-                imdb = allRatings.imdb.takeIf { settings.showImdb },
-                tmdb = allRatings.tmdb.takeIf { settings.showTmdb },
-                letterboxd = allRatings.letterboxd.takeIf { settings.showLetterboxd },
-                tomatoes = allRatings.tomatoes.takeIf { settings.showTomatoes },
-                audience = allRatings.audience.takeIf { settings.showAudience },
-                metacritic = allRatings.metacritic.takeIf { settings.showMetacritic },
-                mal = allRatings.mal.takeIf { settings.showMal },
-                tomatoesCertified = settings.showTomatoes && allRatings.tomatoesCertified,
-                audienceCertified = settings.showAudience && allRatings.audienceCertified
-            )
-        }?.takeUnless { it.isEmpty() } ?: return null
+        val ratings =
+            ratingsLoader.getRatings(
+                ref.provider,
+                ref.mediaType,
+                ref.id,
+                credential
+            )?.let { allRatings ->
+                MDBListRatings(
+                    trakt = allRatings.trakt.takeIf { settings.showTrakt },
+                    imdb = allRatings.imdb.takeIf { settings.showImdb },
+                    tmdb = allRatings.tmdb.takeIf { settings.showTmdb },
+                    letterboxd = allRatings.letterboxd.takeIf { settings.showLetterboxd },
+                    tomatoes = allRatings.tomatoes.takeIf { settings.showTomatoes },
+                    audience = allRatings.audience.takeIf { settings.showAudience },
+                    metacritic = allRatings.metacritic.takeIf { settings.showMetacritic },
+                    mal = allRatings.mal.takeIf { settings.showMal },
+                    tomatoesCertified = settings.showTomatoes && allRatings.tomatoesCertified,
+                    audienceCertified = settings.showAudience && allRatings.audienceCertified
+                )
+            }?.takeUnless { it.isEmpty() } ?: return null
 
         return MDBListRatingsResult(ratings, hasImdbRating = ratings.imdb != null)
     }
 
-    private fun MDBListSettings.hasEnabledProviders(): Boolean =
-        showTrakt || showImdb || showTmdb || showLetterboxd || showTomatoes || showAudience || showMetacritic || showMal
+    private fun MDBListSettings.hasEnabledProviders(): Boolean = showTrakt || showImdb || showTmdb || showLetterboxd || showTomatoes || showAudience ||
+        showMetacritic ||
+        showMal
 
     private suspend fun resolveMediaRef(
         meta: Meta,

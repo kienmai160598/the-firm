@@ -2,9 +2,6 @@
 
 package com.kien.movies.ui.screens
 
-import com.kien.movies.domain.model.catalogRowLegacyKey
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,7 +38,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import com.kien.movies.ui.util.dpadRepeatThrottle
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,23 +47,26 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.domain.model.MetaPreview
+import com.kien.movies.domain.model.catalogRowLegacyKey
+import com.kien.movies.domain.model.legacyKey
+import com.kien.movies.domain.model.stableItemKeys
+import com.kien.movies.domain.model.stableKey
 import com.kien.movies.ui.components.EmptyScreenState
 import com.kien.movies.ui.components.GridContentCard
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.LocalCardDepthStyle
-import com.kien.movies.ui.components.moviesCardDepth
 import com.kien.movies.ui.components.PosterCardDefaults
 import com.kien.movies.ui.components.PosterCardStyle
+import com.kien.movies.ui.components.moviesCardDepth
 import com.kien.movies.ui.screens.home.HomeEvent
 import com.kien.movies.ui.screens.home.HomeViewModel
 import com.kien.movies.ui.screens.search.SearchEvent
 import com.kien.movies.ui.screens.search.SearchViewModel
-import com.kien.movies.domain.model.MetaPreview
-import com.kien.movies.domain.model.legacyKey
-import com.kien.movies.domain.model.stableItemKeys
-import com.kien.movies.domain.model.stableKey
-import kotlinx.coroutines.flow.distinctUntilChanged
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.util.dpadRepeatThrottle
 import kotlin.math.roundToInt
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 /** Stable focus key for a catalog poster (survives list reloads; not a grid index). */
 private fun catalogItemFocusKey(item: MetaPreview): String = "${item.apiType}:${item.id}"
@@ -80,11 +79,13 @@ fun CatalogSeeAllScreen(
     searchViewModel: SearchViewModel? = null,
     serverCatalog: ServerCatalogViewModel? = null,
     viewModel: HomeViewModel = hiltViewModel(),
-    posterOptionsViewModel: com.kien.movies.ui.components.posteroptions.PosterOptionsViewModel = hiltViewModel(),
+    posterOptionsViewModel: com.kien.movies.ui.components.posteroptions.PosterOptionsViewModel =
+        hiltViewModel(),
     onNavigateToDetail: (String, String, String) -> Unit,
     onBackPress: () -> Unit
 ) {
-    val posterOptionsController = searchViewModel?.posterOptions ?: posterOptionsViewModel.controller
+    val posterOptionsController =
+        searchViewModel?.posterOptions ?: posterOptionsViewModel.controller
     val uiState by viewModel.uiState.collectAsState()
     val fullCatalogRows by viewModel.fullCatalogRows.collectAsState()
     val computedHeightDp = (uiState.posterCardWidthDp * 1.5f).roundToInt()
@@ -210,7 +211,9 @@ fun CatalogSeeAllScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = catalogRow?.catalogName ?: stringResource(R.string.catalog_see_all_title_fallback),
+                text =
+                    catalogRow?.catalogName
+                        ?: stringResource(R.string.catalog_see_all_title_fallback),
                 style = MaterialTheme.typography.headlineLarge,
                 color = MoviesTheme.colors.TextPrimary
             )
@@ -230,7 +233,13 @@ fun CatalogSeeAllScreen(
         Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
         val hasItems = catalogRow?.items?.isNotEmpty() == true
-        val isCatalogLoading = if (catalogRow == null) serverFailed?.value != true else catalogRow.isLoading
+        val isCatalogLoading = if (catalogRow ==
+            null
+        ) {
+            serverFailed?.value != true
+        } else {
+            catalogRow.isLoading
+        }
 
         if (hasItems) {
             val seeAllItemKeys = remember(catalogRow?.items) {
@@ -254,15 +263,25 @@ fun CatalogSeeAllScreen(
                 ) {
                     itemsIndexed(
                         items = catalogRow.items,
-                        key = { index, _ -> seeAllItemKeys.getOrElse(index) { "${catalogRow.stableKey()}_$index" } }
+                        key = { index, _ ->
+                            seeAllItemKeys.getOrElse(index) { "${catalogRow.stableKey()}_$index" }
+                        }
                     ) { index, item ->
                         val isWatched = if (isSearchMode) {
-                            val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
-                            if (isSeries) item.id in (searchWatchedSeriesIds?.value ?: emptySet())
-                            else item.id in (searchWatchedMovieIds?.value ?: emptySet())
+                            val isSeries =
+                                item.apiType.equals("series", ignoreCase = true) ||
+                                    item.apiType.equals("tv", ignoreCase = true)
+                            if (isSeries) {
+                                item.id in (searchWatchedSeriesIds?.value ?: emptySet())
+                            } else {
+                                item.id in (searchWatchedMovieIds?.value ?: emptySet())
+                            }
                         } else {
                             uiState.movieWatchedStatus[
-                                com.kien.movies.ui.screens.home.homeItemStatusKey(item.id, item.apiType)
+                                com.kien.movies.ui.screens.home.homeItemStatusKey(
+                                    item.id,
+                                    item.apiType
+                                )
                             ] == true
                         }
                         val itemFocusKey = catalogItemFocusKey(item)
@@ -271,7 +290,13 @@ fun CatalogSeeAllScreen(
                             posterCardStyle = posterCardStyle,
                             showLabel = uiState.posterLabelsEnabled,
                             isWatched = isWatched,
-                            focusRequester = if (index == focusedItemIndex) restoreFocusRequester else null,
+                            focusRequester = if (index ==
+                                focusedItemIndex
+                            ) {
+                                restoreFocusRequester
+                            } else {
+                                null
+                            },
                             onFocused = {
                                 // While restoring after Details/resume, ignore transient focus on the
                                 // first/leftmost cell so it cannot overwrite the saved poster key.
@@ -301,23 +326,42 @@ fun CatalogSeeAllScreen(
                     if (catalogRow.isLoading) {
                         item(key = "loading_more") {
                             val cardShape = remember(posterCardStyle.cornerRadius) {
-                                androidx.compose.foundation.shape.RoundedCornerShape(posterCardStyle.cornerRadius)
+                                androidx.compose.foundation.shape.RoundedCornerShape(
+                                    posterCardStyle.cornerRadius
+                                )
                             }
                             val cardDepthStyle = com.kien.movies.ui.components.LocalCardDepthStyle.current
                             val globalLandscape = com.kien.movies.ui.components.LocalLandscapePosterMode.current
                             Column(
                                 modifier = Modifier
-                                    .then(if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width))
+                                    .then(
+                                        if (globalLandscape) {
+                                            Modifier.fillMaxWidth()
+                                        } else {
+                                            Modifier.width(
+                                                posterCardStyle.width
+                                            )
+                                        }
+                                    )
                             ) {
                                 androidx.tv.material3.Card(
                                     onClick = {},
                                     modifier = Modifier
                                         .then(
-                                            if (globalLandscape) Modifier.fillMaxWidth().aspectRatio(com.kien.movies.domain.model.PosterShape.LANDSCAPE.aspectRatio())
-                                            else Modifier.width(posterCardStyle.width).height(posterCardStyle.height)
+                                            if (globalLandscape) {
+                                                Modifier.fillMaxWidth().aspectRatio(
+                                                    com.kien.movies.domain.model.PosterShape.LANDSCAPE.aspectRatio()
+                                                )
+                                            } else {
+                                                Modifier.width(
+                                                    posterCardStyle.width
+                                                ).height(posterCardStyle.height)
+                                            }
                                         )
                                         .then(Modifier.focusProperties { canFocus = false }),
-                                    shape = androidx.tv.material3.CardDefaults.shape(shape = cardShape),
+                                    shape = androidx.tv.material3.CardDefaults.shape(
+                                        shape = cardShape
+                                    ),
                                     colors = androidx.tv.material3.CardDefaults.colors(
                                         containerColor = MoviesTheme.colors.BackgroundCard,
                                         focusedContainerColor = MoviesTheme.colors.BackgroundCard
@@ -341,9 +385,19 @@ fun CatalogSeeAllScreen(
                                 }
                                 Spacer(
                                     modifier = Modifier
-                                        .then(if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width))
+                                        .then(
+                                            if (globalLandscape) {
+                                                Modifier.fillMaxWidth()
+                                            } else {
+                                                Modifier.width(
+                                                    posterCardStyle.width
+                                                )
+                                            }
+                                        )
                                         .padding(top = MoviesTheme.spacing.sm)
-                                        .height(MaterialTheme.typography.titleMedium.lineHeight.value.dp)
+                                        .height(
+                                            MaterialTheme.typography.titleMedium.lineHeight.value.dp
+                                        )
                                 )
                             }
                         }

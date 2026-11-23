@@ -80,16 +80,32 @@ class TrackingSourceMemoryTest {
         val settings = mockk<TraktSettingsDataStore>(relaxed = true)
         coEvery { settings.getWatchProgressSource(1) } answers { stored.progress }
         coEvery { settings.getLibrarySourceMode(1) } answers { stored.library }
-        coEvery { settings.getRememberedWatchProgressSource(1) } answers { stored.rememberedProgress }
+        coEvery { settings.getRememberedWatchProgressSource(1) } answers
+            { stored.rememberedProgress }
         coEvery { settings.getRememberedLibrarySourceMode(1) } answers { stored.rememberedLibrary }
-        coEvery { settings.setWatchProgressSource(any(), 1) } answers { stored.progress = firstArg() }
+        coEvery { settings.setWatchProgressSource(any(), 1) } answers
+            { stored.progress = firstArg() }
         coEvery { settings.setLibrarySourceMode(any(), 1) } answers { stored.library = firstArg() }
-        coEvery { settings.setRememberedWatchProgressSource(any(), 1) } answers { stored.rememberedProgress = firstArg() }
-        coEvery { settings.setRememberedLibrarySourceMode(any(), 1) } answers { stored.rememberedLibrary = firstArg() }
+        coEvery { settings.setRememberedWatchProgressSource(any(), 1) } answers
+            { stored.rememberedProgress = firstArg() }
+        coEvery { settings.setRememberedLibrarySourceMode(any(), 1) } answers
+            { stored.rememberedLibrary = firstArg() }
         return TrackingSourceController(
-            settings, TrackingProgressProviderRegistry(emptySet()), TrackingLibraryProviderRegistry(emptySet()),
-            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
-            mockk(relaxed = true), mockk(relaxed = true), mockk<ProfileManager> { every { activeProfileId } returns MutableStateFlow(1) }
+            settings,
+            TrackingProgressProviderRegistry(
+                emptySet()
+            ),
+            TrackingLibraryProviderRegistry(emptySet()),
+            mockk(
+                relaxed = true
+            ),
+            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
+            mockk(relaxed = true), mockk(relaxed = true),
+            mockk<ProfileManager> {
+                every {
+                    activeProfileId
+                } returns MutableStateFlow(1)
+            }
         )
     }
 }

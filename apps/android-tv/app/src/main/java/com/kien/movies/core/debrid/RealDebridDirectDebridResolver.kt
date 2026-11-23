@@ -5,10 +5,10 @@ import com.kien.movies.data.remote.api.RealDebridApi
 import com.kien.movies.data.remote.dto.RealDebridTorrentInfoDto
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.StreamClientResolve
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.first
 
 @Singleton
 class RealDebridDirectDebridResolver @Inject constructor(
@@ -16,11 +16,7 @@ class RealDebridDirectDebridResolver @Inject constructor(
     private val api: RealDebridApi,
     private val fileSelector: RealDebridFileSelector
 ) {
-    suspend fun resolve(
-        stream: Stream,
-        season: Int?,
-        episode: Int?
-    ): DirectDebridResolveResult {
+    suspend fun resolve(stream: Stream, season: Int?, episode: Int?): DirectDebridResolveResult {
         val resolve = stream.clientResolve ?: return DirectDebridResolveResult.Error
         val apiKey = dataStore.settings.first().realDebridApiKey.trim()
         if (apiKey.isBlank()) return DirectDebridResolveResult.MissingApiKey

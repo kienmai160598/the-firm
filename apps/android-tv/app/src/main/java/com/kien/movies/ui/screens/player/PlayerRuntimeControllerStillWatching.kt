@@ -1,8 +1,8 @@
 package com.kien.movies.ui.screens.player
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.job
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 
 private const val STILL_WATCHING_COUNTDOWN_SECONDS = 60
@@ -13,7 +13,7 @@ internal fun shouldEnterStillWatchingPrompt(
     autoPlayNextEpisodeEnabled: Boolean,
     nextEpisodeHasAired: Boolean,
     consecutiveAutoPlayCount: Int,
-    threshold: Int,
+    threshold: Int
 ): Boolean = stillWatchingEnabled &&
     autoPlayNextEpisodeEnabled &&
     nextEpisodeHasAired &&
@@ -21,7 +21,9 @@ internal fun shouldEnterStillWatchingPrompt(
 
 internal fun PlayerRuntimeController.enterStillWatchingPromptMode() {
     val nextInfo = _uiState.value.nextEpisode ?: return
-    if (_uiState.value.postPlayMode is PostPlayMode.StillWatching && stillWatchingPromptJob?.isActive == true) {
+    if (_uiState.value.postPlayMode is PostPlayMode.StillWatching &&
+        stillWatchingPromptJob?.isActive == true
+    ) {
         return
     }
     pauseForStillWatchingPrompt()
@@ -30,9 +32,9 @@ internal fun PlayerRuntimeController.enterStillWatchingPromptMode() {
         it.copy(
             postPlayMode = PostPlayMode.StillWatching(
                 nextEpisode = nextInfo,
-                countdownSec = STILL_WATCHING_COUNTDOWN_SECONDS,
+                countdownSec = STILL_WATCHING_COUNTDOWN_SECONDS
             ),
-            showControls = false,
+            showControls = false
         )
     }
     val job = scope.launch {

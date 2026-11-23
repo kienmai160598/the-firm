@@ -347,11 +347,7 @@ class PostPlayRecommendationStateTest {
         )
     }
 
-    private fun enrichment(
-        title: String,
-        backdrop: String,
-        logo: String
-    ): TmdbEnrichment {
+    private fun enrichment(title: String, backdrop: String, logo: String): TmdbEnrichment {
         return TmdbEnrichment(
             localizedTitle = title,
             description = "Localized description",

@@ -3,14 +3,14 @@ package com.kien.movies.data.repository
 import android.content.Context
 import android.util.Log
 import com.kien.movies.R
-import com.kien.movies.core.network.NetworkResult
-import com.kien.movies.core.network.safeApiCall
 import com.kien.movies.core.debrid.DebridStreamPresentation
 import com.kien.movies.core.debrid.LocalDebridAvailabilityService
+import com.kien.movies.core.network.NetworkResult
+import com.kien.movies.core.network.safeApiCall
 import com.kien.movies.core.plugin.PluginManager
-import com.kien.movies.domain.model.pluginBingeGroup
 import com.kien.movies.core.plugin.resolvePluginSeasonEpisode
 import com.kien.movies.core.profile.ProfileManager
+import com.kien.movies.core.streams.supportsStreamResource
 import com.kien.movies.core.tmdb.TmdbService
 import com.kien.movies.data.local.DebridSettingsDataStore
 import com.kien.movies.data.mapper.toDomain
@@ -28,11 +28,14 @@ import com.kien.movies.domain.model.ProxyHeaders
 import com.kien.movies.domain.model.ScraperInfo
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.StreamBehaviorHints
-import com.kien.movies.core.streams.supportsStreamResource
 import com.kien.movies.domain.model.enabledAddons
+import com.kien.movies.domain.model.pluginBingeGroup
 import com.kien.movies.domain.repository.AddonRepository
 import com.kien.movies.domain.repository.StreamRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.net.URLEncoder
+import java.security.MessageDigest
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
@@ -44,9 +47,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
-import java.net.URLEncoder
-import java.security.MessageDigest
-import javax.inject.Inject
 
 private const val TAG = "StreamRepositoryImpl"
 
@@ -127,7 +127,9 @@ class StreamRepositoryImpl @Inject constructor(
                     debridSettings = sourceConfiguration.debridSettings,
                     hasCompatiblePlugins = !isNativeServerRequest &&
                         sourceConfiguration.pluginsEnabled &&
-                        sourceConfiguration.enabledScrapers.any { scraper -> scraper.supportsType(type) },
+                        sourceConfiguration.enabledScrapers.any { scraper ->
+                            scraper.supportsType(type)
+                        },
                     serverSources = if (continuePluginOnly) {
                         emptyList()
                     } else {
@@ -197,7 +199,8 @@ class StreamRepositoryImpl @Inject constructor(
             val addons = addonRepository.getInstalledAddons().first().enabledAddons()
             val pluginsEnabled = pluginManager.pluginsEnabled.first()
             val enabledScrapers = if (pluginsEnabled) pluginManager.enabledScrapers.first() else emptyList()
-            val groupPluginsByRepository = pluginsEnabled && pluginManager.groupStreamsByRepository.first()
+            val groupPluginsByRepository =
+                pluginsEnabled && pluginManager.groupStreamsByRepository.first()
             val pluginRepositories = if (groupPluginsByRepository) pluginManager.repositories.first() else emptyList()
             val debridSettings = debridSettingsDataStore.settings.first()
 
@@ -242,7 +245,8 @@ class StreamRepositoryImpl @Inject constructor(
                 }
             }
 
-            val attemptedAddonNames = streamAddons.map { it.displayName } + serverSources.map { it.name }
+            val attemptedAddonNames =
+                streamAddons.map { it.displayName } + serverSources.map { it.name }
             val attemptedFailures = java.util.Collections.synchronizedList(
                 mutableListOf<StreamAttemptFailure>()
             )
@@ -253,7 +257,7 @@ class StreamRepositoryImpl @Inject constructor(
             coroutineScope {
                 // Channel to receive results as they complete
                 val resultChannel = Channel<AddonStreams>(Channel.UNLIMITED)
-                
+
                 // Track number of pending jobs
                 val totalJobs = streamAddons.size + 1 + serverSources.size
                 val completedJobs = java.util.concurrent.atomic.AtomicInteger(0)
@@ -267,7 +271,10 @@ class StreamRepositoryImpl @Inject constructor(
                                 is NetworkResult.Success -> {
                                     if (streamsResult.data.isNotEmpty()) {
                                         val namedStreams = streamsResult.data.map {
-                                            it.copy(addonName = addon.displayName, addonLogo = addon.logo)
+                                            it.copy(
+                                                addonName = addon.displayName,
+                                                addonLogo = addon.logo
+                                            )
                                         }
                                         resultChannel.send(
                                             AddonStreams(
@@ -280,7 +287,9 @@ class StreamRepositoryImpl @Inject constructor(
                                         // Stream endpoint returned empty - try inline
                                         // streams from meta response as fallback.
                                         val inlineStreams = fetchInlineStreamsFromMeta(
-                                            addon, type, videoId
+                                            addon,
+                                            type,
+                                            videoId
                                         )
                                         if (inlineStreams.isNotEmpty()) {
                                             resultChannel.send(
@@ -295,9 +304,11 @@ class StreamRepositoryImpl @Inject constructor(
                                         }
                                     }
                                 }
+
                                 is NetworkResult.Error -> {
                                     attemptedFailures += buildAddonFailure(addon, streamsResult)
                                 }
+
                                 NetworkResult.Loading -> Unit
                             }
                         } catch (e: Exception) {
@@ -306,7 +317,11 @@ class StreamRepositoryImpl @Inject constructor(
                             attemptedFailures += StreamAttemptFailure(
                                 addonName = addon.displayName,
                                 kind = StreamFailureKind.REQUEST_FAILED,
-                                detail = e.message ?: context.getString(com.kien.movies.R.string.stream_error_detail_addon_request_failed)
+                                detail =
+                                    e.message
+                                        ?: context.getString(
+                                            com.kien.movies.R.string.stream_error_detail_addon_request_failed
+                                        )
                             )
                         } finally {
                             if (completedJobs.incrementAndGet() >= totalJobs) {
@@ -321,12 +336,20 @@ class StreamRepositoryImpl @Inject constructor(
                         try {
                             val streams = source.load()
                             if (streams.isNotEmpty()) {
-                                resultChannel.send(AddonStreams(addonName = source.name, addonLogo = null, streams = streams))
+                                resultChannel.send(
+                                    AddonStreams(
+                                        addonName = source.name,
+                                        addonLogo = null,
+                                        streams = streams
+                                    )
+                                )
                             } else {
                                 attemptedFailures += StreamAttemptFailure(
                                     addonName = source.name,
                                     kind = StreamFailureKind.MISSING,
-                                    detail = context.getString(R.string.stream_error_detail_no_streams_for_id)
+                                    detail = context.getString(
+                                        R.string.stream_error_detail_no_streams_for_id
+                                    )
                                 )
                             }
                         } catch (e: Exception) {
@@ -395,11 +418,20 @@ class StreamRepositoryImpl @Inject constructor(
 
                 // Emit results as they arrive
                 for (result in resultChannel) {
-                    val checkingResult = localDebridAvailabilityService.markChecking(listOf(result)).firstOrNull() ?: result
-                    val checkedResult = localDebridAvailabilityService.annotateCachedAvailability(listOf(checkingResult)).firstOrNull() ?: checkingResult
+                    val checkingResult =
+                        localDebridAvailabilityService.markChecking(listOf(result)).firstOrNull()
+                            ?: result
+                    val checkedResult =
+                        localDebridAvailabilityService.annotateCachedAvailability(
+                            listOf(checkingResult)
+                        ).firstOrNull()
+                            ?: checkingResult
                     mergePresentedResult(accumulatedResults, checkedResult, debridSettings)
                     emit(NetworkResult.Success(accumulatedResults.toList()))
-                    Log.d(TAG, "Emitted ${accumulatedResults.size} addon(s), latest: ${checkedResult.addonName} with ${checkedResult.streams.size} streams")
+                    Log.d(
+                        TAG,
+                        "Emitted ${accumulatedResults.size} addon(s), latest: ${checkedResult.addonName} with ${checkedResult.streams.size} streams"
+                    )
                 }
             }
 
@@ -420,7 +452,13 @@ class StreamRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e(TAG, "Failed to fetch streams: ${e.message}", e)
-            emit(NetworkResult.Error(e.message ?: context.getString(com.kien.movies.R.string.stream_error_fetch_failed)))
+            emit(
+                NetworkResult.Error(
+                    e.message ?: context.getString(
+                        com.kien.movies.R.string.stream_error_fetch_failed
+                    )
+                )
+            )
         }
     }
 
@@ -457,16 +495,11 @@ class StreamRepositoryImpl @Inject constructor(
         realDebridApiKey = realDebridApiKey.sha256()
     )
 
-    private fun String.sha256(): String =
-        MessageDigest.getInstance("SHA-256")
-            .digest(toByteArray(Charsets.UTF_8))
-            .joinToString(separator = "") { byte -> "%02x".format(byte.toInt() and 0xff) }
+    private fun String.sha256(): String = MessageDigest.getInstance("SHA-256")
+        .digest(toByteArray(Charsets.UTF_8))
+        .joinToString(separator = "") { byte -> "%02x".format(byte.toInt() and 0xff) }
 
-    private data class PluginRequest(
-        val id: String,
-        val mediaType: String,
-        val source: String
-    )
+    private data class PluginRequest(val id: String, val mediaType: String, val source: String)
 
     private fun buildPluginRequest(tmdbId: String?, type: String, videoId: String): PluginRequest? {
         if (tmdbId != null) {
@@ -587,7 +620,9 @@ class StreamRepositoryImpl @Inject constructor(
                     val addonStreams = AddonStreams(
                         addonName = addonName,
                         addonLogo = null,
-                        streams = results.map { result -> result.toPluginStream(scraper, addonName) }
+                        streams = results.map { result ->
+                            result.toPluginStream(scraper, addonName)
+                        }
                     )
                     resultChannel.send(addonStreams)
                     Log.d(TAG, "Streamed ${results.size} results from ${scraper.name}")
@@ -611,7 +646,8 @@ class StreamRepositoryImpl @Inject constructor(
         val baseTitle = title.takeIf { it.isNotBlank() }
         val baseName = name?.takeIf { it.isNotBlank() }
         val quality = quality?.takeIf { it.isNotBlank() }
-        val qualityLabel = quality ?: context.getString(com.kien.movies.R.string.stream_quality_unknown)
+        val qualityLabel =
+            quality ?: context.getString(com.kien.movies.R.string.stream_quality_unknown)
         val displayName = buildString {
             append(baseName ?: baseTitle ?: scraper.name)
             if (!toString().contains(qualityLabel)) {
@@ -630,7 +666,14 @@ class StreamRepositoryImpl @Inject constructor(
             description = buildDescription(this),
             behaviorHints = StreamBehaviorHints(
                 notWebReady = null,
-                bingeGroup = pluginBingeGroup(scraperId = scraper.id, url = url, name = name, title = title, language = language, quality = quality),
+                bingeGroup = pluginBingeGroup(
+                    scraperId = scraper.id,
+                    url = url,
+                    name = name,
+                    title = title,
+                    language = language,
+                    quality = quality
+                ),
                 countryWhitelist = null,
                 proxyHeaders = headers?.let { ProxyHeaders(request = it, response = null) },
                 audioDelayMs = audioDelayMs,
@@ -648,16 +691,20 @@ class StreamRepositoryImpl @Inject constructor(
 
     private fun Stream.dedupKey(): String {
         val base = infoHash?.lowercase()?.let { hash -> "$hash:${fileIdx ?: ""}" }
-            ?: clientResolve?.infoHash?.lowercase()?.let { hash -> "$hash:${clientResolve.fileIdx}" }
+            ?: clientResolve?.infoHash?.lowercase()?.let { hash ->
+                "$hash:${clientResolve.fileIdx}"
+            }
             ?: url
             ?: externalUrl
             ?: ytId
             ?: serverTarget?.key()
-            ?: "${addonName}:${name}:${title}"
+            ?: "$addonName:$name:$title"
         val nameSuffix = if (base == url) {
             val discriminator = name?.takeIf { it.isNotBlank() }
             if (discriminator != null) "|$discriminator" else ""
-        } else ""
+        } else {
+            ""
+        }
         return "$base$nameSuffix"
     }
 
@@ -693,7 +740,13 @@ class StreamRepositoryImpl @Inject constructor(
     ): NetworkResult<List<Stream>> {
         val cleanBaseUrl = addon.baseUrl.trimEnd('/')
         val queryStart = cleanBaseUrl.indexOf('?')
-        val basePath = if (queryStart >= 0) cleanBaseUrl.substring(0, queryStart).trimEnd('/') else cleanBaseUrl
+        val basePath = if (queryStart >=
+            0
+        ) {
+            cleanBaseUrl.substring(0, queryStart).trimEnd('/')
+        } else {
+            cleanBaseUrl
+        }
         val baseQuery = if (queryStart >= 0) cleanBaseUrl.substring(queryStart) else ""
         val encodedType = encodePathSegment(type)
         val encodedVideoId = encodePathSegment(videoId)
@@ -709,12 +762,13 @@ class StreamRepositoryImpl @Inject constructor(
 
         return when (val result = safeApiCall(context) { api.getStreams(streamUrl) }) {
             is NetworkResult.Success -> {
-                val streams = result.data.streams?.map { 
-                    it.toDomain(addonName, addonLogo) 
+                val streams = result.data.streams?.map {
+                    it.toDomain(addonName, addonLogo)
                 } ?: emptyList()
                 Log.d(TAG, "Streams success addon=$addonName count=${streams.size} url=$streamUrl")
                 NetworkResult.Success(streams)
             }
+
             is NetworkResult.Error -> {
                 Log.w(
                     TAG,
@@ -722,6 +776,7 @@ class StreamRepositoryImpl @Inject constructor(
                 )
                 result
             }
+
             NetworkResult.Loading -> NetworkResult.Loading
         }
     }
@@ -753,8 +808,16 @@ class StreamRepositoryImpl @Inject constructor(
             // Keep at least 2 segments for prefixed IDs (e.g. "mal:63375"),
             // or 1 segment for IMDB-style IDs (e.g. "tt1234567")
             val firstSegment = parts.first()
-            val minSegments = if (firstSegment.startsWith("tt") || firstSegment.toIntOrNull() != null) 1 else 2
-            val segmentsToDrop = trailingNumericCount.coerceAtMost((parts.size - minSegments).coerceAtLeast(0))
+            val minSegments = if (firstSegment.startsWith("tt") ||
+                firstSegment.toIntOrNull() != null
+            ) {
+                1
+            } else {
+                2
+            }
+            val segmentsToDrop = trailingNumericCount.coerceAtMost(
+                (parts.size - minSegments).coerceAtLeast(0)
+            )
             if (segmentsToDrop > 0) {
                 parts.dropLast(segmentsToDrop).joinToString(":")
             } else {
@@ -763,12 +826,21 @@ class StreamRepositoryImpl @Inject constructor(
         }
         val cleanBaseUrl = addon.baseUrl.trimEnd('/')
         val queryStart = cleanBaseUrl.indexOf('?')
-        val basePath = if (queryStart >= 0) cleanBaseUrl.substring(0, queryStart).trimEnd('/') else cleanBaseUrl
+        val basePath = if (queryStart >=
+            0
+        ) {
+            cleanBaseUrl.substring(0, queryStart).trimEnd('/')
+        } else {
+            cleanBaseUrl
+        }
         val baseQuery = if (queryStart >= 0) cleanBaseUrl.substring(queryStart) else ""
         val encodedType = encodePathSegment(type)
         val encodedMetaId = encodePathSegment(metaId)
         val metaUrl = "$basePath/meta/$encodedType/$encodedMetaId.json$baseQuery"
-        Log.d(TAG, "Fetching inline streams via meta type=$type metaId=$metaId videoId=$videoId url=$metaUrl")
+        Log.d(
+            TAG,
+            "Fetching inline streams via meta type=$type metaId=$metaId videoId=$videoId url=$metaUrl"
+        )
         return try {
             when (val result = safeApiCall(context) { api.getMeta(metaUrl) }) {
                 is NetworkResult.Success -> {
@@ -777,14 +849,21 @@ class StreamRepositoryImpl @Inject constructor(
                     val streams = matchingVideo?.streams
                         ?.mapNotNull { it.toDomain(addon.displayName, addon.logo) }
                         ?: emptyList()
-                    Log.d(TAG, "Inline streams from meta: addon=${addon.displayName} videoId=$videoId found=${streams.size}")
+                    Log.d(
+                        TAG,
+                        "Inline streams from meta: addon=${addon.displayName} videoId=$videoId found=${streams.size}"
+                    )
                     streams
                 }
+
                 else -> emptyList()
             }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            Log.w(TAG, "Failed to fetch inline streams from meta for ${addon.displayName}: ${e.message}")
+            Log.w(
+                TAG,
+                "Failed to fetch inline streams from meta for ${addon.displayName}: ${e.message}"
+            )
             emptyList()
         }
     }
@@ -793,7 +872,9 @@ class StreamRepositoryImpl @Inject constructor(
         return StreamAttemptFailure(
             addonName = addon.displayName,
             kind = StreamFailureKind.MISSING,
-            detail = context.getString(com.kien.movies.R.string.stream_error_detail_no_streams_for_id)
+            detail = context.getString(
+                com.kien.movies.R.string.stream_error_detail_no_streams_for_id
+            )
         )
     }
 
@@ -804,14 +885,23 @@ class StreamRepositoryImpl @Inject constructor(
         val normalizedReason = when {
             error.message.contains("Unable to resolve host", ignoreCase = true) ->
                 context.getString(com.kien.movies.R.string.stream_error_detail_addon_unreachable)
+
             error.message.contains("Failed to connect", ignoreCase = true) ->
-                context.getString(com.kien.movies.R.string.stream_error_detail_addon_connection_failed)
+                context.getString(
+                    com.kien.movies.R.string.stream_error_detail_addon_connection_failed
+                )
+
             error.message.contains("timeout", ignoreCase = true) ->
                 context.getString(com.kien.movies.R.string.stream_error_detail_addon_timeout)
+
             error.message.contains("CLEARTEXT communication", ignoreCase = true) ->
-                context.getString(com.kien.movies.R.string.stream_error_detail_addon_cleartext_blocked)
+                context.getString(
+                    com.kien.movies.R.string.stream_error_detail_addon_cleartext_blocked
+                )
+
             error.message.isBlank() ->
                 context.getString(com.kien.movies.R.string.stream_error_detail_addon_request_failed)
+
             else -> error.message.replaceFirstChar { char ->
                 if (char.isLowerCase()) char.titlecase() else char.toString()
             }
@@ -835,7 +925,8 @@ class StreamRepositoryImpl @Inject constructor(
         }
 
         val triedAddons = attemptedAddonNames.joinToString(", ")
-        val missingOnly = failures.isNotEmpty() && failures.all { it.kind == StreamFailureKind.MISSING }
+        val missingOnly =
+            failures.isNotEmpty() && failures.all { it.kind == StreamFailureKind.MISSING }
         if (failures.isEmpty() || missingOnly) {
             return context.getString(R.string.error_stream_tried_none, triedAddons, id, type)
         }
@@ -849,7 +940,13 @@ class StreamRepositoryImpl @Inject constructor(
         return if (issueSummary.isBlank()) {
             context.getString(R.string.error_stream_tried_generic, triedAddons, id, type)
         } else {
-            context.getString(R.string.error_stream_tried_issues, triedAddons, id, type, issueSummary)
+            context.getString(
+                R.string.error_stream_tried_issues,
+                triedAddons,
+                id,
+                type,
+                issueSummary
+            )
         }
     }
 

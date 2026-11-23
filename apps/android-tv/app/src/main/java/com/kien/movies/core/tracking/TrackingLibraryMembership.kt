@@ -1,7 +1,7 @@
 package com.kien.movies.core.tracking
 
-import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.LibraryEntryInput
+import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.ListMembershipChanges
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
@@ -32,14 +32,13 @@ data class TrackingMembershipMutationFailure(
     val cause: Throwable
 )
 
-class TrackingMembershipMutationException(
-    val failures: List<TrackingMembershipMutationFailure>
-) : IllegalStateException(
-    failures.joinToString(", ", prefix = "Tracking membership update failed for ") { failure ->
-        failure.providerId.storageId
-    },
-    failures.firstOrNull()?.cause
-)
+class TrackingMembershipMutationException(val failures: List<TrackingMembershipMutationFailure>) :
+    IllegalStateException(
+        failures.joinToString(", ", prefix = "Tracking membership update failed for ") { failure ->
+            failure.providerId.storageId
+        },
+        failures.firstOrNull()?.cause
+    )
 
 suspend fun dispatchTrackingMembershipChanges(
     item: LibraryEntryInput,

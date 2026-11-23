@@ -1,15 +1,15 @@
 package com.kien.movies.ui.screens.home
 
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZoneOffset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.ZoneOffset
 
 /**
  * Regression tests for currently-airing series leaving Continue Watching on air day.
@@ -28,7 +28,7 @@ class ContinueWatchingAiringRulesTest {
     fun `fully watched with unaired next-up stays on CW and keeps badge`() {
         assertEquals(
             FullyWatchedNextUpAction.KEEP_WITH_BADGE,
-            fullyWatchedNextUpAction(nextUpHasAired = false),
+            fullyWatchedNextUpAction(nextUpHasAired = false)
         )
         assertFalse(shouldDropFullyWatchedNextUpFromContinueWatching(nextUpHasAired = false))
     }
@@ -38,11 +38,11 @@ class ContinueWatchingAiringRulesTest {
         // This is the user-reported path: checkmark + new episode air day.
         assertEquals(
             FullyWatchedNextUpAction.KEEP_AND_CLEAR_BADGE,
-            fullyWatchedNextUpAction(nextUpHasAired = true),
+            fullyWatchedNextUpAction(nextUpHasAired = true)
         )
         assertFalse(
             "aired next-up must NOT drop fully-watched airing series from CW",
-            shouldDropFullyWatchedNextUpFromContinueWatching(nextUpHasAired = true),
+            shouldDropFullyWatchedNextUpFromContinueWatching(nextUpHasAired = true)
         )
     }
 
@@ -69,14 +69,18 @@ class ContinueWatchingAiringRulesTest {
         assertFalse(shouldDropFullyWatchedNextUpFromContinueWatching(true))
 
         // Badge cache absorbs E6 so publishBadgeUpdate does not re-checkmark.
-        val airedAfter = mergeAiredNextEpisodeIntoBadgeCache(airedBeforeDrop, nextSeason = 1, nextEpisode = 6)!!
+        val airedAfter = mergeAiredNextEpisodeIntoBadgeCache(
+            airedBeforeDrop,
+            nextSeason = 1,
+            nextEpisode = 6
+        )!!
         assertEquals(
             setOf(1 to 1, 1 to 2, 1 to 3, 1 to 4, 1 to 5, 1 to 6),
-            airedAfter,
+            airedAfter
         )
         assertFalse(
             "after E6 is known as aired and unwatched, series is no longer fully watched",
-            isFullyWatchedAgainstAiredList(airedAfter, watched),
+            isFullyWatchedAgainstAiredList(airedAfter, watched)
         )
     }
 
@@ -124,8 +128,8 @@ class ContinueWatchingAiringRulesTest {
                 episode(1, 1, "2026-06-01"),
                 episode(1, 2, "2026-06-08"),
                 episode(1, 3, tomorrow.toString()), // mid-season next
-                episode(2, 1, nextSeasonPremiere.toString()),
-            ),
+                episode(2, 1, nextSeasonPremiere.toString())
+            )
         )
 
         val ms = meta.earliestUpcomingEpisodeMs(now)
@@ -155,8 +159,8 @@ class ContinueWatchingAiringRulesTest {
             country = null,
             videos = listOf(
                 episode(1, 1, "2025-01-01"),
-                episode(1, 2, "2025-01-08"),
-            ),
+                episode(1, 2, "2025-01-08")
+            )
         )
         assertNull(meta.earliestUpcomingEpisodeMs(now))
     }
@@ -181,8 +185,8 @@ class ContinueWatchingAiringRulesTest {
             videos = listOf(
                 episode(1, 1, yesterday),
                 episode(1, 2, yesterday),
-                episode(1, 3, tomorrow),
-            ),
+                episode(1, 3, tomorrow)
+            )
         )
         val watchable = meta.watchableEpisodes().map { it.season to it.episode }
         assertEquals(listOf(1 to 1, 1 to 2), watchable)
@@ -193,8 +197,8 @@ class ContinueWatchingAiringRulesTest {
                 airedEpisodes = watchable.mapNotNull { (s, e) ->
                     if (s != null && e != null) s to e else null
                 }.toSet(),
-                watchedEpisodes = setOf(1 to 1, 1 to 2),
-            ),
+                watchedEpisodes = setOf(1 to 1, 1 to 2)
+            )
         )
     }
 
@@ -205,6 +209,6 @@ class ContinueWatchingAiringRulesTest {
         thumbnail = null,
         season = season,
         episode = ep,
-        overview = null,
+        overview = null
     )
 }

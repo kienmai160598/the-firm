@@ -7,9 +7,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ImagePerformancePreferences @Inject constructor(
-    @param:ApplicationContext context: Context
-) {
+class ImagePerformancePreferences @Inject constructor(@param:ApplicationContext context: Context) {
     private val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
 
     val rgb565Enabled: Boolean

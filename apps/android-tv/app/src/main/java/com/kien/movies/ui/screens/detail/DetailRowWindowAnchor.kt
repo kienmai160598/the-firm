@@ -11,14 +11,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 
-internal fun previewRowLazyKey(index: Int, id: String, name: String): String =
-    "$id|$name|$index"
+internal fun previewRowLazyKey(index: Int, id: String, name: String): String = "$id|$name|$index"
 
 @Composable
 fun LazyListState.keepDetailRowWindow(
     itemIds: List<String>,
     lazyKeyAt: (Int) -> Any?,
-    resetKey: String? = null,
+    resetKey: String? = null
 ): String? {
     var anchorId by rememberSaveable(resetKey) { mutableStateOf<String?>(null) }
     var appliedReset by rememberSaveable { mutableStateOf(resetKey) }

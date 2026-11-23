@@ -63,7 +63,13 @@ internal fun SettingsCollapsibleSection(
             onClick = onToggle,
             leadingIcon = icon,
             trailingIcon = if (expanded) Icons.Default.ExpandMore else Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            modifier = if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier,
+            modifier = if (focusRequester !=
+                null
+            ) {
+                Modifier.focusRequester(focusRequester)
+            } else {
+                Modifier
+            },
             onFocused = onFocused
         )
 

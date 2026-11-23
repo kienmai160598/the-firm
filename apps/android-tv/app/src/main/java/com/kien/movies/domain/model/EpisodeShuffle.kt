@@ -3,10 +3,7 @@ package com.kien.movies.domain.model
 import javax.inject.Inject
 import javax.inject.Singleton
 
-data class EpisodeShuffleSettings(
-    val enabled: Boolean = false,
-    val includeWatched: Boolean = false
-)
+data class EpisodeShuffleSettings(val enabled: Boolean = false, val includeWatched: Boolean = false)
 
 enum class ShuffleSurface { DETAIL, HOME, PLAYBACK }
 
@@ -46,7 +43,11 @@ class EpisodeShuffle @Inject constructor() {
         while (sessions.size > 96) sessions.remove(sessions.keys.first())
         val picker = RandomEpisodePicker(contentId, videos, watched, progress)
         picker.inheritHistoryFrom(session.picker)
-        if (current != null && (session.picker == null || session.current != current)) picker.recordPlayed(current)
+        if (current != null &&
+            (session.picker == null || session.current != current)
+        ) {
+            picker.recordPlayed(current)
+        }
         session.picker = picker
         val newerVisit = visit > session.visit
         if (session.current != current || newerVisit) session.selected = null
@@ -56,7 +57,12 @@ class EpisodeShuffle @Inject constructor() {
             picker.find(prev.id, includeWatched, current)
                 ?: prev.takeIf { surface == ShuffleSurface.HOME }
         } ?: preferredVideoId?.let { picker.find(it, includeWatched, current) }
-                ?: picker.pick(includeWatched, current, consumeSelection = surface != ShuffleSurface.PLAYBACK || current == null)
+            ?: picker.pick(
+                includeWatched,
+                current,
+                consumeSelection =
+                    surface != ShuffleSurface.PLAYBACK || current == null
+            )
         return session.selected
     }
 

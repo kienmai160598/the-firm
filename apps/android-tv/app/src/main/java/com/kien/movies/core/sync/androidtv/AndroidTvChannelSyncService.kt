@@ -14,6 +14,8 @@ import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.ui.screens.home.ContinueWatchingItem
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -23,8 +25,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "TvChannelSync"
 private const val DEBOUNCE_MS = 2_000L
@@ -153,7 +153,9 @@ class AndroidTvChannelSyncService @Inject constructor(
         nextUp: List<CachedNextUpItem>,
         settings: ChannelSettingsSnapshot
     ): List<WatchProgress> {
-        val cutoffMs = if (settings.daysCap == TraktSettingsDataStore.CONTINUE_WATCHING_DAYS_CAP_ALL) {
+        val cutoffMs = if (settings.daysCap ==
+            TraktSettingsDataStore.CONTINUE_WATCHING_DAYS_CAP_ALL
+        ) {
             null
         } else {
             val windowMs = settings.daysCap.toLong() * 24L * 60L * 60L * 1000L
@@ -167,7 +169,7 @@ class AndroidTvChannelSyncService @Inject constructor(
         // Filter next-up items: exclude unaired (launcher should only show playable content),
         // respect days cap and dismissed keys
         val filteredNextUp = nextUp
-            .filter { it.hasAired }  // Never show unaired in launcher — can't be played
+            .filter { it.hasAired } // Never show unaired in launcher — can't be played
             .filter { cutoffMs == null || it.lastWatched >= cutoffMs }
             .filter { nextUpDismissKey(it) !in settings.dismissedNextUp }
 

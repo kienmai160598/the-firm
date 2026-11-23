@@ -7,12 +7,19 @@ object StreamAutoPlayPolicy {
     fun isEffectivelyEnabled(playerSettings: PlayerSettings): Boolean {
         if (playerSettings.streamReuseLastLinkEnabled) return true
         if (playerSettings.streamAutoPlayReuseBingeGroup &&
-            playerSettings.streamAutoPlayPreferBingeGroupForNextEpisode) return true
+            playerSettings.streamAutoPlayPreferBingeGroupForNextEpisode
+        ) {
+            return true
+        }
 
         return when (playerSettings.streamAutoPlayMode) {
             StreamAutoPlayMode.MANUAL -> false
+
             StreamAutoPlayMode.FIRST_STREAM -> true
-            StreamAutoPlayMode.REGEX_MATCH -> isRegexSelectionConfigured(playerSettings.streamAutoPlayRegex)
+
+            StreamAutoPlayMode.REGEX_MATCH -> isRegexSelectionConfigured(
+                playerSettings.streamAutoPlayRegex
+            )
         }
     }
 

@@ -20,12 +20,12 @@ class AutoSyncActivityPlateauTest {
                     AutoSyncTimelineRetimer.findDelayOnlyAlignment(
                         reference,
                         target,
-                        allowAmbiguousMargin = relaxed,
-                    ),
+                        allowAmbiguousMargin = relaxed
+                    )
                 ) { "delay $delayMs relaxed=$relaxed found no alignment" }
                 assertTrue(
                     "delay $delayMs relaxed=$relaxed picked ${alignment.offsetMs}",
-                    abs(alignment.offsetMs - delayMs) <= 100.0,
+                    abs(alignment.offsetMs - delayMs) <= 100.0
                 )
             }
         }
@@ -36,7 +36,13 @@ class AutoSyncActivityPlateauTest {
         for (delayMs in listOf(0L, 2_300L, -4_100L)) {
             val (reference, target) = plateauPair(delayMs)
             val result = checkNotNull(
-                AutoSyncTimelineRetimer.retime(reference, target, 1.0, 0.0, discoverAlignment = true),
+                AutoSyncTimelineRetimer.retime(
+                    reference,
+                    target,
+                    1.0,
+                    0.0,
+                    discoverAlignment = true
+                )
             ) { "delay $delayMs not retimed" }
             assertTrue("delay $delayMs not confident", result.confident)
             val shift = result.cues.first().startTimeMs - result.cues.first().originalStartTimeMs
@@ -46,7 +52,7 @@ class AutoSyncActivityPlateauTest {
 
     private fun plateauPair(
         delayMs: Long,
-        seed: Int = 7,
+        seed: Int = 7
     ): Pair<List<SubtitleSyncCue>, List<SubtitleSyncCue>> {
         val random = Random(seed)
         val reference = ArrayList<SubtitleSyncCue>()
@@ -60,7 +66,8 @@ class AutoSyncActivityPlateauTest {
                 val length = 1_600L + random.nextInt(1_400)
                 val next = start + length + 300L + random.nextInt(500)
                 target += SubtitleSyncCue(start - delayMs, start - delayMs + length, "line")
-                reference += SubtitleSyncCue(start, if (i == lines - 1) start + length else next, "line")
+                reference +=
+                    SubtitleSyncCue(start, if (i == lines - 1) start + length else next, "line")
                 start = next
             }
             blockStart = start + 6_000L + random.nextInt(9_000)

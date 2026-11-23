@@ -5,13 +5,13 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class TrailerSubtitleTest {
-    private fun track(language: String, auto: Boolean = false) =
-        TrailerSubtitleTrack(language, "https://youtube.com/$language/$auto", auto)
+    private fun track(language: String, auto: Boolean = false) = TrailerSubtitleTrack(language, "https://youtube.com/$language/$auto", auto)
 
     @Test
     fun `preferred language wins and author captions beat auto-generated`() {
         val author = track("en-US")
-        val picked = pickTrailerSubtitle(listOf(track("fr"), track("en", auto = true), author), "en", null)
+        val picked =
+            pickTrailerSubtitle(listOf(track("fr"), track("en", auto = true), author), "en", null)
         assertEquals(author, picked)
     }
 
@@ -32,13 +32,19 @@ class TrailerSubtitleTest {
     @Test
     fun `none as preferred language picks the spoken language first`() {
         val author = track("en-US")
-        assertEquals(author, pickTrailerSubtitle(listOf(track("de"), track("en", auto = true), author), "none", null))
+        assertEquals(
+            author,
+            pickTrailerSubtitle(listOf(track("de"), track("en", auto = true), author), "none", null)
+        )
     }
 
     @Test
     fun `none as preferred language still honours the secondary language`() {
         val french = track("fr")
-        assertEquals(french, pickTrailerSubtitle(listOf(track("en", auto = true), french), "none", "fr"))
+        assertEquals(
+            french,
+            pickTrailerSubtitle(listOf(track("en", auto = true), french), "none", "fr")
+        )
     }
 
     @Test

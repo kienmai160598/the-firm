@@ -1,7 +1,7 @@
 package com.kien.movies.ui.screens.addon
 
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
@@ -89,11 +89,7 @@ class AddonManagerFocusRestorationTest {
 }
 
 @androidx.compose.runtime.Composable
-private fun FocusTarget(
-    tag: String,
-    requester: FocusRequester,
-    focusEvents: MutableList<String>
-) {
+private fun FocusTarget(tag: String, requester: FocusRequester, focusEvents: MutableList<String>) {
     Box(
         Modifier
             .size(48.dp)

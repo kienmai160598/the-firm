@@ -11,7 +11,7 @@ class PremiumizeDirectDownloadFileSelector @Inject constructor() {
         files: List<PremiumizeDirectDownloadFileDto>,
         resolve: StreamClientResolve,
         season: Int?,
-        episode: Int?,
+        episode: Int?
     ): PremiumizeDirectDownloadFileDto? = selectDebridFile(
         files = files,
         resolve = resolve,
@@ -19,6 +19,6 @@ class PremiumizeDirectDownloadFileSelector @Inject constructor() {
         episode = episode,
         path = { it.path.orEmpty() },
         isPlayable = { !it.link.isNullOrBlank() && it.displayName().hasDebridVideoExtension() },
-        size = { it.size ?: 0L },
+        size = { it.size ?: 0L }
     )
 }

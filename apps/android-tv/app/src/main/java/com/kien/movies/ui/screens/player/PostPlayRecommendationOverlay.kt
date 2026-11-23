@@ -58,8 +58,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -68,9 +68,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.components.expressive.MoviesIconButton
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -88,6 +85,9 @@ import com.kien.movies.ui.components.PlayManualOverrideDialog
 import com.kien.movies.ui.components.SynopsisDescription
 import com.kien.movies.ui.components.SynopsisOverlay
 import com.kien.movies.ui.components.TrailerPlayer
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesIconButton
 import com.kien.movies.ui.theme.MoviesMotion
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.formatHeroRuntime
@@ -175,17 +175,25 @@ fun PostPlayRecommendationOverlay(
     }
 
     LaunchedEffect(state.recommendationIndex, state.isChangingRecommendation) {
-        if (state.isChangingRecommendation || pendingNavigationFocusDirection == 0) return@LaunchedEffect
+        if (state.isChangingRecommendation ||
+            pendingNavigationFocusDirection == 0
+        ) {
+            return@LaunchedEffect
+        }
         repeat(2) { withFrameNanos { } }
         val requester = when {
             pendingNavigationFocusDirection < 0 && state.canNavigatePrevious -> {
                 previousRecommendationFocusRequester
             }
+
             pendingNavigationFocusDirection > 0 && state.canNavigateNext -> {
                 nextRecommendationFocusRequester
             }
+
             state.canNavigatePrevious -> previousRecommendationFocusRequester
+
             state.canNavigateNext -> nextRecommendationFocusRequester
+
             else -> playFocusRequester
         }
         runCatching { requester.requestFocus() }
@@ -223,7 +231,9 @@ fun PostPlayRecommendationOverlay(
                 .onPreviewKeyEvent { event ->
                     val native = event.nativeKeyEvent
                     if (native.keyCode == AndroidKeyEvent.KEYCODE_BACK) {
-                        if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount > 0) {
+                        if (native.action == AndroidKeyEvent.ACTION_DOWN &&
+                            native.repeatCount > 0
+                        ) {
                             backLongPressed = true
                             onForceExit()
                             return@onPreviewKeyEvent true
@@ -244,8 +254,10 @@ fun PostPlayRecommendationOverlay(
             AnimatedContent(
                 targetState = recommendation,
                 transitionSpec = {
-                    (fadeIn(MoviesMotion.mediumTween()) togetherWith
-                        fadeOut(MoviesMotion.mediumTween())).using(null)
+                    (
+                        fadeIn(MoviesMotion.mediumTween()) togetherWith
+                            fadeOut(MoviesMotion.mediumTween())
+                        ).using(null)
                 },
                 contentKey = { it.id },
                 label = "postPlayRecommendationBackdrop",
@@ -339,14 +351,20 @@ fun PostPlayRecommendationOverlay(
                     ) {
                         PostPlayRecommendationButton(
                             label = stringResource(
-                                if (opensDetails) R.string.tmdb_details_title
-                                else R.string.player_post_play_play
+                                if (opensDetails) {
+                                    R.string.tmdb_details_title
+                                } else {
+                                    R.string.player_post_play_play
+                                }
                             ),
                             painter = if (opensDetails) detailsPainter else playPainter,
                             primary = true,
                             onClick = {
-                                if (opensDetails) onOpenDetails(recommendation)
-                                else onPlay(recommendation)
+                                if (opensDetails) {
+                                    onOpenDetails(recommendation)
+                                } else {
+                                    onPlay(recommendation)
+                                }
                             },
                             onLongPress = if (!opensDetails && showManualPlayOption) {
                                 { showPlayOptionsDialog = true }
@@ -360,7 +378,10 @@ fun PostPlayRecommendationOverlay(
                                     if (!state.isTrailerPlaying) {
                                         when {
                                             descriptionTruncated -> up = descriptionFocusRequester
-                                            !state.hasAutoPlayedTrailer -> up = playerWindowFocusRequester
+
+                                            !state.hasAutoPlayedTrailer ->
+                                                up =
+                                                    playerWindowFocusRequester
                                         }
                                     }
                                 }
@@ -389,8 +410,13 @@ fun PostPlayRecommendationOverlay(
                                         .width(buttonWidth)
                                         .focusProperties {
                                             when {
-                                                descriptionTruncated -> up = descriptionFocusRequester
-                                                !state.hasAutoPlayedTrailer -> up = playerWindowFocusRequester
+                                                descriptionTruncated ->
+                                                    up =
+                                                        descriptionFocusRequester
+
+                                                !state.hasAutoPlayedTrailer ->
+                                                    up =
+                                                        playerWindowFocusRequester
                                             }
                                         }
                                 )
@@ -413,7 +439,10 @@ fun PostPlayRecommendationOverlay(
                                 modifier = Modifier.focusProperties {
                                     when {
                                         descriptionTruncated -> up = descriptionFocusRequester
-                                        !state.hasAutoPlayedTrailer -> up = playerWindowFocusRequester
+
+                                        !state.hasAutoPlayedTrailer ->
+                                            up =
+                                                playerWindowFocusRequester
                                     }
                                 }
                             )
@@ -432,7 +461,10 @@ fun PostPlayRecommendationOverlay(
                                 modifier = Modifier.focusProperties {
                                     when {
                                         descriptionTruncated -> up = descriptionFocusRequester
-                                        !state.hasAutoPlayedTrailer -> up = playerWindowFocusRequester
+
+                                        !state.hasAutoPlayedTrailer ->
+                                            up =
+                                                playerWindowFocusRequester
                                     }
                                 }
                             )
@@ -518,8 +550,10 @@ private fun PostPlayRecommendationSummary(
         AnimatedContent(
             targetState = recommendation,
             transitionSpec = {
-                (fadeIn(MoviesMotion.mediumTween()) togetherWith
-                    fadeOut(MoviesMotion.mediumTween())).using(null)
+                (
+                    fadeIn(MoviesMotion.mediumTween()) togetherWith
+                        fadeOut(MoviesMotion.mediumTween())
+                    ).using(null)
             },
             contentKey = { it.id },
             label = "postPlayRecommendationTitle"
@@ -571,8 +605,10 @@ private fun PostPlayRecommendationSummary(
             AnimatedContent(
                 targetState = recommendation,
                 transitionSpec = {
-                    (fadeIn(MoviesMotion.mediumTween()) togetherWith
-                        fadeOut(MoviesMotion.mediumTween())).using(null)
+                    (
+                        fadeIn(MoviesMotion.mediumTween()) togetherWith
+                            fadeOut(MoviesMotion.mediumTween())
+                        ).using(null)
                 },
                 contentKey = { it.id },
                 label = "postPlayRecommendationDetails"
@@ -600,7 +636,9 @@ private fun PostPlayRecommendationSummary(
                                     modifier = Modifier.weight(1f, fill = false)
                                 )
                             }
-                            if (metadata.isNotBlank() && (imdbRating != null || tmdbRating != null)) {
+                            if (metadata.isNotBlank() &&
+                                (imdbRating != null || tmdbRating != null)
+                            ) {
                                 Text(
                                     text = "•",
                                     style = MaterialTheme.typography.labelLarge,
@@ -647,10 +685,7 @@ private fun PostPlayRecommendationSummary(
 }
 
 @Composable
-private fun StandardRatingsRow(
-    imdbRating: Float?,
-    tmdbRating: Float?
-) {
+private fun StandardRatingsRow(imdbRating: Float?, tmdbRating: Float?) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
@@ -694,10 +729,12 @@ private fun StandardRatingsRow(
 private fun trailerButtonLabel(state: PostPlayRecommendationUiState): String {
     return when {
         state.isTrailerPlaying -> stringResource(R.string.player_post_play_trailer_playing)
+
         state.countdownSeconds != null -> stringResource(
             R.string.player_post_play_trailer_countdown,
             state.countdownSeconds
         )
+
         else -> stringResource(R.string.player_post_play_trailer)
     }
 }

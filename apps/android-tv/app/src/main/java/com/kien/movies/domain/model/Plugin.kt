@@ -13,10 +13,7 @@ enum class RepositoryType {
 /**
  * Plugin info returned from Supabase sync, with optional type hint.
  */
-data class RemotePluginInfo(
-    val url: String,
-    val repoType: String? = null
-)
+data class RemotePluginInfo(val url: String, val repoType: String? = null)
 
 /**
  * Represents a plugin repository containing scrapers
@@ -90,11 +87,10 @@ data class ScraperInfo(
     }
 }
 
-private fun normalizePluginType(value: String): String =
-    when (value.lowercase()) {
-        "series", "show", "other" -> "tv"
-        else -> value.lowercase()
-    }
+private fun normalizePluginType(value: String): String = when (value.lowercase()) {
+    "series", "show", "other" -> "tv"
+    else -> value.lowercase()
+}
 
 /**
  * Result from a local scraper execution
@@ -169,7 +165,9 @@ fun pluginBingeGroup(
     return if (tokens.isEmpty()) {
         "$PLUGIN_BINGE_GROUP_PREFIX$scraperId"
     } else {
-        "$PLUGIN_BINGE_GROUP_PREFIX$scraperId$PLUGIN_BINGE_GROUP_SEPARATOR${tokens.joinToString(" ")}"
+        "$PLUGIN_BINGE_GROUP_PREFIX$scraperId$PLUGIN_BINGE_GROUP_SEPARATOR${tokens.joinToString(
+            " "
+        )}"
     }
 }
 
@@ -200,7 +198,13 @@ fun scraperIdFromPluginBingeGroup(bingeGroup: String?): String? {
 fun indexOfPluginBingeMatch(targetGroup: String?, candidateGroups: List<String?>): Int? {
     val targetId = scraperIdFromPluginBingeGroup(targetGroup) ?: return null
     val indexed = candidateGroups.mapIndexedNotNull { index, group ->
-        if (scraperIdFromPluginBingeGroup(group) == targetId) index to tokensOfPluginBingeGroup(group) else null
+        if (scraperIdFromPluginBingeGroup(group) ==
+            targetId
+        ) {
+            index to tokensOfPluginBingeGroup(group)
+        } else {
+            null
+        }
     }
     if (indexed.isEmpty()) return null
     val saved = tokensOfPluginBingeGroup(targetGroup)
@@ -320,14 +324,14 @@ fun LocalScraperResult.toStream(scraper: ScraperInfo): com.kien.movies.domain.mo
             append(" $quality")
         }
     }
-    
+
     val displayName = buildString {
         append(name ?: scraper.name)
         if (!quality.isNullOrBlank() && !(name ?: "").contains(quality)) {
             append(" - $quality")
         }
     }
-    
+
     return Stream(
         name = displayName,
         title = displayTitle,

@@ -17,10 +17,7 @@ import coil3.request.crossfade
  * The default of 24.dp equals `MoviesTheme.spacing.xl`.
  */
 @Composable
-internal fun rememberRawSvgPainter(
-    @RawRes rawIconRes: Int,
-    targetSize: Dp = 24.dp
-): Painter {
+internal fun rememberRawSvgPainter(@RawRes rawIconRes: Int, targetSize: Dp = 24.dp): Painter {
     val context = LocalContext.current
     val density = LocalDensity.current
     val sizePx = with(density) { targetSize.roundToPx() }

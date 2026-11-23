@@ -22,7 +22,8 @@ class LaunchIntentReplayTest {
         assertFalse(
             isFreshLaunchIntent(
                 hasSavedInstanceState = false,
-                intentFlags = Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY or Intent.FLAG_ACTIVITY_NEW_TASK
+                intentFlags =
+                    Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY or Intent.FLAG_ACTIVITY_NEW_TASK
             )
         )
     }

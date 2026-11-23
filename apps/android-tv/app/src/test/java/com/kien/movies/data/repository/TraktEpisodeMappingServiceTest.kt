@@ -21,7 +21,9 @@ class TraktEpisodeMappingServiceTest {
         val traktApi = traktApi(traktSeasons = listOf(61, 160))
         val service = service(traktApi, addonSeasons = listOf(65, 160))
 
-        assertNull(service.resolveAddonEpisodeMapping("tt0115147", "series", season = 2, episode = 1))
+        assertNull(
+            service.resolveAddonEpisodeMapping("tt0115147", "series", season = 2, episode = 1)
+        )
         coVerify(exactly = 0) { traktApi.getShowSeasons(any(), any(), any()) }
     }
 
@@ -47,7 +49,13 @@ class TraktEpisodeMappingServiceTest {
             addonTitle = roomWeek
         )
 
-        val mapped = service.resolveEpisodeMapping("tt0418372", "series", videoId = null, season = 2, episode = 15)
+        val mapped = service.resolveEpisodeMapping(
+            "tt0418372",
+            "series",
+            videoId = null,
+            season = 2,
+            episode = 15
+        )
 
         assertEquals(2, mapped?.season)
         assertEquals(15, mapped?.episode)
@@ -57,7 +65,13 @@ class TraktEpisodeMappingServiceTest {
     fun `written episodes Trakt lacks are still remapped`() = runTest {
         val service = service(traktApi(traktSeasons = listOf(48)), addonSeasons = listOf(24, 24))
 
-        val mapped = service.resolveEpisodeMapping("tt1", "series", videoId = null, season = 2, episode = 11)
+        val mapped = service.resolveEpisodeMapping(
+            "tt1",
+            "series",
+            videoId = null,
+            season = 2,
+            episode = 11
+        )
 
         assertEquals(1, mapped?.season)
         assertEquals(35, mapped?.episode)
@@ -73,7 +87,13 @@ class TraktEpisodeMappingServiceTest {
             addonTitle = chapterTitles(listOf(5, 5))
         )
 
-        val mapped = service.resolveEpisodeMapping("tt2", "series", videoId = null, season = 2, episode = 3)
+        val mapped = service.resolveEpisodeMapping(
+            "tt2",
+            "series",
+            videoId = null,
+            season = 2,
+            episode = 3
+        )
 
         assertEquals(2, mapped?.season)
         assertEquals(1, mapped?.episode)
@@ -89,7 +109,8 @@ class TraktEpisodeMappingServiceTest {
         addonTitle: (season: Int, episode: Int) -> String? = { _, _ -> null }
     ): TraktEpisodeMappingService {
         val authService = mockk<TraktAuthService> {
-            coEvery { getCurrentAuthState() } returns TraktAuthState(accessToken = "a", refreshToken = "r")
+            coEvery { getCurrentAuthState() } returns
+                TraktAuthState(accessToken = "a", refreshToken = "r")
             coEvery { executeAuthorizedRequest<List<TraktSeasonDto>>(any()) } coAnswers {
                 firstArg<suspend (String) -> Response<List<TraktSeasonDto>>>().invoke("Bearer a")
             }
@@ -97,7 +118,11 @@ class TraktEpisodeMappingServiceTest {
         val addonEpisodeListService = mockk<AddonEpisodeListService> {
             coEvery { episodes(any(), any()) } returns addonSeasons.flatMapIndexed { index, count ->
                 (1..count).map { episode ->
-                    EpisodeMappingEntry(season = index + 1, episode = episode, title = addonTitle(index + 1, episode))
+                    EpisodeMappingEntry(
+                        season = index + 1,
+                        episode = episode,
+                        title = addonTitle(index + 1, episode)
+                    )
                 }
             }
         }
@@ -113,7 +138,11 @@ class TraktEpisodeMappingServiceTest {
                 TraktSeasonDto(
                     number = index + 1,
                     episodes = (1..count).map { episode ->
-                        TraktEpisodeDto(title = title(index + 1, episode), season = index + 1, number = episode)
+                        TraktEpisodeDto(
+                            title = title(index + 1, episode),
+                            season = index + 1,
+                            number = episode
+                        )
                     }
                 )
             }

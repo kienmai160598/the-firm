@@ -1,11 +1,11 @@
 package com.kien.movies.ui.screens.player.autosync
 
+import java.nio.charset.Charset
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test
-import java.nio.charset.Charset
 
 class AutoSyncSubtitleHttpTest {
 
@@ -17,7 +17,11 @@ class AutoSyncSubtitleHttpTest {
         val body = srt.toByteArray(Charset.forName("windows-1252"))
             .toResponseBody("application/octet-stream".toMediaType())
 
-        val decoded = AutoSyncSubtitleHttp.readResponseBodyLimited(body, maxBytes = 1 shl 20, languageHint = "pt")
+        val decoded = AutoSyncSubtitleHttp.readResponseBodyLimited(
+            body,
+            maxBytes = 1 shl 20,
+            languageHint = "pt"
+        )
 
         assertEquals(srt, decoded)
         assertFalse(decoded.contains('\uFFFD'))
@@ -27,13 +31,27 @@ class AutoSyncSubtitleHttpTest {
     fun decodesWindows1252PortugueseWithoutLanguageHint() {
         val body = srt.toByteArray(Charset.forName("windows-1252")).toResponseBody(null)
 
-        assertEquals(srt, AutoSyncSubtitleHttp.readResponseBodyLimited(body, maxBytes = 1 shl 20, languageHint = null))
+        assertEquals(
+            srt,
+            AutoSyncSubtitleHttp.readResponseBodyLimited(
+                body,
+                maxBytes = 1 shl 20,
+                languageHint = null
+            )
+        )
     }
 
     @Test
     fun keepsUtf8SubtitlesUnchanged() {
         val body = srt.toByteArray(Charsets.UTF_8).toResponseBody("text/plain".toMediaType())
 
-        assertEquals(srt, AutoSyncSubtitleHttp.readResponseBodyLimited(body, maxBytes = 1 shl 20, languageHint = "pt"))
+        assertEquals(
+            srt,
+            AutoSyncSubtitleHttp.readResponseBodyLimited(
+                body,
+                maxBytes = 1 shl 20,
+                languageHint = "pt"
+            )
+        )
     }
 }

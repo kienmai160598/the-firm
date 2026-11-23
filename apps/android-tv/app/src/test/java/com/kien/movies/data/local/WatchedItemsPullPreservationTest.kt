@@ -91,9 +91,7 @@ class WatchedItemsPullPreservationTest {
         return WatchedItemsPreferences(factory, profileManager)
     }
 
-    private class TestPreferencesDataStore(
-        initial: Preferences = emptyPreferences()
-    ) : DataStore<Preferences> {
+    private class TestPreferencesDataStore(initial: Preferences = emptyPreferences()) : DataStore<Preferences> {
         private val mutex = Mutex()
         private val state = MutableStateFlow(initial)
 

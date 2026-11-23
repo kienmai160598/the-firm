@@ -6,7 +6,10 @@ class MdbListSyncEngine(
     private val remote: MdbListSyncRemote,
     private val now: () -> Long = System::currentTimeMillis
 ) {
-    suspend fun synchronize(previous: MdbListSyncSnapshot, includeRatings: Boolean = false): MdbListSyncSnapshot {
+    suspend fun synchronize(
+        previous: MdbListSyncSnapshot,
+        includeRatings: Boolean = false
+    ): MdbListSyncSnapshot {
         val activities = remote.activities()
         val previousActivities = previous.activities
         val full = !previous.isInitialized || previousActivities == null
@@ -15,24 +18,39 @@ class MdbListSyncEngine(
             mdbListTimestamp(watermark) !in 0 until JOURNAL_RETENTION_MS
         val watched = when {
             full || expired || MdbListSyncBucket.WATCHED in previous.invalidatedBuckets -> remote.watched()
+
             activities.watchedChanged(previousActivities) -> {
                 val journal = remote.journal(watermark)
-                if (journal.requiresFullSync) remote.watched()
-                else applyMdbListJournal(previous, journal.items)
+                if (journal.requiresFullSync) {
+                    remote.watched()
+                } else {
+                    applyMdbListJournal(previous, journal.items)
+                }
             }
+
             else -> previous.watched
         }
-        val playback = if (full || expired || MdbListSyncBucket.PLAYBACK in previous.invalidatedBuckets ||
-            activities.playbackChanged(previousActivities)) {
+        val playback = if (full || expired ||
+            MdbListSyncBucket.PLAYBACK in previous.invalidatedBuckets ||
+            activities.playbackChanged(previousActivities)
+        ) {
             remote.playback()
-        } else previous.playback
-        val dropped = if (full || expired || MdbListSyncBucket.DROPPED in previous.invalidatedBuckets ||
-            activities.droppedChanged(previousActivities)) {
+        } else {
+            previous.playback
+        }
+        val dropped = if (full || expired ||
+            MdbListSyncBucket.DROPPED in previous.invalidatedBuckets ||
+            activities.droppedChanged(previousActivities)
+        ) {
             remote.dropped()
-        } else previous.dropped
+        } else {
+            previous.dropped
+        }
         val ratings = when {
             !includeRatings -> null
-            previous.ratings == null || full || expired || MdbListSyncBucket.RATINGS in previous.invalidatedBuckets ||
+
+            previous.ratings == null || full || expired ||
+                MdbListSyncBucket.RATINGS in previous.invalidatedBuckets ||
                 activities.ratingsChanged(previousActivities) -> try {
                 remote.ratings()
             } catch (error: CancellationException) {
@@ -40,6 +58,7 @@ class MdbListSyncEngine(
             } catch (_: Exception) {
                 previous.ratings
             }
+
             else -> previous.ratings
         }
         val next = previous.copy(
@@ -53,7 +72,13 @@ class MdbListSyncEngine(
             isInitialized = true,
             invalidatedBuckets = emptySet()
         )
-        return if (watched === previous.watched && playback === previous.playback) next else next.normalizeMedia()
+        return if (watched === previous.watched &&
+            playback === previous.playback
+        ) {
+            next
+        } else {
+            next.normalizeMedia()
+        }
     }
 
     private companion object {

@@ -67,7 +67,8 @@ class StreamSearchSessionCacheTest {
     fun `a different plugin priority starts its own search`() = runTest {
         val cache = StreamSearchSessionCache()
         val producers = AtomicInteger(0)
-        val key = mediaKey(searchMode = "preferredPluginOnly", priorityBingeGroup = "local-plugin-a")
+        val key =
+            mediaKey(searchMode = "preferredPluginOnly", priorityBingeGroup = "local-plugin-a")
 
         cache.observe(key, forceRefresh = false, producer = { countedResult(producers, "A") })
             .first { it is NetworkResult.Success }
@@ -102,17 +103,25 @@ class StreamSearchSessionCacheTest {
     @Test
     fun `peek keeps the requested plugin when another priority is cached`() = runTest {
         val cache = StreamSearchSessionCache()
-        cache.observe(mediaKey(searchMode = "continuePluginOnly", priorityBingeGroup = "local-plugin-a"), forceRefresh = false) {
+        cache.observe(
+            mediaKey(searchMode = "continuePluginOnly", priorityBingeGroup = "local-plugin-a"),
+            forceRefresh = false
+        ) {
             flow { emit(NetworkResult.Success(listOf(AddonStreams("A", null, emptyList())))) }
         }.first { it is NetworkResult.Success }
-        cache.observe(mediaKey(searchMode = "continuePluginOnly", priorityBingeGroup = "local-plugin-b"), forceRefresh = false) {
+        cache.observe(
+            mediaKey(searchMode = "continuePluginOnly", priorityBingeGroup = "local-plugin-b"),
+            forceRefresh = false
+        ) {
             flow { emit(NetworkResult.Success(listOf(AddonStreams("B", null, emptyList())))) }
         }.first { it is NetworkResult.Success }
 
         assertNull(cache.peek(mediaKey(searchMode = "", priorityBingeGroup = "")))
         assertEquals(
             "A",
-            cache.peek(mediaKey(searchMode = "", priorityBingeGroup = "local-plugin-a"))?.single()?.addonName
+            cache.peek(
+                mediaKey(searchMode = "", priorityBingeGroup = "local-plugin-a")
+            )?.single()?.addonName
         )
     }
 

@@ -21,8 +21,8 @@ class AudioSubtitleSyncTest {
             listOf(
                 SubtitleSyncSegment(0L, 1.001, 1_500.0),
                 SubtitleSyncSegment(300_000L, 1.001, 3_900.0),
-                SubtitleSyncSegment(1_200_000L, 1.001, 900.0),
-            ),
+                SubtitleSyncSegment(1_200_000L, 1.001, 900.0)
+            )
         )
         var dropped = 0
         for (subtitleMs in 0L..1_800_000L step 700L) {
@@ -33,7 +33,10 @@ class AudioSubtitleSyncTest {
             }
             // A subtitle delay shows subtitle time (media - delay) at that media time: the same line.
             val shownMs = (mediaUs - model.delayUsAt(mediaUs)) / 1_000.0
-            assertTrue(abs(shownMs - subtitleMs) < 1.0, "line at ${subtitleMs}ms plays at ${mediaUs / 1_000}ms showing ${shownMs}ms")
+            assertTrue(
+                abs(shownMs - subtitleMs) < 1.0,
+                "line at ${subtitleMs}ms plays at ${mediaUs / 1_000}ms showing ${shownMs}ms"
+            )
         }
         // Only lines of the cut 3 s are dropped.
         assertTrue(dropped in 1..6, "dropped $dropped")
@@ -45,7 +48,10 @@ class AudioSubtitleSyncTest {
         val signal = referenceSignal(REFERENCE_PROBABILITIES.size * SileroVad.CHUNK_SAMPLES)
         REFERENCE_PROBABILITIES.forEachIndexed { index, expected ->
             val actual = vad.process(signal, index * SileroVad.CHUNK_SAMPLES)
-            assertTrue(abs(actual - expected) < 0.01f, "chunk $index: expected $expected, got $actual")
+            assertTrue(
+                abs(actual - expected) < 0.01f,
+                "chunk $index: expected $expected, got $actual"
+            )
         }
     }
 
@@ -93,13 +99,29 @@ class AudioSubtitleSyncTest {
         val timeline = speechFor(cues, truth, Random(11))
         val range = timeline.knownRange()!!
         val speech = assertNotNull(
-            SubtitleAudioAligner.prepare(timeline.snapshot(range.first, range.last + 1), range.first, -60_000.0, 60_000.0),
+            SubtitleAudioAligner.prepare(
+                timeline.snapshot(range.first, range.last + 1),
+                range.first,
+                -60_000.0,
+                60_000.0
+            )
         )
         val track = SubtitleSpeechTrack.fromCues(cues)
         // A ±1.5 s search around 10 s finds 10,684 ms but is all edge margin.
-        assertTrue(assertNotNull(speech.estimate(track, doubleArrayOf(1.0), 8_500.0, 11_500.0)).atSearchEdge)
+        assertTrue(
+            assertNotNull(
+                speech.estimate(track, doubleArrayOf(1.0), 8_500.0, 11_500.0)
+            ).atSearchEdge
+        )
         val reach = 1_500.0 + SubtitleAudioAligner.EDGE_MARGIN_MS
-        val widened = assertNotNull(speech.estimate(track, doubleArrayOf(1.0), 10_000.0 - reach, 10_000.0 + reach))
+        val widened = assertNotNull(
+            speech.estimate(
+                track,
+                doubleArrayOf(1.0),
+                10_000.0 - reach,
+                10_000.0 + reach
+            )
+        )
         assertFalse(widened.atSearchEdge)
         assertTrue(abs(widened.shiftMs - truth.shiftMs) < 50.0, "shift ${widened.shiftMs}")
     }
@@ -114,15 +136,31 @@ class AudioSubtitleSyncTest {
         for (i in 4_000 until 4_300) probabilities[i] = Float.NaN
         val segments = listOf(
             SpeechSegment(range.first, probabilities.copyOfRange(0, 9_000)),
-            SpeechSegment(range.first + 11_000, probabilities.copyOfRange(11_000, probabilities.size)),
+            SpeechSegment(
+                range.first + 11_000,
+                probabilities.copyOfRange(11_000, probabilities.size)
+            )
         )
         val track = SubtitleSpeechTrack.fromCues(cues)
         val wide = assertNotNull(SubtitleAudioAligner.prepare(segments, -60_000.0, 60_000.0))
         for (centre in listOf(3_210.0, 2_000.0, -700.0)) {
             for (scale in SubtitleAudioAligner.CANDIDATE_SCALES) {
-                val narrow = assertNotNull(SubtitleAudioAligner.prepare(segments, centre - 1_500.0, centre + 1_500.0))
+                val narrow = assertNotNull(
+                    SubtitleAudioAligner.prepare(
+                        segments,
+                        centre - 1_500.0,
+                        centre + 1_500.0
+                    )
+                )
                 val direct = assertNotNull(narrow.estimate(track, doubleArrayOf(scale)))
-                val transformed = assertNotNull(wide.estimate(track, doubleArrayOf(scale), centre - 1_500.0, centre + 1_500.0))
+                val transformed = assertNotNull(
+                    wide.estimate(
+                        track,
+                        doubleArrayOf(scale),
+                        centre - 1_500.0,
+                        centre + 1_500.0
+                    )
+                )
                 assertEquals(transformed.shiftMs, direct.shiftMs, 1e-6)
                 assertEquals(transformed.peak, direct.peak, 1e-9)
                 assertEquals(transformed.prominence, direct.prominence, 1e-9)
@@ -155,8 +193,22 @@ class AudioSubtitleSyncTest {
         val cues = syntheticCues(Random(31), durationMs = 30 * 60_000L)
         // Subtitles made for a cut that lacks 6 seconds after the 12 minute mark.
         val speech = SpeechTimeline()
-        val early = speechFor(cues.filter { it.first < 720_000L }, SubtitleSyncSegment(0L, 1.0, 1_000.0), Random(32))
-        val late = speechFor(cues.filter { it.first >= 720_000L }, SubtitleSyncSegment(0L, 1.0, 7_000.0), Random(33))
+        val early =
+            speechFor(
+                cues.filter {
+                    it.first < 720_000L
+                },
+                SubtitleSyncSegment(0L, 1.0, 1_000.0),
+                Random(32)
+            )
+        val late =
+            speechFor(
+                cues.filter {
+                    it.first >= 720_000L
+                },
+                SubtitleSyncSegment(0L, 1.0, 7_000.0),
+                Random(33)
+            )
         val known = maxOf(early.knownRange()!!.last, late.knownRange()!!.last)
         val a = early.snapshot(0, known + 1)
         val b = late.snapshot(0, known + 1)
@@ -181,7 +233,8 @@ class AudioSubtitleSyncTest {
         var positionMs = 0L
         var firstMoveMs: Long? = null
         while (positionMs <= 120_000L && firstMoveMs == null) {
-            val horizon = minOf(all.size, ((positionMs + 60_000L) / SpeechTimeline.FRAME_DURATION_MS).toInt())
+            val horizon =
+                minOf(all.size, ((positionMs + 60_000L) / SpeechTimeline.FRAME_DURATION_MS).toInt())
             while (copied < horizon) {
                 if (!all[copied].isNaN()) live.record(copied, all[copied])
                 copied++
@@ -211,8 +264,7 @@ class AudioSubtitleSyncTest {
         }
     }
 
-    private fun loadWeights(): SileroVadWeights =
-        File("src/main/res/raw/silero_vad_v5_16k.bin").inputStream().use(SileroVadWeights::read)
+    private fun loadWeights(): SileroVadWeights = File("src/main/res/raw/silero_vad_v5_16k.bin").inputStream().use(SileroVadWeights::read)
 
     private fun referenceSignal(length: Int): FloatArray {
         var state = 12_345L
@@ -221,7 +273,10 @@ class AudioSubtitleSyncTest {
             val noise = state.toDouble() / (1L shl 31) - 0.5
             val envelope = 0.5 + 0.5 * sin(2 * PI * 3 * n / 16_000)
             val t = 2 * PI * n / 16_000
-            (0.25 * envelope * (sin(180 * t) + 0.5 * sin(360 * t) + 0.25 * sin(540 * t)) + 0.02 * noise).toFloat()
+            (
+                0.25 * envelope * (sin(180 * t) + 0.5 * sin(360 * t) + 0.25 * sin(540 * t)) +
+                    0.02 * noise
+                ).toFloat()
         }
     }
 
@@ -241,7 +296,7 @@ class AudioSubtitleSyncTest {
     private fun speechFor(
         cues: List<Triple<Long, Long, String>>,
         mapping: SubtitleSyncSegment,
-        random: Random,
+        random: Random
     ): SpeechTimeline {
         val frameMs = SpeechTimeline.FRAME_DURATION_MS
         val end = cues.maxOf { it.second } * mapping.scale + mapping.shiftMs + 30_000
@@ -250,30 +305,51 @@ class AudioSubtitleSyncTest {
         // The real detector reports speech slightly late; the aligner compensates for that.
         val latencyMs = SubtitleAudioAligner.DETECTOR_BIAS_MS
         for ((start, stop, _) in cues) {
-            val from = ((start * mapping.scale + mapping.shiftMs + latencyMs) / frameMs).roundToInt().coerceIn(0, frames)
-            val to = ((stop * mapping.scale + mapping.shiftMs + latencyMs) / frameMs).roundToInt().coerceIn(0, frames)
+            val from = ((start * mapping.scale + mapping.shiftMs + latencyMs) / frameMs).roundToInt().coerceIn(
+                0,
+                frames
+            )
+            val to = ((stop * mapping.scale + mapping.shiftMs + latencyMs) / frameMs).roundToInt().coerceIn(
+                0,
+                frames
+            )
             for (f in from until to) speaking[f] = true
         }
         val timeline = SpeechTimeline()
         for (f in 0 until frames) {
             val p = if (speaking[f]) {
-                if (random.nextFloat() < 0.25f) random.nextFloat() * 0.3f else 0.7f + random.nextFloat() * 0.3f
+                if (random.nextFloat() <
+                    0.25f
+                ) {
+                    random.nextFloat() * 0.3f
+                } else {
+                    0.7f + random.nextFloat() * 0.3f
+                }
             } else {
-                if (random.nextFloat() < 0.08f) 0.4f + random.nextFloat() * 0.5f else random.nextFloat() * 0.1f
+                if (random.nextFloat() <
+                    0.08f
+                ) {
+                    0.4f + random.nextFloat() * 0.5f
+                } else {
+                    random.nextFloat() * 0.1f
+                }
             }
             timeline.record(f, p)
         }
         return timeline
     }
 
-    private fun estimateAll(timeline: SpeechTimeline, cues: List<Triple<Long, Long, String>>): SubtitleAudioAligner.Estimate? {
+    private fun estimateAll(
+        timeline: SpeechTimeline,
+        cues: List<Triple<Long, Long, String>>
+    ): SubtitleAudioAligner.Estimate? {
         val range = timeline.knownRange()!!
         return SubtitleAudioAligner.estimate(
             probabilities = timeline.snapshot(range.first, range.last + 1),
             fromFrame = range.first,
             track = SubtitleSpeechTrack.fromCues(cues),
             minShiftMs = -60_000.0,
-            maxShiftMs = 60_000.0,
+            maxShiftMs = 60_000.0
         )
     }
 
@@ -281,7 +357,7 @@ class AudioSubtitleSyncTest {
     private fun replay(
         full: SpeechTimeline,
         cues: List<Triple<Long, Long, String>>,
-        tracker: AudioSyncTracker = AudioSyncTracker(SubtitleSpeechTrack.fromCues(cues)),
+        tracker: AudioSyncTracker = AudioSyncTracker(SubtitleSpeechTrack.fromCues(cues))
     ): SubtitleSyncModel? {
         val range = full.knownRange()!!
         val all = full.snapshot(0, range.last + 1)
@@ -290,7 +366,8 @@ class AudioSubtitleSyncTest {
         val endMs = ((range.last + 1) * SpeechTimeline.FRAME_DURATION_MS).toLong()
         var positionMs = 0L
         while (positionMs <= endMs) {
-            val horizon = minOf(all.size, ((positionMs + 60_000L) / SpeechTimeline.FRAME_DURATION_MS).toInt())
+            val horizon =
+                minOf(all.size, ((positionMs + 60_000L) / SpeechTimeline.FRAME_DURATION_MS).toInt())
             while (copied < horizon) {
                 if (!all[copied].isNaN()) live.record(copied, all[copied])
                 copied++
@@ -307,7 +384,7 @@ class AudioSubtitleSyncTest {
             0.5301f, 0.7079f, 0.7212f, 0.6686f, 0.5150f, 0.5388f, 0.9100f, 0.9640f, 0.8622f, 0.8879f,
             0.8539f, 0.7242f, 0.6466f, 0.6541f, 0.5937f, 0.5775f, 0.6165f, 0.8755f, 0.8050f, 0.7650f,
             0.7258f, 0.6130f, 0.5258f, 0.4998f, 0.4177f, 0.3685f, 0.2827f, 0.3774f, 0.2654f, 0.3670f,
-            0.4804f, 0.3676f, 0.1679f, 0.0845f, 0.0941f, 0.0768f, 0.0639f, 0.0839f, 0.0938f, 0.1370f,
+            0.4804f, 0.3676f, 0.1679f, 0.0845f, 0.0941f, 0.0768f, 0.0639f, 0.0839f, 0.0938f, 0.1370f
         )
     }
 }

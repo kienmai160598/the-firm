@@ -20,85 +20,85 @@ internal data class AuthSessionValidationOutcome(
     val error: Throwable? = null
 )
 
-internal class AuthSessionValidator(
-    private val auth: Auth
-) {
+internal class AuthSessionValidator(private val auth: Auth) {
     private val mutex = Mutex()
+
     @Volatile
     private var validatedAccessToken: String? = null
 
-    suspend fun validate(force: Boolean): AuthSessionValidationOutcome =
-        mutex.withLock {
-            val accessToken = auth.currentAccessTokenOrNull()?.takeIf { it.isNotBlank() }
-                ?: return@withLock AuthSessionValidationOutcome(
+    suspend fun validate(force: Boolean): AuthSessionValidationOutcome = mutex.withLock {
+        val accessToken = auth.currentAccessTokenOrNull()?.takeIf { it.isNotBlank() }
+            ?: return@withLock AuthSessionValidationOutcome(
+                AuthSessionValidationResult.INVALID_SESSION
+            )
+        if (!force && validatedAccessToken == accessToken) {
+            return@withLock AuthSessionValidationOutcome(
+                AuthSessionValidationResult.VALID
+            )
+        }
+
+        try {
+            val remoteUser = auth.retrieveUserForCurrentSession(false)
+            if (auth.currentAccessTokenOrNull() != accessToken) {
+                val hasCurrentSession = auth.currentSessionOrNull() != null
+                if (hasCurrentSession) {
+                    markCurrentSessionValidated()
+                }
+                return@withLock AuthSessionValidationOutcome(
+                    if (hasCurrentSession) {
+                        AuthSessionValidationResult.VALID
+                    } else {
+                        AuthSessionValidationResult.INVALID_SESSION
+                    }
+                )
+            }
+            val localUser = auth.currentUserOrNull()
+            if (
+                localUser == null ||
+                remoteUser.id != localUser.id ||
+                remoteUser.email.isNullOrBlank()
+            ) {
+                AuthSessionValidationOutcome(
                     AuthSessionValidationResult.INVALID_SESSION
                 )
-            if (!force && validatedAccessToken == accessToken) {
-                return@withLock AuthSessionValidationOutcome(
+            } else {
+                validatedAccessToken = accessToken
+                AuthSessionValidationOutcome(
                     AuthSessionValidationResult.VALID
                 )
             }
-
-            try {
-                val remoteUser = auth.retrieveUserForCurrentSession(false)
-                if (auth.currentAccessTokenOrNull() != accessToken) {
-                    val hasCurrentSession = auth.currentSessionOrNull() != null
-                    if (hasCurrentSession) {
-                        markCurrentSessionValidated()
-                    }
-                    return@withLock AuthSessionValidationOutcome(
-                        if (hasCurrentSession) {
-                            AuthSessionValidationResult.VALID
-                        } else {
-                            AuthSessionValidationResult.INVALID_SESSION
-                        }
-                    )
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Throwable) {
+            if (auth.currentAccessTokenOrNull() != accessToken) {
+                val hasCurrentSession = auth.currentSessionOrNull() != null
+                if (hasCurrentSession) {
+                    markCurrentSessionValidated()
                 }
-                val localUser = auth.currentUserOrNull()
-                if (
-                    localUser == null ||
-                    remoteUser.id != localUser.id ||
-                    remoteUser.email.isNullOrBlank()
-                ) {
-                    AuthSessionValidationOutcome(
-                        AuthSessionValidationResult.INVALID_SESSION
-                    )
-                } else {
-                    validatedAccessToken = accessToken
-                    AuthSessionValidationOutcome(
+                return@withLock AuthSessionValidationOutcome(
+                    if (hasCurrentSession) {
                         AuthSessionValidationResult.VALID
-                    )
-                }
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                if (auth.currentAccessTokenOrNull() != accessToken) {
-                    val hasCurrentSession = auth.currentSessionOrNull() != null
-                    if (hasCurrentSession) {
-                        markCurrentSessionValidated()
-                    }
-                    return@withLock AuthSessionValidationOutcome(
-                        if (hasCurrentSession) {
-                            AuthSessionValidationResult.VALID
-                        } else {
-                            AuthSessionValidationResult.INVALID_SESSION
-                        },
-                        error
-                    )
-                }
-                AuthSessionValidationOutcome(
-                    result = when {
-                        error.isJwtExpiredAuthError() ->
-                            AuthSessionValidationResult.EXPIRED_ACCESS_TOKEN
-                        error.isInvalidRemoteSessionError() ->
-                            AuthSessionValidationResult.INVALID_SESSION
-                        else ->
-                            AuthSessionValidationResult.TRANSIENT_FAILURE
+                    } else {
+                        AuthSessionValidationResult.INVALID_SESSION
                     },
-                    error = error
+                    error
                 )
             }
+            AuthSessionValidationOutcome(
+                result = when {
+                    error.isJwtExpiredAuthError() ->
+                        AuthSessionValidationResult.EXPIRED_ACCESS_TOKEN
+
+                    error.isInvalidRemoteSessionError() ->
+                        AuthSessionValidationResult.INVALID_SESSION
+
+                    else ->
+                        AuthSessionValidationResult.TRANSIENT_FAILURE
+                },
+                error = error
+            )
         }
+    }
 
     fun markCurrentSessionValidated() {
         validatedAccessToken = auth.currentAccessTokenOrNull()

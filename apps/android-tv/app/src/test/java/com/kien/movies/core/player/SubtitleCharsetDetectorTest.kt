@@ -1,9 +1,9 @@
 package com.kien.movies.core.player
 
+import java.nio.charset.Charset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.nio.charset.Charset
 
 class SubtitleCharsetDetectorTest {
 
@@ -45,7 +45,10 @@ class SubtitleCharsetDetectorTest {
         val rawBytes = hebrewText.toByteArray(win1255Charset)
 
         val decoded = SubtitleCharsetDetector.decode(rawBytes, languageHint = null)
-        assertTrue("Expected decoded Hebrew text, but got: $decoded", decoded.contains("זוהן, החזרנו את"))
+        assertTrue(
+            "Expected decoded Hebrew text, but got: $decoded",
+            decoded.contains("זוהן, החזרנו את")
+        )
         assertTrue(decoded.contains("!הפנטום. -לא"))
     }
 
@@ -114,7 +117,10 @@ class SubtitleCharsetDetectorTest {
         val rawBytes = gibberishLatin1Utf8Text.toByteArray(Charsets.UTF_8)
 
         val decoded = SubtitleCharsetDetector.decode(rawBytes, languageHint = "heb")
-        assertTrue("Expected decoded Hebrew text, but got: $decoded", decoded.contains("זוהן, החזרנו את"))
+        assertTrue(
+            "Expected decoded Hebrew text, but got: $decoded",
+            decoded.contains("זוהן, החזרנו את")
+        )
         assertTrue(decoded.contains("!הפנטום. -לא"))
     }
 

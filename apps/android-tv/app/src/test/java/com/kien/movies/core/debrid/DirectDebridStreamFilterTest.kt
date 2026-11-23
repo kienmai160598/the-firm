@@ -3,9 +3,9 @@ package com.kien.movies.core.debrid
 import com.kien.movies.data.mapper.toDomain
 import com.kien.movies.data.remote.dto.StreamResponseDto
 import com.kien.movies.domain.model.DebridSettings
-import com.kien.movies.domain.model.DebridStreamCodecFilter
 import com.kien.movies.domain.model.DebridStreamAudioChannel
 import com.kien.movies.domain.model.DebridStreamAudioTag
+import com.kien.movies.domain.model.DebridStreamCodecFilter
 import com.kien.movies.domain.model.DebridStreamEncode
 import com.kien.movies.domain.model.DebridStreamFeatureFilter
 import com.kien.movies.domain.model.DebridStreamLanguage
@@ -60,7 +60,12 @@ class DirectDebridStreamFilterTest {
     @Test
     fun `uses provider instant name when source stream has no name`() {
         val result = DirectDebridStreamFilter.filterInstant(
-            listOf(stream(name = null, resolve = resolve(type = "debrid", service = "realdebrid", isCached = true)))
+            listOf(
+                stream(
+                    name = null,
+                    resolve = resolve(type = "debrid", service = "realdebrid", isCached = true)
+                )
+            )
         )
 
         assertEquals("Real-Debrid Instant", result.single().name)
@@ -176,7 +181,12 @@ class DirectDebridStreamFilterTest {
             )
         )
 
-        assertEquals(listOf(24_201_782_274L, 22_719_933_168L, 4_571_523_542L), sizeDesc.map { it.streamSize() })
+        assertEquals(
+            listOf(24_201_782_274L, 22_719_933_168L, 4_571_523_542L),
+            sizeDesc.map {
+                it.streamSize()
+            }
+        )
 
         val qualityTopTwo = DirectDebridStreamFilter.filterInstant(
             streams,
@@ -186,7 +196,12 @@ class DirectDebridStreamFilterTest {
             )
         )
 
-        assertEquals(listOf("2160p", "1080p"), qualityTopTwo.map { it.clientResolve?.stream?.raw?.parsed?.resolution })
+        assertEquals(
+            listOf("2160p", "1080p"),
+            qualityTopTwo.map {
+                it.clientResolve?.stream?.raw?.parsed?.resolution
+            }
+        )
         assertEquals(4_571_523_542L, qualityTopTwo.first().streamSize())
 
         val dvOnly = DirectDebridStreamFilter.filterInstant(
@@ -223,7 +238,12 @@ class DirectDebridStreamFilterTest {
             DebridSettings(streamCodecFilter = DebridStreamCodecFilter.HEVC)
         )
 
-        assertEquals(listOf(4_571_523_542L, 3_859_136_613L, 2_946_516_232L), hevcOnly.map { it.streamSize() })
+        assertEquals(
+            listOf(4_571_523_542L, 3_859_136_613L, 2_946_516_232L),
+            hevcOnly.map {
+                it.streamSize()
+            }
+        )
 
         val avcOnly = DirectDebridStreamFilter.filterInstant(
             streams,
@@ -290,14 +310,23 @@ class DirectDebridStreamFilterTest {
             maxResults = 2,
             maxPerResolution = 1,
             sizeMinGb = 5,
-            requiredResolutions = listOf(DebridStreamResolution.P2160, DebridStreamResolution.P1080),
+            requiredResolutions = listOf(
+                DebridStreamResolution.P2160,
+                DebridStreamResolution.P1080
+            ),
             excludedQualities = listOf(DebridStreamQuality.WEB_DL),
-            requiredAudioChannels = listOf(DebridStreamAudioChannel.CH_7_1, DebridStreamAudioChannel.CH_5_1),
+            requiredAudioChannels = listOf(
+                DebridStreamAudioChannel.CH_7_1,
+                DebridStreamAudioChannel.CH_5_1
+            ),
             excludedEncodes = listOf(DebridStreamEncode.UNKNOWN),
             excludedLanguages = listOf(DebridStreamLanguage.IT),
             requiredReleaseGroups = listOf("GOOD"),
             sortCriteria = listOf(
-                DebridStreamSortCriterion(DebridStreamSortKey.AUDIO_TAG, DebridStreamSortDirection.DESC),
+                DebridStreamSortCriterion(
+                    DebridStreamSortKey.AUDIO_TAG,
+                    DebridStreamSortDirection.DESC
+                ),
                 DebridStreamSortCriterion(DebridStreamSortKey.SIZE, DebridStreamSortDirection.ASC)
             )
         )
@@ -334,45 +363,77 @@ class DirectDebridStreamFilterTest {
             DebridSettings(
                 streamPreferences = DebridStreamPreferences(
                     maxResults = 3,
-                    sortCriteria = listOf(DebridStreamSortCriterion(DebridStreamSortKey.SIZE, DebridStreamSortDirection.DESC))
+                    sortCriteria = listOf(
+                        DebridStreamSortCriterion(
+                            DebridStreamSortKey.SIZE,
+                            DebridStreamSortDirection.DESC
+                        )
+                    )
                 )
             )
         )
 
-        assertEquals(listOf(104_700_022_239L, 96_867_354_460L, 92_910_562_472L), sizeDesc.map { it.streamSize() })
+        assertEquals(
+            listOf(104_700_022_239L, 96_867_354_460L, 92_910_562_472L),
+            sizeDesc.map {
+                it.streamSize()
+            }
+        )
 
         val perResolution = DirectDebridStreamFilter.filterInstant(
             streams,
             DebridSettings(
                 streamPreferences = DebridStreamPreferences(
                     maxPerResolution = 1,
-                    sortCriteria = listOf(DebridStreamSortCriterion(DebridStreamSortKey.SIZE, DebridStreamSortDirection.DESC))
+                    sortCriteria = listOf(
+                        DebridStreamSortCriterion(
+                            DebridStreamSortKey.SIZE,
+                            DebridStreamSortDirection.DESC
+                        )
+                    )
                 )
             )
         )
 
         assertEquals(
-            listOf(104_700_022_239L, 51_056_367_324L, 14_559_208_901L, 13_916_786_260L, 5_371_431_742L, 1_468_475_610L),
+            listOf(
+                104_700_022_239L,
+                51_056_367_324L,
+                14_559_208_901L,
+                13_916_786_260L,
+                5_371_431_742L,
+                1_468_475_610L
+            ),
             perResolution.map { it.streamSize() }
         )
 
         val sizeRange = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(sizeMinGb = 10, sizeMaxGb = 20))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(sizeMinGb = 10, sizeMaxGb = 20)
+            )
         )
 
         assertEquals(listOf(14_559_208_901L, 13_916_786_260L), sizeRange.map { it.streamSize() })
 
         val required1440 = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredResolutions = listOf(DebridStreamResolution.P1440)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    requiredResolutions = listOf(DebridStreamResolution.P1440)
+                )
+            )
         )
 
         assertEquals(listOf(14_559_208_901L, 4_622_252_199L), required1440.map { it.streamSize() })
 
         val no720 = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(excludedResolutions = listOf(DebridStreamResolution.P720)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    excludedResolutions = listOf(DebridStreamResolution.P720)
+                )
+            )
         )
 
         assertEquals(17, no720.size)
@@ -380,98 +441,165 @@ class DirectDebridStreamFilterTest {
 
         val webDlOnly = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredQualities = listOf(DebridStreamQuality.WEB_DL)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    requiredQualities = listOf(DebridStreamQuality.WEB_DL)
+                )
+            )
         )
 
         assertEquals(listOf(13_916_786_260L), webDlOnly.map { it.streamSize() })
 
         val noWebDl = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(excludedQualities = listOf(DebridStreamQuality.WEB_DL)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    excludedQualities = listOf(DebridStreamQuality.WEB_DL)
+                )
+            )
         )
 
         assertEquals(21, noWebDl.size)
 
         val hdrDvOnly = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredVisualTags = listOf(DebridStreamVisualTag.HDR_DV)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    requiredVisualTags = listOf(DebridStreamVisualTag.HDR_DV)
+                )
+            )
         )
 
-        assertEquals(listOf(92_910_562_472L, 96_867_354_460L, 87_052_038_851L, 89_079_717_868L), hdrDvOnly.map { it.streamSize() })
+        assertEquals(
+            listOf(92_910_562_472L, 96_867_354_460L, 87_052_038_851L, 89_079_717_868L),
+            hdrDvOnly.map {
+                it.streamSize()
+            }
+        )
 
         val dvOnly = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredVisualTags = listOf(DebridStreamVisualTag.DV_ONLY)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    requiredVisualTags = listOf(DebridStreamVisualTag.DV_ONLY)
+                )
+            )
         )
 
         assertEquals(listOf(89_100_999_892L), dvOnly.map { it.streamSize() })
 
         val hdrOnly = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredVisualTags = listOf(DebridStreamVisualTag.HDR_ONLY)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    requiredVisualTags = listOf(DebridStreamVisualTag.HDR_ONLY)
+                )
+            )
         )
 
         assertEquals(listOf(14_559_208_901L, 4_622_252_199L), hdrOnly.map { it.streamSize() })
 
         val noImax = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(excludedVisualTags = listOf(DebridStreamVisualTag.IMAX)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    excludedVisualTags = listOf(DebridStreamVisualTag.IMAX)
+                )
+            )
         )
 
         assertEquals(18, noImax.size)
 
         val ddpOnly = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredAudioTags = listOf(DebridStreamAudioTag.DD_PLUS)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    requiredAudioTags = listOf(DebridStreamAudioTag.DD_PLUS)
+                )
+            )
         )
 
-        assertEquals(listOf(92_910_562_472L, 87_052_038_851L, 13_916_786_260L), ddpOnly.map { it.streamSize() })
+        assertEquals(
+            listOf(92_910_562_472L, 87_052_038_851L, 13_916_786_260L),
+            ddpOnly.map {
+                it.streamSize()
+            }
+        )
 
         val fiveOneOnly = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredAudioChannels = listOf(DebridStreamAudioChannel.CH_5_1)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    requiredAudioChannels = listOf(DebridStreamAudioChannel.CH_5_1)
+                )
+            )
         )
 
         assertTrue(fiveOneOnly.map { it.streamSize() }.contains(1_112_357_595L))
 
         val av1Only = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredEncodes = listOf(DebridStreamEncode.AV1)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    requiredEncodes = listOf(DebridStreamEncode.AV1)
+                )
+            )
         )
 
         assertEquals(listOf(14_559_208_901L), av1Only.map { it.streamSize() })
 
         val xvidOnly = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredEncodes = listOf(DebridStreamEncode.XVID)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    requiredEncodes = listOf(DebridStreamEncode.XVID)
+                )
+            )
         )
 
         assertEquals(listOf(1_468_475_610L), xvidOnly.map { it.streamSize() })
 
         val polishOnly = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredLanguages = listOf(DebridStreamLanguage.PL)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    requiredLanguages = listOf(DebridStreamLanguage.PL)
+                )
+            )
         )
 
-        assertEquals(listOf(96_867_354_460L, 51_056_367_324L, 48_286_797_994L, 1_468_475_610L), polishOnly.map { it.streamSize() })
+        assertEquals(
+            listOf(96_867_354_460L, 51_056_367_324L, 48_286_797_994L, 1_468_475_610L),
+            polishOnly.map {
+                it.streamSize()
+            }
+        )
 
         val latinoOnly = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredLanguages = listOf(DebridStreamLanguage.LA)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    requiredLanguages = listOf(DebridStreamLanguage.LA)
+                )
+            )
         )
 
         assertEquals(listOf(92_910_562_472L, 87_052_038_851L), latinoOnly.map { it.streamSize() })
 
         val sgfOnly = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredReleaseGroups = listOf("SGF")))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(requiredReleaseGroups = listOf("SGF"))
+            )
         )
 
         assertEquals(listOf(96_867_354_460L, 51_056_367_324L), sgfOnly.map { it.streamSize() })
 
         val noSgf = DirectDebridStreamFilter.filterInstant(
             streams,
-            DebridSettings(streamPreferences = DebridStreamPreferences(excludedReleaseGroups = listOf("SGF")))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(excludedReleaseGroups = listOf("SGF"))
+            )
         )
 
         assertEquals(20, noSgf.size)
@@ -482,7 +610,12 @@ class DirectDebridStreamFilterTest {
                 streamPreferences = DebridStreamPreferences(
                     maxResults = 2,
                     preferredLanguages = listOf(DebridStreamLanguage.LA),
-                    sortCriteria = listOf(DebridStreamSortCriterion(DebridStreamSortKey.LANGUAGE, DebridStreamSortDirection.DESC))
+                    sortCriteria = listOf(
+                        DebridStreamSortCriterion(
+                            DebridStreamSortKey.LANGUAGE,
+                            DebridStreamSortDirection.DESC
+                        )
+                    )
                 )
             )
         )
@@ -501,13 +634,34 @@ class DirectDebridStreamFilterTest {
             listOf(DebridStreamLanguage.EN, DebridStreamLanguage.IT),
             languages("Movie.2023.1080p.WEB-DL.ITA.ENG.x264-GRP.mkv")
         )
-        assertEquals(listOf(DebridStreamLanguage.FR), languages("Movie.2023.TRUEFRENCH.1080p.WEB-DL.x265-GRP.mkv"))
-        assertEquals(listOf(DebridStreamLanguage.FR), languages("Movie.2023.FRENCH.1080p.WEB-DL.x265-GRP.mkv"))
-        assertEquals(listOf(DebridStreamLanguage.DE), languages("Movie.2023.German.DL.1080p.BluRay.x264-GRP.mkv"))
-        assertEquals(listOf(DebridStreamLanguage.ES), languages("Movie (2023) [BluRay][Castellano].mkv"))
-        assertEquals(listOf(DebridStreamLanguage.MULTI), languages("Movie.2023.MULTI.1080p.BluRay.x264-GRP.mkv"))
-        assertEquals(emptyList<DebridStreamLanguage>(), languages("Por.Siempre.2023.1080p.WEB-DL.x264-GRP.mkv"))
-        assertEquals(emptyList<DebridStreamLanguage>(), languages("Movie.2023.1080p.WEB-DL.x264-GRP.mkv"))
+        assertEquals(
+            listOf(DebridStreamLanguage.FR),
+            languages("Movie.2023.TRUEFRENCH.1080p.WEB-DL.x265-GRP.mkv")
+        )
+        assertEquals(
+            listOf(DebridStreamLanguage.FR),
+            languages("Movie.2023.FRENCH.1080p.WEB-DL.x265-GRP.mkv")
+        )
+        assertEquals(
+            listOf(DebridStreamLanguage.DE),
+            languages("Movie.2023.German.DL.1080p.BluRay.x264-GRP.mkv")
+        )
+        assertEquals(
+            listOf(DebridStreamLanguage.ES),
+            languages("Movie (2023) [BluRay][Castellano].mkv")
+        )
+        assertEquals(
+            listOf(DebridStreamLanguage.MULTI),
+            languages("Movie.2023.MULTI.1080p.BluRay.x264-GRP.mkv")
+        )
+        assertEquals(
+            emptyList<DebridStreamLanguage>(),
+            languages("Por.Siempre.2023.1080p.WEB-DL.x264-GRP.mkv")
+        )
+        assertEquals(
+            emptyList<DebridStreamLanguage>(),
+            languages("Movie.2023.1080p.WEB-DL.x264-GRP.mkv")
+        )
     }
 
     @Test
@@ -529,7 +683,11 @@ class DirectDebridStreamFilterTest {
 
         val result = DirectDebridStreamFilter.filterInstant(
             listOf(italian, english),
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredLanguages = listOf(DebridStreamLanguage.IT)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    requiredLanguages = listOf(DebridStreamLanguage.IT)
+                )
+            )
         )
 
         assertEquals(listOf(1L), result.map { it.streamSize() })
@@ -554,7 +712,10 @@ class DirectDebridStreamFilterTest {
             listOf(DebridStreamLanguage.IT),
             languages("The Italian Job (2003) 1080p BluRay ITA AC3.mkv", "The Italian Job")
         )
-        assertEquals(listOf(DebridStreamLanguage.FR), languages("French.2020.FRENCH.1080p.WEB-DL.x264-GRP.mkv", "French"))
+        assertEquals(
+            listOf(DebridStreamLanguage.FR),
+            languages("French.2020.FRENCH.1080p.WEB-DL.x264-GRP.mkv", "French")
+        )
     }
 
     @Test
@@ -562,7 +723,11 @@ class DirectDebridStreamFilterTest {
         val resolve = resolve()
         val parsed = resolve.stream?.raw?.parsed?.copy(parsedTitle = "The French Dispatch")
         val facts = DirectDebridStreamFilter.facts(
-            stream(resolve = resolve.copy(stream = StreamClientResolveStream(resolve.stream?.raw?.copy(parsed = parsed))))
+            stream(
+                resolve = resolve.copy(
+                    stream = StreamClientResolveStream(resolve.stream?.raw?.copy(parsed = parsed))
+                )
+            )
                 .copy(description = "The.French.Dispatch.2021.1080p.BluRay.ITA.x264-GRP.mkv"),
             DebridSettings()
         )
@@ -579,7 +744,11 @@ class DirectDebridStreamFilterTest {
 
         val result = DirectDebridStreamFilter.filterInstant(
             listOf(italianTitle, italianAudio),
-            DebridSettings(streamPreferences = DebridStreamPreferences(requiredLanguages = listOf(DebridStreamLanguage.IT)))
+            DebridSettings(
+                streamPreferences = DebridStreamPreferences(
+                    requiredLanguages = listOf(DebridStreamLanguage.IT)
+                )
+            )
         )
 
         assertEquals(listOf(2L), result.map { it.streamSize() })
@@ -597,10 +766,7 @@ class DirectDebridStreamFilterTest {
             .map { it.toDomain(DirectDebridStreamFilter.FALLBACK_SOURCE_NAME, null) }
     }
 
-    private fun stream(
-        name: String? = "Stream",
-        resolve: StreamClientResolve?
-    ): Stream = Stream(
+    private fun stream(name: String? = "Stream", resolve: StreamClientResolve?): Stream = Stream(
         name = name,
         title = "Title",
         description = "Description",

@@ -6,6 +6,7 @@ import com.kien.movies.data.local.AnimeSkipSettingsDataStore
 import com.kien.movies.data.remote.api.AnimeSkipApi
 import com.kien.movies.data.remote.api.AnimeSkipRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -15,7 +16,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class AnimeSkipSettingsViewModel @Inject constructor(
@@ -65,7 +65,9 @@ class AnimeSkipSettingsViewModel @Inject constructor(
                     )
                 )
                 response.isSuccessful && response.body()?.data != null
-            } catch (e: Exception) { false }
+            } catch (e: Exception) {
+                false
+            }
             _validating.value = false
             if (valid) {
                 dataStore.setClientId(trimmed)

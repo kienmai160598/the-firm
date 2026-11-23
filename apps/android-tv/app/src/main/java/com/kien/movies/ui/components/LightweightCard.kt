@@ -91,11 +91,15 @@ fun LightweightCard(
         targetValue = if (focused) FOCUSED_Z_INDEX else NON_FOCUSED_Z_INDEX,
         label = "zIndex"
     )
-    val scale = if (focusedScale == 1f) null else animateFloatAsState(
-        targetValue = if (focused && !pressed) focusedScale else 1f,
-        animationSpec = ExpressiveMotion.focusLift(),
-        label = "scale"
-    )
+    val scale = if (focusedScale == 1f) {
+        null
+    } else {
+        animateFloatAsState(
+            targetValue = if (focused && !pressed) focusedScale else 1f,
+            animationSpec = ExpressiveMotion.focusLift(),
+            label = "scale"
+        )
+    }
     val lifts = scale != null
     val border = if ((focused || pressed) && !lifts) focusedBorder else Border.None
     val shadowElevationPx = with(LocalDensity.current) {
@@ -128,6 +132,7 @@ fun LightweightCard(
                         AndroidKeyEvent.ACTION_DOWN -> if (native.repeatCount == 0) {
                             coroutineScope.launch { interactionSource.emit(pressInteraction) }
                         }
+
                         AndroidKeyEvent.ACTION_UP -> {
                             coroutineScope.launch {
                                 interactionSource.emit(PressInteraction.Release(pressInteraction))
@@ -235,7 +240,8 @@ private class CardGlowNode(
     private var shape: Shape,
     private var glowBlurRadiusPx: Float,
     private var color: Color
-) : DrawModifierNode, Modifier.Node() {
+) : Modifier.Node(),
+    DrawModifierNode {
     private val paint = Paint()
     private val outlineCache = OutlineCache()
 
@@ -260,6 +266,7 @@ private class CardGlowNode(
         drawIntoCanvas { canvas ->
             when (val outline = outlineCache.get(shape, size, layoutDirection, this)) {
                 is Outline.Rectangle -> canvas.drawRect(outline.rect, paint)
+
                 is Outline.Rounded -> canvas.drawRoundRect(
                     left = 0f,
                     top = 0f,
@@ -269,6 +276,7 @@ private class CardGlowNode(
                     radiusY = outline.roundRect.topLeftCornerRadius.y,
                     paint = paint
                 )
+
                 is Outline.Generic -> canvas.drawPath(outline.path, paint)
             }
         }
@@ -276,10 +284,7 @@ private class CardGlowNode(
     }
 }
 
-private data class CardBorderElement(
-    val shape: Shape,
-    val border: Border
-) : ModifierNodeElement<CardBorderNode>() {
+private data class CardBorderElement(val shape: Shape, val border: Border) : ModifierNodeElement<CardBorderNode>() {
     override fun create() = CardBorderNode(shape, border)
 
     override fun update(node: CardBorderNode) {
@@ -288,10 +293,9 @@ private data class CardBorderElement(
     }
 }
 
-private class CardBorderNode(
-    var shape: Shape,
-    var border: Border
-) : DrawModifierNode, Modifier.Node() {
+private class CardBorderNode(var shape: Shape, var border: Border) :
+    Modifier.Node(),
+    DrawModifierNode {
     private val outlineCache = OutlineCache()
     private var stroke: Stroke? = null
 

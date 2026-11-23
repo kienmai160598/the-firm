@@ -1,7 +1,5 @@
 package com.kien.movies.ui.screens.home
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.animation.core.animateFloatAsState
@@ -35,22 +33,20 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.allowHardware
 import coil3.size.Size
+import com.kien.movies.ui.theme.MoviesTheme
+import java.util.LinkedHashMap
+import kotlin.math.max
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
-import java.util.LinkedHashMap
-import kotlin.math.max
 
 private const val CLASSIC_FOCUS_GRADIENT_DEBOUNCE_MS = 140L
 private const val CLASSIC_FOCUS_GRADIENT_CACHE_RETRY_MS = 360L
 private const val CLASSIC_FOCUS_GRADIENT_COLOR_CACHE_SIZE = 256
 
-internal data class ClassicFocusArtwork(
-    val imageUrl: String?,
-    val seed: String
-)
+internal data class ClassicFocusArtwork(val imageUrl: String?, val seed: String)
 
 @Composable
 internal fun ClassicFocusGradientBackdrop(
@@ -128,7 +124,9 @@ internal fun ClassicFocusGradientBackdrop(
     // Skip compositing entirely when both layers are invisible.
     if ((color0 == Color.Transparent || alpha0 < 0.005f) &&
         (color1 == Color.Transparent || alpha1 < 0.005f)
-    ) return
+    ) {
+        return
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         if (color0 != Color.Transparent && alpha0 >= 0.005f) {
@@ -179,10 +177,7 @@ private fun DrawScope.drawFocusGradient(color: Color) {
     )
 }
 
-private data class ResolvedArtworkColor(
-    val color: Color,
-    val cacheable: Boolean
-)
+private data class ResolvedArtworkColor(val color: Color, val cacheable: Boolean)
 
 private fun classicFocusGradientColorCache(): MutableMap<ClassicFocusArtwork, Color> {
     return object : LinkedHashMap<ClassicFocusArtwork, Color>(
@@ -190,7 +185,9 @@ private fun classicFocusGradientColorCache(): MutableMap<ClassicFocusArtwork, Co
         0.75f,
         true
     ) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<ClassicFocusArtwork, Color>?): Boolean {
+        override fun removeEldestEntry(
+            eldest: MutableMap.MutableEntry<ClassicFocusArtwork, Color>?
+        ): Boolean {
             return size > CLASSIC_FOCUS_GRADIENT_COLOR_CACHE_SIZE
         }
     }

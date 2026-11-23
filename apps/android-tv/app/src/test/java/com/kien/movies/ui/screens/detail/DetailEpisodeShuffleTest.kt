@@ -20,8 +20,17 @@ import org.junit.Test
 
 class DetailEpisodeShuffleTest {
     private val context = mockk<Context>(relaxed = true)
-    private val videos = (1..5).map { Video("show:1:$it", "Episode $it", "2020-01-01", null,
-        season = 1, episode = it, overview = null) }
+    private val videos = (1..5).map {
+        Video(
+            "show:1:$it",
+            "Episode $it",
+            "2020-01-01",
+            null,
+            season = 1,
+            episode = it,
+            overview = null
+        )
+    }
     private val meta = mockk<Meta> {
         every { id } returns "show"
         every { imdbId } returns "tt123"
@@ -32,7 +41,8 @@ class DetailEpisodeShuffleTest {
     }
     private val native = NextToWatch(null, false, videos.first().id, 1, 1, "Play")
     private val state = MetaDetailsUiState(meta = meta, nextToWatch = native)
-    private val profile = EpisodeShuffleProfile(1, true, mapOf("show" to EpisodeShuffleSettings(true, false)))
+    private val profile =
+        EpisodeShuffleProfile(1, true, mapOf("show" to EpisodeShuffleSettings(true, false)))
     private val shuffle = EpisodeShuffle()
 
     @Test
@@ -60,9 +70,13 @@ class DetailEpisodeShuffleTest {
 
     @Test
     fun `removing resume does not resurrect cached progress`() {
-        val stale = state.copy(nextToWatch = native.copy(isResume = true, watchProgress = progress(1)))
+        val stale = state.copy(
+            nextToWatch = native.copy(isResume = true, watchProgress = progress(1))
+        )
         assertFalse(project(stale).nextToWatch!!.isResume)
-        assertFalse(project(stale, listOf(progress(1).copy(progressPercent = 100f))).nextToWatch!!.isResume)
+        assertFalse(
+            project(stale, listOf(progress(1).copy(progressPercent = 100f))).nextToWatch!!.isResume
+        )
     }
 
     @Test
@@ -77,7 +91,11 @@ class DetailEpisodeShuffleTest {
 
     @Test
     fun `an exhausted pool has no playback target but incomplete resume remains available`() {
-        val complete = state.copy(watchedEpisodes = videos.map { it.season!! to it.episode!! }.toSet())
+        val complete = state.copy(
+            watchedEpisodes = videos.map {
+                it.season!! to it.episode!!
+            }.toSet()
+        )
         assertTrue(project(complete).shufflePoolEmpty)
         assertNull(project(complete).nextToWatch?.nextVideoId)
         val resumed = project(complete, listOf(progress(3)))
@@ -89,7 +107,9 @@ class DetailEpisodeShuffleTest {
     fun `imdb alias resume is accepted and other shows are excluded`() {
         val alias = progress(2).copy(contentId = "tt123")
         assertEquals(alias, project(resume = listOf(alias)).nextToWatch?.watchProgress)
-        assertFalse(project(resume = listOf(alias.copy(contentId = "other"))).nextToWatch!!.isResume)
+        assertFalse(
+            project(resume = listOf(alias.copy(contentId = "other"))).nextToWatch!!.isResume
+        )
     }
 
     @Test

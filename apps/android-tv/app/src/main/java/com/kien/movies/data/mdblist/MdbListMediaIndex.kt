@@ -25,9 +25,8 @@ internal class MdbListMediaIndex(snapshot: MdbListSyncSnapshot) {
         return merged
     }
 
-    fun resolve(type: MdbListItemType, ids: MdbListIds): MdbListMedia =
-        ids.aliases().firstNotNullOfOrNull { byAlias[(type == MdbListItemType.MOVIE) to it] }
-            ?.let { it.copy(ids = it.ids.merged(ids)) } ?: MdbListMedia(ids)
+    fun resolve(type: MdbListItemType, ids: MdbListIds): MdbListMedia = ids.aliases().firstNotNullOfOrNull { byAlias[(type == MdbListItemType.MOVIE) to it] }
+        ?.let { it.copy(ids = it.ids.merged(ids)) } ?: MdbListMedia(ids)
 
     fun resolveMedia(type: MdbListItemType, media: MdbListMedia): MdbListMedia {
         val movie = type == MdbListItemType.MOVIE
@@ -43,7 +42,10 @@ internal fun MdbListSyncSnapshot.normalizeMedia(): MdbListSyncSnapshot {
             .groupBy(MdbListWatchedRecord::key)
             .map { (_, records) -> records.maxBy { mdbListTimestamp(it.watchedAt) } },
         playback = playback.map { it.copy(media = index.resolve(it.type, it.media.ids)) }
-            .groupBy { it.id?.let { id -> "id:$id" } ?: "${it.type}:${it.media.ids.key}:${it.season}:${it.episode}" }
+            .groupBy {
+                it.id?.let { id -> "id:$id" }
+                    ?: "${it.type}:${it.media.ids.key}:${it.season}:${it.episode}"
+            }
             .map { (_, records) -> records.maxBy { mdbListTimestamp(it.updatedAt) } }
     )
 }

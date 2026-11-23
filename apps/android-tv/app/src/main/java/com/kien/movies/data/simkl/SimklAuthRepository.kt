@@ -1,12 +1,12 @@
 package com.kien.movies.data.simkl
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class SimklAuthRepository(
@@ -32,7 +32,10 @@ class SimklAuthRepository(
     suspend fun startPinAuth(): SimklPinSession = mutex.withLock {
         val authScope = storage.currentScope()
         if (!hasRequiredCredentials()) throw SimklAuthException(SimklAuthError.MISSING_CLIENT_ID)
-        val response = executeAuthRequest(SimklApiRequest(SimklHttpMethod.GET, "/oauth/pin", requiresAuthentication = false))
+        val response =
+            executeAuthRequest(
+                SimklApiRequest(SimklHttpMethod.GET, "/oauth/pin", requiresAuthentication = false)
+            )
         val payload = decodePinResponse(response.body)
         val userCode = payload.userCode?.trim()?.takeIf(String::isNotBlank)
         val verificationUri = (payload.verificationUri ?: payload.verificationUrl)
@@ -40,7 +43,10 @@ class SimklAuthRepository(
             ?.takeIf(String::isNotBlank)
         val expiresIn = payload.expiresIn?.takeIf { it > 0L }
         val interval = payload.interval?.coerceAtLeast(1)
-        if (payload.result != "OK" || userCode == null || verificationUri == null || expiresIn == null || interval == null) {
+        if (payload.result != "OK" || userCode == null || verificationUri == null ||
+            expiresIn == null ||
+            interval == null
+        ) {
             throw SimklAuthException(SimklAuthError.INVALID_PIN_RESPONSE)
         }
         val session = SimklPinSession(
@@ -57,7 +63,8 @@ class SimklAuthRepository(
 
     suspend fun pollPin(): SimklPinPollResult = mutex.withLock {
         val authScope = storage.currentScope()
-        val session = storage.state.value.pinSession ?: return@withLock SimklPinPollResult.Invalidated
+        val session =
+            storage.state.value.pinSession ?: return@withLock SimklPinPollResult.Invalidated
         if (nowEpochMs() >= session.expiresAtEpochMs) {
             storage.clearPinSession(SimklAuthError.PIN_EXPIRED, authScope)
             return@withLock SimklPinPollResult.Expired
@@ -105,8 +112,11 @@ class SimklAuthRepository(
             request = SimklApiRequest(SimklHttpMethod.POST, "/users/settings"),
             expectedAuthScope = scope
         )
-        val settings = runCatching { json.decodeFromString<SimklUserSettingsResponse>(response.body) }.getOrNull()
-            ?: return null
+        val settings =
+            runCatching {
+                json.decodeFromString<SimklUserSettingsResponse>(response.body)
+            }.getOrNull()
+                ?: return null
         val username = settings.user?.name?.trim()?.takeIf(String::isNotBlank)
         val saved = storage.saveIdentity(
             username = username,
@@ -123,10 +133,18 @@ class SimklAuthRepository(
         try {
             when (simklSettingsRefreshAction(storage.state.value, activityWatermark)) {
                 SimklSettingsRefreshAction.NONE -> Unit
+
                 SimklSettingsRefreshAction.RECORD_WATERMARK -> {
-                    storage.recordSettingsActivityWatermark(requireNotNull(activityWatermark), authScope)
+                    storage.recordSettingsActivityWatermark(
+                        requireNotNull(activityWatermark),
+                        authScope
+                    )
                 }
-                SimklSettingsRefreshAction.FETCH -> refreshUserSettings(activityWatermark, authScope)
+
+                SimklSettingsRefreshAction.FETCH -> refreshUserSettings(
+                    activityWatermark,
+                    authScope
+                )
             }
         } catch (error: CancellationException) {
             throw error
@@ -149,9 +167,8 @@ class SimklAuthRepository(
         throw SimklAuthException(SimklAuthError.NETWORK, error)
     }
 
-    private fun decodePinResponse(body: String): SimklPinResponse =
-        runCatching { json.decodeFromString<SimklPinResponse>(body) }
-            .getOrElse { throw SimklAuthException(SimklAuthError.INVALID_PIN_RESPONSE, it) }
+    private fun decodePinResponse(body: String): SimklPinResponse = runCatching { json.decodeFromString<SimklPinResponse>(body) }
+        .getOrElse { throw SimklAuthException(SimklAuthError.INVALID_PIN_RESPONSE, it) }
 
     private companion object {
         val PIN_PATTERN = Regex("[A-Za-z0-9]{4,12}")

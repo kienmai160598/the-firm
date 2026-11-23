@@ -5,16 +5,11 @@
 
 package com.kien.movies.ui.screens.player
 
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
-
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +24,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,7 +41,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,42 +57,36 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import com.kien.movies.ui.components.expressive.M3eShapes
-import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.domain.model.Stream
-import com.kien.movies.domain.model.Video
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.components.FocusScrollingText
-import com.kien.movies.ui.components.LoadingIndicator
-import com.kien.movies.ui.components.SourceChipStatus
-import com.kien.movies.ui.screens.detail.EpisodeOptionsOverlay
-import com.kien.movies.ui.screens.detail.adjacentEpisode
-import com.kien.movies.ui.screens.detail.formatReleaseDate
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Visibility
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.request.transformations
-import androidx.compose.ui.platform.LocalContext
+import com.kien.movies.R
+import com.kien.movies.domain.model.Stream
+import com.kien.movies.domain.model.Video
+import com.kien.movies.ui.components.FocusScrollingText
+import com.kien.movies.ui.components.LoadingIndicator
+import com.kien.movies.ui.components.SourceChipStatus
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.screens.detail.EpisodeOptionsOverlay
+import com.kien.movies.ui.screens.detail.adjacentEpisode
+import com.kien.movies.ui.screens.detail.formatReleaseDate
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.localizeEpisodeTitle
-import kotlinx.coroutines.delay
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch as coroutineLaunch
-import androidx.compose.ui.res.stringResource
-import com.kien.movies.R
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -126,45 +125,51 @@ internal fun EpisodesSidePanel(
             .background(PlayerSurfaceStyle.sidePanelColor())
     ) {
         Column(modifier = Modifier.padding(PlayerSurfaceStyle.sidePanelPadding())) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = if (uiState.showEpisodeStreams) stringResource(R.string.episodes_panel_streams_title) else stringResource(R.string.episodes_panel_title),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MoviesTheme.colors.TextPrimary
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (uiState.showEpisodeStreams) {
+                        stringResource(
+                            R.string.episodes_panel_streams_title
+                        )
+                    } else {
+                        stringResource(R.string.episodes_panel_title)
+                    },
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MoviesTheme.colors.TextPrimary
+                )
 
-                    DialogButton(
-                        text = stringResource(R.string.episodes_panel_close),
-                        onClick = onClose,
-                        isPrimary = false
-                    )
-                }
+                DialogButton(
+                    text = stringResource(R.string.episodes_panel_close),
+                    onClick = onClose,
+                    isPrimary = false
+                )
+            }
 
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
-                if (uiState.showEpisodeStreams) {
-                    EpisodeStreamsView(
-                        uiState = uiState,
-                        onBackToEpisodes = onBackToEpisodes,
-                        onReload = onReloadEpisodeStreams,
-                        onAddonFilterSelected = onAddonFilterSelected,
-                        onStreamSelected = onStreamSelected
-                    )
-                } else {
-                    EpisodesListView(
-                        uiState = uiState,
-                        episodesFocusRequester = episodesFocusRequester,
-                        onSeasonSelected = onSeasonSelected,
-                        onEpisodeSelected = onEpisodeSelected,
-                        onEpisodeManualPlay = onEpisodeManualPlay
-                    )
-                }
+            if (uiState.showEpisodeStreams) {
+                EpisodeStreamsView(
+                    uiState = uiState,
+                    onBackToEpisodes = onBackToEpisodes,
+                    onReload = onReloadEpisodeStreams,
+                    onAddonFilterSelected = onAddonFilterSelected,
+                    onStreamSelected = onStreamSelected
+                )
+            } else {
+                EpisodesListView(
+                    uiState = uiState,
+                    episodesFocusRequester = episodesFocusRequester,
+                    onSeasonSelected = onSeasonSelected,
+                    onEpisodeSelected = onEpisodeSelected,
+                    onEpisodeManualPlay = onEpisodeManualPlay
+                )
             }
         }
+    }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -176,7 +181,9 @@ private fun EpisodeStreamsView(
     onAddonFilterSelected: (String?) -> Unit,
     onStreamSelected: (Stream) -> Unit
 ) {
-    val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+    val isRtl =
+        androidx.compose.ui.platform.LocalLayoutDirection.current ==
+            androidx.compose.ui.unit.LayoutDirection.Rtl
     val streamListState = rememberLazyListState()
     var userMovedFromFirstResult by remember { mutableStateOf(false) }
     var firstResultFocusAssigned by remember { mutableStateOf(false) }
@@ -233,7 +240,8 @@ private fun EpisodeStreamsView(
         val newIndex = streamKeys.indexOf(key)
         if (newIndex < 0) return@LaunchedEffect
         val firstVisible = streamListState.firstVisibleItemIndex
-        val lastVisible = streamListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: firstVisible
+        val lastVisible =
+            streamListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: firstVisible
         if (newIndex < firstVisible || newIndex > lastVisible) {
             streamListState.scrollToItem(newIndex)
         }
@@ -245,7 +253,12 @@ private fun EpisodeStreamsView(
         }
     }
 
-    LaunchedEffect(uiState.isLoadingEpisodeStreams, firstStreamKey, userMovedFromFirstResult, firstResultFocusAssigned) {
+    LaunchedEffect(
+        uiState.isLoadingEpisodeStreams,
+        firstStreamKey,
+        userMovedFromFirstResult,
+        firstResultFocusAssigned
+    ) {
         if (!uiState.isLoadingEpisodeStreams && firstStreamKey != null &&
             !userMovedFromFirstResult && !firstResultFocusAssigned
         ) {
@@ -302,7 +315,10 @@ private fun EpisodeStreamsView(
         // Focus the chip before the results change: once the focused card is gone,
         // Compose would otherwise park focus on another chip first.
         focusJob = scope.coroutineLaunch(start = CoroutineStart.UNDISPATCHED) {
-            chipListState.focusChip(chipFocusRequesters.indexOf(targetRequester), chipFocusRequesters)
+            chipListState.focusChip(
+                chipFocusRequesters.indexOf(targetRequester),
+                chipFocusRequesters
+            )
         }
         onAddonFilterSelected(addon)
     }
@@ -327,11 +343,20 @@ private fun EpisodeStreamsView(
                     if (event.nativeKeyEvent.action == KeyEvent.ACTION_DOWN &&
                         event.key == androidx.compose.ui.input.key.Key.DirectionDown
                     ) {
-                        val activeIdx = if (uiState.episodeSelectedAddonFilter == null) 1
-                            else (orderedAddonNames.indexOf(uiState.episodeSelectedAddonFilter) + 2).coerceAtLeast(1)
+                        val activeIdx = if (uiState.episodeSelectedAddonFilter == null) {
+                            1
+                        } else {
+                            (
+                                orderedAddonNames.indexOf(
+                                    uiState.episodeSelectedAddonFilter
+                                ) + 2
+                                ).coerceAtLeast(1)
+                        }
                         requestChipFocus(activeIdx)
                         true
-                    } else false
+                    } else {
+                        false
+                    }
                 }
         )
 
@@ -357,7 +382,8 @@ private fun EpisodeStreamsView(
 
     // --- Filter chips ---
     AnimatedVisibility(
-        visible = uiState.episodeSourceChips.isNotEmpty() || uiState.episodeAvailableAddons.isNotEmpty(),
+        visible =
+            uiState.episodeSourceChips.isNotEmpty() || uiState.episodeAvailableAddons.isNotEmpty(),
         enter = fadeIn(animationSpec = tween(200)),
         exit = fadeOut(animationSpec = tween(120))
     ) {
@@ -378,7 +404,9 @@ private fun EpisodeStreamsView(
                 externalOrderedNames = orderedAddonNames,
                 chipListState = chipListState,
                 onUpKey = {
-                    try { backButtonFocusRequester.requestFocus() } catch (_: Exception) {}
+                    try {
+                        backButtonFocusRequester.requestFocus()
+                    } catch (_: Exception) {}
                 },
                 debugTag = "EpisodeSidePanel"
             )
@@ -427,7 +455,11 @@ private fun EpisodeStreamsView(
                     .fillMaxHeight()
                     .onFocusChanged { listHasFocus = it.hasFocus }
                     .onKeyEvent { event ->
-                        if (event.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) return@onKeyEvent false
+                        if (event.nativeKeyEvent.action !=
+                            KeyEvent.ACTION_DOWN
+                        ) {
+                            return@onKeyEvent false
+                        }
 
                         if (event.nativeKeyEvent.repeatCount > 0) {
                             val now = android.os.SystemClock.uptimeMillis()
@@ -448,7 +480,9 @@ private fun EpisodeStreamsView(
                                     if (currentIdx < allOptions.lastIndex) {
                                         onAddonFilterSelectedGuarded(allOptions[currentIdx + 1])
                                         true
-                                    } else { true }
+                                    } else {
+                                        true
+                                    }
                                 } else {
                                     if (currentIdx > 0) {
                                         onAddonFilterSelectedGuarded(allOptions[currentIdx - 1])
@@ -458,6 +492,7 @@ private fun EpisodeStreamsView(
                                     }
                                 }
                             }
+
                             androidx.compose.ui.input.key.Key.DirectionRight -> {
                                 if (isRtl) {
                                     if (currentIdx > 0) {
@@ -470,9 +505,12 @@ private fun EpisodeStreamsView(
                                     if (currentIdx < allOptions.lastIndex) {
                                         onAddonFilterSelectedGuarded(allOptions[currentIdx + 1])
                                         true
-                                    } else { true }
+                                    } else {
+                                        true
+                                    }
                                 }
                             }
+
                             else -> false
                         }
                     }
@@ -495,11 +533,19 @@ private fun EpisodeStreamsView(
                                 firstCardHasFocus = focused
                             }
                         },
-                        onUpKey = if (index == 0 && chipFocusRequesters.isNotEmpty()) {{
-                            val idx = if (uiState.episodeSelectedAddonFilter == null) 1
-                                      else orderedAddonNames.indexOf(uiState.episodeSelectedAddonFilter) + 2
-                            requestChipFocus(idx)
-                        }} else null
+                        onUpKey = if (index == 0 && chipFocusRequesters.isNotEmpty()) {
+                            {
+                                val idx = if (uiState.episodeSelectedAddonFilter == null) {
+                                    1
+                                } else {
+                                    orderedAddonNames.indexOf(uiState.episodeSelectedAddonFilter) +
+                                        2
+                                }
+                                requestChipFocus(idx)
+                            }
+                        } else {
+                            null
+                        }
                     )
                 }
             }
@@ -531,14 +577,18 @@ private fun EpisodesListView(
         uiState.episodeStreamsForVideoId
     ) {
         val targetId = uiState.episodeStreamsForVideoId
-        if (targetId.isNullOrBlank()) -1
-        else uiState.episodes.indexOfFirst { it.id == targetId }
-    }
-    val currentEpisodeIndex = remember(uiState.episodes, uiState.currentSeason, uiState.currentEpisode) {
-        uiState.episodes.indexOfFirst { episode ->
-            episode.season == uiState.currentSeason && episode.episode == uiState.currentEpisode
+        if (targetId.isNullOrBlank()) {
+            -1
+        } else {
+            uiState.episodes.indexOfFirst { it.id == targetId }
         }
     }
+    val currentEpisodeIndex =
+        remember(uiState.episodes, uiState.currentSeason, uiState.currentEpisode) {
+            uiState.episodes.indexOfFirst { episode ->
+                episode.season == uiState.currentSeason && episode.episode == uiState.currentEpisode
+            }
+        }
 
     LaunchedEffect(uiState.showEpisodeStreams, uiState.episodes, currentEpisodeIndex) {
         if (uiState.showEpisodeStreams || uiState.episodes.isEmpty()) return@LaunchedEffect
@@ -696,7 +746,12 @@ private fun EpisodesSeasonTabs(
 
     LaunchedEffect(selectedSeason, seasons) {
         val targetIndex = seasons.indexOf(selectedSeason)
-        if (seasonTabsListState.layoutInfo.visibleItemsInfo.any { it.index == targetIndex }) return@LaunchedEffect
+        if (seasonTabsListState.layoutInfo.visibleItemsInfo.any {
+                it.index == targetIndex
+            }
+        ) {
+            return@LaunchedEffect
+        }
         if (targetIndex >= 0) {
             runCatching { seasonTabsListState.animateScrollToItem(targetIndex) }
         }
@@ -717,7 +772,10 @@ private fun EpisodesSeasonTabs(
             .fillMaxWidth()
             .focusRestorer(selectedTabFocusRequester),
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
-        contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xs, vertical = MoviesTheme.spacing.xs)
+        contentPadding = PaddingValues(
+            horizontal = MoviesTheme.spacing.xs,
+            vertical = MoviesTheme.spacing.xs
+        )
     ) {
         itemsIndexed(seasons, key = { _, season -> season }) { index, season ->
             val isSelected = selectedSeason == season
@@ -725,7 +783,15 @@ private fun EpisodesSeasonTabs(
             MoviesCard(
                 onClick = { onSeasonSelected(season) },
                 modifier = Modifier
-                    .then(if (index == focusEntryIndex) Modifier.focusRequester(selectedTabFocusRequester) else Modifier)
+                    .then(
+                        if (index ==
+                            focusEntryIndex
+                        ) {
+                            Modifier.focusRequester(selectedTabFocusRequester)
+                        } else {
+                            Modifier
+                        }
+                    )
                     .semantics {
                         role = Role.Tab
                         this.selected = isSelected
@@ -741,7 +807,13 @@ private fun EpisodesSeasonTabs(
                 shape = M3eShapes.capsule
             ) {
                 Text(
-                    text = if (season == 0) stringResource(R.string.episodes_specials) else stringResource(R.string.episodes_season, season),
+                    text = if (season ==
+                        0
+                    ) {
+                        stringResource(R.string.episodes_specials)
+                    } else {
+                        stringResource(R.string.episodes_season, season)
+                    },
                     style = MaterialTheme.typography.labelLarge,
                     color = PlayerListItemStyle.labelColor(),
                     modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp)
@@ -768,9 +840,13 @@ private fun EpisodeItem(
 ) {
     val shouldBlur = blurUnwatched && !isWatched
     var isFocused by remember { mutableStateOf(false) }
-    val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+    val isRtl =
+        androidx.compose.ui.platform.LocalLayoutDirection.current ==
+            androidx.compose.ui.unit.LayoutDirection.Rtl
     val context = LocalContext.current
-    val episodeTitle = episode.title.localizeEpisodeTitle(context).ifBlank { context.getString(R.string.episodes_episode) }
+    val episodeTitle = episode.title.localizeEpisodeTitle(context).ifBlank {
+        context.getString(R.string.episodes_episode)
+    }
     val formattedDate = remember(episode.released) {
         episode.released?.let { formatReleaseDate(it) }?.takeIf { it.isNotBlank() }
     }
@@ -870,7 +946,10 @@ private fun EpisodeItem(
                             .padding(MoviesTheme.spacing.sm)
                             .clip(RoundedCornerShape(6.dp))
                             .background(Color.Black.copy(alpha = 0.75f))
-                            .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs)
+                            .padding(
+                                horizontal = MoviesTheme.spacing.sm,
+                                vertical = MoviesTheme.spacing.xs
+                            )
                     ) {
                         Text(
                             text = episodeCode,

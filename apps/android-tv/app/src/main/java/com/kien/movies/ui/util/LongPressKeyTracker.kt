@@ -36,7 +36,9 @@ class LongPressKeyTracker(
             handledLongPress = false
         }
 
-        if (event.isLongPress || event.repeatCount > 0 || heldDurationMillis(event) >= timeoutMillis) {
+        if (event.isLongPress || event.repeatCount > 0 ||
+            heldDurationMillis(event) >= timeoutMillis
+        ) {
             if (!handledLongPress) {
                 handledLongPress = true
                 onLongPress()

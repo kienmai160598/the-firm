@@ -1,7 +1,5 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -36,9 +34,9 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
@@ -46,17 +44,15 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.util.contentLayoutDirection
 import com.kien.movies.ui.util.contentTextDirection
 import kotlinx.coroutines.launch
-import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
 
 @Composable
-fun P2pConsentDialog(
-    onEnableP2p: () -> Unit,
-    onDismiss: () -> Unit
-) {
+fun P2pConsentDialog(onEnableP2p: () -> Unit, onDismiss: () -> Unit) {
     val focusRequester = remember { FocusRequester() }
     val bodyText = stringResource(R.string.p2p_consent_body)
     val layoutDirection = remember(bodyText) { bodyText.contentLayoutDirection() }
@@ -104,19 +100,31 @@ fun P2pConsentDialog(
                                     when (event.key) {
                                         Key.DirectionDown -> {
                                             if (scrollState.value < scrollState.maxValue) {
-                                                coroutineScope.launch { scrollState.animateScrollBy(100f) }
+                                                coroutineScope.launch {
+                                                    scrollState.animateScrollBy(100f)
+                                                }
                                                 true
-                                            } else false
+                                            } else {
+                                                false
+                                            }
                                         }
+
                                         Key.DirectionUp -> {
                                             if (scrollState.value > 0) {
-                                                coroutineScope.launch { scrollState.animateScrollBy(-100f) }
+                                                coroutineScope.launch {
+                                                    scrollState.animateScrollBy(-100f)
+                                                }
                                                 true
-                                            } else false
+                                            } else {
+                                                false
+                                            }
                                         }
+
                                         else -> false
                                     }
-                                } else false
+                                } else {
+                                    false
+                                }
                             }
                             .focusable()
                             // Merge the body copy into this focusable scroll node so it is

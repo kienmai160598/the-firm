@@ -30,14 +30,14 @@ private val credentialQueryKeys = setOf(
     "signed",
     "st",
     "t",
-    "token",
+    "token"
 )
 
 private val credentialKeyFragments = listOf(
     "token",
     "signature",
     "expires",
-    "expiry",
+    "expiry"
 )
 
 /** True when the URL query carries a key that usually holds a signed or expiring credential. */

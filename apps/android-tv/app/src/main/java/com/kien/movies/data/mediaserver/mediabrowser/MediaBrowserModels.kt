@@ -77,9 +77,7 @@ internal data class BaseItem(
 }
 
 @Serializable
-internal data class NamedItem(
-    @SerialName("Name") val name: String? = null
-)
+internal data class NamedItem(@SerialName("Name") val name: String? = null)
 
 @Serializable
 internal data class PersonInfo(

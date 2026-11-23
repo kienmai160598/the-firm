@@ -1,6 +1,7 @@
 package com.kien.movies.ui.screens.player
 
 import androidx.media3.common.util.Util
+import java.io.ByteArrayOutputStream
 import okio.ByteString.Companion.decodeBase64
 import okio.ByteString.Companion.toByteString
 import org.junit.Assert.assertArrayEquals
@@ -10,7 +11,6 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.io.ByteArrayOutputStream
 
 class HlsParameterSetInitTest {
 
@@ -46,7 +46,11 @@ class HlsParameterSetInitTest {
         assertTrue(HlsParameterSetInit.isSegmentHeadConclusive(segment.copyOf(564)))
 
         // AAC only: settled as soon as the PMT is read, once enough packets show it is a transport stream.
-        assertTrue(HlsParameterSetInit.isSegmentHeadConclusive(tables(streamType = 0x0F) + tsPacket(0x1FFF, ByteArray(0))))
+        assertTrue(
+            HlsParameterSetInit.isSegmentHeadConclusive(
+                tables(streamType = 0x0F) + tsPacket(0x1FFF, ByteArray(0))
+            )
+        )
         assertFalse(HlsParameterSetInit.isSegmentHeadConclusive(ByteArray(100)))
         assertTrue(HlsParameterSetInit.isSegmentHeadConclusive(ByteArray(4096)))
     }
@@ -69,7 +73,10 @@ class HlsParameterSetInitTest {
         val first = segment(withParameterSets = true)
         val fetched = ArrayList<String>()
 
-        val rewritten = HlsParameterSetInit.withParameterSetInit(playlist, "https://host/hls/index.m3u8?t=1") { uri ->
+        val rewritten = HlsParameterSetInit.withParameterSetInit(
+            playlist,
+            "https://host/hls/index.m3u8?t=1"
+        ) { uri ->
             fetched += uri
             if (uri.endsWith("seg_000.ts")) first else segment(withParameterSets = false)
         }!!
@@ -77,10 +84,18 @@ class HlsParameterSetInitTest {
         assertEquals(listOf("https://host/hls/seg_001.ts", "https://host/hls/seg_000.ts"), fetched)
         val mapLine = rewritten.lines().single { it.startsWith("#EXT-X-MAP") }
         assertTrue(rewritten.indexOf(mapLine) < rewritten.indexOf("#EXTINF"))
-        val init = mapLine.substringAfter("base64,").removeSuffix("\"").decodeBase64()!!.toByteArray()
-        assertArrayEquals(HlsParameterSetInit.buildInitSegment(HlsParameterSetInit.scanSegmentHead(first)!!), init)
+        val init = mapLine.substringAfter(
+            "base64,"
+        ).removeSuffix("\"").decodeBase64()!!.toByteArray()
+        assertArrayEquals(
+            HlsParameterSetInit.buildInitSegment(HlsParameterSetInit.scanSegmentHead(first)!!),
+            init
+        )
 
-        val healthy = HlsParameterSetInit.withParameterSetInit(playlist, "https://host/hls/index.m3u8") {
+        val healthy = HlsParameterSetInit.withParameterSetInit(
+            playlist,
+            "https://host/hls/index.m3u8"
+        ) {
             segment(withParameterSets = true)
         }
         assertNull(healthy)
@@ -88,14 +103,37 @@ class HlsParameterSetInitTest {
 
     @Test
     fun `only finished clear media playlists without their own init segment qualify`() {
-        assertEquals(listOf("seg_000.ts", "seg_001.ts", "seg_002.ts"), HlsParameterSetInit.eligibleSegmentUris(mediaPlaylist()))
-        assertNotNull(HlsParameterSetInit.eligibleSegmentUris(mediaPlaylist(extraHeader = "#EXT-X-DISCONTINUITY-SEQUENCE:0")))
-        assertNotNull(HlsParameterSetInit.eligibleSegmentUris(mediaPlaylist(extraHeader = "#EXT-X-KEY:METHOD=NONE")))
+        assertEquals(
+            listOf("seg_000.ts", "seg_001.ts", "seg_002.ts"),
+            HlsParameterSetInit.eligibleSegmentUris(mediaPlaylist())
+        )
+        assertNotNull(
+            HlsParameterSetInit.eligibleSegmentUris(
+                mediaPlaylist(extraHeader = "#EXT-X-DISCONTINUITY-SEQUENCE:0")
+            )
+        )
+        assertNotNull(
+            HlsParameterSetInit.eligibleSegmentUris(
+                mediaPlaylist(extraHeader = "#EXT-X-KEY:METHOD=NONE")
+            )
+        )
 
         assertNull(HlsParameterSetInit.eligibleSegmentUris(mediaPlaylist(ended = false)))
-        assertNull(HlsParameterSetInit.eligibleSegmentUris(mediaPlaylist(extraHeader = "#EXT-X-MAP:URI=\"init.mp4\"")))
-        assertNull(HlsParameterSetInit.eligibleSegmentUris(mediaPlaylist(extraHeader = "#EXT-X-KEY:METHOD=AES-128,URI=\"k\"")))
-        assertNull(HlsParameterSetInit.eligibleSegmentUris(mediaPlaylist(extraHeader = "#EXT-X-DISCONTINUITY")))
+        assertNull(
+            HlsParameterSetInit.eligibleSegmentUris(
+                mediaPlaylist(extraHeader = "#EXT-X-MAP:URI=\"init.mp4\"")
+            )
+        )
+        assertNull(
+            HlsParameterSetInit.eligibleSegmentUris(
+                mediaPlaylist(extraHeader = "#EXT-X-KEY:METHOD=AES-128,URI=\"k\"")
+            )
+        )
+        assertNull(
+            HlsParameterSetInit.eligibleSegmentUris(
+                mediaPlaylist(extraHeader = "#EXT-X-DISCONTINUITY")
+            )
+        )
         assertNull(
             HlsParameterSetInit.eligibleSegmentUris(
                 "#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=1,CODECS=\"avc1.640028\"\nindex.m3u8\n"
@@ -106,7 +144,12 @@ class HlsParameterSetInitTest {
     @Test
     fun `segment check gives up at its time limit`() {
         val started = System.nanoTime()
-        assertNull(resultWithin(100) { Thread.sleep(5_000); "late" })
+        assertNull(
+            resultWithin(100) {
+                Thread.sleep(5_000)
+                "late"
+            }
+        )
         assertTrue(System.nanoTime() - started < 2_000_000_000L)
 
         assertEquals("done", resultWithin(1_000) { "done" })
@@ -130,7 +173,9 @@ class HlsParameterSetInitTest {
         val START = byteArrayOf(0, 0, 0, 1)
         val AUD = START + byteArrayOf(0x09, 0xF0.toByte())
 
-        fun hex(value: String) = ByteArray(value.length / 2) { value.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
+        fun hex(value: String) = ByteArray(value.length / 2) {
+            value.substring(it * 2, it * 2 + 2).toInt(16).toByte()
+        }
 
         /** A segment of three frames, opening on an IDR frame with or without the SPS and PPS before it. */
         fun segment(withParameterSets: Boolean): ByteArray {
@@ -138,34 +183,60 @@ class HlsParameterSetInitTest {
             out.write(tables())
             val idr = AUD + (if (withParameterSets) START + SPS + START + PPS else ByteArray(0)) +
                 START + byteArrayOf(0x65, 0x88.toByte()) + ByteArray(400) { 0x11 }
-            val frames = listOf(idr, AUD + START + byteArrayOf(0x41, 0x9A.toByte()) + ByteArray(200) { 0x22 })
+            val frames = listOf(
+                idr,
+                AUD + START + byteArrayOf(0x41, 0x9A.toByte()) + ByteArray(200) { 0x22 }
+            )
             frames.plus(frames[1]).forEachIndexed { index, frame ->
-                out.write(videoPes(frame, pts = 900_000L + index * 3_000L, continuityStart = index * 4))
+                out.write(
+                    videoPes(
+                        frame,
+                        pts = 900_000L + index * 3_000L,
+                        continuityStart =
+                            index * 4
+                    )
+                )
             }
             return out.toByteArray()
         }
 
         /** A PAT and a PMT listing one stream of [streamType] on [VIDEO_PID]. */
-        fun tables(streamType: Int = 0x1B): ByteArray =
-            tsPacket(0, section(0x00, byteArrayOf(0, 1, 0xC1.toByte(), 0, 0, 0, 1, 0xF0.toByte(), 0x00))) +
-                tsPacket(
-                    PMT_PID,
-                    section(
-                        0x02,
-                        byteArrayOf(
-                            0, 1, 0xC1.toByte(), 0, 0,
-                            0xE1.toByte(), 0x00, 0xF0.toByte(), 0x00,
-                            streamType.toByte(), 0xE1.toByte(), 0x00, 0xF0.toByte(), 0x00
-                        )
+        fun tables(streamType: Int = 0x1B): ByteArray = tsPacket(
+            0,
+            section(0x00, byteArrayOf(0, 1, 0xC1.toByte(), 0, 0, 0, 1, 0xF0.toByte(), 0x00))
+        ) +
+            tsPacket(
+                PMT_PID,
+                section(
+                    0x02,
+                    byteArrayOf(
+                        0, 1, 0xC1.toByte(), 0, 0,
+                        0xE1.toByte(), 0x00, 0xF0.toByte(), 0x00,
+                        streamType.toByte(), 0xE1.toByte(), 0x00, 0xF0.toByte(), 0x00
                     )
                 )
+            )
 
         fun section(tableId: Int, body: ByteArray): ByteArray {
             val length = body.size + 4
-            val header = byteArrayOf(tableId.toByte(), (0xB0 or (length shr 8)).toByte(), (length and 0xFF).toByte())
+            val header =
+                byteArrayOf(
+                    tableId.toByte(),
+                    (0xB0 or (length shr 8)).toByte(),
+                    (
+                        length and
+                            0xFF
+                        ).toByte()
+                )
             val withoutCrc = header + body
             val crc = Util.crc32(withoutCrc, 0, withoutCrc.size, -1)
-            return withoutCrc + byteArrayOf((crc ushr 24).toByte(), (crc ushr 16).toByte(), (crc ushr 8).toByte(), crc.toByte())
+            return withoutCrc +
+                byteArrayOf(
+                    (crc ushr 24).toByte(),
+                    (crc ushr 16).toByte(),
+                    (crc ushr 8).toByte(),
+                    crc.toByte()
+                )
         }
 
         fun tsPacket(pid: Int, section: ByteArray): ByteArray {
@@ -187,7 +258,10 @@ class HlsParameterSetInitTest {
                 (pts shr 7).toByte(),
                 (0x01 or ((pts shl 1) and 0xFE).toInt()).toByte()
             )
-            val pes = byteArrayOf(0, 0, 1, 0xE0.toByte(), 0, 0, 0x80.toByte(), 0x80.toByte(), 5) + ptsBytes + es
+            val pes =
+                byteArrayOf(0, 0, 1, 0xE0.toByte(), 0, 0, 0x80.toByte(), 0x80.toByte(), 5) +
+                    ptsBytes +
+                    es
             val out = ByteArrayOutputStream()
             var offset = 0
             var continuity = continuityStart

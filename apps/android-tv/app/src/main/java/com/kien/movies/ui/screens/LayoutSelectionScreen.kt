@@ -2,12 +2,6 @@
 
 package com.kien.movies.ui.screens
 
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.ui.components.expressive.MoviesCardFocus
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,20 +27,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.kien.movies.R
 import com.kien.movies.domain.model.HomeLayout
 import com.kien.movies.ui.components.ClassicLayoutPreview
 import com.kien.movies.ui.components.GridLayoutPreview
 import com.kien.movies.ui.components.ModernLayoutPreview
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import com.kien.movies.ui.screens.settings.LayoutSettingsEvent
 import com.kien.movies.ui.screens.settings.LayoutSettingsViewModel
-import androidx.compose.ui.res.stringResource
-import com.kien.movies.R
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.metaFloor
 
 @Composable
@@ -98,7 +97,10 @@ fun LayoutSelectionScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxl, Alignment.CenterHorizontally)
+                horizontalArrangement = Arrangement.spacedBy(
+                    MoviesTheme.spacing.xxl,
+                    Alignment.CenterHorizontally
+                )
             ) {
                 LayoutOptionCard(
                     layout = HomeLayout.MODERN,
@@ -183,9 +185,11 @@ private fun LayoutOptionCard(
                         HomeLayout.CLASSIC -> ClassicLayoutPreview(
                             modifier = Modifier.fillMaxSize()
                         )
+
                         HomeLayout.GRID -> GridLayoutPreview(
                             modifier = Modifier.fillMaxSize()
                         )
+
                         HomeLayout.MODERN -> ModernLayoutPreview(
                             modifier = Modifier.fillMaxSize()
                         )
@@ -201,20 +205,26 @@ private fun LayoutOptionCard(
                         HomeLayout.MODERN -> stringResource(R.string.layout_modern)
                     },
                     style = MaterialTheme.typography.titleLarge,
-                    color = if (isSelected || isFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary
+                    color = if (isSelected ||
+                        isFocused
+                    ) {
+                        MoviesTheme.colors.TextPrimary
+                    } else {
+                        MoviesTheme.colors.TextSecondary
+                    }
                 )
 
-            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
 
-            Text(
-                text = when (layout) {
-                    HomeLayout.CLASSIC -> stringResource(R.string.layout_classic_desc)
-                    HomeLayout.GRID -> stringResource(R.string.layout_grid_desc)
-                    HomeLayout.MODERN -> stringResource(R.string.layout_modern_desc)
-                },
-                style = MaterialTheme.typography.bodySmall.metaFloor(),
-                color = MoviesTheme.colors.TextTertiary
-            )
+                Text(
+                    text = when (layout) {
+                        HomeLayout.CLASSIC -> stringResource(R.string.layout_classic_desc)
+                        HomeLayout.GRID -> stringResource(R.string.layout_grid_desc)
+                        HomeLayout.MODERN -> stringResource(R.string.layout_modern_desc)
+                    },
+                    style = MaterialTheme.typography.bodySmall.metaFloor(),
+                    color = MoviesTheme.colors.TextTertiary
+                )
             }
 
             if (isSelected) {

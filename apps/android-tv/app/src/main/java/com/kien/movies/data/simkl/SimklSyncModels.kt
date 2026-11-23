@@ -7,18 +7,32 @@ import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable
 enum class SimklMediaType(val apiValue: String) {
-    @SerialName("shows") SHOWS("shows"),
-    @SerialName("movies") MOVIES("movies"),
-    @SerialName("anime") ANIME("anime")
+    @SerialName("shows")
+    SHOWS("shows"),
+
+    @SerialName("movies")
+    MOVIES("movies"),
+
+    @SerialName("anime")
+    ANIME("anime")
 }
 
 @Serializable
 enum class SimklListStatus(val apiValue: String) {
-    @SerialName("watching") WATCHING("watching"),
-    @SerialName("plantowatch") PLAN_TO_WATCH("plantowatch"),
-    @SerialName("hold") ON_HOLD("hold"),
-    @SerialName("completed") COMPLETED("completed"),
-    @SerialName("dropped") DROPPED("dropped")
+    @SerialName("watching")
+    WATCHING("watching"),
+
+    @SerialName("plantowatch")
+    PLAN_TO_WATCH("plantowatch"),
+
+    @SerialName("hold")
+    ON_HOLD("hold"),
+
+    @SerialName("completed")
+    COMPLETED("completed"),
+
+    @SerialName("dropped")
+    DROPPED("dropped")
 }
 
 @Serializable
@@ -31,15 +45,10 @@ data class SimklMedia(
 )
 
 @Serializable
-data class SimklEpisodeMapping(
-    val season: Int? = null,
-    val episode: Int? = null
-)
+data class SimklEpisodeMapping(val season: Int? = null, val episode: Int? = null)
 
 @Serializable
-data class SimklEpisodeIds(
-    @SerialName("tvdb_id") val tvdbId: Long? = null
-)
+data class SimklEpisodeIds(@SerialName("tvdb_id") val tvdbId: Long? = null)
 
 @Serializable
 data class SimklEpisode(
@@ -50,10 +59,7 @@ data class SimklEpisode(
 )
 
 @Serializable
-data class SimklSeason(
-    val number: Int? = null,
-    val episodes: List<SimklEpisode> = emptyList()
-)
+data class SimklSeason(val number: Int? = null, val episodes: List<SimklEpisode> = emptyList())
 
 @Serializable
 data class SimklLibraryEntry(
@@ -82,9 +88,8 @@ data class SimklLibraryEntry(
     }
 
     /** True when this entry represents a movie — either a regular movie or an anime movie. */
-    fun isMovieEntry(): Boolean =
-        mediaType == SimklMediaType.MOVIES ||
-            (mediaType == SimklMediaType.ANIME && animeType == "movie")
+    fun isMovieEntry(): Boolean = mediaType == SimklMediaType.MOVIES ||
+        (mediaType == SimklMediaType.ANIME && animeType == "movie")
 }
 
 @Serializable
@@ -107,9 +112,7 @@ data class SimklAllItemsResponse(
 }
 
 @Serializable
-data class SimklActivitySettings(
-    val all: String? = null
-)
+data class SimklActivitySettings(val all: String? = null)
 
 @Serializable
 data class SimklActivityDomain(
@@ -192,8 +195,7 @@ data class SimklSyncState(
     val projectionVersion: Long = 0L
 )
 
-fun Map<String, JsonElement>.idValue(key: String): String? =
-    get(key)?.jsonPrimitive?.content?.trim()?.takeIf(String::isNotBlank)
+fun Map<String, JsonElement>.idValue(key: String): String? = get(key)?.jsonPrimitive?.content?.trim()?.takeIf(String::isNotBlank)
 
 fun Map<String, JsonElement>.simklIdValue(): String? = idValue("simkl") ?: idValue("simkl_id")
 

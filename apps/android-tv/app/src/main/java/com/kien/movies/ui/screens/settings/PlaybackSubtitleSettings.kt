@@ -7,8 +7,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.kien.movies.R
 import com.kien.movies.data.local.AVAILABLE_SUBTITLE_LANGUAGES
-import com.kien.movies.data.local.LibassRenderScale
 import com.kien.movies.data.local.LibassRenderMode
+import com.kien.movies.data.local.LibassRenderScale
 import com.kien.movies.data.local.PlayerPreference
 import com.kien.movies.data.local.PlayerSettings
 import com.kien.movies.data.local.SubtitleLanguageOption
@@ -76,7 +76,9 @@ internal fun PlaybackSubtitlesSection(
         title = stringResource(R.string.sub_show_only_preferred_languages),
         subtitle = stringResource(R.string.sub_show_only_preferred_languages_desc),
         checked = style.showOnlyPreferredLanguages,
-        onToggle = { onUpdate { setSubtitleShowOnlyPreferredLanguages(!style.showOnlyPreferredLanguages) } },
+        onToggle = {
+            onUpdate { setSubtitleShowOnlyPreferredLanguages(!style.showOnlyPreferredLanguages) }
+        },
         enabled = enabled
     )
     SettingsToggleRow(
@@ -122,7 +124,9 @@ internal fun PlaybackSubtitlesSection(
             title = stringResource(R.string.sub_hdr_dim_player_controls),
             subtitle = stringResource(R.string.sub_hdr_dim_player_controls_sub),
             checked = style.hdrDimPlayerControls,
-            onToggle = { onUpdate { setSubtitleHdrDimPlayerControls(!style.hdrDimPlayerControls) } },
+            onToggle = {
+                onUpdate { setSubtitleHdrDimPlayerControls(!style.hdrDimPlayerControls) }
+            },
             enabled = enabled
         )
     }
@@ -138,14 +142,16 @@ internal fun PlaybackSubtitlesSection(
     if (settings.useLibass) {
         SettingsActionRow(
             title = stringResource(R.string.sub_libass_render_mode),
-            subtitle = if (settings.effectiveTunnelingEnabled)
+            subtitle = if (settings.effectiveTunnelingEnabled) {
                 stringResource(R.string.sub_libass_render_mode_tunneled_sub)
-            else
-                stringResource(R.string.sub_libass_render_mode_sub),
-            value = if (settings.effectiveTunnelingEnabled)
+            } else {
+                stringResource(R.string.sub_libass_render_mode_sub)
+            },
+            value = if (settings.effectiveTunnelingEnabled) {
                 libassRenderModeLabel(LibassRenderMode.OVERLAY)
-            else
-                libassRenderModeLabel(settings.libassRenderMode),
+            } else {
+                libassRenderModeLabel(settings.libassRenderMode)
+            },
             onClick = { onOpenDialog(PlaybackDialog.LIBASS_RENDER_MODE) },
             enabled = !settings.effectiveTunnelingEnabled
         )
@@ -161,7 +167,9 @@ internal fun PlaybackSubtitlesSection(
 @Composable
 internal fun subtitleLanguageLabel(style: SubtitleStyleSettings): String = when {
     style.preferredLanguage == "none" -> stringResource(R.string.action_none)
+
     style.isPreferredLanguageSystemDefault -> stringResource(R.string.appearance_language_system)
+
     else -> AVAILABLE_SUBTITLE_LANGUAGES.find { it.code == style.preferredLanguage }?.displayName
         ?: stringResource(R.string.appearance_language_system)
 }
@@ -189,13 +197,16 @@ internal fun SubtitleSettingsDialogs(
                 else -> style.preferredLanguage
             },
             showNoneOption = true,
-            extraOptions = listOf(SubtitleLanguageOption.DEVICE to stringResource(R.string.appearance_language_system)),
+            extraOptions = listOf(
+                SubtitleLanguageOption.DEVICE to stringResource(R.string.appearance_language_system)
+            ),
             onLanguageSelected = { language ->
                 onUpdate { setSubtitlePreferredLanguage(language ?: "none") }
                 onDismiss()
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.SECONDARY_SUBTITLE_LANGUAGE -> LanguageSelectionDialog(
             title = stringResource(R.string.sub_secondary_lang),
             selectedLanguage = style.secondaryPreferredLanguage,
@@ -206,11 +217,13 @@ internal fun SubtitleSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.SUBTITLE_APPEARANCE -> SubtitleAppearanceDialog(
             style = style,
             onUpdate = onUpdate,
             onDismiss = onDismiss
         )
+
         PlaybackDialog.SUBTITLE_HDR_TEXT_COLOR -> ColorSelectionDialog(
             title = stringResource(R.string.sub_hdr_text_color),
             colors = SubtitleSettingsTextColors,
@@ -221,6 +234,7 @@ internal fun SubtitleSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.LIBASS_RENDER_SCALE -> SettingsSingleChoiceDialog(
             title = stringResource(R.string.sub_libass_render_scale),
             options = LibassRenderScale.entries.map { scale ->
@@ -237,6 +251,7 @@ internal fun SubtitleSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         PlaybackDialog.LIBASS_RENDER_MODE -> SettingsSingleChoiceDialog(
             title = stringResource(R.string.sub_libass_render_mode),
             options = listOf(
@@ -258,6 +273,7 @@ internal fun SubtitleSettingsDialogs(
             },
             onDismiss = onDismiss
         )
+
         else -> Unit
     }
 }

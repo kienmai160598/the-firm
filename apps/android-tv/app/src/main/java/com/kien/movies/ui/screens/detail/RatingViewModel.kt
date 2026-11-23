@@ -23,16 +23,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-data class RatingResult(
-    val saved: Boolean,
-    val removed: Boolean,
-    val provider: TrackingProviderId?
-)
+data class RatingResult(val saved: Boolean, val removed: Boolean, val provider: TrackingProviderId?)
 
 @HiltViewModel
-class RatingViewModel @Inject constructor(
-    private val ratings: TrackingRatings
-) : ViewModel() {
+class RatingViewModel @Inject constructor(private val ratings: TrackingRatings) : ViewModel() {
     private val _results = MutableSharedFlow<RatingResult>(extraBufferCapacity = 1)
     val results: SharedFlow<RatingResult> = _results.asSharedFlow()
 
@@ -52,7 +46,9 @@ class RatingViewModel @Inject constructor(
             } finally {
                 onFinished()
             }
-            _results.emit(RatingResult(saved = saved, removed = rating == null, provider = provider))
+            _results.emit(
+                RatingResult(saved = saved, removed = rating == null, provider = provider)
+            )
         }
     }
 }

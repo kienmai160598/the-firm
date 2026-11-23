@@ -16,20 +16,18 @@ class PostPlayRecommendationTimingTest {
         positionMs: Long,
         intervals: List<SkipInterval>,
         thresholdPercent: Int = movieThresholdPercent
-    ): Boolean =
-        shouldShowPostPlayRecommendation(
-            contentType = "movie",
-            positionMs = positionMs,
-            durationMs = durationMs,
-            skipIntervals = intervals,
-            movieThresholdPercent = thresholdPercent,
-            episodeThresholdMode = NextEpisodeThresholdMode.PERCENTAGE,
-            episodeThresholdPercent = 99f, // 72 s before the end
-            episodeThresholdMinutesBeforeEnd = 2f
-        )
+    ): Boolean = shouldShowPostPlayRecommendation(
+        contentType = "movie",
+        positionMs = positionMs,
+        durationMs = durationMs,
+        skipIntervals = intervals,
+        movieThresholdPercent = thresholdPercent,
+        episodeThresholdMode = NextEpisodeThresholdMode.PERCENTAGE,
+        episodeThresholdPercent = 99f, // 72 s before the end
+        episodeThresholdMinutesBeforeEnd = 2f
+    )
 
-    private fun interval(startSec: Double, endSec: Double, type: String, provider: String) =
-        SkipInterval(startTime = startSec, endTime = endSec, type = type, provider = provider)
+    private fun interval(startSec: Double, endSec: Double, type: String, provider: String) = SkipInterval(startTime = startSec, endTime = endSec, type = type, provider = provider)
 
     @Test
     fun `movie without skip data uses the movie threshold`() {

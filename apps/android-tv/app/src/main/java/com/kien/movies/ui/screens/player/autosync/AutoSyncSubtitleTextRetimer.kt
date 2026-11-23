@@ -24,7 +24,7 @@ internal object AutoSyncSubtitleTextRetimer {
 
     fun retime(body: String, timeline: AutoSyncTimelineRetimeResult): String? {
         val text = body
-            .replace("﻿", "")
+            .replace("", "")
             .replace("\r\n", "\n")
             .replace('\r', '\n')
         if (ttmlRegex.containsMatchIn(text.take(512))) return null
@@ -55,7 +55,7 @@ internal object AutoSyncSubtitleTextRetimer {
                 originalStartMs = start.ms,
                 originalEndMs = originalEndMs,
                 startMs = startMs,
-                endMs = mapper.mapEndMs(originalEndMs).coerceAtLeast(startMs + 1L),
+                endMs = mapper.mapEndMs(originalEndMs).coerceAtLeast(startMs + 1L)
             )
         }
         if (entries.isEmpty()) return null
@@ -100,6 +100,7 @@ internal object AutoSyncSubtitleTextRetimer {
             when {
                 trimmed.startsWith("[") && trimmed.endsWith("]") ->
                     inEvents = trimmed.equals("[Events]", ignoreCase = true)
+
                 inEvents && trimmed.startsWith("Format:", ignoreCase = true) -> {
                     val fields = trimmed.substringAfter(':').split(',').map { it.trim() }
                     fieldCount = fields.size
@@ -108,9 +109,12 @@ internal object AutoSyncSubtitleTextRetimer {
                     endIndex = fields.indexOfFirst { it.equals("End", ignoreCase = true) }
                         .takeIf { it >= 0 } ?: ASS_DEFAULT_END_INDEX
                 }
+
                 inEvents && trimmed.startsWith("Dialogue:", ignoreCase = true) -> {
                     val colon = line.indexOf(':')
-                    val parts = line.substring(colon + 1).split(',', limit = fieldCount).toMutableList()
+                    val parts = line.substring(
+                        colon + 1
+                    ).split(',', limit = fieldCount).toMutableList()
                     if (parts.size <= maxOf(startIndex, endIndex)) continue
                     val start = parseTimestamp(parts[startIndex].trim()) ?: continue
                     val end = parseTimestamp(parts[endIndex].trim()) ?: continue
@@ -145,7 +149,7 @@ internal object AutoSyncSubtitleTextRetimer {
         return ParsedTimestamp(
             ms = ms,
             hasHours = hoursText.isNotEmpty(),
-            separator = match.groupValues[4].firstOrNull() ?: ',',
+            separator = match.groupValues[4].firstOrNull() ?: ','
         )
     }
 
@@ -155,8 +159,20 @@ internal object AutoSyncSubtitleTextRetimer {
         val minutes = (ms / 60_000L) % 60L
         val seconds = (ms / 1_000L) % 60L
         val millis = ms % 1_000L
-        val clock = "%02d:%02d%c%03d".format(Locale.ROOT, minutes, seconds, original.separator, millis)
-        return if (original.hasHours || hours > 0L) "%02d:%s".format(Locale.ROOT, hours, clock) else clock
+        val clock = "%02d:%02d%c%03d".format(
+            Locale.ROOT,
+            minutes,
+            seconds,
+            original.separator,
+            millis
+        )
+        return if (original.hasHours ||
+            hours > 0L
+        ) {
+            "%02d:%s".format(Locale.ROOT, hours, clock)
+        } else {
+            clock
+        }
     }
 
     /** ASS time: `H:MM:SS.CC`, rounded to centiseconds. */
@@ -167,17 +183,13 @@ internal object AutoSyncSubtitleTextRetimer {
             centis / 360_000L,
             (centis / 6_000L) % 60L,
             (centis / 100L) % 60L,
-            centis % 100L,
+            centis % 100L
         )
     }
 
     private fun String.leadingWhitespace(): String = takeWhile { it.isWhitespace() }
 
-    private data class ParsedTimestamp(
-        val ms: Long,
-        val hasHours: Boolean,
-        val separator: Char,
-    )
+    private data class ParsedTimestamp(val ms: Long, val hasHours: Boolean, val separator: Char)
 
     private class TimingEntry(
         val lineIndex: Int,
@@ -187,6 +199,6 @@ internal object AutoSyncSubtitleTextRetimer {
         val originalStartMs: Long,
         val originalEndMs: Long,
         val startMs: Long,
-        var endMs: Long,
+        var endMs: Long
     )
 }

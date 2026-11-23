@@ -1,10 +1,12 @@
 package com.kien.movies.core.debrid
 
 import com.kien.movies.data.local.DebridSettingsDataStore
-import com.kien.movies.domain.model.StreamBehaviorHints
 import com.kien.movies.domain.model.Stream
+import com.kien.movies.domain.model.StreamBehaviorHints
 import com.kien.movies.domain.model.StreamClientResolve
 import com.kien.movies.domain.model.StreamDebridCacheState
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
@@ -14,8 +16,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class DirectDebridResolver @Inject constructor(
@@ -114,10 +114,16 @@ class DirectDebridResolver @Inject constructor(
             return DirectDebridPlayableResult.Success(stream)
         }
         return when (val result = resolve(stream, season, episode, forceRefresh)) {
-            is DirectDebridResolveResult.Success -> DirectDebridPlayableResult.Success(stream.withResolvedDebridUrl(result))
+            is DirectDebridResolveResult.Success -> DirectDebridPlayableResult.Success(
+                stream.withResolvedDebridUrl(result)
+            )
+
             DirectDebridResolveResult.MissingApiKey -> DirectDebridPlayableResult.MissingApiKey
+
             DirectDebridResolveResult.NotCached -> DirectDebridPlayableResult.NotCached
+
             DirectDebridResolveResult.Stale -> DirectDebridPlayableResult.Stale
+
             DirectDebridResolveResult.Error -> DirectDebridPlayableResult.Error
         }
     }
@@ -134,8 +140,7 @@ class DirectDebridResolver @Inject constructor(
             settings.apiKeyFor(providerId).isNotBlank()
     }
 
-    private suspend fun getCachedResult(cacheKey: String): DirectDebridResolveResult.Success? =
-        mutex.withLock { getCachedResultLocked(cacheKey) }
+    private suspend fun getCachedResult(cacheKey: String): DirectDebridResolveResult.Success? = mutex.withLock { getCachedResultLocked(cacheKey) }
 
     private fun getCachedResultLocked(cacheKey: String): DirectDebridResolveResult.Success? {
         val cached = resolvedCache[cacheKey] ?: return null
@@ -169,7 +174,9 @@ class DirectDebridResolver @Inject constructor(
             val settings = dataStore.settings.first()
             val account = localTorrentResolveCredential(settings) ?: return null
             val apiKey = account.apiKey.trim().takeIf { it.isNotBlank() } ?: return null
-            val identity = getEffectiveInfoHash() ?: torrentMagnetUri() ?: behaviorHints?.filename ?: return null
+            val identity =
+                getEffectiveInfoHash() ?: torrentMagnetUri() ?: behaviorHints?.filename
+                    ?: return null
             return listOf(
                 account.provider.id,
                 apiKey.stableFingerprint(),
@@ -183,7 +190,11 @@ class DirectDebridResolver @Inject constructor(
         val resolve = clientResolve ?: return null
         val providerId = DebridProviders.byId(resolve.service)?.id ?: return null
         val settings = dataStore.settings.first()
-        if (!settings.canResolvePlayableLinks || providerId != settings.activeResolverProviderId) return null
+        if (!settings.canResolvePlayableLinks ||
+            providerId != settings.activeResolverProviderId
+        ) {
+            return null
+        }
         val apiKey = settings.apiKeyFor(providerId).trim().takeIf { it.isNotBlank() } ?: return null
         val identity = resolve.infoHash
             ?: resolve.magnetUri
@@ -208,7 +219,9 @@ class DirectDebridResolver @Inject constructor(
         episode: Int?
     ): DirectDebridResolveResult {
         val settings = dataStore.settings.first()
-        val account = localTorrentResolveCredential(settings) ?: return DirectDebridResolveResult.MissingApiKey
+        val account =
+            localTorrentResolveCredential(settings)
+                ?: return DirectDebridResolveResult.MissingApiKey
         val hash = stream.getEffectiveInfoHash()?.trim()?.lowercase()
         if (stream.debridCacheStatus?.state == StreamDebridCacheState.NOT_CACHED) {
             return DirectDebridResolveResult.NotCached
@@ -251,16 +264,23 @@ class DirectDebridResolver @Inject constructor(
 
         return when (account.provider.id) {
             DebridProviders.TORBOX_ID -> torboxResolver.resolve(resolveStream, season, episode)
-            DebridProviders.PREMIUMIZE_ID -> premiumizeResolver.resolve(resolveStream, season, episode)
+
+            DebridProviders.PREMIUMIZE_ID -> premiumizeResolver.resolve(
+                resolveStream,
+                season,
+                episode
+            )
+
             else -> DirectDebridResolveResult.Error
         }
     }
 
     private fun localTorrentResolveCredential(
         settings: com.kien.movies.domain.model.DebridSettings
-    ): DebridServiceCredential? =
-        settings.activeResolverCredential
-            ?.takeIf { credential -> credential.provider.supports(DebridProviderCapability.LocalTorrentResolve) }
+    ): DebridServiceCredential? = settings.activeResolverCredential
+        ?.takeIf { credential ->
+            credential.provider.supports(DebridProviderCapability.LocalTorrentResolve)
+        }
 }
 
 private const val DIRECT_DEBRID_RESOLVE_CACHE_TTL_MS = 15L * 60L * 1000L
@@ -283,13 +303,12 @@ private fun String.stableFingerprint(): String {
     return hash.toULong().toString(16)
 }
 
-private fun Stream.withResolvedDebridUrl(result: DirectDebridResolveResult.Success): Stream =
-    copy(
-        url = result.url,
-        externalUrl = null,
-        behaviorHints = behaviorHints.mergeResolvedDebridHints(result),
-        debridResolved = true
-    )
+private fun Stream.withResolvedDebridUrl(result: DirectDebridResolveResult.Success): Stream = copy(
+    url = result.url,
+    externalUrl = null,
+    behaviorHints = behaviorHints.mergeResolvedDebridHints(result),
+    debridResolved = true
+)
 
 private fun StreamBehaviorHints?.mergeResolvedDebridHints(
     result: DirectDebridResolveResult.Success

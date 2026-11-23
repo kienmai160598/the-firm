@@ -1,9 +1,5 @@
 package com.kien.movies.ui.screens.settings
 
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
-
 import android.view.KeyEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -36,8 +32,11 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.unit.dp
@@ -50,8 +49,8 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.formatHexColor
 import com.kien.movies.ui.components.expressive.MoviesCard
-import kotlin.math.roundToInt
 import com.kien.movies.ui.theme.TvSizeFloors
+import kotlin.math.roundToInt
 
 // Nine swatches share the editor's narrow column, so they stop short of the 48dp control floor.
 private val SwatchFloor = 40.dp
@@ -91,12 +90,21 @@ internal fun ThemeColorPicker(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             colorSwatches.forEachIndexed { index, swatch ->
-                val swatchDescription = stringResource(R.string.cd_color_swatch, formatHexColor(swatch))
+                val swatchDescription =
+                    stringResource(R.string.cd_color_swatch, formatHexColor(swatch))
                 Card(
                     onClick = { onColorChanged(swatch) },
                     modifier = Modifier
                         .size(TvSizeFloors.atLeast(30.dp, SwatchFloor))
-                        .then(if (index == 0) Modifier.focusRequester(firstSwatchFocusRequester) else Modifier)
+                        .then(
+                            if (index ==
+                                0
+                            ) {
+                                Modifier.focusRequester(firstSwatchFocusRequester)
+                            } else {
+                                Modifier
+                            }
+                        )
                         .semantics {
                             role = Role.RadioButton
                             this.selected = color == swatch
@@ -185,7 +193,10 @@ private fun ColorChannelSlider(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(title, style = MaterialTheme.typography.labelMedium)
                 Text(
                     valueLabel,
@@ -201,7 +212,14 @@ private fun ColorChannelSlider(
                         drawContent()
                         val radius = 6.dp.toPx()
                         val x = radius + (size.width - radius * 2) * value / maximum
-                        drawCircle(Color.Black.copy(alpha = 0.6f), radius + 1.dp.toPx(), Offset(x, size.height / 2))
+                        drawCircle(
+                            Color.Black.copy(alpha = 0.6f),
+                            radius + 1.dp.toPx(),
+                            Offset(
+                                x,
+                                size.height / 2
+                            )
+                        )
                         drawCircle(Color.White, radius, Offset(x, size.height / 2))
                     }
                     .clip(CircleShape)

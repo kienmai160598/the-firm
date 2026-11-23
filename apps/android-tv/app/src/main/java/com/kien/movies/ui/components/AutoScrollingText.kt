@@ -17,8 +17,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -34,18 +34,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.tv.material3.LocalTextStyle
 import androidx.tv.material3.Text
+import kotlin.math.min
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.withContext
-import kotlin.math.min
 
 private const val AUTO_SCROLL_START_DELAY_MS = 6_000L
 private const val AUTO_SCROLL_END_PAUSE_MS = 4_000L
 private const val AUTO_SCROLL_RETURN_DURATION_MS = 600
+
 // Time per line of text rather than a fixed dp speed, so the reading pace is the same at any text
 // size. About 240 words a minute at the 9 to 10 words a hero description line holds.
 private const val AUTO_SCROLL_MS_PER_LINE = 2_500
+
 // Stop after a few loops so an idle Home screen doesn't animate forever.
 private const val AUTO_SCROLL_MAX_CYCLES = 3
 private const val AUTO_SCROLL_FADE_FRACTION = 0.18f
@@ -125,7 +127,9 @@ fun AutoScrollingText(
                 animationsDisabled = true
                 return@LaunchedEffect
             }
-            val scrollDurationMs = (overflowPx / lineHeightPx * AUTO_SCROLL_MS_PER_LINE).toInt().coerceAtLeast(1)
+            val scrollDurationMs = (overflowPx / lineHeightPx * AUTO_SCROLL_MS_PER_LINE).toInt().coerceAtLeast(
+                1
+            )
             withContext(FixedMotionDurationScale) {
                 snapshotFlow { currentPaused() }
                     .distinctUntilChanged()
@@ -139,13 +143,18 @@ fun AutoScrollingText(
                             delay(AUTO_SCROLL_START_DELAY_MS)
                             offset.animateTo(
                                 targetValue = overflowPx,
-                                animationSpec = tween(durationMillis = scrollDurationMs, easing = LinearEasing)
+                                animationSpec = tween(
+                                    durationMillis = scrollDurationMs,
+                                    easing = LinearEasing
+                                )
                             )
                             delay(AUTO_SCROLL_END_PAUSE_MS)
                             if (cycle == 0) currentOnScrollHoldChanged(false)
                             offset.animateTo(
                                 targetValue = 0f,
-                                animationSpec = tween(durationMillis = AUTO_SCROLL_RETURN_DURATION_MS)
+                                animationSpec = tween(
+                                    durationMillis = AUTO_SCROLL_RETURN_DURATION_MS
+                                )
                             )
                         }
                     }

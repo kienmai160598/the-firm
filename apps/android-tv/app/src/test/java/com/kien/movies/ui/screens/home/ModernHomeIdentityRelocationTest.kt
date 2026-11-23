@@ -96,10 +96,16 @@ class ModernHomeIdentityRelocationTest {
             key = MODERN_CONTINUE_WATCHING_ROW_KEY,
             title = "Continue Watching",
             globalRowIndex = -1,
-            items = StableList(items.map { item ->
-                catalogItem(key = continueWatchingItemKey(item), id = item.contentId(), type = "movie")
-                    .copy(payload = ModernPayload.ContinueWatching(item))
-            })
+            items = StableList(
+                items.map { item ->
+                    catalogItem(
+                        key = continueWatchingItemKey(item),
+                        id = item.contentId(),
+                        type = "movie"
+                    )
+                        .copy(payload = ModernPayload.ContinueWatching(item))
+                }
+            )
         )
         return buildCarouselRowLookups(listOf(row)).itemIdentitiesByRow[row.key]!!.list
     }

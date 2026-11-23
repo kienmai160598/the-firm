@@ -38,7 +38,10 @@ class MdbListSyncEngineTest {
 
     @Test
     fun `unrelated library activity never triggers a history or playback request`() = runTest {
-        val remote = Remote().apply { activities = activities.copy(values = activities.values + ("watchlisted_at" to TIME)) }
+        val remote = Remote().apply {
+            activities =
+                activities.copy(values = activities.values + ("watchlisted_at" to TIME))
+        }
         MdbListSyncEngine(remote).synchronize(snapshot())
         assertEquals(listOf("activities"), remote.calls)
     }
@@ -60,8 +63,15 @@ class MdbListSyncEngineTest {
 
     @Test
     fun `playback and dropped invalidations refresh only their own buckets`() = runTest {
-        for ((key, expected) in listOf("paused_at" to "playback", "episode_paused_at" to "playback", "dropped_at" to "dropped")) {
-            val remote = Remote().apply { activities = activities.copy(values = activities.values + (key to TIME)) }
+        for ((key, expected) in listOf(
+            "paused_at" to "playback",
+            "episode_paused_at" to "playback",
+            "dropped_at" to "dropped"
+        )) {
+            val remote = Remote().apply {
+                activities =
+                    activities.copy(values = activities.values + (key to TIME))
+            }
             val result = MdbListSyncEngine(remote).synchronize(snapshot())
             assertEquals(listOf("activities", expected), remote.calls)
             assertEquals(1, result.watched.size)
@@ -92,7 +102,10 @@ class MdbListSyncEngineTest {
     @Test
     fun `failure after successful watched read leaves original cache and watermark untouched`() = runTest {
         val original = snapshot().copy(isInitialized = false)
-        val remote = Remote().apply { watched = listOf(movie(2)); failPlayback = true }
+        val remote = Remote().apply {
+            watched = listOf(movie(2))
+            failPlayback = true
+        }
 
         expectMdbListFailure<IOException> { MdbListSyncEngine(remote).synchronize(original) }
 
@@ -103,9 +116,22 @@ class MdbListSyncEngineTest {
 
     @Test
     fun `journal aliases retain titles and episode metadata across identifier changes`() {
-        val known = movie().copy(type = MdbListItemType.EPISODE, season = 1, episode = 2, episodeTitle = "Second", episodeTmdbId = 200)
+        val known = movie().copy(
+            type = MdbListItemType.EPISODE,
+            season = 1,
+            episode = 2,
+            episodeTitle = "Second",
+            episodeTmdbId = 200
+        )
         val snapshot = snapshot().copy(watched = listOf(known))
-        val update = change(1).copy(type = MdbListItemType.EPISODE, ids = MdbListIds(tmdb = 1, mdblist = "public"), season = 1, episode = 2)
+        val update = change(
+            1
+        ).copy(
+            type = MdbListItemType.EPISODE,
+            ids = MdbListIds(tmdb = 1, mdblist = "public"),
+            season = 1,
+            episode = 2
+        )
 
         val result = applyMdbListJournal(snapshot, listOf(update)).single()
 
@@ -132,7 +158,12 @@ class MdbListSyncEngineTest {
     @Test
     fun `movie and show sharing a TMDB number remain separate`() {
         val movie = movie()
-        val episode = movie.copy(type = MdbListItemType.EPISODE, media = MdbListMedia(MdbListIds(tmdb = 1, imdb = "tt99"), "Series"), season = 1, episode = 1)
+        val episode = movie.copy(
+            type = MdbListItemType.EPISODE,
+            media = MdbListMedia(MdbListIds(tmdb = 1, imdb = "tt99"), "Series"),
+            season = 1,
+            episode = 1
+        )
         val normalized = snapshot().copy(watched = listOf(movie, episode)).normalizeMedia()
         assertEquals(listOf("tt1", "tt99"), normalized.watched.map { it.media.ids.imdb })
     }
@@ -153,16 +184,30 @@ class MdbListSyncEngineTest {
             if (failPlayback) throw IOException("Offline")
             return emptyList()
         }
-        override suspend fun dropped() = emptyList<MdbListDroppedRecord>().also { calls += "dropped" }
+        override suspend fun dropped() = emptyList<MdbListDroppedRecord>().also {
+            calls += "dropped"
+        }
         override suspend fun ratings() = ratings.also { calls += "ratings" }
     }
 
     private fun movie(id: Long = 1) = MdbListWatchedRecord(
-        MdbListItemType.MOVIE, MdbListMedia(MdbListIds(imdb = "tt$id", tmdb = id), "Movie $id"), TIME
+        MdbListItemType.MOVIE,
+        MdbListMedia(MdbListIds(imdb = "tt$id", tmdb = id), "Movie $id"),
+        TIME
     )
-    private fun snapshot() = MdbListSyncSnapshot(42, watched = listOf(movie()), activities = Remote().activities, watermark = TIME, isInitialized = true)
+    private fun snapshot() = MdbListSyncSnapshot(
+        42,
+        watched = listOf(movie()),
+        activities = Remote().activities,
+        watermark = TIME,
+        isInitialized = true
+    )
     private fun change(id: Long, removed: Boolean = false) = MdbListJournalRecord(
-        MdbListItemType.MOVIE, MdbListIds(tmdb = id), removed, TIME, if (removed) null else "2020-01-01T00:00:00Z"
+        MdbListItemType.MOVIE,
+        MdbListIds(tmdb = id),
+        removed,
+        TIME,
+        if (removed) null else "2020-01-01T00:00:00Z"
     )
 
     private companion object {

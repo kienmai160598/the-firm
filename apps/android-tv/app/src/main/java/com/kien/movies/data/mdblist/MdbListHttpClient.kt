@@ -42,8 +42,12 @@ class MdbListHttpClient(
                 return@repeat
             }
             checkScope()
-            val retryAt = response.header("Retry-After")?.let { retryAfterEpochMs(it, nowEpochMs()) }
-            if (response.status == 429 || response.header("X-RateLimit-Remaining")?.toLongOrNull() == 0L) {
+            val retryAt = response.header("Retry-After")?.let {
+                retryAfterEpochMs(it, nowEpochMs())
+            }
+            if (response.status == 429 ||
+                response.header("X-RateLimit-Remaining")?.toLongOrNull() == 0L
+            ) {
                 val reset = response.header("X-RateLimit-Reset")?.toLongOrNull()
                     ?.takeIf { it in 1..Long.MAX_VALUE / 1_000L }?.times(1_000L)
                 blockedUntil[request.limitKey] = maxOf(
@@ -55,9 +59,15 @@ class MdbListHttpClient(
             if (response.status == 429) {
                 throw MdbListApiException(429, "rate_limited", blockedUntil[request.limitKey])
             }
-            if (request.retrySafe && response.status in setOf(500, 502, 503, 504) && attempt < attempts - 1) {
+            if (request.retrySafe && response.status in setOf(500, 502, 503, 504) &&
+                attempt < attempts - 1
+            ) {
                 val wait = maxOf(1_000L shl attempt, (retryAt ?: 0L) - nowEpochMs())
-                if (wait > 5_000L) throw MdbListApiException(response.status, retryAtEpochMs = retryAt)
+                if (wait >
+                    5_000L
+                ) {
+                    throw MdbListApiException(response.status, retryAtEpochMs = retryAt)
+                }
                 sleep(wait)
             } else {
                 return@withLock response
@@ -69,8 +79,10 @@ class MdbListHttpClient(
 
 internal fun retryAfterEpochMs(value: String, now: Long): Long? {
     val seconds = value.trim().toLongOrNull()
-    if (seconds != null) return seconds.takeIf { it >= 0L && it <= (Long.MAX_VALUE - now) / 1_000L }
-        ?.let { now + it * 1_000L }
+    if (seconds != null) {
+        return seconds.takeIf { it >= 0L && it <= (Long.MAX_VALUE - now) / 1_000L }
+            ?.let { now + it * 1_000L }
+    }
     return runCatching {
         ZonedDateTime.parse(value, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant().toEpochMilli()
     }.getOrNull()

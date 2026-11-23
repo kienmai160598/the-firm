@@ -132,8 +132,14 @@ class ThemeSettingsViewModelTest {
     }
 
     private fun createViewModel(): ThemeSettingsViewModel {
-        val members = mockk<MemberAccessRepository> { every { access } returns this@ThemeSettingsViewModelTest.access }
-        val icons = mockk<AppIconManager> { every { state } returns MutableStateFlow(AppIconSettingsState()) }
+        val members = mockk<MemberAccessRepository> {
+            every { access } returns
+                this@ThemeSettingsViewModelTest.access
+        }
+        val icons = mockk<AppIconManager> {
+            every { state } returns
+                MutableStateFlow(AppIconSettingsState())
+        }
         return ThemeSettingsViewModel(store, members, icons)
     }
 }

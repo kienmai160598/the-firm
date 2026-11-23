@@ -36,10 +36,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.kien.movies.ui.screens.cast.CastDetailScreen
-import java.util.WeakHashMap
 import com.kien.movies.ui.screens.detail.MetaDetailsScreen
 import com.kien.movies.ui.screens.tmdb.TmdbEntityBrowseScreen
 import com.kien.movies.ui.theme.MoviesTheme
+import java.util.WeakHashMap
 
 internal const val DETAIL_CHILD_IDLE = "detail_child_idle"
 
@@ -77,7 +77,10 @@ internal fun DetailChildHost(
     DisposableEffect(childNav) {
         nestedDetailRebuildGates[childNav] = rebuildGate
         val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
-            val nowOpen = destination.route.orEmpty().let { it.isNotEmpty() && it != DETAIL_CHILD_IDLE }
+            val nowOpen = destination.route.orEmpty().let {
+                it.isNotEmpty() &&
+                    it != DETAIL_CHILD_IDLE
+            }
             if (overlayOpen && !nowOpen && !rebuildGate.isRebuilding) {
                 closedEpoch += 1
             }
@@ -158,7 +161,9 @@ internal fun DetailChildHost(
                         }
                     )
                 ) {
-                    Box(modifier = Modifier.fillMaxSize().background(MoviesTheme.colors.Background)) {
+                    Box(
+                        modifier = Modifier.fillMaxSize().background(MoviesTheme.colors.Background)
+                    ) {
                         CastDetailScreen(
                             onBackPress = { childNav.popBackStack() },
                             onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
@@ -179,7 +184,9 @@ internal fun DetailChildHost(
                         }
                     )
                 ) {
-                    Box(modifier = Modifier.fillMaxSize().background(MoviesTheme.colors.Background)) {
+                    Box(
+                        modifier = Modifier.fillMaxSize().background(MoviesTheme.colors.Background)
+                    ) {
                         TmdbEntityBrowseScreen(
                             onBackPress = { childNav.popBackStack() },
                             onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
@@ -231,45 +238,91 @@ internal fun DetailChildHost(
                     )
                 ) { nestedEntry ->
                     val nestedArgs = nestedEntry.arguments
-                    Box(modifier = Modifier.fillMaxSize().background(MoviesTheme.colors.Background)) {
-                    MetaDetailsScreen(
-                        viewModel = hiltViewModel(nestedEntry),
-                        heroBackdropUrl = nestedArgs?.getString("heroBackdropUrl")?.takeIf { it.isNotBlank() },
-                        playOnLoad = nestedArgs?.getString("playOnLoad")?.toBooleanStrictOrNull() == true,
-                        playOnLoadManually = nestedArgs?.getString("manualSelection")?.toBooleanStrictOrNull() == true,
-                        onBackPress = { childNav.popBackStack() },
-                        onNavigateToCastDetail = { personId, personName, preferCrew ->
-                            childNav.navigate(Screen.CastDetail.createRoute(personId, personName, preferCrew))
-                        },
-                        onNavigateToTmdbEntityBrowse = { entityKind, entityId, entityName, sourceType ->
-                            childNav.navigate(
-                                Screen.TmdbEntityBrowse.createRoute(
-                                    entityKind = entityKind,
-                                    entityId = entityId,
-                                    entityName = entityName,
-                                    sourceType = sourceType
+                    Box(
+                        modifier = Modifier.fillMaxSize().background(MoviesTheme.colors.Background)
+                    ) {
+                        MetaDetailsScreen(
+                            viewModel = hiltViewModel(nestedEntry),
+                            heroBackdropUrl = nestedArgs?.getString("heroBackdropUrl")?.takeIf {
+                                it.isNotBlank()
+                            },
+                            playOnLoad =
+                                nestedArgs?.getString(
+                                    "playOnLoad"
+                                )?.toBooleanStrictOrNull() == true,
+                            playOnLoadManually =
+                                nestedArgs?.getString("manualSelection")?.toBooleanStrictOrNull() ==
+                                    true,
+                            onBackPress = { childNav.popBackStack() },
+                            onNavigateToCastDetail = { personId, personName, preferCrew ->
+                                childNav.navigate(
+                                    Screen.CastDetail.createRoute(personId, personName, preferCrew)
                                 )
-                            )
-                        },
-                        onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
-                            childNav.navigateNestedDetail(itemId, itemType, addonBaseUrl)
-                        },
-                        onPlayClick = parentNavController::navigateToDetailStream,
-                        onPlayManuallyClick = { videoId, contentType, contentId, title, poster, backdrop, logo, season, episode, episodeName, genres, year, runtime, contentLanguage ->
-                            parentNavController.navigateToDetailStream(
-                                videoId, contentType, contentId, title, poster, backdrop, logo,
-                                season, episode, episodeName, genres, year, runtime, contentLanguage,
-                                manualSelection = true
-                            )
-                        },
-                        onPlayStartFromBeginningClick = { videoId, contentType, contentId, title, poster, backdrop, logo, season, episode, episodeName, genres, year, runtime, contentLanguage ->
-                            parentNavController.navigateToDetailStream(
-                                videoId, contentType, contentId, title, poster, backdrop, logo,
-                                season, episode, episodeName, genres, year, runtime, contentLanguage,
-                                startFromBeginning = true
-                            )
-                        }
-                    )
+                            },
+                            onNavigateToTmdbEntityBrowse = {
+                                    entityKind,
+                                    entityId,
+                                    entityName,
+                                    sourceType
+                                ->
+                                childNav.navigate(
+                                    Screen.TmdbEntityBrowse.createRoute(
+                                        entityKind = entityKind,
+                                        entityId = entityId,
+                                        entityName = entityName,
+                                        sourceType = sourceType
+                                    )
+                                )
+                            },
+                            onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
+                                childNav.navigateNestedDetail(itemId, itemType, addonBaseUrl)
+                            },
+                            onPlayClick = parentNavController::navigateToDetailStream,
+                            onPlayManuallyClick = {
+                                    videoId,
+                                    contentType,
+                                    contentId,
+                                    title,
+                                    poster,
+                                    backdrop,
+                                    logo,
+                                    season,
+                                    episode,
+                                    episodeName,
+                                    genres,
+                                    year,
+                                    runtime,
+                                    contentLanguage
+                                ->
+                                parentNavController.navigateToDetailStream(
+                                    videoId, contentType, contentId, title, poster, backdrop, logo,
+                                    season, episode, episodeName, genres, year, runtime, contentLanguage,
+                                    manualSelection = true
+                                )
+                            },
+                            onPlayStartFromBeginningClick = {
+                                    videoId,
+                                    contentType,
+                                    contentId,
+                                    title,
+                                    poster,
+                                    backdrop,
+                                    logo,
+                                    season,
+                                    episode,
+                                    episodeName,
+                                    genres,
+                                    year,
+                                    runtime,
+                                    contentLanguage
+                                ->
+                                parentNavController.navigateToDetailStream(
+                                    videoId, contentType, contentId, title, poster, backdrop, logo,
+                                    season, episode, episodeName, genres, year, runtime, contentLanguage,
+                                    startFromBeginning = true
+                                )
+                            }
+                        )
                     }
                 }
             }
@@ -291,6 +344,7 @@ private fun NavBackStackEntry.toSavedChildRoute(): String? {
                 preferCrew = args.getBoolean("preferCrew")
             )
         }
+
         Screen.TmdbEntityBrowse.route -> {
             val entityKind = args.getString("entityKind") ?: return null
             val entityName = args.getString("entityName") ?: return null
@@ -301,6 +355,7 @@ private fun NavBackStackEntry.toSavedChildRoute(): String? {
                 sourceType = args.getString("sourceType") ?: "tv"
             )
         }
+
         Screen.Detail.route -> {
             val itemId = args.getString("itemId") ?: return null
             val itemType = args.getString("itemType") ?: return null
@@ -310,12 +365,14 @@ private fun NavBackStackEntry.toSavedChildRoute(): String? {
                 addonBaseUrl = args.getString("addonBaseUrl")?.takeIf { it.isNotBlank() },
                 returnFocusSeason = args.getString("returnFocusSeason")?.toIntOrNull(),
                 returnFocusEpisode = args.getString("returnFocusEpisode")?.toIntOrNull(),
-                returnToHomeOnBack = args.getString("returnToHomeOnBack")?.toBooleanStrictOrNull() == true,
+                returnToHomeOnBack =
+                    args.getString("returnToHomeOnBack")?.toBooleanStrictOrNull() == true,
                 heroBackdropUrl = args.getString("heroBackdropUrl")?.takeIf { it.isNotBlank() },
                 playOnLoad = args.getString("playOnLoad")?.toBooleanStrictOrNull() == true,
                 manualSelection = args.getString("manualSelection")?.toBooleanStrictOrNull() == true
             )
         }
+
         else -> null
     }
 }

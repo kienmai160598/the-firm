@@ -1,11 +1,11 @@
 package com.kien.movies.core.plugin
 
 import android.util.Log
-import com.kien.movies.core.plugin.cloudstream.toMoviesType
-import com.kien.movies.core.plugin.cloudstream.tvTypeFromString
 import com.kien.movies.core.plugin.cloudstream.ExternalExtensionLoader
 import com.kien.movies.core.plugin.cloudstream.ExternalExtensionRunner
 import com.kien.movies.core.plugin.cloudstream.ExternalRepoParser
+import com.kien.movies.core.plugin.cloudstream.toMoviesType
+import com.kien.movies.core.plugin.cloudstream.tvTypeFromString
 import com.kien.movies.data.local.PluginDataStore
 import com.kien.movies.data.local.PluginSyncProfile
 import com.kien.movies.domain.model.ExternalPluginEntry
@@ -20,28 +20,6 @@ import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.scraperIdFromPluginBingeGroup
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.async
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.security.MessageDigest
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -49,14 +27,38 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 private const val TAG = "PluginManager"
+
 // Scrapers are network-bound, not CPU-bound. Running more concurrently lets slow
 // providers overlap with fast ones instead of batching in groups of 5. OkHttp's
 // dispatcher + the providers' own internal parallelism stay the real bottleneck.
 private const val MAX_CONCURRENT_SCRAPERS = 10
 private const val MAX_RESULT_ITEMS = 150
 private const val MAX_RESPONSE_SIZE = 5 * 1024 * 1024L
+
 // Outer safety-net timeout for scrapers. The runner now internally caps loadLinks
 // at 60s and returns partial links. This outer cap only fires if the runner hangs
 // outside of loadLinks (e.g. slow TMDB enrichment, slow search). Generous to avoid
@@ -77,9 +79,9 @@ class PluginManager @Inject constructor(
     private val moshi = Moshi.Builder()
         .addLast(KotlinJsonAdapterFactory())
         .build()
-    
+
     private val manifestAdapter = moshi.adapter(PluginManifest::class.java)
-    
+
     private val httpClient = OkHttpClient.Builder()
         .dns(com.kien.movies.core.network.IPv4FirstDns())
         .connectTimeout(30, TimeUnit.SECONDS)
@@ -208,14 +210,14 @@ class PluginManager @Inject constructor(
     }
 
     private fun normalizeUrl(url: String): String = canonicalizeRepoUrl(url).lowercase()
-    
+
     // Single-flight map to prevent duplicate scraper executions
-    private val inFlightScrapers = ConcurrentHashMap<String, kotlinx.coroutines.Deferred<List<LocalScraperResult>>>()
-    
+    private val inFlightScrapers =
+        ConcurrentHashMap<String, kotlinx.coroutines.Deferred<List<LocalScraperResult>>>()
+
     // Semaphore to limit concurrent scrapers
     private val scraperSemaphore = Semaphore(MAX_CONCURRENT_SCRAPERS)
 
-    
     @OptIn(ExperimentalCoroutinesApi::class)
     private val pluginDispatcher: CoroutineDispatcher =
         Executors.newFixedThreadPool(MAX_CONCURRENT_SCRAPERS) { runnable ->
@@ -230,18 +232,18 @@ class PluginManager @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private val scraperOrchestrationDispatcher: CoroutineDispatcher =
         Dispatchers.IO.limitedParallelism(MAX_CONCURRENT_SCRAPERS)
-    
+
     // Flow of all repositories
     val repositories: Flow<List<PluginRepository>> = dataStore.repositories
-    
+
     // Flow of all scrapers
     val scrapers: Flow<List<ScraperInfo>> = dataStore.scrapers
-    
+
     // Flow of plugins enabled state
     val pluginsEnabled: Flow<Boolean> = dataStore.pluginsEnabled
 
     val groupStreamsByRepository: Flow<Boolean> = dataStore.groupStreamsByRepository
-    
+
     private val syncScope = kotlinx.coroutines.CoroutineScope(
         kotlinx.coroutines.SupervisorJob() + Dispatchers.IO
     )
@@ -280,17 +282,26 @@ class PluginManager @Inject constructor(
             return
         }
         if (!authManager.isAuthenticated) {
-            Log.d(TAG, "triggerRemoteSync: skipped (not authenticated, state=${authManager.authState.value})")
+            Log.d(
+                TAG,
+                "triggerRemoteSync: skipped (not authenticated, state=${authManager.authState.value})"
+            )
             return
         }
         Log.d(TAG, "triggerRemoteSync: scheduling push in 500ms")
         syncJob?.cancel()
         val pinnedProfileId = PluginSyncProfile.current()
-        syncJob = syncScope.launch(pinnedProfileId?.let(::PluginSyncProfile) ?: kotlin.coroutines.EmptyCoroutineContext) {
-            kotlinx.coroutines.delay(500)
-            val result = pluginSyncService.pushToRemote()
-            Log.d(TAG, "triggerRemoteSync: push result=${result.isSuccess} ${result.exceptionOrNull()?.message ?: ""}")
-        }
+        syncJob =
+            syncScope.launch(
+                pinnedProfileId?.let(::PluginSyncProfile) ?: kotlin.coroutines.EmptyCoroutineContext
+            ) {
+                kotlinx.coroutines.delay(500)
+                val result = pluginSyncService.pushToRemote()
+                Log.d(
+                    TAG,
+                    "triggerRemoteSync: push result=${result.isSuccess} ${result.exceptionOrNull()?.message ?: ""}"
+                )
+            }
     }
 
     // Combined flow of enabled scrapers
@@ -300,7 +311,7 @@ class PluginManager @Inject constructor(
     ) { scraperList, enabled ->
         if (enabled) scraperList.filter { it.enabled } else emptyList()
     }
-    
+
     /**
      * Add a new repository from manifest URL.
      * Auto-detects format: tries Movies manifest first, then external repo format.
@@ -325,8 +336,8 @@ class PluginManager @Inject constructor(
                 return@withContext Result.success(existingRepository)
             }
             val filename = sanitizedUrl.substringAfterLast("/")
-            val isExplicitJsonFile = filename.endsWith(".json", ignoreCase = true)
-                    && !filename.equals("manifest.json", ignoreCase = true)
+            val isExplicitJsonFile = filename.endsWith(".json", ignoreCase = true) &&
+                !filename.equals("manifest.json", ignoreCase = true)
 
             // If the URL points to a specific .json file (not manifest.json),
             // try external format first to avoid a wasted 404 on the Movies path.
@@ -377,23 +388,37 @@ class PluginManager @Inject constructor(
 
             when (typeHint) {
                 RepositoryType.EXTERNAL_DEX -> {
-                    Log.d(TAG, "addRepositoryWithTypeHint: EXTERNAL_DEX hint, trying external format: $sanitizedUrl")
+                    Log.d(
+                        TAG,
+                        "addRepositoryWithTypeHint: EXTERNAL_DEX hint, trying external format: $sanitizedUrl"
+                    )
                     val externalResult = externalRepoParser.tryParse(sanitizedUrl)
                     if (externalResult != null) {
                         return@withContext addExternalRepository(sanitizedUrl, externalResult)
                     }
                     // Hint was wrong or parse failed — fall through to auto-detect
-                    Log.w(TAG, "addRepositoryWithTypeHint: EXTERNAL_DEX hint failed, falling back to auto-detect")
+                    Log.w(
+                        TAG,
+                        "addRepositoryWithTypeHint: EXTERNAL_DEX hint failed, falling back to auto-detect"
+                    )
                 }
+
                 RepositoryType.NUVIO_JS -> {
-                    Log.d(TAG, "addRepositoryWithTypeHint: NUVIO_JS hint, trying manifest: $sanitizedUrl")
+                    Log.d(
+                        TAG,
+                        "addRepositoryWithTypeHint: NUVIO_JS hint, trying manifest: $sanitizedUrl"
+                    )
                     val canonicalManifestUrl = canonicalizeManifestUrl(sanitizedUrl)
                     val manifest = fetchManifest(canonicalManifestUrl)
                     if (manifest != null) {
                         return@withContext addMoviesRepository(canonicalManifestUrl, manifest)
                     }
-                    Log.w(TAG, "addRepositoryWithTypeHint: NUVIO_JS hint failed, falling back to auto-detect")
+                    Log.w(
+                        TAG,
+                        "addRepositoryWithTypeHint: NUVIO_JS hint failed, falling back to auto-detect"
+                    )
                 }
+
                 null -> { /* No hint — use auto-detect */ }
             }
 
@@ -435,7 +460,10 @@ class PluginManager @Inject constructor(
         val existingRepo = dataStore.repositories.first()
             .find { normalizeUrl(it.url) == normalizeUrl(repoUrl) }
         if (existingRepo != null) {
-            Log.d(TAG, "External repository already exists: ${existingRepo.name} (${existingRepo.url})")
+            Log.d(
+                TAG,
+                "External repository already exists: ${existingRepo.name} (${existingRepo.url})"
+            )
             return Result.success(existingRepo)
         }
 
@@ -453,11 +481,14 @@ class PluginManager @Inject constructor(
         dataStore.addRepository(repo)
         downloadDexExtensions(repo.id, parseResult.plugins)
 
-        Log.d(TAG, "External repository added: ${repo.name} with ${parseResult.plugins.size} extensions")
+        Log.d(
+            TAG,
+            "External repository added: ${repo.name} with ${parseResult.plugins.size} extensions"
+        )
         triggerRemoteSync()
         return Result.success(repo)
     }
-    
+
     /**
      * Remove a repository and its scrapers
      */
@@ -467,7 +498,9 @@ class PluginManager @Inject constructor(
 
         // Remove all scrapers from this repo
         scraperList.filter { it.repositoryId == repoId }.forEach { scraper ->
-            if (scraper.type == RepositoryType.EXTERNAL_DEX || repo?.type == RepositoryType.EXTERNAL_DEX) {
+            if (scraper.type == RepositoryType.EXTERNAL_DEX ||
+                repo?.type == RepositoryType.EXTERNAL_DEX
+            ) {
                 externalExtensionLoader.deleteExtension(scraper.id)
             } else {
                 dataStore.deleteScraperCode(scraper.id)
@@ -491,7 +524,6 @@ class PluginManager @Inject constructor(
         }
     }
 
-    
     /**
      * Reconcile local plugin repos with the remote list from Supabase.
      * @param remotePlugins list of remote plugin info (URL + optional type hint)
@@ -509,7 +541,9 @@ class PluginManager @Inject constructor(
 
         val initialLocalRepos = dataStore.repositories.first()
         val initialLocalByNormalizedUrl = initialLocalRepos.associateBy { normalizeUrl(it.url) }
-        val shouldRemoveMissingLocal = if (removeMissingLocal && normalizedRemote.isEmpty() && initialLocalRepos.isNotEmpty()) {
+        val shouldRemoveMissingLocal = if (removeMissingLocal && normalizedRemote.isEmpty() &&
+            initialLocalRepos.isNotEmpty()
+        ) {
             Log.w(
                 TAG,
                 "reconcileWithRemoteRepoUrls: remote list empty while local has ${initialLocalRepos.size} repos; preserving local plugins"
@@ -523,7 +557,10 @@ class PluginManager @Inject constructor(
             initialLocalRepos
                 .filter { normalizeUrl(it.url) !in remoteUrlSet }
                 .forEach { repo ->
-                    Log.d(TAG, "reconcile: removing local repo not in remote: ${repo.name} (${repo.url})")
+                    Log.d(
+                        TAG,
+                        "reconcile: removing local repo not in remote: ${repo.name} (${repo.url})"
+                    )
                     removeRepository(repo.id)
                 }
         }
@@ -531,11 +568,18 @@ class PluginManager @Inject constructor(
         normalizedRemote.forEach { remotePlugin ->
             if (initialLocalByNormalizedUrl[normalizeUrl(remotePlugin.url)] == null) {
                 val typeHint = remotePlugin.repoType?.let {
-                    try { RepositoryType.valueOf(it) } catch (_: Exception) { null }
+                    try {
+                        RepositoryType.valueOf(it)
+                    } catch (_: Exception) {
+                        null
+                    }
                 }
                 val result = addRepositoryWithTypeHint(remotePlugin.url, typeHint)
                 if (result.isFailure) {
-                    Log.e(TAG, "reconcile: failed to add repo ${remotePlugin.url}: ${result.exceptionOrNull()?.message}")
+                    Log.e(
+                        TAG,
+                        "reconcile: failed to add repo ${remotePlugin.url}: ${result.exceptionOrNull()?.message}"
+                    )
                 }
             }
         }
@@ -547,7 +591,12 @@ class PluginManager @Inject constructor(
         val extras = currentRepos
             .filter { normalizeUrl(it.url) !in remoteUrlSet }
 
-        val reordered = if (shouldRemoveMissingLocal) remoteOrderedRepos else remoteOrderedRepos + extras
+        val reordered = if (shouldRemoveMissingLocal) {
+            remoteOrderedRepos
+        } else {
+            remoteOrderedRepos +
+                extras
+        }
         if (reordered.map { it.id } != currentRepos.map { it.id }) {
             dataStore.saveRepositories(reordered)
         }
@@ -564,7 +613,7 @@ class PluginManager @Inject constructor(
             removeMissingLocal = removeMissingLocal
         )
     }
-    
+
     /**
      * Refresh a repository - re-download manifest and scrapers
      */
@@ -617,7 +666,7 @@ class PluginManager @Inject constructor(
 
         return Result.success(Unit)
     }
-    
+
     /**
      * Toggle scraper enabled state
      */
@@ -694,16 +743,16 @@ class PluginManager @Inject constructor(
         if (!dataStore.pluginsEnabled.first()) {
             return@coroutineScope emptyList()
         }
-        
+
         val enabledScraperList = scrapersInRunOrder(
             enabledScrapers.first().filter { it.supportsType(mediaType) },
             priorityBingeGroup
         )
-        
+
         if (enabledScraperList.isEmpty()) {
             return@coroutineScope emptyList()
         }
-        
+
         Log.d(TAG, "Executing ${enabledScraperList.size} scrapers for $mediaType:$tmdbId")
 
         // Preload all extractors from EXTERNAL_DEX repos before any scraper runs
@@ -729,12 +778,12 @@ class PluginManager @Inject constructor(
                 executeScraperWithSingleFlight(scraper, tmdbId, mediaType, season, episode)
             }
         }.awaitAll()
-        
+
         results.flatten()
             .distinctBy { it.url }
             .take(MAX_RESULT_ITEMS)
     }
-    
+
     /**
      * Execute all enabled scrapers and emit results as each scraper completes.
      * Returns a Flow that emits (scraperName, results) pairs.
@@ -748,7 +797,7 @@ class PluginManager @Inject constructor(
         preferredPluginOnly: Boolean = false
     ): Flow<Pair<ScraperInfo, List<LocalScraperResult>>> = channelFlow {
         val enabledList = enabledScrapers.first().filter { it.supportsType(mediaType) }
-        
+
         if (enabledList.isEmpty() || !dataStore.pluginsEnabled.first()) {
             return@channelFlow
         }
@@ -773,11 +822,17 @@ class PluginManager @Inject constructor(
                 emptyList()
             }
             if (results.isNotEmpty()) {
-                Log.d(TAG, "Preferred plugin ${preferred.name} returned ${results.size}; skipping ${plan.others.size} scrapers")
+                Log.d(
+                    TAG,
+                    "Preferred plugin ${preferred.name} returned ${results.size}; skipping ${plan.others.size} scrapers"
+                )
                 send(preferred to results)
                 return@channelFlow
             }
-            Log.d(TAG, "Preferred plugin ${preferred.name} returned nothing; running ${plan.others.size} other scrapers")
+            Log.d(
+                TAG,
+                "Preferred plugin ${preferred.name} returned nothing; running ${plan.others.size} other scrapers"
+            )
         } else {
             Log.d(TAG, "Streaming execution of ${plan.others.size} scrapers for $mediaType:$tmdbId")
         }
@@ -819,7 +874,8 @@ class PluginManager @Inject constructor(
                     kotlinx.coroutines.delay(index * 60L)
                 }
                 try {
-                    val results = executeScraperWithSingleFlight(scraper, tmdbId, mediaType, season, episode)
+                    val results =
+                        executeScraperWithSingleFlight(scraper, tmdbId, mediaType, season, episode)
                     if (results.isNotEmpty()) onResult(scraper, results)
                 } catch (e: CancellationException) {
                     throw e
@@ -829,7 +885,7 @@ class PluginManager @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Execute a single scraper with single-flight deduplication
      */
@@ -841,7 +897,7 @@ class PluginManager @Inject constructor(
         episode: Int?
     ): List<LocalScraperResult> {
         val cacheKey = "${scraper.id}:$tmdbId:$mediaType:$season:$episode"
-        
+
         // Check if already in flight
         val existing = inFlightScrapers[cacheKey]
         if (existing != null) {
@@ -851,7 +907,7 @@ class PluginManager @Inject constructor(
                 emptyList()
             }
         }
-        
+
         // Create new deferred
         return coroutineScope {
             val deferred = async {
@@ -859,9 +915,9 @@ class PluginManager @Inject constructor(
                     executeScraper(scraper, tmdbId, mediaType, season, episode)
                 }
             }
-            
+
             inFlightScrapers[cacheKey] = deferred
-            
+
             try {
                 deferred.await()
             } catch (e: Exception) {
@@ -872,7 +928,7 @@ class PluginManager @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Execute a single scraper, dispatching by type.
      */
@@ -884,7 +940,14 @@ class PluginManager @Inject constructor(
         episode: Int?
     ): List<LocalScraperResult> {
         return when (scraper.type) {
-            RepositoryType.EXTERNAL_DEX -> executeExternalDexScraper(scraper, tmdbId, mediaType, season, episode)
+            RepositoryType.EXTERNAL_DEX -> executeExternalDexScraper(
+                scraper,
+                tmdbId,
+                mediaType,
+                season,
+                episode
+            )
+
             RepositoryType.NUVIO_JS -> executeJsScraper(scraper, tmdbId, mediaType, season, episode)
         }
     }
@@ -911,14 +974,16 @@ class PluginManager @Inject constructor(
                     code.contains("[Hrefli]", ignoreCase = false)
                 Log.d(
                     TAG,
-                    "Scraper code loaded: ${scraper.name}(${scraper.id}) bytes=$bytes sha256=${sha.take(12)} hrefliLogs=$hasHrefliLogs"
+                    "Scraper code loaded: ${scraper.name}(${scraper.id}) bytes=$bytes sha256=${sha.take(
+                        12
+                    )} hrefliLogs=$hasHrefliLogs"
                 )
             } catch (_: Exception) {
                 // ignore
             }
 
             val settings = dataStore.getScraperSettings(scraper.id)
-            
+
             Log.d(TAG, "Executing scraper: ${scraper.name}")
             val results = withTimeoutOrNull(SCRAPER_TIMEOUT_MS) {
                 // Run plugin JS on the dedicated low-priority pool so a buggy
@@ -927,7 +992,12 @@ class PluginManager @Inject constructor(
                     runtime.executePlugin(
                         code = code,
                         tmdbId = tmdbId,
-                        mediaType = jsPluginMediaType(mediaType, scraper.supportedTypes, season, episode),
+                        mediaType = jsPluginMediaType(
+                            mediaType,
+                            scraper.supportedTypes,
+                            season,
+                            episode
+                        ),
                         season = season,
                         episode = episode,
                         scraperId = scraper.id,
@@ -943,7 +1013,6 @@ class PluginManager @Inject constructor(
 
             Log.d(TAG, "Scraper ${scraper.name} returned ${results.size} results")
             results.map { it.copy(provider = scraper.name) }
-
         } catch (e: Exception) {
             Log.e(TAG, "Failed to execute scraper ${scraper.name}: ${e.message}", e)
             emptyList()
@@ -978,11 +1047,13 @@ class PluginManager @Inject constructor(
             emptyList()
         }
     }
-    
+
     /**
      * Test a scraper with sample data, returning results along with diagnostic steps.
      */
-    suspend fun testScraper(scraperId: String): Result<Pair<List<LocalScraperResult>, TestDiagnostics>> {
+    suspend fun testScraper(
+        scraperId: String
+    ): Result<Pair<List<LocalScraperResult>, TestDiagnostics>> {
         val diagnostics = TestDiagnostics()
         val scraper = dataStore.scrapers.first().find { it.id == scraperId }
         if (scraper == null) {
@@ -1014,9 +1085,15 @@ class PluginManager @Inject constructor(
             val results = when (scraper.type) {
                 RepositoryType.EXTERNAL_DEX -> {
                     externalExtensionRunner.executeWithDiagnostics(
-                        scraper.id, testTmdbId, testMediaType, testSeason, testEpisode, diagnostics
+                        scraper.id,
+                        testTmdbId,
+                        testMediaType,
+                        testSeason,
+                        testEpisode,
+                        diagnostics
                     )
                 }
+
                 RepositoryType.NUVIO_JS -> {
                     diagnostics.addStep("Executing JS scraper...")
                     executeScraper(scraper, testTmdbId, testMediaType, testSeason, testEpisode)
@@ -1029,14 +1106,14 @@ class PluginManager @Inject constructor(
             Result.success(emptyList<LocalScraperResult>() to diagnostics)
         }
     }
-    
+
     private suspend fun fetchManifest(url: String): PluginManifest? = withContext(Dispatchers.IO) {
         try {
             val request = Request.Builder()
                 .url(url)
                 .header("User-Agent", "Movies/1.0")
                 .build()
-            
+
             httpClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     Log.e(TAG, "Failed to fetch manifest: ${response.code}")
@@ -1046,13 +1123,12 @@ class PluginManager @Inject constructor(
                 val body = response.body?.string() ?: return@withContext null
                 manifestAdapter.fromJson(body)
             }
-            
         } catch (e: Exception) {
             Log.e(TAG, "Error fetching manifest: ${e.message}", e)
             null
         }
     }
-    
+
     private suspend fun downloadJsScrapers(
         repoId: String,
         manifestUrl: String,
@@ -1060,7 +1136,7 @@ class PluginManager @Inject constructor(
     ) = withContext(Dispatchers.IO) {
         val baseUrl = manifestUrl.substringBeforeLast("/")
         val existingScrapers = dataStore.scrapers.first().toMutableList()
-        
+
         scraperInfos.forEach { info ->
             try {
                 val codeUrl = if (info.filename.startsWith("http")) {
@@ -1068,28 +1144,28 @@ class PluginManager @Inject constructor(
                 } else {
                     "$baseUrl/${info.filename}"
                 }
-                
+
                 // Check response size before downloading
                 val headRequest = Request.Builder()
                     .url(codeUrl)
                     .head()
                     .build()
-                
+
                 val contentLength = httpClient.newCall(headRequest).execute().use { headResponse ->
                     headResponse.header("Content-Length")?.toLongOrNull() ?: 0
                 }
-                
+
                 if (contentLength > MAX_RESPONSE_SIZE) {
                     Log.w(TAG, "Scraper ${info.name} too large: $contentLength bytes")
                     return@forEach
                 }
-                
+
                 // Download code
                 val codeRequest = Request.Builder()
                     .url(codeUrl)
                     .header("User-Agent", "Movies/1.0")
                     .build()
-                
+
                 val code = httpClient.newCall(codeRequest).execute().use { codeResponse ->
                     if (!codeResponse.isSuccessful) {
                         Log.e(TAG, "Failed to download scraper ${info.name}: ${codeResponse.code}")
@@ -1105,12 +1181,14 @@ class PluginManager @Inject constructor(
                         code.contains("[Hrefli]", ignoreCase = false)
                     Log.d(
                         TAG,
-                        "Downloaded scraper code: ${info.name}(${info.id}) bytes=${code.toByteArray(Charsets.UTF_8).size} sha256=${sha.take(12)} hrefliLogs=$hasHrefliLogs url=$codeUrl"
+                        "Downloaded scraper code: ${info.name}(${info.id}) bytes=${code.toByteArray(
+                            Charsets.UTF_8
+                        ).size} sha256=${sha.take(12)} hrefliLogs=$hasHrefliLogs url=$codeUrl"
                     )
                 } catch (_: Exception) {
                     // ignore
                 }
-                
+
                 // Create scraper info
                 val scraperId = "$repoId:${info.id}"
                 val existingScraper = existingScrapers.firstOrNull { it.id == scraperId }
@@ -1134,21 +1212,20 @@ class PluginManager @Inject constructor(
                     contentLanguage = info.contentLanguage ?: emptyList(),
                     formats = info.formats
                 )
-                
+
                 // Save code
                 dataStore.saveScraperCode(scraperId, code)
-                
+
                 // Update scraper list
                 existingScrapers.removeAll { it.id == scraperId }
                 existingScrapers.add(scraper)
-                
+
                 Log.d(TAG, "Downloaded scraper: ${info.name}")
-                
             } catch (e: Exception) {
                 Log.e(TAG, "Error downloading scraper ${info.name}: ${e.message}", e)
             }
         }
-        
+
         dataStore.saveScrapers(existingScrapers)
     }
 
@@ -1157,10 +1234,7 @@ class PluginManager @Inject constructor(
      * Uses a semaphore to limit concurrent downloads and avoid overwhelming
      * the network. Scrapers are saved incrementally in batches.
      */
-    private suspend fun downloadDexExtensions(
-        repoId: String,
-        plugins: List<ExternalPluginEntry>
-    ) = withContext(Dispatchers.IO) {
+    private suspend fun downloadDexExtensions(repoId: String, plugins: List<ExternalPluginEntry>) = withContext(Dispatchers.IO) {
         val existingScrapers = dataStore.scrapers.first().toMutableList()
         val downloadSemaphore = Semaphore(MAX_PARALLEL_DOWNLOADS)
         val newScrapers = java.util.Collections.synchronizedList(mutableListOf<ScraperInfo>())
@@ -1172,7 +1246,10 @@ class PluginManager @Inject constructor(
                     try {
                         val scraperId = "$repoId:${plugin.internalName}"
 
-                        val file = externalExtensionLoader.downloadExtension(scraperId, plugin.url)
+                        val file = externalExtensionLoader.downloadExtension(
+                            scraperId,
+                            plugin.url
+                        )
                         if (file == null) {
                             Log.e(TAG, "Failed to download extension: ${plugin.name}")
                             return@withPermit
@@ -1202,9 +1279,16 @@ class PluginManager @Inject constructor(
                         )
 
                         newScrapers.add(scraper)
-                        Log.d(TAG, "Downloaded DEX extension: ${plugin.name} (${file.length()} bytes)")
+                        Log.d(
+                            TAG,
+                            "Downloaded DEX extension: ${plugin.name} (${file.length()} bytes)"
+                        )
                     } catch (e: Exception) {
-                        Log.e(TAG, "Error downloading extension ${plugin.name}: ${e.message}", e)
+                        Log.e(
+                            TAG,
+                            "Error downloading extension ${plugin.name}: ${e.message}",
+                            e
+                        )
                     }
                 }
             }

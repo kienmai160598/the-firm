@@ -4,10 +4,10 @@ import com.kien.movies.data.local.DebridSettingsDataStore
 import com.kien.movies.data.remote.api.PremiumizeApi
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.StreamClientResolve
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.first
 
 @Singleton
 class PremiumizeDirectDebridResolver @Inject constructor(
@@ -15,11 +15,7 @@ class PremiumizeDirectDebridResolver @Inject constructor(
     private val api: PremiumizeApi,
     private val fileSelector: PremiumizeDirectDownloadFileSelector
 ) {
-    suspend fun resolve(
-        stream: Stream,
-        season: Int?,
-        episode: Int?
-    ): DirectDebridResolveResult {
+    suspend fun resolve(stream: Stream, season: Int?, episode: Int?): DirectDebridResolveResult {
         val resolve = stream.clientResolve ?: return DirectDebridResolveResult.Error
         val apiKey = dataStore.settings.first().premiumizeApiKey.trim()
         if (apiKey.isBlank()) return DirectDebridResolveResult.MissingApiKey
@@ -52,10 +48,12 @@ class PremiumizeDirectDebridResolver @Inject constructor(
                 season = season,
                 episode = episode
             ) ?: return DirectDebridResolveResult.Stale
-            val url = file.link?.takeIf { it.isNotBlank() } ?: return DirectDebridResolveResult.Stale
+            val url =
+                file.link?.takeIf { it.isNotBlank() } ?: return DirectDebridResolveResult.Stale
             DirectDebridResolveResult.Success(
                 url = url,
-                filename = file.displayName().takeIf { it.isNotBlank() } ?: stream.behaviorHints?.filename,
+                filename =
+                    file.displayName().takeIf { it.isNotBlank() } ?: stream.behaviorHints?.filename,
                 videoSize = file.size ?: stream.behaviorHints?.videoSize
             )
         } catch (error: Exception) {

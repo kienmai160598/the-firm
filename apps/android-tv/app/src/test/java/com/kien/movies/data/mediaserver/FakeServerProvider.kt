@@ -79,7 +79,13 @@ internal class FakeServerProvider(
                 kind = kind,
                 name = "Item $itemId",
                 videos = if (kind == ServerMediaKind.SERIES) {
-                    listOf(video(ServerItemRef(session.connection.id, EPISODE_ID).encode(), season = 1, episode = 1))
+                    listOf(
+                        video(
+                            ServerItemRef(session.connection.id, EPISODE_ID).encode(),
+                            season = 1,
+                            episode = 1
+                        )
+                    )
                 } else {
                     emptyList()
                 }
@@ -91,7 +97,10 @@ internal class FakeServerProvider(
 
     override suspend fun candidates(session: ServerSession, itemId: String): List<ServerCandidate> = listOf(
         ServerCandidate(
-            target = ServerPlaybackTarget(ServerItemRef(session.connection.id, itemId), mediaSourceId = "src-$itemId"),
+            target = ServerPlaybackTarget(
+                ServerItemRef(session.connection.id, itemId),
+                mediaSourceId = "src-$itemId"
+            ),
             title = "Original",
             description = null,
             filename = "item-$itemId.mkv",
@@ -99,7 +108,10 @@ internal class FakeServerProvider(
         )
     )
 
-    override suspend fun preparePlayback(session: ServerSession, request: ServerPlaybackRequest): ServerPlaybackSession {
+    override suspend fun preparePlayback(
+        session: ServerSession,
+        request: ServerPlaybackRequest
+    ): ServerPlaybackSession {
         playbackRequests += request
         if (transcodes) {
             val audio = request.audioStreamIndex ?: 1
@@ -113,11 +125,29 @@ internal class FakeServerProvider(
                 playSessionId = "ps$audio",
                 playMethod = ServerPlayMethod.TRANSCODE,
                 audioTracks = listOf(
-                    ServerTrack(index = 1, label = "English", language = "eng", selected = audio == 1),
-                    ServerTrack(index = 2, label = "Japanese", language = "jpn", selected = audio == 2)
+                    ServerTrack(
+                        index = 1,
+                        label = "English",
+                        language = "eng",
+                        selected =
+                            audio == 1
+                    ),
+                    ServerTrack(
+                        index = 2,
+                        label = "Japanese",
+                        language = "jpn",
+                        selected =
+                            audio == 2
+                    )
                 ),
                 burnInSubtitles = listOf(
-                    ServerTrack(index = 3, label = "English PGS", language = "eng", selected = subtitle == 3)
+                    ServerTrack(
+                        index = 3,
+                        label = "English PGS",
+                        language = "eng",
+                        selected =
+                            subtitle == 3
+                    )
                 )
             )
         }
@@ -138,7 +168,11 @@ internal class FakeServerProvider(
         if (itemId in failingPlayed) throw ServerException(ServerFailure.FORBIDDEN)
     }
 
-    override suspend fun report(session: ServerSession, playback: ServerPlaybackSession, event: ServerPlaybackEvent) {
+    override suspend fun report(
+        session: ServerSession,
+        playback: ServerPlaybackSession,
+        event: ServerPlaybackEvent
+    ) {
         synchronized(reported) { reported += event.type }
     }
 
@@ -150,7 +184,9 @@ internal class FakeServerProvider(
     ): ServerPage<ServerIndexEntry> {
         synchronized(this) { indexRequests++ }
         val entries = indexedIds.entries
-            .filter { (itemId, _) -> (itemId == SHOW_ID) == (library.kind == ServerMediaKind.SERIES) }
+            .filter { (itemId, _) ->
+                (itemId == SHOW_ID) == (library.kind == ServerMediaKind.SERIES)
+            }
             .map { ServerIndexEntry(it.key, it.value) }
         return ServerPage(entries.drop(start).take(limit), entries.size)
     }
@@ -165,10 +201,18 @@ internal class FakeServerProvider(
         return lookup(library, query)
     }
 
-    override suspend fun findEpisode(session: ServerSession, seriesItemId: String, season: Int, episode: Int): ServerEpisode? =
-        episodes[season to episode]
+    override suspend fun findEpisode(
+        session: ServerSession,
+        seriesItemId: String,
+        season: Int,
+        episode: Int
+    ): ServerEpisode? = episodes[season to episode]
 
-    private fun title(session: ServerSession, itemId: String, kind: ServerMediaKind = ServerMediaKind.MOVIE) = ServerTitle(
+    private fun title(
+        session: ServerSession,
+        itemId: String,
+        kind: ServerMediaKind = ServerMediaKind.MOVIE
+    ) = ServerTitle(
         preview = MetaPreview(
             id = ServerItemRef(session.connection.id, itemId).encode(),
             type = kind.domainType(),
@@ -191,7 +235,8 @@ internal class FakeServerProvider(
         const val EPISODE_ID = "901"
         val MOVIE_LIBRARY = ServerLibrary(id = "10", name = "Movies", kind = ServerMediaKind.MOVIE)
         val SERIES_LIBRARY = ServerLibrary(id = "20", name = "Shows", kind = ServerMediaKind.SERIES)
-        val COLLECTION_LIBRARY = ServerLibrary(id = "30", name = "Featured", kind = ServerMediaKind.COLLECTION)
+        val COLLECTION_LIBRARY =
+            ServerLibrary(id = "30", name = "Featured", kind = ServerMediaKind.COLLECTION)
     }
 }
 
@@ -207,9 +252,15 @@ internal class MemoryServerPersistence : ServerPersistence {
 internal fun fakeServerRepository(
     provider: FakeServerProvider = FakeServerProvider(),
     connectionId: String = "cfake",
-    libraries: List<ServerLibrary> = listOf(FakeServerProvider.MOVIE_LIBRARY, FakeServerProvider.SERIES_LIBRARY)
+    libraries: List<ServerLibrary> =
+        listOf(FakeServerProvider.MOVIE_LIBRARY, FakeServerProvider.SERIES_LIBRARY)
 ): Pair<ServerRepository, ServerConnection> {
-    val repository = ServerRepository(MemoryServerPersistence(), listOf(provider), CoroutineScope(Dispatchers.Unconfined))
+    val repository =
+        ServerRepository(
+            MemoryServerPersistence(),
+            listOf(provider),
+            CoroutineScope(Dispatchers.Unconfined)
+        )
     val connection = ServerConnection(
         id = connectionId,
         providerId = provider.id,
@@ -225,7 +276,13 @@ internal fun fakeServerRepository(
     return repository to connection
 }
 
-internal fun meta(id: String, kind: ServerMediaKind, name: String, videos: List<Video> = emptyList(), imdbId: String? = null) = Meta(
+internal fun meta(
+    id: String,
+    kind: ServerMediaKind,
+    name: String,
+    videos: List<Video> = emptyList(),
+    imdbId: String? = null
+) = Meta(
     id = id,
     type = kind.domainType(),
     rawType = kind.contentType,

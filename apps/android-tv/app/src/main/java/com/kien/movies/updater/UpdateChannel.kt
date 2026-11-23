@@ -9,7 +9,6 @@ enum class UpdateChannel(val storedValue: String) {
             it.storedValue.equals(value, ignoreCase = true)
         }
 
-        fun defaultForVersion(versionName: String): UpdateChannel =
-            if (VersionUtils.isPrerelease(versionName)) BETA else STABLE
+        fun defaultForVersion(versionName: String): UpdateChannel = if (VersionUtils.isPrerelease(versionName)) BETA else STABLE
     }
 }

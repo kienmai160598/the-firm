@@ -5,9 +5,6 @@
 
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.components.posterFocusScale
-import com.kien.movies.ui.components.posterFocusLift
-import com.kien.movies.ui.components.posterFocusBorder
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
@@ -65,8 +62,10 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.kien.movies.domain.model.MetaCompany
+import com.kien.movies.ui.components.posterFocusBorder
+import com.kien.movies.ui.components.posterFocusLift
+import com.kien.movies.ui.components.posterFocusScale
 import com.kien.movies.ui.theme.MoviesTheme
-
 
 // Logos keep their white tile, which most brand marks are drawn for; the box rounds it like
 // M3's medium cards.
@@ -174,7 +173,15 @@ fun CompanyLogosSection(
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(if (sectionFocusRequester != null) Modifier.focusRequester(sectionFocusRequester) else Modifier)
+                .then(
+                    if (sectionFocusRequester !=
+                        null
+                    ) {
+                        Modifier.focusRequester(sectionFocusRequester)
+                    } else {
+                        Modifier
+                    }
+                )
                 .focusRestorer {
                     when {
                         restorePending -> restoreFocusRequester
@@ -196,10 +203,13 @@ fun CompanyLogosSection(
                 val isFirstItem = index == 0
                 val focusRequester = when {
                     isRestoreTarget -> restoreFocusRequester
+
                     isFirstItem -> firstItemFocusRequester
+
                     companyId != null -> remember(companyId) {
                         itemFocusRequesters.getOrPut(companyId) { FocusRequester() }
                     }
+
                     else -> null
                 }
                 Box(
@@ -239,11 +249,9 @@ fun CompanyLogosSection(
     }
 }
 
-private fun companyWindowId(company: MetaCompany): String =
-    "${company.tmdbId ?: company.name}:${company.name}"
+private fun companyWindowId(company: MetaCompany): String = "${company.tmdbId ?: company.name}:${company.name}"
 
-private fun companyLazyKey(title: String, index: Int, company: MetaCompany): String =
-    "$title-$index-${company.name}-${company.logo.orEmpty()}"
+private fun companyLazyKey(title: String, index: Int, company: MetaCompany): String = "$title-$index-${company.name}-${company.logo.orEmpty()}"
 
 @Composable
 private fun CompanyLogoCard(
@@ -309,7 +317,7 @@ private fun CompanyLogoCard(
                 .height(MoviesTheme.spacing.huge)
                 .clip(LogoTileShape)
                 .background(Color.White),
-        contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center
         ) {
             if (logoModel != null && !logoLoadFailed) {
                 AsyncImage(

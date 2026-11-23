@@ -31,9 +31,7 @@ data class TraktListSummaryDto(
 )
 
 @JsonClass(generateAdapter = true)
-data class TraktListImagesDto(
-    @Json(name = "posters") val posters: List<String>? = null
-)
+data class TraktListImagesDto(@Json(name = "posters") val posters: List<String>? = null)
 
 @JsonClass(generateAdapter = true)
 data class TraktProminentListDto(
@@ -50,9 +48,7 @@ data class TraktCreateOrUpdateListRequestDto(
 )
 
 @JsonClass(generateAdapter = true)
-data class TraktReorderListsRequestDto(
-    @Json(name = "rank") val rank: List<Long>
-)
+data class TraktReorderListsRequestDto(@Json(name = "rank") val rank: List<Long>)
 
 @JsonClass(generateAdapter = true)
 data class TraktReorderListsResponseDto(

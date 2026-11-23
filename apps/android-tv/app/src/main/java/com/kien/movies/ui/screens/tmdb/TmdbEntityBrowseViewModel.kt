@@ -8,19 +8,19 @@ import com.kien.movies.R
 import com.kien.movies.core.poster.withCustomPosterUrls
 import com.kien.movies.core.tmdb.TmdbEntityBrowseData
 import com.kien.movies.core.tmdb.TmdbEntityKind
-import com.kien.movies.core.tmdb.TmdbEntityRailType
 import com.kien.movies.core.tmdb.TmdbEntityMediaType
+import com.kien.movies.core.tmdb.TmdbEntityRailType
 import com.kien.movies.core.tmdb.TmdbMetadataService
 import com.kien.movies.data.local.TmdbSettingsDataStore
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.net.URLDecoder
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.net.URLDecoder
-import javax.inject.Inject
 
 @HiltViewModel
 class TmdbEntityBrowseViewModel @Inject constructor(
@@ -49,7 +49,8 @@ class TmdbEntityBrowseViewModel @Inject constructor(
     val watchedMovieIds: StateFlow<Set<String>> = _watchedMovieIds.asStateFlow()
     val watchedSeriesIds: StateFlow<Set<String>> = watchedSeriesStateHolder.fullyWatchedSeriesIds
 
-    private val _uiState = MutableStateFlow<TmdbEntityBrowseUiState>(TmdbEntityBrowseUiState.Loading)
+    private val _uiState =
+        MutableStateFlow<TmdbEntityBrowseUiState>(TmdbEntityBrowseUiState.Loading)
     val uiState: StateFlow<TmdbEntityBrowseUiState> = _uiState.asStateFlow()
 
     private val _posterCardCornerRadiusDp = MutableStateFlow(12)
@@ -87,7 +88,8 @@ class TmdbEntityBrowseViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val latestData = (_uiState.value as? TmdbEntityBrowseUiState.Success)?.data ?: return@launch
+                val latestData =
+                    (_uiState.value as? TmdbEntityBrowseUiState.Success)?.data ?: return@launch
                 val latestRail = latestData.rails.firstOrNull {
                     it.mediaType == mediaType && it.railType == railType
                 } ?: return@launch
@@ -110,7 +112,11 @@ class TmdbEntityBrowseViewModel @Inject constructor(
                     latestData.withUpdatedRail(mediaType, railType) {
                         it.copy(
                             items = mergedItems.withCustomPosterUrls(
-                                com.kien.movies.core.poster.patternForScreen(pattern, com.kien.movies.core.poster.CustomPosterScreen.DETAILS, enabledScreens)
+                                com.kien.movies.core.poster.patternForScreen(
+                                    pattern,
+                                    com.kien.movies.core.poster.CustomPosterScreen.DETAILS,
+                                    enabledScreens
+                                )
                             ),
                             currentPage = nextPage,
                             hasMore = pageResult.hasMore,
@@ -119,7 +125,8 @@ class TmdbEntityBrowseViewModel @Inject constructor(
                     }
                 )
             } catch (_: Exception) {
-                val fallback = (_uiState.value as? TmdbEntityBrowseUiState.Success)?.data ?: return@launch
+                val fallback =
+                    (_uiState.value as? TmdbEntityBrowseUiState.Success)?.data ?: return@launch
                 _uiState.value = TmdbEntityBrowseUiState.Success(
                     fallback.withUpdatedRail(mediaType, railType) { it.copy(isLoading = false) }
                 )
@@ -143,9 +150,15 @@ class TmdbEntityBrowseViewModel @Inject constructor(
                 _uiState.value = if (browseData != null) {
                     val pattern = layoutPreferenceDataStore.customPosterUrlPattern.first()
                     val enabledScreens = layoutPreferenceDataStore.customPosterEnabledScreens.first()
-                    TmdbEntityBrowseUiState.Success(browseData.withCustomPosterUrls(
-                        com.kien.movies.core.poster.patternForScreen(pattern, com.kien.movies.core.poster.CustomPosterScreen.DETAILS, enabledScreens)
-                    ))
+                    TmdbEntityBrowseUiState.Success(
+                        browseData.withCustomPosterUrls(
+                            com.kien.movies.core.poster.patternForScreen(
+                                pattern,
+                                com.kien.movies.core.poster.CustomPosterScreen.DETAILS,
+                                enabledScreens
+                            )
+                        )
+                    )
                 } else {
                     TmdbEntityBrowseUiState.Error(
                         if (entityName.isNotBlank()) {
@@ -166,7 +179,9 @@ class TmdbEntityBrowseViewModel @Inject constructor(
     private fun TmdbEntityBrowseData.withUpdatedRail(
         mediaType: TmdbEntityMediaType,
         railType: TmdbEntityRailType,
-        transform: (com.kien.movies.core.tmdb.TmdbEntityRail) -> com.kien.movies.core.tmdb.TmdbEntityRail
+        transform: (
+            com.kien.movies.core.tmdb.TmdbEntityRail
+        ) -> com.kien.movies.core.tmdb.TmdbEntityRail
     ): TmdbEntityBrowseData {
         return copy(
             rails = rails.map { rail ->

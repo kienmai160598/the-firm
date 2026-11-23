@@ -19,7 +19,10 @@ class ServerTokenRenewalTest {
 
         override fun renewalDue(session: ServerSession): Boolean = due
 
-        override suspend fun renewToken(session: ServerSession, failure: ServerException?): String? {
+        override suspend fun renewToken(
+            session: ServerSession,
+            failure: ServerException?
+        ): String? {
             if (refuse) throw ServerException(ServerFailure.AUTH_REQUIRED)
             renewals++
             return "token-${renewals + 1}"
@@ -28,7 +31,8 @@ class ServerTokenRenewalTest {
 
     private val provider = RenewingProvider()
     private val persistence = MemoryServerPersistence()
-    private val repository = ServerRepository(persistence, listOf(provider), CoroutineScope(Dispatchers.Unconfined))
+    private val repository =
+        ServerRepository(persistence, listOf(provider), CoroutineScope(Dispatchers.Unconfined))
     private val connection = ServerConnection(
         id = "c1",
         providerId = provider.id,
@@ -74,7 +78,11 @@ class ServerTokenRenewalTest {
         val tokens = (1..5).map {
             async {
                 repository.call("c1") { _, session ->
-                    if (session.token == "token-1") throw ServerException(ServerFailure.AUTH_REQUIRED)
+                    if (session.token ==
+                        "token-1"
+                    ) {
+                        throw ServerException(ServerFailure.AUTH_REQUIRED)
+                    }
                     session.token
                 }
             }
@@ -90,12 +98,25 @@ class ServerTokenRenewalTest {
             override fun keepsLocalToken(local: String, fromAccount: String): Boolean = true
             override fun tokenForAccount(token: String): String = "account-copy"
         }
-        val repository = ServerRepository(MemoryServerPersistence(), listOf(keeping), CoroutineScope(Dispatchers.Unconfined))
+        val repository =
+            ServerRepository(
+                MemoryServerPersistence(),
+                listOf(keeping),
+                CoroutineScope(Dispatchers.Unconfined)
+            )
         repository.store(connection.copy(providerId = keeping.id), "device-token")
         val snapshot = repository.syncSnapshot(1)!!
 
         assertEquals("account-copy", snapshot.servers.single().token)
-        assertTrue(repository.applySync(snapshot, snapshot.servers, snapshot.servers.map { it.key }.toSet()))
+        assertTrue(
+            repository.applySync(
+                snapshot,
+                snapshot.servers,
+                snapshot.servers.map {
+                    it.key
+                }.toSet()
+            )
+        )
         assertEquals("device-token", repository.session("c1")?.token)
     }
 
@@ -104,7 +125,12 @@ class ServerTokenRenewalTest {
         val long = object : ServerProvider by FakeServerProvider(id = "long") {
             override fun tokenForAccount(token: String): String = "x".repeat(1_025)
         }
-        val repository = ServerRepository(MemoryServerPersistence(), listOf(long), CoroutineScope(Dispatchers.Unconfined))
+        val repository =
+            ServerRepository(
+                MemoryServerPersistence(),
+                listOf(long),
+                CoroutineScope(Dispatchers.Unconfined)
+            )
         repository.store(connection.copy(providerId = long.id), "device-token")
         val snapshot = repository.syncSnapshot(1)!!
 
@@ -142,10 +168,18 @@ class ServerTokenRenewalTest {
     fun aRenewalTheAccountDoesNotNeedIsNotUploaded() = runTest {
         val quiet = object : ServerProvider by FakeServerProvider(id = "quiet") {
             override fun renewalDue(session: ServerSession): Boolean = true
-            override suspend fun renewToken(session: ServerSession, failure: ServerException?): String = "token-2"
+            override suspend fun renewToken(
+                session: ServerSession,
+                failure: ServerException?
+            ): String = "token-2"
             override fun renewalChangesAccount(previous: String, renewed: String): Boolean = false
         }
-        val repository = ServerRepository(MemoryServerPersistence(), listOf(quiet), CoroutineScope(Dispatchers.Unconfined))
+        val repository =
+            ServerRepository(
+                MemoryServerPersistence(),
+                listOf(quiet),
+                CoroutineScope(Dispatchers.Unconfined)
+            )
         repository.store(connection.copy(providerId = quiet.id), "token-1")
         val version = repository.syncSnapshot(1)!!.version
 

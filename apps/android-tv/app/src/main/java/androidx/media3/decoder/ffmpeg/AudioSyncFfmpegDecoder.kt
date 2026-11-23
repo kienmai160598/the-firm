@@ -19,7 +19,7 @@ internal class AudioSyncFfmpegDecoder(format: Format) {
         format.maxInputSize.takeIf { it > 0 } ?: DEFAULT_INPUT_SIZE,
         0,
         null,
-        C.ENCODING_PCM_FLOAT,
+        C.ENCODING_PCM_FLOAT
     )
 
     val name: String get() = decoder.name
@@ -44,7 +44,11 @@ internal class AudioSyncFfmpegDecoder(format: Format) {
             val output = decoder.dequeueOutputBuffer() ?: return
             try {
                 val data = output.data
-                if (!output.isEndOfStream && data != null && data.hasRemaining()) onPcm(data, output.timeUs)
+                if (!output.isEndOfStream && data != null &&
+                    data.hasRemaining()
+                ) {
+                    onPcm(data, output.timeUs)
+                }
             } finally {
                 output.release()
             }
@@ -59,7 +63,8 @@ internal class AudioSyncFfmpegDecoder(format: Format) {
         private const val BUFFER_COUNT = 8
         private const val DEFAULT_INPUT_SIZE = 5_760
 
-        fun supports(mimeType: String): Boolean =
-            runCatching { FfmpegLibrary.isAvailable() && FfmpegLibrary.supportsFormat(mimeType) }.getOrDefault(false)
+        fun supports(mimeType: String): Boolean = runCatching {
+            FfmpegLibrary.isAvailable() && FfmpegLibrary.supportsFormat(mimeType)
+        }.getOrDefault(false)
     }
 }

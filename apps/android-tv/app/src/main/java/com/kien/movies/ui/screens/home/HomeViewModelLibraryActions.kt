@@ -83,10 +83,14 @@ fun HomeViewModel.refreshPosterLibraryStatus(item: MetaPreview) {
         runCatching {
             val isInLibrary = libraryRepository.isInLibrary(item.id, item.apiType).first()
             _uiState.update { state ->
-                if (state.posterLibraryMembership[statusKey] == isInLibrary) state
-                else state.copy(
-                    posterLibraryMembership = state.posterLibraryMembership + (statusKey to isInLibrary)
-                )
+                if (state.posterLibraryMembership[statusKey] == isInLibrary) {
+                    state
+                } else {
+                    state.copy(
+                        posterLibraryMembership =
+                            state.posterLibraryMembership + (statusKey to isInLibrary)
+                    )
+                }
             }
         }
     }
@@ -104,13 +108,17 @@ fun HomeViewModel.togglePosterLibrary(item: MetaPreview, addonBaseUrl: String?) 
         runCatching {
             libraryRepository.toggleDefault(item.toLibraryEntryInput(addonBaseUrl))
         }.onFailure { error ->
-            Log.w(HomeViewModel.TAG, "Failed to toggle poster library for ${item.id}: ${error.message}")
+            Log.w(
+                HomeViewModel.TAG,
+                "Failed to toggle poster library for ${item.id}: ${error.message}"
+            )
         }
         runCatching {
             val isNowInLibrary = libraryRepository.isInLibrary(item.id, item.apiType).first()
             _uiState.update { state ->
                 state.copy(
-                    posterLibraryMembership = state.posterLibraryMembership + (statusKey to isNowInLibrary)
+                    posterLibraryMembership =
+                        state.posterLibraryMembership + (statusKey to isNowInLibrary)
                 )
             }
         }
@@ -159,12 +167,19 @@ fun HomeViewModel.openPosterListPicker(item: MetaPreview, addonBaseUrl: String?)
                 )
             }
         }.onFailure { error ->
-            Log.w(HomeViewModel.TAG, "Failed to load poster list picker for ${item.id}: ${error.message}")
+            Log.w(
+                HomeViewModel.TAG,
+                "Failed to load poster list picker for ${item.id}: ${error.message}"
+            )
             _uiState.update { state ->
                 state.copy(
                     showPosterListPicker = true,
                     posterListPickerPending = false,
-                    posterListPickerError = error.message ?: appContext.getString(com.kien.movies.R.string.home_poster_lists_error_load_failed)
+                    posterListPickerError =
+                        error.message
+                            ?: appContext.getString(
+                                com.kien.movies.R.string.home_poster_lists_error_load_failed
+                            )
                 )
             }
         }
@@ -224,7 +239,11 @@ fun HomeViewModel.savePosterListPickerMembership() {
             _uiState.update { state ->
                 state.copy(
                     posterListPickerPending = false,
-                    posterListPickerError = error.message ?: appContext.getString(com.kien.movies.R.string.home_poster_lists_error_update_failed)
+                    posterListPickerError =
+                        error.message
+                            ?: appContext.getString(
+                                com.kien.movies.R.string.home_poster_lists_error_update_failed
+                            )
                 )
             }
         }
@@ -267,7 +286,9 @@ fun HomeViewModel.confirmPosterListPickerRemoval() {
                     posterListPickerPending = false,
                     posterListPickerRemovalConfirmations = emptyList(),
                     posterListPickerError = error.message
-                        ?: appContext.getString(com.kien.movies.R.string.home_poster_lists_error_update_failed)
+                        ?: appContext.getString(
+                            com.kien.movies.R.string.home_poster_lists_error_update_failed
+                        )
                 )
             }
         }
@@ -303,7 +324,7 @@ private fun HomeViewModel.closePosterListPickerAfterSave(changes: ListMembership
         val updatedMembership = savedInput?.let { input ->
             state.posterLibraryMembership + (
                 homeItemStatusKey(input.itemId, input.itemType) to anyListSelected
-            )
+                )
         } ?: state.posterLibraryMembership
         state.copy(
             showPosterListPicker = false,
@@ -335,7 +356,10 @@ fun HomeViewModel.togglePosterMovieWatched(item: MetaPreview) {
                 watchProgressRepository.markAsCompleted(buildCompletedMovieProgress(item))
             }
         }.onFailure { error ->
-            Log.w(HomeViewModel.TAG, "Failed to toggle poster watched status for ${item.id}: ${error.message}")
+            Log.w(
+                HomeViewModel.TAG,
+                "Failed to toggle poster watched status for ${item.id}: ${error.message}"
+            )
         }
         _uiState.update { state ->
             state.copy(movieWatchedPending = state.movieWatchedPending - statusKey)
@@ -387,7 +411,10 @@ fun HomeViewModel.togglePosterSeriesWatched(item: MetaPreview) {
                 markSeriesWatched(item)
             }
         }.onFailure { error ->
-            Log.w(HomeViewModel.TAG, "Failed to toggle series watched for ${item.id}: ${error.message}")
+            Log.w(
+                HomeViewModel.TAG,
+                "Failed to toggle series watched for ${item.id}: ${error.message}"
+            )
             // Revert optimistic update on failure
             _uiState.update { state ->
                 state.copy(
@@ -450,7 +477,9 @@ private suspend fun HomeViewModel.unmarkSeriesWatched(item: MetaPreview) {
     )
 }
 
-private suspend fun HomeViewModel.fetchSeriesEpisodes(item: MetaPreview): List<com.kien.movies.domain.model.Video> {
+private suspend fun HomeViewModel.fetchSeriesEpisodes(
+    item: MetaPreview
+): List<com.kien.movies.domain.model.Video> {
     val type = if (item.apiType.equals("tv", ignoreCase = true)) "series" else item.apiType
     var episodes: List<com.kien.movies.domain.model.Video> = emptyList()
     metaRepository.getMetaFromPrimaryAddon(type, item.id)

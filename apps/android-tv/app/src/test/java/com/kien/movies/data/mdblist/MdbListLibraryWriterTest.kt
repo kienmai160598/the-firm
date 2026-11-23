@@ -25,10 +25,14 @@ class MdbListLibraryWriterTest {
         val h = MdbListSyncTestHarness(backgroundScope)
         h.seedLibrary()
         val unknown = movie.copy(itemId = "simkl:123", itemType = "anime", tmdbId = null)
-        writer(h).applyMembershipChanges(h.repository.currentScope(), unknown, changes(false, false))
+        writer(
+            h
+        ).applyMembershipChanges(h.repository.currentScope(), unknown, changes(false, false))
         assertTrue(h.http.engine.requests.isEmpty())
         expectMdbListFailure<IllegalArgumentException> {
-            writer(h).applyMembershipChanges(h.repository.currentScope(), unknown, changes(true, false))
+            writer(
+                h
+            ).applyMembershipChanges(h.repository.currentScope(), unknown, changes(true, false))
         }
         assertTrue(h.http.engine.requests.isEmpty())
     }
@@ -41,16 +45,35 @@ class MdbListLibraryWriterTest {
             val input = movie.copy(itemType = type)
             val bucket = if (type == "movie") "movies" else "shows"
             h.http.reply(body = """{"added":1,"existing":0,"not_found":0}""")
-            h.http.reply(body = """{"added":{"$bucket":1},"existing":{"$bucket":0},"not_found":{"$bucket":0}}""")
+            h.http.reply(
+                body = """{"added":{"$bucket":1},"existing":{"$bucket":0},"not_found":{"$bucket":0}}"""
+            )
             val writer = writer(h)
-            writer.applyMembershipChanges(h.repository.currentScope(), input, changes(true, true))
-            assertEquals(listOf("/watchlist/items/add", "/lists/7/items/add"), h.http.engine.requests.map { it.path })
-            val bodies = h.http.engine.requests.map { mdbListResponseElement(it.body).objectValue().arrayValue(bucket).single().objectValue() }
+            writer.applyMembershipChanges(
+                h.repository.currentScope(),
+                input,
+                changes(true, true)
+            )
+            assertEquals(
+                listOf("/watchlist/items/add", "/lists/7/items/add"),
+                h.http.engine.requests.map {
+                    it.path
+                }
+            )
+            val bodies = h.http.engine.requests.map {
+                mdbListResponseElement(
+                    it.body
+                ).objectValue().arrayValue(bucket).single().objectValue()
+            }
             assertEquals(1L, bodies[0].objectValue("ids")!!.number("tmdb"))
             assertEquals(1L, bodies[1].number("tmdb"))
             assertFalse(bodies[1].containsKey("ids"))
             h.http.reply(body = """{"removed":1,"not_found":0}""")
-            writer.applyMembershipChanges(h.repository.currentScope(), input, ListMembershipChanges(mapOf(MDBLIST_WATCHLIST_KEY to false)))
+            writer.applyMembershipChanges(
+                h.repository.currentScope(),
+                input,
+                ListMembershipChanges(mapOf(MDBLIST_WATCHLIST_KEY to false))
+            )
             val library = h.repository.currentSnapshot()!!.library!!
             assertTrue(library.itemsByList.getValue(MDBLIST_WATCHLIST_KEY).isEmpty())
             assertEquals(1, library.itemsByList.getValue(MDBLIST_TEST_LIST_KEY).size)
@@ -71,8 +94,19 @@ class MdbListLibraryWriterTest {
         val h = MdbListSyncTestHarness(backgroundScope)
         h.seedLibrary()
         h.http.reply(body = """{"added":0,"existing":1,"not_found":0}""")
-        writer(h).applyMembershipChanges(h.repository.currentScope(), movie, ListMembershipChanges(mapOf(MDBLIST_WATCHLIST_KEY to true)))
-        assertEquals(1, h.repository.currentSnapshot()!!.library!!.itemsByList.getValue(MDBLIST_WATCHLIST_KEY).size)
+        writer(
+            h
+        ).applyMembershipChanges(
+            h.repository.currentScope(),
+            movie,
+            ListMembershipChanges(mapOf(MDBLIST_WATCHLIST_KEY to true))
+        )
+        assertEquals(
+            1,
+            h.repository.currentSnapshot()!!.library!!.itemsByList.getValue(
+                MDBLIST_WATCHLIST_KEY
+            ).size
+        )
     }
 
     @Test
@@ -82,26 +116,46 @@ class MdbListLibraryWriterTest {
         h.http.reply(body = """{"added":1,"existing":0,"not_found":0}""")
         h.http.reply(500)
         expectMdbListFailure<MdbListApiException> {
-            writer(h).applyMembershipChanges(h.repository.currentScope(), movie, changes(true, true))
+            writer(
+                h
+            ).applyMembershipChanges(h.repository.currentScope(), movie, changes(true, true))
         }
         val library = h.repository.currentSnapshot()!!.library!!
         assertEquals(1, library.itemsByList.getValue(MDBLIST_WATCHLIST_KEY).size)
         assertTrue(library.itemsByList.getValue(MDBLIST_TEST_LIST_KEY).isEmpty())
         assertTrue(library.invalidated)
         assertEquals(2, h.http.engine.requests.size)
-        assertEquals(library, Json.decodeFromString<MdbListSyncSnapshot>(h.storage.profiles.getValue(1)).library)
+        assertEquals(
+            library,
+            Json.decodeFromString<MdbListSyncSnapshot>(h.storage.profiles.getValue(1)).library
+        )
     }
 
     @Test
     fun `unresolved or malformed mutation receipts do not fabricate membership`() = runTest {
-        for (body in listOf("{}", """{"added":0,"existing":0,"not_found":1}""", """{"added":2}""", """{"added":-1,"existing":2}""")) {
+        for (body in listOf(
+            "{}",
+            """{"added":0,"existing":0,"not_found":1}""",
+            """{"added":2}""",
+            """{"added":-1,"existing":2}"""
+        )) {
             val h = MdbListSyncTestHarness(backgroundScope)
             h.seedLibrary()
             h.http.reply(body = body)
             expectMdbListFailure<MdbListDecodingException> {
-                writer(h).applyMembershipChanges(h.repository.currentScope(), movie, ListMembershipChanges(mapOf(MDBLIST_WATCHLIST_KEY to true)))
+                writer(
+                    h
+                ).applyMembershipChanges(
+                    h.repository.currentScope(),
+                    movie,
+                    ListMembershipChanges(mapOf(MDBLIST_WATCHLIST_KEY to true))
+                )
             }
-            assertTrue(h.repository.currentSnapshot()!!.library!!.itemsByList.getValue(MDBLIST_WATCHLIST_KEY).isEmpty())
+            assertTrue(
+                h.repository.currentSnapshot()!!.library!!.itemsByList.getValue(
+                    MDBLIST_WATCHLIST_KEY
+                ).isEmpty()
+            )
             assertTrue(h.repository.currentSnapshot()!!.library!!.invalidated)
             assertEquals(1, h.http.engine.requests.size)
         }
@@ -113,14 +167,34 @@ class MdbListLibraryWriterTest {
             val h = MdbListSyncTestHarness(backgroundScope)
             h.seedLibrary()
             expectMdbListFailure<IllegalArgumentException> {
-                writer(h).applyMembershipChanges(h.repository.currentScope(), movie, ListMembershipChanges(mapOf(key to true)))
+                writer(
+                    h
+                ).applyMembershipChanges(
+                    h.repository.currentScope(),
+                    movie,
+                    ListMembershipChanges(mapOf(key to true))
+                )
             }
             assertTrue(h.http.engine.requests.isEmpty())
         }
         val h = MdbListSyncTestHarness(backgroundScope)
-        h.seedLibrary(mdbListLibrarySnapshot(h.http.now).copy(lists = listOf(MdbListLibraryList(7, "Shows", true, mediaType = MdbListItemType.SHOW))))
+        h.seedLibrary(
+            mdbListLibrarySnapshot(
+                h.http.now
+            ).copy(
+                lists = listOf(
+                    MdbListLibraryList(7, "Shows", true, mediaType = MdbListItemType.SHOW)
+                )
+            )
+        )
         expectMdbListFailure<IllegalArgumentException> {
-            writer(h).applyMembershipChanges(h.repository.currentScope(), movie, ListMembershipChanges(mapOf(MDBLIST_TEST_LIST_KEY to true)))
+            writer(
+                h
+            ).applyMembershipChanges(
+                h.repository.currentScope(),
+                movie,
+                ListMembershipChanges(mapOf(MDBLIST_TEST_LIST_KEY to true))
+            )
         }
         assertTrue(h.http.engine.requests.isEmpty())
     }
@@ -139,9 +213,19 @@ class MdbListLibraryWriterTest {
         h.http.reply(body = """{"success":true,"id":8,"name":"Renamed"}""")
         writer.deleteList("mdblist:list:8")
         assertEquals(listOf(7L), h.repository.currentSnapshot()!!.library!!.lists.map { it.id })
-        assertFalse(h.repository.currentSnapshot()!!.library!!.itemsByList.containsKey("mdblist:list:8"))
-        assertEquals(listOf(MdbListHttpMethod.POST, MdbListHttpMethod.PUT, MdbListHttpMethod.DELETE), h.http.engine.requests.map { it.method })
-        assertEquals("""{"name":"New list","private":true}""", h.http.engine.requests.first().body)
+        assertFalse(
+            h.repository.currentSnapshot()!!.library!!.itemsByList.containsKey("mdblist:list:8")
+        )
+        assertEquals(
+            listOf(MdbListHttpMethod.POST, MdbListHttpMethod.PUT, MdbListHttpMethod.DELETE),
+            h.http.engine.requests.map {
+                it.method
+            }
+        )
+        assertEquals(
+            """{"name":"New list","private":true}""",
+            h.http.engine.requests.first().body
+        )
         assertEquals(3, h.http.engine.requests.size)
     }
 
@@ -152,11 +236,19 @@ class MdbListLibraryWriterTest {
         assertFalse(writer.capabilities.supportsDescription)
         assertFalse(writer.capabilities.supportsReordering)
         for (privacy in listOf(LibraryListPrivacy.LINK, LibraryListPrivacy.FRIENDS)) {
-            expectMdbListFailure<IllegalArgumentException> { writer.createList("List", null, privacy) }
+            expectMdbListFailure<IllegalArgumentException> {
+                writer.createList("List", null, privacy)
+            }
         }
-        expectMdbListFailure<IllegalArgumentException> { writer.createList("List", "Description", LibraryListPrivacy.PRIVATE) }
-        expectMdbListFailure<IllegalArgumentException> { writer.createList(" ", null, LibraryListPrivacy.PRIVATE) }
-        expectMdbListFailure<UnsupportedOperationException> { writer.reorderLists(listOf(MDBLIST_TEST_LIST_KEY)) }
+        expectMdbListFailure<IllegalArgumentException> {
+            writer.createList("List", "Description", LibraryListPrivacy.PRIVATE)
+        }
+        expectMdbListFailure<IllegalArgumentException> {
+            writer.createList(" ", null, LibraryListPrivacy.PRIVATE)
+        }
+        expectMdbListFailure<UnsupportedOperationException> {
+            writer.reorderLists(listOf(MDBLIST_TEST_LIST_KEY))
+        }
         assertTrue(h.http.engine.requests.isEmpty())
     }
 
@@ -165,9 +257,26 @@ class MdbListLibraryWriterTest {
         for (status in listOf(400, 403, 404, 429, 500)) {
             val h = MdbListSyncTestHarness(backgroundScope)
             h.seedLibrary()
-            h.http.reply(status, "{}", if (status == 429) mapOf("Retry-After" to "600") else emptyMap())
-            expectMdbListFailure<MdbListApiException> { writer(h).createList("List", null, LibraryListPrivacy.PRIVATE) }
-            assertEquals(listOf(7L), h.repository.currentSnapshot()!!.library!!.lists.map { it.id })
+            h.http.reply(
+                status,
+                "{}",
+                if (status ==
+                    429
+                ) {
+                    mapOf("Retry-After" to "600")
+                } else {
+                    emptyMap()
+                }
+            )
+            expectMdbListFailure<MdbListApiException> {
+                writer(h).createList("List", null, LibraryListPrivacy.PRIVATE)
+            }
+            assertEquals(
+                listOf(7L),
+                h.repository.currentSnapshot()!!.library!!.lists.map {
+                    it.id
+                }
+            )
             assertTrue(h.repository.currentSnapshot()!!.library!!.invalidated)
             assertEquals(1, h.http.engine.requests.size)
         }
@@ -175,16 +284,33 @@ class MdbListLibraryWriterTest {
 
     @Test
     fun `false or mismatched metadata confirmations cannot rename or delete cached lists`() = runTest {
-        for (body in listOf("{}", """{"success":false,"id":7}""", """{"success":true,"id":8}""")) {
+        for (body in listOf(
+            "{}",
+            """{"success":false,"id":7}""",
+            """{"success":true,"id":8}"""
+        )) {
             for (delete in listOf(true, false)) {
                 val h = MdbListSyncTestHarness(backgroundScope)
                 h.seedLibrary()
                 h.http.reply(body = body)
                 expectMdbListFailure<MdbListDecodingException> {
-                    if (delete) writer(h).deleteList(MDBLIST_TEST_LIST_KEY)
-                    else writer(h).updateList(MDBLIST_TEST_LIST_KEY, "Changed", null, LibraryListPrivacy.PUBLIC)
+                    if (delete) {
+                        writer(h).deleteList(MDBLIST_TEST_LIST_KEY)
+                    } else {
+                        writer(
+                            h
+                        ).updateList(
+                            MDBLIST_TEST_LIST_KEY,
+                            "Changed",
+                            null,
+                            LibraryListPrivacy.PUBLIC
+                        )
+                    }
                 }
-                assertEquals("Favourites", h.repository.currentSnapshot()!!.library!!.lists.single().name)
+                assertEquals(
+                    "Favourites",
+                    h.repository.currentSnapshot()!!.library!!.lists.single().name
+                )
             }
         }
     }
@@ -195,7 +321,10 @@ class MdbListLibraryWriterTest {
         h.seedLibrary()
         val entered = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
-        h.http.engine.intercept = { entered.complete(Unit); release.await() }
+        h.http.engine.intercept = {
+            entered.complete(Unit)
+            release.await()
+        }
         h.http.reply(body = """{"added":1,"existing":0,"not_found":0}""")
         val writer = writer(h)
         val scope = h.repository.currentScope()
@@ -208,7 +337,12 @@ class MdbListLibraryWriterTest {
         first.await()
         second.await()
         assertEquals(1, h.http.engine.requests.size)
-        assertEquals(1, h.repository.currentSnapshot()!!.library!!.itemsByList.getValue(MDBLIST_WATCHLIST_KEY).size)
+        assertEquals(
+            1,
+            h.repository.currentSnapshot()!!.library!!.itemsByList.getValue(
+                MDBLIST_WATCHLIST_KEY
+            ).size
+        )
     }
 
     @Test
@@ -217,7 +351,9 @@ class MdbListLibraryWriterTest {
         h.seedLibrary()
         h.http.engine.intercept = { h.switch(2, 84) }
         h.http.reply(201, """{"id":8}""")
-        expectMdbListFailure<CancellationException> { writer(h).createList("List", null, LibraryListPrivacy.PRIVATE) }
+        expectMdbListFailure<CancellationException> {
+            writer(h).createList("List", null, LibraryListPrivacy.PRIVATE)
+        }
         h.repository.ensureLoaded()
         assertEquals(84L, h.repository.currentSnapshot()?.accountId)
         assertEquals(null, h.repository.currentSnapshot()?.library)
@@ -230,17 +366,31 @@ class MdbListLibraryWriterTest {
         val h = MdbListSyncTestHarness(backgroundScope)
         h.seedLibrary()
         h.http.engine.intercept = { awaitCancellation() }
-        val job = launch { writer(h).applyMembershipChanges(h.repository.currentScope(), movie, changes(true, false)) }
+        val job =
+            launch {
+                writer(
+                    h
+                ).applyMembershipChanges(h.repository.currentScope(), movie, changes(true, false))
+            }
         runCurrent()
         job.cancel()
         job.join()
         assertTrue(h.repository.currentSnapshot()!!.library!!.invalidated)
-        assertTrue(h.repository.currentSnapshot()!!.library!!.itemsByList.getValue(MDBLIST_WATCHLIST_KEY).isEmpty())
+        assertTrue(
+            h.repository.currentSnapshot()!!.library!!.itemsByList.getValue(
+                MDBLIST_WATCHLIST_KEY
+            ).isEmpty()
+        )
     }
 
-    private fun writer(h: MdbListSyncTestHarness) = MdbListLibraryWriter(h.http.api, h.repository) { h.http.now }
+    private fun writer(h: MdbListSyncTestHarness) = MdbListLibraryWriter(h.http.api, h.repository) {
+        h.http.now
+    }
 
-    private fun changes(watchlist: Boolean, personal: Boolean) = ListMembershipChanges(linkedMapOf(
-        MDBLIST_WATCHLIST_KEY to watchlist, MDBLIST_TEST_LIST_KEY to personal
-    ))
+    private fun changes(watchlist: Boolean, personal: Boolean) = ListMembershipChanges(
+        linkedMapOf(
+            MDBLIST_WATCHLIST_KEY to watchlist,
+            MDBLIST_TEST_LIST_KEY to personal
+        )
+    )
 }

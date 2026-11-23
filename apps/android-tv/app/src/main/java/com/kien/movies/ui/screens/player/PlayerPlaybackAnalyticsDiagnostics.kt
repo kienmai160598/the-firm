@@ -223,7 +223,9 @@ internal class PlayerPlaybackAnalyticsDiagnostics {
             return
         }
 
-        if (lastPositionForStallMs < 0L || position > lastPositionForStallMs + POSITION_PROGRESS_EPSILON_MS) {
+        if (lastPositionForStallMs < 0L ||
+            position > lastPositionForStallMs + POSITION_PROGRESS_EPSILON_MS
+        ) {
             if (positionStallActive) {
                 record(
                     name = "position_stall_recovered",
@@ -252,7 +254,9 @@ internal class PlayerPlaybackAnalyticsDiagnostics {
                     details = details(
                         "stallMs" to stalledForMs.toString(),
                         "positionMs" to position.toString(),
-                        "bufferedPositionMs" to player.bufferedPosition.coerceAtLeast(0L).toString(),
+                        "bufferedPositionMs" to player.bufferedPosition.coerceAtLeast(
+                            0L
+                        ).toString(),
                         "state" to player.playbackState.playbackStateName()
                     )
                 )
@@ -272,7 +276,11 @@ internal class PlayerPlaybackAnalyticsDiagnostics {
         )
     }
 
-    fun onPlayWhenReadyChanged(eventTime: AnalyticsListener.EventTime, ready: Boolean, reason: Int) {
+    fun onPlayWhenReadyChanged(
+        eventTime: AnalyticsListener.EventTime,
+        ready: Boolean,
+        reason: Int
+    ) {
         playWhenReady = ready
         record(
             name = "play_when_ready",
@@ -318,7 +326,8 @@ internal class PlayerPlaybackAnalyticsDiagnostics {
     fun onRenderedFirstFrame(eventTime: AnalyticsListener.EventTime) {
         renderedFirstFrameCount += 1
         if (firstFrameElapsedMs == null) {
-            firstFrameElapsedMs = (SystemClock.elapsedRealtime() - sessionStartedAtElapsedMs).coerceAtLeast(0L)
+            firstFrameElapsedMs =
+                (SystemClock.elapsedRealtime() - sessionStartedAtElapsedMs).coerceAtLeast(0L)
         }
         record(name = "rendered_first_frame", eventTime = eventTime)
     }
@@ -326,7 +335,8 @@ internal class PlayerPlaybackAnalyticsDiagnostics {
     fun onSyntheticFirstFrame(player: Player?) {
         renderedFirstFrameCount += 1
         if (firstFrameElapsedMs == null) {
-            firstFrameElapsedMs = (SystemClock.elapsedRealtime() - sessionStartedAtElapsedMs).coerceAtLeast(0L)
+            firstFrameElapsedMs =
+                (SystemClock.elapsedRealtime() - sessionStartedAtElapsedMs).coerceAtLeast(0L)
         }
         player?.let { recordProgressSnapshot(it, hasRenderedFirstFrame = true) }
         record(
@@ -379,7 +389,10 @@ internal class PlayerPlaybackAnalyticsDiagnostics {
         record(
             name = "video_decoder_released",
             eventTime = eventTime,
-            details = details("decoder" to decoderName, "count" to videoDecoderReleaseCount.toString())
+            details = details(
+                "decoder" to decoderName,
+                "count" to videoDecoderReleaseCount.toString()
+            )
         )
     }
 
@@ -499,7 +512,10 @@ internal class PlayerPlaybackAnalyticsDiagnostics {
         record(
             name = "audio_decoder_released",
             eventTime = eventTime,
-            details = details("decoder" to decoderName, "count" to audioDecoderReleaseCount.toString())
+            details = details(
+                "decoder" to decoderName,
+                "count" to audioDecoderReleaseCount.toString()
+            )
         )
     }
 
@@ -699,8 +715,12 @@ internal class PlayerPlaybackAnalyticsDiagnostics {
                     (sessionStartedAtElapsedMs + firstFrame - launchStarted).coerceAtLeast(0L)
                 }
             },
-            initToFirstFrameMs = firstFrameElapsed?.takeIf { initializationStartedAtWallTimeMs > 0L }?.let { firstFrame ->
-                (sessionStartedAtWallTimeMs + firstFrame - initializationStartedAtWallTimeMs).coerceAtLeast(0L)
+            initToFirstFrameMs = firstFrameElapsed?.takeIf {
+                initializationStartedAtWallTimeMs > 0L
+            }?.let { firstFrame ->
+                (sessionStartedAtWallTimeMs + firstFrame - initializationStartedAtWallTimeMs).coerceAtLeast(
+                    0L
+                )
             },
             startPositionMs = startPositionMs,
             eventCount = eventCount,
@@ -804,12 +824,11 @@ internal class PlayerPlaybackAnalyticsDiagnostics {
         }
     }
 
-    private fun videoFrameProcessingOffsetAverageUs(): Long? =
-        if (videoFrameProcessingOffsetCount > 0) {
-            videoFrameProcessingOffsetTotalUs / videoFrameProcessingOffsetCount
-        } else {
-            null
-        }
+    private fun videoFrameProcessingOffsetAverageUs(): Long? = if (videoFrameProcessingOffsetCount > 0) {
+        videoFrameProcessingOffsetTotalUs / videoFrameProcessingOffsetCount
+    } else {
+        null
+    }
 
     private fun record(
         name: String,
@@ -852,13 +871,12 @@ internal class PlayerPlaybackAnalyticsDiagnostics {
         positionMs: Long?,
         bufferedPositionMs: Long?,
         details: Map<String, String>
-    ): String =
-        "EXO_EVENT: name=$name elapsedMs=$elapsedMs host=$traceHost engine=$traceEngine " +
-            "state=${playbackStateName ?: "n/a"} playWhenReady=${playWhenReady ?: false} " +
-            "isPlaying=${isPlaying ?: false} isLoading=${isLoading ?: false} " +
-            "speed=${playbackSpeed ?: -1f} pitch=${playbackPitch ?: -1f} " +
-            "positionMs=${positionMs ?: -1L} bufferedMs=${bufferedPositionMs ?: -1L} " +
-            "details=${details.toTraceDetails()}"
+    ): String = "EXO_EVENT: name=$name elapsedMs=$elapsedMs host=$traceHost engine=$traceEngine " +
+        "state=${playbackStateName ?: "n/a"} playWhenReady=${playWhenReady ?: false} " +
+        "isPlaying=${isPlaying ?: false} isLoading=${isLoading ?: false} " +
+        "speed=${playbackSpeed ?: -1f} pitch=${playbackPitch ?: -1f} " +
+        "positionMs=${positionMs ?: -1L} bufferedMs=${bufferedPositionMs ?: -1L} " +
+        "details=${details.toTraceDetails()}"
 }
 
 internal fun PlayerRuntimeController.queuePlaybackRawEventLine(line: String) {
@@ -874,34 +892,32 @@ internal fun PlayerRuntimeController.flushPendingPlaybackRawEventLines() {
     }
 }
 
-private fun String.isPlaybackWarningEvent(): Boolean =
-    this == "dropped_video_frames" ||
-        this == "audio_underrun" ||
-        this == "position_stall" ||
-        this == "position_stall_recovered" ||
-        this == "rebuffer_start" ||
-        this == "rebuffer_end" ||
-        this == "load_error" ||
-        this == "player_error"
+private fun String.isPlaybackWarningEvent(): Boolean = this == "dropped_video_frames" ||
+    this == "audio_underrun" ||
+    this == "position_stall" ||
+    this == "position_stall_recovered" ||
+    this == "rebuffer_start" ||
+    this == "rebuffer_end" ||
+    this == "load_error" ||
+    this == "player_error"
 
-private fun Map<String, String>.toTraceDetails(): String =
-    if (isEmpty()) {
-        "n/a"
-    } else {
-        entries.joinToString(",") { "${it.key}=${it.value.compactTraceValue()}" }
-    }
+private fun Map<String, String>.toTraceDetails(): String = if (isEmpty()) {
+    "n/a"
+} else {
+    entries.joinToString(",") { "${it.key}=${it.value.compactTraceValue()}" }
+}
 
-private fun String.compactTraceValue(): String =
-    replace('\n', ' ')
-        .replace('\r', ' ')
-        .take(160)
+private fun String.compactTraceValue(): String = replace('\n', ' ')
+    .replace('\r', ' ')
+    .take(160)
 
-private fun String.rawPlaybackLine(): String =
-    replace('\n', ' ')
-        .replace('\r', ' ')
-        .take(2000)
+private fun String.rawPlaybackLine(): String = replace('\n', ' ')
+    .replace('\r', ' ')
+    .take(2000)
 
-private fun LoadEventInfo.toPlaybackLoad(mediaLoadData: MediaLoadData): PlaybackIssuePlaybackLoadInput {
+private fun LoadEventInfo.toPlaybackLoad(
+    mediaLoadData: MediaLoadData
+): PlaybackIssuePlaybackLoadInput {
     val requestUri = uri
     return PlaybackIssuePlaybackLoadInput(
         host = requestUri.host,
@@ -925,56 +941,53 @@ private fun Format.toPlaybackFormat(
     trackType: String?,
     support: String?,
     reuseEvaluation: DecoderReuseEvaluation?
-): PlaybackIssuePlaybackFormatInput =
-    PlaybackIssuePlaybackFormatInput(
-        trackType = trackType,
-        sampleMimeType = sampleMimeType,
-        containerMimeType = containerMimeType,
-        codecs = codecs,
-        id = id,
-        label = label,
-        language = language,
-        width = width.takeIf { it > 0 },
-        height = height.takeIf { it > 0 },
-        frameRate = frameRate.takeIf { it > 0f },
-        bitrate = bitrate.takeIf { it > 0 },
-        channelCount = channelCount.takeIf { it > 0 },
-        sampleRate = sampleRate.takeIf { it > 0 },
-        colorTransfer = colorInfo?.colorTransfer?.takeIf { it != C.COLOR_TRANSFER_SDR },
-        selectionFlags = selectionFlags.takeIf { it != 0 },
-        roleFlags = roleFlags.takeIf { it != 0 },
-        support = support,
-        decoderReuseResult = reuseEvaluation?.result?.decoderReuseResultName(),
-        decoderDiscardReasons = reuseEvaluation?.discardReasons?.takeIf { it != 0 }
-    )
+): PlaybackIssuePlaybackFormatInput = PlaybackIssuePlaybackFormatInput(
+    trackType = trackType,
+    sampleMimeType = sampleMimeType,
+    containerMimeType = containerMimeType,
+    codecs = codecs,
+    id = id,
+    label = label,
+    language = language,
+    width = width.takeIf { it > 0 },
+    height = height.takeIf { it > 0 },
+    frameRate = frameRate.takeIf { it > 0f },
+    bitrate = bitrate.takeIf { it > 0 },
+    channelCount = channelCount.takeIf { it > 0 },
+    sampleRate = sampleRate.takeIf { it > 0 },
+    colorTransfer = colorInfo?.colorTransfer?.takeIf { it != C.COLOR_TRANSFER_SDR },
+    selectionFlags = selectionFlags.takeIf { it != 0 },
+    roleFlags = roleFlags.takeIf { it != 0 },
+    support = support,
+    decoderReuseResult = reuseEvaluation?.result?.decoderReuseResultName(),
+    decoderDiscardReasons = reuseEvaluation?.discardReasons?.takeIf { it != 0 }
+)
 
-private fun Format.formatDetails(trackType: String?): Map<String, String> =
-    details(
-        "trackType" to trackType,
-        "mime" to sampleMimeType,
-        "container" to containerMimeType,
-        "codecs" to codecs,
-        "id" to id,
-        "label" to label,
-        "language" to language,
-        "size" to if (width > 0 && height > 0) "${width}x$height" else null,
-        "frameRate" to frameRate.takeIf { it > 0f }?.toString(),
-        "bitrate" to bitrate.takeIf { it > 0 }?.toString(),
-        "channels" to channelCount.takeIf { it > 0 }?.toString(),
-        "sampleRate" to sampleRate.takeIf { it > 0 }?.toString()
-    )
+private fun Format.formatDetails(trackType: String?): Map<String, String> = details(
+    "trackType" to trackType,
+    "mime" to sampleMimeType,
+    "container" to containerMimeType,
+    "codecs" to codecs,
+    "id" to id,
+    "label" to label,
+    "language" to language,
+    "size" to if (width > 0 && height > 0) "${width}x$height" else null,
+    "frameRate" to frameRate.takeIf { it > 0f }?.toString(),
+    "bitrate" to bitrate.takeIf { it > 0 }?.toString(),
+    "channels" to channelCount.takeIf { it > 0 }?.toString(),
+    "sampleRate" to sampleRate.takeIf { it > 0 }?.toString()
+)
 
-private fun loadDetails(load: PlaybackIssuePlaybackLoadInput?): Map<String, String> =
-    details(
-        "host" to load?.host,
-        "dataType" to load?.dataType,
-        "trackType" to load?.trackType,
-        "method" to load?.httpMethod,
-        "position" to load?.position?.toString(),
-        "length" to load?.length?.toString(),
-        "bytesLoaded" to load?.bytesLoaded?.toString(),
-        "durationMs" to load?.durationMs?.toString()
-    )
+private fun loadDetails(load: PlaybackIssuePlaybackLoadInput?): Map<String, String> = details(
+    "host" to load?.host,
+    "dataType" to load?.dataType,
+    "trackType" to load?.trackType,
+    "method" to load?.httpMethod,
+    "position" to load?.position?.toString(),
+    "length" to load?.length?.toString(),
+    "bytesLoaded" to load?.bytesLoaded?.toString(),
+    "durationMs" to load?.durationMs?.toString()
+)
 
 private fun Throwable.findHttpStatus(): Int? {
     var current: Throwable? = this
@@ -987,8 +1000,7 @@ private fun Throwable.findHttpStatus(): Int? {
     return null
 }
 
-private fun Long?.safeTimeMs(): Long? =
-    this?.takeIf { it != C.TIME_UNSET && it >= 0L }
+private fun Long?.safeTimeMs(): Long? = this?.takeIf { it != C.TIME_UNSET && it >= 0L }
 
 internal fun safeBufferedPercentage(bufferedPositionMs: Long, durationMs: Long): Int? {
     if (durationMs == 0L) return 100
@@ -1004,52 +1016,47 @@ private fun AnalyticsListener.EventTime.bufferedPositionMs(): Long? {
     return (position + totalBufferedDurationMs.coerceAtLeast(0L)).coerceAtLeast(position)
 }
 
-private fun Int.playbackStateName(): String =
-    when (this) {
-        Player.STATE_IDLE -> "IDLE"
-        Player.STATE_BUFFERING -> "BUFFERING"
-        Player.STATE_READY -> "READY"
-        Player.STATE_ENDED -> "ENDED"
-        else -> "UNKNOWN"
-    }
+private fun Int.playbackStateName(): String = when (this) {
+    Player.STATE_IDLE -> "IDLE"
+    Player.STATE_BUFFERING -> "BUFFERING"
+    Player.STATE_READY -> "READY"
+    Player.STATE_ENDED -> "ENDED"
+    else -> "UNKNOWN"
+}
 
-private fun Int.trackTypeName(): String =
-    when (this) {
-        C.TRACK_TYPE_AUDIO -> "audio"
-        C.TRACK_TYPE_VIDEO -> "video"
-        C.TRACK_TYPE_TEXT -> "text"
-        C.TRACK_TYPE_IMAGE -> "image"
-        C.TRACK_TYPE_METADATA -> "metadata"
-        C.TRACK_TYPE_CAMERA_MOTION -> "camera_motion"
-        C.TRACK_TYPE_NONE -> "none"
-        C.TRACK_TYPE_DEFAULT -> "default"
-        C.TRACK_TYPE_UNKNOWN -> "unknown"
-        else -> "custom_$this"
-    }
+private fun Int.trackTypeName(): String = when (this) {
+    C.TRACK_TYPE_AUDIO -> "audio"
+    C.TRACK_TYPE_VIDEO -> "video"
+    C.TRACK_TYPE_TEXT -> "text"
+    C.TRACK_TYPE_IMAGE -> "image"
+    C.TRACK_TYPE_METADATA -> "metadata"
+    C.TRACK_TYPE_CAMERA_MOTION -> "camera_motion"
+    C.TRACK_TYPE_NONE -> "none"
+    C.TRACK_TYPE_DEFAULT -> "default"
+    C.TRACK_TYPE_UNKNOWN -> "unknown"
+    else -> "custom_$this"
+}
 
-private fun Int.dataTypeName(): String =
-    when (this) {
-        C.DATA_TYPE_MEDIA -> "media"
-        C.DATA_TYPE_MEDIA_INITIALIZATION -> "media_initialization"
-        C.DATA_TYPE_DRM -> "drm"
-        C.DATA_TYPE_MANIFEST -> "manifest"
-        C.DATA_TYPE_TIME_SYNCHRONIZATION -> "time_synchronization"
-        C.DATA_TYPE_AD -> "ad"
-        C.DATA_TYPE_MEDIA_PROGRESSIVE_LIVE -> "media_progressive_live"
-        C.DATA_TYPE_UNKNOWN -> "unknown"
-        else -> "custom_$this"
-    }
+private fun Int.dataTypeName(): String = when (this) {
+    C.DATA_TYPE_MEDIA -> "media"
+    C.DATA_TYPE_MEDIA_INITIALIZATION -> "media_initialization"
+    C.DATA_TYPE_DRM -> "drm"
+    C.DATA_TYPE_MANIFEST -> "manifest"
+    C.DATA_TYPE_TIME_SYNCHRONIZATION -> "time_synchronization"
+    C.DATA_TYPE_AD -> "ad"
+    C.DATA_TYPE_MEDIA_PROGRESSIVE_LIVE -> "media_progressive_live"
+    C.DATA_TYPE_UNKNOWN -> "unknown"
+    else -> "custom_$this"
+}
 
-private fun Int.decoderReuseResultName(): String =
-    when (this) {
-        DecoderReuseEvaluation.REUSE_RESULT_NO -> "no"
-        DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_FLUSH -> "yes_with_flush"
-        DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_RECONFIGURATION -> "yes_with_reconfiguration"
-        DecoderReuseEvaluation.REUSE_RESULT_YES_WITHOUT_RECONFIGURATION -> "yes_without_reconfiguration"
-        else -> "unknown_$this"
-    }
+private fun Int.decoderReuseResultName(): String = when (this) {
+    DecoderReuseEvaluation.REUSE_RESULT_NO -> "no"
+    DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_FLUSH -> "yes_with_flush"
+    DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_RECONFIGURATION -> "yes_with_reconfiguration"
+    DecoderReuseEvaluation.REUSE_RESULT_YES_WITHOUT_RECONFIGURATION -> "yes_without_reconfiguration"
+    else -> "unknown_$this"
+}
 
-private fun details(vararg pairs: Pair<String, String?>): Map<String, String> =
-    pairs.mapNotNull { (key, value) ->
-        value?.takeIf { it.isNotBlank() }?.let { key to it }
-    }.toMap()
+private fun details(vararg pairs: Pair<String, String?>): Map<String, String> = pairs.mapNotNull { (key, value) ->
+    value?.takeIf { it.isNotBlank() }?.let { key to it }
+}.toMap()

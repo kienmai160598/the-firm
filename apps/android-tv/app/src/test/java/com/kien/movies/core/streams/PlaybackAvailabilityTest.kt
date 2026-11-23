@@ -17,7 +17,9 @@ class PlaybackAvailabilityTest {
     @Test
     fun `no sources or metadata-only addons cannot play`() {
         assertFalse(PlaybackAvailability().canStream("movie", "tt123"))
-        val metaAddon = addon().copy(resources = listOf(AddonResource("meta", listOf("movie"), null)))
+        val metaAddon = addon().copy(
+            resources = listOf(AddonResource("meta", listOf("movie"), null))
+        )
         assertFalse(PlaybackAvailability(addons = listOf(metaAddon)).canStream("movie", "tt123"))
     }
 
@@ -27,7 +29,11 @@ class PlaybackAvailabilityTest {
         assertTrue(available.canStream("movie", "tt123"))
         assertFalse(available.canStream("series", "tt123:1:1"))
         assertFalse(available.canStream("movie", "tmdb:123"))
-        assertFalse(available.copy(addons = listOf(addon().copy(enabled = false))).canStream("movie", "tt123"))
+        assertFalse(
+            available.copy(
+                addons = listOf(addon().copy(enabled = false))
+            ).canStream("movie", "tt123")
+        )
     }
 
     @Test
@@ -36,7 +42,9 @@ class PlaybackAvailabilityTest {
         assertTrue(configured.supportsStreamResource("movie", "tt123"))
         assertFalse(configured.supportsStreamResource("movie", "tmdb:123"))
         for (prefixes in listOf<List<String>?>(null, emptyList())) {
-            val fallback = configured.copy(resources = listOf(AddonResource("stream", emptyList(), prefixes)))
+            val fallback = configured.copy(
+                resources = listOf(AddonResource("stream", emptyList(), prefixes))
+            )
             assertTrue(fallback.supportsStreamResource("series", "tmdb:123:1:1"))
             assertFalse(fallback.supportsStreamResource("movie", "tt123"))
         }
@@ -44,8 +52,12 @@ class PlaybackAvailabilityTest {
 
     @Test
     fun `unrestricted stream resources support custom content types`() {
-        val unrestricted = addon().copy(resources = listOf(AddonResource("stream", emptyList(), null)))
-        assertTrue(PlaybackAvailability(addons = listOf(unrestricted)).canStream("channel", "channel:1"))
+        val unrestricted = addon().copy(
+            resources = listOf(AddonResource("stream", emptyList(), null))
+        )
+        assertTrue(
+            PlaybackAvailability(addons = listOf(unrestricted)).canStream("channel", "channel:1")
+        )
     }
 
     @Test
@@ -56,7 +68,11 @@ class PlaybackAvailabilityTest {
             assertTrue(available.canStream("series", "tt123:1:1"))
             assertTrue(available.canStream("other", "channel:1"))
             assertFalse(available.canStream("movie", "tt123"))
-            assertFalse(available.copy(scrapers = listOf(scraper.copy(enabled = false))).canStream("series", "tt123:1:1"))
+            assertFalse(
+                available.copy(
+                    scrapers = listOf(scraper.copy(enabled = false))
+                ).canStream("series", "tt123:1:1")
+            )
         }
     }
 
@@ -66,7 +82,9 @@ class PlaybackAvailabilityTest {
         val available = PlaybackAvailability()
         assertTrue(available.canStream("other", video.id, video = video))
         assertFalse(available.canStream("other", "different-video", video = video))
-        assertFalse(available.canStream("other", video.id, video = video.copy(streams = emptyList())))
+        assertFalse(
+            available.canStream("other", video.id, video = video.copy(streams = emptyList()))
+        )
     }
 
     @Test
@@ -95,7 +113,13 @@ class PlaybackAvailabilityTest {
     )
 
     private fun video() = Video(
-        id = "embedded-video", title = "Video", released = null, thumbnail = null,
-        streams = listOf(mockk<Stream>()), season = null, episode = null, overview = null
+        id = "embedded-video",
+        title = "Video",
+        released = null,
+        thumbnail = null,
+        streams = listOf(mockk<Stream>()),
+        season = null,
+        episode = null,
+        overview = null
     )
 }

@@ -13,15 +13,20 @@ import org.junit.Test
 class HdrVideoFormatDetectionTest {
 
     // VPS/SPS/PPS (Annex B) of two HEVC encodes: 1080p Main10 signalling PQ, 320x180 Main signalling BT.709.
-    private val pqParameterSets = hex("0000000140010c01ffff02200000030090000003000003007895940900000001420101022000000300900000030000030078a003c0801107cad965654a4c2f016a12201208000003000800000300c040000000014401c073c189")
-    private val sdrParameterSets = hex("0000000140010c01ffff01600000030090000003000003003c9594090000000142010101600000030090000003000003003ca00a080c1f3e595952930bc05a808080820000030002000003003010000000014401c073c189")
+    private val pqParameterSets =
+        hex(
+            "0000000140010c01ffff02200000030090000003000003007895940900000001420101022000000300900000030000030078a003c0801107cad965654a4c2f016a12201208000003000800000300c040000000014401c073c189"
+        )
+    private val sdrParameterSets =
+        hex(
+            "0000000140010c01ffff01600000030090000003000003003c9594090000000142010101600000030090000003000003003ca00a080c1f3e595952930bc05a808080820000030002000003003010000000014401c073c189"
+        )
 
-    private fun hevc(initializationData: ByteArray?, colorInfo: ColorInfo? = null): Format =
-        Format.Builder()
-            .setSampleMimeType(MimeTypes.VIDEO_H265)
-            .setInitializationData(listOfNotNull(initializationData))
-            .setColorInfo(colorInfo)
-            .build()
+    private fun hevc(initializationData: ByteArray?, colorInfo: ColorInfo? = null): Format = Format.Builder()
+        .setSampleMimeType(MimeTypes.VIDEO_H265)
+        .setInitializationData(listOfNotNull(initializationData))
+        .setColorInfo(colorInfo)
+        .build()
 
     @Test
     fun `hevc without container colour info is detected as hdr from the sps`() {
@@ -49,6 +54,5 @@ class HdrVideoFormatDetectionTest {
         assertFalse(hevc(byteArrayOf(0, 0, 1, 0x42, 1, 1)).isHdrVideoFormat())
     }
 
-    private fun hex(value: String): ByteArray =
-        ByteArray(value.length / 2) { value.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
+    private fun hex(value: String): ByteArray = ByteArray(value.length / 2) { value.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
 }

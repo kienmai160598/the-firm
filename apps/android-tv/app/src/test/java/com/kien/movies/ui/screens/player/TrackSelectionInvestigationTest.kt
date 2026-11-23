@@ -1,37 +1,37 @@
 package com.kien.movies.ui.screens.player
 
+import android.content.Context
+import android.media.MediaCodecInfo.CodecCapabilities
+import android.media.MediaCodecInfo.CodecProfileLevel
+import android.media.MediaCodecInfo.VideoCapabilities
+import android.os.SystemClock
+import android.text.TextUtils
 import androidx.media3.common.C
 import androidx.media3.common.Format
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.TrackGroup
-import androidx.media3.exoplayer.trackselection.AdaptiveTrackSelection
-import androidx.media3.exoplayer.upstream.BandwidthMeter
-import androidx.media3.exoplayer.source.chunk.MediaChunk
-import android.text.TextUtils
-import android.os.SystemClock
-import android.content.Context
-import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
-import androidx.media3.exoplayer.video.MediaCodecVideoRenderer
+import androidx.media3.common.Tracks
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.RendererCapabilities
+import androidx.media3.exoplayer.RendererConfiguration
+import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
+import androidx.media3.exoplayer.source.TrackGroupArray
+import androidx.media3.exoplayer.source.chunk.MediaChunk
+import androidx.media3.exoplayer.trackselection.AdaptiveTrackSelection
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.exoplayer.trackselection.ExoTrackSelection
+import androidx.media3.exoplayer.trackselection.MappingTrackSelector.MappedTrackInfo
+import androidx.media3.exoplayer.upstream.BandwidthMeter
+import androidx.media3.exoplayer.video.MediaCodecVideoRenderer
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.spyk
-import android.media.MediaCodecInfo.CodecProfileLevel
-import android.media.MediaCodecInfo.CodecCapabilities
-import android.media.MediaCodecInfo.VideoCapabilities
-import androidx.media3.exoplayer.trackselection.MappingTrackSelector.MappedTrackInfo
-import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
-import androidx.media3.exoplayer.trackselection.ExoTrackSelection
-import androidx.media3.exoplayer.RendererConfiguration
-import androidx.media3.exoplayer.source.TrackGroupArray
-import androidx.media3.common.MimeTypes
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.net.URL
-import java.net.HttpURLConnection
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.common.Tracks
-import kotlinx.coroutines.flow.MutableStateFlow
 
 class TrackSelectionInvestigationTest {
 
@@ -104,19 +104,26 @@ class TrackSelectionInvestigationTest {
 
             // Update selected track (simulating playback update at start)
             adaptiveSelection.updateSelectedTrack(
-                /* playbackPositionUs= */ 0,
-                /* bufferedDurationUs= */ 0,
-                /* playlistTimelineEngineDelayUs= */ C.TIME_UNSET,
-                /* queue= */ emptyList(),
-                /* mediaChunkIterators= */ emptyArray()
+                /* playbackPositionUs= */
+                0,
+                /* bufferedDurationUs= */
+                0,
+                /* playlistTimelineEngineDelayUs= */
+                C.TIME_UNSET,
+                /* queue= */
+                emptyList(),
+                /* mediaChunkIterators= */
+                emptyArray()
             )
 
             val selectedIndex = adaptiveSelection.selectedIndex
             val selectedFormat = adaptiveSelection.getFormat(selectedIndex)
-            
+
             println("--- Bandwidth: ${bandwidth / 1000} kbps ($description) ---")
             println("Effective Bandwidth (0.7x): ${(bandwidth * 0.7) / 1000} kbps")
-            println("Selected Quality: ${selectedFormat.height}p (Bitrate: ${selectedFormat.bitrate / 1000} kbps, Index: $selectedIndex)")
+            println(
+                "Selected Quality: ${selectedFormat.height}p (Bitrate: ${selectedFormat.bitrate / 1000} kbps, Index: $selectedIndex)"
+            )
         }
     }
 
@@ -131,12 +138,24 @@ class TrackSelectionInvestigationTest {
         mockkStatic(SystemClock::class)
         every { SystemClock.elapsedRealtime() } returns 1000L
 
-        val format1080p = Format.Builder().setId("1").setSampleMimeType("video/avc").setCodecs("avc1.640028").setPeakBitrate(4500000).setWidth(1920).setHeight(1080).build()
-        val format720p = Format.Builder().setId("2").setSampleMimeType("video/avc").setCodecs("avc1.640028").setPeakBitrate(2150000).setWidth(1280).setHeight(720).build()
-        val format480p = Format.Builder().setId("3").setSampleMimeType("video/avc").setCodecs("avc1.640028").setPeakBitrate(1200000).setWidth(854).setHeight(480).build()
+        val format1080p = Format.Builder().setId(
+            "1"
+        ).setSampleMimeType(
+            "video/avc"
+        ).setCodecs("avc1.640028").setPeakBitrate(4500000).setWidth(1920).setHeight(1080).build()
+        val format720p = Format.Builder().setId(
+            "2"
+        ).setSampleMimeType(
+            "video/avc"
+        ).setCodecs("avc1.640028").setPeakBitrate(2150000).setWidth(1280).setHeight(720).build()
+        val format480p = Format.Builder().setId(
+            "3"
+        ).setSampleMimeType(
+            "video/avc"
+        ).setCodecs("avc1.640028").setPeakBitrate(1200000).setWidth(854).setHeight(480).build()
 
         val trackGroup = TrackGroup(format1080p, format720p, format480p)
-        
+
         // Simulating that the device only supports 480p (Index 2) as H.264 High Profile @ Level 4.0
         // is unsupported for higher resolutions on this TV device.
         val supportedTracks = intArrayOf(2) // Only 480p index
@@ -159,8 +178,10 @@ class TrackSelectionInvestigationTest {
         println("--- Decoder capability constraint test ---")
         println("Raw Bandwidth: 25 Mbps")
         println("Supported tracks: Only 480p")
-        println("Selected Quality: ${selectedFormat.height}p (Bitrate: ${selectedFormat.bitrate / 1000} kbps)")
-        
+        println(
+            "Selected Quality: ${selectedFormat.height}p (Bitrate: ${selectedFormat.bitrate / 1000} kbps)"
+        )
+
         assertEquals(480, selectedFormat.height)
     }
 
@@ -175,9 +196,21 @@ class TrackSelectionInvestigationTest {
         mockkStatic(SystemClock::class)
         every { SystemClock.elapsedRealtime() } returns 1000L
 
-        val format1080p = Format.Builder().setId("1").setSampleMimeType("video/avc").setCodecs("avc1.640028").setPeakBitrate(4500000).setWidth(1920).setHeight(1080).build()
-        val format720p = Format.Builder().setId("2").setSampleMimeType("video/avc").setCodecs("avc1.640028").setPeakBitrate(2150000).setWidth(1280).setHeight(720).build()
-        val format480p = Format.Builder().setId("3").setSampleMimeType("video/avc").setCodecs("avc1.640028").setPeakBitrate(1200000).setWidth(854).setHeight(480).build()
+        val format1080p = Format.Builder().setId(
+            "1"
+        ).setSampleMimeType(
+            "video/avc"
+        ).setCodecs("avc1.640028").setPeakBitrate(4500000).setWidth(1920).setHeight(1080).build()
+        val format720p = Format.Builder().setId(
+            "2"
+        ).setSampleMimeType(
+            "video/avc"
+        ).setCodecs("avc1.640028").setPeakBitrate(2150000).setWidth(1280).setHeight(720).build()
+        val format480p = Format.Builder().setId(
+            "3"
+        ).setSampleMimeType(
+            "video/avc"
+        ).setCodecs("avc1.640028").setPeakBitrate(1200000).setWidth(854).setHeight(480).build()
 
         val trackGroup = TrackGroup(format1080p, format720p, format480p)
         val tracks = intArrayOf(0, 1, 2)
@@ -228,15 +261,22 @@ class TrackSelectionInvestigationTest {
 
             val selectedIndex = adaptiveSelection.selectedIndex
             val selectedFormat = adaptiveSelection.getFormat(selectedIndex)
-            
+
             val cautiousBandwidth = rawBandwidth * 0.7
             val availableTimeFactor = (4_000_000.0 - ttfbUs) / 4_000_000.0
-            val mathEffectiveBandwidth = if (availableTimeFactor > 0) cautiousBandwidth * availableTimeFactor else 0.0
+            val mathEffectiveBandwidth = if (availableTimeFactor >
+                0
+            ) {
+                cautiousBandwidth * availableTimeFactor
+            } else {
+                0.0
+            }
 
-            println("TTFB: ${ttfbUs / 1000} ms ($description) -> Effective Bandwidth: ${(mathEffectiveBandwidth / 1000).toInt()} kbps -> Selected: ${selectedFormat.height}p")
+            println(
+                "TTFB: ${ttfbUs / 1000} ms ($description) -> Effective Bandwidth: ${(mathEffectiveBandwidth / 1000).toInt()} kbps -> Selected: ${selectedFormat.height}p"
+            )
         }
     }
-
 
     @Test
     fun testExoPlayerCodecCapabilitiesEvaluation() {
@@ -275,29 +315,58 @@ class TrackSelectionInvestigationTest {
 
         // Statically mock MediaCodecUtil to return simulated profile/level pairs, bypassing android.util.Pair JVM stub limitations
         mockkStatic(androidx.media3.exoplayer.mediacodec.MediaCodecUtil::class)
-        every { androidx.media3.exoplayer.mediacodec.MediaCodecUtil.getCodecProfileAndLevel(any()) } answers {
-            val format = firstArg<Format>()
-            val codecs = format.codecs ?: ""
-            val profileLevel = when {
-                codecs.contains("640028") -> 100 to 40  // High Profile @ Level 4.0
-                codecs.contains("64002a") -> 100 to 42  // High Profile @ Level 4.2
-                codecs.contains("4d401f") -> 77 to 31   // Main Profile @ Level 3.1
-                else -> null
+        every {
+            androidx.media3.exoplayer.mediacodec.MediaCodecUtil.getCodecProfileAndLevel(any())
+        } answers
+            {
+                val format = firstArg<Format>()
+                val codecs = format.codecs ?: ""
+                val profileLevel = when {
+                    codecs.contains("640028") -> 100 to 40
+
+                    // High Profile @ Level 4.0
+                    codecs.contains("64002a") -> 100 to 42
+
+                    // High Profile @ Level 4.2
+                    codecs.contains("4d401f") -> 77 to 31
+
+                    // Main Profile @ Level 3.1
+                    else -> null
+                }
+                if (profileLevel != null) {
+                    createAndroidPair(profileLevel.first, profileLevel.second)
+                } else {
+                    null
+                }
             }
-            if (profileLevel != null) {
-                createAndroidPair(profileLevel.first, profileLevel.second)
-            } else {
-                null
-            }
-        }
 
         // Create formats representing the streams we want to check
         val formats = listOf(
-            Format.Builder().setId("1080p").setSampleMimeType("video/avc").setCodecs("avc1.640028").setWidth(1920).setHeight(1080).build(), // High Profile @ L4.0 (avc1.640028)
-            Format.Builder().setId("720p").setSampleMimeType("video/avc").setCodecs("avc1.640028").setWidth(1280).setHeight(720).build(),   // High Profile @ L4.0 (avc1.640028)
-            Format.Builder().setId("480p").setSampleMimeType("video/avc").setCodecs("avc1.640028").setWidth(854).setHeight(480).build(),   // High Profile @ L4.0 (avc1.640028)
-            Format.Builder().setId("1080p_L4.2").setSampleMimeType("video/avc").setCodecs("avc1.64002a").setWidth(1920).setHeight(1080).build(), // High Profile @ L4.2 (avc1.64002a)
-            Format.Builder().setId("1080p_Main_L3.1").setSampleMimeType("video/avc").setCodecs("avc1.4d401f").setWidth(1920).setHeight(1080).build() // Main Profile @ L3.1 (avc1.4d401f)
+            Format.Builder().setId(
+                "1080p"
+            ).setSampleMimeType(
+                "video/avc"
+            ).setCodecs("avc1.640028").setWidth(1920).setHeight(1080).build(), // High Profile @ L4.0 (avc1.640028)
+            Format.Builder().setId(
+                "720p"
+            ).setSampleMimeType(
+                "video/avc"
+            ).setCodecs("avc1.640028").setWidth(1280).setHeight(720).build(), // High Profile @ L4.0 (avc1.640028)
+            Format.Builder().setId(
+                "480p"
+            ).setSampleMimeType(
+                "video/avc"
+            ).setCodecs("avc1.640028").setWidth(854).setHeight(480).build(), // High Profile @ L4.0 (avc1.640028)
+            Format.Builder().setId(
+                "1080p_L4.2"
+            ).setSampleMimeType(
+                "video/avc"
+            ).setCodecs("avc1.64002a").setWidth(1920).setHeight(1080).build(), // High Profile @ L4.2 (avc1.64002a)
+            Format.Builder().setId(
+                "1080p_Main_L3.1"
+            ).setSampleMimeType(
+                "video/avc"
+            ).setCodecs("avc1.4d401f").setWidth(1920).setHeight(1080).build() // Main Profile @ L3.1 (avc1.4d401f)
         )
 
         // Define simulated decoder capability profiles:
@@ -311,7 +380,7 @@ class TrackSelectionInvestigationTest {
 
         for ((decoderName, profileLevels) in testDecoderCapabilities) {
             println("\n--- Testing with simulated decoder: $decoderName ---")
-            
+
             // Map the profile-level pairs to mock CodecProfileLevel objects using MediaCodecUtil helper
             val mockProfileLevels = profileLevels.map { (p, l) ->
                 androidx.media3.exoplayer.mediacodec.MediaCodecUtil.createCodecProfileLevel(p, l)
@@ -326,35 +395,48 @@ class TrackSelectionInvestigationTest {
 
             val capabilities = mockk<CodecCapabilities>(relaxed = true)
             every { capabilities.getVideoCapabilities() } returns videoCaps
-            
+
             // Set the profileLevels field of CodecCapabilities using reflection
             val field = CodecCapabilities::class.java.getField("profileLevels")
             field.set(capabilities, mockProfileLevels)
 
             // Instantiate a real Media3 MediaCodecInfo (not spyk)
             val codecInfo = androidx.media3.exoplayer.mediacodec.MediaCodecInfo.newInstance(
-                /* name= */ "test-h264-decoder",
-                /* mimeType= */ "video/avc",
-                /* codecMimeType= */ "video/avc",
-                /* capabilities= */ capabilities,
-                /* hardwareAccelerated= */ true,
-                /* softwareOnly= */ false,
-                /* vendor= */ true,
-                /* forceDisableAdaptive= */ false,
-                /* forceSecure= */ false
+                /* name= */
+                "test-h264-decoder",
+                /* mimeType= */
+                "video/avc",
+                /* codecMimeType= */
+                "video/avc",
+                /* capabilities= */
+                capabilities,
+                /* hardwareAccelerated= */
+                true,
+                /* softwareOnly= */
+                false,
+                /* vendor= */
+                true,
+                /* forceDisableAdaptive= */
+                false,
+                /* forceSecure= */
+                false
             )
 
             for (format in formats) {
                 println("Evaluating format: ${format.id}, codecs: ${format.codecs}")
-                
+
                 try {
                     // Check format support using ExoPlayer's capability check logic
                     val isSupported = codecInfo.isFormatSupported(format)
                     val isFunctionallySupported = codecInfo.isFormatFunctionallySupported(format)
-                    
+
                     println("Format ${format.id} (Size: ${format.width}x${format.height}):")
-                    println("  - isFormatSupported (checkPerformanceCapabilities = true): $isSupported")
-                    println("  - isFormatFunctionallySupported (checkPerformanceCapabilities = false): $isFunctionallySupported")
+                    println(
+                        "  - isFormatSupported (checkPerformanceCapabilities = true): $isSupported"
+                    )
+                    println(
+                        "  - isFormatFunctionallySupported (checkPerformanceCapabilities = false): $isFunctionallySupported"
+                    )
                 } catch (e: Exception) {
                     println("  - capability check failed: ${e.message}")
                     e.printStackTrace()
@@ -387,7 +469,7 @@ class TrackSelectionInvestigationTest {
         val mappedTrackInfo = mockk<MappedTrackInfo>()
         every { mappedTrackInfo.rendererCount } returns 1
         every { mappedTrackInfo.getRendererType(0) } returns C.TRACK_TYPE_VIDEO
-        
+
         val trackGroupAvc = TrackGroup(format1080pAvc8Bit)
         val trackGroupHevc10 = TrackGroup(format1080pHevc10Bit)
         val trackGroups = TrackGroupArray(trackGroupAvc, trackGroupHevc10)
@@ -404,7 +486,7 @@ class TrackSelectionInvestigationTest {
 
         val context = mockk<Context>(relaxed = true)
         val adaptiveTrackSelectionFactory = mockk<AdaptiveTrackSelection.Factory>(relaxed = true)
-        
+
         val isHls = true
         val selector = object : DefaultTrackSelector(context, adaptiveTrackSelectionFactory) {
             public override fun selectAllTracks(
@@ -419,38 +501,57 @@ class TrackSelectionInvestigationTest {
                             val trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex)
                             for (groupIndex in 0 until trackGroups.length) {
                                 val group = trackGroups[groupIndex]
-                                  for (trackIndex in 0 until group.length) {
-                                      val format = group.getFormat(trackIndex)
-                                      val support = rendererFormatSupports[rendererIndex][groupIndex][trackIndex]
-                                      val formatSupport = RendererCapabilities.getFormatSupport(support)
-                                      if (formatSupport == C.FORMAT_EXCEEDS_CAPABILITIES) {
-                                          val mime = format.sampleMimeType
-                                          val isAvcOrHevc = mime == MimeTypes.VIDEO_H264 || mime == MimeTypes.VIDEO_H265
-                                          val isAtMost1080p = format.width <= 1920 && format.height <= 1080
-                                          val codecs = format.codecs?.lowercase() ?: ""
-                                          val is10Bit = codecs.contains("main10") || codecs.contains("hevc.2") || codecs.contains("hev2")
-                                          val isHdr = format.colorInfo?.colorTransfer == C.COLOR_TRANSFER_ST2084
-                                          val isStandard8Bit = !is10Bit && !isHdr
+                                for (trackIndex in 0 until group.length) {
+                                    val format = group.getFormat(trackIndex)
+                                    val support = rendererFormatSupports[rendererIndex][groupIndex][trackIndex]
+                                    val formatSupport = RendererCapabilities.getFormatSupport(
+                                        support
+                                    )
+                                    if (formatSupport == C.FORMAT_EXCEEDS_CAPABILITIES) {
+                                        val mime = format.sampleMimeType
+                                        val isAvcOrHevc =
+                                            mime == MimeTypes.VIDEO_H264 ||
+                                                mime == MimeTypes.VIDEO_H265
+                                        val isAtMost1080p =
+                                            format.width <= 1920 && format.height <= 1080
+                                        val codecs = format.codecs?.lowercase() ?: ""
+                                        val is10Bit =
+                                            codecs.contains(
+                                                "main10"
+                                            ) || codecs.contains("hevc.2") ||
+                                                codecs.contains("hev2")
+                                        val isHdr =
+                                            format.colorInfo?.colorTransfer ==
+                                                C.COLOR_TRANSFER_ST2084
+                                        val isStandard8Bit = !is10Bit && !isHdr
 
-                                          if (isAvcOrHevc && isAtMost1080p && isStandard8Bit) {
-                                              rendererFormatSupports[rendererIndex][groupIndex][trackIndex] =
-                                                  RendererCapabilities.create(
-                                                      C.FORMAT_HANDLED,
-                                                      RendererCapabilities.getAdaptiveSupport(support),
-                                                      RendererCapabilities.getTunnelingSupport(support),
-                                                      RendererCapabilities.getHardwareAccelerationSupport(support),
-                                                      RendererCapabilities.getDecoderSupport(support)
-                                                  )
-                                          }
-                                      }
-                                  }
-                              }
-                          }
-                      }
-                  }
-                  return arrayOfNulls(mappedTrackInfo.rendererCount)
-              }
-          }
+                                        if (isAvcOrHevc && isAtMost1080p && isStandard8Bit) {
+                                            rendererFormatSupports[rendererIndex][groupIndex][trackIndex] =
+                                                RendererCapabilities.create(
+                                                    C.FORMAT_HANDLED,
+                                                    RendererCapabilities.getAdaptiveSupport(
+                                                        support
+                                                    ),
+                                                    RendererCapabilities.getTunnelingSupport(
+                                                        support
+                                                    ),
+                                                    RendererCapabilities.getHardwareAccelerationSupport(
+                                                        support
+                                                    ),
+                                                    RendererCapabilities.getDecoderSupport(
+                                                        support
+                                                    )
+                                                )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                return arrayOfNulls(mappedTrackInfo.rendererCount)
+            }
+        }
 
         selector.selectAllTracks(
             mappedTrackInfo,
@@ -462,7 +563,9 @@ class TrackSelectionInvestigationTest {
         val finalSupportAvc = RendererCapabilities.getFormatSupport(rendererFormatSupports[0][0][0])
         assertEquals(C.FORMAT_HANDLED, finalSupportAvc)
 
-        val finalSupportHevc10 = RendererCapabilities.getFormatSupport(rendererFormatSupports[0][1][0])
+        val finalSupportHevc10 = RendererCapabilities.getFormatSupport(
+            rendererFormatSupports[0][1][0]
+        )
         assertEquals(C.FORMAT_EXCEEDS_CAPABILITIES, finalSupportHevc10)
     }
 
@@ -470,7 +573,7 @@ class TrackSelectionInvestigationTest {
     fun testBuildStreamInfoDataWithActiveVideoFormat() {
         val controller = mockk<PlayerRuntimeController>(relaxed = true)
         val mockExoPlayer = mockk<ExoPlayer>(relaxed = true)
-        
+
         // Active format is the cropped format returned by the decoder/player (1918x802)
         val activeFormat = Format.Builder()
             .setId("1")
@@ -493,18 +596,25 @@ class TrackSelectionInvestigationTest {
 
         // Construct real currentTracks structure using media3 class constructors
         val mediaTrackGroup = TrackGroup(manifestFormat)
-        val realGroup = Tracks.Group(mediaTrackGroup, false, intArrayOf(C.FORMAT_HANDLED), booleanArrayOf(true))
+        val realGroup = Tracks.Group(
+            mediaTrackGroup,
+            false,
+            intArrayOf(C.FORMAT_HANDLED),
+            booleanArrayOf(true)
+        )
         val mockTracks = Tracks(com.google.common.collect.ImmutableList.of(realGroup))
-        
+
         every { mockExoPlayer.videoFormat } returns activeFormat
         every { mockExoPlayer.currentTracks } returns mockTracks
         every { controller._exoPlayer } returns mockExoPlayer
 
         // Mock other controller properties
-        every { controller._uiState } returns MutableStateFlow(PlayerUiState(
-            currentStreamName = "Test Stream",
-            detectedFrameRate = 23.976f
-        ))
+        every { controller._uiState } returns MutableStateFlow(
+            PlayerUiState(
+                currentStreamName = "Test Stream",
+                detectedFrameRate = 23.976f
+            )
+        )
         every { controller.playbackTimeline } returns MutableStateFlow(PlaybackTimelineState())
         every { controller.currentAddonName } returns "Test Addon"
         every { controller.currentAddonLogo } returns "logo.png"
@@ -515,7 +625,8 @@ class TrackSelectionInvestigationTest {
         every { controller.currentVideoHeight } returns 1080
         every { controller.currentVideoBitrate } returns 4500000
         every { controller.currentVideoCodec } returns "HEVC"
-        every { controller.currentInternalPlayerEngine } returns com.kien.movies.data.local.InternalPlayerEngine.EXOPLAYER
+        every { controller.currentInternalPlayerEngine } returns
+            com.kien.movies.data.local.InternalPlayerEngine.EXOPLAYER
 
         val mockContext = mockk<Context>(relaxed = true)
         every { mockContext.getString(any()) } returns "mocked_string"

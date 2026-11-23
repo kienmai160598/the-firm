@@ -6,6 +6,8 @@ import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.data.local.CollectionsDataStore
 import com.kien.movies.data.remote.supabase.SupabaseCollectionBlob
 import io.github.jan.supabase.postgrest.Postgrest
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -17,8 +19,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "CollectionSyncService"
 
@@ -107,7 +107,10 @@ class CollectionSyncService @Inject constructor(
             // Preserve local if remote is empty but local has data
             val localCollections = collectionsDataStore.getCurrentCollections()
             if (remoteCollections.isEmpty() && localCollections.isNotEmpty()) {
-                Log.w(TAG, "Remote collections empty while local has ${localCollections.size}; preserving local")
+                Log.w(
+                    TAG,
+                    "Remote collections empty while local has ${localCollections.size}; preserving local"
+                )
                 return@withContext Result.success(false)
             }
 
@@ -125,7 +128,10 @@ class CollectionSyncService @Inject constructor(
                 isSyncingFromRemote = false
             }
 
-            Log.d(TAG, "Applied ${remoteCollections.size} remote collections for profile $profileId")
+            Log.d(
+                TAG,
+                "Applied ${remoteCollections.size} remote collections for profile $profileId"
+            )
             Result.success(true)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to pull collections from remote", e)

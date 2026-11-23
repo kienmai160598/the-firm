@@ -1,12 +1,5 @@
 package com.kien.movies.ui.screens.player
 
-import okhttp3.Dns
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import java.net.InetAddress
 import java.net.ServerSocket
 import java.security.KeyStore
@@ -16,6 +9,13 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
 import kotlin.concurrent.thread
+import okhttp3.Dns
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class SubtitleCredentialScopeTest {
 
@@ -78,7 +78,9 @@ class SubtitleCredentialScopeTest {
             explicitHeaders = null
         )
 
-        (streamHeaders - "Range").forEach { (name, value) -> assertEquals(name, value, request.header(name)) }
+        (streamHeaders - "Range").forEach { (name, value) ->
+            assertEquals(name, value, request.header(name))
+        }
         assertNull(request.header("Range"))
     }
 
@@ -92,7 +94,9 @@ class SubtitleCredentialScopeTest {
         )
 
         // Custom credential names are dropped too.
-        crossHostHeaders.forEach { (name, value) -> assertEquals(name, value, request.header(name)) }
+        crossHostHeaders.forEach { (name, value) ->
+            assertEquals(name, value, request.header(name))
+        }
         assertNull(request.header("Authorization"))
         assertNull(request.header("Cookie"))
         assertNull(request.header("X-Api-Key"))
@@ -126,12 +130,20 @@ class SubtitleCredentialScopeTest {
             "https://video.example.com/a.srt".toHttpUrl(),
             "https://video.example.com/v.mkv".toHttpUrl(),
             streamHeaders,
-            explicitHeaders = mapOf("x-api-key" to "subtitle-own", "Referer" to "https://subs.example/")
+            explicitHeaders = mapOf(
+                "x-api-key" to "subtitle-own",
+                "Referer" to "https://subs.example/"
+            )
         )
         // Subtitle header wins, even with different casing, and is tracked as the subtitle's.
         assertEquals("subtitle-own", request.header("X-Api-Key"))
         assertEquals(setOf("x-api-key"), request.tag(SubtitleOwnHeaders::class.java)?.names)
-        assertTrue(request.tag(ForwardedStreamHeaders::class.java)?.names.orEmpty().none { it.lowercase() == "x-api-key" })
+        assertTrue(
+            request.tag(ForwardedStreamHeaders::class.java)?.names.orEmpty().none {
+                it.lowercase() ==
+                    "x-api-key"
+            }
+        )
 
         // The TLS retry drops both sets, but keeps cross-host headers.
         val retry = request.withoutCredentialHeaders()
@@ -178,13 +190,17 @@ class SubtitleCredentialScopeTest {
         HeaderRecordingServer(tls).use { httpsServer ->
             HeaderRecordingServer().use { httpServer ->
                 val httpsBase = "https://127.0.0.1:${httpsServer.port}"
-                httpsServer.redirects["/redirect.srt"] = "http://127.0.0.1:${httpServer.port}/middle.srt"
+                httpsServer.redirects["/redirect.srt"] =
+                    "http://127.0.0.1:${httpServer.port}/middle.srt"
                 httpServer.redirects["/middle.srt"] = "$httpsBase/landed.srt"
                 val request = buildSubtitleRequest(
                     "$httpsBase/redirect.srt".toHttpUrl(),
                     "$httpsBase/v.mkv".toHttpUrl(),
                     streamHeaders,
-                    explicitHeaders = mapOf("X-Subtitle-Key" to "own", "Referer" to "https://subs.example/")
+                    explicitHeaders = mapOf(
+                        "X-Subtitle-Key" to "own",
+                        "Referer" to "https://subs.example/"
+                    )
                 )
                 // Real subtitle client, trusting the test certificate.
                 val client = subtitleHttpClient.newBuilder()
@@ -279,7 +295,9 @@ class SubtitleCredentialScopeTest {
                 .retryOnConnectionFailure(false)
                 .build()
 
-            executeSubtitleRequest(request, validated, permissive).use { assertEquals(200, it.code) }
+            executeSubtitleRequest(request, validated, permissive).use {
+                assertEquals(200, it.code)
+            }
 
             // Validated attempt, with credentials.
             val redirectHops = server.requestsTo("/redirect.srt")
@@ -309,12 +327,16 @@ class SubtitleCredentialScopeTest {
     private fun testTls(): TestTls {
         val password = "changeit".toCharArray()
         val resource = requireNotNull(
-            SubtitleCredentialScopeTest::class.java.getResourceAsStream("/subtitle-redirect-test.p12")
+            SubtitleCredentialScopeTest::class.java.getResourceAsStream(
+                "/subtitle-redirect-test.p12"
+            )
         ) { "subtitle-redirect-test.p12 missing from test resources" }
         val keyStore = KeyStore.getInstance("PKCS12").apply { resource.use { load(it, password) } }
         val keyManagers = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
             .apply { init(keyStore, password) }.keyManagers
-        val trustManager = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+        val trustManager = TrustManagerFactory.getInstance(
+            TrustManagerFactory.getDefaultAlgorithm()
+        )
             .apply { init(keyStore) }.trustManagers.filterIsInstance<X509TrustManager>().first()
         val serverContext = SSLContext.getInstance("TLS").apply { init(keyManagers, null, null) }
         return TestTls(serverContext, trustManager)
@@ -329,7 +351,9 @@ class SubtitleCredentialScopeTest {
             ?: ServerSocket(0, 16, InetAddress.getByName("127.0.0.1"))
         val port: Int = socket.localPort
         val redirects: MutableMap<String, String> = java.util.concurrent.ConcurrentHashMap()
-        private val requests: MutableList<RecordedRequest> = Collections.synchronizedList(mutableListOf())
+        private val requests: MutableList<RecordedRequest> = Collections.synchronizedList(
+            mutableListOf()
+        )
 
         private val acceptor = thread(isDaemon = true) {
             while (!socket.isClosed) {
@@ -341,7 +365,8 @@ class SubtitleCredentialScopeTest {
                         val headers = generateSequence { reader.readLine() }
                             .takeWhile { it.isNotEmpty() }
                             .associate { line ->
-                                line.substringBefore(':').trim().lowercase() to line.substringAfter(':').trim()
+                                line.substringBefore(':').trim().lowercase() to
+                                    line.substringAfter(':').trim()
                             }
                         requests.add(RecordedRequest(path, headers))
                         val location = redirects[path]
@@ -352,14 +377,16 @@ class SubtitleCredentialScopeTest {
                             "HTTP/1.1 200 OK\r\nContent-Type: application/x-subrip\r\n" +
                                 "Content-Length: ${body.length}\r\nConnection: close\r\n\r\n$body"
                         }
-                        connection.getOutputStream().apply { write(response.toByteArray()); flush() }
+                        connection.getOutputStream().apply {
+                            write(response.toByteArray())
+                            flush()
+                        }
                     }
                 }
             }
         }
 
-        fun requestsTo(path: String): List<Map<String, String>> =
-            synchronized(requests) { requests.filter { it.path == path }.map { it.headers } }
+        fun requestsTo(path: String): List<Map<String, String>> = synchronized(requests) { requests.filter { it.path == path }.map { it.headers } }
 
         /** Runs [check] on every request to [path]; at least one is required. */
         fun assertEvery(path: String, check: (Map<String, String>) -> Unit) {

@@ -7,6 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasSetTextAction
@@ -18,17 +20,15 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
-import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.kien.movies.R
 import com.kien.movies.data.remote.supabase.AvatarCatalogItem
 import com.kien.movies.domain.model.UserProfile
 import com.kien.movies.ui.theme.MoviesTheme
+import org.junit.Assert.assertNotEquals
 import org.junit.Rule
 import org.junit.Test
-import org.junit.Assert.assertNotEquals
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
@@ -81,7 +81,9 @@ class ProfileEditorFocusTest {
 
         val name = composeRule.onNode(hasSetTextAction())
         val avatar = composeRule.onNodeWithContentDescription("First avatar")
-        val settings = composeRule.onNodeWithText(context.getString(R.string.profile_copy_settings_create_fresh))
+        val settings = composeRule.onNodeWithText(
+            context.getString(R.string.profile_copy_settings_create_fresh)
+        )
         name.assertIsFocused().performKeyInput { pressKey(Key.DirectionRight) }
         avatar.assertIsFocused().performKeyInput { pressKey(Key.DirectionLeft) }
         name.assertIsFocused()
@@ -153,7 +155,9 @@ class ProfileEditorFocusTest {
         name.assertIsFocused().performKeyInput { pressKey(Key.DirectionRight) }
         composeRule.onNodeWithContentDescription(nextRowAvatar).assertIsFocused()
 
-        composeRule.onNodeWithText(context.getString(R.string.profile_avatar_category_movie)).performClick()
+        composeRule.onNodeWithText(
+            context.getString(R.string.profile_avatar_category_movie)
+        ).performClick()
         name.performSemanticsAction(SemanticsActions.RequestFocus) { it() }
             .performKeyInput { pressKey(Key.DirectionRight) }
         composeRule.onNodeWithContentDescription("Movie avatar")

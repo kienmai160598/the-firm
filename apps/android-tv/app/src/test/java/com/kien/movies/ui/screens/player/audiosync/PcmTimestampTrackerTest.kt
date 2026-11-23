@@ -51,7 +51,11 @@ class PcmTimestampTrackerTest {
         }
         assertEquals(2L, analyzer.starts)
         assertTrue(timeline.diagnostics().analysedSeconds > 11.5)
-        assertEquals(0, timeline.knownFramesIn(12_000, 12_500), "gap between scenes must stay unknown")
+        assertEquals(
+            0,
+            timeline.knownFramesIn(12_000, 12_500),
+            "gap between scenes must stay unknown"
+        )
     }
 
     @Test
@@ -59,13 +63,25 @@ class PcmTimestampTrackerTest {
         val timeline = SpeechTimeline()
         val analyzer = analyzer(timeline)
         var deliveredFrames = 0
-        val tap = PlaybackAudioTap(sink { buffer -> buffer.position(buffer.limit()); true }, object : PlaybackPcmListener {
-            override fun wantsPlaybackPcm(mediaTimeUs: Long, durationUs: Long) = timeline.needsAnalysis(mediaTimeUs, durationUs)
-            override fun onPlaybackPcm(mono: FloatArray, frames: Int, sampleRate: Int, mediaTimeUs: Long) {
-                deliveredFrames += frames
-                analyzer.accept(mono, frames, sampleRate, mediaTimeUs)
-            }
-        })
+        val tap =
+            PlaybackAudioTap(
+                sink { buffer ->
+                    buffer.position(buffer.limit())
+                    true
+                },
+                object : PlaybackPcmListener {
+                    override fun wantsPlaybackPcm(mediaTimeUs: Long, durationUs: Long) = timeline.needsAnalysis(mediaTimeUs, durationUs)
+                    override fun onPlaybackPcm(
+                        mono: FloatArray,
+                        frames: Int,
+                        sampleRate: Int,
+                        mediaTimeUs: Long
+                    ) {
+                        deliveredFrames += frames
+                        analyzer.accept(mono, frames, sampleRate, mediaTimeUs)
+                    }
+                }
+            )
         tap.configure(pcmFormat(), 0, null)
         // A codec may reuse the same ByteBuffer object for a new, fully consumed output buffer.
         val buffer = ByteBuffer.allocate(960 * 6 * 2)
@@ -82,22 +98,30 @@ class PcmTimestampTrackerTest {
     fun partiallyConsumedBufferIsNotAnalyzedTwiceButNextBufferWithSamePtsIs() {
         var calls = 0
         val times = mutableListOf<Long>()
-        val tap = PlaybackAudioTap(sink { buffer ->
-            calls++
-            if (calls % 2 == 1) {
-                buffer.position(buffer.position() + 12)
-                false
-            } else {
-                buffer.position(buffer.limit())
-                true
+        val tap = PlaybackAudioTap(
+            sink { buffer ->
+                calls++
+                if (calls % 2 == 1) {
+                    buffer.position(buffer.position() + 12)
+                    false
+                } else {
+                    buffer.position(buffer.limit())
+                    true
+                }
+            },
+            object : PlaybackPcmListener {
+                override fun wantsPlaybackPcm(mediaTimeUs: Long, durationUs: Long) = true
+                override fun onPlaybackPcm(
+                    mono: FloatArray,
+                    frames: Int,
+                    sampleRate: Int,
+                    mediaTimeUs: Long
+                ) {
+                    assertEquals(960, frames)
+                    times += mediaTimeUs
+                }
             }
-        }, object : PlaybackPcmListener {
-            override fun wantsPlaybackPcm(mediaTimeUs: Long, durationUs: Long) = true
-            override fun onPlaybackPcm(mono: FloatArray, frames: Int, sampleRate: Int, mediaTimeUs: Long) {
-                assertEquals(960, frames)
-                times += mediaTimeUs
-            }
-        })
+        )
         tap.configure(pcmFormat(), 0, null)
         val buffer = ByteBuffer.allocate(960 * 6 * 2)
         repeat(2) {
@@ -113,7 +137,9 @@ class PcmTimestampTrackerTest {
     }
 
     private fun analyzer(timeline: SpeechTimeline): SpeechAnalyzer {
-        val weights = File("src/main/res/raw/silero_vad_v5_16k.bin").inputStream().use(SileroVadWeights::read)
+        val weights = File(
+            "src/main/res/raw/silero_vad_v5_16k.bin"
+        ).inputStream().use(SileroVadWeights::read)
         return SpeechAnalyzer(SileroVad(weights), timeline)
     }
 
@@ -125,7 +151,8 @@ class PcmTimestampTrackerTest {
         .build()
 
     private fun sink(handle: (ByteBuffer) -> Boolean): AudioSink = Proxy.newProxyInstance(
-        AudioSink::class.java.classLoader, arrayOf(AudioSink::class.java),
+        AudioSink::class.java.classLoader,
+        arrayOf(AudioSink::class.java)
     ) { _, method, args ->
         if (method.name == "handleBuffer") handle(args!![0] as ByteBuffer) else null
     } as AudioSink

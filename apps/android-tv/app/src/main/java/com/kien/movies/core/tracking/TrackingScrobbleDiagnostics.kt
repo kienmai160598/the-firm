@@ -9,5 +9,4 @@ internal fun TrackingMediaReference.scrobbleDiagnosticIdentity(): String {
     return "media=$stableKey kind=$kind $episodeIdentity"
 }
 
-internal fun TrackingScrobbleEvent.scrobbleDiagnosticSummary(): String =
-    "${media.scrobbleDiagnosticIdentity()} progress=$progressPercent"
+internal fun TrackingScrobbleEvent.scrobbleDiagnosticSummary(): String = "${media.scrobbleDiagnosticIdentity()} progress=$progressPercent"

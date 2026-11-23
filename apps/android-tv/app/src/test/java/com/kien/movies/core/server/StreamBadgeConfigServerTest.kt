@@ -7,12 +7,12 @@ import com.kien.movies.core.streams.StreamBadgePlacement
 import com.kien.movies.core.streams.StreamBadgeRules
 import com.kien.movies.core.streams.StreamBadgeSettings
 import fi.iki.elonen.NanoHTTPD
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class StreamBadgeConfigServerTest {
     @Test
@@ -44,7 +44,10 @@ class StreamBadgeConfigServerTest {
 
         assertEquals(NanoHTTPD.Response.Status.OK, response.status)
         assertEquals(1, settings.rules.imports.size)
-        assertEquals("https://example.com/fusion-badges.json", settings.rules.imports.first().sourceUrl)
+        assertEquals(
+            "https://example.com/fusion-badges.json",
+            settings.rules.imports.first().sourceUrl
+        )
         assertEquals("Dolby Vision", settings.rules.imports.first().filters.first().name)
     }
 
@@ -84,7 +87,9 @@ class StreamBadgeConfigServerTest {
     fun `keeps settings the web page does not send`() {
         var saved: StreamBadgeSettings? = null
         val server = StreamBadgeConfigServer(
-            currentSettingsProvider = { StreamBadgeSettings(showAddonLogo = false, showInPlayer = true) },
+            currentSettingsProvider = {
+                StreamBadgeSettings(showAddonLogo = false, showInPlayer = true)
+            },
             onSettingsChanged = { saved = it }
         )
         val body = Gson().toJson(mapOf("showFileSizeBadges" to false))
@@ -115,7 +120,9 @@ class StreamBadgeConfigServerTest {
             )
         )
         val server = StreamBadgeConfigServer(
-            currentSettingsProvider = { StreamBadgeSettings(badgePlacement = StreamBadgePlacement.TOP) },
+            currentSettingsProvider = {
+                StreamBadgeSettings(badgePlacement = StreamBadgePlacement.TOP)
+            },
             onSettingsChanged = { saved = it }
         )
         val body = Gson().toJson(mapOf("streamBadgeRules" to rules))
@@ -160,10 +167,7 @@ class StreamBadgeConfigServerTest {
         assertTrue(body.contains("\"badgePlacement\":\"TOP\""))
     }
 
-    private class FakePostSession(
-        body: String,
-        private val uri: String = "/api/settings"
-    ) : NanoHTTPD.IHTTPSession {
+    private class FakePostSession(body: String, private val uri: String = "/api/settings") : NanoHTTPD.IHTTPSession {
         private val bytes = body.toByteArray(StandardCharsets.UTF_8)
 
         override fun execute() = Unit
@@ -174,11 +178,13 @@ class StreamBadgeConfigServerTest {
         )
         override fun getInputStream(): InputStream = ByteArrayInputStream(bytes)
         override fun getMethod(): NanoHTTPD.Method = NanoHTTPD.Method.POST
+
         @Deprecated("Deprecated in NanoHTTPD")
         override fun getParms(): Map<String, String> = emptyMap()
         override fun getParameters(): Map<String, List<String>> = emptyMap()
         override fun getQueryParameterString(): String? = null
         override fun getUri(): String = uri
+
         @Deprecated("Deprecated in NanoHTTPD")
         override fun parseBody(files: MutableMap<String, String>) {
             error("parseBody should not be used")
@@ -187,19 +193,19 @@ class StreamBadgeConfigServerTest {
         override fun getRemoteHostName(): String = "localhost"
     }
 
-    private class FakeGetSession(
-        private val uri: String = "/api/settings"
-    ) : NanoHTTPD.IHTTPSession {
+    private class FakeGetSession(private val uri: String = "/api/settings") : NanoHTTPD.IHTTPSession {
         override fun execute() = Unit
         override fun getCookies(): NanoHTTPD.CookieHandler? = null
         override fun getHeaders(): Map<String, String> = emptyMap()
         override fun getInputStream(): InputStream = ByteArrayInputStream(ByteArray(0))
         override fun getMethod(): NanoHTTPD.Method = NanoHTTPD.Method.GET
+
         @Deprecated("Deprecated in NanoHTTPD")
         override fun getParms(): Map<String, String> = emptyMap()
         override fun getParameters(): Map<String, List<String>> = emptyMap()
         override fun getQueryParameterString(): String? = null
         override fun getUri(): String = uri
+
         @Deprecated("Deprecated in NanoHTTPD")
         override fun parseBody(files: MutableMap<String, String>) {
             error("parseBody should not be used")

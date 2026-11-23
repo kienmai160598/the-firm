@@ -27,8 +27,12 @@ class DeepLinkHandler @Inject constructor(
                     context.getString(R.string.addon_install_success, addonName)
                 )
             }
+
             is NetworkResult.Error -> DeepLinkInstallResult.Error(result.message)
-            NetworkResult.Loading -> DeepLinkInstallResult.Error(context.getString(R.string.addon_error_invalid_url))
+
+            NetworkResult.Loading -> DeepLinkInstallResult.Error(
+                context.getString(R.string.addon_error_invalid_url)
+            )
         }
     }
 }
@@ -36,13 +40,9 @@ class DeepLinkHandler @Inject constructor(
 sealed interface DeepLinkInstallResult {
     val message: String
 
-    data class Success(
-        override val message: String
-    ) : DeepLinkInstallResult
+    data class Success(override val message: String) : DeepLinkInstallResult
 
-    data class Error(
-        override val message: String
-    ) : DeepLinkInstallResult
+    data class Error(override val message: String) : DeepLinkInstallResult
 
     data object ConsentRequired : DeepLinkInstallResult {
         override val message: String = ""

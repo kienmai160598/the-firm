@@ -8,10 +8,11 @@ import java.util.concurrent.TimeUnit
 internal class SharedResource<T : Any>(
     private val scheduler: ScheduledExecutorService,
     private val keepAliveMs: Long,
-    private val dispose: (T) -> Unit,
+    private val dispose: (T) -> Unit
 ) {
     private val stateLock = Any()
     private val loadLock = Any()
+
     @Volatile private var instance: T? = null
     private var users = 0
     private var generation = 0L
@@ -20,8 +21,8 @@ internal class SharedResource<T : Any>(
     val isLoaded: Boolean get() = instance != null
 
     /** Serializes construction without holding the short-lived reference-count lock. */
-    fun acquire(create: () -> T): T = synchronized(loadLock) acquisition@ {
-        synchronized(stateLock) state@ {
+    fun acquire(create: () -> T): T = synchronized(loadLock) acquisition@{
+        synchronized(stateLock) state@{
             instance?.let { resource ->
                 retain()
                 return@state resource
@@ -51,11 +52,14 @@ internal class SharedResource<T : Any>(
         if (users != 0) return@synchronized
         val idleGeneration = ++generation
         pendingClose?.cancel(false)
-        pendingClose = scheduler.schedule({ closeIfUnused(idleGeneration) }, keepAliveMs, TimeUnit.MILLISECONDS)
+        pendingClose =
+            scheduler.schedule({
+                closeIfUnused(idleGeneration)
+            }, keepAliveMs, TimeUnit.MILLISECONDS)
     }
 
     private fun closeIfUnused(idleGeneration: Long) = synchronized(loadLock) {
-        val resource = synchronized(stateLock) state@ {
+        val resource = synchronized(stateLock) state@{
             // A cancelled task may already have started. It must not close a resource that
             // was acquired and released again since that task was scheduled.
             if (users != 0 || generation != idleGeneration) return@state null

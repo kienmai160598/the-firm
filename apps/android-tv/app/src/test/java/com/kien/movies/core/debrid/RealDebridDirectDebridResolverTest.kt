@@ -40,7 +40,14 @@ class RealDebridDirectDebridResolverTest {
                     RealDebridTorrentInfoDto(
                         id = "rd_torrent",
                         status = "downloaded",
-                        files = listOf(RealDebridTorrentFileDto(id = 7, path = "/right.mkv", bytes = 20, selected = 1)),
+                        files = listOf(
+                            RealDebridTorrentFileDto(
+                                id = 7,
+                                path = "/right.mkv",
+                                bytes = 20,
+                                selected = 1
+                            )
+                        ),
                         links = listOf("https://real-debrid.example/link")
                     )
                 )
@@ -79,14 +86,23 @@ class RealDebridDirectDebridResolverTest {
                     RealDebridTorrentInfoDto(
                         id = "rd_torrent",
                         status = "waiting_files_selection",
-                        files = listOf(RealDebridTorrentFileDto(id = 7, path = "/right.mkv", bytes = 20))
+                        files = listOf(
+                            RealDebridTorrentFileDto(id = 7, path = "/right.mkv", bytes = 20)
+                        )
                     )
                 ),
                 Response.success(
                     RealDebridTorrentInfoDto(
                         id = "rd_torrent",
                         status = "downloading",
-                        files = listOf(RealDebridTorrentFileDto(id = 7, path = "/right.mkv", bytes = 20, selected = 1)),
+                        files = listOf(
+                            RealDebridTorrentFileDto(
+                                id = 7,
+                                path = "/right.mkv",
+                                bytes = 20,
+                                selected = 1
+                            )
+                        ),
                         links = emptyList()
                     )
                 )

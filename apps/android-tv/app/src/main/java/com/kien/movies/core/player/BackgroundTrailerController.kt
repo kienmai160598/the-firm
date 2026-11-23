@@ -36,18 +36,17 @@ class BackgroundTrailerRequest(
     val onProgressChanged: (positionMs: Long, durationMs: Long) -> Unit = { _, _ -> },
     val onRemoteKey: (keyCode: Int, action: Int, repeatCount: Int) -> Boolean = { _, _, _ -> false }
 ) {
-    fun hasSamePlayback(other: BackgroundTrailerRequest): Boolean =
-        videoUrl == other.videoUrl &&
-            audioUrl == other.audioUrl &&
-            isPlaying == other.isPlaying &&
-            isPaused == other.isPaused &&
-            muted == other.muted &&
-            cropToFill == other.cropToFill &&
-            autoCropLetterbox == other.autoCropLetterbox &&
-            seekRequestToken == other.seekRequestToken &&
-            seekDeltaMs == other.seekDeltaMs &&
-            bounds == other.bounds &&
-            overscanZoom == other.overscanZoom
+    fun hasSamePlayback(other: BackgroundTrailerRequest): Boolean = videoUrl == other.videoUrl &&
+        audioUrl == other.audioUrl &&
+        isPlaying == other.isPlaying &&
+        isPaused == other.isPaused &&
+        muted == other.muted &&
+        cropToFill == other.cropToFill &&
+        autoCropLetterbox == other.autoCropLetterbox &&
+        seekRequestToken == other.seekRequestToken &&
+        seekDeltaMs == other.seekDeltaMs &&
+        bounds == other.bounds &&
+        overscanZoom == other.overscanZoom
 }
 
 data class BackgroundTrailerTransfer(
@@ -100,8 +99,7 @@ class BackgroundTrailerController @Inject constructor() {
         remove(owner)
     }
 
-    fun isRendering(videoUrl: String?): Boolean =
-        videoUrl != null && renderedUrl == videoUrl && activeRequest?.videoUrl == videoUrl
+    fun isRendering(videoUrl: String?): Boolean = videoUrl != null && renderedUrl == videoUrl && activeRequest?.videoUrl == videoUrl
 
     fun isRenderingFor(owner: String?): Boolean {
         val mine = owner?.let { requests[it] } ?: return false
@@ -117,7 +115,12 @@ class BackgroundTrailerController @Inject constructor() {
         renderedUrl = null
     }
 
-    fun beginTransfer(itemId: String, videoUrl: String, audioUrl: String?, youtubeKey: String?): Boolean {
+    fun beginTransfer(
+        itemId: String,
+        videoUrl: String,
+        audioUrl: String?,
+        youtubeKey: String?
+    ): Boolean {
         val owner = owners.lastOrNull() ?: return false
         val active = requests[owner] ?: return false
         if (active.videoUrl != videoUrl || !active.isPlaying) return false
@@ -146,7 +149,10 @@ class BackgroundTrailerController @Inject constructor() {
         return true
     }
 
-    fun pendingTransfer(itemId: String): BackgroundTrailerTransfer? = transfer?.takeIf { it.itemId == itemId }
+    fun pendingTransfer(itemId: String): BackgroundTrailerTransfer? = transfer?.takeIf {
+        it.itemId ==
+            itemId
+    }
 
     fun isPinned(owner: String): Boolean = pinnedOwner == owner
 
@@ -173,4 +179,5 @@ class BackgroundTrailerController @Inject constructor() {
     }
 }
 
-val LocalBackgroundTrailerController = staticCompositionLocalOf<BackgroundTrailerController?> { null }
+val LocalBackgroundTrailerController =
+    staticCompositionLocalOf<BackgroundTrailerController?> { null }

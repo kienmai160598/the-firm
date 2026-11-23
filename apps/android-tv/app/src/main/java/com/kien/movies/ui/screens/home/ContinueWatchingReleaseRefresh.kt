@@ -37,7 +37,9 @@ internal fun nextContinueWatchingReleaseMs(
     items: List<ContinueWatchingItem>,
     noNextUpRecheckTimes: Collection<Long>,
     nowMs: Long
-): Long? = continueWatchingReleaseTimes(items, noNextUpRecheckTimes).filter { it > nowMs }.minOrNull()
+): Long? = continueWatchingReleaseTimes(items, noNextUpRecheckTimes).filter {
+    it > nowMs
+}.minOrNull()
 
 /** Whether one of [continueWatchingReleaseTimes] passed after [sinceMs], up to now. */
 internal fun hasContinueWatchingReleaseSince(
@@ -45,7 +47,10 @@ internal fun hasContinueWatchingReleaseSince(
     noNextUpRecheckTimes: Collection<Long>,
     sinceMs: Long,
     nowMs: Long
-): Boolean = continueWatchingReleaseTimes(items, noNextUpRecheckTimes).any { it in (sinceMs + 1)..nowMs }
+): Boolean = continueWatchingReleaseTimes(items, noNextUpRecheckTimes).any {
+    it in
+        (sinceMs + 1)..nowMs
+}
 
 /**
  * Runs Continue Watching again when an upcoming episode airs while the app stays open, so it
@@ -59,7 +64,8 @@ internal fun HomeViewModel.observeContinueWatchingReleases() {
             .collectLatest { items ->
                 while (true) {
                     val nowMs = System.currentTimeMillis()
-                    val nextMs = nextContinueWatchingReleaseMs(items, cwNoNextUpSeeds.values, nowMs) ?: break
+                    val nextMs =
+                        nextContinueWatchingReleaseMs(items, cwNoNextUpSeeds.values, nowMs) ?: break
                     val waitMs = nextMs - nowMs + CW_RELEASE_REFRESH_MARGIN_MS
                     if (waitMs > CW_RELEASE_REFRESH_MAX_WAIT_MS) {
                         delay(CW_RELEASE_REFRESH_MAX_WAIT_MS)

@@ -7,19 +7,19 @@ import androidx.compose.runtime.Immutable
  */
 @Immutable
 data class WatchProgress(
-    val contentId: String,           // IMDB ID of the movie/series
-    val contentType: String,         // "movie" or "series"
-    val name: String,                // Movie or series name
-    val poster: String?,             // Poster URL
-    val backdrop: String?,           // Backdrop URL
-    val logo: String?,               // Logo URL
-    val videoId: String,             // Specific video/episode ID being watched
-    val season: Int?,                // Season number (null for movies)
-    val episode: Int?,               // Episode number (null for movies)
-    val episodeTitle: String?,       // Episode title (null for movies)
-    val position: Long,              // Current playback position in ms
-    val duration: Long,              // Total duration in ms
-    val lastWatched: Long,           // Timestamp when last watched
+    val contentId: String, // IMDB ID of the movie/series
+    val contentType: String, // "movie" or "series"
+    val name: String, // Movie or series name
+    val poster: String?, // Poster URL
+    val backdrop: String?, // Backdrop URL
+    val logo: String?, // Logo URL
+    val videoId: String, // Specific video/episode ID being watched
+    val season: Int?, // Season number (null for movies)
+    val episode: Int?, // Episode number (null for movies)
+    val episodeTitle: String?, // Episode title (null for movies)
+    val position: Long, // Current playback position in ms
+    val duration: Long, // Total duration in ms
+    val lastWatched: Long, // Timestamp when last watched
     val addonBaseUrl: String? = null, // Addon that was used to play
     val progressPercent: Float? = null, // 0..100 from remote sources like Trakt playback
     val source: String = SOURCE_LOCAL,
@@ -57,7 +57,13 @@ data class WatchProgress(
             progressPercent?.let { explicitPercent ->
                 return (explicitPercent / 100f).coerceIn(0f, 1f)
             }
-            return if (duration > 0) (position.toFloat() / duration.toFloat()).coerceIn(0f, 1f) else 0f
+            return if (duration >
+                0
+            ) {
+                (position.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
+            } else {
+                0f
+            }
         }
 
     /**
@@ -71,9 +77,14 @@ data class WatchProgress(
      */
     fun isInProgress(): Boolean = !isCompleted() && (position > 0L || progressPercentage > 0f)
 
-    private fun completionThreshold(): Float =
-        completionThresholdOverride?.takeIf { it.isFinite() && it > 0f && it <= 1f }
-            ?: if (source == SOURCE_SIMKL_PLAYBACK) SIMKL_COMPLETED_THRESHOLD else COMPLETED_THRESHOLD
+    private fun completionThreshold(): Float = completionThresholdOverride?.takeIf { it.isFinite() && it > 0f && it <= 1f }
+        ?: if (source ==
+            SOURCE_SIMKL_PLAYBACK
+        ) {
+            SIMKL_COMPLETED_THRESHOLD
+        } else {
+            COMPLETED_THRESHOLD
+        }
 
     /**
      * Returns the remaining time in milliseconds
@@ -102,10 +113,10 @@ data class WatchProgress(
  */
 @Immutable
 data class NextToWatch(
-    val watchProgress: WatchProgress?,  // Null if nothing has been watched yet
-    val isResume: Boolean,              // True if resuming current item, false if next episode
-    val nextVideoId: String?,           // Video ID to play next
-    val nextSeason: Int?,               // Next season number
-    val nextEpisode: Int?,              // Next episode number
-    val displayText: String             // Text to show on button (e.g., "Resume S1E2", "Play S1E3")
+    val watchProgress: WatchProgress?, // Null if nothing has been watched yet
+    val isResume: Boolean, // True if resuming current item, false if next episode
+    val nextVideoId: String?, // Video ID to play next
+    val nextSeason: Int?, // Next season number
+    val nextEpisode: Int?, // Next episode number
+    val displayText: String // Text to show on button (e.g., "Resume S1E2", "Play S1E3")
 )

@@ -5,10 +5,10 @@ import com.kien.movies.data.local.StreamAutoPlayMode
 import com.kien.movies.data.local.StreamAutoPlaySource
 import com.kien.movies.domain.model.AddonStreams
 import com.kien.movies.domain.model.Stream
-import com.kien.movies.domain.model.pluginBingeGroup
 import com.kien.movies.domain.model.StreamBehaviorHints
 import com.kien.movies.domain.model.StreamDebridCacheState
 import com.kien.movies.domain.model.StreamDebridCacheStatus
+import com.kien.movies.domain.model.pluginBingeGroup
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -479,7 +479,8 @@ class StreamAutoPlaySelectorTest {
 
     @Test
     fun `regex mode selects a matching stream that only has a YouTube id`() {
-        val direct = stream(addonName = "AddonA", url = "https://example.com/direct.m3u8", name = "Mirror")
+        val direct =
+            stream(addonName = "AddonA", url = "https://example.com/direct.m3u8", name = "Mirror")
         val youTube = stream(addonName = "AddonA", name = "YouTube", ytId = "dQw4w9WgXcQ")
 
         val selected = StreamAutoPlaySelector.selectAutoPlayStream(
@@ -562,10 +563,7 @@ class StreamAutoPlaySelectorTest {
         }
     )
 
-    private fun addonStreams(
-        addonName: String,
-        vararg streams: Stream
-    ): AddonStreams = AddonStreams(
+    private fun addonStreams(addonName: String, vararg streams: Stream): AddonStreams = AddonStreams(
         addonName = addonName,
         addonLogo = null,
         streams = streams.toList()

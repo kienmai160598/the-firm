@@ -37,20 +37,21 @@ internal interface AudioSampleSink {
  */
 internal class AudioSyncExtractorsFactory(
     private val delegate: ExtractorsFactory,
-    private val sink: AudioSampleSink,
+    private val sink: AudioSampleSink
 ) : ExtractorsFactory {
     override fun createExtractors(): Array<Extractor> = wrap(delegate.createExtractors())
 
-    override fun createExtractors(uri: Uri, responseHeaders: Map<String, List<String>>): Array<Extractor> =
-        wrap(delegate.createExtractors(uri, responseHeaders))
+    override fun createExtractors(
+        uri: Uri,
+        responseHeaders: Map<String, List<String>>
+    ): Array<Extractor> = wrap(delegate.createExtractors(uri, responseHeaders))
 
-    private fun wrap(extractors: Array<Extractor>): Array<Extractor> =
-        Array(extractors.size) { index -> AudioTapExtractor(extractors[index], sink) }
+    private fun wrap(extractors: Array<Extractor>): Array<Extractor> = Array(extractors.size) { index -> AudioTapExtractor(extractors[index], sink) }
 }
 
 private class AudioTapExtractor(
     private val delegate: Extractor,
-    private val sink: AudioSampleSink,
+    private val sink: AudioSampleSink
 ) : RewrappableExtractor {
     override val wrappedExtractor: Extractor get() = delegate
     override fun rewrap(inner: Extractor): Extractor = AudioTapExtractor(inner, sink)
@@ -75,7 +76,7 @@ private class AudioTapExtractor(
 
 private class AudioTapExtractorOutput(
     private val delegate: ExtractorOutput,
-    private val sink: AudioSampleSink,
+    private val sink: AudioSampleSink
 ) : ExtractorOutput {
     private val audioOutputs = HashMap<Int, TrackOutput>()
 
@@ -97,7 +98,7 @@ private class AudioTapExtractorOutput(
  */
 private class AudioTapTrackOutput(
     private val delegate: TrackOutput,
-    private val sink: AudioSampleSink,
+    private val sink: AudioSampleSink
 ) : TrackOutput {
     private var format: Format? = null
     private var capturing = false
@@ -114,7 +115,12 @@ private class AudioTapTrackOutput(
 
     override fun durationUs(durationUs: Long) = delegate.durationUs(durationUs)
 
-    override fun sampleData(input: DataReader, length: Int, allowEndOfInput: Boolean, sampleDataPart: Int): Int {
+    override fun sampleData(
+        input: DataReader,
+        length: Int,
+        allowEndOfInput: Boolean,
+        sampleDataPart: Int
+    ): Int {
         if (!updateCapturing()) {
             return delegate.sampleData(input, length, allowEndOfInput, sampleDataPart)
         }
@@ -140,13 +146,14 @@ private class AudioTapTrackOutput(
         flags: Int,
         size: Int,
         offset: Int,
-        cryptoData: TrackOutput.CryptoData?,
+        cryptoData: TrackOutput.CryptoData?
     ) {
         if (capturing) {
             val sampleStart = end - offset - size
             val currentFormat = format
-            val usable = currentFormat != null && size > 0 && sampleStart >= start && timeUs != C.TIME_UNSET &&
-                cryptoData == null && flags and UNSUPPORTED_FLAGS == 0
+            val usable =
+                currentFormat != null && size > 0 && sampleStart >= start && timeUs != C.TIME_UNSET &&
+                    cryptoData == null && flags and UNSUPPORTED_FLAGS == 0
             if (usable) {
                 try {
                     sink.onSample(currentFormat!!, timeUs, pending, sampleStart, size)
@@ -165,7 +172,9 @@ private class AudioTapTrackOutput(
 
     private fun updateCapturing(): Boolean {
         val currentFormat = format
-        val wanted = currentFormat != null && runCatching { sink.wantsSamples(currentFormat) }.getOrDefault(false)
+        val wanted =
+            currentFormat != null &&
+                runCatching { sink.wantsSamples(currentFormat) }.getOrDefault(false)
         if (wanted != capturing) {
             capturing = wanted
             start = 0
@@ -199,7 +208,8 @@ private class AudioTapTrackOutput(
     }
 
     companion object {
-        private const val UNSUPPORTED_FLAGS = C.BUFFER_FLAG_ENCRYPTED or C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA
+        private const val UNSUPPORTED_FLAGS =
+            C.BUFFER_FLAG_ENCRYPTED or C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA
         private const val MAX_PENDING_BYTES = 8 * 1024 * 1024
     }
 }

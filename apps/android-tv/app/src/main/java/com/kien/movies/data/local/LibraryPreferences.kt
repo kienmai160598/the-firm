@@ -17,13 +17,13 @@ import com.kien.movies.domain.model.LibrarySyncKey
 import com.kien.movies.domain.model.LibrarySyncReducer
 import com.kien.movies.domain.model.LibrarySyncState
 import com.kien.movies.domain.model.SavedLibraryItem
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -42,8 +42,7 @@ class LibraryPreferences @Inject constructor(
     private val pendingDeleteKeysKey = stringSetPreferencesKey("library_pending_deletes")
     private val mutationRevisionKey = longPreferencesKey("library_mutation_revision")
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
     val sortOption: Flow<String?> = profileManager.activeProfileId.flatMapLatest { profileId ->
         factory.get(profileId, FEATURE).data.map { preferences ->
@@ -64,7 +63,9 @@ class LibraryPreferences @Inject constructor(
         }
     }
 
-    val lastSelectedList: Flow<String?> = profileManager.activeProfileId.flatMapLatest { profileId ->
+    val lastSelectedList: Flow<String?> = profileManager.activeProfileId.flatMapLatest {
+            profileId
+        ->
         factory.get(profileId, FEATURE).data.map { preferences ->
             preferences[lastSelectedListKey]
         }
@@ -76,7 +77,9 @@ class LibraryPreferences @Inject constructor(
         }
     }
 
-    val lastSelectedType: Flow<String?> = profileManager.activeProfileId.flatMapLatest { profileId ->
+    val lastSelectedType: Flow<String?> = profileManager.activeProfileId.flatMapLatest {
+            profileId
+        ->
         factory.get(profileId, FEATURE).data.map { preferences ->
             preferences[lastSelectedTypeKey]
         }
@@ -207,10 +210,7 @@ class LibraryPreferences @Inject constructor(
         return result
     }
 
-    override suspend fun acknowledgePush(
-        profileId: Int,
-        expectedMutationRevision: Long
-    ): Boolean {
+    override suspend fun acknowledgePush(profileId: Int, expectedMutationRevision: Long): Boolean {
         var acknowledged = false
         store(profileId).edit { preferences ->
             val updated = LibrarySyncReducer.acknowledgePush(

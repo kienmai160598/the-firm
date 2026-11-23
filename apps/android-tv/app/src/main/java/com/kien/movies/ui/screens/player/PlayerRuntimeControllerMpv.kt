@@ -3,11 +3,11 @@ package com.kien.movies.ui.screens.player
 import android.util.Log
 import androidx.media3.exoplayer.SeekParameters
 import com.kien.movies.data.local.InternalPlayerEngine
+import kotlin.math.abs
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 
 private const val MPV_RESUME_SEEK_TOLERANCE_MS = 1500L
 
@@ -62,8 +62,12 @@ internal fun PlayerRuntimeController.attachMpvView(view: MoviesMpvSurfaceView?) 
         emitScrobbleStart()
     }.onFailure {
         val technical = it.message?.trim()?.takeIf { message -> message.isNotEmpty() }
-        val explanation = context.getString(com.kien.movies.R.string.player_error_mpv_surface_failed)
-        val detailedError = if (technical == null || technical.equals(explanation, ignoreCase = true)) {
+        val explanation = context.getString(
+            com.kien.movies.R.string.player_error_mpv_surface_failed
+        )
+        val detailedError = if (technical == null ||
+            technical.equals(explanation, ignoreCase = true)
+        ) {
             explanation
         } else {
             "$explanation\n\n$technical"
@@ -188,8 +192,12 @@ internal fun PlayerRuntimeController.initializeMpvPlayer(
     }.onFailure { error ->
         Log.e(PlayerRuntimeController.TAG, "libmpv initialize failed: ${error.message}", error)
         val technical = error.message?.trim()?.takeIf { it.isNotEmpty() }
-        val explanation = context.getString(com.kien.movies.R.string.player_error_mpv_playback_failed)
-        val detailedError = if (technical == null || technical.equals(explanation, ignoreCase = true)) {
+        val explanation = context.getString(
+            com.kien.movies.R.string.player_error_mpv_playback_failed
+        )
+        val detailedError = if (technical == null ||
+            technical.equals(explanation, ignoreCase = true)
+        ) {
             explanation
         } else {
             "$explanation\n\n$technical"
@@ -222,7 +230,8 @@ internal fun PlayerRuntimeController.releaseMpvPlayer() {
 
 private fun String.safeMpvTraceHost(): String {
     return runCatching {
-        android.net.Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
+        android.net.Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() }
+            ?: "unknown"
     }.getOrDefault("unknown")
 }
 
@@ -268,7 +277,8 @@ internal fun PlayerRuntimeController.releaseForBackground() {
     if (!releaseDecoderOnBackground || isUsingMpvEngine() || pendingBackgroundCrashRecovery) return
     val player = _exoPlayer ?: return
     if (currentStreamUrl.isEmpty()) return
-    backgroundCrashSavedPositionMs = if (_uiState.value.isLive) 0L else player.currentPosition.coerceAtLeast(0L)
+    backgroundCrashSavedPositionMs =
+        if (_uiState.value.isLive) 0L else player.currentPosition.coerceAtLeast(0L)
     // Pausing while buffering fires no isPlaying change, so neither the pause save nor the pause
     // scrobble ran; do both while the player still reports a position.
     saveWatchProgress()
@@ -321,8 +331,10 @@ internal fun PlayerRuntimeController.resumeForLifecycle() {
         player.setAudioAttributes(player.audioAttributes, true)
 
         // Re-create the MediaSession so media controls work in the foreground.
-        if (currentMediaSession == null) runCatching { installExoMediaSession(player) }
-            .onFailure { it.printStackTrace() }
+        if (currentMediaSession == null) {
+            runCatching { installExoMediaSession(player) }
+                .onFailure { it.printStackTrace() }
+        }
     }
 }
 
@@ -365,7 +377,9 @@ private fun PlayerRuntimeController.updateMpvHdrVideoState() {
 }
 
 /** A file without embedded subtitles only counts as text-scanned once the first frame is up. */
-private fun PlayerRuntimeController.markMpvTextTracksScannedIfReady(hasInternalSubtitleTracks: Boolean) {
+private fun PlayerRuntimeController.markMpvTextTracksScannedIfReady(
+    hasInternalSubtitleTracks: Boolean
+) {
     if (hasInternalSubtitleTracks || hasRenderedFirstFrame) {
         hasScannedTextTracksOnce = true
     }
@@ -381,14 +395,21 @@ internal fun PlayerRuntimeController.updateMpvAvailableTracks() {
     mpvTrackRefreshJob = scope.launch {
         try {
             val snapshot = view.readTrackSnapshot()
-            if (!isUsingMpvEngine() || mpvView !== view || currentStreamUrl != streamUrlAtRefresh) return@launch
+            if (!isUsingMpvEngine() || mpvView !== view ||
+                currentStreamUrl != streamUrlAtRefresh
+            ) {
+                return@launch
+            }
             applyMpvTrackSnapshot(snapshot)
             refreshMpvChapters(view)
             tryAutoSelectPreferredSubtitleFromAvailableTracks()
         } catch (error: CancellationException) {
             throw error
         } catch (error: Throwable) {
-            Log.w(PlayerRuntimeController.TAG, "Failed to refresh MPV track snapshot: ${error.message}")
+            Log.w(
+                PlayerRuntimeController.TAG,
+                "Failed to refresh MPV track snapshot: ${error.message}"
+            )
         } finally {
             mpvTrackRefreshInProgress = false
         }
@@ -397,13 +418,17 @@ internal fun PlayerRuntimeController.updateMpvAvailableTracks() {
 
 private fun PlayerRuntimeController.applyMpvTrackSnapshot(snapshot: MpvTrackSnapshot) {
     val switchPending = pendingEngineSwitchTrackPreference
-        ?.takeIf { it.streamUrl == currentStreamUrl && it.sourceEngine == InternalPlayerEngine.EXOPLAYER }
+        ?.takeIf {
+            it.streamUrl == currentStreamUrl &&
+                it.sourceEngine == InternalPlayerEngine.EXOPLAYER
+        }
     logSwitchTrace(
         stage = "mpv-snapshot-read",
-        message = "switchPending=${switchPending != null} audioCount=${snapshot.audioTracks.size} " +
-            "subtitleCount=${snapshot.subtitleTracks.size} " +
-            "selectedAudioId=${snapshot.audioTracks.firstOrNull { it.isSelected }?.id} " +
-            "selectedSubtitleId=${snapshot.subtitleTracks.firstOrNull { it.isSelected }?.id}"
+        message =
+            "switchPending=${switchPending != null} audioCount=${snapshot.audioTracks.size} " +
+                "subtitleCount=${snapshot.subtitleTracks.size} " +
+                "selectedAudioId=${snapshot.audioTracks.firstOrNull { it.isSelected }?.id} " +
+                "selectedSubtitleId=${snapshot.subtitleTracks.firstOrNull { it.isSelected }?.id}"
     )
 
     val audioTracks = snapshot.audioTracks
@@ -444,13 +469,17 @@ private fun PlayerRuntimeController.applyMpvTrackSnapshot(snapshot: MpvTrackSnap
 
     val selectedAudioIndex = audioTracks.indexOfFirst { it.isSelected }
     val selectedSubtitleIndex = internalSubtitleTracks.indexOfFirst { it.isSelected }
-    val selectedExternalSubtitleTrack = snapshot.subtitleTracks.firstOrNull { it.isExternal && it.isSelected }
+    val selectedExternalSubtitleTrack = snapshot.subtitleTracks.firstOrNull {
+        it.isExternal &&
+            it.isSelected
+    }
     val selectedExternalSubtitle = selectedExternalSubtitleTrack != null
     logSwitchTrace(
         stage = "mpv-snapshot-mapped",
-        message = "selectedAudioIndex=$selectedAudioIndex selectedSubtitleIndex=$selectedSubtitleIndex " +
-            "selectedExternalSubtitle=${selectedExternalSubtitleTrack?.id ?: "none"} " +
-            "mappedInternalSubtitleCount=${internalSubtitleTracks.size}"
+        message =
+            "selectedAudioIndex=$selectedAudioIndex selectedSubtitleIndex=$selectedSubtitleIndex " +
+                "selectedExternalSubtitle=${selectedExternalSubtitleTrack?.id ?: "none"} " +
+                "mappedInternalSubtitleCount=${internalSubtitleTracks.size}"
     )
 
     markMpvTextTracksScannedIfReady(hasInternalSubtitleTracks = internalSubtitleTracks.isNotEmpty())
@@ -501,11 +530,15 @@ private fun PlayerRuntimeController.applyMpvTrackSnapshot(snapshot: MpvTrackSnap
         stage = "mpv-snapshot-after-restore",
         message = "uiAudioIndex=${_uiState.value.selectedAudioTrackIndex} " +
             "uiSubtitleIndex=${_uiState.value.selectedSubtitleTrackIndex} " +
-            "uiAddonSelected=${_uiState.value.selectedAddonSubtitle?.let { "${it.lang}/${it.addonName}/${it.id}" } ?: "none"}"
+            "uiAddonSelected=${_uiState.value.selectedAddonSubtitle?.let {
+                "${it.lang}/${it.addonName}/${it.id}"
+            } ?: "none"}"
     )
 }
 
-private fun PlayerRuntimeController.performPendingMpvHardRestartIfNeeded(view: MoviesMpvSurfaceView): Boolean {
+private fun PlayerRuntimeController.performPendingMpvHardRestartIfNeeded(
+    view: MoviesMpvSurfaceView
+): Boolean {
     if (!pendingMpvHardRestartOnNextAttach) return false
     pendingMpvHardRestartOnNextAttach = false
     runCatching {
@@ -542,6 +575,7 @@ internal fun PlayerRuntimeController.applyPendingMpvSeekIfNeeded(
         savedResume != null && durationMs > 0L -> {
             savedResume.resolveResumePosition(durationMs).coerceAtLeast(0L)
         }
+
         savedResume != null -> {
             val requiresDurationForPercentResume = savedResume.progressPercent != null &&
                 savedResume.duration <= 0L
@@ -550,6 +584,7 @@ internal fun PlayerRuntimeController.applyPendingMpvSeekIfNeeded(
             }
             savedResume.position.coerceAtLeast(0L)
         }
+
         else -> queuedPosition.coerceAtLeast(0L)
     }
 
@@ -642,7 +677,9 @@ internal fun PlayerRuntimeController.seekPlaybackTo(
             if (MoviesExoPlayerPerformanceHelper.enabled) {
                 val currentPos = player.currentPosition
                 val isForwardSeek = positionMs >= currentPos
-                val inBuffer = isForwardSeek && MoviesExoPlayerPerformanceHelper.isSeekInBuffer(player, positionMs)
+                val inBuffer =
+                    isForwardSeek &&
+                        MoviesExoPlayerPerformanceHelper.isSeekInBuffer(player, positionMs)
                 if (inBuffer) {
                     suppressBufferingUiForSeek = true
                     scheduleSeekSuppressTimeout()
@@ -704,7 +741,14 @@ internal fun PlayerRuntimeController.keepMpvPlayingIfNeeded(wasPlaying: Boolean)
             val coreIdle = view.isCoreIdleNow()
             if (view.isPlayingNow() && !pausedByCache && !coreIdle) {
                 _uiState.update { state ->
-                    if (state.isPlaying) state else state.copy(isPlaying = true, isBuffering = false)
+                    if (state.isPlaying) {
+                        state
+                    } else {
+                        state.copy(
+                            isPlaying = true,
+                            isBuffering = false
+                        )
+                    }
                 }
                 return@launch
             }

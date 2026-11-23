@@ -44,7 +44,7 @@ internal object HevcDvRpuStripper {
             val layerId =
                 if (nalStart + 1 < sampleLen) {
                     ((nalHeader and 0x01) shl 5) or
-                            ((sample[nalStart + 1].toInt() and 0xF8) ushr 3)
+                        ((sample[nalStart + 1].toInt() and 0xF8) ushr 3)
                 } else {
                     0
                 }
@@ -65,11 +65,7 @@ internal object HevcDvRpuStripper {
         return changed
     }
 
-    private fun readLengthField(
-        data: ByteArray,
-        offset: Int,
-        lengthBytes: Int
-    ): Int {
+    private fun readLengthField(data: ByteArray, offset: Int, lengthBytes: Int): Int {
         var value = 0
         for (i in 0 until lengthBytes) {
             value = (value shl 8) or (data[offset + i].toInt() and 0xFF)
@@ -108,7 +104,8 @@ internal object HevcDvRpuStripper {
                 // (no 0xFF continuation prefix needed at these values).
                 val payloadType = sample[offset + 2].toInt() and 0xFF
                 if (payloadType == SEI_PAYLOAD_TYPE_MASTERING_DISPLAY ||
-                    payloadType == SEI_PAYLOAD_TYPE_CONTENT_LIGHT_LEVEL) {
+                    payloadType == SEI_PAYLOAD_TYPE_CONTENT_LIGHT_LEVEL
+                ) {
                     found = true
                 }
             }
@@ -116,6 +113,7 @@ internal object HevcDvRpuStripper {
         }
         return found
     }
+
     /**
      * Rewrites a length-delimited (MP4/fMP4) sample, removing any NAL unit
      * whose type is 62 (DV RPU). Returns the rewritten bytes, or null if
@@ -124,7 +122,7 @@ internal object HevcDvRpuStripper {
     fun stripRpuLengthDelimited(
         sample: ByteArray,
         sampleLen: Int,
-        nalLengthFieldLength: Int,
+        nalLengthFieldLength: Int
     ): ByteArray? {
         val out = ExposedByteArrayOutputStream(sampleLen)
         val changed = stripRpuLengthDelimited(sample, sampleLen, nalLengthFieldLength, out)
@@ -163,7 +161,7 @@ internal object HevcDvRpuStripper {
                 val layerId =
                     if (nalBegin + 1 < nalEnd) {
                         ((sample[nalBegin].toInt() and 0x01) shl 5) or
-                                ((sample[nalBegin + 1].toInt() ushr 3) and 0x1F)
+                            ((sample[nalBegin + 1].toInt() ushr 3) and 0x1F)
                     } else {
                         0
                     }
@@ -212,6 +210,10 @@ internal object HevcDvRpuStripper {
             data[offset + 1].toInt() == 0 &&
             data[offset + 2].toInt() == 0 &&
             data[offset + 3].toInt() == 1
-        ) 4 else 3
+        ) {
+            4
+        } else {
+            3
+        }
     }
 }

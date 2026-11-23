@@ -25,10 +25,7 @@ internal enum class TraktRelatedType(val apiValue: String) {
     SHOW("show")
 }
 
-internal data class ResolvedRelatedTarget(
-    val type: TraktRelatedType,
-    val pathId: String
-)
+internal data class ResolvedRelatedTarget(val type: TraktRelatedType, val pathId: String)
 
 @Singleton
 class TraktRelatedService @Inject constructor(
@@ -36,10 +33,7 @@ class TraktRelatedService @Inject constructor(
     private val traktApi: TraktApi,
     private val traktAuthService: TraktAuthService
 ) {
-    private data class TimedCache(
-        val items: List<MetaPreview>,
-        val updatedAtMs: Long
-    )
+    private data class TimedCache(val items: List<MetaPreview>, val updatedAtMs: Long)
 
     private val cache = ConcurrentHashMap<String, TimedCache>()
 
@@ -49,7 +43,8 @@ class TraktRelatedService @Inject constructor(
         fallbackItemType: String? = null,
         forceRefresh: Boolean = false
     ): List<MetaPreview> {
-        val target = resolveRelatedTarget(meta, fallbackItemId, fallbackItemType) ?: return emptyList()
+        val target =
+            resolveRelatedTarget(meta, fallbackItemId, fallbackItemType) ?: return emptyList()
         val cacheKey = buildString {
             append(target.type.apiValue)
             append("|")
@@ -74,11 +69,20 @@ class TraktRelatedService @Inject constructor(
                         id = target.pathId,
                         limit = RELATED_LIMIT
                     )
-                } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_related_error_request_failed))
+                }
+                    ?: throw IllegalStateException(
+                        appContext.getString(
+                            com.kien.movies.R.string.trakt_related_error_request_failed
+                        )
+                    )
 
                 when {
                     response.code() == 404 -> emptyList()
-                    !response.isSuccessful -> throw IllegalStateException("Failed to load Trakt related titles (${response.code()})")
+
+                    !response.isSuccessful -> throw IllegalStateException(
+                        "Failed to load Trakt related titles (${response.code()})"
+                    )
+
                     else -> response.body().orEmpty()
                         .mapNotNull { dto ->
                             dto.toMetaPreview(
@@ -96,11 +100,20 @@ class TraktRelatedService @Inject constructor(
                         id = target.pathId,
                         limit = RELATED_LIMIT
                     )
-                } ?: throw IllegalStateException(appContext.getString(com.kien.movies.R.string.trakt_related_error_request_failed))
+                }
+                    ?: throw IllegalStateException(
+                        appContext.getString(
+                            com.kien.movies.R.string.trakt_related_error_request_failed
+                        )
+                    )
 
                 when {
                     response.code() == 404 -> emptyList()
-                    !response.isSuccessful -> throw IllegalStateException("Failed to load Trakt related titles (${response.code()})")
+
+                    !response.isSuccessful -> throw IllegalStateException(
+                        "Failed to load Trakt related titles (${response.code()})"
+                    )
+
                     else -> response.body().orEmpty()
                         .mapNotNull { dto ->
                             dto.toMetaPreview(
@@ -113,7 +126,8 @@ class TraktRelatedService @Inject constructor(
         }
 
         val distinctItems = items.distinctBy { "${it.apiType}:${it.id}" }
-        cache[cacheKey] = TimedCache(items = distinctItems, updatedAtMs = System.currentTimeMillis())
+        cache[cacheKey] =
+            TimedCache(items = distinctItems, updatedAtMs = System.currentTimeMillis())
         return distinctItems
     }
 
@@ -122,13 +136,15 @@ class TraktRelatedService @Inject constructor(
         fallbackItemId: String?,
         fallbackItemType: String?
     ): ResolvedRelatedTarget? {
-        val type = resolveRelatedType(meta = meta, fallbackItemType = fallbackItemType) ?: return null
+        val type =
+            resolveRelatedType(meta = meta, fallbackItemType = fallbackItemType) ?: return null
         val directPathId = resolveDirectPathId(meta = meta, fallbackItemId = fallbackItemId)
         if (!directPathId.isNullOrBlank()) {
             return ResolvedRelatedTarget(type = type, pathId = directPathId)
         }
 
-        val tmdbId = resolveTmdbCandidate(meta = meta, fallbackItemId = fallbackItemId) ?: return null
+        val tmdbId =
+            resolveTmdbCandidate(meta = meta, fallbackItemId = fallbackItemId) ?: return null
         val searchResponse = traktAuthService.executeAuthorizedRequest { authHeader ->
             traktApi.searchById(
                 authorization = authHeader,
@@ -153,11 +169,15 @@ class TraktRelatedService @Inject constructor(
 
     private fun resolveRelatedType(meta: Meta, fallbackItemType: String?): TraktRelatedType? {
         val normalizedType = listOf(meta.apiType, meta.rawType, fallbackItemType)
-            .firstNotNullOfOrNull { value -> value?.trim()?.lowercase()?.takeIf { it.isNotBlank() } }
+            .firstNotNullOfOrNull { value ->
+                value?.trim()?.lowercase()?.takeIf { it.isNotBlank() }
+            }
 
         return when (meta.type) {
             ContentType.MOVIE -> TraktRelatedType.MOVIE
+
             ContentType.SERIES, ContentType.TV -> TraktRelatedType.SHOW
+
             else -> when (normalizedType) {
                 "movie" -> TraktRelatedType.MOVIE
                 "series", "show", "tv" -> TraktRelatedType.SHOW
@@ -190,10 +210,7 @@ class TraktRelatedService @Inject constructor(
     }
 }
 
-private fun TraktMovieDto.toMetaPreview(
-    defaultType: ContentType,
-    rawType: String
-): MetaPreview? {
+private fun TraktMovieDto.toMetaPreview(defaultType: ContentType, rawType: String): MetaPreview? {
     return toMetaPreviewInternal(
         title = title ?: originalTitle,
         year = year,
@@ -214,10 +231,7 @@ private fun TraktMovieDto.toMetaPreview(
     )
 }
 
-private fun TraktShowDto.toMetaPreview(
-    defaultType: ContentType,
-    rawType: String
-): MetaPreview? {
+private fun TraktShowDto.toMetaPreview(defaultType: ContentType, rawType: String): MetaPreview? {
     return toMetaPreviewInternal(
         title = title ?: originalTitle,
         year = year,

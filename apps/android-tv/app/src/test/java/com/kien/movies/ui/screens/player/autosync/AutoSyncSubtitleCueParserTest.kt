@@ -15,7 +15,7 @@ class AutoSyncSubtitleCueParserTest {
                   </div></body>
                 </tt>
             """.trimIndent(),
-            sourceUrl = "subtitle.ttml",
+            sourceUrl = "subtitle.ttml"
         )
 
         val cue = cues.singleOrNull()
@@ -36,7 +36,7 @@ class AutoSyncSubtitleCueParserTest {
                   </div></body>
                 </tt>
             """.trimIndent(),
-            sourceUrl = "subtitle.ttml",
+            sourceUrl = "subtitle.ttml"
         )
 
         val cue = cues.singleOrNull()

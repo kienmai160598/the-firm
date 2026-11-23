@@ -21,7 +21,12 @@ class PlayerChaptersTest {
     @Test
     fun `normalize sorts and drops repeated starts`() {
         val normalized = PlayerChapters.normalize(
-            listOf(PlayerChapter(600_000L, "C"), PlayerChapter(0L, "A"), PlayerChapter(0L, "dup"), PlayerChapter(90_000L, "B"))
+            listOf(
+                PlayerChapter(600_000L, "C"),
+                PlayerChapter(0L, "A"),
+                PlayerChapter(0L, "dup"),
+                PlayerChapter(90_000L, "B")
+            )
         )
         assertEquals(listOf(0L, 90_000L, 600_000L), normalized.map { it.startMs })
         assertEquals("A", normalized.first().title)
@@ -37,7 +42,13 @@ class PlayerChaptersTest {
 
     @Test
     fun `index is -1 before the first chapter`() {
-        assertEquals(-1, PlayerChapters.indexAt(listOf(PlayerChapter(5_000L, null), PlayerChapter(9_000L, null)), 1_000L))
+        assertEquals(
+            -1,
+            PlayerChapters.indexAt(
+                listOf(PlayerChapter(5_000L, null), PlayerChapter(9_000L, null)),
+                1_000L
+            )
+        )
     }
 
     @Test

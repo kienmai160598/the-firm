@@ -38,7 +38,11 @@ data class TorboxTorrentFileDto(
     @Json(name = "mimetype") val mimeType: String? = null,
     @Json(name = "size") val size: Long? = null
 ) {
-    fun displayName(): String = listOfNotNull(shortName, name?.substringAfterLast('/'), absolutePath?.substringAfterLast('/'))
+    fun displayName(): String = listOfNotNull(
+        shortName,
+        name?.substringAfterLast('/'),
+        absolutePath?.substringAfterLast('/')
+    )
         .firstOrNull { it.isNotBlank() }
         .orEmpty()
 }
@@ -68,9 +72,7 @@ data class TorboxCloudFileDto(
 )
 
 @JsonClass(generateAdapter = true)
-data class TorboxCheckCachedRequestDto(
-    @Json(name = "hashes") val hashes: List<String>
-)
+data class TorboxCheckCachedRequestDto(@Json(name = "hashes") val hashes: List<String>)
 
 @JsonClass(generateAdapter = true)
 data class TorboxCachedItemDto(
@@ -90,9 +92,7 @@ data class TorboxDeviceAuthorizationDto(
 )
 
 @JsonClass(generateAdapter = true)
-data class TorboxDeviceTokenRequestDto(
-    @Json(name = "device_code") val deviceCode: String
-)
+data class TorboxDeviceTokenRequestDto(@Json(name = "device_code") val deviceCode: String)
 
 @JsonClass(generateAdapter = true)
 data class TorboxDeviceTokenDto(

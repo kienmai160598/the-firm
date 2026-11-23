@@ -26,7 +26,11 @@ internal object HevcHdr10PlusStripper {
 
     // ITU-T T.35: country_code=0xB5 (USA), provider_code=0x003C, provider_oriented_code=0x0001
     private val HDR10_PLUS_T35_SIGNATURE = byteArrayOf(
-        0xB5.toByte(), 0x00, 0x3C.toByte(), 0x00, 0x01
+        0xB5.toByte(),
+        0x00,
+        0x3C.toByte(),
+        0x00,
+        0x01
     )
 
     /**
@@ -64,6 +68,7 @@ internal object HevcHdr10PlusStripper {
                         }
                         out.write(sample, nalStart, nalSize)
                     }
+
                     filtered.isNotEmpty() -> {
                         // Some HDR10+ stripped; output reduced SEI NAL
                         changed = true
@@ -72,6 +77,7 @@ internal object HevcHdr10PlusStripper {
                         }
                         out.write(filtered)
                     }
+
                     else -> changed = true // entire NAL was HDR10+; drop it
                 }
             } else {
@@ -113,11 +119,13 @@ internal object HevcHdr10PlusStripper {
                     val filtered = filterSeiNal(sample, nalBegin, nalSize)
                     when {
                         filtered == null -> out.write(sample, startCode, nalEnd - startCode)
+
                         filtered.isNotEmpty() -> {
                             changed = true
                             out.write(sample, startCode, scLen)
                             out.write(filtered)
                         }
+
                         else -> changed = true // entire NAL was HDR10+; drop it
                     }
                 } else {
@@ -147,7 +155,9 @@ internal object HevcHdr10PlusStripper {
         var i = nalOffset + 2
         val end = nalOffset + nalSize
         while (i < end) {
-            if (i + 2 < end && data[i].toInt() == 0 && data[i + 1].toInt() == 0 && data[i + 2].toInt() == 3) {
+            if (i + 2 < end && data[i].toInt() == 0 && data[i + 1].toInt() == 0 &&
+                data[i + 2].toInt() == 3
+            ) {
                 rbsp.write(0)
                 rbsp.write(0)
                 i += 3
@@ -265,6 +275,10 @@ internal object HevcHdr10PlusStripper {
         return if (offset + 3 < limit &&
             data[offset].toInt() == 0 && data[offset + 1].toInt() == 0 &&
             data[offset + 2].toInt() == 0 && data[offset + 3].toInt() == 1
-        ) 4 else 3
+        ) {
+            4
+        } else {
+            3
+        }
     }
 }

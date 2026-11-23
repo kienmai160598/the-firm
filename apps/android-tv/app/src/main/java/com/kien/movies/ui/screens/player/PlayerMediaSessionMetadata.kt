@@ -25,7 +25,7 @@ internal fun PlayerRuntimeController.buildMediaSessionMetadata(): MediaMetadata 
             val s = state.currentSeason
             val e = state.currentEpisode
             if (s != null && e != null) {
-                append("S${s}:E${e}")
+                append("S$s:E$e")
                 state.currentEpisodeTitle?.takeIf { it.isNotBlank() }?.let {
                     append(" – $it")
                 }
@@ -38,8 +38,10 @@ internal fun PlayerRuntimeController.buildMediaSessionMetadata(): MediaMetadata 
     }
 
     // Artwork: prefer poster, fall back to backdrop.
-    val artworkUri = (poster?.takeIf { it.isNotBlank() }
-        ?: backdrop?.takeIf { it.isNotBlank() })
+    val artworkUri = (
+        poster?.takeIf { it.isNotBlank() }
+            ?: backdrop?.takeIf { it.isNotBlank() }
+        )
         ?.let { runCatching { Uri.parse(it) }.getOrNull() }
 
     return MediaMetadata.Builder()
@@ -47,8 +49,11 @@ internal fun PlayerRuntimeController.buildMediaSessionMetadata(): MediaMetadata 
         .setArtist(displaySubtitle)
         .setArtworkUri(artworkUri)
         .setMediaType(
-            if (isSeries) MediaMetadata.MEDIA_TYPE_TV_SHOW
-            else MediaMetadata.MEDIA_TYPE_MOVIE
+            if (isSeries) {
+                MediaMetadata.MEDIA_TYPE_TV_SHOW
+            } else {
+                MediaMetadata.MEDIA_TYPE_MOVIE
+            }
         )
         .build()
 }
@@ -117,7 +122,11 @@ internal fun PlayerRuntimeController.installExoMediaSession(player: ExoPlayer) {
 /** Creates the foreground-only MediaSession used by Bluetooth and other Android media controls. */
 internal fun PlayerRuntimeController.installMpvMediaSession() {
     runCatching {
-        if (!isUsingMpvEngine() || isInBackground || mpvView == null || currentStreamUrl.isBlank()) return
+        if (!isUsingMpvEngine() || isInBackground || mpvView == null ||
+            currentStreamUrl.isBlank()
+        ) {
+            return
+        }
         if (currentMediaSession != null && mpvMediaSessionPlayer != null) {
             mpvMediaSessionPlayer?.refresh()
             return
@@ -158,7 +167,8 @@ private fun PlayerRuntimeController.mpvMediaSessionSnapshot(): MpvMediaSessionSn
     val view = mpvView
     val positionMs = view?.currentPositionMs()?.coerceAtLeast(0L) ?: 0L
     val durationMs = view?.durationMs()?.coerceAtLeast(0L) ?: 0L
-    val bufferedPositionMs = positionMs + ((view?.demuxerCacheDurationSec() ?: 0.0) * 1_000.0).toLong()
+    val bufferedPositionMs =
+        positionMs + ((view?.demuxerCacheDurationSec() ?: 0.0) * 1_000.0).toLong()
     val metadata = buildMediaSessionMetadata()
     // Match ExoPlayer's default ID without publishing potentially sensitive stream URLs.
     val mediaId = currentFilename?.takeIf { it.isNotBlank() } ?: MediaItem.DEFAULT_MEDIA_ID
@@ -176,6 +186,6 @@ private fun PlayerRuntimeController.mpvMediaSessionSnapshot(): MpvMediaSessionSn
         isEnded = _uiState.value.playbackEnded,
         // External seek controls must also respect the app's live-content policy.
         isSeekable = !_playbackTimeline.value.isLive && view?.isLiveStreamNow() != true,
-        speed = _uiState.value.playbackSpeed,
+        speed = _uiState.value.playbackSpeed
     )
 }

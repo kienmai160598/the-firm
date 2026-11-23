@@ -2,10 +2,10 @@ package com.kien.movies.ui.screens.player
 
 import android.os.SystemClock
 import android.util.Log
+import com.kien.movies.data.local.toTrackPreference
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import com.kien.movies.data.local.toTrackPreference
 
 internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
     url: String,
@@ -24,8 +24,11 @@ internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
 
     logSwitchTrace(
         stage = "prepare-playback-before-start",
-        message = "urlHash=${playbackUrl.hashCode().toUInt().toString(16)} loadSavedProgress=$loadSavedProgress " +
-            "clearPendingSwitchPref=true"
+        message =
+            "urlHash=${playbackUrl.hashCode().toUInt().toString(
+                16
+            )} loadSavedProgress=$loadSavedProgress " +
+                "clearPendingSwitchPref=true"
     )
     val clickElapsedMs = launchStartedAtElapsedMs
         ?.let { (SystemClock.elapsedRealtime() - it).coerceAtLeast(0L) }
@@ -55,12 +58,13 @@ internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
                 val loaded = trackPreferenceDataStore.load(id)?.toTrackPreference()
                 logSwitchTrace(
                     stage = "track-pref-load",
-                    message = "contentId=$id loadedAudio=${loaded?.audio?.language}/${loaded?.audio?.name} " +
-                        "loadedSubtitle=${loaded?.subtitle?.javaClass?.simpleName ?: "none"}"
+                    message =
+                        "contentId=$id loadedAudio=${loaded?.audio?.language}/${loaded?.audio?.name} " +
+                            "loadedSubtitle=${loaded?.subtitle?.javaClass?.simpleName ?: "none"}"
                 )
                 Log.d(
                     PlayerRuntimeController.TAG,
-                    "TRACK_PREF load: contentId=$id S${currentSeason}E${currentEpisode} " +
+                    "TRACK_PREF load: contentId=$id S${currentSeason}E$currentEpisode " +
                         "result=${if (loaded == null) "null (no saved preference)" else "audio=${loaded.audio?.language}/${loaded.audio?.name} subtitle=${loaded.subtitle?.javaClass?.simpleName}"}"
                 )
                 persistedTrackPreference = loaded
@@ -126,7 +130,8 @@ internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
 
 private fun String.safeScrobbleHost(): String {
     return runCatching {
-        android.net.Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
+        android.net.Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() }
+            ?: "unknown"
     }.getOrDefault("unknown")
 }
 

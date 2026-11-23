@@ -64,10 +64,12 @@ class MdbListHttpClientTest {
     @Test
     fun `successful last allowed request blocks later reads until reset`() = runTest {
         val harness = MdbListTestHarness()
-        harness.reply(headers = mapOf(
-            "x-ratelimit-remaining" to "0",
-            "x-ratelimit-reset" to ((harness.now + 60_000L) / 1_000L).toString()
-        ))
+        harness.reply(
+            headers = mapOf(
+                "x-ratelimit-remaining" to "0",
+                "x-ratelimit-reset" to ((harness.now + 60_000L) / 1_000L).toString()
+            )
+        )
 
         assertEquals(200, harness.http.execute(get()).status)
         expectMdbListFailure<MdbListApiException> { harness.http.execute(get()) }
@@ -114,7 +116,10 @@ class MdbListHttpClientTest {
         val started = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
         harness.reply()
-        harness.engine.intercept = { started.complete(Unit); release.await() }
+        harness.engine.intercept = {
+            started.complete(Unit)
+            release.await()
+        }
         val first = async { harness.http.execute(get()) }
         started.await()
         val second = async {
@@ -134,10 +139,14 @@ class MdbListHttpClientTest {
     @Test
     fun `response and request diagnostics redact credentials and body`() {
         val request = MdbListHttpRequest(
-            MdbListHttpMethod.POST, "/oauth/token/", body = "private-body", accessToken = "private-token",
+            MdbListHttpMethod.POST,
+            "/oauth/token/",
+            body = "private-body",
+            accessToken = "private-token",
             form = mapOf("device_code" to "private-code")
         )
-        val response = MdbListHttpResponse(400, "private-body", mapOf("Authorization" to "private-token"))
+        val response =
+            MdbListHttpResponse(400, "private-body", mapOf("Authorization" to "private-token"))
 
         assertFalse(request.toString().contains("private"))
         assertFalse(response.toString().contains("private"))

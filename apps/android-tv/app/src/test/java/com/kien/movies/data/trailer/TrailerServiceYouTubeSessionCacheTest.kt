@@ -40,9 +40,11 @@ class TrailerServiceYouTubeSessionCacheTest {
         val extractor = mockk<InAppYouTubeExtractor>()
         val tmdbSettingsDataStore = mockk<TmdbSettingsDataStore>()
         val tmdbService = mockk<TmdbService>()
-        every { tmdbSettingsDataStore.settings } returns MutableStateFlow(TmdbSettings(language = "en"))
+        every { tmdbSettingsDataStore.settings } returns
+            MutableStateFlow(TmdbSettings(language = "en"))
         every { tmdbService.apiKey() } returns "tmdb-key"
-        val service = TrailerService(trailerApi, tmdbApi, extractor, tmdbSettingsDataStore, tmdbService)
+        val service =
+            TrailerService(trailerApi, tmdbApi, extractor, tmdbSettingsDataStore, tmdbService)
 
         val cached = TrailerPlaybackSource(
             videoUrl = "https://cdn.example/video.mp4",
@@ -53,7 +55,9 @@ class TrailerServiceYouTubeSessionCacheTest {
             TrailerPlaybackSource(videoUrl = "https://cdn.example/should-not-be-used.mp4")
         )
 
-        val first = service.getTrailerPlaybackSourceFromYouTubeUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+        val first = service.getTrailerPlaybackSourceFromYouTubeUrl(
+            "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        )
         val second = service.getTrailerPlaybackSourceFromYouTubeUrl("https://youtu.be/dQw4w9WgXcQ")
 
         assertEquals("https://cdn.example/video.mp4", first?.videoUrl)
@@ -70,22 +74,34 @@ class TrailerServiceYouTubeSessionCacheTest {
         val extractor = mockk<InAppYouTubeExtractor>()
         val tmdbSettingsDataStore = mockk<TmdbSettingsDataStore>()
         val tmdbService = mockk<TmdbService>()
-        every { tmdbSettingsDataStore.settings } returns MutableStateFlow(TmdbSettings(language = "en"))
+        every { tmdbSettingsDataStore.settings } returns
+            MutableStateFlow(TmdbSettings(language = "en"))
         every { tmdbService.apiKey() } returns "tmdb-key"
-        val service = TrailerService(trailerApi, tmdbApi, extractor, tmdbSettingsDataStore, tmdbService)
+        val service =
+            TrailerService(trailerApi, tmdbApi, extractor, tmdbSettingsDataStore, tmdbService)
 
-        coEvery { extractor.extractPlaybackSource("https://www.youtube.com/watch?v=dQw4w9WgXcQ") } returnsMany listOf(
-            null,
-            TrailerPlaybackSource(videoUrl = "https://cdn.example/video-after-retry.mp4")
+        coEvery {
+            extractor.extractPlaybackSource("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+        } returnsMany
+            listOf(
+                null,
+                TrailerPlaybackSource(videoUrl = "https://cdn.example/video-after-retry.mp4")
+            )
+        coEvery { trailerApi.getTrailer(any(), any(), any()) } returns
+            Response.success(TrailerResponse(url = null))
+
+        val first = service.getTrailerPlaybackSourceFromYouTubeUrl(
+            "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
         )
-        coEvery { trailerApi.getTrailer(any(), any(), any()) } returns Response.success(TrailerResponse(url = null))
-
-        val first = service.getTrailerPlaybackSourceFromYouTubeUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-        val second = service.getTrailerPlaybackSourceFromYouTubeUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+        val second = service.getTrailerPlaybackSourceFromYouTubeUrl(
+            "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        )
 
         assertNull(first)
         assertEquals("https://cdn.example/video-after-retry.mp4", second?.videoUrl)
-        coVerify(exactly = 2) { extractor.extractPlaybackSource("https://www.youtube.com/watch?v=dQw4w9WgXcQ") }
+        coVerify(exactly = 2) {
+            extractor.extractPlaybackSource("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+        }
         coVerify(exactly = 1) { trailerApi.getTrailer(any(), any(), any()) }
     }
 }

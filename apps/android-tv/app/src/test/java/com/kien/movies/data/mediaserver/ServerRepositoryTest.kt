@@ -104,8 +104,12 @@ class ServerRepositoryTest {
         repository.store(connection("c1", "k1"), "token-one")
         repository.setEnabled("c1", false)
 
-        val missing = runCatching { repository.call("nope") { _, _ -> 1 } }.exceptionOrNull() as ServerException
-        val disabled = runCatching { repository.call("c1") { _, _ -> 1 } }.exceptionOrNull() as ServerException
+        val missing = runCatching {
+            repository.call("nope") { _, _ -> 1 }
+        }.exceptionOrNull() as ServerException
+        val disabled = runCatching {
+            repository.call("c1") { _, _ -> 1 }
+        }.exceptionOrNull() as ServerException
 
         assertEquals(ServerFailure.NOT_FOUND, missing.failure)
         assertEquals(ServerFailure.UNREACHABLE, disabled.failure)

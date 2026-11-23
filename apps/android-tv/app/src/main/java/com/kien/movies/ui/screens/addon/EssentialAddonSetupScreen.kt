@@ -1,7 +1,5 @@
 package com.kien.movies.ui.screens.addon
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +16,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.QrCode2
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -26,28 +26,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.core.server.AddonWebConfigMode
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.TextStyle
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.screens.settings.TenFootTypography
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
-import androidx.compose.ui.unit.Dp
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -62,10 +61,7 @@ fun EssentialAddonSetupScreen(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun EssentialAddonSetupBody(
-    onSkip: () -> Unit,
-    viewModel: AddonManagerViewModel
-) {
+private fun EssentialAddonSetupBody(onSkip: () -> Unit, viewModel: AddonManagerViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -85,8 +81,11 @@ private fun EssentialAddonSetupBody(
         ) {
             Text(
                 text = stringResource(R.string.essential_addon_setup_title),
-                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                color = MoviesTheme.colors.TextPrimary,
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    textDirection = TextDirection.Content
+                ),
+                color = MoviesTheme.colors.TextPrimary
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
@@ -104,7 +103,9 @@ private fun EssentialAddonSetupBody(
                     modifier = Modifier
                         .weight(1f)
                         .height(setupCardHeight()),
-                    colors = CardDefaults.cardColors(containerColor = MoviesTheme.colors.BackgroundCard),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MoviesTheme.colors.BackgroundCard
+                    ),
                     shape = M3eShapes.panel
                 ) {
                     Column(
@@ -113,8 +114,11 @@ private fun EssentialAddonSetupBody(
                     ) {
                         Text(
                             text = stringResource(R.string.addon_install_title),
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                            color = MoviesTheme.colors.TextPrimary,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                textDirection = TextDirection.Content
+                            ),
+                            color = MoviesTheme.colors.TextPrimary
                         )
                         BasicTextField(
                             value = uiState.installUrl,
@@ -142,11 +146,16 @@ private fun EssentialAddonSetupBody(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)
+                                        .padding(
+                                            horizontal = 14.dp,
+                                            vertical = MoviesTheme.spacing.md
+                                        )
                                 ) {
                                     if (uiState.installUrl.isEmpty()) {
                                         Text(
-                                            text = stringResource(R.string.addon_install_placeholder),
+                                            text = stringResource(
+                                                R.string.addon_install_placeholder
+                                            ),
                                             style = MaterialTheme.typography.bodyMedium.bodyFloor(),
                                             color = MoviesTheme.colors.TextTertiary
                                         )
@@ -184,7 +193,9 @@ private fun EssentialAddonSetupBody(
                     modifier = Modifier
                         .weight(1f)
                         .height(setupCardHeight()),
-                    colors = CardDefaults.cardColors(containerColor = MoviesTheme.colors.BackgroundCard),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MoviesTheme.colors.BackgroundCard
+                    ),
                     shape = M3eShapes.panel
                 ) {
                     Column(
@@ -198,11 +209,16 @@ private fun EssentialAddonSetupBody(
                         )
                         Text(
                             text = stringResource(R.string.addon_manage_from_phone_title),
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                            color = MoviesTheme.colors.TextPrimary,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                textDirection = TextDirection.Content
+                            ),
+                            color = MoviesTheme.colors.TextPrimary
                         )
                         Text(
-                            text = stringResource(R.string.addon_manage_addons_only_from_phone_subtitle),
+                            text = stringResource(
+                                R.string.addon_manage_addons_only_from_phone_subtitle
+                            ),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MoviesTheme.colors.TextSecondary
                         )

@@ -1,9 +1,5 @@
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.MoviesMotion
-
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.LinearEasing
@@ -39,17 +35,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import androidx.compose.ui.platform.LocalContext
-import com.kien.movies.ui.components.LoadingIndicator
-import androidx.compose.ui.res.stringResource
-import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.ui.components.LoadingIndicator
+import com.kien.movies.ui.theme.MoviesMotion
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 fun LoadingOverlay(
@@ -222,7 +220,6 @@ fun LoadingOverlay(
                             LoadingIndicator()
                         }
                     }
-
                 }
 
                 // The horizontal progress bar is suppressed when the show logo
@@ -265,7 +262,9 @@ fun LoadingOverlay(
                             Spacer(modifier = Modifier.height(10.dp))
                             val animatedProgress = animateFloatAsState(
                                 targetValue = progress.coerceIn(0f, 1f),
-                                animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.overlay),
+                                animationSpec = tween(
+                                    durationMillis = MoviesMotion.tokens.durations.overlay
+                                ),
                                 label = "loadingProgress"
                             )
                             Spacer(

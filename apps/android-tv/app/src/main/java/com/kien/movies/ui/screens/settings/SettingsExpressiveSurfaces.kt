@@ -52,14 +52,13 @@ import com.kien.movies.ui.theme.TvSizeFloors
 private val SelectedOutlineWidth = 2.dp
 
 @Composable
-private fun surfaceShapeInEveryState(shape: Shape): ClickableSurfaceShape =
-    ClickableSurfaceDefaults.shape(
-        shape = shape,
-        focusedShape = shape,
-        pressedShape = shape,
-        disabledShape = shape,
-        focusedDisabledShape = shape
-    )
+private fun surfaceShapeInEveryState(shape: Shape): ClickableSurfaceShape = ClickableSurfaceDefaults.shape(
+    shape = shape,
+    focusedShape = shape,
+    pressedShape = shape,
+    disabledShape = shape,
+    focusedDisabledShape = shape
+)
 
 private val ControlSurfaceScale: ClickableSurfaceScale =
     ClickableSurfaceDefaults.scale(focusedScale = ExpressiveFocus.CONTROL_SCALE, pressedScale = 1f)
@@ -73,36 +72,30 @@ private val CapsuleCardShape: CardShape = CardDefaults.shape(
 private val TextCardShape: CardShape = CardDefaults.shape(shape = M3eShapes.card)
 
 /** The size of an icon inside a button, never under the box's 24dp floor. */
-internal fun buttonIconSize(upstream: Dp): Dp =
-    TvSizeFloors.atLeast(upstream, TvSizeFloors.controlIcon)
+internal fun buttonIconSize(upstream: Dp): Dp = TvSizeFloors.atLeast(upstream, TvSizeFloors.controlIcon)
 
 @Composable
-internal fun ClickableSurfaceBorder.expressiveRingless(): ClickableSurfaceBorder =
-    moviesSurfaceBorder()
+internal fun ClickableSurfaceBorder.expressiveRingless(): ClickableSurfaceBorder = moviesSurfaceBorder()
 
 @Composable
 internal fun CardBorder.expressiveRingless(): CardBorder = moviesCardBorder()
 
 @Composable
-internal fun ClickableSurfaceShape.expressiveCard(): ClickableSurfaceShape =
-    surfaceShapeInEveryState(M3eShapes.card)
+internal fun ClickableSurfaceShape.expressiveCard(): ClickableSurfaceShape = surfaceShapeInEveryState(M3eShapes.card)
 
 @Composable
-internal fun ClickableSurfaceScale.expressiveCardGrow(): ClickableSurfaceScale =
-    ControlSurfaceScale
+internal fun ClickableSurfaceScale.expressiveCardGrow(): ClickableSurfaceScale = ControlSurfaceScale
 
 @Composable
 internal fun CardScale.expressiveCardGrow(): CardScale = moviesCardScale
 
 /** A surface used as a button or chip: a capsule in every state. */
 @Composable
-internal fun ClickableSurfaceShape.expressivePill(): ClickableSurfaceShape =
-    surfaceShapeInEveryState(M3eShapes.capsule)
+internal fun ClickableSurfaceShape.expressivePill(): ClickableSurfaceShape = surfaceShapeInEveryState(M3eShapes.capsule)
 
 /** A surface used as a button or chip grows on the kit's control scale. */
 @Composable
-internal fun ClickableSurfaceScale.expressiveControlGrow(): ClickableSurfaceScale =
-    ControlSurfaceScale
+internal fun ClickableSurfaceScale.expressiveControlGrow(): ClickableSurfaceScale = ControlSurfaceScale
 
 /**
  * A surface used as a button or chip: frosted at rest, brighter while [selected] or the main
@@ -133,13 +126,11 @@ internal fun CardColors.expressiveControl(
 
 /** A tv Button in the kit's look; [primary] rests on the brighter frosted fill. */
 @Composable
-internal fun ButtonColors.expressiveControl(primary: Boolean = false): ButtonColors =
-    moviesButtonColors(if (primary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary)
+internal fun ButtonColors.expressiveControl(primary: Boolean = false): ButtonColors = moviesButtonColors(if (primary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary)
 
 /** A tv Button that marks a choice: brighter frosted while [selected], white on focus. */
 @Composable
-internal fun ButtonColors.expressiveChoice(selected: Boolean): ButtonColors =
-    moviesButtonColors(if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary)
+internal fun ButtonColors.expressiveChoice(selected: Boolean): ButtonColors = moviesButtonColors(if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary)
 
 internal fun ButtonShape.expressivePill(): ButtonShape = moviesButtonShape
 

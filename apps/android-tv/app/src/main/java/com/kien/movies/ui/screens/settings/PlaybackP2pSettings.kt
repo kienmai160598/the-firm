@@ -91,6 +91,7 @@ internal fun P2pSettingsDialogs(
             width = 440.dp,
             maxHeight = 360.dp
         )
+
         PlaybackDialog.TORRENT_CACHE_SIZE -> SettingsSingleChoiceDialog(
             title = stringResource(R.string.settings_p2p_cache_size_title),
             subtitle = stringResource(R.string.settings_p2p_cache_size_description),
@@ -106,6 +107,7 @@ internal fun P2pSettingsDialogs(
             width = 420.dp,
             maxHeight = 360.dp
         )
+
         else -> Unit
     }
 }
@@ -120,13 +122,20 @@ internal fun torrentCacheSummary(
     val context = LocalContext.current
     return when {
         cacheState.isClearing -> stringResource(R.string.settings_p2p_clear_cache_clearing)
+
         !clearAvailable -> stringResource(R.string.settings_p2p_clear_cache_playback_active)
+
         clearFailed -> stringResource(R.string.settings_p2p_clear_cache_failed)
+
         clearResult != null -> stringResource(
             R.string.settings_p2p_clear_cache_done,
             Formatter.formatShortFileSize(context, clearResult.reclaimedBytes)
         )
-        !cacheState.hasMeasurement -> stringResource(R.string.settings_p2p_clear_cache_usage_pending)
+
+        !cacheState.hasMeasurement -> stringResource(
+            R.string.settings_p2p_clear_cache_usage_pending
+        )
+
         else -> stringResource(
             R.string.settings_p2p_clear_cache_usage,
             Formatter.formatShortFileSize(context, cacheState.usedBytes)

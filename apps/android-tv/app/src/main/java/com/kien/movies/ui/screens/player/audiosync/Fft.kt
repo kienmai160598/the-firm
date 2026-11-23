@@ -23,8 +23,12 @@ internal class Fft(val size: Int) {
         for (i in 0 until size) {
             val j = bitReversed[i]
             if (j > i) {
-                val tr = re[i]; re[i] = re[j]; re[j] = tr
-                val ti = im[i]; im[i] = im[j]; im[j] = ti
+                val tr = re[i]
+                re[i] = re[j]
+                re[j] = tr
+                val ti = im[i]
+                im[i] = im[j]
+                im[j] = ti
             }
         }
         val sign = if (inverse) 1.0 else -1.0

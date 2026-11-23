@@ -46,22 +46,35 @@ class ServerUserStateProjection @Inject constructor(
     suspend fun apply(details: ServerItemDetails) {
         val meta = details.meta
         val ref = ServerItemRef.parse(meta.id) ?: return
-        val connection = repository.connection(ref.connectionId)?.takeIf { it.importWatchState } ?: return
+        val connection =
+            repository.connection(ref.connectionId)?.takeIf { it.importWatchState } ?: return
         val isSeries = meta.type == ContentType.SERIES
         val profileId = profileManager.activeProfileId.value
 
         val progress = details.userStates
-            .filter { !it.played && it.positionMs > 0L && it.durationMs > 0L && it.lastPlayedEpochMs != null }
+            .filter {
+                !it.played && it.positionMs > 0L && it.durationMs > 0L &&
+                    it.lastPlayedEpochMs != null
+            }
             .map { it.toProgress(meta, isSeries, ServerCatalog.baseUrl(connection.id)) }
             .filter { isNewer(it, isSeries, profileId) }
         watchProgressRepository.saveProgressBatch(progress, syncRemote = false)
 
-        val states = details.userStates.filter { !isSeries || (it.season != null && it.episode != null) }
-        val watchedEpisodes = if (isSeries) watchedItemsPreferences.getWatchedEpisodesForContent(meta.id, profileId).first() else emptySet()
+        val states = details.userStates.filter {
+            !isSeries ||
+                (it.season != null && it.episode != null)
+        }
+        val watchedEpisodes = if (isSeries) {
+            watchedItemsPreferences.getWatchedEpisodesForContent(
+                meta.id,
+                profileId
+            ).first()
+        } else {
+            emptySet()
+        }
         val movieWatched = !isSeries && watchedItemsPreferences.observeAllItems(profileId).first()
             .any { it.contentId == meta.id && it.season == null && it.episode == null }
-        fun ServerUserState.isWatchedLocally(): Boolean =
-            if (isSeries) (season!! to episode!!) in watchedEpisodes else movieWatched
+        fun ServerUserState.isWatchedLocally(): Boolean = if (isSeries) (season!! to episode!!) in watchedEpisodes else movieWatched
 
         val (played, unplayed) = states.partition { it.played }
         watchedItemsPreferences.markAsWatchedBatch(
@@ -70,15 +83,31 @@ class ServerUserStateProjection @Inject constructor(
         )
         val unwatched = unplayed.filter { it.isWatchedLocally() }
         if (isSeries) {
-            watchedItemsPreferences.unmarkAsWatchedBatch(meta.id, unwatched.map { it.season!! to it.episode!! }, profileId)
+            watchedItemsPreferences.unmarkAsWatchedBatch(
+                meta.id,
+                unwatched.map {
+                    it.season!! to
+                        it.episode!!
+                },
+                profileId
+            )
         } else if (unwatched.isNotEmpty()) {
             watchedItemsPreferences.unmarkAsWatched(meta.id, profileId = profileId)
         }
     }
 
-    private suspend fun isNewer(progress: WatchProgress, isSeries: Boolean, profileId: Int): Boolean {
+    private suspend fun isNewer(
+        progress: WatchProgress,
+        isSeries: Boolean,
+        profileId: Int
+    ): Boolean {
         val existing = if (isSeries) {
-            watchProgressPreferences.getEpisodeProgress(progress.contentId, progress.season ?: 0, progress.episode ?: 0, profileId).first()
+            watchProgressPreferences.getEpisodeProgress(
+                progress.contentId,
+                progress.season ?: 0,
+                progress.episode ?: 0,
+                profileId
+            ).first()
         } else {
             watchProgressPreferences.getProgress(progress.contentId, profileId).first()
         }

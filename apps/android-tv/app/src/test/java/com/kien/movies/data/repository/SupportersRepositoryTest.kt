@@ -89,9 +89,7 @@ class SupportersRepositoryTest {
         supporterSince = supporterSince
     )
 
-    private class FakeSupportersApi(
-        private val response: Response<SupportersWallResponseDto>
-    ) : SupportersApi {
+    private class FakeSupportersApi(private val response: Response<SupportersWallResponseDto>) : SupportersApi {
         override suspend fun getSupportersWall(): Response<SupportersWallResponseDto> = response
     }
 }

@@ -35,12 +35,20 @@ class ContinueWatchingNextUpOverlayTest {
     fun `overlay restored from disk does not replace enrichment`() {
         val staleSnapshot = info(description = null)
 
-        assertNull(reusableNextUpOverlay(staleSnapshot, info(description = "From the add-on"), seededFromDisk = true))
+        assertNull(
+            reusableNextUpOverlay(
+                staleSnapshot,
+                info(description = "From the add-on"),
+                seededFromDisk = true
+            )
+        )
     }
 
     @Test
     fun `overlay for another episode is not reused`() {
-        assertNull(reusableNextUpOverlay(info(episode = 5), info(episode = 6), seededFromDisk = false))
+        assertNull(
+            reusableNextUpOverlay(info(episode = 5), info(episode = 6), seededFromDisk = false)
+        )
     }
 
     @Test

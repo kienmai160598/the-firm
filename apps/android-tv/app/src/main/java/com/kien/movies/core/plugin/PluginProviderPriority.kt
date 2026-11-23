@@ -2,10 +2,7 @@ package com.kien.movies.core.plugin
 
 import com.kien.movies.domain.model.scraperIdFromPluginBingeGroup
 
-data class PluginProviderPlayStat(
-    val count: Int,
-    val latestIndex: Int
-)
+data class PluginProviderPlayStat(val count: Int, val latestIndex: Int)
 
 fun pluginProviderPlayStats(plays: List<String>): Map<String, PluginProviderPlayStat> {
     if (plays.isEmpty()) return emptyMap()
@@ -22,10 +19,7 @@ fun pluginProviderPlayStats(plays: List<String>): Map<String, PluginProviderPlay
     return stats
 }
 
-data class PluginRunPlan<T>(
-    val preferred: T?,
-    val others: List<T>
-)
+data class PluginRunPlan<T>(val preferred: T?, val others: List<T>)
 
 /**
  * For next-episode playback, [preferred] is the only scraper to run first.

@@ -2,27 +2,23 @@ package com.kien.movies.data.repository
 
 import android.util.Log
 import com.kien.movies.BuildConfig
+import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.data.remote.api.TraktApi
 import com.kien.movies.data.remote.dto.trakt.TraktEpisodeDto
 import com.kien.movies.data.remote.dto.trakt.TraktIdsDto
 import com.kien.movies.data.remote.dto.trakt.TraktMovieDto
 import com.kien.movies.data.remote.dto.trakt.TraktScrobbleRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktShowDto
-import com.kien.movies.core.profile.ProfileManager
-import kotlinx.coroutines.delay
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
+import kotlinx.coroutines.delay
 
 sealed interface TraktScrobbleItem {
     val itemKey: String
 
-    data class Movie(
-        val title: String?,
-        val year: Int?,
-        val ids: TraktIdsDto
-    ) : TraktScrobbleItem {
+    data class Movie(val title: String?, val year: Int?, val ids: TraktIdsDto) : TraktScrobbleItem {
         override val itemKey: String =
             "movie:${ids.imdb ?: ids.tmdb ?: ids.trakt ?: title.orEmpty()}:${year ?: 0}"
     }
@@ -144,7 +140,10 @@ class TraktScrobbleService @Inject constructor(
                 } else {
                     retryDelayMs * attempt
                 }
-                Log.w(TAG, "Scrobble $action attempt $attempt got ${response.code()}, retrying in ${delayMs}ms")
+                Log.w(
+                    TAG,
+                    "Scrobble $action attempt $attempt got ${response.code()}, retrying in ${delayMs}ms"
+                )
                 delay(delayMs)
                 continue
             }
@@ -187,7 +186,12 @@ class TraktScrobbleService @Inject constructor(
         }
     }
 
-    private fun shouldSkip(profileId: Int, action: String, itemKey: String, progress: Float): Boolean {
+    private fun shouldSkip(
+        profileId: Int,
+        action: String,
+        itemKey: String,
+        progress: Float
+    ): Boolean {
         val last = lastScrobbleStamp ?: return false
         val now = System.currentTimeMillis()
         val isSameWindow = now - last.timestampMs < minSendIntervalMs
@@ -198,7 +202,9 @@ class TraktScrobbleService @Inject constructor(
 
         // Never skip a stop/pause if the last successful action was start —
         // Trakt needs to know playback ended regardless of timing.
-        if ((action == "stop" || action == "pause") && last.action == "start" && isSameItem && isSameProfile) {
+        if ((action == "stop" || action == "pause") && last.action == "start" && isSameItem &&
+            isSameProfile
+        ) {
             return false
         }
 

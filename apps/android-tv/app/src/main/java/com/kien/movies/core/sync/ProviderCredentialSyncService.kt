@@ -11,6 +11,8 @@ import com.kien.movies.data.local.MDBListSettingsDataStore
 import com.kien.movies.data.remote.supabase.SupabaseProviderCredential
 import com.kien.movies.domain.model.AuthState
 import io.github.jan.supabase.postgrest.Postgrest
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,8 +34,6 @@ import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val PROVIDER_CREDENTIAL_TAG = "ProviderCredentialSync"
 private const val PROVIDER_CREDENTIAL_PUSH_DEBOUNCE_MS = 500L
@@ -42,10 +42,7 @@ private const val PROVIDER_CREDENTIAL_FOREGROUND_MIN_INTERVAL_MS = 60_000L
 private const val API_KEY_FIELD = "api_key"
 private const val CLIENT_ID_FIELD = "client_id"
 
-private data class ProviderCredentialScope(
-    val userId: String,
-    val profileId: Int
-)
+private data class ProviderCredentialScope(val userId: String, val profileId: Int)
 
 @Singleton
 class ProviderCredentialSyncService @Inject constructor(
@@ -61,7 +58,8 @@ class ProviderCredentialSyncService @Inject constructor(
     private val syncMutex = Mutex()
     private val stateLock = Any()
     private val observedSnapshots = mutableMapOf<Int, ProviderCredentialSnapshot>()
-    private val baselineSnapshots = mutableMapOf<ProviderCredentialScope, ProviderCredentialSnapshot>()
+    private val baselineSnapshots =
+        mutableMapOf<ProviderCredentialScope, ProviderCredentialSnapshot>()
     private val pendingScopes = mutableSetOf<ProviderCredentialScope>()
     private var foregroundPullJob: Job? = null
     private var lastForegroundPullAtMs: Long = 0L
@@ -85,7 +83,8 @@ class ProviderCredentialSyncService @Inject constructor(
     ): Result<Boolean> = withContext(Dispatchers.IO) {
         syncMutex.withLock {
             try {
-                val credentialScope = currentScope(profileId) ?: return@withLock Result.success(false)
+                val credentialScope =
+                    currentScope(profileId) ?: return@withLock Result.success(false)
                 val localSnapshot = currentSnapshot(profileId)
                 val shouldPush = synchronized(stateLock) {
                     val baseline = baselineSnapshots.getOrPut(credentialScope) {
@@ -136,7 +135,11 @@ class ProviderCredentialSyncService @Inject constructor(
         if (!authManager.isAuthenticated) return
         val now = SystemClock.elapsedRealtime()
         if (!force && foregroundPullJob?.isActive == true) return
-        if (!force && now - lastForegroundPullAtMs < PROVIDER_CREDENTIAL_FOREGROUND_MIN_INTERVAL_MS) return
+        if (!force &&
+            now - lastForegroundPullAtMs < PROVIDER_CREDENTIAL_FOREGROUND_MIN_INTERVAL_MS
+        ) {
+            return
+        }
 
         foregroundPullJob = scope.launch {
             if (!force) {
@@ -177,14 +180,17 @@ class ProviderCredentialSyncService @Inject constructor(
 
     private fun credentialParams(snapshot: ProviderCredentialSnapshot) = buildJsonObject {
         put("p_profile_id", snapshot.profileId)
-        put("p_credentials", buildJsonArray {
-            snapshot.values.forEach { credential ->
-                addJsonObject {
-                    put("provider", credential.provider)
-                    put("credential_json", credential.credentialJson())
+        put(
+            "p_credentials",
+            buildJsonArray {
+                snapshot.values.forEach { credential ->
+                    addJsonObject {
+                        put("provider", credential.provider)
+                        put("credential_json", credential.credentialJson())
+                    }
                 }
             }
-        })
+        )
         putSyncOriginClientId(syncClientIdentity)
     }
 
@@ -232,9 +238,11 @@ class ProviderCredentialSyncService @Inject constructor(
                     val providerId = credential.provider.substringAfter("debrid:")
                     debridSettingsDataStore.setProviderApiKey(providerId, credential.value)
                 }
+
                 credential.provider == ProviderCredentialIds.MDBLIST -> {
                     mdbListSettingsDataStore.setApiKey(credential.value)
                 }
+
                 credential.provider == ProviderCredentialIds.ANIMESKIP -> {
                     animeSkipSettingsDataStore.setClientId(credential.value)
                 }

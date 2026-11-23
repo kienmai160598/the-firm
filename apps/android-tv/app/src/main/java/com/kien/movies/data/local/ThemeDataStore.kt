@@ -3,19 +3,19 @@ package com.kien.movies.data.local
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.kien.movies.core.build.BoxBuild
 import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.domain.model.AppFont
 import com.kien.movies.domain.model.AppTheme
-import com.kien.movies.core.build.BoxBuild
 import com.kien.movies.domain.model.CustomThemeColors
 import com.kien.movies.domain.model.SettingsUiStyle
 import com.kien.movies.domain.model.ThemeSelection
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class ThemeDataStore @Inject constructor(
@@ -26,8 +26,7 @@ class ThemeDataStore @Inject constructor(
         private const val FEATURE = "theme_settings"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
     private val themeKey = stringPreferencesKey("selected_theme")
     private val customThemeColorsKey = stringPreferencesKey("custom_theme_colors")
@@ -39,7 +38,12 @@ class ThemeDataStore @Inject constructor(
     val themeSelection: Flow<ThemeSelection> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.map { prefs ->
             ThemeSelection(
-                theme = prefs[themeKey]?.let { name -> AppTheme.entries.firstOrNull { it.name == name } },
+                theme = prefs[themeKey]?.let { name ->
+                    AppTheme.entries.firstOrNull {
+                        it.name ==
+                            name
+                    }
+                },
                 customColors = CustomThemeColors.decode(prefs[customThemeColorsKey])
             )
         }
@@ -68,7 +72,9 @@ class ThemeDataStore @Inject constructor(
         }
     }
 
-    val settingsUiStyle: Flow<SettingsUiStyle> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val settingsUiStyle: Flow<SettingsUiStyle> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         factory.get(pid, FEATURE).data.map { prefs ->
             val styleName = prefs[settingsUiStyleKey] ?: SettingsUiStyle.CLASSIC.name
             try {
@@ -124,8 +130,7 @@ class ThemeDataStore @Inject constructor(
         return prefs[themeKey]?.let { name -> AppTheme.entries.firstOrNull { it.name == name } }
     }
 
-    fun observeThemeForProfile(profileId: Int): Flow<AppTheme?> =
-        factory.get(profileId, FEATURE).data.map { prefs ->
-            prefs[themeKey]?.let { name -> AppTheme.entries.firstOrNull { it.name == name } }
-        }
+    fun observeThemeForProfile(profileId: Int): Flow<AppTheme?> = factory.get(profileId, FEATURE).data.map { prefs ->
+        prefs[themeKey]?.let { name -> AppTheme.entries.firstOrNull { it.name == name } }
+    }
 }

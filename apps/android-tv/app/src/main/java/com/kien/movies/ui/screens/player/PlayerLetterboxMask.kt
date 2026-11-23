@@ -20,10 +20,7 @@ import kotlin.math.floor
  * painted behind the PlayerView. Only the area outside the video surface is painted.
  */
 @SuppressLint("ViewConstructor")
-internal class PlayerLetterboxMaskView(
-    context: Context,
-    private val playerView: PlayerView
-) : View(context) {
+internal class PlayerLetterboxMaskView(context: Context, private val playerView: PlayerView) : View(context) {
 
     private val paint = Paint().apply {
         color = Color.BLACK
@@ -72,8 +69,12 @@ internal class PlayerLetterboxMaskView(
         lastWidth = width
         lastHeight = height
         bars = letterboxBars(
-            width.toFloat(), height.toFloat(),
-            videoBounds.left, videoBounds.top, videoBounds.right, videoBounds.bottom
+            width.toFloat(),
+            height.toFloat(),
+            videoBounds.left,
+            videoBounds.top,
+            videoBounds.right,
+            videoBounds.bottom
         )
         invalidate()
     }
@@ -90,7 +91,10 @@ internal fun PlayerView.syncLetterboxMask(enabled: Boolean) {
     addView(
         PlayerLetterboxMaskView(context, this),
         if (subtitleIndex >= 0) subtitleIndex else childCount,
-        FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
     )
 }
 
@@ -119,7 +123,12 @@ private fun boundsInAncestor(view: View, ancestor: View, out: RectF): Boolean {
     return true
 }
 
-internal data class LetterboxBar(val left: Float, val top: Float, val right: Float, val bottom: Float)
+internal data class LetterboxBar(
+    val left: Float,
+    val top: Float,
+    val right: Float,
+    val bottom: Float
+)
 
 /**
  * The parts of a [width] x [height] frame outside the video rectangle. The video rectangle is

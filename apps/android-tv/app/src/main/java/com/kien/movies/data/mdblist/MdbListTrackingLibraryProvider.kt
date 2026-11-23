@@ -21,18 +21,23 @@ class MdbListTrackingLibraryProvider @Inject constructor(
     override val items = service.items
     override val tabs = service.tabs
 
-    override fun recognizesListKey(key: String): Boolean =
-        key == MDBLIST_WATCHLIST_KEY || key.startsWith(MDBLIST_LIST_KEY_PREFIX) || isMdbListReadOnlyListKey(key)
+    override fun recognizesListKey(key: String): Boolean = key == MDBLIST_WATCHLIST_KEY || key.startsWith(MDBLIST_LIST_KEY_PREFIX) ||
+        isMdbListReadOnlyListKey(key)
 
     override fun observeMembership(itemId: String, itemType: String) = service.observeMembership(itemId, itemType)
 
-    override fun toggledDefaultMembership(currentMembership: Map<String, Boolean>): Map<String, Boolean> =
-        currentMembership + (MDBLIST_WATCHLIST_KEY to (currentMembership[MDBLIST_WATCHLIST_KEY] != true))
+    override fun toggledDefaultMembership(
+        currentMembership: Map<String, Boolean>
+    ): Map<String, Boolean> = currentMembership +
+        (MDBLIST_WATCHLIST_KEY to (currentMembership[MDBLIST_WATCHLIST_KEY] != true))
 
     override suspend fun getMembershipSnapshot(item: LibraryEntryInput) = service.getMembershipSnapshot(item)
 
-    override suspend fun applyMembershipChanges(item: LibraryEntryInput, changes: ListMembershipChanges, destructiveRemovalConfirmed: Boolean) =
-        service.applyMembershipChanges(item, changes)
+    override suspend fun applyMembershipChanges(
+        item: LibraryEntryInput,
+        changes: ListMembershipChanges,
+        destructiveRemovalConfirmed: Boolean
+    ) = service.applyMembershipChanges(item, changes)
 
     override suspend fun refresh(intent: TrackingRefreshIntent) = service.refresh(intent)
 }

@@ -77,7 +77,8 @@ fun CustomColorEditorPreview() {
         subtitle = stringResource(R.string.custom_theme_solid_subtitle),
         width = 840.dp
     ) {
-        CustomThemeEditor(CustomThemeColors.Default, gradientEnabled = false, onSave = {}, onDismiss = {})
+        CustomThemeEditor(CustomThemeColors.Default, gradientEnabled = false, onSave = {
+        }, onDismiss = {})
     }
 }
 
@@ -101,13 +102,18 @@ private fun ThemeEditorPreviewFrame(
     content: @Composable ColumnScope.() -> Unit
 ) {
     MoviesTheme(appTheme = AppTheme.ROSE_GOLD) {
-        CompositionLocalProvider(LocalMoviesFocusRingStyle provides createFocusRingStyle(ThemeColors.White)) {
+        CompositionLocalProvider(
+            LocalMoviesFocusRingStyle provides createFocusRingStyle(ThemeColors.White)
+        ) {
             Box(
                 Modifier.fillMaxSize().background(MoviesTheme.colors.Background),
                 contentAlignment = Alignment.Center
             ) {
                 val shape = RoundedCornerShape(MoviesTheme.radii.xl)
-                val maxDialogHeight = (LocalConfiguration.current.screenHeightDp.dp - MoviesTheme.spacing.xxxl)
+                val maxDialogHeight = (
+                    LocalConfiguration.current.screenHeightDp.dp -
+                        MoviesTheme.spacing.xxxl
+                    )
                     .coerceAtLeast(320.dp)
                 Column(
                     Modifier
@@ -118,8 +124,16 @@ private fun ThemeEditorPreviewFrame(
                         .padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(title, style = MaterialTheme.typography.titleLarge, color = MoviesTheme.colors.TextPrimary)
-                    Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MoviesTheme.colors.TextSecondary)
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MoviesTheme.colors.TextPrimary
+                    )
+                    Text(
+                        subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MoviesTheme.colors.TextSecondary
+                    )
                     content()
                 }
             }

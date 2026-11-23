@@ -13,14 +13,14 @@ import com.kien.movies.core.server.RepositoryConfigServer
 import com.kien.movies.core.util.readAppLogoBytes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class PluginViewModel @Inject constructor(
@@ -80,28 +80,53 @@ class PluginViewModel @Inject constructor(
     fun onEvent(event: PluginUiEvent) {
         when (event) {
             is PluginUiEvent.AddRepository -> addRepository(event.url)
+
             is PluginUiEvent.RemoveRepository -> removeRepository(event.repoId)
+
             is PluginUiEvent.RefreshRepository -> refreshRepository(event.repoId)
+
             is PluginUiEvent.ToggleScraper -> toggleScraper(event.scraperId, event.enabled)
-            is PluginUiEvent.ToggleAllScrapersForRepo -> toggleAllScrapersForRepo(event.repoId, event.enabled)
+
+            is PluginUiEvent.ToggleAllScrapersForRepo -> toggleAllScrapersForRepo(
+                event.repoId,
+                event.enabled
+            )
+
             is PluginUiEvent.TestScraper -> testScraper(event.scraperId)
+
             is PluginUiEvent.SetPluginsEnabled -> setPluginsEnabled(event.enabled)
-            is PluginUiEvent.SetGroupStreamsByRepository -> setGroupStreamsByRepository(event.enabled)
-            PluginUiEvent.ClearTestResults -> _uiState.update { it.copy(testResults = null, testDiagnostics = null, testScraperId = null) }
+
+            is PluginUiEvent.SetGroupStreamsByRepository -> setGroupStreamsByRepository(
+                event.enabled
+            )
+
+            PluginUiEvent.ClearTestResults -> _uiState.update {
+                it.copy(testResults = null, testDiagnostics = null, testScraperId = null)
+            }
+
             PluginUiEvent.ClearError -> _uiState.update { it.copy(errorMessage = null) }
+
             PluginUiEvent.ClearSuccess -> _uiState.update { it.copy(successMessage = null) }
+
             PluginUiEvent.StartQrMode -> startQrMode()
+
             PluginUiEvent.StopQrMode -> stopQrMode()
+
             PluginUiEvent.ConfirmPendingRepoChange -> confirmPendingRepoChange()
+
             PluginUiEvent.RejectPendingRepoChange -> rejectPendingRepoChange()
+
             PluginUiEvent.ConfirmPendingScraperEnable -> confirmPendingScraperEnable()
+
             PluginUiEvent.DismissPendingScraperEnable -> dismissPendingScraperEnable()
         }
     }
 
     private fun addRepository(url: String) {
         if (url.isBlank()) {
-            _uiState.update { it.copy(errorMessage = context.getString(R.string.plugin_error_invalid_url)) }
+            _uiState.update {
+                it.copy(errorMessage = context.getString(R.string.plugin_error_invalid_url))
+            }
             return
         }
 
@@ -127,7 +152,10 @@ class PluginViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isAddingRepo = false,
-                            errorMessage = context.getString(R.string.plugin_error_add_repo, e.message ?: "")
+                            errorMessage = context.getString(
+                                R.string.plugin_error_add_repo,
+                                e.message ?: ""
+                            )
                         )
                     }
                 }
@@ -167,7 +195,10 @@ class PluginViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = context.getString(R.string.plugin_error_refresh, e.message ?: "")
+                            errorMessage = context.getString(
+                                R.string.plugin_error_refresh,
+                                e.message ?: ""
+                            )
                         )
                     }
                 }
@@ -177,7 +208,9 @@ class PluginViewModel @Inject constructor(
 
     private fun toggleScraper(scraperId: String, enabled: Boolean) {
         val scraper = _uiState.value.scrapers.firstOrNull { it.id == scraperId }
-        if (enabled && scraper != null && PluginSafety.isVideoEasyScraper(scraper.id, scraper.name, scraper.filename)) {
+        if (enabled && scraper != null &&
+            PluginSafety.isVideoEasyScraper(scraper.id, scraper.name, scraper.filename)
+        ) {
             _uiState.update {
                 it.copy(
                     pendingScraperEnable = PendingScraperEnableInfo(
@@ -228,7 +261,14 @@ class PluginViewModel @Inject constructor(
 
     private fun testScraper(scraperId: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isTesting = true, testScraperId = scraperId, testResults = null, testDiagnostics = null) }
+            _uiState.update {
+                it.copy(
+                    isTesting = true,
+                    testScraperId = scraperId,
+                    testResults = null,
+                    testDiagnostics = null
+                )
+            }
 
             val result = pluginManager.testScraper(scraperId)
 
@@ -271,7 +311,9 @@ class PluginViewModel @Inject constructor(
     private fun startQrMode() {
         val ip = DeviceIpAddress.get(context)
         if (ip == null) {
-            _uiState.update { it.copy(errorMessage = context.getString(R.string.error_network_required)) }
+            _uiState.update {
+                it.copy(errorMessage = context.getString(R.string.error_network_required))
+            }
             return
         }
 
@@ -294,7 +336,9 @@ class PluginViewModel @Inject constructor(
 
         val activeServer = repoServer
         if (activeServer == null) {
-            _uiState.update { it.copy(errorMessage = context.getString(R.string.error_server_ports_unavailable)) }
+            _uiState.update {
+                it.copy(errorMessage = context.getString(R.string.error_server_ports_unavailable))
+            }
             return
         }
 
@@ -329,7 +373,9 @@ class PluginViewModel @Inject constructor(
     }
 
     private fun handleRepoChangeProposed(change: RepositoryConfigServer.PendingRepoChange) {
-        val currentUrls = _uiState.value.repositories.map { normalizeUrlForComparison(it.url) }.toSet()
+        val currentUrls = _uiState.value.repositories.map {
+            normalizeUrlForComparison(it.url)
+        }.toSet()
         val proposedNormalized = change.proposedUrls.map { normalizeUrlForComparison(it) }.toSet()
 
         val added = change.proposedUrls.filter { normalizeUrlForComparison(it) !in currentUrls }
@@ -361,7 +407,10 @@ class PluginViewModel @Inject constructor(
 
             val currentRepos = _uiState.value.repositories
             for (url in pending.removedUrls) {
-                val repo = currentRepos.find { normalizeUrlForComparison(it.url) == normalizeUrlForComparison(url) }
+                val repo = currentRepos.find {
+                    normalizeUrlForComparison(it.url) ==
+                        normalizeUrlForComparison(url)
+                }
                 if (repo != null) {
                     pluginManager.removeRepository(repo.id)
                 }

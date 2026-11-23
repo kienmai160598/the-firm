@@ -20,8 +20,8 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
@@ -42,13 +42,25 @@ import org.junit.Test
 class MediaServerSyncServiceTest {
     private var remote: List<SyncedServer>? = null
     private val calls = mutableListOf<String>()
-    private val authState = MutableStateFlow<AuthState>(AuthState.FullAccount("user", "user@example.com"))
+    private val authState =
+        MutableStateFlow<AuthState>(AuthState.FullAccount("user", "user@example.com"))
     private val activeProfileId = MutableStateFlow(1)
-    private val repository = ServerRepository(MemoryServerPersistence(), listOf(FakeServerProvider()), CoroutineScope(Dispatchers.Unconfined))
+    private val repository =
+        ServerRepository(
+            MemoryServerPersistence(),
+            listOf(FakeServerProvider()),
+            CoroutineScope(Dispatchers.Unconfined)
+        )
     private val service = MediaServerSyncService(
         postgrest = postgrest(),
-        authManager = mockk<AuthManager>(relaxed = true) { every { authState } returns this@MediaServerSyncServiceTest.authState },
-        profileManager = mockk<ProfileManager> { every { activeProfileId } returns this@MediaServerSyncServiceTest.activeProfileId },
+        authManager = mockk<AuthManager>(relaxed = true) {
+            every { authState } returns
+                this@MediaServerSyncServiceTest.authState
+        },
+        profileManager = mockk<ProfileManager> {
+            every { activeProfileId } returns
+                this@MediaServerSyncServiceTest.activeProfileId
+        },
         repository = repository,
         syncClientIdentity = mockk { every { currentClientId() } returns "tv-test" }
     )
@@ -74,7 +86,10 @@ class MediaServerSyncServiceTest {
 
     @Test
     fun keepsLocalImportSettingWhenRemoteHasNone() = runBlocking {
-        repository.store(connection("local-a", server = "s1").copy(importWatchState = true), token = "token-a")
+        repository.store(
+            connection("local-a", server = "s1").copy(importWatchState = true),
+            token = "token-a"
+        )
         remote = listOf(synced("remote-a", server = "s1", token = "token-a"))
 
         service.syncFromRemote(1).getOrThrow()
@@ -85,15 +100,31 @@ class MediaServerSyncServiceTest {
     @Test
     fun syncsMixedLibraries() = runBlocking {
         val mixed = ServerLibrary("90", "Everything", ServerMediaKind.MIXED)
-        repository.store(connection("local-a", server = "s1").copy(libraries = listOf(mixed)), token = "token-a")
+        repository.store(
+            connection("local-a", server = "s1").copy(libraries = listOf(mixed)),
+            token = "token-a"
+        )
 
         service.syncFromRemote(1).getOrThrow()
-        assertEquals(listOf(SyncedLibrary("90", "Everything", "mixed", true)), remote!!.single().libraries)
+        assertEquals(
+            listOf(SyncedLibrary("90", "Everything", "mixed", true)),
+            remote!!.single().libraries
+        )
 
-        remote = listOf(synced("remote-a", server = "s1", token = "token-a").copy(libraries = listOf(SyncedLibrary("90", "Everything", "mixed", false))))
+        remote =
+            listOf(
+                synced(
+                    "remote-a",
+                    server = "s1",
+                    token = "token-a"
+                ).copy(libraries = listOf(SyncedLibrary("90", "Everything", "mixed", false)))
+            )
         service.syncFromRemote(1).getOrThrow()
 
-        assertEquals(listOf(mixed.copy(selected = false)), repository.uiState.value.connections.single().libraries)
+        assertEquals(
+            listOf(mixed.copy(selected = false)),
+            repository.uiState.value.connections.single().libraries
+        )
     }
 
     @Test
@@ -169,7 +200,10 @@ class MediaServerSyncServiceTest {
 
     @Test
     fun pushesEveryFieldEvenWhenDefault() = runBlocking {
-        repository.store(connection("local-a", server = "s1").copy(enabled = true, useCatalogMetadata = false), token = "token-a")
+        repository.store(
+            connection("local-a", server = "s1").copy(enabled = true, useCatalogMetadata = false),
+            token = "token-a"
+        )
 
         service.syncFromRemote(1).getOrThrow()
 
@@ -189,7 +223,12 @@ class MediaServerSyncServiceTest {
         libraries = listOf(FakeServerProvider.MOVIE_LIBRARY)
     )
 
-    private fun synced(id: String, server: String, token: String = "token-$id", selected: Boolean = true) = SyncedServer(
+    private fun synced(
+        id: String,
+        server: String,
+        token: String = "token-$id",
+        selected: Boolean = true
+    ) = SyncedServer(
         id = id,
         providerId = "fake",
         name = "Box",
@@ -210,16 +249,26 @@ class MediaServerSyncServiceTest {
             synchronized(calls) { calls += name }
             val body = when (name) {
                 "sync_pull_media_servers" -> JsonArray(
-                    listOfNotNull(remote?.let { servers ->
-                        buildJsonObject { put("servers_json", Json.encodeToJsonElement(servers)) }
-                    })
+                    listOfNotNull(
+                        remote?.let { servers ->
+                            buildJsonObject {
+                                put("servers_json", Json.encodeToJsonElement(servers))
+                            }
+                        }
+                    )
                 ).toString()
+
                 "sync_push_media_servers" -> {
                     val servers = params.getValue("p_servers").jsonArray
-                    servers.forEach { server -> check(server.jsonObject.keys == REQUIRED_KEYS) { "Rejected ${server.jsonObject.keys}" } }
+                    servers.forEach { server ->
+                        check(server.jsonObject.keys == REQUIRED_KEYS) {
+                            "Rejected ${server.jsonObject.keys}"
+                        }
+                    }
                     remote = servers.map { Json.decodeFromJsonElement<SyncedServer>(it) }
                     "\"2026-09-26T00:00:00Z\""
                 }
+
                 else -> error("Unexpected RPC $name")
             }
             PostgrestResult(body, Headers.Empty, postgrest)

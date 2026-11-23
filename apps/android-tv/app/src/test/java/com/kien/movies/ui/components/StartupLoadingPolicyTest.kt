@@ -38,7 +38,12 @@ class StartupLoadingPolicyTest {
 
     @Test
     fun `direct launches do not wait for home`() {
-        listOf(Screen.Detail.route, Screen.Stream.route, Screen.Player.route, Screen.Settings.route).forEach { route ->
+        listOf(
+            Screen.Detail.route,
+            Screen.Stream.route,
+            Screen.Player.route,
+            Screen.Settings.route
+        ).forEach { route ->
             assertEquals(StartupDestination.Content, startupDestinationForRoute(route))
             assertFalse(show(startupDestinationForRoute(route)))
         }
@@ -74,6 +79,5 @@ class StartupLoadingPolicyTest {
         }
     }
 
-    private fun show(destination: StartupDestination, complete: Boolean = false): Boolean =
-        shouldShowStartupSplash(true, complete, destination)
+    private fun show(destination: StartupDestination, complete: Boolean = false): Boolean = shouldShowStartupSplash(true, complete, destination)
 }

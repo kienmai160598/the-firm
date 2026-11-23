@@ -1,25 +1,23 @@
 package com.kien.movies.ui.screens.player
 
 import android.os.SystemClock
+import java.io.IOException
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.Proxy
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import okhttp3.Call
 import okhttp3.Connection
 import okhttp3.EventListener
 import okhttp3.Handshake
 import okhttp3.Protocol
 import okhttp3.Response
-import java.io.IOException
-import java.net.InetAddress
-import java.net.InetSocketAddress
-import java.net.Proxy
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedDeque
 
-internal class PlaybackConnectionEventListener(
-    private val id: Long
-) : EventListener() {
+internal class PlaybackConnectionEventListener(private val id: Long) : EventListener() {
 
     private val emitted = AtomicBoolean(false)
 
@@ -144,8 +142,20 @@ internal class PlaybackConnectionEventListener(
         val protoLabel = proto ?: "unknown"
         val preDnsMs = if (dnsT0 > 0L && callT0 > 0L) (dnsT0 - callT0).coerceAtLeast(0L) else -1L
         val routeMs = if (dnsEndT > 0L && connT0 > 0L) (connT0 - dnsEndT).coerceAtLeast(0L) else -1L
-        val ttfbMs = if (connEndT > 0L && headersT > 0L) (headersT - connEndT).coerceAtLeast(0L) else -1L
-        val acqToHdrMs = if (acqT > 0L && headersT > 0L) (headersT - acqT).coerceAtLeast(0L) else -1L
+        val ttfbMs = if (connEndT > 0L &&
+            headersT > 0L
+        ) {
+            (headersT - connEndT).coerceAtLeast(0L)
+        } else {
+            -1L
+        }
+        val acqToHdrMs = if (acqT > 0L &&
+            headersT > 0L
+        ) {
+            (headersT - acqT).coerceAtLeast(0L)
+        } else {
+            -1L
+        }
         val logLine = "NET_CONN id=$id outcome=$outcome pooled=${opens == 0} opens=$opens " +
             "dns=${dnsMs}ms connect=${connMs}ms tls=${tlsMs}ms " +
             "headers=${headersMs}ms total=${totalMs}ms " +
@@ -165,9 +175,13 @@ internal object PlaybackConnectionEvents : EventListener.Factory {
     private const val MAX_RECENT_LOGS = 50
 
     @Volatile private var resolvedServingHost: String? = null
-    fun setResolvedHost(host: String?) { resolvedServingHost = host?.takeIf { it.isNotBlank() } }
+    fun setResolvedHost(host: String?) {
+        resolvedServingHost = host?.takeIf { it.isNotBlank() }
+    }
     fun resolvedHost(): String? = resolvedServingHost
-    fun clearResolvedHost() { resolvedServingHost = null }
+    fun clearResolvedHost() {
+        resolvedServingHost = null
+    }
 
     fun recordEvent(msg: String) {
         recentLogs.addLast(msg)
@@ -196,6 +210,5 @@ internal object PlaybackConnectionEvents : EventListener.Factory {
         inflightPerHost[host]?.updateAndGet { if (it > 0) it - 1 else 0 }
     }
 
-    override fun create(call: Call): EventListener =
-        PlaybackConnectionEventListener(seq.incrementAndGet())
+    override fun create(call: Call): EventListener = PlaybackConnectionEventListener(seq.incrementAndGet())
 }

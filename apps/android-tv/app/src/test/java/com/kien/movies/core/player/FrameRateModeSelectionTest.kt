@@ -169,7 +169,10 @@ class FrameRateModeSelectionTest {
     @Test
     fun `an exact multiple is still picked`() {
         assertEquals(119.88f, pickRate(listOf(59.94f, 60f, 119.88f, 120f), film))
-        assertEquals(119.88013f, pickRate(listOf(59.94006f, 60.000004f, 119.88013f, 120.00001f), film))
+        assertEquals(
+            119.88013f,
+            pickRate(listOf(59.94006f, 60.000004f, 119.88013f, 120.00001f), film)
+        )
         assertEquals(120f, pickRate(listOf(60f, 120f), 24f))
         assertEquals(100f, pickRate(listOf(60f, 100f), 25f))
     }
@@ -181,7 +184,8 @@ class FrameRateModeSelectionTest {
 
     @Test
     fun `resolution matching also prefers a clean multiple to pulldown`() {
-        val modes = listOf(mode(1, 1920, 1080, 60f), mode(2, 1920, 1080, 120f), mode(3, 3840, 2160, 60f))
+        val modes =
+            listOf(mode(1, 1920, 1080, 60f), mode(2, 1920, 1080, 120f), mode(3, 3840, 2160, 60f))
         assertEquals(2, pick(modes, 24f, 1920, 1080, activeId = 1))
     }
 
@@ -196,8 +200,7 @@ class FrameRateModeSelectionTest {
         return modes.firstOrNull { it.modeId == id }?.refreshRate
     }
 
-    private fun mode(id: Int, width: Int, height: Int, refreshRate: Float) =
-        DisplayModeSpec(modeId = id, width = width, height = height, refreshRate = refreshRate)
+    private fun mode(id: Int, width: Int, height: Int, refreshRate: Float) = DisplayModeSpec(modeId = id, width = width, height = height, refreshRate = refreshRate)
 
     private fun pick(
         modes: List<DisplayModeSpec>,

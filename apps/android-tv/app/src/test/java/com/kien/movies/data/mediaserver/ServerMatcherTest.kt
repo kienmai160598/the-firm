@@ -28,12 +28,19 @@ class ServerMatcherTest {
     }
     private val metaRepository = mockk<MetaRepository> {
         every { getCachedMeta(any(), any()) } returns null
-        every { getMetaFromAllAddons(any(), any(), any()) } returns flowOf(NetworkResult.Error("no addon"))
+        every { getMetaFromAllAddons(any(), any(), any()) } returns
+            flowOf(NetworkResult.Error("no addon"))
     }
 
-    private fun matcher(provider: FakeServerProvider = FakeServerProvider()): Triple<ServerMatcher, ServerRepository, ServerConnection> {
+    private fun matcher(
+        provider: FakeServerProvider = FakeServerProvider()
+    ): Triple<ServerMatcher, ServerRepository, ServerConnection> {
         val (repository, connection) = fakeServerRepository(provider)
-        return Triple(ServerMatcher(repository, tmdbService, metaRepository), repository, connection)
+        return Triple(
+            ServerMatcher(repository, tmdbService, metaRepository),
+            repository,
+            connection
+        )
     }
 
     @Test
@@ -58,7 +65,10 @@ class ServerMatcherTest {
         val episode = matcher.request("series", "kitsu:123:5", 1, 5)!!
         assertEquals(1, episode.season)
         assertEquals(5, episode.episode)
-        val index = LibraryIndex(listOf(ServerIndexEntry("a", TrackingExternalIds(kitsu = 123, anilist = 9))))
+        val index =
+            LibraryIndex(
+                listOf(ServerIndexEntry("a", TrackingExternalIds(kitsu = 123, anilist = 9)))
+            )
         assertEquals(listOf("a"), index.lookup(TrackingExternalIds(kitsu = 123)))
         assertTrue(index.lookup(TrackingExternalIds(kitsu = 123, anilist = 8)).isEmpty())
     }
@@ -81,7 +91,10 @@ class ServerMatcherTest {
                 ServerIndexEntry("d", TrackingExternalIds(imdb = "tt2"))
             )
         )
-        assertEquals(listOf("a", "c"), index.lookup(TrackingExternalIds(imdb = "tt1", tmdb = 10)).sorted())
+        assertEquals(
+            listOf("a", "c"),
+            index.lookup(TrackingExternalIds(imdb = "tt1", tmdb = 10)).sorted()
+        )
         assertTrue(index.lookup(TrackingExternalIds(imdb = "tt404")).isEmpty())
     }
 
@@ -102,7 +115,10 @@ class ServerMatcherTest {
         val request = matcher.request("movie", "tt0111161", null, null)!!
 
         assertTrue(matcher.supports(connection, ServerMediaKind.MOVIE))
-        assertEquals(listOf(ServerItemRef(connection.id, "42")), matcher.match(connection, request, forceRefresh = false))
+        assertEquals(
+            listOf(ServerItemRef(connection.id, "42")),
+            matcher.match(connection, request, forceRefresh = false)
+        )
     }
 
     @Test
@@ -125,18 +141,27 @@ class ServerMatcherTest {
 
     @Test
     fun convertsTmdbIdsBeforeMatching() = runBlocking {
-        val provider = FakeServerProvider().apply { indexedIds["42"] = TrackingExternalIds(imdb = "tt0111161") }
+        val provider = FakeServerProvider().apply {
+            indexedIds["42"] =
+                TrackingExternalIds(imdb = "tt0111161")
+        }
         coEvery { tmdbService.tmdbToImdb(278, "movie") } returns "tt0111161"
         val (matcher, _, connection) = matcher(provider)
 
         val request = matcher.request("movie", "tmdb:278", null, null)!!
 
-        assertEquals(listOf(ServerItemRef(connection.id, "42")), matcher.match(connection, request, forceRefresh = false))
+        assertEquals(
+            listOf(ServerItemRef(connection.id, "42")),
+            matcher.match(connection, request, forceRefresh = false)
+        )
     }
 
     @Test
     fun sharedLookupAddsServerSourcesForCatalogItems() = runBlocking {
-        val provider = FakeServerProvider().apply { indexedIds["42"] = TrackingExternalIds(imdb = "tt0111161") }
+        val provider = FakeServerProvider().apply {
+            indexedIds["42"] =
+                TrackingExternalIds(imdb = "tt0111161")
+        }
         val (matcher, repository, connection) = matcher(provider)
         val streams = ServerStreams(repository, matcher)
 
@@ -152,7 +177,13 @@ class ServerMatcherTest {
             indexedIds["42"] = TrackingExternalIds(imdb = "tt0078788")
             titleLookup = { library, query ->
                 if (library.kind == ServerMediaKind.MOVIE && query.ids.imdb == "tt0078788") {
-                    listOf(ServerIndexEntry("42", TrackingExternalIds(imdb = "tt0078788", tmdb = 28), year = 1979))
+                    listOf(
+                        ServerIndexEntry(
+                            "42",
+                            TrackingExternalIds(imdb = "tt0078788", tmdb = 28),
+                            year = 1979
+                        )
+                    )
                 } else {
                     emptyList()
                 }
@@ -161,7 +192,10 @@ class ServerMatcherTest {
         val (matcher, _, connection) = matcher(provider)
         val request = matcher.request("movie", "tt0078788", null, null)!!
 
-        assertEquals(listOf(ServerItemRef(connection.id, "42")), matcher.match(connection, request, forceRefresh = false))
+        assertEquals(
+            listOf(ServerItemRef(connection.id, "42")),
+            matcher.match(connection, request, forceRefresh = false)
+        )
         assertEquals("tt0078788", provider.titleQueries.single().ids.imdb)
         assertEquals(0, provider.indexRequests)
     }
@@ -171,7 +205,13 @@ class ServerMatcherTest {
         val provider = FakeServerProvider().apply {
             episodes[1 to 1] = ServerEpisode(FakeServerProvider.EPISODE_ID, "2011-04-17")
             titleLookup = { library, query ->
-                if (library.kind == ServerMediaKind.SERIES) listOf(ServerIndexEntry(FakeServerProvider.SHOW_ID, query.ids)) else emptyList()
+                if (library.kind ==
+                    ServerMediaKind.SERIES
+                ) {
+                    listOf(ServerIndexEntry(FakeServerProvider.SHOW_ID, query.ids))
+                } else {
+                    emptyList()
+                }
             }
         }
         val (matcher, _, connection) = matcher(provider)
@@ -192,8 +232,16 @@ class ServerMatcherTest {
             titleLookup = { _, query ->
                 query.name?.let {
                     listOf(
-                        ServerIndexEntry("41", TrackingExternalIds(imdb = "tt9999999"), year = 1979),
-                        ServerIndexEntry("42", TrackingExternalIds(imdb = "tt0078788"), year = 1979),
+                        ServerIndexEntry(
+                            "41",
+                            TrackingExternalIds(imdb = "tt9999999"),
+                            year = 1979
+                        ),
+                        ServerIndexEntry(
+                            "42",
+                            TrackingExternalIds(imdb = "tt0078788"),
+                            year = 1979
+                        ),
                         ServerIndexEntry("43", TrackingExternalIds(), year = 1979)
                     )
                 }
@@ -204,7 +252,10 @@ class ServerMatcherTest {
 
         assertEquals("Apocalypse Now", request.name)
         assertEquals(1979, request.year)
-        assertEquals(listOf(ServerItemRef(connection.id, "42")), matcher.match(connection, request, forceRefresh = false))
+        assertEquals(
+            listOf(ServerItemRef(connection.id, "42")),
+            matcher.match(connection, request, forceRefresh = false)
+        )
         assertEquals("Apocalypse Now", provider.titleQueries.single().name)
         assertEquals(0, provider.indexRequests)
     }
@@ -231,7 +282,16 @@ class ServerMatcherTest {
         every { metaRepository.getCachedMeta("movie", "tt1160419") } returns
             meta("tt1160419", ServerMediaKind.MOVIE, "Dune").copy(releaseInfo = "2021")
         val provider = FakeServerProvider().apply {
-            titleLookup = { _, _ -> listOf(ServerIndexEntry("84", TrackingExternalIds(imdb = "tt0087182", tmdb = 841), year = 1984)) }
+            titleLookup =
+                { _, _ ->
+                    listOf(
+                        ServerIndexEntry(
+                            "84",
+                            TrackingExternalIds(imdb = "tt0087182", tmdb = 841),
+                            year = 1984
+                        )
+                    )
+                }
         }
         val (matcher, _, connection) = matcher(provider)
         val request = matcher.request("movie", "tt1160419", null, null)!!
@@ -249,24 +309,43 @@ class ServerMatcherTest {
             ServerIndexEntry("d", TrackingExternalIds(tmdb = 28), year = null),
             ServerIndexEntry("e", TrackingExternalIds(tmdb = 28), year = 1980)
         )
-        val query = ServerTitleQuery(TrackingExternalIds(imdb = "tt0078788", tmdb = 28), "Apocalypse Now", 1979)
+        val query =
+            ServerTitleQuery(
+                TrackingExternalIds(imdb = "tt0078788", tmdb = 28),
+                "Apocalypse Now",
+                1979
+            )
 
         assertEquals(listOf("a", "c", "d", "e"), verifiedTitleMatches(entries, query).sorted())
-        assertEquals(listOf("a", "b", "c", "d", "e"), verifiedTitleMatches(entries, query.copy(year = null)).sorted())
+        assertEquals(
+            listOf("a", "b", "c", "d", "e"),
+            verifiedTitleMatches(entries, query.copy(year = null)).sorted()
+        )
     }
 
     @Test
     fun remembersFoundAndMissingTitles() = runBlocking {
         val provider = FakeServerProvider().apply {
             titleLookup = { _, query ->
-                if (query.ids.imdb == "tt0078788") listOf(ServerIndexEntry("42", query.ids)) else emptyList()
+                if (query.ids.imdb ==
+                    "tt0078788"
+                ) {
+                    listOf(ServerIndexEntry("42", query.ids))
+                } else {
+                    emptyList()
+                }
             }
         }
         val (matcher, _, connection) = matcher(provider)
         val hit = matcher.request("movie", "tt0078788", null, null)!!
         val miss = matcher.request("movie", "tt0068646", null, null)!!
 
-        repeat(2) { assertEquals(listOf(ServerItemRef(connection.id, "42")), matcher.match(connection, hit, forceRefresh = false)) }
+        repeat(2) {
+            assertEquals(
+                listOf(ServerItemRef(connection.id, "42")),
+                matcher.match(connection, hit, forceRefresh = false)
+            )
+        }
         repeat(2) { assertTrue(matcher.match(connection, miss, forceRefresh = false).isEmpty()) }
         assertEquals(2, provider.titleQueries.size)
 
@@ -285,7 +364,12 @@ class ServerMatcherTest {
         val quick = FakeServerProvider(id = "quick").apply {
             titleLookup = { _, query -> listOf(ServerIndexEntry("42", query.ids)) }
         }
-        val repository = ServerRepository(MemoryServerPersistence(), listOf(slow, quick), CoroutineScope(Dispatchers.Unconfined))
+        val repository =
+            ServerRepository(
+                MemoryServerPersistence(),
+                listOf(slow, quick),
+                CoroutineScope(Dispatchers.Unconfined)
+            )
         listOf("slow", "quick").forEach { providerId ->
             repository.store(
                 ServerConnection(
@@ -302,20 +386,30 @@ class ServerMatcherTest {
                 token = "token"
             )
         }
-        val streams = ServerStreams(repository, ServerMatcher(repository, tmdbService, metaRepository))
+        val streams =
+            ServerStreams(repository, ServerMatcher(repository, tmdbService, metaRepository))
         val sources = streams.sources("movie", "tt0078788", null, null)
         assertEquals(2, sources.size)
 
         val startedAt = System.currentTimeMillis()
         val loads = sources.map { source ->
-            async(Dispatchers.IO) { runCatching { source.load() } to System.currentTimeMillis() - startedAt }
+            async(Dispatchers.IO) {
+                runCatching { source.load() } to
+                    System.currentTimeMillis() - startedAt
+            }
         }
         val (quickResult, quickMs) = loads[1].await()
-        assertEquals(ServerItemRef("cquick", "42"), quickResult.getOrThrow().single().serverTarget?.item)
+        assertEquals(
+            ServerItemRef("cquick", "42"),
+            quickResult.getOrThrow().single().serverTarget?.item
+        )
         assertTrue("quick server took $quickMs ms", quickMs < 3_000)
 
         val (slowResult, slowMs) = loads[0].await()
-        assertEquals(ServerFailure.INCOMPLETE, (slowResult.exceptionOrNull() as ServerException).failure)
+        assertEquals(
+            ServerFailure.INCOMPLETE,
+            (slowResult.exceptionOrNull() as ServerException).failure
+        )
         assertTrue("slow server gave up after $slowMs ms", slowMs < 10_000)
         assertEquals(0, slow.indexRequests + quick.indexRequests)
     }
@@ -330,14 +424,23 @@ class ServerMatcherTest {
         val request = matcher.request("movie", "tt0078788", null, null)!!
 
         assertNull(request.name)
-        assertEquals(listOf(ServerItemRef(connection.id, "42")), matcher.match(connection, request, forceRefresh = false))
+        assertEquals(
+            listOf(ServerItemRef(connection.id, "42")),
+            matcher.match(connection, request, forceRefresh = false)
+        )
         assertEquals(1, provider.titleQueries.size)
         assertTrue(provider.indexRequests > 0)
 
-        val plain = FakeServerProvider().apply { indexedIds["7"] = TrackingExternalIds(imdb = "tt0068646") }
+        val plain = FakeServerProvider().apply {
+            indexedIds["7"] =
+                TrackingExternalIds(imdb = "tt0068646")
+        }
         val (plainMatcher, _, plainConnection) = matcher(plain)
         val plainRequest = plainMatcher.request("movie", "tt0068646", null, null)!!
-        assertEquals(listOf(ServerItemRef(plainConnection.id, "7")), plainMatcher.match(plainConnection, plainRequest, forceRefresh = false))
+        assertEquals(
+            listOf(ServerItemRef(plainConnection.id, "7")),
+            plainMatcher.match(plainConnection, plainRequest, forceRefresh = false)
+        )
         assertTrue(plain.indexRequests > 0)
     }
 
@@ -351,8 +454,16 @@ class ServerMatcherTest {
         val streams = ServerStreams(repository, matcher)
 
         assertTrue(streams.canServe("movie", "tt0078788"))
-        repository.setLibrarySelected(connection.id, FakeServerProvider.SERIES_LIBRARY.id, selected = false)
-        repository.setLibrarySelected(connection.id, FakeServerProvider.SERIES_LIBRARY.id, selected = true)
+        repository.setLibrarySelected(
+            connection.id,
+            FakeServerProvider.SERIES_LIBRARY.id,
+            selected = false
+        )
+        repository.setLibrarySelected(
+            connection.id,
+            FakeServerProvider.SERIES_LIBRARY.id,
+            selected = true
+        )
         assertEquals(0, provider.indexRequests)
 
         assertEquals(1, streams.sources("movie", "tt0078788", null, null).single().load().size)
@@ -365,7 +476,13 @@ class ServerMatcherTest {
         titleLookup = { library, query ->
             query.name?.let {
                 if (library.kind == ServerMediaKind.SERIES && it == "Below") {
-                    listOf(ServerIndexEntry(FakeServerProvider.SHOW_ID, TrackingExternalIds(imdb = "tt35934755"), year = 2025))
+                    listOf(
+                        ServerIndexEntry(
+                            FakeServerProvider.SHOW_ID,
+                            TrackingExternalIds(imdb = "tt35934755"),
+                            year = 2025
+                        )
+                    )
                 } else {
                     emptyList()
                 }
@@ -376,7 +493,12 @@ class ServerMatcherTest {
     @Test
     fun aNextEpisodeWithExpiredDetailsFetchesTheNameInsteadOfReadingTheLibrary() = runBlocking {
         every { metaRepository.getMetaFromAllAddons("series", "tt35934755", any()) } returns
-            flowOf(NetworkResult.Loading, NetworkResult.Success(meta("tt35934755", ServerMediaKind.SERIES, "Below").copy(releaseInfo = "2025")))
+            flowOf(
+                NetworkResult.Loading,
+                NetworkResult.Success(
+                    meta("tt35934755", ServerMediaKind.SERIES, "Below").copy(releaseInfo = "2025")
+                )
+            )
         val provider = nameSearchProvider()
         val (matcher, _, connection) = matcher(provider)
         val request = matcher.request("series", "tt35934755:1:4", 1, 4)!!
@@ -418,7 +540,10 @@ class ServerMatcherTest {
         val provider = nameSearchProvider().apply { episodes[1 to 3] = ServerEpisode("ep-3", null) }
         val (matcher, _, connection) = matcher(provider)
         val third = matcher.request("series", "tt35934755:1:3", 1, 3)!!
-        assertEquals(listOf(ServerItemRef(connection.id, "ep-3")), matcher.match(connection, third, forceRefresh = false))
+        assertEquals(
+            listOf(ServerItemRef(connection.id, "ep-3")),
+            matcher.match(connection, third, forceRefresh = false)
+        )
 
         every { metaRepository.getCachedMeta("series", "tt35934755") } returns null
         val fourth = matcher.request("series", "tt35934755:1:4", 1, 4)!!

@@ -1,10 +1,5 @@
 package com.kien.movies.ui.screens.collection
 
-import com.kien.movies.ui.components.expressive.MoviesCardFocus
-import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,14 +37,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -73,6 +69,7 @@ import androidx.tv.material3.Switch
 import androidx.tv.material3.SwitchDefaults
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
+import com.kien.movies.R
 import com.kien.movies.domain.model.AddonCatalogCollectionSource
 import com.kien.movies.domain.model.CollectionFolder
 import com.kien.movies.domain.model.CollectionSource
@@ -84,9 +81,11 @@ import com.kien.movies.domain.model.TmdbCollectionSort
 import com.kien.movies.domain.model.TmdbCollectionSource
 import com.kien.movies.domain.model.TmdbCollectionSourceType
 import com.kien.movies.ui.components.LoadingIndicator
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
-import com.kien.movies.R
-import androidx.compose.ui.res.stringResource
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.theme.metaFloor
 import com.kien.movies.ui.theme.screenTitleFloor
@@ -123,7 +122,11 @@ fun GenrePickerContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = MoviesTheme.spacing.xxxl, start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl)
+            .padding(
+                top = MoviesTheme.spacing.xxxl,
+                start = MoviesTheme.spacing.xxxl,
+                end = MoviesTheme.spacing.xxxl
+            )
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -157,7 +160,12 @@ fun GenrePickerContent(
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = MoviesTheme.spacing.sm, end = MoviesTheme.spacing.sm, top = MoviesTheme.spacing.xs, bottom = MoviesTheme.spacing.xxxl),
+                contentPadding = PaddingValues(
+                    start = MoviesTheme.spacing.sm,
+                    end = MoviesTheme.spacing.sm,
+                    top = MoviesTheme.spacing.xs,
+                    bottom = MoviesTheme.spacing.xxxl
+                ),
                 verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
             ) {
                 val optionOffset = if (allowAll) 1 else 0
@@ -167,7 +175,13 @@ fun GenrePickerContent(
                             title = stringResource(R.string.collections_editor_all_genres),
                             selected = selectedGenre == null,
                             onClick = { onSelect(null) },
-                            modifier = if (initialSelectedIndex == 0) Modifier.focusRequester(initialOptionFocusRequester) else Modifier
+                            modifier = if (initialSelectedIndex ==
+                                0
+                            ) {
+                                Modifier.focusRequester(initialOptionFocusRequester)
+                            } else {
+                                Modifier
+                            }
                         )
                     }
                 }
@@ -181,7 +195,13 @@ fun GenrePickerContent(
                         title = genre,
                         selected = selectedGenre == genre,
                         onClick = { onSelect(genre) },
-                        modifier = if (absoluteIndex == initialSelectedIndex) Modifier.focusRequester(initialOptionFocusRequester) else Modifier
+                        modifier = if (absoluteIndex ==
+                            initialSelectedIndex
+                        ) {
+                            Modifier.focusRequester(initialOptionFocusRequester)
+                        } else {
+                            Modifier
+                        }
                     )
                 }
             }
@@ -253,14 +273,16 @@ private fun emojiCategoryLabel(key: String): Int = when (key) {
 
 private val emojiCategories = linkedMapOf(
     "Streaming" to listOf("🎬", "🎭", "🎥", "📺", "🍿", "🎞️", "📽️", "🎦", "📡", "📻"),
-    "Genres" to listOf("💀", "👻", "🔪", "💣", "🚀", "🛸", "🧙", "🦸", "🧟", "🤖", "💘", "😂", "😱", "🤯", "🥺", "😈"),
+    "Genres" to
+        listOf("💀", "👻", "🔪", "💣", "🚀", "🛸", "🧙", "🦸", "🧟", "🤖", "💘", "😂", "😱", "🤯", "🥺", "😈"),
     "Sports" to listOf("⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏒", "🥊", "🏎️", "🏆", "🎯", "🏋️"),
     "Music" to listOf("🎵", "🎶", "🎤", "🎸", "🥁", "🎹", "🎷", "🎺", "🎻", "🪗"),
     "Nature" to listOf("🌍", "🌊", "🏔️", "🌋", "🌅", "🌙", "⭐", "🔥", "❄️", "🌈", "🌸", "🍀"),
     "Animals" to listOf("🐕", "🐈", "🦁", "🐻", "🦊", "🐺", "🦅", "🐉", "🦋", "🐬", "🦈", "🐙"),
     "Food" to listOf("🍕", "🍔", "🍣", "🍜", "🍩", "🍰", "🍷", "🍺", "☕", "🧁", "🌮", "🥗"),
     "Travel" to listOf("✈️", "🚂", "🚗", "⛵", "🏖️", "🗼", "🏰", "🗽", "🎡", "🏕️", "🌆", "🛣️"),
-    "People" to listOf("👨‍👩‍👧‍👦", "👫", "👶", "🧒", "👩", "👨", "🧓", "💃", "🕺", "🥷", "🧑‍🚀", "🧑‍🎨"),
+    "People" to
+        listOf("👨‍👩‍👧‍👦", "👫", "👶", "🧒", "👩", "👨", "🧓", "💃", "🕺", "🥷", "🧑‍🚀", "🧑‍🎨"),
     "Objects" to listOf("📱", "💻", "🎮", "🕹️", "📷", "🔮", "💡", "🔑", "💎", "🎁", "📚", "✏️"),
     "Flags" to listOf(
         "🏳️‍🌈", "🏴‍☠️",
@@ -287,11 +309,7 @@ private val emojiCategories = linkedMapOf(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun EmojiPickerContent(
-    selectedEmoji: String?,
-    onSelect: (String) -> Unit,
-    onBack: () -> Unit
-) {
+fun EmojiPickerContent(selectedEmoji: String?, onSelect: (String) -> Unit, onBack: () -> Unit) {
     val initialEmojiFocusRequester = remember { FocusRequester() }
     val categoryEntries = remember { emojiCategories.entries.toList() }
     val initialPosition = remember(selectedEmoji) {
@@ -313,7 +331,11 @@ fun EmojiPickerContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = MoviesTheme.spacing.xxxl, start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl)
+            .padding(
+                top = MoviesTheme.spacing.xxxl,
+                start = MoviesTheme.spacing.xxxl,
+                end = MoviesTheme.spacing.xxxl
+            )
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -345,7 +367,13 @@ fun EmojiPickerContent(
                 categoryEntries.forEachIndexed { catIndex, (category, emojis) ->
                     item(key = "category_$category") {
                         val rowState = rememberLazyListState(
-                            initialFirstVisibleItemIndex = if (catIndex == initialCategoryIndex) initialEmojiIndex else 0
+                            initialFirstVisibleItemIndex = if (catIndex ==
+                                initialCategoryIndex
+                            ) {
+                                initialEmojiIndex
+                            } else {
+                                0
+                            }
                         )
                         Text(
                             text = stringResource(emojiCategoryLabel(category)),
@@ -365,11 +393,21 @@ fun EmojiPickerContent(
                             ) { index ->
                                 val emoji = emojis[index]
                                 val isSelected = emoji == selectedEmoji
-                                val isInitialTarget = catIndex == initialCategoryIndex && index == initialEmojiIndex
-                                val emojiDescription = stringResource(R.string.cd_emoji_option, emoji)
+                                val isInitialTarget =
+                                    catIndex == initialCategoryIndex && index == initialEmojiIndex
+                                val emojiDescription =
+                                    stringResource(R.string.cd_emoji_option, emoji)
                                 MoviesCard(
                                     onClick = { onSelect(emoji) },
-                                    modifier = (if (isInitialTarget) Modifier.focusRequester(initialEmojiFocusRequester) else Modifier)
+                                    modifier = (
+                                        if (isInitialTarget) {
+                                            Modifier.focusRequester(
+                                                initialEmojiFocusRequester
+                                            )
+                                        } else {
+                                            Modifier
+                                        }
+                                        )
                                         .semantics(mergeDescendants = true) {
                                             contentDescription = emojiDescription
                                             role = Role.RadioButton

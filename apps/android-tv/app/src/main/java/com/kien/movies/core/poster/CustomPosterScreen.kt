@@ -3,16 +3,22 @@ package com.kien.movies.core.poster
 enum class CustomPosterScreen(val key: String) {
     /** Home catalog rows */
     HOME("home"),
+
     /** Continue Watching and Upcoming sections */
     CONTINUE_WATCHING("continue_watching"),
+
     /** Collection / folder detail screens */
     COLLECTIONS("collections"),
+
     /** Library screen */
     LIBRARY("library"),
+
     /** Search results */
     SEARCH("search"),
+
     /** Detail screen (recommendations, collection items, person/cast credits) */
     DETAILS("details"),
+
     /** Android TV Watch Next / launcher recommendations */
     TV_RECOMMENDATIONS("tv_recommendations");
 
@@ -28,8 +34,7 @@ enum class CustomPosterScreen(val key: String) {
             return keys.mapNotNull { key -> entries.find { it.key == key } }.toSet()
         }
 
-        fun toKeys(screens: Set<CustomPosterScreen>): Set<String> =
-            screens.map { it.key }.toSet()
+        fun toKeys(screens: Set<CustomPosterScreen>): Set<String> = screens.map { it.key }.toSet()
 
         fun toStorageValue(screens: Set<CustomPosterScreen>): String? = when {
             screens == ALL -> null

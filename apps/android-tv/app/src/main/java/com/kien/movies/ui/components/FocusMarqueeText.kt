@@ -31,7 +31,7 @@ fun FocusMarqueeText(
     style: TextStyle,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    textAlign: TextAlign? = null,
+    textAlign: TextAlign? = null
 ) {
     val currentDirection = LocalLayoutDirection.current
     val textDirection = remember(text) { text.contentLayoutDirection() }
@@ -53,7 +53,7 @@ fun FocusMarqueeText(
             maxLines = 1,
             softWrap = false,
             overflow = textOverflow,
-            textAlign = textAlign,
+            textAlign = textAlign
         )
     }
 

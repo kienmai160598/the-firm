@@ -12,7 +12,9 @@ internal fun mergeProgressProjectionWithRetainedLocal(
     return buildList {
         addAll(providerEntries)
         localEntries.forEach { progress ->
-            if (retainsLocalProgress(progress.contentId) && progress.projectionKey() !in providerKeys) {
+            if (retainsLocalProgress(progress.contentId) &&
+                progress.projectionKey() !in providerKeys
+            ) {
                 add(progress)
             }
         }
@@ -26,7 +28,9 @@ internal fun mergeWatchedEpisodeProjection(
     localItems: List<WatchedItem>,
     retainsLocalWatchedEpisode: (WatchedItem) -> Boolean
 ): Map<String, Set<Pair<Int, Int>>> {
-    val merged = providerEpisodes.mapValuesTo(linkedMapOf()) { (_, episodes) -> episodes.toMutableSet() }
+    val merged = providerEpisodes.mapValuesTo(linkedMapOf()) { (_, episodes) ->
+        episodes.toMutableSet()
+    }
     localItems.forEach { item ->
         val season = item.season
         val episode = item.episode

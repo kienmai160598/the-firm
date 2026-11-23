@@ -1,9 +1,9 @@
 package com.kien.movies.ui.screens.player.autosync
 
 import com.kien.movies.ui.screens.player.SubtitleSyncCue
-import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class AutoSyncReferenceConsistencyTest {
     private val base = irregularTimeline(300)
@@ -14,7 +14,7 @@ class AutoSyncReferenceConsistencyTest {
             reference("english", base),
             reference("french", independentAuthoring(base, seed = 3)),
             reference("german", independentAuthoring(base, seed = 5)),
-            reference("mistimed", shift(base, 6_000L)),
+            reference("mistimed", shift(base, 6_000L))
         )
 
         assertEquals(setOf("mistimed"), AutoSyncReferenceConsistency.findOutliers(references))
@@ -27,7 +27,7 @@ class AutoSyncReferenceConsistencyTest {
             reference("english", base),
             reference("chs", chinese),
             reference("cht", chinese),
-            reference("chs-eng", chinese),
+            reference("chs-eng", chinese)
         )
 
         assertTrue(AutoSyncReferenceConsistency.findOutliers(references).isEmpty())
@@ -38,26 +38,24 @@ class AutoSyncReferenceConsistencyTest {
         val references = listOf(
             reference("english", base),
             reference("french", independentAuthoring(base, seed = 3)),
-            reference("german", independentAuthoring(base, seed = 5)),
+            reference("german", independentAuthoring(base, seed = 5))
         )
 
         assertTrue(AutoSyncReferenceConsistency.findOutliers(references).isEmpty())
     }
 
-    private fun reference(key: String, cues: List<SubtitleSyncCue>) =
-        AutoSyncReferenceConsistency.Reference(
-            key = key,
-            activity = checkNotNull(AutoSyncTimelineRetimer.prepareUnitActivity(cues)),
-            cueCount = cues.size,
-        )
+    private fun reference(key: String, cues: List<SubtitleSyncCue>) = AutoSyncReferenceConsistency.Reference(
+        key = key,
+        activity = checkNotNull(AutoSyncTimelineRetimer.prepareUnitActivity(cues)),
+        cueCount = cues.size
+    )
 
     /** Same dialogue, different author: per-line start jitter and different durations. */
-    private fun independentAuthoring(cues: List<SubtitleSyncCue>, seed: Int) =
-        cues.mapIndexed { index, cue ->
-            val jitterMs = (((index * seed * 37) % 7) - 3) * 90L
-            val start = cue.startTimeMs + jitterMs
-            SubtitleSyncCue(start, start + 700L + ((index * seed * 131) % 1_900), cue.text)
-        }
+    private fun independentAuthoring(cues: List<SubtitleSyncCue>, seed: Int) = cues.mapIndexed { index, cue ->
+        val jitterMs = (((index * seed * 37) % 7) - 3) * 90L
+        val start = cue.startTimeMs + jitterMs
+        SubtitleSyncCue(start, start + 700L + ((index * seed * 131) % 1_900), cue.text)
+    }
 
     private fun shift(cues: List<SubtitleSyncCue>, deltaMs: Long) = cues.map { cue ->
         cue.copy(startTimeMs = cue.startTimeMs + deltaMs, endTimeMs = cue.endTimeMs + deltaMs)

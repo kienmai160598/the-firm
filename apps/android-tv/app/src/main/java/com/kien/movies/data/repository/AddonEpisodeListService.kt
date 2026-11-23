@@ -4,6 +4,8 @@ import com.kien.movies.core.network.NetworkResult
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.Video
 import com.kien.movies.domain.repository.MetaRepository
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.firstOrNull
@@ -14,31 +16,26 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withTimeoutOrNull
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Episode lists as the installed addons number them, for remapping episodes between the addon's
  * numbering and a tracking provider's own numbering.
  */
 @Singleton
-class AddonEpisodeListService @Inject constructor(
-    private val metaRepository: MetaRepository
-) {
+class AddonEpisodeListService @Inject constructor(private val metaRepository: MetaRepository) {
     private val cacheMutex = Mutex()
     private val episodesCache = mutableMapOf<String, List<EpisodeMappingEntry>>()
+
     // In-flight dedup: prevents multiple concurrent coroutines from fetching
     // the same show's addon episodes simultaneously.
-    private val episodesInFlight = mutableMapOf<String, CompletableDeferred<List<EpisodeMappingEntry>>>()
+    private val episodesInFlight =
+        mutableMapOf<String, CompletableDeferred<List<EpisodeMappingEntry>>>()
 
     /**
      * Pre-fetches addon episode data for [contentIds] so that later lookups hit the cache.
      * Limits concurrency to [concurrency].
      */
-    internal suspend fun prefetch(
-        contentIds: List<String>,
-        concurrency: Int = 8
-    ) {
+    internal suspend fun prefetch(contentIds: List<String>, concurrency: Int = 8) {
         val unique = contentIds.distinct()
         if (unique.isEmpty()) return
         val semaphore = Semaphore(concurrency)
@@ -72,7 +69,11 @@ class AddonEpisodeListService @Inject constructor(
         // Dedup: if another coroutine is already fetching this show, await its result.
         val existingDeferred = cacheMutex.withLock { episodesInFlight[cacheKey] }
         if (existingDeferred != null) {
-            return try { existingDeferred.await() } catch (_: Exception) { emptyList() }
+            return try {
+                existingDeferred.await()
+            } catch (_: Exception) {
+                emptyList()
+            }
         }
 
         // Register ourselves as the in-flight fetcher.
@@ -89,7 +90,11 @@ class AddonEpisodeListService @Inject constructor(
         }
         if (!weOwn) {
             val other = cacheMutex.withLock { episodesInFlight[cacheKey] }
-            return try { other?.await() ?: emptyList() } catch (_: Exception) { emptyList() }
+            return try {
+                other?.await() ?: emptyList()
+            } catch (_: Exception) {
+                emptyList()
+            }
         }
 
         return try {

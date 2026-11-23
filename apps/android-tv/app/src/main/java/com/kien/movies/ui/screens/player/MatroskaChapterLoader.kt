@@ -1,6 +1,9 @@
 package com.kien.movies.ui.screens.player
 
 import com.kien.movies.core.player.MatroskaAfrProbe
+import java.io.IOException
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.resume
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -10,9 +13,6 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import java.io.IOException
-import java.util.concurrent.TimeUnit
-import kotlin.coroutines.resume
 
 /**
  * Reads the chapters of a Matroska/WebM file over HTTP range requests, for ExoPlayer, whose
@@ -36,7 +36,9 @@ internal object MatroskaChapterLoader {
         .build()
 
     suspend fun load(url: String, headers: Map<String, String>): List<PlayerChapter> {
-        if (!url.startsWith("http://", ignoreCase = true) && !url.startsWith("https://", ignoreCase = true)) {
+        if (!url.startsWith("http://", ignoreCase = true) &&
+            !url.startsWith("https://", ignoreCase = true)
+        ) {
             return emptyList()
         }
         return withTimeoutOrNull(TOTAL_TIMEOUT_MS) {
@@ -46,16 +48,21 @@ internal object MatroskaChapterLoader {
         }.orEmpty()
     }
 
-    private suspend fun loadChapters(url: String, headers: Map<String, String>): List<PlayerChapter> {
+    private suspend fun loadChapters(
+        url: String,
+        headers: Map<String, String>
+    ): List<PlayerChapter> {
         val initial = fetchRange(url, headers, 0L, INITIAL_PROBE_BYTES) ?: return emptyList()
         val layout = MatroskaChapterParser.topLevelLayout(initial) ?: return emptyList()
 
-        val chaptersPosition = layout.chaptersPosition ?: layout.seekHeadPosition?.let { seekHeadPosition ->
-            val seekHead = elementAt(url, headers, initial, seekHeadPosition, MAX_SEEK_HEAD_BYTES)
-                ?: return@let null
-            MatroskaChapterParser.seekHeadPositions(seekHead)[MatroskaChapterParser.ID_CHAPTERS]
-                ?.let { layout.segmentDataStart + it }
-        } ?: return emptyList()
+        val chaptersPosition =
+            layout.chaptersPosition ?: layout.seekHeadPosition?.let { seekHeadPosition ->
+                val seekHead =
+                    elementAt(url, headers, initial, seekHeadPosition, MAX_SEEK_HEAD_BYTES)
+                        ?: return@let null
+                MatroskaChapterParser.seekHeadPositions(seekHead)[MatroskaChapterParser.ID_CHAPTERS]
+                    ?.let { layout.segmentDataStart + it }
+            } ?: return emptyList()
 
         val chapters = elementAt(url, headers, initial, chaptersPosition, MAX_CHAPTERS_BYTES)
             ?: return emptyList()
@@ -79,7 +86,10 @@ internal object MatroskaChapterLoader {
         if (totalSize <= 0L || totalSize > maxBytes) return null
         val end = position + totalSize
         if (end <= initial.size) return initial.copyOfRange(position.toInt(), end.toInt())
-        return fetchRange(url, headers, position, totalSize.toInt())?.takeIf { it.size.toLong() == totalSize }
+        return fetchRange(url, headers, position, totalSize.toInt())?.takeIf {
+            it.size.toLong() ==
+                totalSize
+        }
     }
 
     private suspend fun fetchRange(
@@ -94,7 +104,9 @@ internal object MatroskaChapterLoader {
             .header("Accept-Encoding", "identity")
             .apply {
                 headers.forEach { (name, value) ->
-                    if (!name.equals("Range", ignoreCase = true) && !name.equals("Accept-Encoding", ignoreCase = true)) {
+                    if (!name.equals("Range", ignoreCase = true) &&
+                        !name.equals("Accept-Encoding", ignoreCase = true)
+                    ) {
                         header(name, value)
                     }
                 }
@@ -200,7 +212,11 @@ internal object MatroskaChapterParser {
             }
             val targetId = id
             val targetPosition = position
-            if (targetId != null && targetPosition != null) result.putIfAbsent(targetId, targetPosition)
+            if (targetId != null &&
+                targetPosition != null
+            ) {
+                result.putIfAbsent(targetId, targetPosition)
+            }
         }
         return result
     }
@@ -213,10 +229,13 @@ internal object MatroskaChapterParser {
         val root = MatroskaAfrProbe.readElement(chapters, 0L) ?: return emptyList()
         if (root.id != ID_CHAPTERS) return emptyList()
         val editions = children(chapters, root).filter { it.id == ID_EDITION_ENTRY }
-        val shown = editions.filterNot { flag(chapters, it, ID_EDITION_FLAG_HIDDEN, default = false) }
-        val edition = shown.firstOrNull { flag(chapters, it, ID_EDITION_FLAG_DEFAULT, default = false) }
-            ?: shown.firstOrNull()
-            ?: return emptyList()
+        val shown = editions.filterNot {
+            flag(chapters, it, ID_EDITION_FLAG_HIDDEN, default = false)
+        }
+        val edition =
+            shown.firstOrNull { flag(chapters, it, ID_EDITION_FLAG_DEFAULT, default = false) }
+                ?: shown.firstOrNull()
+                ?: return emptyList()
         return children(chapters, edition)
             .filter { it.id == ID_CHAPTER_ATOM }
             .filterNot { flag(chapters, it, ID_CHAPTER_FLAG_HIDDEN, default = false) }
@@ -227,21 +246,34 @@ internal object MatroskaChapterParser {
                     ?.let { readUnsigned(chapters, it) }
                     ?: return@mapNotNull null
                 val title = atomChildren.firstOrNull { it.id == ID_CHAPTER_DISPLAY }
-                    ?.let { display -> children(chapters, display).firstOrNull { it.id == ID_CHAP_STRING } }
+                    ?.let { display ->
+                        children(chapters, display).firstOrNull {
+                            it.id ==
+                                ID_CHAP_STRING
+                        }
+                    }
                     ?.let { readUtf8(chapters, it) }
                     ?.takeIf { it.isNotBlank() }
                 PlayerChapter(startMs = startNs / 1_000_000L, title = title)
             }
     }
 
-    private fun flag(bytes: ByteArray, parent: MatroskaAfrProbe.EbmlElement, id: Long, default: Boolean): Boolean =
-        children(bytes, parent).firstOrNull { it.id == id }
-            ?.let { readUnsigned(bytes, it) }
-            ?.let { it != 0L }
-            ?: default
+    private fun flag(
+        bytes: ByteArray,
+        parent: MatroskaAfrProbe.EbmlElement,
+        id: Long,
+        default: Boolean
+    ): Boolean = children(bytes, parent).firstOrNull { it.id == id }
+        ?.let { readUnsigned(bytes, it) }
+        ?.let { it != 0L }
+        ?: default
 
-    private fun children(bytes: ByteArray, parent: MatroskaAfrProbe.EbmlElement): List<MatroskaAfrProbe.EbmlElement> {
-        val end = parent.endExclusiveOrNull()?.coerceAtMost(bytes.size.toLong()) ?: return emptyList()
+    private fun children(
+        bytes: ByteArray,
+        parent: MatroskaAfrProbe.EbmlElement
+    ): List<MatroskaAfrProbe.EbmlElement> {
+        val end =
+            parent.endExclusiveOrNull()?.coerceAtMost(bytes.size.toLong()) ?: return emptyList()
         val result = mutableListOf<MatroskaAfrProbe.EbmlElement>()
         var position = parent.dataOffset
         while (position < end) {

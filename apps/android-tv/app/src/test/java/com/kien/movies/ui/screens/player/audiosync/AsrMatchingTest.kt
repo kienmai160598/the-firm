@@ -26,20 +26,29 @@ class AsrMatchingTest {
         return List(lines) {
             val words = List(3 + random.nextInt(5)) { vocabulary[random.nextInt(vocabulary.size)] }
             val length = 1_200L + random.nextLong(2_500L)
-            Triple(t, t + length, words.joinToString(" ")).also { t += length + 500L + random.nextLong(3_000L) }
+            Triple(t, t + length, words.joinToString(" ")).also {
+                t +=
+                    length + 500L + random.nextLong(3_000L)
+            }
         }
     }
 
     /** Words heard at media = subtitle + shift, with some misrecognised. */
-    private fun hear(cues: List<Triple<Long, Long, String>>, shiftSec: Double, random: Random, upToLine: Int): List<HeardWord> =
-        cues.take(upToLine).flatMapIndexed { line, (start, end, text) ->
-            val words = text.split(' ')
-            words.mapIndexedNotNull { k, word ->
-                if (random.nextFloat() < 0.3f) return@mapIndexedNotNull null
-                val t = (start + (end - start) * k / words.size) / 1_000.0 + shiftSec + random.nextDouble(-0.15, 0.15)
-                HeardWord(t, word, line)
-            }
+    private fun hear(
+        cues: List<Triple<Long, Long, String>>,
+        shiftSec: Double,
+        random: Random,
+        upToLine: Int
+    ): List<HeardWord> = cues.take(upToLine).flatMapIndexed { line, (start, end, text) ->
+        val words = text.split(' ')
+        words.mapIndexedNotNull { k, word ->
+            if (random.nextFloat() < 0.3f) return@mapIndexedNotNull null
+            val t =
+                (start + (end - start) * k / words.size) / 1_000.0 + shiftSec +
+                    random.nextDouble(-0.15, 0.15)
+            HeardWord(t, word, line)
         }
+    }
 
     @Test
     fun locksWithinAFewLines() {
@@ -100,7 +109,10 @@ class AsrMatchingTest {
         val cues = script(Random(12), 30)
         val recognised = java.util.concurrent.atomic.AtomicInteger()
         val engine = AsrSyncEngine(SpeechTimeline(), onLock = {})
-        engine.setRecognizer { recognised.incrementAndGet(); emptyList() }
+        engine.setRecognizer {
+            recognised.incrementAndGet()
+            emptyList()
+        }
         engine.startSession(SubtitleSpeechTrack.fromCues(cues), emptyList())
         fun segment(frame: Int) = FloatArray(SileroVad.CHUNK_SAMPLES * 10) { frame.toFloat() }
         engine.offerSegment(100, segment(100))
@@ -130,15 +142,27 @@ class AsrMatchingTest {
         val english = script(Random(31), 250)
         val translation = english.map { (a, b, _) -> Triple(a + 2_000, b + 2_000, "linie") }
         val target = SubtitleSpeechTrack.fromCues(translation)
-        val bridge = assertNotNull(SubtitleBridge.align(target, SubtitleSpeechTrack.fromCues(english)))
-        val locks = java.util.Collections.synchronizedList(ArrayList<com.kien.movies.ui.screens.player.audiosync.asr.AsrLock>())
+        val bridge =
+            assertNotNull(SubtitleBridge.align(target, SubtitleSpeechTrack.fromCues(english)))
+        val locks = java.util.Collections.synchronizedList(
+            ArrayList<com.kien.movies.ui.screens.player.audiosync.asr.AsrLock>()
+        )
         val engine = AsrSyncEngine(speech(english), onLock = { locks += it })
         engine.startSession(target, emptyList())
         engine.expectReferences(60_000L)
         val frameMs = SpeechTimeline.FRAME_DURATION_MS
-        val heardLines = english.indices.filter { english[it].first / 1_000 in 30..150 || english[it].first / 1_000 in 500..700 }
+        val heardLines = english.indices.filter {
+            english[it].first / 1_000 in 30..150 ||
+                english[it].first / 1_000 in 500..700
+        }
         heardLines.forEach { line ->
-            engine.offerSegment((english[line].first / frameMs).toInt(), FloatArray(SileroVad.CHUNK_SAMPLES * 10) { line.toFloat() }, spread = true)
+            engine.offerSegment(
+                (english[line].first / frameMs).toInt(),
+                FloatArray(SileroVad.CHUNK_SAMPLES * 10) {
+                    line.toFloat()
+                },
+                spread = true
+            )
         }
         val recognised = java.util.concurrent.atomic.AtomicInteger()
         engine.setRecognizer { samples ->
@@ -146,19 +170,42 @@ class AsrMatchingTest {
             val (start, end, text) = english[samples[0].toInt()]
             val segmentStartSec = (start / frameMs).toInt() * frameMs / 1_000.0
             val words = text.split(' ')
-            words.mapIndexed { k, word -> ((start + (end - start) * k / words.size) / 1_000.0 - segmentStartSec) to word }
+            words.mapIndexed { k, word ->
+                (
+                    (start + (end - start) * k / words.size) / 1_000.0 -
+                        segmentStartSec
+                    ) to
+                    word
+            }
         }
         val deadline = System.currentTimeMillis() + 30_000
-        while (recognised.get() < heardLines.size && System.currentTimeMillis() < deadline) Thread.sleep(20)
-        assertEquals(heardLines.size, recognised.get(), "all speech recognised before any reference")
+        while (recognised.get() < heardLines.size &&
+            System.currentTimeMillis() < deadline
+        ) {
+            Thread.sleep(20)
+        }
+        assertEquals(
+            heardLines.size,
+            recognised.get(),
+            "all speech recognised before any reference"
+        )
         assertTrue(locks.isEmpty(), "nothing to match against yet: $locks")
         val heard = engine.heardWordCount
         engine.addReference(ReferenceSubtitle("en", english, bridge))
         val lockDeadline = System.currentTimeMillis() + 10_000
-        while (locks.none { it.final } && System.currentTimeMillis() < lockDeadline) Thread.sleep(20)
+        while (locks.none { it.final } &&
+            System.currentTimeMillis() < lockDeadline
+        ) {
+            Thread.sleep(20)
+        }
         engine.release()
-        val final = assertNotNull(locks.lastOrNull { it.final }, "no lock from words heard earlier: $locks")
-        assertEquals(heardLines.size, recognised.get(), "nothing recognised again: the earlier words were used")
+        val final =
+            assertNotNull(locks.lastOrNull { it.final }, "no lock from words heard earlier: $locks")
+        assertEquals(
+            heardLines.size,
+            recognised.get(),
+            "nothing recognised again: the earlier words were used"
+        )
         assertTrue(heard > 100, "words $heard")
         assertTrue(abs(final.segments.first().shiftMs + 2_000.0) < 300.0, "lock $final")
     }
@@ -167,7 +214,10 @@ class AsrMatchingTest {
     fun recognitionStopsWhenExpectedReferencesNeverArrive() {
         val recognised = java.util.concurrent.atomic.AtomicInteger()
         val engine = AsrSyncEngine(SpeechTimeline(), onLock = {})
-        engine.setRecognizer { recognised.incrementAndGet(); emptyList() }
+        engine.setRecognizer {
+            recognised.incrementAndGet()
+            emptyList()
+        }
         engine.startSession(SubtitleSpeechTrack.fromCues(script(Random(13), 30)), emptyList())
         fun segment(frame: Int) = FloatArray(SileroVad.CHUNK_SAMPLES * 10) { frame.toFloat() }
         // The downloads failed: past the expected time, speech is no longer recognised.
@@ -199,9 +249,14 @@ class AsrMatchingTest {
         val random = Random(3)
         val english = script(random, 80)
         // Same line timings, different words, shifted by 4.2 s relative to the English file.
-        val translated = english.map { (a, b, _) -> Triple(a - 4_200L, b - 4_200L, "linie tradusa aici") }
+        val translated = english.map { (a, b, _) ->
+            Triple(a - 4_200L, b - 4_200L, "linie tradusa aici")
+        }
         val bridge = assertNotNull(
-            SubtitleBridge.align(SubtitleSpeechTrack.fromCues(translated), SubtitleSpeechTrack.fromCues(english)),
+            SubtitleBridge.align(
+                SubtitleSpeechTrack.fromCues(translated),
+                SubtitleSpeechTrack.fromCues(english)
+            )
         )
         assertTrue(abs(bridge.shiftSec - 4.2) < 0.05, "bridge $bridge")
     }
@@ -212,12 +267,17 @@ class AsrMatchingTest {
         val done = java.util.concurrent.CountDownLatch(6)
         val engine = AsrSyncEngine(SpeechTimeline(), onLock = {})
         val cues = script(Random(6), 30)
-        engine.startSession(SubtitleSpeechTrack.fromCues(cues), listOf(ReferenceSubtitle("en", cues, null)))
+        engine.startSession(
+            SubtitleSpeechTrack.fromCues(cues),
+            listOf(ReferenceSubtitle("en", cues, null))
+        )
         fun segment(frame: Int) = FloatArray(SileroVad.CHUNK_SAMPLES * 10) { frame.toFloat() }
         engine.onPlayhead(0L)
         listOf(100, 200, 300).forEach { engine.offerSegment(it, segment(it)) }
         // Two segments sampled at one place (~30 min), one at another (~60 min).
-        listOf(56_000, 56_100, 112_000).forEach { engine.offerSegment(it, segment(it), spread = true) }
+        listOf(56_000, 56_100, 112_000).forEach {
+            engine.offerSegment(it, segment(it), spread = true)
+        }
         engine.setRecognizer { samples ->
             order += samples[0].toInt()
             done.countDown()
@@ -252,16 +312,42 @@ class AsrMatchingTest {
             val shift = if (a < 300_000L) 1_500L else 3_900L
             Triple(a + shift, b + shift, t)
         }
-        val target = SubtitleSpeechTrack.fromCues(subtitle.map { (a, b, _) -> Triple(a, b, "linie") })
-        val bridge = assertNotNull(SubtitleBridge.align(target, SubtitleSpeechTrack.fromCues(subtitle)))
-        val locks = java.util.Collections.synchronizedList(ArrayList<com.kien.movies.ui.screens.player.audiosync.asr.AsrLock>())
+        val target = SubtitleSpeechTrack.fromCues(
+            subtitle.map { (a, b, _) ->
+                Triple(a, b, "linie")
+            }
+        )
+        val bridge =
+            assertNotNull(SubtitleBridge.align(target, SubtitleSpeechTrack.fromCues(subtitle)))
+        val locks = java.util.Collections.synchronizedList(
+            ArrayList<com.kien.movies.ui.screens.player.audiosync.asr.AsrLock>()
+        )
         val engine = AsrSyncEngine(speech(media), onLock = { locks += it })
-        engine.startSession(target, listOf(com.kien.movies.ui.screens.player.audiosync.asr.ReferenceSubtitle("en", subtitle, bridge)))
+        engine.startSession(
+            target,
+            listOf(
+                com.kien.movies.ui.screens.player.audiosync.asr.ReferenceSubtitle(
+                    "en",
+                    subtitle,
+                    bridge
+                )
+            )
+        )
         // Words heard in three places, as from sampled spots.
-        val heardLines = media.indices.filter { media[it].first / 1_000 in 30..150 || media[it].first / 1_000 in 500..700 || media[it].first / 1_000 in 900..1_000 }
+        val heardLines = media.indices.filter {
+            media[it].first / 1_000 in 30..150 ||
+                media[it].first / 1_000 in 500..700 ||
+                media[it].first / 1_000 in 900..1_000
+        }
         val frameMs = SpeechTimeline.FRAME_DURATION_MS
         heardLines.forEach { line ->
-            engine.offerSegment((media[line].first / frameMs).toInt(), FloatArray(SileroVad.CHUNK_SAMPLES * 10) { line.toFloat() }, spread = true)
+            engine.offerSegment(
+                (media[line].first / frameMs).toInt(),
+                FloatArray(SileroVad.CHUNK_SAMPLES * 10) {
+                    line.toFloat()
+                },
+                spread = true
+            )
         }
         val random = Random(10)
         val recognised = java.util.concurrent.atomic.AtomicInteger()
@@ -271,11 +357,22 @@ class AsrMatchingTest {
             val segmentStartSec = (start / frameMs).toInt() * frameMs / 1_000.0
             val words = text.split(' ')
             words.mapIndexed { k, word ->
-                ((start + (end - start) * k / words.size) / 1_000.0 + random.nextDouble(-0.1, 0.1) - segmentStartSec) to word
+                (
+                    (start + (end - start) * k / words.size) / 1_000.0 + random.nextDouble(
+                        -0.1,
+                        0.1
+                    ) -
+                        segmentStartSec
+                    ) to
+                    word
             }
         }
         val deadline = System.currentTimeMillis() + 60_000
-        while (recognised.get() < heardLines.size && System.currentTimeMillis() < deadline) Thread.sleep(20)
+        while (recognised.get() < heardLines.size &&
+            System.currentTimeMillis() < deadline
+        ) {
+            Thread.sleep(20)
+        }
         Thread.sleep(1_500)
         engine.release()
         val lock = locks.last()
@@ -298,8 +395,19 @@ class AsrMatchingTest {
             Triple(a + extra, b + extra, "linie")
         }
         val target = SubtitleSpeechTrack.fromCues(translation)
-        val bridge = assertNotNull(SubtitleBridge.align(target, SubtitleSpeechTrack.fromCues(english)))
-        val lock = lockFromHeardWords(english, target, english, bridge, listOf(30..150, 500..700, 900..1_000))
+        val bridge =
+            assertNotNull(SubtitleBridge.align(target, SubtitleSpeechTrack.fromCues(english)))
+        val lock = lockFromHeardWords(
+            english,
+            target,
+            english,
+            bridge,
+            listOf(
+                30..150,
+                500..700,
+                900..1_000
+            )
+        )
         assertTrue(lock.final, "lock $lock")
         assertEquals(2, lock.segments.size, "segments ${lock.segments}")
         val (before, after) = lock.segments
@@ -318,7 +426,8 @@ class AsrMatchingTest {
             Triple(a + extra, b + extra, "linie")
         }
         val target = SubtitleSpeechTrack.fromCues(translation)
-        val bridge = assertNotNull(SubtitleBridge.align(target, SubtitleSpeechTrack.fromCues(english)))
+        val bridge =
+            assertNotNull(SubtitleBridge.align(target, SubtitleSpeechTrack.fromCues(english)))
         assertTrue(abs(bridge.shiftSec) < 1.0, "bridge $bridge")
         val lock = lockFromHeardWords(english, target, english, bridge, listOf(830..1_050))
         val delayMs = lock.segments.last().shiftMs
@@ -333,11 +442,24 @@ class AsrMatchingTest {
         val english = script(Random(21), 250)
         val translation = english.map { (a, b, _) -> Triple(a, b, "linie") }
         val target = SubtitleSpeechTrack.fromCues(translation)
-        val wrongBridge = com.kien.movies.ui.screens.player.audiosync.asr.BridgeFit(1.0, 2.0, 0.6, 0.2)
+        val wrongBridge = com.kien.movies.ui.screens.player.audiosync.asr.BridgeFit(
+            1.0,
+            2.0,
+            0.6,
+            0.2
+        )
         val locks = locksFromHeardWords(
-            english, target,
-            listOf(com.kien.movies.ui.screens.player.audiosync.asr.ReferenceSubtitle("en", english, wrongBridge)),
-            listOf(30..150, 500..700), SpeechTimeline(),
+            english,
+            target,
+            listOf(
+                com.kien.movies.ui.screens.player.audiosync.asr.ReferenceSubtitle(
+                    "en",
+                    english,
+                    wrongBridge
+                )
+            ),
+            listOf(30..150, 500..700),
+            SpeechTimeline()
         )
         assertTrue(locks.isNotEmpty(), "no estimate at all")
         assertTrue(locks.none { it.final }, "confirmed through an uncorroborated bridge: $locks")
@@ -352,10 +474,22 @@ class AsrMatchingTest {
         val translation = english.map { (a, b, _) -> Triple(a, b, "linie") }
         val target = SubtitleSpeechTrack.fromCues(translation)
         val references = listOf(english, later).mapIndexed { index, cues ->
-            val bridge = assertNotNull(SubtitleBridge.align(target, SubtitleSpeechTrack.fromCues(cues)))
-            com.kien.movies.ui.screens.player.audiosync.asr.ReferenceSubtitle("en$index", cues, bridge)
+            val bridge =
+                assertNotNull(SubtitleBridge.align(target, SubtitleSpeechTrack.fromCues(cues)))
+            com.kien.movies.ui.screens.player.audiosync.asr.ReferenceSubtitle(
+                "en$index",
+                cues,
+                bridge
+            )
         }
-        val locks = locksFromHeardWords(english, target, references, listOf(30..150, 500..700), SpeechTimeline())
+        val locks =
+            locksFromHeardWords(
+                english,
+                target,
+                references,
+                listOf(30..150, 500..700),
+                SpeechTimeline()
+            )
         val final = locks.lastOrNull { it.final }
         assertNotNull(final, "not confirmed: $locks")
         assertTrue(abs(final.segments.first().shiftMs) < 300.0, "lock $final")
@@ -367,15 +501,28 @@ class AsrMatchingTest {
         target: SubtitleSpeechTrack,
         references: List<com.kien.movies.ui.screens.player.audiosync.asr.ReferenceSubtitle>,
         heardSec: List<IntRange>,
-        timeline: SpeechTimeline,
+        timeline: SpeechTimeline
     ): List<com.kien.movies.ui.screens.player.audiosync.asr.AsrLock> {
-        val locks = java.util.Collections.synchronizedList(ArrayList<com.kien.movies.ui.screens.player.audiosync.asr.AsrLock>())
+        val locks = java.util.Collections.synchronizedList(
+            ArrayList<com.kien.movies.ui.screens.player.audiosync.asr.AsrLock>()
+        )
         val engine = AsrSyncEngine(timeline, onLock = { locks += it })
         engine.startSession(target, references)
-        val heardLines = media.indices.filter { line -> heardSec.any { media[line].first / 1_000 in it } }
+        val heardLines = media.indices.filter { line ->
+            heardSec.any {
+                media[line].first / 1_000 in
+                    it
+            }
+        }
         val frameMs = SpeechTimeline.FRAME_DURATION_MS
         heardLines.forEach { line ->
-            engine.offerSegment((media[line].first / frameMs).toInt(), FloatArray(SileroVad.CHUNK_SAMPLES * 10) { line.toFloat() }, spread = true)
+            engine.offerSegment(
+                (media[line].first / frameMs).toInt(),
+                FloatArray(SileroVad.CHUNK_SAMPLES * 10) {
+                    line.toFloat()
+                },
+                spread = true
+            )
         }
         val random = Random(23)
         val recognised = java.util.concurrent.atomic.AtomicInteger()
@@ -385,11 +532,22 @@ class AsrMatchingTest {
             val segmentStartSec = (start / frameMs).toInt() * frameMs / 1_000.0
             val words = text.split(' ')
             words.mapIndexed { k, word ->
-                ((start + (end - start) * k / words.size) / 1_000.0 + random.nextDouble(-0.1, 0.1) - segmentStartSec) to word
+                (
+                    (start + (end - start) * k / words.size) / 1_000.0 + random.nextDouble(
+                        -0.1,
+                        0.1
+                    ) -
+                        segmentStartSec
+                    ) to
+                    word
             }
         }
         val deadline = System.currentTimeMillis() + 60_000
-        while (recognised.get() < heardLines.size && System.currentTimeMillis() < deadline) Thread.sleep(20)
+        while (recognised.get() < heardLines.size &&
+            System.currentTimeMillis() < deadline
+        ) {
+            Thread.sleep(20)
+        }
         Thread.sleep(1_500)
         engine.release()
         return locks.toList()
@@ -401,15 +559,37 @@ class AsrMatchingTest {
         target: SubtitleSpeechTrack,
         english: List<Triple<Long, Long, String>>,
         bridge: com.kien.movies.ui.screens.player.audiosync.asr.BridgeFit,
-        heardSec: List<IntRange>,
+        heardSec: List<IntRange>
     ): com.kien.movies.ui.screens.player.audiosync.asr.AsrLock {
-        val locks = java.util.Collections.synchronizedList(ArrayList<com.kien.movies.ui.screens.player.audiosync.asr.AsrLock>())
+        val locks = java.util.Collections.synchronizedList(
+            ArrayList<com.kien.movies.ui.screens.player.audiosync.asr.AsrLock>()
+        )
         val engine = AsrSyncEngine(speech(media), onLock = { locks += it })
-        engine.startSession(target, listOf(com.kien.movies.ui.screens.player.audiosync.asr.ReferenceSubtitle("en", english, bridge)))
-        val heardLines = media.indices.filter { line -> heardSec.any { media[line].first / 1_000 in it } }
+        engine.startSession(
+            target,
+            listOf(
+                com.kien.movies.ui.screens.player.audiosync.asr.ReferenceSubtitle(
+                    "en",
+                    english,
+                    bridge
+                )
+            )
+        )
+        val heardLines = media.indices.filter { line ->
+            heardSec.any {
+                media[line].first / 1_000 in
+                    it
+            }
+        }
         val frameMs = SpeechTimeline.FRAME_DURATION_MS
         heardLines.forEach { line ->
-            engine.offerSegment((media[line].first / frameMs).toInt(), FloatArray(SileroVad.CHUNK_SAMPLES * 10) { line.toFloat() }, spread = true)
+            engine.offerSegment(
+                (media[line].first / frameMs).toInt(),
+                FloatArray(SileroVad.CHUNK_SAMPLES * 10) {
+                    line.toFloat()
+                },
+                spread = true
+            )
         }
         val random = Random(13)
         val recognised = java.util.concurrent.atomic.AtomicInteger()
@@ -419,11 +599,22 @@ class AsrMatchingTest {
             val segmentStartSec = (start / frameMs).toInt() * frameMs / 1_000.0
             val words = text.split(' ')
             words.mapIndexed { k, word ->
-                ((start + (end - start) * k / words.size) / 1_000.0 + random.nextDouble(-0.1, 0.1) - segmentStartSec) to word
+                (
+                    (start + (end - start) * k / words.size) / 1_000.0 + random.nextDouble(
+                        -0.1,
+                        0.1
+                    ) -
+                        segmentStartSec
+                    ) to
+                    word
             }
         }
         val deadline = System.currentTimeMillis() + 60_000
-        while (recognised.get() < heardLines.size && System.currentTimeMillis() < deadline) Thread.sleep(20)
+        while (recognised.get() < heardLines.size &&
+            System.currentTimeMillis() < deadline
+        ) {
+            Thread.sleep(20)
+        }
         Thread.sleep(1_500)
         engine.release()
         return locks.last()
@@ -442,32 +633,54 @@ class AsrMatchingTest {
 
     private fun lockAcrossFrameRates(
         videoMatchesEnglish: Boolean,
-        heardMs: Long = Long.MAX_VALUE,
-    ): com.kien.movies.ui.screens.player.audiosync.asr.AsrLock =
-        locksAcrossFrameRates(videoMatchesEnglish, heardMs).lastOrNull() ?: throw AssertionError("no lock")
+        heardMs: Long = Long.MAX_VALUE
+    ): com.kien.movies.ui.screens.player.audiosync.asr.AsrLock = locksAcrossFrameRates(videoMatchesEnglish, heardMs).lastOrNull()
+        ?: throw AssertionError("no lock")
 
     /** Every result the engine publishes once all heard lines are recognised and evaluated. */
     private fun locksAcrossFrameRates(
         videoMatchesEnglish: Boolean,
-        heardMs: Long = Long.MAX_VALUE,
+        heardMs: Long = Long.MAX_VALUE
     ): List<com.kien.movies.ui.screens.player.audiosync.asr.AsrLock> {
         val rate = 25.0 / 23.976
         val media = script(Random(7), 160)
-        fun at25(cues: List<Triple<Long, Long, String>>) =
-            cues.map { (a, b, t) -> Triple((a / rate).toLong(), (b / rate).toLong(), t) }
+        fun at25(cues: List<Triple<Long, Long, String>>) = cues.map { (a, b, t) -> Triple((a / rate).toLong(), (b / rate).toLong(), t) }
         val english = if (videoMatchesEnglish) media else at25(media)
-        val translated = (if (videoMatchesEnglish) at25(media) else media).map { (a, b, _) -> Triple(a, b, "linie tradusa") }
+        val translated = (if (videoMatchesEnglish) at25(media) else media).map { (a, b, _) ->
+            Triple(a, b, "linie tradusa")
+        }
         val target = SubtitleSpeechTrack.fromCues(translated)
-        val bridge = assertNotNull(SubtitleBridge.align(target, SubtitleSpeechTrack.fromCues(english)))
-        val locks = java.util.Collections.synchronizedList(ArrayList<com.kien.movies.ui.screens.player.audiosync.asr.AsrLock>())
+        val bridge =
+            assertNotNull(SubtitleBridge.align(target, SubtitleSpeechTrack.fromCues(english)))
+        val locks = java.util.Collections.synchronizedList(
+            ArrayList<com.kien.movies.ui.screens.player.audiosync.asr.AsrLock>()
+        )
         val latch = java.util.concurrent.CountDownLatch(1)
-        val engine = AsrSyncEngine(speech(media, heardMs), onLock = { locks += it; latch.countDown() })
-        engine.startSession(target, listOf(com.kien.movies.ui.screens.player.audiosync.asr.ReferenceSubtitle("en", english, bridge)))
+        val engine =
+            AsrSyncEngine(speech(media, heardMs), onLock = {
+                locks += it
+                latch.countDown()
+            })
+        engine.startSession(
+            target,
+            listOf(
+                com.kien.movies.ui.screens.player.audiosync.asr.ReferenceSubtitle(
+                    "en",
+                    english,
+                    bridge
+                )
+            )
+        )
         // Twelve lines heard near the start: far too short a span to judge a frame rate from words.
         val random = Random(8)
         val frameMs = SpeechTimeline.FRAME_DURATION_MS
         media.take(12).forEachIndexed { line, (start, _, _) ->
-            engine.offerSegment((start / frameMs).toInt(), FloatArray(SileroVad.CHUNK_SAMPLES * 10) { line.toFloat() })
+            engine.offerSegment(
+                (start / frameMs).toInt(),
+                FloatArray(SileroVad.CHUNK_SAMPLES * 10) {
+                    line.toFloat()
+                }
+            )
         }
         val recognised = java.util.concurrent.atomic.AtomicInteger()
         engine.setRecognizer { samples ->
@@ -477,7 +690,9 @@ class AsrMatchingTest {
             val segmentStartSec = (start / frameMs).toInt() * frameMs / 1_000.0
             val words = text.split(' ')
             words.mapIndexed { k, word ->
-                val t = (start + (end - start) * k / words.size) / 1_000.0 + random.nextDouble(-0.1, 0.1)
+                val t =
+                    (start + (end - start) * k / words.size) / 1_000.0 +
+                        random.nextDouble(-0.1, 0.1)
                 (t - segmentStartSec) to word
             }
         }
@@ -497,7 +712,10 @@ class AsrMatchingTest {
     }
 
     /** Clean speech exactly where [cues] are. */
-    private fun speech(cues: List<Triple<Long, Long, String>>, heardMs: Long = Long.MAX_VALUE): SpeechTimeline {
+    private fun speech(
+        cues: List<Triple<Long, Long, String>>,
+        heardMs: Long = Long.MAX_VALUE
+    ): SpeechTimeline {
         val frameMs = SpeechTimeline.FRAME_DURATION_MS
         val timeline = SpeechTimeline()
         val frames = (minOf(cues.maxOf { it.second } + 30_000, heardMs) / frameMs).toInt()
@@ -515,6 +733,8 @@ class AsrMatchingTest {
     fun bridgeRejectsUnrelatedFiles() {
         val a = script(Random(4), 80)
         val b = script(Random(5), 80)
-        assertNull(SubtitleBridge.align(SubtitleSpeechTrack.fromCues(a), SubtitleSpeechTrack.fromCues(b)))
+        assertNull(
+            SubtitleBridge.align(SubtitleSpeechTrack.fromCues(a), SubtitleSpeechTrack.fromCues(b))
+        )
     }
 }

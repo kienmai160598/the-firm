@@ -33,4 +33,5 @@ internal class PlexTestHttp(private val route: (Request) -> Pair<Int, String>) {
         .build()
 }
 
-internal val plexTestIdentity = ServerClientIdentity(device = "Test TV", version = "1.0.0", deviceId = { "device-1" })
+internal val plexTestIdentity =
+    ServerClientIdentity(device = "Test TV", version = "1.0.0", deviceId = { "device-1" })

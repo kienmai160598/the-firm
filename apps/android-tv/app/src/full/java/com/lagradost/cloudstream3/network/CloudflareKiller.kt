@@ -5,25 +5,27 @@ import android.webkit.CookieManager
 import androidx.annotation.AnyThread
 import com.lagradost.cloudstream3.USER_AGENT
 import com.lagradost.cloudstream3.app
+import java.net.URI
 import kotlinx.coroutines.runBlocking
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import java.net.URI
 
 private val DEFAULT_HEADERS = mapOf("user-agent" to USER_AGENT)
 
-fun getHeaders(
-    headers: Map<String, String>,
-    cookie: Map<String, String>
-): Headers {
+fun getHeaders(headers: Map<String, String>, cookie: Map<String, String>): Headers {
     val cookieMap =
-        if (cookie.isNotEmpty()) mapOf(
-            "Cookie" to cookie.entries.joinToString(" ") {
-                "${it.key}=${it.value};"
-            }) else mapOf()
+        if (cookie.isNotEmpty()) {
+            mapOf(
+                "Cookie" to cookie.entries.joinToString(" ") {
+                    "${it.key}=${it.value};"
+                }
+            )
+        } else {
+            mapOf()
+        }
     val tempHeaders = (DEFAULT_HEADERS + headers + cookieMap)
     return tempHeaders.toHeaders()
 }
@@ -69,7 +71,11 @@ class CloudflareKiller : Interceptor {
         when (val cookies = savedCookies[request.url.host]) {
             null -> {
                 val response = chain.proceed(request)
-                if (!(response.header("Server") in CLOUDFLARE_SERVERS && response.code in ERROR_CODES)) {
+                if (!(
+                        response.header("Server") in CLOUDFLARE_SERVERS &&
+                            response.code in ERROR_CODES
+                        )
+                ) {
                     return@runBlocking response
                 } else {
                     response.close()
@@ -79,6 +85,7 @@ class CloudflareKiller : Interceptor {
                     }
                 }
             }
+
             else -> {
                 return@runBlocking proceed(request, cookies)
             }
@@ -91,7 +98,9 @@ class CloudflareKiller : Interceptor {
     private fun getWebViewCookie(url: String): String? {
         return try {
             CookieManager.getInstance()?.getCookie(url)
-        } catch (_: Exception) { null }
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun trySolveWithSavedCookies(request: Request): Boolean {

@@ -18,7 +18,7 @@ internal fun computeSubtitleLiftPx(
     postPlayVisible: Boolean,
     postPlayClearancePx: Float,
     seekVisible: Boolean,
-    seekClearancePx: Float,
+    seekClearancePx: Float
 ): Float {
     if (previewConfiguredPosition) return 0f
     return maxOf(
@@ -29,7 +29,7 @@ internal fun computeSubtitleLiftPx(
         },
         if (skipVisible) skipClearancePx else 0f,
         if (postPlayVisible) postPlayClearancePx else 0f,
-        if (seekVisible) seekClearancePx else 0f,
+        if (seekVisible) seekClearancePx else 0f
     )
 }
 
@@ -41,10 +41,7 @@ internal fun shouldApplySubtitleLiftImmediately(
     controlsVisible: Boolean
 ): Boolean = !isPlaying || previewConfiguredPosition || !controlsVisible
 
-internal data class SubtitleLiftDecision(
-    val appliedLiftPx: Float,
-    val pendingDropCueVersion: Long?
-)
+internal data class SubtitleLiftDecision(val appliedLiftPx: Float, val pendingDropCueVersion: Long?)
 
 internal fun nextSubtitleLift(
     targetLiftPx: Float,

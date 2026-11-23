@@ -4,9 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class TraktDeviceCodeRequestDto(
-    @Json(name = "client_id") val clientId: String
-)
+data class TraktDeviceCodeRequestDto(@Json(name = "client_id") val clientId: String)
 
 @JsonClass(generateAdapter = true)
 data class TraktDeviceCodeResponseDto(
@@ -51,9 +49,7 @@ data class TraktTokenResponseDto(
 )
 
 @JsonClass(generateAdapter = true)
-data class TraktUserSettingsResponseDto(
-    @Json(name = "user") val user: TraktUserDto? = null
-)
+data class TraktUserSettingsResponseDto(@Json(name = "user") val user: TraktUserDto? = null)
 
 @JsonClass(generateAdapter = true)
 data class TraktUserStatsResponseDto(

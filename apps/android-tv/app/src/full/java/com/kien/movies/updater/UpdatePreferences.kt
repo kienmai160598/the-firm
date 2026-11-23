@@ -6,29 +6,30 @@ import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.kien.movies.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 private val Context.updateDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "update_settings",
     corruptionHandler = ReplaceFileCorruptionHandler { ex ->
-        android.util.Log.e("UpdatePreferences", "DataStore corrupted: ${ex.message} — resetting to empty")
+        android.util.Log.e(
+            "UpdatePreferences",
+            "DataStore corrupted: ${ex.message} — resetting to empty"
+        )
         emptyPreferences()
     }
 )
 
 @Singleton
-class UpdatePreferences @Inject constructor(
-    @ApplicationContext private val context: Context
-) {
+class UpdatePreferences @Inject constructor(@ApplicationContext private val context: Context) {
     private val dataStore = context.updateDataStore
 
     private val ignoredTagKey = stringPreferencesKey("ignored_release_tag")

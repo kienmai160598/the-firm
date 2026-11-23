@@ -13,8 +13,8 @@ class ImageConnectivityTest {
                 activeNetworkPresent = false,
                 capabilitiesPresent = false,
                 hasInternet = false,
-                isVpn = false,
-            ),
+                isVpn = false
+            )
         )
     }
 
@@ -25,8 +25,8 @@ class ImageConnectivityTest {
                 activeNetworkPresent = true,
                 capabilitiesPresent = false,
                 hasInternet = false,
-                isVpn = false,
-            ),
+                isVpn = false
+            )
         )
     }
 
@@ -37,8 +37,8 @@ class ImageConnectivityTest {
                 activeNetworkPresent = true,
                 capabilitiesPresent = true,
                 hasInternet = true,
-                isVpn = false,
-            ),
+                isVpn = false
+            )
         )
     }
 
@@ -49,8 +49,8 @@ class ImageConnectivityTest {
                 activeNetworkPresent = true,
                 capabilitiesPresent = true,
                 hasInternet = false,
-                isVpn = true,
-            ),
+                isVpn = true
+            )
         )
     }
 
@@ -61,8 +61,8 @@ class ImageConnectivityTest {
                 activeNetworkPresent = true,
                 capabilitiesPresent = true,
                 hasInternet = false,
-                isVpn = false,
-            ),
+                isVpn = false
+            )
         )
     }
 }

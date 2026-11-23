@@ -82,12 +82,10 @@ internal const val UI_TIMEOUT_MS = 8_000L
 internal const val CONTENT_TIMEOUT_MS = 20_000L
 
 /** The device the instrumentation runs on. */
-internal fun uiDevice(): UiDevice =
-    UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+internal fun uiDevice(): UiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
 /** Reads an instrumentation argument, falling back to [default] when it was not supplied. */
-internal fun instrumentationArg(name: String, default: String? = null): String? =
-    InstrumentationRegistry.getArguments().getString(name)?.takeIf { it.isNotBlank() } ?: default
+internal fun instrumentationArg(name: String, default: String? = null): String? = InstrumentationRegistry.getArguments().getString(name)?.takeIf { it.isNotBlank() } ?: default
 
 /**
  * Resolves the package id of the app under test.
@@ -146,7 +144,10 @@ internal fun resolveTargetPackage(device: UiDevice, expected: String): String {
         ?: installedPackages.firstOrNull { it.endsWith(".debug") }
         ?: installedPackages.firstOrNull()
         ?: DEFAULT_TARGET_PACKAGE
-    Log.i(LOG_TAG, "Resolved target package: $resolved (expected: $expected, installed: $installedPackages)")
+    Log.i(
+        LOG_TAG,
+        "Resolved target package: $resolved (expected: $expected, installed: $installedPackages)"
+    )
     return resolved
 }
 
@@ -199,7 +200,10 @@ internal fun UiDevice.awaitExactDesc(desc: String, timeoutMs: Long = UI_TIMEOUT_
 }
 
 /** Waits for a node whose text is exactly one of [texts]. */
-internal fun UiDevice.awaitAnyExactText(vararg texts: String, timeoutMs: Long = UI_TIMEOUT_MS): Boolean {
+internal fun UiDevice.awaitAnyExactText(
+    vararg texts: String,
+    timeoutMs: Long = UI_TIMEOUT_MS
+): Boolean {
     val deadline = System.currentTimeMillis() + timeoutMs
     while (System.currentTimeMillis() < deadline) {
         val found = runCatching {
@@ -212,7 +216,10 @@ internal fun UiDevice.awaitAnyExactText(vararg texts: String, timeoutMs: Long = 
 }
 
 /** Waits for a node whose content description is exactly one of [descs]. */
-internal fun UiDevice.awaitAnyExactDesc(vararg descs: String, timeoutMs: Long = UI_TIMEOUT_MS): Boolean {
+internal fun UiDevice.awaitAnyExactDesc(
+    vararg descs: String,
+    timeoutMs: Long = UI_TIMEOUT_MS
+): Boolean {
     val deadline = System.currentTimeMillis() + timeoutMs
     while (System.currentTimeMillis() < deadline) {
         val found = runCatching {
@@ -230,8 +237,9 @@ internal fun UiDevice.awaitAnyExactDesc(vararg descs: String, timeoutMs: Long = 
  * Only exact matches are returned: a substring match is what made the journeys select the
  * wrong control (for example `Play` on `Play trailer`).
  */
-private fun UiDevice.nodesFor(label: String): List<androidx.test.uiautomator.UiObject2> =
-    runCatching { findObjects(By.text(label)) + findObjects(By.desc(label)) }.getOrDefault(emptyList())
+private fun UiDevice.nodesFor(label: String): List<androidx.test.uiautomator.UiObject2> = runCatching {
+    findObjects(By.text(label)) + findObjects(By.desc(label))
+}.getOrDefault(emptyList())
 
 /** True when a node carrying [label] currently owns the focus. */
 internal fun UiDevice.isFocusedLabel(label: String, pattern: Pattern): Boolean {
@@ -278,7 +286,11 @@ internal fun UiDevice.isFocusOn(label: String): Boolean {
  * When the focus cannot be parked on the label the element is clicked directly, which keeps
  * the journey working on the emulator.
  */
-internal fun UiDevice.focusAndSelect(label: String, maxSteps: Int = 24, requireGone: Boolean = true): Boolean {
+internal fun UiDevice.focusAndSelect(
+    label: String,
+    maxSteps: Int = 24,
+    requireGone: Boolean = true
+): Boolean {
     if (!awaitExactText(label, timeoutMs = 10_000) &&
         !awaitExactDesc(label, timeoutMs = 1_000)
     ) {
@@ -346,7 +358,9 @@ internal fun UiDevice.withEnglishLocale(block: () -> Unit) {
     } finally {
         if (originalLocale.isNotBlank()) {
             runCatching { executeShellCommand("setprop persist.sys.locale $originalLocale") }
-            runCatching { executeShellCommand("settings put system system_locales $originalLocale") }
+            runCatching {
+                executeShellCommand("settings put system system_locales $originalLocale")
+            }
         }
     }
 }

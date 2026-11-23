@@ -15,7 +15,7 @@ class NetworkConnectionKindTest {
     fun `wifi is wifi`() {
         assertEquals(
             NetworkConnectionKind.Wifi,
-            networkConnectionKind(active = setOf(NetworkTransport.Wifi)),
+            networkConnectionKind(active = setOf(NetworkTransport.Wifi))
         )
     }
 
@@ -23,7 +23,7 @@ class NetworkConnectionKindTest {
     fun `ethernet beats wifi on the same network`() {
         assertEquals(
             NetworkConnectionKind.Ethernet,
-            networkConnectionKind(active = setOf(NetworkTransport.Ethernet, NetworkTransport.Wifi)),
+            networkConnectionKind(active = setOf(NetworkTransport.Ethernet, NetworkTransport.Wifi))
         )
     }
 
@@ -31,7 +31,7 @@ class NetworkConnectionKindTest {
     fun `cellular counts as connected`() {
         assertEquals(
             NetworkConnectionKind.Wifi,
-            networkConnectionKind(active = setOf(NetworkTransport.Cellular)),
+            networkConnectionKind(active = setOf(NetworkTransport.Cellular))
         )
     }
 
@@ -39,7 +39,7 @@ class NetworkConnectionKindTest {
     fun `vpn that already reports wifi stays wifi`() {
         assertEquals(
             NetworkConnectionKind.Wifi,
-            networkConnectionKind(active = setOf(NetworkTransport.Vpn, NetworkTransport.Wifi)),
+            networkConnectionKind(active = setOf(NetworkTransport.Vpn, NetworkTransport.Wifi))
         )
     }
 
@@ -49,8 +49,8 @@ class NetworkConnectionKindTest {
             NetworkConnectionKind.Wifi,
             networkConnectionKind(
                 active = setOf(NetworkTransport.Vpn),
-                others = { listOf(setOf(NetworkTransport.Wifi)) },
-            ),
+                others = { listOf(setOf(NetworkTransport.Wifi)) }
+            )
         )
     }
 
@@ -63,10 +63,10 @@ class NetworkConnectionKindTest {
                 others = {
                     listOf(
                         setOf(NetworkTransport.Wifi),
-                        setOf(NetworkTransport.Ethernet),
+                        setOf(NetworkTransport.Ethernet)
                     )
-                },
-            ),
+                }
+            )
         )
     }
 
@@ -74,7 +74,7 @@ class NetworkConnectionKindTest {
     fun `vpn with no other network is offline`() {
         assertEquals(
             NetworkConnectionKind.Offline,
-            networkConnectionKind(active = setOf(NetworkTransport.Vpn)),
+            networkConnectionKind(active = setOf(NetworkTransport.Vpn))
         )
     }
 

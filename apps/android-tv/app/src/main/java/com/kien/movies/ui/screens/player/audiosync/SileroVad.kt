@@ -159,7 +159,7 @@ internal class SileroVad(private val weights: SileroVadWeights) {
             outChannels: Int,
             stride: Int,
             output: FloatArray,
-            column: FloatArray,
+            column: FloatArray
         ) {
             val outLength = (inLength - 1) / stride + 1
             val width = inChannels * 3
@@ -197,7 +197,7 @@ internal class SileroVadWeights(
     /** Sum of the input and recurrent LSTM biases. */
     val lstmBias: FloatArray,
     val decoderWeight: FloatArray,
-    val decoderBias: Float,
+    val decoderBias: Float
 ) {
     companion object {
         private val MAGIC = "NSVAD16\u0000".toByteArray(Charsets.US_ASCII)
@@ -216,7 +216,9 @@ internal class SileroVadWeights(
             }
             val weightIh = tensors[8]
             val weightHh = tensors[9]
-            require(weightIh.size == 512 * 128 && weightHh.size == 512 * 128) { "Unexpected LSTM shape" }
+            require(weightIh.size == 512 * 128 && weightHh.size == 512 * 128) {
+                "Unexpected LSTM shape"
+            }
             val lstmWeight = FloatArray(512 * 256)
             for (g in 0 until 512) {
                 weightIh.copyInto(lstmWeight, g * 256, g * 128, g * 128 + 128)
@@ -235,23 +237,29 @@ internal class SileroVadWeights(
                 lstmWeight = lstmWeight,
                 lstmBias = lstmBias,
                 decoderWeight = tensors[12].requireSize(128),
-                decoderBias = tensors[13].requireSize(1)[0],
+                decoderBias = tensors[13].requireSize(1)[0]
             )
         }
 
         private fun FloatArray.requireSize(expected: Int): FloatArray {
-            require(size == expected) { "Unexpected Silero VAD tensor size $size (expected $expected)" }
+            require(size == expected) {
+                "Unexpected Silero VAD tensor size $size (expected $expected)"
+            }
             return this
         }
 
         private fun DataInputStream.readLittleInt(): Int {
-            val b0 = read(); val b1 = read(); val b2 = read(); val b3 = read()
+            val b0 = read()
+            val b1 = read()
+            val b2 = read()
+            val b3 = read()
             if ((b0 or b1 or b2 or b3) < 0) throw EOFException()
             return b0 or (b1 shl 8) or (b2 shl 16) or (b3 shl 24)
         }
 
         private fun DataInputStream.readLittleShort(): Int {
-            val b0 = read(); val b1 = read()
+            val b0 = read()
+            val b1 = read()
             if ((b0 or b1) < 0) throw EOFException()
             return b0 or (b1 shl 8)
         }

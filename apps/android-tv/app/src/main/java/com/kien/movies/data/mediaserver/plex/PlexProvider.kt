@@ -44,7 +44,10 @@ class PlexProvider internal constructor(
     identity: ServerClientIdentity,
     private val now: () -> Long
 ) : ServerProvider {
-    constructor(http: OkHttpClient, identity: ServerClientIdentity) : this(http, identity, System::currentTimeMillis)
+    constructor(
+        http: OkHttpClient,
+        identity: ServerClientIdentity
+    ) : this(http, identity, System::currentTimeMillis)
 
     override val id: String = ID
     override val displayName: String = "Plex"
@@ -94,11 +97,12 @@ class PlexProvider internal constructor(
 
     // Browsing
 
-    override suspend fun libraries(session: ServerSession): List<ServerLibrary> =
-        get(session, SECTIONS_PATH).directories.mapNotNull { section ->
-            val kind = plexKind(section.type) ?: return@mapNotNull null
-            section.key.takeIf { it.isNotBlank() }?.let { ServerLibrary(it, section.title.ifBlank { it }, kind) }
-        }
+    override suspend fun libraries(session: ServerSession): List<ServerLibrary> = get(session, SECTIONS_PATH).directories.mapNotNull { section ->
+        val kind = plexKind(section.type) ?: return@mapNotNull null
+        section.key.takeIf {
+            it.isNotBlank()
+        }?.let { ServerLibrary(it, section.title.ifBlank { it }, kind) }
+    }
 
     override suspend fun libraryPage(
         session: ServerSession,
@@ -106,7 +110,11 @@ class PlexProvider internal constructor(
         start: Int,
         limit: Int
     ): ServerPage<ServerTitle> {
-        val reply = get(session, sectionPath(library), sectionQuery(library) + page(start, limit) + ("sort" to "addedAt:desc"))
+        val reply = get(
+            session,
+            sectionPath(library),
+            sectionQuery(library) + page(start, limit) + ("sort" to "addedAt:desc")
+        )
         val mapper = mapper(session)
         return ServerPage(reply.metadata.mapNotNull(mapper::title), reply.totalSize)
     }
@@ -121,7 +129,11 @@ class PlexProvider internal constructor(
         val found = coroutineScope {
             libraries.filter { it.holds(kind) }.map { library ->
                 async {
-                    get(session, sectionPath(library), sectionQuery(library) + page(0, limit) + ("title" to query.trim())).metadata
+                    get(
+                        session,
+                        sectionPath(library),
+                        sectionQuery(library) + page(0, limit) + ("title" to query.trim())
+                    ).metadata
                 }
             }.awaitAll().flatten()
         }
@@ -132,11 +144,25 @@ class PlexProvider internal constructor(
     override suspend fun details(session: ServerSession, itemId: String): ServerItemDetails {
         val item = item(session, itemId, fresh = true)
         val mapper = mapper(session)
-        val episodes = if (item.type == "show") allLeaves(session, itemId, fresh = true) else emptyList()
+        val episodes = if (item.type ==
+            "show"
+        ) {
+            allLeaves(session, itemId, fresh = true)
+        } else {
+            emptyList()
+        }
         return ServerItemDetails(
             meta = mapper.details(item, episodes),
             externalIds = item.externalIds(),
-            userStates = (if (item.type == "show") episodes else listOf(item)).map(mapper::userState)
+            userStates = (
+                if (item.type ==
+                    "show"
+                ) {
+                    episodes
+                } else {
+                    listOf(item)
+                }
+                ).map(mapper::userState)
         )
     }
 
@@ -153,14 +179,25 @@ class PlexProvider internal constructor(
         val mapper = mapper(session)
         return reply.metadata.ifEmpty { reply.hubs.flatMap { it.metadata } }
             .filter { (it.viewOffset ?: 0L) > 0L }
-            .filter { item -> item.librarySectionId == null || item.librarySectionId.toString() in sections }
+            .filter { item ->
+                item.librarySectionId == null ||
+                    item.librarySectionId.toString() in sections
+            }
             .mapNotNull(mapper::resumeTitle)
             .distinctBy { it.preview.id }
             .take(limit)
     }
 
     override suspend fun setPlayed(session: ServerSession, itemId: String, played: Boolean) {
-        get(session, if (played) SCROBBLE_PATH else UNSCROBBLE_PATH, mapOf("key" to itemId, "identifier" to LIBRARY_IDENTIFIER), decode = false)
+        get(
+            session,
+            if (played) SCROBBLE_PATH else UNSCROBBLE_PATH,
+            mapOf(
+                "key" to itemId,
+                "identifier" to LIBRARY_IDENTIFIER
+            ),
+            decode = false
+        )
         forget(session)
     }
 
@@ -170,14 +207,25 @@ class PlexProvider internal constructor(
         start: Int,
         limit: Int
     ): ServerPage<ServerIndexEntry> {
-        val reply = get(session, sectionPath(library), sectionQuery(library) + page(start, limit) + ("sort" to "titleSort"))
+        val reply = get(
+            session,
+            sectionPath(library),
+            sectionQuery(library) + page(start, limit) + ("sort" to "titleSort")
+        )
         val mapper = mapper(session)
         return ServerPage(reply.metadata.map(mapper::indexEntry), reply.totalSize)
     }
 
     /** A title search in [library], by name and year first; the matcher compares the ids of what comes back. */
-    override suspend fun lookupTitle(session: ServerSession, library: ServerLibrary, query: ServerTitleQuery): List<ServerIndexEntry>? {
-        val names = listOfNotNull(query.name, query.originalName).map(String::trim).filter(String::isNotEmpty).distinct()
+    override suspend fun lookupTitle(
+        session: ServerSession,
+        library: ServerLibrary,
+        query: ServerTitleQuery
+    ): List<ServerIndexEntry>? {
+        val names = listOfNotNull(
+            query.name,
+            query.originalName
+        ).map(String::trim).filter(String::isNotEmpty).distinct()
         if (names.isEmpty()) return null
         val mapper = mapper(session)
         val found = mutableListOf<ServerIndexEntry>()
@@ -187,9 +235,13 @@ class PlexProvider internal constructor(
                 val reply = get(
                     session,
                     sectionPath(library),
-                    sectionQuery(library) + page(0, TITLE_LOOKUP_LIMIT) + mapOf("title" to name, "year" to year)
+                    sectionQuery(library) + page(0, TITLE_LOOKUP_LIMIT) +
+                        mapOf("title" to name, "year" to year)
                 )
-                found += reply.metadata.filter { plexKind(it.type) == library.kind }.map(mapper::indexEntry)
+                found +=
+                    reply.metadata.filter {
+                        plexKind(it.type) == library.kind
+                    }.map(mapper::indexEntry)
                 val distinct = found.distinctBy { it.itemId }
                 if (verifiedTitleMatches(distinct, query).isNotEmpty()) return distinct
             }
@@ -197,31 +249,50 @@ class PlexProvider internal constructor(
         return found.distinctBy { it.itemId }
     }
 
-    override suspend fun findEpisode(session: ServerSession, seriesItemId: String, season: Int, episode: Int): ServerEpisode? =
-        allLeaves(session, seriesItemId)
-            .filter { it.parentIndex == season && it.index == episode }
-            .singleOrNull()
-            ?.let { ServerEpisode(it.ratingKey, it.originallyAvailableAt) }
+    override suspend fun findEpisode(
+        session: ServerSession,
+        seriesItemId: String,
+        season: Int,
+        episode: Int
+    ): ServerEpisode? = allLeaves(session, seriesItemId)
+        .filter { it.parentIndex == season && it.index == episode }
+        .singleOrNull()
+        ?.let { ServerEpisode(it.ratingKey, it.originallyAvailableAt) }
 
     // Playback
 
-    override suspend fun candidates(session: ServerSession, itemId: String): List<ServerCandidate> =
-        mapper(session).candidates(item(session, itemId))
+    override suspend fun candidates(session: ServerSession, itemId: String): List<ServerCandidate> = mapper(session).candidates(item(session, itemId))
 
-    override suspend fun preparePlayback(session: ServerSession, request: ServerPlaybackRequest): ServerPlaybackSession {
+    override suspend fun preparePlayback(
+        session: ServerSession,
+        request: ServerPlaybackRequest
+    ): ServerPlaybackSession {
         val ratingKey = request.target.item.itemId
         val item = item(session, ratingKey)
-        val mediaIndex = item.media.indexOfFirst { media -> media.parts.any { it.id.toString() == request.target.mediaSourceId } }
+        val mediaIndex = item.media.indexOfFirst { media ->
+            media.parts.any {
+                it.id.toString() ==
+                    request.target.mediaSourceId
+            }
+        }
             .coerceAtLeast(0)
-        val media = item.media.getOrNull(mediaIndex) ?: throw ServerException(ServerFailure.NOT_FOUND)
+        val media =
+            item.media.getOrNull(mediaIndex) ?: throw ServerException(ServerFailure.NOT_FOUND)
         val part = media.parts.firstOrNull() ?: throw ServerException(ServerFailure.NOT_FOUND)
         if (request.audioStreamIndex != null || request.subtitleStreamIndex != null) {
             chooseStreams(session, part.id, request.audioStreamIndex, request.subtitleStreamIndex)
         }
         val playSession = UUID.randomUUID().toString()
-        val headers = client.headers + mapOf(PlexClient.TOKEN_HEADER to session.token, SESSION_HEADER to playSession)
+        val headers =
+            client.headers +
+                mapOf(PlexClient.TOKEN_HEADER to session.token, SESSION_HEADER to playSession)
         val audioTracks = part.streams.filter { it.streamType == STREAM_AUDIO }.map { stream ->
-            ServerTrack(stream.id.toInt(), stream.label(), stream.languageCode, request.audioStreamIndex?.let { it.toLong() == stream.id } ?: stream.selected)
+            ServerTrack(
+                stream.id.toInt(),
+                stream.label(),
+                stream.languageCode,
+                request.audioStreamIndex?.let { it.toLong() == stream.id } ?: stream.selected
+            )
         }
         val target = ServerPlaybackTarget(request.target.item, part.id.toString())
         val playback = if (request.capabilities.allowDirectPlay) {
@@ -230,7 +301,11 @@ class PlexProvider internal constructor(
             ServerPlaybackSession(
                 target = target,
                 mediaSourceId = part.id.toString(),
-                url = buildUrl(session.connection.address, path, mapOf(SESSION_HEADER to playSession)),
+                url = buildUrl(
+                    session.connection.address,
+                    path,
+                    mapOf(SESSION_HEADER to playSession)
+                ),
                 headers = headers,
                 subtitles = externalSubtitles(session, part),
                 playSessionId = playSession,
@@ -238,7 +313,13 @@ class PlexProvider internal constructor(
                 audioTracks = audioTracks
             )
         } else {
-            val query = transcodeQuery(item, mediaIndex, playSession, burnSubtitles = request.subtitleStreamIndex != null)
+            val query = transcodeQuery(
+                item,
+                mediaIndex,
+                playSession,
+                burnSubtitles =
+                    request.subtitleStreamIndex != null
+            )
             val decision = decide(session, query)
             val decided = decision.metadata.firstOrNull()?.media?.firstOrNull()?.parts?.firstOrNull()?.streams.orEmpty()
             val video = decided.filter { it.streamType == STREAM_VIDEO }
@@ -256,8 +337,15 @@ class PlexProvider internal constructor(
                 playSessionId = playSession,
                 playMethod = method,
                 audioTracks = audioTracks,
-                burnInSubtitles = part.streams.filter { it.streamType == STREAM_SUBTITLE }.map { stream ->
-                    ServerTrack(stream.id.toInt(), stream.label(), stream.languageCode, request.subtitleStreamIndex?.toLong() == stream.id)
+                burnInSubtitles = part.streams.filter {
+                    it.streamType == STREAM_SUBTITLE
+                }.map { stream ->
+                    ServerTrack(
+                        stream.id.toInt(),
+                        stream.label(),
+                        stream.languageCode,
+                        request.subtitleStreamIndex?.toLong() == stream.id
+                    )
                 },
                 transcodeReasons = if (method == ServerPlayMethod.DIRECT_STREAM) {
                     emptyList()
@@ -282,11 +370,18 @@ class PlexProvider internal constructor(
         try {
             client.execute("GET", session.connection.address, path, session.token, range = 0L..0L)
         } catch (error: ServerException) {
-            if (error.failure == ServerFailure.FORBIDDEN) throw ServerException(ServerFailure.REMOTE_PLAYBACK_BLOCKED)
+            if (error.failure ==
+                ServerFailure.FORBIDDEN
+            ) {
+                throw ServerException(ServerFailure.REMOTE_PLAYBACK_BLOCKED)
+            }
         }
     }
 
-    private suspend fun decide(session: ServerSession, query: Map<String, String?>): MediaContainerWire {
+    private suspend fun decide(
+        session: ServerSession,
+        query: Map<String, String?>
+    ): MediaContainerWire {
         val reply = try {
             client.execute(
                 "GET",
@@ -297,7 +392,11 @@ class PlexProvider internal constructor(
                 extraHeaders = mapOf(PROFILE_EXTRA_HEADER to PROFILE_EXTRA)
             )
         } catch (error: ServerException) {
-            if (error.failure == ServerFailure.FORBIDDEN) throw ServerException(ServerFailure.REMOTE_PLAYBACK_BLOCKED)
+            if (error.failure ==
+                ServerFailure.FORBIDDEN
+            ) {
+                throw ServerException(ServerFailure.REMOTE_PLAYBACK_BLOCKED)
+            }
             throw error
         }
         val container = decode(reply.body) ?: return MediaContainerWire()
@@ -307,7 +406,12 @@ class PlexProvider internal constructor(
         return container
     }
 
-    private fun transcodeQuery(item: MetadataWire, mediaIndex: Int, playSession: String, burnSubtitles: Boolean): Map<String, String?> = mapOf(
+    private fun transcodeQuery(
+        item: MetadataWire,
+        mediaIndex: Int,
+        playSession: String,
+        burnSubtitles: Boolean
+    ): Map<String, String?> = mapOf(
         "path" to item.key.ifBlank { "$METADATA_PATH/${item.ratingKey}" },
         "mediaIndex" to mediaIndex.toString(),
         "partIndex" to "0",
@@ -326,32 +430,45 @@ class PlexProvider internal constructor(
     )
 
     /** Plex keeps the chosen audio and subtitle on the file for the user, so both are set before asking for a stream. */
-    private suspend fun chooseStreams(session: ServerSession, partId: Long, audio: Int?, subtitle: Int?) {
+    private suspend fun chooseStreams(
+        session: ServerSession,
+        partId: Long,
+        audio: Int?,
+        subtitle: Int?
+    ) {
         client.execute(
             "PUT",
             session.connection.address,
             "$PARTS_PATH/$partId",
             session.token,
-            mapOf("audioStreamID" to audio?.toString(), "subtitleStreamID" to subtitle?.toString(), "allParts" to "1")
+            mapOf(
+                "audioStreamID" to audio?.toString(),
+                "subtitleStreamID" to subtitle?.toString(),
+                "allParts" to "1"
+            )
         )
     }
 
-    private fun externalSubtitles(session: ServerSession, part: PartWire): List<Subtitle> =
-        part.streams.filter { stream ->
-            stream.streamType == STREAM_SUBTITLE && stream.key?.startsWith("/") == true && stream.codec?.lowercase() in TEXT_SUBTITLES
-        }.map { stream ->
-            Subtitle(
-                id = "plex:${stream.id}",
-                url = buildUrl(session.connection.address, stream.key!!),
-                lang = stream.languageCode?.takeIf { it.isNotBlank() } ?: "und",
-                addonName = stream.label(),
-                addonLogo = null,
-                isStreamProvided = true,
-                headers = mapOf(PlexClient.TOKEN_HEADER to session.token)
-            )
-        }
+    private fun externalSubtitles(session: ServerSession, part: PartWire): List<Subtitle> = part.streams.filter { stream ->
+        stream.streamType == STREAM_SUBTITLE && stream.key?.startsWith("/") == true &&
+            stream.codec?.lowercase() in TEXT_SUBTITLES
+    }.map { stream ->
+        Subtitle(
+            id = "plex:${stream.id}",
+            url = buildUrl(session.connection.address, stream.key!!),
+            lang = stream.languageCode?.takeIf { it.isNotBlank() } ?: "und",
+            addonName = stream.label(),
+            addonLogo = null,
+            isStreamProvided = true,
+            headers = mapOf(PlexClient.TOKEN_HEADER to session.token)
+        )
+    }
 
-    override suspend fun report(session: ServerSession, playback: ServerPlaybackSession, event: ServerPlaybackEvent) {
+    override suspend fun report(
+        session: ServerSession,
+        playback: ServerPlaybackSession,
+        event: ServerPlaybackEvent
+    ) {
         val playSession = playback.playSessionId ?: return
         val play = plays[playSession] ?: return
         val state = when {
@@ -364,21 +481,23 @@ class PlexProvider internal constructor(
         val sendsTimeline = event.type != ServerPlaybackEventType.STOP || play.playing
         if (event.type != ServerPlaybackEventType.STOP) play.playing = true
         try {
-            if (sendsTimeline) client.execute(
-                "GET",
-                session.connection.address,
-                TIMELINE_PATH,
-                session.token,
-                mapOf(
-                    "ratingKey" to play.ratingKey,
-                    "key" to play.key,
-                    "state" to state,
-                    "time" to event.positionMs.coerceAtLeast(0L).toString(),
-                    "duration" to play.durationMs.takeIf { it > 0 }?.toString(),
-                    "hasMDE" to "1"
-                ),
-                extraHeaders = sessionHeader
-            )
+            if (sendsTimeline) {
+                client.execute(
+                    "GET",
+                    session.connection.address,
+                    TIMELINE_PATH,
+                    session.token,
+                    mapOf(
+                        "ratingKey" to play.ratingKey,
+                        "key" to play.key,
+                        "state" to state,
+                        "time" to event.positionMs.coerceAtLeast(0L).toString(),
+                        "duration" to play.durationMs.takeIf { it > 0 }?.toString(),
+                        "hasMDE" to "1"
+                    ),
+                    extraHeaders = sessionHeader
+                )
+            }
         } finally {
             if (event.type == ServerPlaybackEventType.STOP) {
                 plays.remove(playSession)
@@ -401,7 +520,11 @@ class PlexProvider internal constructor(
 
     // Requests
 
-    private suspend fun item(session: ServerSession, ratingKey: String, fresh: Boolean = false): MetadataWire {
+    private suspend fun item(
+        session: ServerSession,
+        ratingKey: String,
+        fresh: Boolean = false
+    ): MetadataWire {
         val key = "${session.connection.id}|$ratingKey"
         if (!fresh) items[key]?.takeIf { now() - it.atMs < ITEM_TTL_MS }?.let { return it.value }
         val item = get(
@@ -415,7 +538,11 @@ class PlexProvider internal constructor(
     }
 
     /** Every episode of a show in one call, kept briefly for the next-episode and matching lookups around a play. */
-    private suspend fun allLeaves(session: ServerSession, showKey: String, fresh: Boolean = false): List<MetadataWire> {
+    private suspend fun allLeaves(
+        session: ServerSession,
+        showKey: String,
+        fresh: Boolean = false
+    ): List<MetadataWire> {
         val key = "${session.connection.id}|$showKey"
         if (!fresh) leaves[key]?.takeIf { now() - it.atMs < LEAVES_TTL_MS }?.let { return it.value }
         val episodes = get(
@@ -436,8 +563,7 @@ class PlexProvider internal constructor(
 
     private fun sectionPath(library: ServerLibrary) = "$SECTIONS_PATH/${pathSegment(library.id)}/all"
 
-    private fun sectionQuery(library: ServerLibrary): Map<String, String?> =
-        mapOf("type" to plexTypeNumber(library.kind), "includeGuids" to "1")
+    private fun sectionQuery(library: ServerLibrary): Map<String, String?> = mapOf("type" to plexTypeNumber(library.kind), "includeGuids" to "1")
 
     private fun page(start: Int, size: Int): Map<String, String?> = mapOf(
         "X-Plex-Container-Start" to start.coerceAtLeast(0).toString(),
@@ -457,8 +583,12 @@ class PlexProvider internal constructor(
         return decode(reply.body) ?: throw ServerException(ServerFailure.FAILED)
     }
 
-    private suspend fun container(address: String, token: String?, path: String): MediaContainerWire =
-        decode(client.execute("GET", address, path, token).body) ?: throw ServerException(ServerFailure.FAILED)
+    private suspend fun container(
+        address: String,
+        token: String?,
+        path: String
+    ): MediaContainerWire = decode(client.execute("GET", address, path, token).body)
+        ?: throw ServerException(ServerFailure.FAILED)
 
     private fun decode(body: String): MediaContainerWire? = try {
         client.json.decodeFromString(ContainerReply.serializer(), body).container
@@ -515,10 +645,9 @@ class PlexProvider internal constructor(
     }
 }
 
-private fun StreamWire.label(): String =
-    extendedDisplayTitle?.takeIf { it.isNotBlank() }
-        ?: displayTitle?.takeIf { it.isNotBlank() }
-        ?: title?.takeIf { it.isNotBlank() }
-        ?: language?.takeIf { it.isNotBlank() }
-        ?: codec?.uppercase()
-        ?: id.toString()
+private fun StreamWire.label(): String = extendedDisplayTitle?.takeIf { it.isNotBlank() }
+    ?: displayTitle?.takeIf { it.isNotBlank() }
+    ?: title?.takeIf { it.isNotBlank() }
+    ?: language?.takeIf { it.isNotBlank() }
+    ?: codec?.uppercase()
+    ?: id.toString()

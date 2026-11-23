@@ -1,7 +1,5 @@
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +23,7 @@ import com.kien.movies.data.local.AudioLanguageOption
 import com.kien.movies.data.local.StreamAutoPlayMode
 import com.kien.movies.data.local.SubtitleLanguageOption
 import com.kien.movies.ui.components.P2pConsentDialog
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.launch
 
 @Composable
@@ -33,7 +32,9 @@ fun EssentialPlaybackSettingsContent(
     viewModel: PlaybackSettingsViewModel = hiltViewModel()
 ) {
     val playerSettings by viewModel.playerSettings.collectAsStateWithLifecycle(initialValue = null)
-    val torrentSettings by viewModel.torrentSettingsFlow.collectAsStateWithLifecycle(initialValue = null)
+    val torrentSettings by viewModel.torrentSettingsFlow.collectAsStateWithLifecycle(
+        initialValue = null
+    )
     val coroutineScope = rememberCoroutineScope()
     var showSubtitleLanguageDialog by remember { mutableStateOf(false) }
     var showAudioLanguageDialog by remember { mutableStateOf(false) }
@@ -56,14 +57,26 @@ fun EssentialPlaybackSettingsContent(
                 )
             }
             item(key = "playback_basics") {
-                SettingsGroupCard(modifier = Modifier.fillMaxWidth(), title = stringResource(R.string.essential_playback_basics)) {
+                SettingsGroupCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = stringResource(R.string.essential_playback_basics)
+                ) {
                     SettingsActionRow(
                         title = stringResource(R.string.essential_stream_selection),
                         subtitle = stringResource(R.string.essential_stream_selection_subtitle),
                         value = when (settings?.streamAutoPlayMode) {
-                            StreamAutoPlayMode.FIRST_STREAM -> stringResource(R.string.stream_auto_play_first_stream)
-                            StreamAutoPlayMode.MANUAL -> stringResource(R.string.stream_auto_play_manual_short)
-                            StreamAutoPlayMode.REGEX_MATCH -> stringResource(R.string.stream_auto_play_smart_match)
+                            StreamAutoPlayMode.FIRST_STREAM -> stringResource(
+                                R.string.stream_auto_play_first_stream
+                            )
+
+                            StreamAutoPlayMode.MANUAL -> stringResource(
+                                R.string.stream_auto_play_manual_short
+                            )
+
+                            StreamAutoPlayMode.REGEX_MATCH -> stringResource(
+                                R.string.stream_auto_play_smart_match
+                            )
+
                             null -> ""
                         },
                         onClick = {
@@ -84,12 +97,16 @@ fun EssentialPlaybackSettingsContent(
                     )
                     SettingsToggleRow(
                         title = stringResource(R.string.essential_autoplay_next_episode),
-                        subtitle = stringResource(R.string.essential_autoplay_next_episode_subtitle),
+                        subtitle = stringResource(
+                            R.string.essential_autoplay_next_episode_subtitle
+                        ),
                         checked = settings?.streamAutoPlayNextEpisodeEnabled == true,
                         onToggle = {
                             val current = settings ?: return@SettingsToggleRow
                             coroutineScope.launch {
-                                viewModel.setStreamAutoPlayNextEpisodeEnabled(!current.streamAutoPlayNextEpisodeEnabled)
+                                viewModel.setStreamAutoPlayNextEpisodeEnabled(
+                                    !current.streamAutoPlayNextEpisodeEnabled
+                                )
                             }
                         },
                         enabled = settings != null
@@ -101,7 +118,9 @@ fun EssentialPlaybackSettingsContent(
                         onToggle = {
                             val current = settings ?: return@SettingsToggleRow
                             coroutineScope.launch {
-                                viewModel.setPostPlayRecommendationsEnabled(!current.postPlayRecommendationsEnabled)
+                                viewModel.setPostPlayRecommendationsEnabled(
+                                    !current.postPlayRecommendationsEnabled
+                                )
                             }
                         },
                         enabled = settings != null
@@ -123,7 +142,10 @@ fun EssentialPlaybackSettingsContent(
                 }
             }
             item(key = "subtitles_audio") {
-                SettingsGroupCard(modifier = Modifier.fillMaxWidth(), title = stringResource(R.string.essential_subtitles_and_audio)) {
+                SettingsGroupCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = stringResource(R.string.essential_subtitles_and_audio)
+                ) {
                     SettingsActionRow(
                         title = stringResource(R.string.essential_subtitle_language),
                         subtitle = stringResource(R.string.essential_subtitle_language_subtitle),
@@ -137,7 +159,11 @@ fun EssentialPlaybackSettingsContent(
                         checked = settings?.subtitleStyle?.useForcedSubtitles == true,
                         onToggle = {
                             val current = settings ?: return@SettingsToggleRow
-                            coroutineScope.launch { viewModel.setUseForcedSubtitles(!current.subtitleStyle.useForcedSubtitles) }
+                            coroutineScope.launch {
+                                viewModel.setUseForcedSubtitles(
+                                    !current.subtitleStyle.useForcedSubtitles
+                                )
+                            }
                         },
                         enabled = settings != null
                     )
@@ -170,7 +196,9 @@ fun EssentialPlaybackSettingsContent(
                 else -> settings.subtitleStyle.preferredLanguage
             },
             showNoneOption = true,
-            extraOptions = listOf(SubtitleLanguageOption.DEVICE to stringResource(R.string.appearance_language_system)),
+            extraOptions = listOf(
+                SubtitleLanguageOption.DEVICE to stringResource(R.string.appearance_language_system)
+            ),
             onLanguageSelected = { language ->
                 coroutineScope.launch { viewModel.setSubtitlePreferredLanguage(language ?: "none") }
                 showSubtitleLanguageDialog = false

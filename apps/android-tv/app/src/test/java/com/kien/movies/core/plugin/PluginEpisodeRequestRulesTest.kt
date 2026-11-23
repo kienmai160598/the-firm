@@ -160,4 +160,3 @@ class PluginEpisodeRequestRulesTest {
         assertNull(matchPluginEpisodeIndex(absoluteCatalog, season = 2, episode = 10))
     }
 }
-

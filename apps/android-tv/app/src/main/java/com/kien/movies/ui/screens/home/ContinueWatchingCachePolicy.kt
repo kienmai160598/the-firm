@@ -6,9 +6,8 @@ internal fun shouldRestoreCachedInProgress(
     hasCachedInProgress: Boolean,
     hasProviderItems: Boolean,
     hasLoadedRemoteProgress: Boolean
-): Boolean =
-    !hasLiveInProgress &&
-        hasActiveTrackingProvider &&
-        hasCachedInProgress &&
-        !hasProviderItems &&
-        !hasLoadedRemoteProgress
+): Boolean = !hasLiveInProgress &&
+    hasActiveTrackingProvider &&
+    hasCachedInProgress &&
+    !hasProviderItems &&
+    !hasLoadedRemoteProgress

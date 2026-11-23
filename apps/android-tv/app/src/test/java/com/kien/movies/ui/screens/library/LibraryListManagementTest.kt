@@ -31,12 +31,21 @@ class LibraryListManagementTest {
         assertEquals("mdblist:list:7", f.viewModel.uiState.value.listEditorState!!.listId)
         f.viewModel.onUpdateEditorName("Renamed")
         f.viewModel.onUpdateEditorPrivacy(LibraryListPrivacy.FRIENDS)
-        assertEquals(LibraryListPrivacy.PRIVATE, f.viewModel.uiState.value.listEditorState!!.privacy)
+        assertEquals(
+            LibraryListPrivacy.PRIVATE,
+            f.viewModel.uiState.value.listEditorState!!.privacy
+        )
         f.viewModel.onUpdateEditorPrivacy(LibraryListPrivacy.PUBLIC)
         f.viewModel.onSubmitEditor()
         runCurrent()
         coVerify(exactly = 1) {
-            f.repository.updatePersonalList("mdblist:list:7", "Renamed", null, LibraryListPrivacy.PUBLIC, LibrarySourceMode.MDBLIST)
+            f.repository.updatePersonalList(
+                "mdblist:list:7",
+                "Renamed",
+                null,
+                LibraryListPrivacy.PUBLIC,
+                LibrarySourceMode.MDBLIST
+            )
         }
         assertNull(f.viewModel.uiState.value.listEditorState)
     }
@@ -63,7 +72,12 @@ class LibraryListManagementTest {
             runCurrent()
             f.viewModel.onOpenManageLists()
             f.viewModel.onStartEditList()
-            if (disconnect) f.authenticated.value = false else f.source.value = LibrarySourceMode.LOCAL
+            if (disconnect) {
+                f.authenticated.value = false
+            } else {
+                f.source.value =
+                    LibrarySourceMode.LOCAL
+            }
             runCurrent()
             assertFalse(f.viewModel.uiState.value.showManageDialog)
             f.viewModel.onDeleteSelectedList()
@@ -75,7 +89,8 @@ class LibraryListManagementTest {
     fun `duplicate save is suppressed and an old completion cannot close a newly opened editor`() = runTest {
         val f = LibraryViewModelTestFixture()
         val finished = CompletableDeferred<Unit>()
-        coEvery { f.repository.createPersonalList(any(), any(), any(), any()) } coAnswers { finished.await() }
+        coEvery { f.repository.createPersonalList(any(), any(), any(), any()) } coAnswers
+            { finished.await() }
         runCurrent()
         f.viewModel.onOpenManageLists()
         f.viewModel.onStartCreateList()
@@ -102,17 +117,30 @@ class LibraryListManagementTest {
         fun item(id: String, first: Int, other: Int) = LibraryEntry(
             id, "movie", id, null, background = null, logo = null, description = null, releaseInfo = null,
             imdbRating = null, genres = emptyList(), addonBaseUrl = null,
-            listKeys = setOf(f.tab.key, second.key), listRanks = mapOf(f.tab.key to first, second.key to other)
+            listKeys = setOf(f.tab.key, second.key),
+            listRanks = mapOf(
+                f.tab.key to first,
+                second.key to other
+            )
         )
         f.items.value = listOf(item("First", 1, 2), item("Second", 2, 1))
         runCurrent()
-        assertEquals(listOf("First", "Second"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("First", "Second"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         f.viewModel.onSelectListTab(second.key)
-        assertEquals(listOf("Second", "First"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Second", "First"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         f.viewModel.onOpenManageLists()
         f.viewModel.onMoveSelectedListDown()
         runCurrent()
         coVerify(exactly = 0) { f.repository.reorderPersonalLists(any(), any()) }
     }
-
 }

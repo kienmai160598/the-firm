@@ -26,13 +26,14 @@ internal object TopTabBarRules {
 
     fun step(focus: TopTabBarFocus, input: TopTabBarInput): TopTabBarStep = when (input) {
         TopTabBarInput.EnterContent -> TopTabBarStep.FocusOn(TopTabBarFocus.Content)
+
         TopTabBarInput.UpFromTop -> TopTabBarStep.FocusOn(TopTabBarFocus.Bar)
+
         TopTabBarInput.Back -> when (focus) {
             TopTabBarFocus.Content -> TopTabBarStep.FocusOn(TopTabBarFocus.Bar)
             TopTabBarFocus.Bar -> TopTabBarStep.ExitApp
         }
     }
 
-    fun barVisible(focus: TopTabBarFocus, routePinsBar: Boolean, scrolledDown: Boolean): Boolean =
-        focus == TopTabBarFocus.Bar || routePinsBar || !scrolledDown
+    fun barVisible(focus: TopTabBarFocus, routePinsBar: Boolean, scrolledDown: Boolean): Boolean = focus == TopTabBarFocus.Bar || routePinsBar || !scrolledDown
 }

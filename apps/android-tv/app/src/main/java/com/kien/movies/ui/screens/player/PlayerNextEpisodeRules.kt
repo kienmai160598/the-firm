@@ -1,19 +1,15 @@
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.data.local.NextEpisodeThresholdMode
-import com.kien.movies.data.repository.SkipInterval
 import com.kien.movies.core.util.isEpisodeReleaseAired
 import com.kien.movies.core.util.parseEpisodeReleaseLocalDate
+import com.kien.movies.data.local.NextEpisodeThresholdMode
+import com.kien.movies.data.repository.SkipInterval
 import com.kien.movies.domain.model.Video
 import java.time.Clock
 import java.time.LocalDate
 
 object PlayerNextEpisodeRules {
-    fun resolveNextEpisode(
-        videos: List<Video>,
-        currentSeason: Int?,
-        currentEpisode: Int
-    ): Video? {
+    fun resolveNextEpisode(videos: List<Video>, currentSeason: Int?, currentEpisode: Int): Video? {
         // Absolute-numbered content (e.g. some anime via Kitsu) carries no season; order by episode
         // number alone and advance to the next one.
         if (currentSeason == null) {
@@ -26,7 +22,12 @@ object PlayerNextEpisodeRules {
 
         val sortedEpisodes = videos
             .filter { it.season != null && it.episode != null }
-            .sortedWith(compareBy<Video> { it.season ?: Int.MAX_VALUE }.thenBy { it.episode ?: Int.MAX_VALUE })
+            .sortedWith(
+                compareBy<Video> { it.season ?: Int.MAX_VALUE }.thenBy {
+                    it.episode
+                        ?: Int.MAX_VALUE
+                }
+            )
 
         val currentIndex = sortedEpisodes.indexOfFirst {
             it.season == currentSeason && it.episode == currentEpisode
@@ -61,7 +62,10 @@ object PlayerNextEpisodeRules {
                 val sceneEndMs = (postCreditsScene.endTime * 1_000.0).toLong()
                     .coerceAtMost(durationMs)
                 val userTriggerMs = userThresholdPositionMs(
-                    durationMs, thresholdMode, thresholdPercent, thresholdMinutesBeforeEnd
+                    durationMs,
+                    thresholdMode,
+                    thresholdPercent,
+                    thresholdMinutesBeforeEnd
                 )
                 val isHeuristic = postCreditsScene.provider == "heuristic"
                 val sceneDurationMs = sceneEndMs - (postCreditsScene.startTime * 1_000.0).toLong()
@@ -86,6 +90,7 @@ object PlayerNextEpisodeRules {
                     val clampedPercent = thresholdPercent.coerceIn(97f, 100f)
                     ((1.0 - clampedPercent / 100.0) * durationMs).toLong()
                 }
+
                 NextEpisodeThresholdMode.MINUTES_BEFORE_END -> {
                     val clampedMinutes = thresholdMinutesBeforeEnd.coerceIn(0f, 3.5f)
                     (clampedMinutes * 60_000f).toLong()
@@ -98,6 +103,7 @@ object PlayerNextEpisodeRules {
                         val clampedPercent = thresholdPercent.coerceIn(97f, 100f)
                         (positionMs.toDouble() / durationMs.toDouble()) >= (clampedPercent / 100.0)
                     }
+
                     NextEpisodeThresholdMode.MINUTES_BEFORE_END -> {
                         val clampedMinutes = thresholdMinutesBeforeEnd.coerceIn(0f, 3.5f)
                         val remainingMs = durationMs - positionMs
@@ -117,6 +123,7 @@ object PlayerNextEpisodeRules {
                 val clampedPercent = thresholdPercent.coerceIn(97f, 100f)
                 (positionMs.toDouble() / durationMs.toDouble()) >= (clampedPercent / 100.0)
             }
+
             NextEpisodeThresholdMode.MINUTES_BEFORE_END -> {
                 val clampedMinutes = thresholdMinutesBeforeEnd.coerceIn(0f, 3.5f)
                 val remainingMs = durationMs - positionMs
@@ -133,17 +140,16 @@ object PlayerNextEpisodeRules {
         thresholdMode: NextEpisodeThresholdMode,
         thresholdPercent: Float,
         thresholdMinutesBeforeEnd: Float
-    ): Boolean =
-        durationMs > 0L &&
-            positionMs < durationMs - NEAR_END_MS &&
-            !shouldShowNextEpisodeCard(
-                positionMs = positionMs,
-                durationMs = durationMs,
-                skipIntervals = skipIntervals,
-                thresholdMode = thresholdMode,
-                thresholdPercent = thresholdPercent,
-                thresholdMinutesBeforeEnd = thresholdMinutesBeforeEnd
-            )
+    ): Boolean = durationMs > 0L &&
+        positionMs < durationMs - NEAR_END_MS &&
+        !shouldShowNextEpisodeCard(
+            positionMs = positionMs,
+            durationMs = durationMs,
+            skipIntervals = skipIntervals,
+            thresholdMode = thresholdMode,
+            thresholdPercent = thresholdPercent,
+            thresholdMinutesBeforeEnd = thresholdMinutesBeforeEnd
+        )
 
     fun parseEpisodeReleaseDate(raw: String?): LocalDate? {
         return parseEpisodeReleaseLocalDate(raw)
@@ -166,12 +172,13 @@ object PlayerNextEpisodeRules {
         durationMs: Long,
         thresholdMode: NextEpisodeThresholdMode,
         thresholdPercent: Float,
-        thresholdMinutesBeforeEnd: Float,
+        thresholdMinutesBeforeEnd: Float
     ): Long = when (thresholdMode) {
         NextEpisodeThresholdMode.PERCENTAGE -> {
             val clampedPercent = thresholdPercent.coerceIn(97f, 100f)
             kotlin.math.ceil(durationMs * (clampedPercent / 100.0)).toLong()
         }
+
         NextEpisodeThresholdMode.MINUTES_BEFORE_END -> {
             val clampedMinutes = thresholdMinutesBeforeEnd.coerceIn(0f, 3.5f)
             durationMs - (clampedMinutes * 60_000f).toLong()

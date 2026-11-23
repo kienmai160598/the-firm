@@ -21,6 +21,7 @@ object MemoryBudget {
     private const val HIGH_HEAP_RATIO = 0.85
     private const val HIGH_HEAP_THRESHOLD_MB = 512L
     private const val ONE_GB_CLASS_MAX_BYTES = (1.15 * 1024 * 1024 * 1024).toLong()
+
     // The buffer allocator is on the Java heap; on low-RAM reserve a slice for the UI/decoder/caches
     // and give the rest to the buffer (a flat % of max heap overcommits and starves them).
     private const val LOW_HEAP_RESERVE_MB = 210L
@@ -38,6 +39,7 @@ object MemoryBudget {
     const val MAX_CONNECTIONS = 4
     const val MIN_CHUNK_MB = 8
     const val MAX_CHUNK_MB = 128
+
     // Low-RAM devices (1-2 GB class): the session's protected set (playhead
     // window + tail moov chunks + pinned side chunks) puts the worst-case
     // retained floor at roughly connections + 10 chunks on a scatter-heavy
@@ -47,6 +49,7 @@ object MemoryBudget {
     private const val LOW_RAM_MAX_CHUNK_MB = 16
     const val BUFFER_STEP_MB = 25
     const val MIN_BUFFER_MB = 25
+
     // Half the device default floors the slider above what a low-RAM stick can sustain.
     const val MIN_TARGET_BUFFER_MB = 50
     private const val MIN_PLAYBACK_BUDGET_MB = 100
@@ -66,7 +69,7 @@ object MemoryBudget {
         val isLowRamTier: Boolean,
         val budgetMb: Int,
         val conversionBudgetMb: Int,
-        val tierMaxChunkMb: Int,
+        val tierMaxChunkMb: Int
     )
 
     @Volatile
@@ -82,7 +85,7 @@ object MemoryBudget {
     fun init(context: Context) {
         snapshot = snapshotFor(
             maxHeapMb = runtimeMaxHeapMb(),
-            physicalRamBytes = MoviesExoPlayerPerformanceHelper.getDevicePhysicalRamBytes(context),
+            physicalRamBytes = MoviesExoPlayerPerformanceHelper.getDevicePhysicalRamBytes(context)
         )
         Log.i(TAG, "Memory budget: $snapshot")
     }
@@ -92,7 +95,10 @@ object MemoryBudget {
         get() = snapshot ?: run {
             if (!loggedReadBeforeInit) {
                 loggedReadBeforeInit = true
-                Log.w(TAG, "Memory budget read before init(); using maxMemory() without the RAM check")
+                Log.w(
+                    TAG,
+                    "Memory budget read before init(); using maxMemory() without the RAM check"
+                )
             }
             snapshotFor(runtimeMaxHeapMb(), physicalRamBytes = 0L)
         }
@@ -119,51 +125,59 @@ object MemoryBudget {
         val rawBudgetMb = (heapMb * (if (lowRamTier) LOW_HEAP_RATIO else HIGH_HEAP_RATIO)).toInt()
         // The flat reserve collapses the budget on small heaps, so hold a floor that still leaves
         // the smallest devices half their heap.
-        val minPlaybackBudgetMb = MIN_PLAYBACK_BUDGET_MB.coerceAtMost((heapMb / 2).toInt()).coerceAtLeast(MIN_BUFFER_MB)
+        val minPlaybackBudgetMb = MIN_PLAYBACK_BUDGET_MB.coerceAtMost(
+            (heapMb / 2).toInt()
+        ).coerceAtLeast(MIN_BUFFER_MB)
         val budgetMb = if (lowRamTier) {
-            rawBudgetMb.coerceAtMost((heapMb - LOW_HEAP_RESERVE_MB).toInt()).coerceAtLeast(minPlaybackBudgetMb)
+            rawBudgetMb.coerceAtMost(
+                (heapMb - LOW_HEAP_RESERVE_MB).toInt()
+            ).coerceAtLeast(minPlaybackBudgetMb)
         } else {
             rawBudgetMb
         }
-        val conversionBudgetMb = (budgetMb * (if (lowRamTier) LOW_RAM_CONVERSION_RATIO else HIGH_RAM_CONVERSION_RATIO)).toInt()
+        val conversionBudgetMb = (
+            budgetMb *
+                (if (lowRamTier) LOW_RAM_CONVERSION_RATIO else HIGH_RAM_CONVERSION_RATIO)
+            ).toInt()
             .coerceAtMost(budgetMb).coerceAtLeast(MIN_BUFFER_MB)
         return Snapshot(
             heapMb = heapMb,
             isLowRamTier = lowRamTier,
             budgetMb = budgetMb,
             conversionBudgetMb = conversionBudgetMb,
-            tierMaxChunkMb = if (lowRamTier) LOW_RAM_MAX_CHUNK_MB else MAX_CHUNK_MB,
+            tierMaxChunkMb = if (lowRamTier) LOW_RAM_MAX_CHUNK_MB else MAX_CHUNK_MB
         )
     }
 
     // Some 1 GB TVs ship dalvik.vm.heapsize=512m, so largeHeap reports a high-RAM heap on a device
     // that can't back it. Only that case is resized: half the heap, the same 1 GB class as
     // MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb().
-    internal fun budgetHeapMb(maxHeapMb: Long, physicalRamBytes: Long): Long =
-        if (maxHeapMb >= HIGH_HEAP_THRESHOLD_MB && physicalRamBytes in 1 until ONE_GB_CLASS_MAX_BYTES) {
-            maxHeapMb / 2
-        } else {
-            maxHeapMb
-        }
+    internal fun budgetHeapMb(maxHeapMb: Long, physicalRamBytes: Long): Long = if (maxHeapMb >= HIGH_HEAP_THRESHOLD_MB &&
+        physicalRamBytes in 1 until ONE_GB_CLASS_MAX_BYTES
+    ) {
+        maxHeapMb / 2
+    } else {
+        maxHeapMb
+    }
 
-    fun effectiveBufferMb(stored: Int): Int =
-        if (stored > 0) stored else defaultBufferSizeMb
+    fun effectiveBufferMb(stored: Int): Int = if (stored > 0) stored else defaultBufferSizeMb
 
+    fun bufferCount(connectionCount: Int): Int = connectionCount + BUFFER_OVERHEAD
 
-    fun bufferCount(connectionCount: Int): Int =
-        connectionCount + BUFFER_OVERHEAD
+    fun parallelOverheadMb(connectionCount: Int, chunkSizeMb: Int): Int = bufferCount(connectionCount) * chunkSizeMb
 
-    fun parallelOverheadMb(connectionCount: Int, chunkSizeMb: Int): Int =
-        bufferCount(connectionCount) * chunkSizeMb
-
-    fun totalUsageMb(bufferMb: Int, connectionCount: Int, chunkSizeMb: Int, parallelEnabled: Boolean): Int =
-        bufferMb + if (parallelEnabled) parallelOverheadMb(connectionCount, chunkSizeMb) else 0
+    fun totalUsageMb(
+        bufferMb: Int,
+        connectionCount: Int,
+        chunkSizeMb: Int,
+        parallelEnabled: Boolean
+    ): Int = bufferMb + if (parallelEnabled) parallelOverheadMb(connectionCount, chunkSizeMb) else 0
 
     fun prefetchDepthChunks(
         connections: Int,
         chunkSizeMb: Int,
         safeNativeLimitMb: Int,
-        reserveBufferMb: Int,
+        reserveBufferMb: Int
     ): Int {
         val chunkMb = chunkSizeMb.coerceAtLeast(1)
         val chunkBudgetMb = (safeNativeLimitMb - reserveBufferMb.coerceAtLeast(0))
@@ -176,13 +190,15 @@ object MemoryBudget {
     }
 
     /** Max chunk size that fits budget given current buffer size */
-    fun maxChunkMb(bufferMb: Int, connectionCount: Int): Int =
-        ((budgetMb - bufferMb) / bufferCount(connectionCount)).coerceIn(MIN_CHUNK_MB, tierMaxChunkMb)
+    fun maxChunkMb(bufferMb: Int, connectionCount: Int): Int = (
+        (budgetMb - bufferMb) / bufferCount(
+            connectionCount
+        )
+        ).coerceIn(MIN_CHUNK_MB, tierMaxChunkMb)
 
     /** Max buffer size that fits budget given current parallel overhead */
-    fun maxBufferMb(parallelOverheadMb: Int): Int =
-        ((budgetMb - parallelOverheadMb) / BUFFER_STEP_MB * BUFFER_STEP_MB)
-            .coerceIn(MIN_BUFFER_MB, MAX_BUFFER_MB)
+    fun maxBufferMb(parallelOverheadMb: Int): Int = ((budgetMb - parallelOverheadMb) / BUFFER_STEP_MB * BUFFER_STEP_MB)
+        .coerceIn(MIN_BUFFER_MB, MAX_BUFFER_MB)
 
     /** Slider max for target buffer, optionally raised to 2GB when override is on. */
     fun maxBufferMbWithOverride(parallelOverheadMb: Int, allowLargeTargetBuffer: Boolean): Int {
@@ -235,4 +251,3 @@ enum class MemoryUsageStatus {
     WARNING,
     DANGER
 }
-

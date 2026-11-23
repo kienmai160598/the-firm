@@ -19,8 +19,14 @@ class PlayerScrubRatesTest {
 
     @Test
     fun deltaMsForKeyRepeat_appliesDirection() {
-        assertEquals(-PlayerScrubRates.STEP_SHORT_MS, PlayerScrubRates.deltaMsForKeyRepeat(0, forward = false))
-        assertEquals(PlayerScrubRates.STEP_LONG_MS, PlayerScrubRates.deltaMsForKeyRepeat(8, forward = true))
+        assertEquals(
+            -PlayerScrubRates.STEP_SHORT_MS,
+            PlayerScrubRates.deltaMsForKeyRepeat(0, forward = false)
+        )
+        assertEquals(
+            PlayerScrubRates.STEP_LONG_MS,
+            PlayerScrubRates.deltaMsForKeyRepeat(8, forward = true)
+        )
     }
 
     @Test

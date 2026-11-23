@@ -18,11 +18,8 @@ interface SimklSyncStorage {
 }
 
 @Singleton
-class AndroidSimklSyncStorage @Inject constructor(
-    private val factory: ProfileDataStoreFactory
-) : SimklSyncStorage {
-    override suspend fun load(profileId: Int): String? =
-        factory.get(profileId, FEATURE_NAME).data.first()[SNAPSHOT_KEY]
+class AndroidSimklSyncStorage @Inject constructor(private val factory: ProfileDataStoreFactory) : SimklSyncStorage {
+    override suspend fun load(profileId: Int): String? = factory.get(profileId, FEATURE_NAME).data.first()[SNAPSHOT_KEY]
 
     override suspend fun save(profileId: Int, payload: String) {
         factory.get(profileId, FEATURE_NAME).edit { preferences ->

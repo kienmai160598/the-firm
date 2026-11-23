@@ -43,7 +43,9 @@ class PlayerSettingsTimeoutMigrationTest {
     fun `current sentinel passes through unchanged`() {
         assertEquals(
             PlayerSettings.STREAM_AUTOPLAY_TIMEOUT_UNLIMITED,
-            PlayerSettings.applyLegacyTimeoutSentinelMigration(PlayerSettings.STREAM_AUTOPLAY_TIMEOUT_UNLIMITED)
+            PlayerSettings.applyLegacyTimeoutSentinelMigration(
+                PlayerSettings.STREAM_AUTOPLAY_TIMEOUT_UNLIMITED
+            )
         )
     }
 

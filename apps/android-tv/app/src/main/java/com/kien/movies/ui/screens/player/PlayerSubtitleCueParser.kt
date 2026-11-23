@@ -44,7 +44,8 @@ internal object PlayerSubtitleCueParser {
             val textLines = lines.drop(index + 1)
             val cueText = normalizeCueText(textLines.joinToString("\n"))
             if (cueText.isBlank()) continue
-            cues += SubtitleSyncCue(startTimeMs = startTimeMs, endTimeMs = endTimeMs, text = cueText)
+            cues +=
+                SubtitleSyncCue(startTimeMs = startTimeMs, endTimeMs = endTimeMs, text = cueText)
         }
         return cues
     }
@@ -105,7 +106,12 @@ internal object PlayerSubtitleCueParser {
             }
             val cueText = normalizeCueText(textParts.joinToString("\n"))
             if (cueText.isNotBlank()) {
-                cues += SubtitleSyncCue(startTimeMs = startTimeMs, endTimeMs = endTimeMs, text = cueText)
+                cues +=
+                    SubtitleSyncCue(
+                        startTimeMs = startTimeMs,
+                        endTimeMs = endTimeMs,
+                        text = cueText
+                    )
             }
             cursor = i + 1
         }

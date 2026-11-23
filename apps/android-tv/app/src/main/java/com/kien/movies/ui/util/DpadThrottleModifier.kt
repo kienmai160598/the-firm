@@ -32,10 +32,12 @@ fun Modifier.dpadRepeatThrottle(
         val native = event.nativeKeyEvent
         if (native.action == KeyEvent.ACTION_DOWN &&
             native.repeatCount > 0 &&
-            (native.keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
-                native.keyCode == KeyEvent.KEYCODE_DPAD_UP ||
-                native.keyCode == KeyEvent.KEYCODE_DPAD_LEFT ||
-                native.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT)
+            (
+                native.keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
+                    native.keyCode == KeyEvent.KEYCODE_DPAD_UP ||
+                    native.keyCode == KeyEvent.KEYCODE_DPAD_LEFT ||
+                    native.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT
+                )
         ) {
             val isVertical = native.keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
                 native.keyCode == KeyEvent.KEYCODE_DPAD_UP

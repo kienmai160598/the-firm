@@ -1,43 +1,44 @@
 package com.kien.movies.core.plugin.cloudstream
 
 import android.util.Log
-import com.lagradost.cloudstream3.AnimeLoadResponse
-import com.lagradost.cloudstream3.Episode
-import com.lagradost.cloudstream3.LoadResponse
-import com.lagradost.cloudstream3.LiveStreamLoadResponse
-import com.lagradost.cloudstream3.MainAPI
-import com.lagradost.cloudstream3.MovieLoadResponse
-import com.lagradost.cloudstream3.MovieSearchResponse
-import com.lagradost.cloudstream3.TvSeriesSearchResponse
-import com.lagradost.cloudstream3.AnimeSearchResponse
-import com.lagradost.cloudstream3.SearchResponse
-import com.lagradost.cloudstream3.SubtitleFile
-import com.lagradost.cloudstream3.TvSeriesLoadResponse
-import com.lagradost.cloudstream3.TvType
-import com.lagradost.cloudstream3.metaproviders.TmdbLink
-import com.lagradost.cloudstream3.metaproviders.TmdbProvider
-import com.lagradost.cloudstream3.utils.AppUtils.toJson
-import com.lagradost.cloudstream3.utils.ExtractorLink
-import com.lagradost.cloudstream3.utils.ExtractorLinkType
-import com.lagradost.cloudstream3.utils.Qualities
-import com.lagradost.cloudstream3.app
 import com.kien.movies.core.plugin.TestDiagnostics
 import com.kien.movies.core.plugin.matchPluginEpisodeIndex
 import com.kien.movies.core.tmdb.TmdbMetadataService
 import com.kien.movies.core.tmdb.TmdbService
 import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.LocalScraperResult
+import com.lagradost.cloudstream3.AnimeLoadResponse
+import com.lagradost.cloudstream3.AnimeSearchResponse
+import com.lagradost.cloudstream3.Episode
+import com.lagradost.cloudstream3.LiveStreamLoadResponse
+import com.lagradost.cloudstream3.LoadResponse
+import com.lagradost.cloudstream3.MainAPI
+import com.lagradost.cloudstream3.MovieLoadResponse
+import com.lagradost.cloudstream3.MovieSearchResponse
+import com.lagradost.cloudstream3.SearchResponse
+import com.lagradost.cloudstream3.SubtitleFile
+import com.lagradost.cloudstream3.TvSeriesLoadResponse
+import com.lagradost.cloudstream3.TvSeriesSearchResponse
+import com.lagradost.cloudstream3.TvType
+import com.lagradost.cloudstream3.app
+import com.lagradost.cloudstream3.metaproviders.TmdbLink
+import com.lagradost.cloudstream3.metaproviders.TmdbProvider
+import com.lagradost.cloudstream3.utils.AppUtils.toJson
+import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.ExtractorLinkType
+import com.lagradost.cloudstream3.utils.Qualities
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "ExtExtensionRunner"
 private const val EXECUTION_TIMEOUT_MS = 120_000L
+
 // Per-provider loadLinks cap. Mega-aggregators (Phisher StreamPlay, Ultima,
 // TorraStream) scrape many source sites in parallel and happily burn through
 // minutes — cap them at 60s and return the partial link set collected so far.
@@ -83,7 +84,11 @@ class ExternalExtensionRunner @Inject constructor(
             if (missing != null) {
                 Log.e(TAG, "Extension ${api.name} MISSING CLASS: $missing", e)
             } else {
-                Log.e(TAG, "Extension ${api.name} linkage error: ${e.javaClass.simpleName}: ${e.message}", e)
+                Log.e(
+                    TAG,
+                    "Extension ${api.name} linkage error: ${e.javaClass.simpleName}: ${e.message}",
+                    e
+                )
             }
             emptyList()
         }
@@ -115,18 +120,42 @@ class ExternalExtensionRunner @Inject constructor(
         withTimeoutOrNull(EXECUTION_TIMEOUT_MS) {
             try {
                 if (isTmdb) {
-                    executeTmdbProviderWithDiagnostics(api, tmdbId, mediaType, season, episode, diagnostics)
+                    executeTmdbProviderWithDiagnostics(
+                        api,
+                        tmdbId,
+                        mediaType,
+                        season,
+                        episode,
+                        diagnostics
+                    )
                 } else {
-                    executeSearchBasedWithDiagnostics(api, tmdbId, mediaType, season, episode, diagnostics)
+                    executeSearchBasedWithDiagnostics(
+                        api,
+                        tmdbId,
+                        mediaType,
+                        season,
+                        episode,
+                        diagnostics
+                    )
                 }
             } catch (e: Error) {
-                Log.e(TAG, "Diagnostic ${api.name} error: ${e.javaClass.simpleName}: ${e.message}", e)
+                Log.e(
+                    TAG,
+                    "Diagnostic ${api.name} error: ${e.javaClass.simpleName}: ${e.message}",
+                    e
+                )
                 diagnostics.addStep("Runtime error: ${e.javaClass.simpleName}")
                 diagnostics.addStep("Detail: ${e.message?.take(300)}")
                 emptyList()
             } catch (e: Exception) {
-                Log.e(TAG, "Diagnostic ${api.name} exception: ${e.javaClass.simpleName}: ${e.message}", e)
-                diagnostics.addStep("Runtime exception: ${e.javaClass.simpleName}: ${e.message?.take(300)}")
+                Log.e(
+                    TAG,
+                    "Diagnostic ${api.name} exception: ${e.javaClass.simpleName}: ${e.message}",
+                    e
+                )
+                diagnostics.addStep(
+                    "Runtime exception: ${e.javaClass.simpleName}: ${e.message?.take(300)}"
+                )
                 emptyList()
             }
         } ?: run {
@@ -172,7 +201,12 @@ class ExternalExtensionRunner @Inject constructor(
         val subtitles = mutableListOf<SubtitleFile>()
 
         // Instrument loadExtractor to log each call's result
-        data class ExtractorCall(val url: String, var matched: Boolean = false, var linkCount: Int = 0, var error: String? = null)
+        data class ExtractorCall(
+            val url: String,
+            var matched: Boolean = false,
+            var linkCount: Int = 0,
+            var error: String? = null
+        )
         val extractorCalls = mutableListOf<ExtractorCall>()
 
         val success = try {
@@ -183,11 +217,15 @@ class ExternalExtensionRunner @Inject constructor(
                 callback = { links.add(it) }
             )
         } catch (e: Throwable) {
-            diagnostics.addStep("loadLinks THREW: ${e.javaClass.simpleName}: ${e.message?.take(120)}")
+            diagnostics.addStep(
+                "loadLinks THREW: ${e.javaClass.simpleName}: ${e.message?.take(120)}"
+            )
             false
         }
 
-        diagnostics.addStep("loadLinks returned: success=$success, ${links.size} links, ${subtitles.size} subs")
+        diagnostics.addStep(
+            "loadLinks returned: success=$success, ${links.size} links, ${subtitles.size} subs"
+        )
 
         // Show missing extractor domains
         val missing = extractorRegistry.getMissingExtractorDomains()
@@ -229,8 +267,14 @@ class ExternalExtensionRunner @Inject constructor(
 
         // Check if search() is actually overridden
         val searchMethod = try {
-            api.javaClass.getMethod("search", String::class.java, kotlin.coroutines.Continuation::class.java)
-        } catch (_: Exception) { null }
+            api.javaClass.getMethod(
+                "search",
+                String::class.java,
+                kotlin.coroutines.Continuation::class.java
+            )
+        } catch (_: Exception) {
+            null
+        }
         val declaringClass = searchMethod?.declaringClass?.name ?: "unknown"
         diagnostics.addStep("search() declared in: $declaringClass")
 
@@ -257,7 +301,9 @@ class ExternalExtensionRunner @Inject constructor(
         var searchResults = try {
             api.search(title, 1)?.items
         } catch (e: Exception) {
-            diagnostics.addStep("search() THREW: ${e.javaClass.simpleName}: ${e.message?.take(120)}")
+            diagnostics.addStep(
+                "search() THREW: ${e.javaClass.simpleName}: ${e.message?.take(120)}"
+            )
             null
         } catch (e: Error) {
             val missingCls = extractMissingClass(e)
@@ -276,21 +322,30 @@ class ExternalExtensionRunner @Inject constructor(
             if (httpLog.size > 6) diagnostics.addStep("  ... and ${httpLog.size - 6} more")
         }
 
-        diagnostics.addStep("Search returned: ${if (searchResults == null) "null" else "${searchResults.size} results"}")
+        diagnostics.addStep(
+            "Search returned: ${if (searchResults == null) "null" else "${searchResults.size} results"}"
+        )
 
         // Fallback: if title has special characters, try simplified version
         if (searchResults.isNullOrEmpty() && title.contains(Regex("[:\\-–—]"))) {
-            val simplified = title.replace(Regex("[:\\-–—]"), " ").replace(Regex("\\s+"), " ").trim()
+            val simplified = title.replace(
+                Regex("[:\\-–—]"),
+                " "
+            ).replace(Regex("\\s+"), " ").trim()
             diagnostics.addStep("Retrying with: \"$simplified\"")
             searchResults = try {
                 api.search(simplified, 1)?.items
             } catch (e: Exception) {
-                diagnostics.addStep("search(simplified) THREW: ${e.javaClass.simpleName}: ${e.message?.take(120)}")
+                diagnostics.addStep(
+                    "search(simplified) THREW: ${e.javaClass.simpleName}: ${e.message?.take(120)}"
+                )
                 null
             } catch (e: Error) {
                 null
             }
-            diagnostics.addStep("Retry returned: ${if (searchResults == null) "null" else "${searchResults.size} results"}")
+            diagnostics.addStep(
+                "Retry returned: ${if (searchResults == null) "null" else "${searchResults.size} results"}"
+            )
         }
 
         if (searchResults.isNullOrEmpty()) return emptyList()
@@ -316,7 +371,7 @@ class ExternalExtensionRunner @Inject constructor(
 
         val data = extractData(loadResponse, mediaType, season, episode)
         if (data == null) {
-            diagnostics.addStep("No episode data for S${season}E${episode}")
+            diagnostics.addStep("No episode data for S${season}E$episode")
             return emptyList()
         }
 
@@ -331,7 +386,9 @@ class ExternalExtensionRunner @Inject constructor(
             callback = { links.add(it) }
         )
 
-        diagnostics.addStep("loadLinks returned: success=$success, ${links.size} links, ${subtitles.size} subs")
+        diagnostics.addStep(
+            "loadLinks returned: success=$success, ${links.size} links, ${subtitles.size} subs"
+        )
         val domainSubtitles = subtitles.toDomainSubtitles(api.name)
         return links.filterValid().map { it.toLocalScraperResult(api.name, domainSubtitles) }
     }
@@ -386,11 +443,19 @@ class ExternalExtensionRunner @Inject constructor(
         val loadResponse = try {
             api.load(loadJson)
         } catch (e: Exception) {
-            Log.w(TAG, "TmdbProvider ${api.name} load(json) threw: ${e.javaClass.simpleName}: ${e.message?.take(100)}")
+            Log.w(
+                TAG,
+                "TmdbProvider ${api.name} load(json) threw: ${e.javaClass.simpleName}: ${e.message?.take(
+                    100
+                )}"
+            )
             null
         } catch (e: Error) {
             val missing = extractMissingClass(e)
-            Log.w(TAG, "TmdbProvider ${api.name} load(json) error: ${missing ?: e.message?.take(100)}")
+            Log.w(
+                TAG,
+                "TmdbProvider ${api.name} load(json) error: ${missing ?: e.message?.take(100)}"
+            )
             null
         }
 
@@ -401,7 +466,7 @@ class ExternalExtensionRunner @Inject constructor(
                 Log.d(TAG, "TmdbProvider ${api.name}: loadLinks data=${data.take(200)}")
                 return executeTmdbLoadLinks(api, data)
             }
-            Log.w(TAG, "TmdbProvider ${api.name}: no data for S${season}E${episode}")
+            Log.w(TAG, "TmdbProvider ${api.name}: no data for S${season}E$episode")
         }
 
         // Fallback: try with TMDB URL format (standard TmdbProvider.load())
@@ -414,9 +479,16 @@ class ExternalExtensionRunner @Inject constructor(
         val fallbackResponse = try {
             api.load(tmdbUrl)
         } catch (e: Exception) {
-            Log.w(TAG, "TmdbProvider ${api.name} fallback load(url) threw: ${e.javaClass.simpleName}: ${e.message?.take(100)}")
+            Log.w(
+                TAG,
+                "TmdbProvider ${api.name} fallback load(url) threw: ${e.javaClass.simpleName}: ${e.message?.take(
+                    100
+                )}"
+            )
             null
-        } catch (e: Error) { null }
+        } catch (e: Error) {
+            null
+        }
 
         if (fallbackResponse != null) {
             val data = extractData(fallbackResponse, mediaType, season, episode)
@@ -430,10 +502,7 @@ class ExternalExtensionRunner @Inject constructor(
         return emptyList()
     }
 
-    private suspend fun executeTmdbLoadLinks(
-        api: MainAPI,
-        data: String
-    ): List<LocalScraperResult> {
+    private suspend fun executeTmdbLoadLinks(api: MainAPI, data: String): List<LocalScraperResult> {
         // Use thread-safe list so links collected during loadLinks survive timeout
         val links = java.util.Collections.synchronizedList(mutableListOf<ExtractorLink>())
         val subtitles = java.util.Collections.synchronizedList(mutableListOf<SubtitleFile>())
@@ -452,16 +521,25 @@ class ExternalExtensionRunner @Inject constructor(
                 )
                 true
             } catch (e: Exception) {
-                Log.w(TAG, "TmdbProvider ${api.name} loadLinks threw: ${e.javaClass.simpleName} (${links.size} links collected)")
+                Log.w(
+                    TAG,
+                    "TmdbProvider ${api.name} loadLinks threw: ${e.javaClass.simpleName} (${links.size} links collected)"
+                )
                 false
             } catch (e: Error) {
                 val missing = extractMissingClass(e)
-                Log.w(TAG, "TmdbProvider ${api.name} loadLinks error: ${missing ?: e.message} (${links.size} links collected)")
+                Log.w(
+                    TAG,
+                    "TmdbProvider ${api.name} loadLinks error: ${missing ?: e.message} (${links.size} links collected)"
+                )
                 false
             }
         }
         if (completed == null) {
-            Log.w(TAG, "TmdbProvider ${api.name} loadLinks timed out at ${LOADLINKS_TIMEOUT_MS}ms (${links.size} links collected so far)")
+            Log.w(
+                TAG,
+                "TmdbProvider ${api.name} loadLinks timed out at ${LOADLINKS_TIMEOUT_MS}ms (${links.size} links collected so far)"
+            )
         }
 
         if (links.isEmpty()) {
@@ -471,7 +549,9 @@ class ExternalExtensionRunner @Inject constructor(
 
         Log.d(TAG, "TmdbProvider ${api.name}: ${links.size} links, ${subtitles.size} subs")
         val domainSubtitles = subtitles.toDomainSubtitles(api.name)
-        return links.filterValid().map { link -> link.toLocalScraperResult(api.name, domainSubtitles) }
+        return links.filterValid().map { link ->
+            link.toLocalScraperResult(api.name, domainSubtitles)
+        }
     }
 
     private suspend fun executeSearchBased(
@@ -513,15 +593,23 @@ class ExternalExtensionRunner @Inject constructor(
                 .forEach(::add)
         }
 
-        Log.d(TAG, "SearchBased ${api.name}: searching for \"$title\" (${candidateTitles.size} candidates)")
+        Log.d(
+            TAG,
+            "SearchBased ${api.name}: searching for \"$title\" (${candidateTitles.size} candidates)"
+        )
 
         var outcome = trySearch(api, title)
         var searchResults = outcome.items
         var hostDead = outcome.hostUnreachable
         var unsupported = outcome.unsupported
 
-        if (searchResults.isNullOrEmpty() && !hostDead && !unsupported && title.contains(Regex("[:\\-–—]"))) {
-            val simplified = title.replace(Regex("[:\\-–—]"), " ").replace(Regex("\\s+"), " ").trim()
+        if (searchResults.isNullOrEmpty() && !hostDead && !unsupported &&
+            title.contains(Regex("[:\\-–—]"))
+        ) {
+            val simplified = title.replace(
+                Regex("[:\\-–—]"),
+                " "
+            ).replace(Regex("\\s+"), " ").trim()
             Log.d(TAG, "SearchBased ${api.name}: retrying with simplified \"$simplified\"")
             outcome = trySearch(api, simplified)
             searchResults = outcome.items
@@ -544,7 +632,10 @@ class ExternalExtensionRunner @Inject constructor(
                 altOutcomes.firstOrNull { it.second.unsupported }?.let { unsupported = true }
                 if (!hostDead && !unsupported) {
                     altOutcomes.firstOrNull { !it.second.items.isNullOrEmpty() }?.let { (alt, o) ->
-                        Log.d(TAG, "SearchBased ${api.name}: alt title \"$alt\" returned ${o.items?.size ?: 0} results")
+                        Log.d(
+                            TAG,
+                            "SearchBased ${api.name}: alt title \"$alt\" returned ${o.items?.size ?: 0} results"
+                        )
                         searchResults = o.items
                     }
                 }
@@ -553,9 +644,20 @@ class ExternalExtensionRunner @Inject constructor(
 
         if (searchResults.isNullOrEmpty()) {
             when {
-                hostDead -> Log.w(TAG, "SearchBased ${api.name}: host unreachable, skipping (primary=\"$title\")")
-                unsupported -> Log.w(TAG, "SearchBased ${api.name}: search() unsupported, skipping (primary=\"$title\")")
-                else -> Log.w(TAG, "SearchBased ${api.name}: 0 search results for any of ${candidateTitles.size} titles (primary=\"$title\")")
+                hostDead -> Log.w(
+                    TAG,
+                    "SearchBased ${api.name}: host unreachable, skipping (primary=\"$title\")"
+                )
+
+                unsupported -> Log.w(
+                    TAG,
+                    "SearchBased ${api.name}: search() unsupported, skipping (primary=\"$title\")"
+                )
+
+                else -> Log.w(
+                    TAG,
+                    "SearchBased ${api.name}: 0 search results for any of ${candidateTitles.size} titles (primary=\"$title\")"
+                )
             }
             return emptyList()
         }
@@ -563,10 +665,16 @@ class ExternalExtensionRunner @Inject constructor(
 
         val bestMatch = findBestMatch(searchResults, candidateTitles, year, mediaType)
         if (bestMatch == null) {
-            Log.d(TAG, "No suitable match in ${api.name} results for: $title ($year) [candidates=${candidateTitles.size}]")
+            Log.d(
+                TAG,
+                "No suitable match in ${api.name} results for: $title ($year) [candidates=${candidateTitles.size}]"
+            )
             searchResults.take(5).forEachIndexed { i, r ->
                 val sim = candidateTitles.maxOf { calculateSimilarity(r.name, it) }
-                Log.d(TAG, "  [$i] \"${r.name}\" (sim=${String.format("%.2f", sim)}, type=${r.type})")
+                Log.d(
+                    TAG,
+                    "  [$i] \"${r.name}\" (sim=${String.format("%.2f", sim)}, type=${r.type})"
+                )
             }
             return emptyList()
         }
@@ -575,7 +683,11 @@ class ExternalExtensionRunner @Inject constructor(
         val loadResponse = try {
             api.load(bestMatch.url)
         } catch (e: Exception) {
-            Log.e(TAG, "SearchBased ${api.name} load() threw: ${e.javaClass.simpleName}: ${e.message}", e)
+            Log.e(
+                TAG,
+                "SearchBased ${api.name} load() threw: ${e.javaClass.simpleName}: ${e.message}",
+                e
+            )
             null
         } catch (e: Error) {
             val missing = extractMissingClass(e)
@@ -590,7 +702,7 @@ class ExternalExtensionRunner @Inject constructor(
 
         val data = extractData(loadResponse, mediaType, season, episode)
         if (data == null) {
-            Log.d(TAG, "No data extracted from ${api.name} for S${season}E${episode}")
+            Log.d(TAG, "No data extracted from ${api.name} for S${season}E$episode")
             return emptyList()
         }
 
@@ -606,7 +718,11 @@ class ExternalExtensionRunner @Inject constructor(
                     callback = { links.add(it) }
                 )
             } catch (e: Exception) {
-                Log.e(TAG, "SearchBased ${api.name} loadLinks threw: ${e.javaClass.simpleName}: ${e.message}", e)
+                Log.e(
+                    TAG,
+                    "SearchBased ${api.name} loadLinks threw: ${e.javaClass.simpleName}: ${e.message}",
+                    e
+                )
                 false
             } catch (e: Error) {
                 val missing = extractMissingClass(e)
@@ -615,7 +731,10 @@ class ExternalExtensionRunner @Inject constructor(
             }
         }
         if (success == null) {
-            Log.w(TAG, "SearchBased ${api.name} loadLinks timed out at ${LOADLINKS_TIMEOUT_MS}ms (${links.size} links collected so far)")
+            Log.w(
+                TAG,
+                "SearchBased ${api.name} loadLinks timed out at ${LOADLINKS_TIMEOUT_MS}ms (${links.size} links collected so far)"
+            )
         }
 
         if (success != true && links.isEmpty()) {
@@ -625,7 +744,9 @@ class ExternalExtensionRunner @Inject constructor(
 
         Log.d(TAG, "SearchBased ${api.name}: ${links.size} links, ${subtitles.size} subs")
         val domainSubtitles = subtitles.toDomainSubtitles(api.name)
-        return links.filterValid().map { link -> link.toLocalScraperResult(api.name, domainSubtitles) }
+        return links.filterValid().map { link ->
+            link.toLocalScraperResult(api.name, domainSubtitles)
+        }
     }
 
     /** Extract year from SearchResponse concrete types (not in the interface). */
@@ -644,7 +765,8 @@ class ExternalExtensionRunner @Inject constructor(
     ): SearchResponse? {
         val isMovie = mediaType.lowercase() == "movie"
         val movieTypes = setOf(TvType.Movie, TvType.AnimeMovie, TvType.Documentary)
-        val tvTypes = setOf(TvType.TvSeries, TvType.Anime, TvType.OVA, TvType.Cartoon, TvType.AsianDrama)
+        val tvTypes =
+            setOf(TvType.TvSeries, TvType.Anime, TvType.OVA, TvType.Cartoon, TvType.AsianDrama)
         // Catch-all TV types: niche providers (anime/dorama/donghua sites) may list
         // any result as Anime/AsianDrama/OVA, giving a free type-match against any
         // TV target. Require near-exact title for these to prevent false positives
@@ -672,7 +794,8 @@ class ExternalExtensionRunner @Inject constructor(
                 }
                 // Year check: hard reject when both years known and differ by >1.
                 if (targetYear != null && resultYear != null &&
-                    kotlin.math.abs(targetYear - resultYear) > 1) {
+                    kotlin.math.abs(targetYear - resultYear) > 1
+                ) {
                     return@mapNotNull null
                 }
 
@@ -708,7 +831,11 @@ class ExternalExtensionRunner @Inject constructor(
         Log.e(TAG, "SearchBased ${api.name}: search() not implemented; skipping provider")
         SearchOutcome(null, unsupported = true)
     } catch (e: Exception) {
-        Log.e(TAG, "SearchBased ${api.name} search(\"$query\") threw: ${e.javaClass.simpleName}: ${e.message}", e)
+        Log.e(
+            TAG,
+            "SearchBased ${api.name} search(\"$query\") threw: ${e.javaClass.simpleName}: ${e.message}",
+            e
+        )
         SearchOutcome(null)
     } catch (e: Error) {
         val missing = extractMissingClass(e)
@@ -734,6 +861,7 @@ class ExternalExtensionRunner @Inject constructor(
                 Character.UnicodeBlock.LATIN_EXTENDED_A,
                 Character.UnicodeBlock.LATIN_EXTENDED_B,
                 Character.UnicodeBlock.LATIN_EXTENDED_ADDITIONAL -> true
+
                 else -> false
             }
         }
@@ -747,14 +875,18 @@ class ExternalExtensionRunner @Inject constructor(
         episode: Int?
     ): String? = when (response) {
         is MovieLoadResponse -> response.dataUrl
+
         is LiveStreamLoadResponse -> response.dataUrl
+
         is TvSeriesLoadResponse -> {
             findEpisode(response.episodes, season, episode)?.data
         }
+
         is AnimeLoadResponse -> {
             val allEpisodes = response.episodes.values.flatten()
             findEpisode(allEpisodes, season, episode)?.data
         }
+
         else -> null
     }
 
@@ -808,7 +940,12 @@ class ExternalExtensionRunner @Inject constructor(
             .replace(Regex("\\b(temporada|season)\\s*\\d+\\b"), " ")
             .replace(Regex("\\b[st]\\d{1,2}\\b"), " ") // s1, t2, s04
             .replace(Regex("\\b(part|parte)\\s*\\d+\\b"), " ")
-            .replace(Regex("\\b(latino|castellano|subtitulado|sub\\s*espa(ñ|n)ol|espa(ñ|n)ol|dual|vose|vostfr|subbed|dubbed)\\b"), " ")
+            .replace(
+                Regex(
+                    "\\b(latino|castellano|subtitulado|sub\\s*espa(ñ|n)ol|espa(ñ|n)ol|dual|vose|vostfr|subbed|dubbed)\\b"
+                ),
+                " "
+            )
             .replace(Regex("[:\\-–—]"), " ")
             .replace(Regex("\\s+"), " ")
             .trim()
@@ -845,12 +982,19 @@ class ExternalExtensionRunner @Inject constructor(
                 !url.startsWith("http://") && !url.startsWith("https://") -> false
                 else -> true
             }.also { valid ->
-                if (!valid) Log.w(TAG, "Filtered invalid link: source=${link.source}, url=${url.take(60)}")
+                if (!valid) {
+                    Log.w(
+                        TAG,
+                        "Filtered invalid link: source=${link.source}, url=${url.take(60)}"
+                    )
+                }
             }
         }
     }
 
-    private fun List<SubtitleFile>.toDomainSubtitles(addonName: String): List<com.kien.movies.domain.model.Subtitle> {
+    private fun List<SubtitleFile>.toDomainSubtitles(
+        addonName: String
+    ): List<com.kien.movies.domain.model.Subtitle> {
         return this.mapNotNull { file ->
             val subUrl = file.url.takeIf { it.isNotBlank() } ?: return@mapNotNull null
             val lang = file.lang.takeIf { it.isNotBlank() } ?: "Unknown"

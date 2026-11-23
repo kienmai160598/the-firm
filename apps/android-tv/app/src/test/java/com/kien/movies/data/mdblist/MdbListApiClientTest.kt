@@ -16,11 +16,22 @@ class MdbListApiClientTest {
                 harness.connected()
                 harness.reply(status, "")
                 val request: suspend () -> MdbListHttpResponse = {
-                    if (method == MdbListHttpMethod.PUT) harness.api.put("/lists/42", "list-body")
-                    else harness.api.delete("/lists/42")
+                    if (method == MdbListHttpMethod.PUT) {
+                        harness.api.put("/lists/42", "list-body")
+                    } else {
+                        harness.api.delete("/lists/42")
+                    }
                 }
-                if (status == 204) assertEquals(204, request().status)
-                else assertEquals(status, expectMdbListFailure<MdbListApiException> { request() }.status)
+                if (status == 204) {
+                    assertEquals(204, request().status)
+                } else {
+                    assertEquals(
+                        status,
+                        expectMdbListFailure<MdbListApiException> {
+                            request()
+                        }.status
+                    )
+                }
                 assertEquals(1, harness.engine.requests.size)
                 assertEquals(method, harness.engine.requests.single().method)
                 assertFalse(harness.engine.requests.single().retrySafe)
@@ -32,10 +43,13 @@ class MdbListApiClientTest {
     fun `initial user response quota follows the newly identified account`() = runTest {
         val harness = MdbListTestHarness()
         harness.connected()
-        harness.reply(body = """{"user_id":42,"username":"viewer"}""", headers = mapOf(
-            "X-RateLimit-Remaining" to "0",
-            "X-RateLimit-Reset" to ((harness.now + 60_000L) / 1_000L).toString()
-        ))
+        harness.reply(
+            body = """{"user_id":42,"username":"viewer"}""",
+            headers = mapOf(
+                "X-RateLimit-Remaining" to "0",
+                "X-RateLimit-Reset" to ((harness.now + 60_000L) / 1_000L).toString()
+            )
+        )
 
         harness.api.refreshUser()
         expectMdbListFailure<MdbListApiException> { harness.api.get("/sync/playback") }
@@ -47,7 +61,9 @@ class MdbListApiClientTest {
     fun `valid token reads user once and stores identity`() = runTest {
         val harness = MdbListTestHarness()
         harness.connected()
-        harness.reply(body = """{"user_id":42,"username":"viewer","is_supporter":true,"unknown":"field"}""")
+        harness.reply(
+            body = """{"user_id":42,"username":"viewer","is_supporter":true,"unknown":"field"}"""
+        )
 
         val user = harness.api.refreshUser()
 
@@ -69,7 +85,12 @@ class MdbListApiClientTest {
 
         harness.api.post("/sync/watched", "movie-body")
 
-        assertEquals(listOf("/sync/watched", "/oauth/token/", "/sync/watched"), harness.engine.requests.map { it.path })
+        assertEquals(
+            listOf("/sync/watched", "/oauth/token/", "/sync/watched"),
+            harness.engine.requests.map {
+                it.path
+            }
+        )
         assertEquals("access-two", harness.engine.requests.last().accessToken)
         assertEquals("movie-body", harness.engine.requests.last().body)
     }
@@ -95,7 +116,12 @@ class MdbListApiClientTest {
             harness.connected()
             harness.reply(status)
 
-            assertEquals(status, expectMdbListFailure<MdbListApiException> { harness.api.get("/sync/playback") }.status)
+            assertEquals(
+                status,
+                expectMdbListFailure<MdbListApiException> {
+                    harness.api.get("/sync/playback")
+                }.status
+            )
             assertTrue(harness.store.state.value.isAuthenticated)
             assertEquals(1, harness.engine.requests.size)
         }

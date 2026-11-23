@@ -3,6 +3,7 @@ package com.kien.movies.ui.screens.library
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,16 +19,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.focusable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -35,15 +35,15 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -56,40 +56,53 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.kien.movies.R
 import com.kien.movies.core.cloud.CloudLibraryFile
 import com.kien.movies.core.cloud.CloudLibraryItem
 import com.kien.movies.core.cloud.CloudLibraryItemType
 import com.kien.movies.core.cloud.CloudLibraryPlaybackInfo
+import com.kien.movies.data.local.PlayerPreference
 import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.LibrarySourceMode
 import com.kien.movies.domain.model.PosterShape
-import com.kien.movies.data.local.PlayerPreference
+import com.kien.movies.domain.model.localizedTitle
 import com.kien.movies.ui.components.EmptyScreenState
 import com.kien.movies.ui.components.GridContentCard
+import com.kien.movies.ui.components.LoadingIndicator
+import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.PosterCardDefaults
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesSurface
 import com.kien.movies.ui.screens.detail.TvSizeFloors
 import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.screens.detail.buttonLabelStyle
@@ -97,26 +110,12 @@ import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.screens.detail.tvButtonPadding
 import com.kien.movies.ui.screens.home.HeroBackdropState
 import com.kien.movies.ui.screens.stream.PlayerChoiceDialog
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import com.kien.movies.ui.components.PosterCardDefaults
-import com.kien.movies.domain.model.localizedTitle
-import com.kien.movies.ui.components.LoadingIndicator
-import com.kien.movies.ui.components.MoviesDialog
-import com.kien.movies.ui.components.expressive.M3eShapes
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.ui.components.expressive.MoviesSurface
-import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ExpressiveFocus
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.localizedContentType
 import com.kien.movies.ui.util.localizedGenreLabel
 import kotlinx.coroutines.delay
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.TextStyle
-import com.kien.movies.R
+import kotlinx.coroutines.launch
 
 private const val KEY_REPEAT_THROTTLE_MS = 80L
 private const val SECONDARY_CONTENT_ALPHA = 0.64f
@@ -127,8 +126,6 @@ private enum class LibraryViewMode {
     Cloud,
     Servers
 }
-
-
 
 @Composable
 private fun localizedTypeLabel(key: String): String = when (key.lowercase()) {
@@ -168,7 +165,14 @@ fun LibraryScreen(
     ReportLibraryGridScroll(gridState)
     var pendingPrimaryFocus by remember { mutableStateOf(true) }
     var serverFocusTarget by remember {
-        mutableStateOf(serversViewModel.focusedShelfKey?.let { key -> serversViewModel.focusedIndexes[key]?.let { key to it } })
+        mutableStateOf(
+            serversViewModel.focusedShelfKey?.let { key ->
+                serversViewModel.focusedIndexes[key]?.let {
+                    key to
+                        it
+                }
+            }
+        )
     }
     var lastFocusedPosterKey by rememberSaveable { mutableStateOf<String?>(null) }
     val visibleItemKeys = remember(uiState.visibleItems) {
@@ -184,7 +188,7 @@ fun LibraryScreen(
     val firstVisiblePosterKey = visibleItemKeys.firstOrNull()
     val firstVisibleCardKey = visibleItemKeys.let { keys ->
         if (layoutDirection == LayoutDirection.Rtl) {
-            keys.lastOrNull()  // Last in logical order = rightmost in RTL
+            keys.lastOrNull() // Last in logical order = rightmost in RTL
         } else {
             keys.firstOrNull() // First in logical order = leftmost in LTR
         }
@@ -199,9 +203,11 @@ fun LibraryScreen(
         scope.launch {
             when (viewModel.getPlayerPreference()) {
                 PlayerPreference.INTERNAL -> onCloudPlaybackResolved(info)
+
                 PlayerPreference.EXTERNAL -> {
                     viewModel.launchCloudPlaybackExternally(info, activityContext)
                 }
+
                 PlayerPreference.ASK_EVERY_TIME -> {
                     pendingCloudPlayback = info
                     showCloudPlayerChoice = true
@@ -210,7 +216,12 @@ fun LibraryScreen(
         }
     }
 
-    LaunchedEffect(viewMode, uiState.cloudLibrary.isEnabled, uiState.cloudLibrary.isLoaded, uiState.cloudLibrarySettingsVersion) {
+    LaunchedEffect(
+        viewMode,
+        uiState.cloudLibrary.isEnabled,
+        uiState.cloudLibrary.isLoaded,
+        uiState.cloudLibrarySettingsVersion
+    ) {
         if (viewMode == LibraryViewMode.Cloud) {
             viewModel.ensureCloudLibraryLoaded()
         }
@@ -227,7 +238,9 @@ fun LibraryScreen(
     }
 
     LaunchedEffect(uiState.isLoading, uiState.sourceMode, uiState.listTabs.size) {
-        if (!uiState.isLoading && pendingPrimaryFocus && viewMode == LibraryViewMode.Servers && serverFocusTarget != null) {
+        if (!uiState.isLoading && pendingPrimaryFocus && viewMode == LibraryViewMode.Servers &&
+            serverFocusTarget != null
+        ) {
             pendingPrimaryFocus = false
         }
         if (!uiState.isLoading && pendingPrimaryFocus) {
@@ -237,7 +250,9 @@ fun LibraryScreen(
 
             var focused = false
             if (restoreIndex != null && restoreRequester != null) {
-                if (gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0) {
+                if (gridState.firstVisibleItemIndex == 0 &&
+                    gridState.firstVisibleItemScrollOffset == 0
+                ) {
                     runCatching { gridState.scrollToItem(restoreIndex) }
                 }
                 focused = runCatching { restoreRequester.requestFocus() }.isSuccess
@@ -320,11 +335,13 @@ fun LibraryScreen(
             .background(MoviesTheme.colors.Background)
             .focusRestorer {
                 val lastKey = lastFocusedPosterKey
-                (if (lastKey != null && lastKey in posterFocusRequesters) {
-                    posterFocusRequesters[lastKey]
-                } else {
-                    posterFocusRequesters[firstVisibleCardKey]
-                }) ?: FocusRequester()
+                (
+                    if (lastKey != null && lastKey in posterFocusRequesters) {
+                        posterFocusRequesters[lastKey]
+                    } else {
+                        posterFocusRequesters[firstVisibleCardKey]
+                    }
+                    ) ?: FocusRequester()
             }
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent
@@ -337,7 +354,12 @@ fun LibraryScreen(
                 }
                 false
             },
-        contentPadding = PaddingValues(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = libraryTopPadding(), bottom = MoviesTheme.spacing.xxl),
+        contentPadding = PaddingValues(
+            start = MoviesTheme.spacing.xxxl,
+            end = MoviesTheme.spacing.xxxl,
+            top = libraryTopPadding(),
+            bottom = MoviesTheme.spacing.xxl
+        ),
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
     ) {
@@ -356,12 +378,22 @@ fun LibraryScreen(
                 )
                 Text(
                     text = when {
-                        viewMode == LibraryViewMode.Cloud -> stringResource(R.string.library_source_cloud).uppercase()
-                        viewMode == LibraryViewMode.Servers -> stringResource(R.string.library_source_servers).uppercase()
+                        viewMode == LibraryViewMode.Cloud -> stringResource(
+                            R.string.library_source_cloud
+                        ).uppercase()
+
+                        viewMode == LibraryViewMode.Servers -> stringResource(
+                            R.string.library_source_servers
+                        ).uppercase()
+
                         uiState.sourceMode == LibrarySourceMode.TRAKT -> "TRAKT"
+
                         uiState.sourceMode == LibrarySourceMode.SIMKL -> "SIMKL"
+
                         uiState.sourceMode == LibrarySourceMode.MDBLIST -> "MDBLIST"
+
                         uiState.isMoviesAccount -> "NUVIO"
+
                         else -> stringResource(R.string.library_source_local)
                     },
                     style = MaterialTheme.typography.labelLarge,
@@ -469,15 +501,38 @@ fun LibraryScreen(
             if (uiState.visibleItems.isEmpty()) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     val title = when {
-                        uiState.sourceMode == LibrarySourceMode.TRAKT && !uiState.isTrackingAuthenticated -> stringResource(R.string.library_empty_trakt_not_auth_title)
-                        uiState.sourceMode == LibrarySourceMode.SIMKL && !uiState.isTrackingAuthenticated -> stringResource(R.string.library_empty_simkl_not_auth_title)
+                        uiState.sourceMode == LibrarySourceMode.TRAKT &&
+                            !uiState.isTrackingAuthenticated -> stringResource(
+                            R.string.library_empty_trakt_not_auth_title
+                        )
+
+                        uiState.sourceMode == LibrarySourceMode.SIMKL &&
+                            !uiState.isTrackingAuthenticated -> stringResource(
+                            R.string.library_empty_simkl_not_auth_title
+                        )
+
                         else -> stringResource(R.string.library_empty_title)
                     }
                     val subtitle = when {
-                        uiState.sourceMode == LibrarySourceMode.TRAKT && !uiState.isTrackingAuthenticated -> stringResource(R.string.library_empty_trakt_not_auth_subtitle)
-                        uiState.sourceMode == LibrarySourceMode.SIMKL && !uiState.isTrackingAuthenticated -> stringResource(R.string.library_empty_simkl_not_auth_subtitle)
-                        uiState.sourceMode == LibrarySourceMode.TRAKT || uiState.sourceMode == LibrarySourceMode.MDBLIST -> stringResource(R.string.library_empty_trakt_hint)
-                        uiState.sourceMode == LibrarySourceMode.SIMKL -> stringResource(R.string.library_empty_simkl_hint)
+                        uiState.sourceMode == LibrarySourceMode.TRAKT &&
+                            !uiState.isTrackingAuthenticated -> stringResource(
+                            R.string.library_empty_trakt_not_auth_subtitle
+                        )
+
+                        uiState.sourceMode == LibrarySourceMode.SIMKL &&
+                            !uiState.isTrackingAuthenticated -> stringResource(
+                            R.string.library_empty_simkl_not_auth_subtitle
+                        )
+
+                        uiState.sourceMode == LibrarySourceMode.TRAKT ||
+                            uiState.sourceMode == LibrarySourceMode.MDBLIST -> stringResource(
+                            R.string.library_empty_trakt_hint
+                        )
+
+                        uiState.sourceMode == LibrarySourceMode.SIMKL -> stringResource(
+                            R.string.library_empty_simkl_hint
+                        )
+
                         else -> stringResource(R.string.library_empty_local_hint)
                     }
                     EmptyScreenState(
@@ -492,14 +547,21 @@ fun LibraryScreen(
 
             items(uiState.visibleItems, key = { "${it.type}:${it.id}" }) { item ->
                 val focusKey = "${item.type}:${item.id}"
-                val isSeries = item.type.equals("series", ignoreCase = true) || item.type.equals("tv", ignoreCase = true)
+                val isSeries =
+                    item.type.equals("series", ignoreCase = true) ||
+                        item.type.equals("tv", ignoreCase = true)
                 val previewForLongPress = remember(item) {
                     item.toMetaPreview().copy(posterShape = PosterShape.POSTER)
                 }
                 GridContentCard(
                     item = previewForLongPress,
                     posterCardStyle = posterCardStyle,
-                    isWatched = if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds,
+                    isWatched = if (isSeries) {
+                        item.id in watchedSeriesIds
+                    } else {
+                        item.id in
+                            watchedMovieIds
+                    },
                     focusRequester = posterFocusRequesters[focusKey],
                     showLabel = true,
                     onFocused = {
@@ -533,12 +595,20 @@ fun LibraryScreen(
                     }
                 },
                 isWatched = { item ->
-                    val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
+                    val isSeries =
+                        item.apiType.equals("series", ignoreCase = true) ||
+                            item.apiType.equals("tv", ignoreCase = true)
                     if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
                 },
-                onItemClick = { itemId, itemType, addonBaseUrl -> onNavigateToDetail(itemId, itemType, addonBaseUrl) },
-                onSeeAll = { row -> onNavigateToCatalogSeeAll(row.catalogId, row.addonId, row.apiType) },
-                onItemLongPress = { item, addonBaseUrl -> viewModel.posterOptions.show(item, addonBaseUrl) }
+                onItemClick = { itemId, itemType, addonBaseUrl ->
+                    onNavigateToDetail(itemId, itemType, addonBaseUrl)
+                },
+                onSeeAll = { row ->
+                    onNavigateToCatalogSeeAll(row.catalogId, row.addonId, row.apiType)
+                },
+                onItemLongPress = { item, addonBaseUrl ->
+                    viewModel.posterOptions.show(item, addonBaseUrl)
+                }
             )
         } else {
             item(span = { GridItemSpan(maxLineSpan) }) {
@@ -615,7 +685,13 @@ fun LibraryScreen(
                         val playableFiles = item.playableFiles
                         when (playableFiles.size) {
                             0 -> viewModel.onCloudItemHasNoPlayableFiles()
-                            1 -> viewModel.resolveCloudPlayback(item, playableFiles.first(), routeCloudPlayback)
+
+                            1 -> viewModel.resolveCloudPlayback(
+                                item,
+                                playableFiles.first(),
+                                routeCloudPlayback
+                            )
+
                             else -> activeCloudItem = item
                         }
                     }
@@ -623,7 +699,9 @@ fun LibraryScreen(
             }
         }
 
-        item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm)) }
+        item(span = {
+            GridItemSpan(maxLineSpan)
+        }) { Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm)) }
     }
 
     if (uiState.showManageDialog && uiState.listManagement != null) {
@@ -755,7 +833,15 @@ private fun LibraryViewModeRow(
                 MoviesButton(
                     onClick = { onSelected(mode) },
                     modifier = Modifier
-                        .then(if (selected) Modifier.focusRequester(primaryFocusRequester) else Modifier)
+                        .then(
+                            if (selected) {
+                                Modifier.focusRequester(
+                                    primaryFocusRequester
+                                )
+                            } else {
+                                Modifier
+                            }
+                        )
                         .semantics {
                             role = Role.Tab
                             this.selected = selected
@@ -766,8 +852,12 @@ private fun LibraryViewModeRow(
                     Text(
                         text = when (mode) {
                             LibraryViewMode.Saved -> stringResource(R.string.library_source_saved)
+
                             LibraryViewMode.Cloud -> stringResource(R.string.library_source_cloud)
-                            LibraryViewMode.Servers -> stringResource(R.string.library_source_servers)
+
+                            LibraryViewMode.Servers -> stringResource(
+                                R.string.library_source_servers
+                            )
                         },
                         style = buttonLabelStyle()
                     )
@@ -793,7 +883,8 @@ private fun CloudLibrarySelectorsRow(
 ) {
     val allLabel = stringResource(R.string.cloud_library_provider_all)
     val typeAllLabel = stringResource(R.string.cloud_library_type_all)
-    val selectedProviderLabel = providerOptions.firstOrNull { it.key == selectedProviderId }?.label ?: allLabel
+    val selectedProviderLabel =
+        providerOptions.firstOrNull { it.key == selectedProviderId }?.label ?: allLabel
     val selectedTypeLabel = selectedType?.localizedLabel() ?: typeAllLabel
 
     Row(
@@ -835,13 +926,12 @@ private fun CloudLibrarySelectorsRow(
 }
 
 @Composable
-private fun CloudLibraryItemType.localizedLabel(): String =
-    when (this) {
-        CloudLibraryItemType.Torrent -> stringResource(R.string.cloud_library_type_torrents)
-        CloudLibraryItemType.Usenet -> stringResource(R.string.cloud_library_type_usenet)
-        CloudLibraryItemType.WebDownload -> stringResource(R.string.cloud_library_type_web)
-        CloudLibraryItemType.File -> stringResource(R.string.cloud_library_type_files)
-    }
+private fun CloudLibraryItemType.localizedLabel(): String = when (this) {
+    CloudLibraryItemType.Torrent -> stringResource(R.string.cloud_library_type_torrents)
+    CloudLibraryItemType.Usenet -> stringResource(R.string.cloud_library_type_usenet)
+    CloudLibraryItemType.WebDownload -> stringResource(R.string.cloud_library_type_web)
+    CloudLibraryItemType.File -> stringResource(R.string.cloud_library_type_files)
+}
 
 /**
  * Free-text filter over the already-loaded cloud library. Purely local: it never triggers a
@@ -850,10 +940,7 @@ private fun CloudLibraryItemType.localizedLabel(): String =
  */
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun CloudLibrarySearchRow(
-    query: String,
-    onQueryChange: (String) -> Unit
-) {
+private fun CloudLibrarySearchRow(query: String, onQueryChange: (String) -> Unit) {
     var editing by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -920,7 +1007,7 @@ private fun CloudLibrarySearchRow(
                 ),
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
                     color = LocalContentColor.current,
-                                            textDirection = TextDirection.Content
+                    textDirection = TextDirection.Content
                 ),
                 cursorBrush = SolidColor(
                     if (editing) MoviesTheme.colors.FocusRing else Color.Transparent
@@ -976,11 +1063,7 @@ private fun CloudLibraryLoadingState() {
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun CloudLibraryCard(
-    item: CloudLibraryItem,
-    isResolving: Boolean,
-    onClick: () -> Unit
-) {
+private fun CloudLibraryCard(item: CloudLibraryItem, isResolving: Boolean, onClick: () -> Unit) {
     val fileLine = cloudLibraryFileLine(item)
     MoviesCard(
         onClick = { if (!isResolving) onClick() },
@@ -1035,27 +1118,26 @@ private fun CloudLibraryCard(
 }
 
 @Composable
-private fun cloudLibraryFileLine(item: CloudLibraryItem): String? =
-    when (val count = item.playableFiles.size) {
-        0 -> stringResource(R.string.cloud_library_no_playable_files)
-        1 -> item.playableFiles.first().name.takeIf { it != item.name }
-        else -> stringResource(R.string.cloud_library_playable_file_count, count)
-    }
+private fun cloudLibraryFileLine(item: CloudLibraryItem): String? = when (val count = item.playableFiles.size) {
+    0 -> stringResource(R.string.cloud_library_no_playable_files)
+    1 -> item.playableFiles.first().name.takeIf { it != item.name }
+    else -> stringResource(R.string.cloud_library_playable_file_count, count)
+}
 
 @Composable
-private fun cloudLibraryPlayableLabel(item: CloudLibraryItem): String =
-    when (val count = item.playableFiles.size) {
-        0 -> stringResource(R.string.cloud_library_no_playable_files)
-        1 -> stringResource(R.string.cloud_library_one_playable_file)
-        else -> stringResource(R.string.cloud_library_playable_file_count, count)
-    }
+private fun cloudLibraryPlayableLabel(item: CloudLibraryItem): String = when (val count = item.playableFiles.size) {
+    0 -> stringResource(R.string.cloud_library_no_playable_files)
+    1 -> stringResource(R.string.cloud_library_one_playable_file)
+    else -> stringResource(R.string.cloud_library_playable_file_count, count)
+}
 
 @Composable
 private fun cloudLibraryMetadata(item: CloudLibraryItem): String {
     val parts = listOfNotNull(
         item.providerName.takeIf { it.isNotBlank() },
         item.type.localizedLabel(),
-        item.status?.takeIf { it.isNotBlank() } ?: stringResource(R.string.cloud_library_status_ready),
+        item.status?.takeIf { it.isNotBlank() }
+            ?: stringResource(R.string.cloud_library_status_ready),
         formatCloudSize(item.sizeBytes)
     )
     return parts.joinToString(" • ")
@@ -1116,7 +1198,9 @@ private fun CloudFilePickerDialog(
                                 text = size,
                                 style = MaterialTheme.typography.bodySmall
                                     .atLeastOnBox(TvSizeFloors.metaText),
-                                color = LocalContentColor.current.copy(alpha = SECONDARY_CONTENT_ALPHA)
+                                color = LocalContentColor.current.copy(
+                                    alpha = SECONDARY_CONTENT_ALPHA
+                                )
                             )
                         }
                         Text(
@@ -1160,7 +1244,13 @@ private fun LibrarySelectorsRow(
     val selectedListLabel = listTabs.firstOrNull { it.key == selectedListKey }?.localizedTitle()
         ?: stringResource(R.string.action_select)
     val selectedTypeLabel = selectedTypeTab?.let {
-        if (it.key == LibraryTypeTab.ALL_KEY) stringResource(R.string.library_type_all) else localizedTypeLabel(it.key)
+        if (it.key ==
+            LibraryTypeTab.ALL_KEY
+        ) {
+            stringResource(R.string.library_type_all)
+        } else {
+            localizedTypeLabel(it.key)
+        }
     } ?: stringResource(R.string.library_type_all)
     val selectedSortLabel = stringResource(selectedSortOption.labelResId)
     val allLabel = stringResource(R.string.library_type_all)
@@ -1205,7 +1295,9 @@ private fun LibrarySelectorsRow(
                 selectedValue = selectedTypeTab?.key,
                 expanded = expandedPicker == "type",
                 options = typeTabs.map {
-                    val label = if (it.key == LibraryTypeTab.ALL_KEY) it.label else {
+                    val label = if (it.key == LibraryTypeTab.ALL_KEY) {
+                        it.label
+                    } else {
                         val countPart = it.label.substringAfterLast("(", "").removeSuffix(")")
                         val localizedName = localizedTypeLabel(it.key)
                         if (countPart.isNotBlank()) "$localizedName ($countPart)" else localizedName
@@ -1226,7 +1318,9 @@ private fun LibrarySelectorsRow(
                     value = selectedSortLabel,
                     selectedValue = selectedSortOption.key,
                     expanded = expandedPicker == "sort",
-                    options = sortOptions.map { LibraryOption(stringResource(it.labelResId), it.key) },
+                    options = sortOptions.map {
+                        LibraryOption(stringResource(it.labelResId), it.key)
+                    },
                     onExpandedChange = { onExpandedChange("sort", it) },
                     onSelect = { option ->
                         sortOptions.firstOrNull { it.key == option.value }?.let(onSelectSort)
@@ -1378,7 +1472,14 @@ private fun LibraryDropdownPicker(
                     )
                     Icon(
                         imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (expanded) stringResource(R.string.cd_collapse, title) else stringResource(R.string.cd_expand, title)
+                        contentDescription = if (expanded) {
+                            stringResource(
+                                R.string.cd_collapse,
+                                title
+                            )
+                        } else {
+                            stringResource(R.string.cd_expand, title)
+                        }
                     )
                 }
             }
@@ -1401,8 +1502,15 @@ private fun LibraryDropdownPicker(
             options.forEach { option ->
                 val isSelected = option.value == selectedValue
                 val isOptionFocused = option.value == focusedOptionValue
-                val itemTextColor = ExpressiveFocus.contentColor(isOptionFocused, isSelected, MoviesTheme.colors.TextPrimary)
-                val itemBackgroundColor = ExpressiveFocus.containerColor(isOptionFocused, isSelected)
+                val itemTextColor = ExpressiveFocus.contentColor(
+                    isOptionFocused,
+                    isSelected,
+                    MoviesTheme.colors.TextPrimary
+                )
+                val itemBackgroundColor = ExpressiveFocus.containerColor(
+                    isOptionFocused,
+                    isSelected
+                )
 
                 DropdownMenuItem(
                     modifier = Modifier
@@ -1453,10 +1561,7 @@ private fun LibraryDropdownPicker(
     }
 }
 
-private data class LibraryOption(
-    val label: String,
-    val value: String
-)
+private data class LibraryOption(val label: String, val value: String)
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -1499,11 +1604,7 @@ private fun LibraryActionsRow(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun ConfirmDeleteDialog(
-    pending: Boolean,
-    onConfirm: () -> Unit,
-    onCancel: () -> Unit
-) {
+private fun ConfirmDeleteDialog(pending: Boolean, onConfirm: () -> Unit, onCancel: () -> Unit) {
     MoviesDialog(
         onDismiss = onCancel,
         title = stringResource(R.string.library_delete_title),

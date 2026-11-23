@@ -32,7 +32,10 @@ class MdbListSyncRepository(
     private val ratingsEnabled: () -> Boolean = { false },
     private val remote: (MdbListAuthScope) -> MdbListSyncRemote = { MdbListHttpSyncRemote(api, it) }
 ) {
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
     private val mutex = Mutex()
     private val gate = TrackingRefreshGate()
     private val mutableState = MutableStateFlow(MdbListSyncState())
@@ -51,9 +54,12 @@ class MdbListSyncRepository(
                 } catch (error: CancellationException) {
                     throw error
                 } catch (error: Exception) {
-                    if (matchesCurrent(auth.scope())) mutableState.value = MdbListSyncState(
-                        scope = auth.scope(), error = error.toMdbListSyncError()
-                    )
+                    if (matchesCurrent(auth.scope())) {
+                        mutableState.value = MdbListSyncState(
+                            scope = auth.scope(),
+                            error = error.toMdbListSyncError()
+                        )
+                    }
                 }
             }
         }
@@ -61,10 +67,13 @@ class MdbListSyncRepository(
 
     fun currentScope(): MdbListAuthScope = auth.scope().also(::checkScope)
 
-    fun currentSnapshot(): MdbListSyncSnapshot? = mutableState.value.takeIf { matchesCurrent(it.scope) }?.snapshot
+    fun currentSnapshot(): MdbListSyncSnapshot? = mutableState.value.takeIf {
+        matchesCurrent(it.scope)
+    }?.snapshot
 
     internal fun currentProjection(): MdbListProgressProjection = mutableProjection.value
-        .takeIf { matchesCurrent(it.scope) && auth.state.value.isAuthenticated }?.projection ?: MdbListProgressProjection.Empty
+        .takeIf { matchesCurrent(it.scope) && auth.state.value.isAuthenticated }?.projection
+        ?: MdbListProgressProjection.Empty
 
     suspend fun ensureLoaded() = withContext(dispatcher) { mutex.withLock { loadCurrent() } }
 
@@ -83,21 +92,34 @@ class MdbListSyncRepository(
                 try {
                     if (auth.state.value.user?.id == null) api.refreshUser(scope)
                     val snapshot = loadCurrent() ?: return@withLock
-                    mutableState.value = mutableState.value.copy(isLoading = true, error = null, attemptedAtEpochMs = attemptedAt)
-                    val result = MdbListSyncEngine(remote(scope), now).synchronize(snapshot, ratingsEnabled())
+                    mutableState.value =
+                        mutableState.value.copy(
+                            isLoading = true,
+                            error = null,
+                            attemptedAtEpochMs = attemptedAt
+                        )
+                    val result = MdbListSyncEngine(
+                        remote(scope),
+                        now
+                    ).synchronize(snapshot, ratingsEnabled())
                     commit(scope, result)
                     mutableState.value = mutableState.value.copy(attemptedAtEpochMs = attemptedAt)
                 } catch (error: CancellationException) {
-                    if (matchesCurrent(scope)) mutableState.value = mutableState.value.copy(isLoading = false)
+                    if (matchesCurrent(scope)) {
+                        mutableState.value =
+                            mutableState.value.copy(isLoading = false)
+                    }
                     throw error
                 } catch (error: Exception) {
-                    if (matchesCurrent(scope)) mutableState.value = mutableState.value.copy(
-                        scope = scope,
-                        isLoading = false,
-                        error = error.toMdbListSyncError(),
-                        retryAtEpochMs = (error as? MdbListApiException)?.retryAtEpochMs,
-                        attemptedAtEpochMs = attemptedAt
-                    )
+                    if (matchesCurrent(scope)) {
+                        mutableState.value = mutableState.value.copy(
+                            scope = scope,
+                            isLoading = false,
+                            error = error.toMdbListSyncError(),
+                            retryAtEpochMs = (error as? MdbListApiException)?.retryAtEpochMs,
+                            attemptedAtEpochMs = attemptedAt
+                        )
+                    }
                 }
             }
         }
@@ -110,7 +132,8 @@ class MdbListSyncRepository(
         mutex.withLock {
             checkScope(scope)
             if (auth.state.value.user?.id == null) api.refreshUser(scope)
-            val previous = loadCurrent() ?: throw MdbListAuthException(MdbListAuthError.AUTHORIZATION_REVOKED)
+            val previous =
+                loadCurrent() ?: throw MdbListAuthException(MdbListAuthError.AUTHORIZATION_REVOKED)
             val (next, result) = block(previous)
             if (next != previous) commit(scope, next)
             checkScope(scope)
@@ -119,7 +142,13 @@ class MdbListSyncRepository(
     }
 
     internal suspend fun invalidate(scope: MdbListAuthScope, buckets: Set<MdbListSyncBucket>) {
-        mutate(scope) { previous -> previous.copy(invalidatedBuckets = previous.invalidatedBuckets + buckets) to Unit }
+        mutate(scope) { previous ->
+            previous.copy(
+                invalidatedBuckets =
+                    previous.invalidatedBuckets + buckets
+            ) to
+                Unit
+        }
     }
 
     private suspend fun loadCurrent(): MdbListSyncSnapshot? {
@@ -133,22 +162,33 @@ class MdbListSyncRepository(
         }
         val accountId = authorization.user?.id ?: return null
         val current = mutableState.value
-        if (current.scope == scope && current.snapshot?.accountId == accountId) return current.snapshot
+        if (current.scope == scope &&
+            current.snapshot?.accountId == accountId
+        ) {
+            return current.snapshot
+        }
         val payload = storage.load(scope.profileId)
-        val persistedSnapshot = payload?.let { runCatching { json.decodeFromString<MdbListSyncSnapshot>(it) }.getOrNull() }
+        val persistedSnapshot = payload?.let {
+            runCatching { json.decodeFromString<MdbListSyncSnapshot>(it) }.getOrNull()
+        }
             ?.takeIf { it.accountId == accountId }
         var snapshot = persistedSnapshot ?: MdbListSyncSnapshot(accountId)
         storage.loadPlayback(scope.profileId)
             ?.takeIf(String::isNotBlank)
             ?.let { storagePlayback ->
-                decodePlaybackOverride(storagePlayback, persistedSnapshot, accountId)?.let { playback ->
+                decodePlaybackOverride(
+                    storagePlayback,
+                    persistedSnapshot,
+                    accountId
+                )?.let { playback ->
                     snapshot = snapshot.copy(playback = playback)
                 }
             }
         checkScope(scope)
         val projection = runCatching { MdbListProgressProjection(snapshot) }.getOrNull()
         val usable = if (projection != null) snapshot else MdbListSyncSnapshot(accountId)
-        mutableProjection.value = MdbListProgressState(scope, projection ?: MdbListProgressProjection.Empty)
+        mutableProjection.value =
+            MdbListProgressState(scope, projection ?: MdbListProgressProjection.Empty)
         mutableState.value = MdbListSyncState(scope, usable)
         return usable
     }
@@ -174,11 +214,14 @@ class MdbListSyncRepository(
             snapshot.copy(storageRevision = UUID.randomUUID().toString())
         }
         val projection = if (previous != null && previous.watched === snapshot.watched &&
-            previous.playback === snapshot.playback && previous.dropped === snapshot.dropped) {
+            previous.playback === snapshot.playback && previous.dropped === snapshot.dropped
+        ) {
             currentProjection
         } else if (onlyPlaybackChanged && currentProjection !== MdbListProgressProjection.Empty) {
             currentProjection.withUpdatedPlayback(snapshot.playback)
-        } else MdbListProgressProjection(storedSnapshot)
+        } else {
+            MdbListProgressProjection(storedSnapshot)
+        }
         if (onlyPlaybackChanged) {
             val playbackPayload = json.encodeToString(
                 MdbListPlaybackOverride(
@@ -220,9 +263,17 @@ class MdbListSyncRepository(
         val now = now()
         if (current.retryAtEpochMs?.let { it > now } == true) return false
         if (intent != TrackingRefreshIntent.AUTOMATIC) return true
-        if (current.error != null) return current.attemptedAtEpochMs?.let { now - it !in 0 until ERROR_RETRY_MS } ?: true
+        if (current.error !=
+            null
+        ) {
+            return current.attemptedAtEpochMs?.let { now - it !in 0 until ERROR_RETRY_MS }
+                ?: true
+        }
         if (current.snapshot?.invalidatedBuckets?.isNotEmpty() == true) return true
-        return current.snapshot?.checkedAtEpochMs?.let { now - it !in 0 until AUTOMATIC_INTERVAL_MS } ?: true
+        return current.snapshot?.checkedAtEpochMs?.let {
+            now - it !in 0 until AUTOMATIC_INTERVAL_MS
+        }
+            ?: true
     }
 
     private fun checkScope(scope: MdbListAuthScope, requireAuthorization: Boolean = true) {
@@ -232,8 +283,7 @@ class MdbListSyncRepository(
         }
     }
 
-    private fun matchesCurrent(scope: MdbListAuthScope?): Boolean =
-        scope != null && scope.profileId == activeProfileId.value && auth.isCurrent(scope)
+    private fun matchesCurrent(scope: MdbListAuthScope?): Boolean = scope != null && scope.profileId == activeProfileId.value && auth.isCurrent(scope)
 
     private fun clearPublished() {
         mutableProjection.value = MdbListProgressState()

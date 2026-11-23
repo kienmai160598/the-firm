@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -46,6 +44,7 @@ import com.kien.movies.BuildConfig
 import com.kien.movies.R
 import com.kien.movies.core.build.AppFeaturePolicy
 import com.kien.movies.ui.components.MemberBrandWordmark
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 fun AboutScreen(
@@ -82,8 +81,14 @@ fun AboutSettingsContent(
         object : BringIntoViewSpec {
             override val scrollAnimationSpec = defaultBringIntoViewSpec.scrollAnimationSpec
 
-            override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
-                return if (firstRowFocused && offset + aboutScrollState.value + size <= containerSize) {
+            override fun calculateScrollDistance(
+                offset: Float,
+                size: Float,
+                containerSize: Float
+            ): Float {
+                return if (firstRowFocused &&
+                    offset + aboutScrollState.value + size <= containerSize
+                ) {
                     -aboutScrollState.value.toFloat()
                 } else {
                     defaultBringIntoViewSpec.calculateScrollDistance(offset, size, containerSize)
@@ -116,7 +121,9 @@ fun AboutSettingsContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        CompositionLocalProvider(LocalBringIntoViewSpec provides defaultBringIntoViewSpec) {
+                        CompositionLocalProvider(
+                            LocalBringIntoViewSpec provides defaultBringIntoViewSpec
+                        ) {
                             Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
 
                             MemberBrandWordmark(
@@ -132,7 +139,10 @@ fun AboutSettingsContent(
                             )
 
                             Text(
-                                text = stringResource(R.string.about_version, BuildConfig.VERSION_NAME),
+                                text = stringResource(
+                                    R.string.about_version,
+                                    BuildConfig.VERSION_NAME
+                                ),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MoviesTheme.colors.TextSecondary,
                                 textAlign = TextAlign.Center
@@ -141,13 +151,18 @@ fun AboutSettingsContent(
                             Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
 
                             if (AppFeaturePolicy.inAppUpdatesEnabled) {
-                                UpdateChannelSettings(initialFocusRequester, modifier = firstRowModifier)
+                                UpdateChannelSettings(
+                                    initialFocusRequester,
+                                    modifier = firstRowModifier
+                                )
                             }
 
                             if (AppFeaturePolicy.supportMoviesEnabled) {
                                 SettingsActionRow(
                                     title = stringResource(R.string.support_nuvio_name),
-                                    subtitle = stringResource(R.string.about_supporters_contributors_subtitle),
+                                    subtitle = stringResource(
+                                        R.string.about_supporters_contributors_subtitle
+                                    ),
                                     trailingIcon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                     onClick = onNavigateToSupportersContributors
                                 )
@@ -155,12 +170,19 @@ fun AboutSettingsContent(
 
                             SettingsActionRow(
                                 title = stringResource(R.string.about_licenses_attributions),
-                                subtitle = stringResource(R.string.about_licenses_attributions_subtitle),
+                                subtitle = stringResource(
+                                    R.string.about_licenses_attributions_subtitle
+                                ),
                                 trailingIcon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 modifier = if (!AppFeaturePolicy.inAppUpdatesEnabled) {
                                     firstRowModifier.then(
-                                        if (initialFocusRequester != null) Modifier.focusRequester(initialFocusRequester)
-                                        else Modifier
+                                        if (initialFocusRequester !=
+                                            null
+                                        ) {
+                                            Modifier.focusRequester(initialFocusRequester)
+                                        } else {
+                                            Modifier
+                                        }
                                     )
                                 } else {
                                     Modifier

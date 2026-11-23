@@ -24,15 +24,32 @@ class SettingsStructureTest {
                 PlaybackSection.BUFFER_NETWORK,
                 PlaybackSection.P2P
             ),
-            visiblePlaybackSections(PlayerSettings(internalPlayerEngine = InternalPlayerEngine.EXOPLAYER))
+            visiblePlaybackSections(
+                PlayerSettings(internalPlayerEngine = InternalPlayerEngine.EXOPLAYER)
+            )
         )
     }
 
     @Test
     fun `buffer and network is only shown for exoplayer based engines`() {
-        assertTrue(PlaybackSection.BUFFER_NETWORK in visiblePlaybackSections(PlayerSettings(internalPlayerEngine = InternalPlayerEngine.EXOPLAYER)))
-        assertTrue(PlaybackSection.BUFFER_NETWORK in visiblePlaybackSections(PlayerSettings(internalPlayerEngine = InternalPlayerEngine.AUTO)))
-        assertFalse(PlaybackSection.BUFFER_NETWORK in visiblePlaybackSections(PlayerSettings(internalPlayerEngine = InternalPlayerEngine.MVP_PLAYER)))
+        assertTrue(
+            PlaybackSection.BUFFER_NETWORK in
+                visiblePlaybackSections(
+                    PlayerSettings(internalPlayerEngine = InternalPlayerEngine.EXOPLAYER)
+                )
+        )
+        assertTrue(
+            PlaybackSection.BUFFER_NETWORK in
+                visiblePlaybackSections(
+                    PlayerSettings(internalPlayerEngine = InternalPlayerEngine.AUTO)
+                )
+        )
+        assertFalse(
+            PlaybackSection.BUFFER_NETWORK in
+                visiblePlaybackSections(
+                    PlayerSettings(internalPlayerEngine = InternalPlayerEngine.MVP_PLAYER)
+                )
+        )
     }
 
     @Test
@@ -72,13 +89,22 @@ class SettingsStructureTest {
     @Test
     fun `focused poster section is hidden when it has nothing to show`() {
         assertFalse(
-            LayoutSection.FOCUSED_POSTER in visibleLayoutSections(essentialMode = false, focusedPosterHasOptions = false)
+            LayoutSection.FOCUSED_POSTER in
+                visibleLayoutSections(essentialMode = false, focusedPosterHasOptions = false)
         )
     }
 
     @Test
     fun `focused poster has no options on the grid layout`() {
-        assertFalse(LayoutSettingsUiState(selectedLayout = com.kien.movies.domain.model.HomeLayout.GRID).focusedPosterHasOptions())
-        assertTrue(LayoutSettingsUiState(selectedLayout = com.kien.movies.domain.model.HomeLayout.CLASSIC).focusedPosterHasOptions())
+        assertFalse(
+            LayoutSettingsUiState(
+                selectedLayout = com.kien.movies.domain.model.HomeLayout.GRID
+            ).focusedPosterHasOptions()
+        )
+        assertTrue(
+            LayoutSettingsUiState(
+                selectedLayout = com.kien.movies.domain.model.HomeLayout.CLASSIC
+            ).focusedPosterHasOptions()
+        )
     }
 }

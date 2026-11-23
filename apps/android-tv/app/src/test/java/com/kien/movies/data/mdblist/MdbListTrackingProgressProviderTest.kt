@@ -24,9 +24,12 @@ class MdbListTrackingProgressProviderTest {
     @Test
     fun `all consumers reuse the fresh cached projection without issuing reads`() = runTest {
         val harness = MdbListSyncTestHarness(backgroundScope)
-        harness.seed(harness.snapshot().copy(
-            watched = listOf(mdbListTestMovie(), mdbListTestEpisode()), playback = listOf(mdbListTestPlayback())
-        ))
+        harness.seed(
+            harness.snapshot().copy(
+                watched = listOf(mdbListTestMovie(), mdbListTestEpisode()),
+                playback = listOf(mdbListTestPlayback())
+            )
+        )
         val provider = provider(harness)
         assertEquals(2, provider.watchedItems.first().size)
         assertTrue(provider.isWatched("tmdb:1", null, 1, 1).first())
@@ -42,10 +45,18 @@ class MdbListTrackingProgressProviderTest {
     fun `profile switching publishes only data belonging to the authorized scope`() = runTest {
         val harness = MdbListSyncTestHarness(backgroundScope)
         harness.seed()
-        harness.seed(harness.snapshot(99).copy(watched = listOf(mdbListTestMovie(2))), profileId = 2)
+        harness.seed(
+            harness.snapshot(99).copy(watched = listOf(mdbListTestMovie(2))),
+            profileId = 2
+        )
         val provider = provider(harness)
         var visible = emptyList<WatchedItem>()
-        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { provider.watchedItems.collect { visible = it } }
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            provider.watchedItems.collect {
+                visible =
+                    it
+            }
+        }
         runCurrent()
         assertEquals(listOf("tt1"), visible.map { it.contentId })
         harness.activeProfile.value = 2
@@ -80,7 +91,11 @@ class MdbListTrackingProgressProviderTest {
     @Test
     fun `anime split differently by the addon is read in the addon's numbering`() = runTest {
         val harness = MdbListSyncTestHarness(backgroundScope)
-        harness.seed(harness.snapshot().copy(watched = listOf(mdbListTestEpisode(1, 34), mdbListTestEpisode(1, 35))))
+        harness.seed(
+            harness.snapshot().copy(
+                watched = listOf(mdbListTestEpisode(1, 34), mdbListTestEpisode(1, 35))
+            )
+        )
         harness.repository.ensureLoaded()
         val provider = provider(harness, splitAnimeMapping())
 
@@ -110,15 +125,25 @@ class MdbListTrackingProgressProviderTest {
         harness: MdbListSyncTestHarness,
         mapping: MdbListEpisodeMapping? = null
     ): MdbListTrackingProgressProvider {
-        val profiles = mockk<ProfileManager> { every { activeProfileId } returns harness.activeProfile }
-        val layout = mockk<LayoutPreferenceDataStore> { every { nextUpFromFurthestEpisode } returns MutableStateFlow(true) }
+        val profiles = mockk<ProfileManager> {
+            every { activeProfileId } returns
+                harness.activeProfile
+        }
+        val layout = mockk<LayoutPreferenceDataStore> {
+            every { nextUpFromFurthestEpisode } returns
+                MutableStateFlow(true)
+        }
         val episodeMappings = mockk<MdbListEpisodeMappingService> {
             every { cached(any()) } returns mapping
             coEvery { resolve(any(), any()) } returns mapping
         }
         return MdbListTrackingProgressProvider(
-            harness.repository, MdbListScrobbleService(harness.http.api, harness.repository), episodeMappings,
-            harness.http.store, profiles, layout
+            harness.repository,
+            MdbListScrobbleService(harness.http.api, harness.repository),
+            episodeMappings,
+            harness.http.store,
+            profiles,
+            layout
         )
     }
 }

@@ -3,13 +3,13 @@ package androidx.media3.exoplayer.upstream
 import androidx.media3.common.NuvioEngineConfig
 import androidx.media3.exoplayer.source.SampleDataQueueNative
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.nio.ByteBuffer
 import org.junit.After
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.nio.ByteBuffer
-import org.junit.Assert.assertTrue
-import org.junit.Assert.assertNotNull
 
 @RunWith(AndroidJUnit4::class)
 class DefaultAllocatorNativeLeakTest {
@@ -41,10 +41,13 @@ class DefaultAllocatorNativeLeakTest {
         runGc()
         val finalMemory = getUsedMemory()
 
-        // Since WeakReferences are used, memory should be collected. 
+        // Since WeakReferences are used, memory should be collected.
         // We check that used memory hasn't grown by more than a reasonable threshold (e.g., 2MB)
         val deltaMemoryMb = (finalMemory - initialMemory) / (1024.0 * 1024.0)
-        assertTrue("Memory leak detected in WeakReference cache! Delta: $deltaMemoryMb MB", deltaMemoryMb < 2.0)
+        assertTrue(
+            "Memory leak detected in WeakReference cache! Delta: $deltaMemoryMb MB",
+            deltaMemoryMb < 2.0
+        )
     }
 
     @Test
@@ -70,7 +73,10 @@ class DefaultAllocatorNativeLeakTest {
         val finalMemory = getUsedMemory()
 
         val deltaMemoryMb = (finalMemory - initialMemory) / (1024.0 * 1024.0)
-        assertTrue("Memory leak detected in dynamic allocation path! Delta: $deltaMemoryMb MB", deltaMemoryMb < 2.0)
+        assertTrue(
+            "Memory leak detected in dynamic allocation path! Delta: $deltaMemoryMb MB",
+            deltaMemoryMb < 2.0
+        )
     }
 
     @Test
@@ -92,11 +98,14 @@ class DefaultAllocatorNativeLeakTest {
         allocator.release(a2)
         allocator.release(a3)
 
-        // 4. Assert that memory footprint drops to 0. 
+        // 4. Assert that memory footprint drops to 0.
         // On buggy code, this will fail as footprint remains 3 * segmentSize (196608)
-        org.junit.Assert.assertEquals("Memory leak detected in DefaultAllocator footprint!", 0, allocator.memoryFootprint)
+        org.junit.Assert.assertEquals(
+            "Memory leak detected in DefaultAllocator footprint!",
+            0,
+            allocator.memoryFootprint
+        )
     }
-
 
     private fun runGc() {
         for (i in 0..3) {

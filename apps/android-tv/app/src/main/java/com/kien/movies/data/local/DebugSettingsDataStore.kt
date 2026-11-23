@@ -9,20 +9,20 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.kien.movies.domain.model.MemberTier
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 private val Context.debugDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "debug_settings",
-    corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler { androidx.datastore.preferences.core.emptyPreferences() }
+    corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler {
+        androidx.datastore.preferences.core.emptyPreferences()
+    }
 )
 
 @Singleton
-class DebugSettingsDataStore @Inject constructor(
-    @ApplicationContext private val context: Context
-) {
+class DebugSettingsDataStore @Inject constructor(@ApplicationContext private val context: Context) {
     private val dataStore = context.debugDataStore
 
     private val accountTabEnabledKey = booleanPreferencesKey("account_tab_enabled")

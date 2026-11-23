@@ -1,17 +1,7 @@
 package com.kien.movies.ui.screens.collection
 
-import androidx.compose.ui.semantics.selected
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.components.expressive.MoviesButton
 import android.os.Build
 import androidx.activity.compose.BackHandler
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
-
-import com.kien.movies.ui.components.buttonLabelStyle
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -27,8 +17,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -57,9 +47,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -71,20 +68,21 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
+import com.kien.movies.R
 import com.kien.movies.data.local.ValidationResult
 import com.kien.movies.domain.model.Collection
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.TvReorderList
+import com.kien.movies.ui.components.buttonLabelStyle
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.metaFloor
 import com.kien.movies.ui.theme.screenTitleFloor
 import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.util.contentTextDirection
-import com.kien.movies.R
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.TextStyle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -138,8 +136,18 @@ fun CollectionManagementScreen(
         else -> null
     }
 
-    LaunchedEffect(uiState.isLoading, uiState.showImportDialog, collectionToDelete, pendingFocusTarget, uiState.collections.size) {
-        if (uiState.isLoading || uiState.showImportDialog || collectionToDelete != null) return@LaunchedEffect
+    LaunchedEffect(
+        uiState.isLoading,
+        uiState.showImportDialog,
+        collectionToDelete,
+        pendingFocusTarget,
+        uiState.collections.size
+    ) {
+        if (uiState.isLoading || uiState.showImportDialog ||
+            collectionToDelete != null
+        ) {
+            return@LaunchedEffect
+        }
         val target = pendingFocusTarget ?: if (!hasAppliedInitialFocus) {
             lastFocusedTarget ?: "new"
         } else {
@@ -147,7 +155,9 @@ fun CollectionManagementScreen(
         }
         val requester = when {
             target == "import" -> importButtonFocusRequester
+
             target == "new" -> newButtonFocusRequester
+
             target.startsWith("edit:") -> {
                 val id = target.removePrefix("edit:")
                 if (uiState.collections.any { it.id == id }) {
@@ -156,6 +166,7 @@ fun CollectionManagementScreen(
                     newButtonFocusRequester
                 }
             }
+
             target.startsWith("delete:") -> {
                 val id = target.removePrefix("delete:")
                 if (uiState.collections.any { it.id == id }) {
@@ -164,6 +175,7 @@ fun CollectionManagementScreen(
                     newButtonFocusRequester
                 }
             }
+
             else -> newButtonFocusRequester
         }
         val focused = requestFocusWhenReady(requester)
@@ -229,14 +241,16 @@ fun CollectionManagementScreen(
                 style = MaterialTheme.typography.headlineMedium
                     .screenTitleFloor()
                     .copy(textDirection = TextDirection.Content),
-                color = MoviesTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary
             )
             val headerActionsEnabled = uiState.movingCollectionKey == null
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 modifier = Modifier.focusEntryTarget(newButtonFocusRequester)
             ) {
-                if (uiState.collections.isNotEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (uiState.collections.isNotEmpty() &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                ) {
                     MoviesButton(
                         onClick = {
                             scope.launch {
@@ -253,11 +267,21 @@ fun CollectionManagementScreen(
                                         )
                                         // Write new file
                                         val values = android.content.ContentValues().apply {
-                                            put(android.provider.MediaStore.Downloads.DISPLAY_NAME, "movies-collections.json")
-                                            put(android.provider.MediaStore.Downloads.MIME_TYPE, "application/json")
+                                            put(
+                                                android.provider.MediaStore.Downloads.DISPLAY_NAME,
+                                                "movies-collections.json"
+                                            )
+                                            put(
+                                                android.provider.MediaStore.Downloads.MIME_TYPE,
+                                                "application/json"
+                                            )
                                         }
                                         val uri = resolver.insert(existingUri, values)
-                                        uri?.let { resolver.openOutputStream(it)?.use { os -> os.write(json.toByteArray()) } }
+                                        uri?.let {
+                                            resolver.openOutputStream(it)?.use { os ->
+                                                os.write(json.toByteArray())
+                                            }
+                                        }
                                     }
                                     exportMessage = "saved"
                                 } catch (_: Exception) {
@@ -267,13 +291,15 @@ fun CollectionManagementScreen(
                         },
                         enabled = headerActionsEnabled
                     ) {
-                        Text(exportMessage?.let {
-                            when (it) {
-                                "saved" -> stringResource(R.string.collections_saved_downloads)
-                                "failed" -> stringResource(R.string.collections_export_failed)
-                                else -> it
-                            }
-                        } ?: stringResource(R.string.collections_export_file))
+                        Text(
+                            exportMessage?.let {
+                                when (it) {
+                                    "saved" -> stringResource(R.string.collections_saved_downloads)
+                                    "failed" -> stringResource(R.string.collections_export_failed)
+                                    else -> it
+                                }
+                            } ?: stringResource(R.string.collections_export_file)
+                        )
                     }
                 }
                 MoviesButton(
@@ -287,7 +313,9 @@ fun CollectionManagementScreen(
                 ) {
                     Text(stringResource(R.string.collections_import))
                 }
-                val firstCollectionEditRequester = uiState.collections.firstOrNull()?.id?.let { firstId ->
+                val firstCollectionEditRequester = uiState.collections.firstOrNull()?.id?.let {
+                        firstId
+                    ->
                     itemFocusRequesters.getOrPut(firstId) { FocusRequester() }
                 }
                 MoviesButton(
@@ -315,7 +343,11 @@ fun CollectionManagementScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = MoviesTheme.spacing.xxxl, start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl)
+                    .padding(
+                        top = MoviesTheme.spacing.xxxl,
+                        start = MoviesTheme.spacing.xxxl,
+                        end = MoviesTheme.spacing.xxxl
+                    )
             ) {
                 collectionsHeader()
                 Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
@@ -333,7 +365,10 @@ fun CollectionManagementScreen(
                 }
             }
         } else {
-            val collectionsMovingIndex = uiState.collections.indexOfFirst { it.id == uiState.movingCollectionKey }
+            val collectionsMovingIndex = uiState.collections.indexOfFirst {
+                it.id ==
+                    uiState.movingCollectionKey
+            }
             TvReorderList(
                 items = uiState.collections,
                 key = { it.id },
@@ -358,10 +393,14 @@ fun CollectionManagementScreen(
                         collectionsHeader()
                         Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
                     }
-                },
+                }
             ) { collection, isMoving, onStartMove, onConfirmMove ->
-                val editFocusRequester = itemFocusRequesters.getOrPut(collection.id) { FocusRequester() }
-                val deleteFocusRequester = itemDeleteFocusRequesters.getOrPut(collection.id) { FocusRequester() }
+                val editFocusRequester = itemFocusRequesters.getOrPut(collection.id) {
+                    FocusRequester()
+                }
+                val deleteFocusRequester = itemDeleteFocusRequesters.getOrPut(collection.id) {
+                    FocusRequester()
+                }
                 CollectionListItem(
                     collection = collection,
                     isMoving = isMoving,
@@ -388,58 +427,72 @@ fun CollectionManagementScreen(
             )
         }
 
-    collectionToDelete?.let { collection ->
-        MoviesDialog(
-            onDismiss = {
-                collectionToDelete = null
-                pendingFocusTarget = "delete:${collection.id}"
-            },
-            title = stringResource(R.string.collections_delete_confirm_title),
-            subtitle = stringResource(R.string.collections_delete_confirm_subtitle, collection.title),
-            suppressFirstKeyUp = false
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.End)
+        collectionToDelete?.let { collection ->
+            MoviesDialog(
+                onDismiss = {
+                    collectionToDelete = null
+                    pendingFocusTarget = "delete:${collection.id}"
+                },
+                title = stringResource(R.string.collections_delete_confirm_title),
+                subtitle = stringResource(
+                    R.string.collections_delete_confirm_subtitle,
+                    collection.title
+                ),
+                suppressFirstKeyUp = false
             ) {
-                MoviesButton(
-                    onClick = {
-                        collectionToDelete = null
-                        pendingFocusTarget = "delete:${collection.id}"
-                    },
-                    modifier = Modifier
-                        .focusRequester(deleteDialogFocusRequester)
-                        .semantics { role = Role.Button }
-                        .tvControlHeight()
-                ) {
-                    Text(stringResource(R.string.collections_cancel), style = buttonLabelStyle())
-                }
-                MoviesButton(
-                    onClick = {
-                        val currentIndex = uiState.collections.indexOfFirst { it.id == collection.id }
-                        val nextTargetId = uiState.collections
-                            .filterNot { it.id == collection.id }
-                            .let { remaining ->
-                                if (remaining.isEmpty()) null
-                                else remaining[currentIndex.coerceIn(0, remaining.lastIndex)].id
-                            }
-                        viewModel.deleteCollection(collection.id)
-                        collectionToDelete = null
-                        val nextTarget = nextTargetId?.let { "edit:$it" } ?: "new"
-                        lastFocusedTarget = nextTarget
-                        pendingFocusTarget = nextTarget
-                    },
-                    modifier = Modifier.semantics { role = Role.Button }.tvControlHeight(),
-                    style = MoviesButtonStyle.Destructive
-                ) {
-                    Text(
-                        stringResource(R.string.collections_delete_confirm),
-                        style = buttonLabelStyle()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        MoviesTheme.spacing.md,
+                        Alignment.End
                     )
+                ) {
+                    MoviesButton(
+                        onClick = {
+                            collectionToDelete = null
+                            pendingFocusTarget = "delete:${collection.id}"
+                        },
+                        modifier = Modifier
+                            .focusRequester(deleteDialogFocusRequester)
+                            .semantics { role = Role.Button }
+                            .tvControlHeight()
+                    ) {
+                        Text(
+                            stringResource(R.string.collections_cancel),
+                            style = buttonLabelStyle()
+                        )
+                    }
+                    MoviesButton(
+                        onClick = {
+                            val currentIndex = uiState.collections.indexOfFirst {
+                                it.id == collection.id
+                            }
+                            val nextTargetId = uiState.collections
+                                .filterNot { it.id == collection.id }
+                                .let { remaining ->
+                                    if (remaining.isEmpty()) {
+                                        null
+                                    } else {
+                                        remaining[currentIndex.coerceIn(0, remaining.lastIndex)].id
+                                    }
+                                }
+                            viewModel.deleteCollection(collection.id)
+                            collectionToDelete = null
+                            val nextTarget = nextTargetId?.let { "edit:$it" } ?: "new"
+                            lastFocusedTarget = nextTarget
+                            pendingFocusTarget = nextTarget
+                        },
+                        modifier = Modifier.semantics { role = Role.Button }.tvControlHeight(),
+                        style = MoviesButtonStyle.Destructive
+                    ) {
+                        Text(
+                            stringResource(R.string.collections_delete_confirm),
+                            style = buttonLabelStyle()
+                        )
+                    }
                 }
             }
         }
-    }
     }
 }
 
@@ -492,7 +545,7 @@ internal fun ImportContent(
                     style = MaterialTheme.typography.headlineMedium
                         .screenTitleFloor()
                         .copy(textDirection = TextDirection.Content),
-                    color = MoviesTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
                     MoviesButton(
@@ -517,7 +570,9 @@ internal fun ImportContent(
             // Mode tabs
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
-                modifier = Modifier.focusEntryTarget(modeFocusRequesters[importMode] ?: fileTabFocusRequester)
+                modifier = Modifier.focusEntryTarget(
+                    modeFocusRequesters[importMode] ?: fileTabFocusRequester
+                )
             ) {
                 ImportMode.entries.filter { it != ImportMode.PASTE }.forEach { mode ->
                     val label = when (mode) {
@@ -543,157 +598,196 @@ internal fun ImportContent(
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
         }
 
-            item {
-                when (importMode) {
-                    ImportMode.PASTE -> {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
-                            modifier = Modifier.trapHorizontalFocus()
-                        ) {
-                            MoviesButton(onClick = onPaste) { Text(stringResource(R.string.collections_paste_clipboard)) }
-                            if (importText.isNotBlank()) {
-                                MoviesButton(onClick = onValidate) { Text(stringResource(R.string.collections_validate)) }
-                            }
+        item {
+            when (importMode) {
+                ImportMode.PASTE -> {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+                        modifier = Modifier.trapHorizontalFocus()
+                    ) {
+                        MoviesButton(onClick = onPaste) {
+                            Text(stringResource(R.string.collections_paste_clipboard))
                         }
-
-                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
-
-                        Surface(
-                            shape = RoundedCornerShape(MoviesTheme.radii.md),
-                            colors = SurfaceDefaults.colors(containerColor = MoviesTheme.colors.BackgroundElevated),
-                            border = Border(
-                                border = BorderStroke(MoviesTheme.spacing.hairline, if (importError != null) MoviesTheme.colors.Error else MoviesTheme.colors.Border),
-                                shape = RoundedCornerShape(MoviesTheme.radii.md)
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                        ) {
-                            Box(modifier = Modifier.padding(MoviesTheme.spacing.md)) {
-                                BasicTextField(
-                                    value = importText,
-                                    onValueChange = onTextChange,
-                                    modifier = Modifier.fillMaxSize(),
-                                    textStyle = MaterialTheme.typography.bodySmall
-                                        .metaFloor()
-                                        .copy(
-                                            color = MoviesTheme.colors.TextPrimary,
-                                            textDirection = TextDirection.Content
-                                        ),
-                                    cursorBrush = SolidColor(MoviesTheme.colors.Primary),
-                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                                    decorationBox = { innerTextField ->
-                                        if (importText.isEmpty()) {
-                                            Text(
-                                                text = stringResource(R.string.collections_paste_hint),
-                                                style = MaterialTheme.typography.bodySmall
-                                                    .metaFloor(),
-                                                color = MoviesTheme.colors.TextTertiary
-                                            )
-                                        }
-                                        innerTextField()
-                                    }
-                                )
-                            }
-                        }
-                    }
-
-                    ImportMode.FILE -> {
-                        Text(
-                            text = stringResource(R.string.collections_file_description),
-                            style = MaterialTheme.typography.bodySmall.metaFloor(),
-                            color = MoviesTheme.colors.TextTertiary
-                        )
-                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                        MoviesButton(
-                            onClick = onPickFile,
-                            modifier = Modifier.blockHorizontalFocus()
-                        ) { Text(stringResource(R.string.collections_load_file)) }
-
                         if (importText.isNotBlank()) {
-                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
-                            Text(
-                                text = stringResource(R.string.collections_file_loaded, importText.length),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MoviesTheme.colors.TextSecondary
-                            )
+                            MoviesButton(onClick = onValidate) {
+                                Text(stringResource(R.string.collections_validate))
+                            }
                         }
                     }
 
-                    ImportMode.URL -> {
-                        MoviesTextField(
-                            value = importUrl,
-                            onValueChange = onUrlChange,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .blockHorizontalFocus(),
-                            placeholder = stringResource(R.string.collections_import_url_placeholder)
-                        )
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
-                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
-
-                        MoviesButton(
-                            onClick = onFetchUrl,
-                            modifier = Modifier.blockHorizontalFocus()
-                        ) {
-                            Text(if (isLoadingImport) stringResource(R.string.collections_fetching) else stringResource(R.string.collections_fetch_url))
-                        }
-
-                        if (isLoadingImport) {
-                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
-                            LoadingIndicator()
-                        }
-                    }
-                }
-            }
-
-            // Validation result preview
-            if (validationResult != null && validationResult.valid) {
-                item {
-                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
                     Surface(
                         shape = RoundedCornerShape(MoviesTheme.radii.md),
-                        colors = SurfaceDefaults.colors(containerColor = MoviesTheme.colors.BackgroundCard),
+                        colors = SurfaceDefaults.colors(
+                            containerColor = MoviesTheme.colors.BackgroundElevated
+                        ),
                         border = Border(
-                            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Primary),
+                            border = BorderStroke(
+                                MoviesTheme.spacing.hairline,
+                                if (importError !=
+                                    null
+                                ) {
+                                    MoviesTheme.colors.Error
+                                } else {
+                                    MoviesTheme.colors.Border
+                                }
+                            ),
                             shape = RoundedCornerShape(MoviesTheme.radii.md)
                         ),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
                     ) {
-                        Column(modifier = Modifier.padding(MoviesTheme.spacing.lg)) {
-                            Text(
-                                text = stringResource(R.string.collections_valid_json),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MoviesTheme.colors.Primary
+                        Box(modifier = Modifier.padding(MoviesTheme.spacing.md)) {
+                            BasicTextField(
+                                value = importText,
+                                onValueChange = onTextChange,
+                                modifier = Modifier.fillMaxSize(),
+                                textStyle = MaterialTheme.typography.bodySmall
+                                    .metaFloor()
+                                    .copy(
+                                        color = MoviesTheme.colors.TextPrimary,
+                                        textDirection = TextDirection.Content
+                                    ),
+                                cursorBrush = SolidColor(MoviesTheme.colors.Primary),
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                                decorationBox = { innerTextField ->
+                                    if (importText.isEmpty()) {
+                                        Text(
+                                            text = stringResource(
+                                                R.string.collections_paste_hint
+                                            ),
+                                            style = MaterialTheme.typography.bodySmall
+                                                .metaFloor(),
+                                            color = MoviesTheme.colors.TextTertiary
+                                        )
+                                    }
+                                    innerTextField()
+                                }
                             )
-                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
-                            Text(
-                                text = stringResource(R.string.collections_valid_summary, validationResult.collectionCount, validationResult.folderCount),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MoviesTheme.colors.TextSecondary
-                            )
-                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
-                            MoviesButton(
-                                onClick = onConfirmImport,
-                                modifier = Modifier.blockHorizontalFocus()
-                            ) {
-                                Text(stringResource(R.string.collections_confirm_import))
+                        }
+                    }
+                }
+
+                ImportMode.FILE -> {
+                    Text(
+                        text = stringResource(R.string.collections_file_description),
+                        style = MaterialTheme.typography.bodySmall.metaFloor(),
+                        color = MoviesTheme.colors.TextTertiary
+                    )
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                    MoviesButton(
+                        onClick = onPickFile,
+                        modifier = Modifier.blockHorizontalFocus()
+                    ) { Text(stringResource(R.string.collections_load_file)) }
+
+                    if (importText.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
+                        Text(
+                            text = stringResource(
+                                R.string.collections_file_loaded,
+                                importText.length
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MoviesTheme.colors.TextSecondary
+                        )
+                    }
+                }
+
+                ImportMode.URL -> {
+                    MoviesTextField(
+                        value = importUrl,
+                        onValueChange = onUrlChange,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .blockHorizontalFocus(),
+                        placeholder = stringResource(
+                            R.string.collections_import_url_placeholder
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
+
+                    MoviesButton(
+                        onClick = onFetchUrl,
+                        modifier = Modifier.blockHorizontalFocus()
+                    ) {
+                        Text(
+                            if (isLoadingImport) {
+                                stringResource(
+                                    R.string.collections_fetching
+                                )
+                            } else {
+                                stringResource(R.string.collections_fetch_url)
                             }
+                        )
+                    }
+
+                    if (isLoadingImport) {
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
+                        LoadingIndicator()
+                    }
+                }
+            }
+        }
+
+        // Validation result preview
+        if (validationResult != null && validationResult.valid) {
+            item {
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
+                Surface(
+                    shape = RoundedCornerShape(MoviesTheme.radii.md),
+                    colors = SurfaceDefaults.colors(
+                        containerColor = MoviesTheme.colors.BackgroundCard
+                    ),
+                    border = Border(
+                        border = BorderStroke(
+                            MoviesTheme.spacing.hairline,
+                            MoviesTheme.colors.Primary
+                        ),
+                        shape = RoundedCornerShape(MoviesTheme.radii.md)
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(MoviesTheme.spacing.lg)) {
+                        Text(
+                            text = stringResource(R.string.collections_valid_json),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MoviesTheme.colors.Primary
+                        )
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
+                        Text(
+                            text = stringResource(
+                                R.string.collections_valid_summary,
+                                validationResult.collectionCount,
+                                validationResult.folderCount
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MoviesTheme.colors.TextSecondary
+                        )
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
+                        MoviesButton(
+                            onClick = onConfirmImport,
+                            modifier = Modifier.blockHorizontalFocus()
+                        ) {
+                            Text(stringResource(R.string.collections_confirm_import))
                         }
                     }
                 }
             }
+        }
 
-            if (importError != null) {
-                item {
-                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                    Text(
-                        text = importError,
-                        style = MaterialTheme.typography.bodySmall.metaFloor(),
-                        color = MoviesTheme.colors.Error
-                    )
-                }
+        if (importError != null) {
+            item {
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                Text(
+                    text = importError,
+                    style = MaterialTheme.typography.bodySmall.metaFloor(),
+                    color = MoviesTheme.colors.Error
+                )
             }
+        }
     }
 }
 
@@ -718,7 +812,7 @@ private fun CollectionListItem(
             MoviesTheme.colors.BackgroundCard
         },
         animationSpec = com.kien.movies.ui.theme.MoviesMotion.focusTween(),
-        label = "collectionCardColor",
+        label = "collectionCardColor"
     )
     val cardBorder = if (isMoving) {
         Border(
@@ -747,10 +841,12 @@ private fun CollectionListItem(
                     style = MaterialTheme.typography.titleMedium.copy(
                         textDirection = collection.title.contentTextDirection()
                     ),
-                    color = MoviesTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary
                 )
                 val summary = buildString {
-                    append(stringResource(R.string.collections_folder_count, collection.folders.size))
+                    append(
+                        stringResource(R.string.collections_folder_count, collection.folders.size)
+                    )
                     if (collection.pinToTop) {
                         append(" · ")
                         append(stringResource(R.string.collections_pinned))

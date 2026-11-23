@@ -9,9 +9,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 @Singleton
-class CloudLibraryPlaybackSessionStore @Inject constructor(
-    @ApplicationContext context: Context
-) {
+class CloudLibraryPlaybackSessionStore @Inject constructor(@ApplicationContext context: Context) {
     private val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
     private val sessions = java.util.concurrent.ConcurrentHashMap<String, CloudLibraryPlaybackContext>()
 
@@ -70,17 +68,22 @@ class CloudLibraryPlaybackSessionStore @Inject constructor(
         item.status?.let { put("status", it) }
         item.sizeBytes?.let { put("sizeBytes", it) }
         item.progressFraction?.let { put("progressFraction", it.toDouble()) }
-        put("files", JSONArray().apply {
-            item.files.forEach { file ->
-                put(JSONObject().apply {
-                    file.id?.let { put("id", it) }
-                    put("name", file.name)
-                    file.sizeBytes?.let { put("sizeBytes", it) }
-                    file.mimeType?.let { put("mimeType", it) }
-                    put("playable", file.playable)
-                })
+        put(
+            "files",
+            JSONArray().apply {
+                item.files.forEach { file ->
+                    put(
+                        JSONObject().apply {
+                            file.id?.let { put("id", it) }
+                            put("name", file.name)
+                            file.sizeBytes?.let { put("sizeBytes", it) }
+                            file.mimeType?.let { put("mimeType", it) }
+                            put("playable", file.playable)
+                        }
+                    )
+                }
             }
-        })
+        )
     }
 
     private fun JSONObject.toPlaybackContext(): CloudLibraryPlaybackContext {
@@ -115,11 +118,9 @@ class CloudLibraryPlaybackSessionStore @Inject constructor(
         )
     }
 
-    private fun JSONObject.optLongOrNull(key: String): Long? =
-        takeIf { has(key) && !isNull(key) }?.optLong(key)
+    private fun JSONObject.optLongOrNull(key: String): Long? = takeIf { has(key) && !isNull(key) }?.optLong(key)
 
-    private fun JSONObject.optDoubleOrNull(key: String): Double? =
-        takeIf { has(key) && !isNull(key) }?.optDouble(key)
+    private fun JSONObject.optDoubleOrNull(key: String): Double? = takeIf { has(key) && !isNull(key) }?.optDouble(key)
 
     private fun sessionKey(token: String) = "$SESSION_PREFIX$token"
     private fun timestampKey(token: String) = "$TIMESTAMP_PREFIX$token"

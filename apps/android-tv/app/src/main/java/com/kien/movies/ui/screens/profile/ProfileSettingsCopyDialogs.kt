@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.profile
 
-import com.kien.movies.ui.screens.detail.atLeastOnBox
-import com.kien.movies.ui.screens.detail.TvSizeFloors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +31,8 @@ import com.kien.movies.domain.model.UserProfile
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.screens.detail.TvSizeFloors
+import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable

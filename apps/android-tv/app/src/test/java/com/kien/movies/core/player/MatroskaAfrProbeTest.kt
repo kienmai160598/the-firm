@@ -1,5 +1,6 @@
 package com.kien.movies.core.player
 
+import java.io.File
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -7,7 +8,6 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.io.File
 
 class MatroskaAfrProbeTest {
 
@@ -51,8 +51,9 @@ class MatroskaAfrProbeTest {
         assertTrue(layout!!.tracksCompleteInPrefix)
         assertNotNull(layout.tracksAbsoluteOffset)
         // Safe prefix must end after Tracks, before the torn Cluster.
-        val expectedPrefix = ebml.size + MatroskaAfrProbe.elementIdBytes(MatroskaAfrProbe.ID_SEGMENT).size +
-            MatroskaAfrProbe.encodeUnknownSizeVint8().size + tracks.size
+        val expectedPrefix =
+            ebml.size + MatroskaAfrProbe.elementIdBytes(MatroskaAfrProbe.ID_SEGMENT).size +
+                MatroskaAfrProbe.encodeUnknownSizeVint8().size + tracks.size
         assertEquals(expectedPrefix.toLong(), layout.safePrefixLength)
         assertTrue(layout.safePrefixLength < full.size)
     }
@@ -192,7 +193,11 @@ class MatroskaAfrProbeTest {
 
             val prefix = MatroskaAfrProbe.truncateToSafePrefix(file, layout)
             assertNotNull(prefix)
-            val patchedLength = MatroskaAfrProbe.appendStubClusterForHeadProbe(file, layout, prefix!!)
+            val patchedLength = MatroskaAfrProbe.appendStubClusterForHeadProbe(
+                file,
+                layout,
+                prefix!!
+            )
             assertNotNull(patchedLength)
             assertEquals(patchedLength, file.length())
 

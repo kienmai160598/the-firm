@@ -12,19 +12,19 @@ import com.kien.movies.data.remote.supabase.SupabaseWatchProgress
 import com.kien.movies.data.remote.supabase.SupabaseWatchProgressEvent
 import com.kien.movies.domain.model.WatchProgress
 import io.github.jan.supabase.postgrest.Postgrest
+import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.util.concurrent.ConcurrentHashMap
 import kotlinx.serialization.json.add
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.addJsonObject
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "WatchProgressSyncService"
 private const val WATCH_PROGRESS_DELTA_PAGE_SIZE = 900
@@ -52,8 +52,7 @@ class WatchProgressSyncService @Inject constructor(
     private val deltaSyncMutex = Mutex()
     private val outboundSyncMutexes = ConcurrentHashMap<Int, Mutex>()
 
-    private fun outboundSyncMutex(profileId: Int): Mutex =
-        outboundSyncMutexes.computeIfAbsent(profileId) { Mutex() }
+    private fun outboundSyncMutex(profileId: Int): Mutex = outboundSyncMutexes.computeIfAbsent(profileId) { Mutex() }
 
     private suspend fun markPushSucceeded(profileId: Int) {
         val now = System.currentTimeMillis()
@@ -88,21 +87,37 @@ class WatchProgressSyncService @Inject constructor(
         }
     }
 
-    private suspend fun pullDeltaPage(profileId: Int, cursor: Long): List<SupabaseWatchProgressEvent> {
-        Log.d(TAG, "pullDeltaPage: requesting progress events after cursor $cursor for profile $profileId limit=$WATCH_PROGRESS_DELTA_PAGE_SIZE")
+    private suspend fun pullDeltaPage(
+        profileId: Int,
+        cursor: Long
+    ): List<SupabaseWatchProgressEvent> {
+        Log.d(
+            TAG,
+            "pullDeltaPage: requesting progress events after cursor $cursor for profile $profileId limit=$WATCH_PROGRESS_DELTA_PAGE_SIZE"
+        )
         val params = buildJsonObject {
             put("p_profile_id", profileId)
             put("p_since_event_id", cursor)
             put("p_limit", WATCH_PROGRESS_DELTA_PAGE_SIZE)
         }
         return withJwtRefreshRetry {
-            postgrest.rpc("sync_pull_watch_progress_delta", params).decodeList<SupabaseWatchProgressEvent>()
+            postgrest.rpc(
+                "sync_pull_watch_progress_delta",
+                params
+            ).decodeList<SupabaseWatchProgressEvent>()
         }.also { events ->
             val firstEvent = events.firstOrNull()?.eventId
             val lastEvent = events.lastOrNull()?.eventId
-            val upserts = events.count { it.operation.equals(WATCH_PROGRESS_EVENT_UPSERT, ignoreCase = true) }
-            val deletes = events.count { it.operation.equals(WATCH_PROGRESS_EVENT_DELETE, ignoreCase = true) }
-            Log.d(TAG, "pullDeltaPage: received ${events.size} progress events for profile $profileId first=$firstEvent last=$lastEvent upserts=$upserts deletes=$deletes")
+            val upserts = events.count {
+                it.operation.equals(WATCH_PROGRESS_EVENT_UPSERT, ignoreCase = true)
+            }
+            val deletes = events.count {
+                it.operation.equals(WATCH_PROGRESS_EVENT_DELETE, ignoreCase = true)
+            }
+            Log.d(
+                TAG,
+                "pullDeltaPage: received ${events.size} progress events for profile $profileId first=$firstEvent last=$lastEvent upserts=$upserts deletes=$deletes"
+            )
         }
     }
 
@@ -129,9 +144,12 @@ class WatchProgressSyncService @Inject constructor(
             }
 
             val params = buildJsonObject {
-                put("p_keys", buildJsonArray {
-                    distinctKeys.forEach { add(it) }
-                })
+                put(
+                    "p_keys",
+                    buildJsonArray {
+                        distinctKeys.forEach { add(it) }
+                    }
+                )
                 put("p_profile_id", profileId)
                 putSyncOriginClientId(syncClientIdentity)
             }
@@ -139,7 +157,10 @@ class WatchProgressSyncService @Inject constructor(
                 postgrest.rpc("sync_delete_watch_progress", params)
             }
             mutationStore.acknowledgeProgressDeletes(distinctKeys, profileId)
-            Log.d(TAG, "Deleted ${distinctKeys.size} watch progress entries from remote for profile $profileId")
+            Log.d(
+                TAG,
+                "Deleted ${distinctKeys.size} watch progress entries from remote for profile $profileId"
+            )
             Result.success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to delete watch progress from remote", e)
@@ -147,9 +168,7 @@ class WatchProgressSyncService @Inject constructor(
         }
     }
 
-    suspend fun pushToRemote(
-        profileId: Int = profileManager.activeProfileId.value
-    ): Result<Unit> = withContext(Dispatchers.IO) {
+    suspend fun pushToRemote(profileId: Int = profileManager.activeProfileId.value): Result<Unit> = withContext(Dispatchers.IO) {
         outboundSyncMutex(profileId).withLock {
             pushToRemoteLocked(profileId)
         }
@@ -166,28 +185,37 @@ class WatchProgressSyncService @Inject constructor(
                 !(progress.position <= 1L && progress.duration <= 1L && progress.duration > 0L) &&
                     !ServerItemRef.isServerId(progress.contentId)
             }
-            Log.d(TAG, "pushToRemote: ${rawEntries.size} pending entries, ${entries.size} canonical entries to push for profile $profileId")
+            Log.d(
+                TAG,
+                "pushToRemote: ${rawEntries.size} pending entries, ${entries.size} canonical entries to push for profile $profileId"
+            )
             entries.forEach { (key, progress) ->
-                Log.d(TAG, "  push entry: key=$key contentId=${progress.contentId} type=${progress.contentType} pos=${progress.position} dur=${progress.duration} lastWatched=${progress.lastWatched}")
+                Log.d(
+                    TAG,
+                    "  push entry: key=$key contentId=${progress.contentId} type=${progress.contentType} pos=${progress.position} dur=${progress.duration} lastWatched=${progress.lastWatched}"
+                )
             }
 
             if (entries.isNotEmpty()) {
                 val params = buildJsonObject {
-                    put("p_entries", buildJsonArray {
-                        entries.forEach { (key, progress) ->
-                            addJsonObject {
-                                put("content_id", progress.contentId)
-                                put("content_type", progress.contentType)
-                                put("video_id", progress.videoId)
-                                progress.season?.let { put("season", it) }
-                                progress.episode?.let { put("episode", it) }
-                                put("position", progress.position)
-                                put("duration", progress.duration)
-                                put("last_watched", progress.lastWatched)
-                                put("progress_key", key)
+                    put(
+                        "p_entries",
+                        buildJsonArray {
+                            entries.forEach { (key, progress) ->
+                                addJsonObject {
+                                    put("content_id", progress.contentId)
+                                    put("content_type", progress.contentType)
+                                    put("video_id", progress.videoId)
+                                    progress.season?.let { put("season", it) }
+                                    progress.episode?.let { put("episode", it) }
+                                    put("position", progress.position)
+                                    put("duration", progress.duration)
+                                    put("last_watched", progress.lastWatched)
+                                    put("progress_key", key)
+                                }
                             }
                         }
-                    })
+                    )
                     put("p_profile_id", profileId)
                     putSyncOriginClientId(syncClientIdentity)
                 }
@@ -197,7 +225,10 @@ class WatchProgressSyncService @Inject constructor(
             }
 
             mutationStore.acknowledgeProgressUpserts(rawEntries, profileId)
-            Log.d(TAG, "Pushed ${entries.size} watch progress entries to remote for profile $profileId")
+            Log.d(
+                TAG,
+                "Pushed ${entries.size} watch progress entries to remote for profile $profileId"
+            )
             if (pendingDeletes.isNotEmpty() || rawEntries.isNotEmpty()) {
                 markPushSucceeded(profileId)
             }
@@ -208,7 +239,6 @@ class WatchProgressSyncService @Inject constructor(
         }
     }
 
-    
     /**
      * Push a single watch progress entry to Supabase via RPC.
      *
@@ -233,19 +263,22 @@ class WatchProgressSyncService @Inject constructor(
         if (ServerItemRef.isServerId(progress.contentId)) return Result.success(Unit)
         return try {
             val params = buildJsonObject {
-                put("p_entries", buildJsonArray {
-                    addJsonObject {
-                        put("content_id", progress.contentId)
-                        put("content_type", progress.contentType)
-                        put("video_id", progress.videoId)
-                        progress.season?.let { put("season", it) }
-                        progress.episode?.let { put("episode", it) }
-                        put("position", progress.position)
-                        put("duration", progress.duration)
-                        put("last_watched", progress.lastWatched)
-                        put("progress_key", key)
+                put(
+                    "p_entries",
+                    buildJsonArray {
+                        addJsonObject {
+                            put("content_id", progress.contentId)
+                            put("content_type", progress.contentType)
+                            put("video_id", progress.videoId)
+                            progress.season?.let { put("season", it) }
+                            progress.episode?.let { put("episode", it) }
+                            put("position", progress.position)
+                            put("duration", progress.duration)
+                            put("last_watched", progress.lastWatched)
+                            put("progress_key", key)
+                        }
                     }
-                })
+                )
                 put("p_profile_id", profileId)
                 putSyncOriginClientId(syncClientIdentity)
             }
@@ -254,7 +287,10 @@ class WatchProgressSyncService @Inject constructor(
             }
 
             mutationStore.acknowledgeProgressUpserts(mapOf(key to progress), profileId)
-            Log.d(TAG, "Pushed single watch progress entry to remote for profile $profileId (key=$key)")
+            Log.d(
+                TAG,
+                "Pushed single watch progress entry to remote for profile $profileId (key=$key)"
+            )
             // Deliberately does not move the sync point. One entry reaching remote says
             // nothing about the rest, and advancing it here would mark every other local
             // entry as synced, so the next pull would drop the ones that never made it.
@@ -300,9 +336,15 @@ class WatchProgressSyncService @Inject constructor(
             }
             val remote = response.decodeList<SupabaseWatchProgress>()
 
-            Log.d(TAG, "pullFromRemote: fetched ${remote.size} entries from Supabase via RPC for profile $profileId sinceLastWatched=$sinceLastWatched")
+            Log.d(
+                TAG,
+                "pullFromRemote: fetched ${remote.size} entries from Supabase via RPC for profile $profileId sinceLastWatched=$sinceLastWatched"
+            )
             remote.forEach { entry ->
-                Log.d(TAG, "  pull entry: key=${entry.progressKey} contentId=${entry.contentId} type=${entry.contentType} pos=${entry.position} dur=${entry.duration} lastWatched=${entry.lastWatched}")
+                Log.d(
+                    TAG,
+                    "  pull entry: key=${entry.progressKey} contentId=${entry.contentId} type=${entry.contentType} pos=${entry.position} dur=${entry.duration} lastWatched=${entry.lastWatched}"
+                )
             }
 
             val pulled = remote.map { entry ->
@@ -347,18 +389,40 @@ class WatchProgressSyncService @Inject constructor(
         deltaSyncMutex.withLock {
             try {
                 if (!shouldUseSupabaseWatchProgressSync(profileId)) {
-                    Log.d(TAG, "Using tracking provider watch progress, skipping watch progress snapshot pull")
-                    return@withLock Result.success(WatchProgressRemoteSyncResult(0, 0, usedSnapshot = false, preservedLocalItems = false))
+                    Log.d(
+                        TAG,
+                        "Using tracking provider watch progress, skipping watch progress snapshot pull"
+                    )
+                    return@withLock Result.success(
+                        WatchProgressRemoteSyncResult(
+                            0,
+                            0,
+                            usedSnapshot = false,
+                            preservedLocalItems = false
+                        )
+                    )
                 }
                 val cursorBeforeSnapshot = try {
                     fetchDeltaCursor(profileId)
                 } catch (e: Exception) {
-                    Log.w(TAG, "syncSnapshotFromRemote: delta cursor unavailable, applying snapshot without initialized cursor for profile $profileId", e)
+                    Log.w(
+                        TAG,
+                        "syncSnapshotFromRemote: delta cursor unavailable, applying snapshot without initialized cursor for profile $profileId",
+                        e
+                    )
                     null
                 }
-                val result = pullSnapshotFromRemote(profileId, resetDeltaState = cursorBeforeSnapshot == null)
+                val result = pullSnapshotFromRemote(
+                    profileId,
+                    resetDeltaState =
+                        cursorBeforeSnapshot == null
+                )
                 if (cursorBeforeSnapshot != null) {
-                    watchProgressPreferences.setDeltaState(cursorBeforeSnapshot, initialized = true, profileId = profileId)
+                    watchProgressPreferences.setDeltaState(
+                        cursorBeforeSnapshot,
+                        initialized = true,
+                        profileId = profileId
+                    )
                 }
                 Result.success(result)
             } catch (e: Exception) {
@@ -380,16 +444,33 @@ class WatchProgressSyncService @Inject constructor(
                 "syncDeltaFromRemote: start profile=$profileId localCount=$localCount deltaInitialized=$deltaInitialized cursor=$deltaCursor"
             )
             if (!shouldUseSupabaseWatchProgressSync(profileId)) {
-                Log.d(TAG, "Using tracking provider watch progress, skipping watch progress delta pull")
-                return Result.success(WatchProgressRemoteSyncResult(0, 0, usedSnapshot = false, preservedLocalItems = false))
+                Log.d(
+                    TAG,
+                    "Using tracking provider watch progress, skipping watch progress delta pull"
+                )
+                return Result.success(
+                    WatchProgressRemoteSyncResult(
+                        0,
+                        0,
+                        usedSnapshot = false,
+                        preservedLocalItems = false
+                    )
+                )
             }
 
             if (!deltaInitialized) {
-                Log.d(TAG, "syncDeltaFromRemote: delta not initialized, taking one watch progress snapshot for profile $profileId")
+                Log.d(
+                    TAG,
+                    "syncDeltaFromRemote: delta not initialized, taking one watch progress snapshot for profile $profileId"
+                )
                 val cursorBeforeSnapshot = try {
                     fetchDeltaCursor(profileId)
                 } catch (e: Exception) {
-                    Log.w(TAG, "syncDeltaFromRemote: delta cursor unavailable, falling back to snapshot for profile $profileId", e)
+                    Log.w(
+                        TAG,
+                        "syncDeltaFromRemote: delta cursor unavailable, falling back to snapshot for profile $profileId",
+                        e
+                    )
                     val fallbackResult = pullSnapshotFromRemote(profileId, resetDeltaState = true)
                     return Result.success(fallbackResult)
                 }
@@ -402,9 +483,16 @@ class WatchProgressSyncService @Inject constructor(
                     pendingDeleteKeys = pendingDeleteKeys,
                     profileId = profileId
                 )
-                watchProgressPreferences.setDeltaState(cursorBeforeSnapshot, initialized = true, profileId = profileId)
+                watchProgressPreferences.setDeltaState(
+                    cursorBeforeSnapshot,
+                    initialized = true,
+                    profileId = profileId
+                )
                 val finalLocalCount = watchProgressPreferences.getAllRawEntries(profileId).size
-                Log.d(TAG, "syncDeltaFromRemote: initialized cursor $cursorBeforeSnapshot with ${remoteEntries.size} snapshot entries for profile $profileId finalLocalCount=$finalLocalCount preservedLocal=$hadUnsyncedProgress")
+                Log.d(
+                    TAG,
+                    "syncDeltaFromRemote: initialized cursor $cursorBeforeSnapshot with ${remoteEntries.size} snapshot entries for profile $profileId finalLocalCount=$finalLocalCount preservedLocal=$hadUnsyncedProgress"
+                )
                 return Result.success(
                     WatchProgressRemoteSyncResult(
                         upsertedEntries = remoteEntries.size,
@@ -423,16 +511,26 @@ class WatchProgressSyncService @Inject constructor(
             var page = 1
 
             while (true) {
-                Log.d(TAG, "syncDeltaFromRemote: pulling progress delta page $page from cursor $cursor for profile $profileId")
+                Log.d(
+                    TAG,
+                    "syncDeltaFromRemote: pulling progress delta page $page from cursor $cursor for profile $profileId"
+                )
                 val events = try {
                     pullDeltaPage(profileId, cursor)
                 } catch (e: Exception) {
-                    Log.w(TAG, "syncDeltaFromRemote: delta pull unavailable, falling back to snapshot for profile $profileId", e)
+                    Log.w(
+                        TAG,
+                        "syncDeltaFromRemote: delta pull unavailable, falling back to snapshot for profile $profileId",
+                        e
+                    )
                     val fallbackResult = pullSnapshotFromRemote(profileId, resetDeltaState = true)
                     return Result.success(fallbackResult)
                 }
                 if (events.isEmpty()) {
-                    Log.d(TAG, "syncDeltaFromRemote: no watch progress delta events for profile $profileId at cursor $cursor")
+                    Log.d(
+                        TAG,
+                        "syncDeltaFromRemote: no watch progress delta events for profile $profileId at cursor $cursor"
+                    )
                     break
                 }
 
@@ -440,7 +538,11 @@ class WatchProgressSyncService @Inject constructor(
                 events.forEach { event ->
                     if (event.operation.equals(WATCH_PROGRESS_EVENT_DELETE, ignoreCase = true)) {
                         pageChanges[event.progressKey] = null
-                    } else if (event.operation.equals(WATCH_PROGRESS_EVENT_UPSERT, ignoreCase = true)) {
+                    } else if (event.operation.equals(
+                            WATCH_PROGRESS_EVENT_UPSERT,
+                            ignoreCase = true
+                        )
+                    ) {
                         // Don't synthesize series-level mirror keys from individual delta events.
                         // normalizePulledEntries creates a series key (contentId) from any episode
                         // key (contentId_s1e5), which would resurrect series entries that were
@@ -465,18 +567,29 @@ class WatchProgressSyncService @Inject constructor(
                 )
                 preservedLocalItems = preservedLocalItems || pagePreservedLocal
                 cursor = maxOf(cursor, events.maxOf { it.eventId })
-                watchProgressPreferences.setDeltaState(cursor, initialized = true, profileId = profileId)
+                watchProgressPreferences.setDeltaState(
+                    cursor,
+                    initialized = true,
+                    profileId = profileId
+                )
                 totalUpserts += upserts.size
                 totalDeletes += deletes.size
-                Log.d(TAG, "syncDeltaFromRemote: applied page $page for profile $profileId newCursor=$cursor pageUpserts=${upserts.size} pageDeletes=${deletes.size}")
+                Log.d(
+                    TAG,
+                    "syncDeltaFromRemote: applied page $page for profile $profileId newCursor=$cursor pageUpserts=${upserts.size} pageDeletes=${deletes.size}"
+                )
 
                 if (events.size < WATCH_PROGRESS_DELTA_PAGE_SIZE) break
                 page++
             }
 
             val finalLocalCount = watchProgressPreferences.getAllRawEntries(profileId).size
-            preservedLocalItems = preservedLocalItems || mutationStore.hasPendingProgressMutations(profileId)
-            Log.d(TAG, "syncDeltaFromRemote: finished profile=$profileId appliedUpserts=$totalUpserts appliedDeletes=$totalDeletes cursor=$cursor finalLocalCount=$finalLocalCount preservedLocal=$preservedLocalItems")
+            preservedLocalItems =
+                preservedLocalItems || mutationStore.hasPendingProgressMutations(profileId)
+            Log.d(
+                TAG,
+                "syncDeltaFromRemote: finished profile=$profileId appliedUpserts=$totalUpserts appliedDeletes=$totalDeletes cursor=$cursor finalLocalCount=$finalLocalCount preservedLocal=$preservedLocalItems"
+            )
             Result.success(
                 WatchProgressRemoteSyncResult(
                     upsertedEntries = totalUpserts,
@@ -508,12 +621,16 @@ class WatchProgressSyncService @Inject constructor(
             watchProgressPreferences.setDeltaState(0L, initialized = false, profileId = profileId)
         }
         val finalLocalCount = watchProgressPreferences.getAllRawEntries(profileId).size
-        Log.d(TAG, "pullSnapshotFromRemote: applied ${remoteEntries.size} snapshot entries for profile $profileId finalLocalCount=$finalLocalCount preservedLocal=$hadUnsyncedProgress resetDeltaState=$resetDeltaState")
+        Log.d(
+            TAG,
+            "pullSnapshotFromRemote: applied ${remoteEntries.size} snapshot entries for profile $profileId finalLocalCount=$finalLocalCount preservedLocal=$hadUnsyncedProgress resetDeltaState=$resetDeltaState"
+        )
         return WatchProgressRemoteSyncResult(
             upsertedEntries = remoteEntries.size,
             deletedEntries = 0,
             usedSnapshot = true,
-            preservedLocalItems = hadUnsyncedProgress || mutationStore.hasPendingProgressMutations(profileId)
+            preservedLocalItems =
+                hadUnsyncedProgress || mutationStore.hasPendingProgressMutations(profileId)
         )
     }
 
@@ -542,7 +659,8 @@ class WatchProgressSyncService @Inject constructor(
             val exactMirror = progress.position == episodeProgress.position &&
                 progress.duration == episodeProgress.duration &&
                 progress.lastWatched == episodeProgress.lastWatched
-            val episodeIsAtLeastAsFresh = episodeProgress.lastWatched >= progress.lastWatched - 1_000L
+            val episodeIsAtLeastAsFresh =
+                episodeProgress.lastWatched >= progress.lastWatched - 1_000L
 
             if (exactMirror || episodeIsAtLeastAsFresh) {
                 canonical.remove(key)
@@ -580,16 +698,20 @@ class WatchProgressSyncService @Inject constructor(
                 }
             }
             .groupBy { it.contentId }
-            .mapValues { (_, episodes) -> episodes.maxWithOrNull(
-                compareBy<WatchProgress> { it.lastWatched }
-                    .thenBy { it.season ?: 0 }
-                    .thenBy { it.episode ?: 0 }
-            ) }
+            .mapValues { (_, episodes) ->
+                episodes.maxWithOrNull(
+                    compareBy<WatchProgress> { it.lastWatched }
+                        .thenBy { it.season ?: 0 }
+                        .thenBy { it.episode ?: 0 }
+                )
+            }
 
         latestEpisodeByContent.forEach { (contentId, latestEpisode) ->
             val latest = latestEpisode ?: return@forEach
             val existingSeriesEntry = byKey[contentId]
-            if (existingSeriesEntry == null || existingSeriesEntry.lastWatched < latest.lastWatched) {
+            if (existingSeriesEntry == null ||
+                existingSeriesEntry.lastWatched < latest.lastWatched
+            ) {
                 byKey[contentId] = latest
             }
         }
@@ -600,7 +722,7 @@ class WatchProgressSyncService @Inject constructor(
     }
 
     private fun episodeKey(contentId: String, season: Int, episode: Int): String {
-        return "${contentId}_s${season}e${episode}"
+        return "${contentId}_s${season}e$episode"
     }
 
     private fun isSeriesType(contentType: String): Boolean {

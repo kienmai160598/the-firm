@@ -98,48 +98,41 @@ private fun ShapedAvatar(
     }
 }
 
-private fun avatarColorOf(colorHex: String): Color =
-    runCatching { Color(android.graphics.Color.parseColor(colorHex)) }
-        .getOrDefault(MoviesPrimitives.blue500)
+private fun avatarColorOf(colorHex: String): Color = runCatching { Color(android.graphics.Color.parseColor(colorHex)) }
+    .getOrDefault(MoviesPrimitives.blue500)
 
 private const val PIN_ERROR_FILL_ALPHA = 0.16f
 private const val DISABLED_FILL_ALPHA = 0.06f
 
-internal fun profilePanelShape(): Shape =
-    RoundedCornerShape(MoviesTheme.radii.xxl)
+internal fun profilePanelShape(): Shape = RoundedCornerShape(MoviesTheme.radii.xxl)
 
-internal fun profileTileShape(): Shape =
-    RoundedCornerShape(MoviesTheme.radii.xl)
+internal fun profileTileShape(): Shape = RoundedCornerShape(MoviesTheme.radii.xl)
 
-internal fun pinBoxShape(): Shape =
-    RoundedCornerShape(MoviesTheme.radii.lg)
+internal fun pinBoxShape(): Shape = RoundedCornerShape(MoviesTheme.radii.lg)
 
 @Composable
 internal fun profileTextColor(): Color = MoviesTheme.colors.TextPrimary
 
 @Composable
-internal fun profileToastFill(): Color =
-    MoviesTheme.colors.BackgroundCard
+internal fun profileToastFill(): Color = MoviesTheme.colors.BackgroundCard
 
 /**
  * The overlay button in the kit's palette: frosted at rest (brighter for the primary action),
  * solid white on focus, a faint fill while disabled.
  */
-internal fun overlayButtonFill(enabled: Boolean, primary: Boolean, focused: Boolean): Color =
-    when {
-        !enabled -> Color.White.copy(alpha = DISABLED_FILL_ALPHA)
-        focused -> ExpressiveColors.focus
-        primary -> ExpressiveColors.frostedStrong
-        else -> ExpressiveColors.frosted
-    }
+internal fun overlayButtonFill(enabled: Boolean, primary: Boolean, focused: Boolean): Color = when {
+    !enabled -> Color.White.copy(alpha = DISABLED_FILL_ALPHA)
+    focused -> ExpressiveColors.focus
+    primary -> ExpressiveColors.frostedStrong
+    else -> ExpressiveColors.frosted
+}
 
 /** Black on the white focused fill, white at rest, tertiary while disabled. */
-internal fun overlayButtonContent(enabled: Boolean, focused: Boolean): Color =
-    when {
-        !enabled -> ExpressiveColors.textTertiary
-        focused -> ExpressiveColors.onFocus
-        else -> ExpressiveColors.textPrimary
-    }
+internal fun overlayButtonContent(enabled: Boolean, focused: Boolean): Color = when {
+    !enabled -> ExpressiveColors.textTertiary
+    focused -> ExpressiveColors.onFocus
+    else -> ExpressiveColors.textPrimary
+}
 
 @Composable
 internal fun pinErrorBorder(): Color = MoviesTheme.colors.Error
@@ -154,12 +147,10 @@ private const val PICKER_LIFT = 0.10f
 private val PickerAvatarSize = 136.dp
 private val CompactPickerAvatarSize = 104.dp
 
-internal fun profilePickerAvatarSize(compact: Boolean): Dp =
-    if (compact) CompactPickerAvatarSize else PickerAvatarSize
+internal fun profilePickerAvatarSize(compact: Boolean): Dp = if (compact) CompactPickerAvatarSize else PickerAvatarSize
 
 /** The lift on focus: a smooth spring. */
-internal fun profileLiftSpec(): FiniteAnimationSpec<Float> =
-    spring(dampingRatio = LIFT_DAMPING, stiffness = Spring.StiffnessMediumLow)
+internal fun profileLiftSpec(): FiniteAnimationSpec<Float> = spring(dampingRatio = LIFT_DAMPING, stiffness = Spring.StiffnessMediumLow)
 
 /** Grows a profile tile with its focus progress, read at draw time so a lift costs no recompose. */
 internal fun Modifier.profileLift(focusProgress: State<Float>): Modifier = graphicsLayer {

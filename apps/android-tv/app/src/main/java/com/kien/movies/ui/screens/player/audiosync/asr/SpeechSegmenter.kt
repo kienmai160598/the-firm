@@ -11,7 +11,7 @@ import com.kien.movies.ui.screens.player.audiosync.SpeechAnalyzer
  * is rather than dropped: its words are as good as any other.
  */
 internal class SpeechSegmenter(
-    private val onSegment: (startFrame: Int, samples: FloatArray) -> Unit,
+    private val onSegment: (startFrame: Int, samples: FloatArray) -> Unit
 ) : SpeechAnalyzer.ChunkListener {
     private val chunk = SileroVad.CHUNK_SAMPLES
     private val preroll = ArrayDeque<FloatArray>()
@@ -44,7 +44,11 @@ internal class SpeechSegmenter(
         }
         append(chunk)
         if (speech) lastSpeechFrame = frame
-        if (frame - lastSpeechFrame > HANGOVER_FRAMES || bufferFrames >= MAX_SEGMENT_FRAMES) finish()
+        if (frame - lastSpeechFrame > HANGOVER_FRAMES ||
+            bufferFrames >= MAX_SEGMENT_FRAMES
+        ) {
+            finish()
+        }
     }
 
     @Synchronized
@@ -90,6 +94,7 @@ internal class SpeechSegmenter(
         private const val TAIL_FRAMES = 4
         private const val HANGOVER_FRAMES = 8
         private const val MIN_SPEECH_FRAMES = 6
+
         /** 12 s. */
         private const val MAX_SEGMENT_FRAMES = 375
     }

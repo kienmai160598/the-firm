@@ -22,7 +22,9 @@ fun Modifier.shimmer(active: Boolean = true): Modifier {
     val progress = rememberInfiniteTransition(label = "shimmer").animateFloat(
         initialValue = 0f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(ExpressiveMotion.SHIMMER_SWEEP_MILLIS, easing = LinearEasing)),
+        animationSpec = infiniteRepeatable(
+            tween(ExpressiveMotion.SHIMMER_SWEEP_MILLIS, easing = LinearEasing)
+        ),
         label = "shimmer_progress"
     )
 

@@ -44,7 +44,11 @@ class MediaBrowserMapperTest {
         assertEquals("Director's Cut", preview.name)
         assertEquals("2007", preview.releaseInfo)
         assertEquals(7.8f, preview.imdbRating)
-        assertTrue(preview.poster!!.startsWith("https://media.example.com/jellyfin/Items/f1c9a0/Images/Primary?tag=p1"))
+        assertTrue(
+            preview.poster!!.startsWith(
+                "https://media.example.com/jellyfin/Items/f1c9a0/Images/Primary?tag=p1"
+            )
+        )
         assertFalse(preview.poster!!.contains("api_key"))
     }
 
@@ -73,7 +77,12 @@ class MediaBrowserMapperTest {
                 """{"Id": "notice", "Type": "Placeholder", "Name": "Torrentio: rate limited"}"""
             )
         )
-        assertEquals(listOf("ms1", "ms2"), mapper.candidates(withNotices).map { it.target.mediaSourceId })
+        assertEquals(
+            listOf("ms1", "ms2"),
+            mapper.candidates(withNotices).map {
+                it.target.mediaSourceId
+            }
+        )
 
         val onlyNotice = movie.copy(mediaSources = withNotices.mediaSources.takeLast(1))
         assertTrue(mapper.candidates(onlyNotice).isEmpty())
@@ -111,7 +120,13 @@ class MediaBrowserMapperTest {
     @Test
     fun readsEveryKnownProviderId() {
         val ids = movie.copy(
-            providerIds = mapOf("Imdb" to "tt1", "AniList" to "21", "Kitsu" to "7442", "MyAnimeList" to "5114", "Zap2It" to "EP1")
+            providerIds = mapOf(
+                "Imdb" to "tt1",
+                "AniList" to "21",
+                "Kitsu" to "7442",
+                "MyAnimeList" to "5114",
+                "Zap2It" to "EP1"
+            )
         ).externalIds()
         assertEquals("tt1", ids.imdb)
         assertEquals(21L, ids.anilist)

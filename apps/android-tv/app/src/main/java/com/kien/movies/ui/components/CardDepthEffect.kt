@@ -81,7 +81,9 @@ fun Modifier.cardDepthVisual(
                     startY = 0f,
                     endY = sheenHeight
                 )
-            } else null
+            } else {
+                null
+            }
             val sheenSize = Size(size.width, sheenHeight)
             onDrawWithContent {
                 drawContent()

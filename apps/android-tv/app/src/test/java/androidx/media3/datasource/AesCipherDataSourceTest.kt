@@ -2,12 +2,12 @@ package androidx.media3.datasource
 
 import android.net.Uri
 import io.mockk.mockk
+import java.nio.ByteBuffer
+import javax.crypto.Cipher
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.nio.ByteBuffer
-import javax.crypto.Cipher
 
 class AesCipherDataSourceTest {
 
@@ -35,7 +35,11 @@ class AesCipherDataSourceTest {
         val decryptedBytes = ByteArray(plaintext.size)
         var totalRead = 0
         while (totalRead < decryptedBytes.size) {
-            val read = aesDataSource.read(decryptedBytes, totalRead, decryptedBytes.size - totalRead)
+            val read = aesDataSource.read(
+                decryptedBytes,
+                totalRead,
+                decryptedBytes.size - totalRead
+            )
             if (read == -1) break
             totalRead += read
         }
@@ -116,7 +120,9 @@ class AesCipherDataSourceTest {
     }
 
     // A fake DataSource helper that implements ByteBufferDataReader for testing direct buffer reads
-    private class FakeByteBufferDataSource(private val data: ByteArray) : DataSource, androidx.media3.common.ByteBufferDataReader {
+    private class FakeByteBufferDataSource(private val data: ByteArray) :
+        DataSource,
+        androidx.media3.common.ByteBufferDataReader {
         private var position = 0
 
         override fun addTransferListener(transferListener: TransferListener) {}

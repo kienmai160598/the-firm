@@ -10,14 +10,34 @@ class MdbListScrobbleService @Inject constructor(
     private val api: MdbListApiClient,
     private val sync: MdbListSyncRepository
 ) {
-    suspend fun scrobble(scope: MdbListAuthScope, action: TrackingScrobbleAction, event: TrackingScrobbleEvent) {
+    suspend fun scrobble(
+        scope: MdbListAuthScope,
+        action: TrackingScrobbleAction,
+        event: TrackingScrobbleEvent
+    ) {
         if (!event.progressPercent.isFinite() || event.media.ids.toMdbListIds() == null) return
-        sync.write(scope, setOf(MdbListSyncBucket.WATCHED, MdbListSyncBucket.PLAYBACK)) { snapshot ->
-            val projection = sync.currentProjection().takeIf { it !== MdbListProgressProjection.Empty }
-            val target = snapshot.mutationTarget(event.media, projection) ?: return@write snapshot to Unit
-            if (target.type == MdbListItemType.SHOW || !target.scrobbleCoordinatesResolved) return@write snapshot to Unit
-            val response = api.post("/scrobble/${action.wireValue}", target.scrobbleBody(event.progressPercent.coerceIn(0.0, 100.0)).toString(), scope)
-            val receipt = decodeMdbListScrobbleReceipt(response, target, action, System.currentTimeMillis())
+        sync.write(
+            scope,
+            setOf(MdbListSyncBucket.WATCHED, MdbListSyncBucket.PLAYBACK)
+        ) { snapshot ->
+            val projection = sync.currentProjection().takeIf {
+                it !==
+                    MdbListProgressProjection.Empty
+            }
+            val target =
+                snapshot.mutationTarget(event.media, projection) ?: return@write snapshot to Unit
+            if (target.type == MdbListItemType.SHOW ||
+                !target.scrobbleCoordinatesResolved
+            ) {
+                return@write snapshot to Unit
+            }
+            val response = api.post(
+                "/scrobble/${action.wireValue}",
+                target.scrobbleBody(event.progressPercent.coerceIn(0.0, 100.0)).toString(),
+                scope
+            )
+            val receipt =
+                decodeMdbListScrobbleReceipt(response, target, action, System.currentTimeMillis())
             snapshot.applyScrobble(receipt, projection?.mediaIndex) to Unit
         }
     }
@@ -26,15 +46,32 @@ class MdbListScrobbleService @Inject constructor(
         sync.ensureLoaded()
         val sessions = sync.currentSnapshot()?.playback.orEmpty().filter { session ->
             contentId in session.media.ids.aliases() &&
-                (season == null || episode == null || session.season == season && session.episode == episode)
+                (
+                    season == null || episode == null ||
+                        session.season == season && session.episode == episode
+                    )
         }
         for (session in sessions) {
             sync.write(scope, setOf(MdbListSyncBucket.PLAYBACK)) { snapshot ->
-                val target = MdbListMutationTarget(session.type, session.media, session.season, session.episode)
+                val target =
+                    MdbListMutationTarget(
+                        session.type,
+                        session.media,
+                        session.season,
+                        session.episode
+                    )
                 try {
-                    val response = api.post("/scrobble/clear", target.scrobbleBody().toString(), scope)
+                    val response = api.post(
+                        "/scrobble/clear",
+                        target.scrobbleBody().toString(),
+                        scope
+                    )
                     val body = mdbListResponseElement(response.body).objectValue()
-                    if (body.text("action") != "clear" || body.flag("deleted") == null) throw MdbListDecodingException()
+                    if (body.text("action") != "clear" ||
+                        body.flag("deleted") == null
+                    ) {
+                        throw MdbListDecodingException()
+                    }
                 } catch (error: MdbListApiException) {
                     if (error.status != 404) throw error
                 }

@@ -15,7 +15,7 @@ private const val AUDIO_ROUTE_CHANGE_DEBOUNCE_MS = 700L
 internal enum class BluetoothRoutePlaybackAction {
     NONE,
     UPDATE_SINK_IN_PLACE,
-    UPDATE_MPV_IN_PLACE,
+    UPDATE_MPV_IN_PLACE
 }
 
 /**
@@ -89,7 +89,8 @@ internal fun PlayerRuntimeController.persistAudioDelayForCurrentRoute(delayMs: I
 internal fun PlayerRuntimeController.registerAudioDelayRouteCallback() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || audioOutputRouteCallback != null) return
 
-    val audioManager = context.getSystemService(android.content.Context.AUDIO_SERVICE) as? AudioManager ?: return
+    val audioManager =
+        context.getSystemService(android.content.Context.AUDIO_SERVICE) as? AudioManager ?: return
     val callback = object : AudioDeviceCallback() {
         override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>) {
             onAudioOutputRouteMaybeChanged("added", addedDevices)
@@ -112,7 +113,8 @@ internal fun PlayerRuntimeController.registerAudioDelayRouteCallback() {
 internal fun PlayerRuntimeController.unregisterAudioDelayRouteCallback() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
     val callback = audioOutputRouteCallback ?: return
-    val audioManager = context.getSystemService(android.content.Context.AUDIO_SERVICE) as? AudioManager ?: return
+    val audioManager =
+        context.getSystemService(android.content.Context.AUDIO_SERVICE) as? AudioManager ?: return
     runCatching {
         audioManager.unregisterAudioDeviceCallback(callback)
     }.onFailure {
@@ -165,6 +167,7 @@ private fun PlayerRuntimeController.onAudioOutputRouteMaybeChanged(
                     "Audio route after device $reason: bluetooth=$isBluetooth (was=$wasBluetooth); player stays running"
                 )
             }
+
             BluetoothRoutePlaybackAction.UPDATE_SINK_IN_PLACE -> {
                 if (_exoPlayer == null) return@launch
                 Log.i(
@@ -174,6 +177,7 @@ private fun PlayerRuntimeController.onAudioOutputRouteMaybeChanged(
                 )
                 applyBluetoothAudioRouteInPlace(isBluetooth)
             }
+
             BluetoothRoutePlaybackAction.UPDATE_MPV_IN_PLACE -> {
                 Log.i(
                     PlayerRuntimeController.TAG,
@@ -222,7 +226,9 @@ internal fun PlayerRuntimeController.applyBluetoothAudioRouteInPlace(isBluetooth
             outputChannels.ffmpegLayoutName,
             outputChannels.channelCount
         )
-        ffmpegAudioRenderer?.setDownmixNormalizationEnabled(!settings.maintainOriginalAudioOnDownmix)
+        ffmpegAudioRenderer?.setDownmixNormalizationEnabled(
+            !settings.maintainOriginalAudioOnDownmix
+        )
         ffmpegAudioRenderer?.setLfeMixLevel(settings.downmixLfeLevel.level)
     } else {
         ffmpegAudioRenderer?.setAudioOutputChannels(null, 0)

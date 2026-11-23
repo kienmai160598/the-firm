@@ -48,8 +48,14 @@ class SettingsCatalogTest {
 
     @Test
     fun `debug is hidden in release builds and in essential mode`() {
-        assertFalse(SettingsCategory.DEBUG in visibleSettingsCategories(true, isEssentialMode = false, isDebugBuild = false))
-        assertFalse(SettingsCategory.DEBUG in visibleSettingsCategories(true, isEssentialMode = true, isDebugBuild = true))
+        assertFalse(
+            SettingsCategory.DEBUG in
+                visibleSettingsCategories(true, isEssentialMode = false, isDebugBuild = false)
+        )
+        assertFalse(
+            SettingsCategory.DEBUG in
+                visibleSettingsCategories(true, isEssentialMode = true, isDebugBuild = true)
+        )
     }
 
     @Test
@@ -70,7 +76,9 @@ class SettingsCatalogTest {
     @Test
     fun `each group is contiguous in every configuration`() {
         allCombinations().forEach { categories ->
-            val groupRuns = categories.map { it.group }.fold(mutableListOf<SettingsRailGroup>()) { runs, group ->
+            val groupRuns = categories.map {
+                it.group
+            }.fold(mutableListOf<SettingsRailGroup>()) { runs, group ->
                 if (runs.lastOrNull() != group) runs.add(group)
                 runs
             }
@@ -85,7 +93,9 @@ class SettingsCatalogTest {
             isEssentialMode = false,
             isDebugBuild = true
         )
-        val dividerBefore = categories.indices.filter { categories.startsNewGroup(it) }.map { categories[it] }
+        val dividerBefore = categories.indices.filter {
+            categories.startsNewGroup(it)
+        }.map { categories[it] }
 
         assertEquals(
             listOf(
@@ -107,31 +117,53 @@ class SettingsCatalogTest {
             isDebugBuild = false
         )
         assertFalse(categories.startsNewGroup(0))
-        assertTrue(categories.startsNewGroup(categories.indexOf(SettingsCategory.CONTENT_DISCOVERY)))
+        assertTrue(
+            categories.startsNewGroup(categories.indexOf(SettingsCategory.CONTENT_DISCOVERY))
+        )
     }
 
     @Test
     fun `watch party shows for every profile only while available`() {
         listOf(true, false).forEach { primary ->
-            val available = visibleSettingsCategories(primary, isEssentialMode = false, isDebugBuild = false, isWatchPartyAvailable = true)
-            val unavailable = visibleSettingsCategories(primary, isEssentialMode = false, isDebugBuild = false, isWatchPartyAvailable = false)
+            val available =
+                visibleSettingsCategories(
+                    primary,
+                    isEssentialMode = false,
+                    isDebugBuild = false,
+                    isWatchPartyAvailable = true
+                )
+            val unavailable =
+                visibleSettingsCategories(
+                    primary,
+                    isEssentialMode = false,
+                    isDebugBuild = false,
+                    isWatchPartyAvailable = false
+                )
             assertTrue(SettingsCategory.WATCH_PARTY in available)
             assertFalse(SettingsCategory.WATCH_PARTY in unavailable)
         }
         assertEquals(
-            listOf(SettingsCategory.ACCOUNT, SettingsCategory.PROFILES, SettingsCategory.WATCH_PARTY),
-            visibleSettingsCategories(true, isEssentialMode = false, isDebugBuild = false, isWatchPartyAvailable = true).take(3)
+            listOf(
+                SettingsCategory.ACCOUNT,
+                SettingsCategory.PROFILES,
+                SettingsCategory.WATCH_PARTY
+            ),
+            visibleSettingsCategories(
+                true,
+                isEssentialMode = false,
+                isDebugBuild = false,
+                isWatchPartyAvailable = true
+            ).take(3)
         )
     }
 
-    private fun allCombinations(): List<List<SettingsCategory>> =
-        listOf(true, false).flatMap { primary ->
-            listOf(true, false).flatMap { essential ->
-                listOf(true, false).flatMap { debug ->
-                    listOf(true, false).map { watchParty ->
-                        visibleSettingsCategories(primary, essential, debug, watchParty)
-                    }
+    private fun allCombinations(): List<List<SettingsCategory>> = listOf(true, false).flatMap { primary ->
+        listOf(true, false).flatMap { essential ->
+            listOf(true, false).flatMap { debug ->
+                listOf(true, false).map { watchParty ->
+                    visibleSettingsCategories(primary, essential, debug, watchParty)
                 }
             }
         }
+    }
 }

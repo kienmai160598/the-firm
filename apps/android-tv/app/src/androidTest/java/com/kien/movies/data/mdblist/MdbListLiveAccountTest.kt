@@ -31,28 +31,39 @@ class MdbListLiveAccountTest {
         assumeTrue(InstrumentationRegistry.getArguments().getString("mdblistLiveRead") == "true")
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val store = MdbListAuthStore(AndroidMdbListAuthPersistence(context))
-        val configuration = MdbListConfiguration(BuildConfig.MDBLIST_CLIENT_ID, BuildConfig.VERSION_NAME)
+        val configuration =
+            MdbListConfiguration(BuildConfig.MDBLIST_CLIENT_ID, BuildConfig.VERSION_NAME)
         val engine = OkHttpMdbListEngine(
-            OkHttpClient.Builder().connectTimeout(15, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS)
-                .callTimeout(45, TimeUnit.SECONDS).build(), configuration
+            OkHttpClient.Builder().connectTimeout(
+                15,
+                TimeUnit.SECONDS
+            ).readTimeout(30, TimeUnit.SECONDS)
+                .callTimeout(45, TimeUnit.SECONDS).build(),
+            configuration
         )
         val responses = mutableListOf<JsonObject>()
         val report = File(context.getExternalFilesDir(null), "mdblist-live-read-report.json")
-        val http = MdbListHttpClient(MdbListHttpEngine { request ->
-            engine.execute(request).also { response ->
-                if (request.method == MdbListHttpMethod.GET) {
-                    responses += buildJsonObject {
-                        put("path", request.path)
-                        put("status", response.status)
-                        put("shape", shape(Json.parseToJsonElement(response.body)))
-                        if (request.path == "/sync/last_activities") {
-                            put("serverTime", Json.parseToJsonElement(response.body).jsonObject["server_time"] ?: JsonNull)
+        val http = MdbListHttpClient(
+            MdbListHttpEngine { request ->
+                engine.execute(request).also { response ->
+                    if (request.method == MdbListHttpMethod.GET) {
+                        responses += buildJsonObject {
+                            put("path", request.path)
+                            put("status", response.status)
+                            put("shape", shape(Json.parseToJsonElement(response.body)))
+                            if (request.path == "/sync/last_activities") {
+                                put(
+                                    "serverTime",
+                                    Json.parseToJsonElement(response.body).jsonObject["server_time"]
+                                        ?: JsonNull
+                                )
+                            }
                         }
+                        report.writeText(JsonArray(responses).toString())
                     }
-                    report.writeText(JsonArray(responses).toString())
                 }
             }
-        })
+        )
         val auth = MdbListAuthRepository(http, configuration, store)
         if (!store.state.value.isAuthenticated) {
             val deviceFile = File(context.getExternalFilesDir(null), "mdblist-live-device.json")
@@ -65,9 +76,11 @@ class MdbListLiveAccountTest {
                     device.getValue("verification_uri").jsonPrimitive.content,
                     device.getValue("verification_uri_complete").jsonPrimitive.content,
                     now + device.getValue("expires_in").jsonPrimitive.long * 1_000,
-                    device.getValue("interval").jsonPrimitive.long.toInt(), 0
+                    device.getValue("interval").jsonPrimitive.long.toInt(),
+                    0
                 ),
-                device.getValue("device_code").jsonPrimitive.content, scope
+                device.getValue("device_code").jsonPrimitive.content,
+                scope
             )
             assertTrue(auth.pollDeviceAuthorization() == MdbListDevicePollResult.Authorized)
             deviceFile.delete()
@@ -83,23 +96,38 @@ class MdbListLiveAccountTest {
         assertTrue(snapshot.isInitialized)
         val projection = MdbListProgressProjection(snapshot)
         val journal = snapshot.watermark?.let { remote.journal(it) }
-        report.writeText(buildJsonObject {
-            put("authorized", store.state.value.isAuthenticated)
-            put("refreshed", true)
-            put("watched", snapshot.watched.size)
-            put("paused", snapshot.playback.size)
-            put("dropped", snapshot.dropped.size)
-            put("continueWatching", projection.progress.size)
-            put("nextUpSeeds", projection.nextUp(true).size)
-            put("journalItems", journal?.items?.size ?: 0)
-            put("responses", JsonArray(responses))
-        }.toString())
+        report.writeText(
+            buildJsonObject {
+                put("authorized", store.state.value.isAuthenticated)
+                put("refreshed", true)
+                put("watched", snapshot.watched.size)
+                put("paused", snapshot.playback.size)
+                put("dropped", snapshot.dropped.size)
+                put("continueWatching", projection.progress.size)
+                put("nextUpSeeds", projection.nextUp(true).size)
+                put("journalItems", journal?.items?.size ?: 0)
+                put("responses", JsonArray(responses))
+            }.toString()
+        )
     }
 
     private fun shape(element: JsonElement): JsonElement = when (element) {
         JsonNull -> JsonPrimitive("null")
+
         is JsonObject -> JsonObject(element.mapValues { shape(it.value) })
+
         is JsonArray -> JsonArray(element.take(3).map(::shape))
-        is JsonPrimitive -> JsonPrimitive(if (element.isString) "string" else if (element.contentOrNull in setOf("true", "false")) "boolean" else "number")
+
+        is JsonPrimitive -> JsonPrimitive(
+            if (element.isString) {
+                "string"
+            } else if (element.contentOrNull in
+                setOf("true", "false")
+            ) {
+                "boolean"
+            } else {
+                "number"
+            }
+        )
     }
 }

@@ -114,7 +114,9 @@ internal fun RatingPanel(
     viewModel: RatingViewModel = hiltViewModel()
 ) {
     val current = state.rating
-    var value by remember { mutableIntStateOf(current?.roundToInt()?.coerceIn(0, TrackingRatings.MAX) ?: 0) }
+    var value by remember {
+        mutableIntStateOf(current?.roundToInt()?.coerceIn(0, TrackingRatings.MAX) ?: 0)
+    }
     var saving by remember { mutableStateOf(false) }
     val provider = state.provider?.let { trackingProviderName(it) }.orEmpty()
     val starsFocusRequester = remember { FocusRequester() }
@@ -180,7 +182,13 @@ internal fun RatingPanel(
 @Composable
 private fun RatingScore(value: Int) {
     val color by animateColorAsState(
-        targetValue = if (value > 0) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextTertiary,
+        targetValue = if (value >
+            0
+        ) {
+            MoviesTheme.colors.TextPrimary
+        } else {
+            MoviesTheme.colors.TextTertiary
+        },
         animationSpec = ExpressiveMotion.defaultEffects(),
         label = "rating_score_color"
     )
@@ -204,7 +212,10 @@ private fun RatingScore(value: Int) {
         ) { score ->
             Text(
                 text = if (score > 0) score.toString() else "–",
-                style = MaterialTheme.typography.displayMedium.copy(fontSize = 64.sp, lineHeight = 68.sp),
+                style = MaterialTheme.typography.displayMedium.copy(
+                    fontSize = 64.sp,
+                    lineHeight = 68.sp
+                ),
                 fontWeight = if (score > 0) FontWeight.Bold else FontWeight.Light,
                 color = color
             )
@@ -220,8 +231,7 @@ private fun RatingScore(value: Int) {
 }
 
 @Composable
-internal fun trackingProviderName(provider: TrackingProviderId): String =
-    stringResource(trackingProviderNameRes(provider))
+internal fun trackingProviderName(provider: TrackingProviderId): String = stringResource(trackingProviderNameRes(provider))
 
 internal fun trackingProviderNameRes(provider: TrackingProviderId): Int = when (provider) {
     TrackingProviderId.TRAKT -> R.string.trakt_name
@@ -229,5 +239,10 @@ internal fun trackingProviderNameRes(provider: TrackingProviderId): Int = when (
     TrackingProviderId.MDBLIST -> R.string.mdblist_name
 }
 
-internal fun formatRating(value: Double): String =
-    if (value == floor(value)) value.toInt().toString() else String.format(Locale.getDefault(), "%.1f", value)
+internal fun formatRating(value: Double): String = if (value ==
+    floor(value)
+) {
+    value.toInt().toString()
+} else {
+    String.format(Locale.getDefault(), "%.1f", value)
+}

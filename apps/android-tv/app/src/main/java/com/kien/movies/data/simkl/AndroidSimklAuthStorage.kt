@@ -6,8 +6,8 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import com.kien.movies.core.profile.ProfileScopedCredentialStore
-import dagger.hilt.android.qualifiers.ApplicationContext
 import com.kien.movies.data.local.ProfileDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -30,14 +30,22 @@ import kotlinx.serialization.json.Json
 class AndroidSimklAuthStorage @Inject constructor(
     @ApplicationContext context: Context,
     profileDataStore: ProfileDataStore
-) : SimklAuthStorage, ProfileScopedCredentialStore {
+) : SimklAuthStorage,
+    ProfileScopedCredentialStore {
     private val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true; explicitNulls = false }
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+            explicitNulls = false
+        }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val _state = MutableStateFlow(SimklAuthState())
     private val stateLock = Any()
+
     @Volatile
-    private var activeCredentials = ActiveCredentials(profileId = 1, generation = 0L, accessToken = null)
+    private var activeCredentials =
+        ActiveCredentials(profileId = 1, generation = 0L, accessToken = null)
 
     override val state: StateFlow<SimklAuthState> = _state.asStateFlow()
 
@@ -62,19 +70,17 @@ class AndroidSimklAuthStorage @Inject constructor(
         return SimklAuthorization(scope = current.scope(), accessToken = token)
     }
 
-    override fun savePinSession(session: SimklPinSession, scope: SimklAuthScope): Boolean =
-        mutate(scope) { current ->
-            val metadata = metadata().copy(pinSession = session)
-            saveMetadata(metadata, current.profileId)
-            publish(metadata = metadata)
-        }
+    override fun savePinSession(session: SimklPinSession, scope: SimklAuthScope): Boolean = mutate(scope) { current ->
+        val metadata = metadata().copy(pinSession = session)
+        saveMetadata(metadata, current.profileId)
+        publish(metadata = metadata)
+    }
 
-    override fun clearPinSession(error: SimklAuthError?, scope: SimklAuthScope): Boolean =
-        mutate(scope) { current ->
-            val metadata = metadata().copy(pinSession = null)
-            saveMetadata(metadata, current.profileId)
-            publish(metadata = metadata, error = error)
-        }
+    override fun clearPinSession(error: SimklAuthError?, scope: SimklAuthScope): Boolean = mutate(scope) { current ->
+        val metadata = metadata().copy(pinSession = null)
+        saveMetadata(metadata, current.profileId)
+        publish(metadata = metadata, error = error)
+    }
 
     override fun completePinAuthorization(token: String, scope: SimklAuthScope): Boolean {
         val normalized = token.trim().takeIf(String::isNotBlank) ?: return false
@@ -98,7 +104,8 @@ class AndroidSimklAuthStorage @Inject constructor(
             username = username,
             accountId = accountId,
             hasFetchedUserSettings = true,
-            settingsActivityWatermark = settingsActivityWatermark ?: stored.settingsActivityWatermark
+            settingsActivityWatermark =
+                settingsActivityWatermark ?: stored.settingsActivityWatermark
         )
         saveMetadata(metadata, current.profileId)
         publish(metadata = metadata)
@@ -139,7 +146,8 @@ class AndroidSimklAuthStorage @Inject constructor(
         synchronized(stateLock) {
             val current = activeCredentials
             if (profileId == current.profileId) {
-                activeCredentials = current.copy(generation = current.generation + 1L, accessToken = null)
+                activeCredentials =
+                    current.copy(generation = current.generation + 1L, accessToken = null)
                 publish(metadata = SimklStoredAuthMetadata())
             }
         }
@@ -149,7 +157,8 @@ class AndroidSimklAuthStorage @Inject constructor(
         preferences.edit().clear().apply()
         synchronized(stateLock) {
             val current = activeCredentials
-            activeCredentials = current.copy(generation = current.generation + 1L, accessToken = null)
+            activeCredentials =
+                current.copy(generation = current.generation + 1L, accessToken = null)
             publish(metadata = SimklStoredAuthMetadata())
         }
     }
@@ -211,14 +220,17 @@ class AndroidSimklAuthStorage @Inject constructor(
     private fun saveEncrypted(key: String, value: String?, profileId: Int) {
         val scopedKey = profileKey(key, profileId)
         val editor = preferences.edit()
-        if (value.isNullOrBlank()) editor.remove(scopedKey) else editor.putString(scopedKey, encrypt(value))
+        if (value.isNullOrBlank()) {
+            editor.remove(
+                scopedKey
+            )
+        } else {
+            editor.putString(scopedKey, encrypt(value))
+        }
         editor.apply()
     }
 
-    private fun mutate(
-        scope: SimklAuthScope,
-        block: (ActiveCredentials) -> Unit
-    ): Boolean = synchronized(stateLock) {
+    private fun mutate(scope: SimklAuthScope, block: (ActiveCredentials) -> Unit): Boolean = synchronized(stateLock) {
         val current = activeCredentials
         if (current.scope() != scope) return@synchronized false
         block(current)

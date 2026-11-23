@@ -10,14 +10,22 @@ class Http1OnlyTest {
 
     @Test
     fun `playback clients speak http 1_1 only`() {
-        val client = MoviesExoPlayerPerformanceHelper.applyNetworkOptimizations(OkHttpClient.Builder()).build()
+        val client = MoviesExoPlayerPerformanceHelper.applyNetworkOptimizations(
+            OkHttpClient.Builder()
+        ).build()
         assertEquals(listOf(Protocol.HTTP_1_1), client.protocols)
         assertSame(MoviesExoPlayerPerformanceHelper.sharedConnectionPool, client.connectionPool)
     }
 
     @Test
     fun `base playback clients and the tls fallback speak http 1_1 only`() {
-        assertEquals(listOf(Protocol.HTTP_1_1), PlayerPlaybackNetworking.playbackHttpClient.protocols)
-        assertEquals(listOf(Protocol.HTTP_1_1), PlayerPlaybackNetworking.trustAllPlaybackHttpClient.protocols)
+        assertEquals(
+            listOf(Protocol.HTTP_1_1),
+            PlayerPlaybackNetworking.playbackHttpClient.protocols
+        )
+        assertEquals(
+            listOf(Protocol.HTTP_1_1),
+            PlayerPlaybackNetworking.trustAllPlaybackHttpClient.protocols
+        )
     }
 }

@@ -45,11 +45,7 @@ fun absoluteAnimeEpisodeNumber(videoId: String): Int? {
  * Absolute anime IDs force `season = null` and the absolute episode number so
  * providers that store flat episode lists resolve the correct entry.
  */
-fun resolvePluginSeasonEpisode(
-    videoId: String,
-    season: Int?,
-    episode: Int?
-): Pair<Int?, Int?> {
+fun resolvePluginSeasonEpisode(videoId: String, season: Int?, episode: Int?): Pair<Int?, Int?> {
     val absolute = absoluteAnimeEpisodeNumber(videoId)
     return if (absolute != null) {
         null to absolute
@@ -69,11 +65,7 @@ fun resolvePluginSeasonEpisode(
  * - Absolute requests (`season == null`) prefer season-less entries, then any
  *   entry with that episode number (some absolute catalogs tag every row as S1).
  */
-fun matchPluginEpisodeIndex(
-    entries: List<Pair<Int?, Int?>>,
-    season: Int?,
-    episode: Int?
-): Int? {
+fun matchPluginEpisodeIndex(entries: List<Pair<Int?, Int?>>, season: Int?, episode: Int?): Int? {
     if (entries.isEmpty() || episode == null) return null
 
     if (season != null) {

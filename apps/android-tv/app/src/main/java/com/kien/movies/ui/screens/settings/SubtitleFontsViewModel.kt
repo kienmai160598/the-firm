@@ -16,6 +16,7 @@ import com.kien.movies.core.util.withAppLocale
 import com.kien.movies.data.local.PlayerSettingsDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 data class SubtitleFontImportState(
     val isActive: Boolean = false,
@@ -49,7 +49,11 @@ class SubtitleFontsViewModel @Inject constructor(
     fun remove(font: SubtitleFont, selectedFontId: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) { store.remove(font.id) }
-            if (selectedFontId == font.id) playerSettingsDataStore.setSubtitleFontId(SubtitleFonts.DEFAULT)
+            if (selectedFontId ==
+                font.id
+            ) {
+                playerSettingsDataStore.setSubtitleFontId(SubtitleFonts.DEFAULT)
+            }
         }
     }
 

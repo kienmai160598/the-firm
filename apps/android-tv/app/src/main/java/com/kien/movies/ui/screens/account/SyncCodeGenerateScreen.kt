@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.account
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,12 +32,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.screens.settings.TenFootTypography
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 fun SyncCodeGenerateScreen(
@@ -52,7 +51,7 @@ fun SyncCodeGenerateScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Box(
-            modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -128,7 +127,10 @@ fun SyncCodeGenerateScreen(
                     modifier = Modifier.fillMaxWidth(),
                     style = MoviesButtonStyle.Primary
                 ) {
-                    Text(stringResource(R.string.sync_generate_done), modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs))
+                    Text(
+                        stringResource(R.string.sync_generate_done),
+                        modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs)
+                    )
                 }
             } else {
                 // PIN input form
@@ -170,7 +172,13 @@ fun SyncCodeGenerateScreen(
                     style = MoviesButtonStyle.Primary
                 ) {
                     Text(
-                        text = if (uiState.isLoading) stringResource(R.string.sync_generate_generating) else stringResource(R.string.sync_generate_code_btn),
+                        text = if (uiState.isLoading) {
+                            stringResource(
+                                R.string.sync_generate_generating
+                            )
+                        } else {
+                            stringResource(R.string.sync_generate_code_btn)
+                        },
                         modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs),
                         fontWeight = FontWeight.Medium
                     )

@@ -16,14 +16,14 @@ import com.kien.movies.domain.model.PosterShape
 import com.kien.movies.domain.model.SavedLibraryItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import kotlin.random.Random
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import kotlin.random.Random
 
 @HiltViewModel
 class DebugSettingsViewModel @Inject constructor(
@@ -73,27 +73,37 @@ class DebugSettingsViewModel @Inject constructor(
             is DebugSettingsEvent.ToggleAccountTab -> {
                 viewModelScope.launch { dataStore.setAccountTabEnabled(event.enabled) }
             }
+
             is DebugSettingsEvent.ToggleSyncCodeFeatures -> {
                 viewModelScope.launch { dataStore.setSyncCodeFeaturesEnabled(event.enabled) }
             }
+
             is DebugSettingsEvent.SelectMemberTier -> {
                 viewModelScope.launch {
-                    val shouldSelectDefaultTheme = _uiState.value.memberTier == null && event.tier != null
+                    val shouldSelectDefaultTheme =
+                        _uiState.value.memberTier == null && event.tier != null
                     dataStore.setMemberTier(event.tier)
                     if (shouldSelectDefaultTheme) {
                         themeDataStore.setTheme(AppTheme.GOLD)
                     }
                 }
             }
+
             is DebugSettingsEvent.ToggleComposeHighlighter -> {
-                viewModelScope.launch { layoutPreferenceDataStore.setComposeHighlighterEnabled(event.enabled) }
+                viewModelScope.launch {
+                    layoutPreferenceDataStore.setComposeHighlighterEnabled(event.enabled)
+                }
             }
+
             is DebugSettingsEvent.ToggleBufferLogs -> {
                 viewModelScope.launch { playerSettingsDataStore.setEnableBufferLogs(event.enabled) }
             }
+
             is DebugSettingsEvent.GenerateLibraryItems -> {
                 viewModelScope.launch {
-                    _uiState.update { it.copy(generateLibraryLoading = true, generateLibraryResult = null) }
+                    _uiState.update {
+                        it.copy(generateLibraryLoading = true, generateLibraryResult = null)
+                    }
                     try {
                         generateRandomLibraryItems(event.count)
                         _uiState.update {
@@ -109,12 +119,16 @@ class DebugSettingsViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 generateLibraryLoading = false,
-                                generateLibraryResult = context.getString(R.string.debug_generate_result_failed, e.message ?: "")
+                                generateLibraryResult = context.getString(
+                                    R.string.debug_generate_result_failed,
+                                    e.message ?: ""
+                                )
                             )
                         }
                     }
                 }
             }
+
             is DebugSettingsEvent.SignIn -> {
                 viewModelScope.launch {
                     _uiState.update { it.copy(signInLoading = true, signInResult = null) }
@@ -122,7 +136,14 @@ class DebugSettingsViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             signInLoading = false,
-                            signInResult = if (result.isSuccess) context.getString(R.string.debug_signin_success) else context.getString(R.string.debug_generate_result_failed, result.exceptionOrNull()?.message ?: "")
+                            signInResult = if (result.isSuccess) {
+                                context.getString(R.string.debug_signin_success)
+                            } else {
+                                context.getString(
+                                    R.string.debug_generate_result_failed,
+                                    result.exceptionOrNull()?.message ?: ""
+                                )
+                            }
                         )
                     }
                 }
@@ -148,7 +169,8 @@ class DebugSettingsViewModel @Inject constructor(
             "Succession", "Dark", "The Expanse", "Black Mirror", "Mr. Robot",
             "Mindhunter", "The Crown", "Fleabag", "Sherlock"
         )
-        val genres = listOf("Action", "Drama", "Comedy", "Thriller", "Sci-Fi", "Horror", "Romance", "Adventure", "Crime", "Fantasy")
+        val genres =
+            listOf("Action", "Drama", "Comedy", "Thriller", "Sci-Fi", "Horror", "Romance", "Adventure", "Crime", "Fantasy")
         val years = (1990..2025).toList()
 
         for (i in 1..count) {

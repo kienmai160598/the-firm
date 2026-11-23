@@ -2,9 +2,9 @@ package com.kien.movies.core.debrid
 
 import com.kien.movies.data.local.DebridSettingsDataStore
 import com.kien.movies.data.remote.api.TorboxApi
-import com.kien.movies.data.remote.dto.TorboxCloudItemDto
 import com.kien.movies.data.remote.dto.TorboxCachedItemDto
 import com.kien.movies.data.remote.dto.TorboxCheckCachedRequestDto
+import com.kien.movies.data.remote.dto.TorboxCloudItemDto
 import com.kien.movies.data.remote.dto.TorboxCreateTorrentDataDto
 import com.kien.movies.data.remote.dto.TorboxDeviceAuthorizationDto
 import com.kien.movies.data.remote.dto.TorboxDeviceTokenDto
@@ -50,7 +50,9 @@ class TorboxDirectDebridResolverTest {
                     )
                 )
             ),
-            linkResponse = Response.success(TorboxEnvelopeDto(success = true, data = "https://cdn.example/right.mkv"))
+            linkResponse = Response.success(
+                TorboxEnvelopeDto(success = true, data = "https://cdn.example/right.mkv")
+            )
         )
         val resolver = resolver(api)
 
@@ -128,9 +130,9 @@ class TorboxDirectDebridResolverTest {
         TorboxTorrentFileDto(
             id = 3,
             name = "Sentenced to Be a Hero - S01E01 (BD 1080p x265 Opus) [Dual Audio] [PMR].mkv",
-            size = 12_359_794_201L,
+            size = 12_359_794_201L
         ),
-        TorboxTorrentFileDto(id = 4, name = pmrFilename, size = 4_817_912_734L),
+        TorboxTorrentFileDto(id = 4, name = pmrFilename, size = 4_817_912_734L)
     )
 
     private fun pmrStream(): Stream {
@@ -143,7 +145,7 @@ class TorboxDirectDebridResolverTest {
                 filename = pmrFilename,
                 mediaType = "series",
                 season = 1,
-                episode = 2,
+                episode = 2
             )
         )
     }
@@ -157,7 +159,7 @@ class TorboxDirectDebridResolverTest {
         ),
         linkResponse = Response.success(
             TorboxEnvelopeDto(success = true, data = "https://cdn.example/episode-two.mkv")
-        ),
+        )
     )
 
     private fun resolver(api: TorboxApi): TorboxDirectDebridResolver {
@@ -231,13 +233,17 @@ class TorboxDirectDebridResolverTest {
         override suspend fun startDeviceAuthorization(
             appName: String
         ): Response<TorboxEnvelopeDto<TorboxDeviceAuthorizationDto>> {
-            return Response.success(TorboxEnvelopeDto(success = true, data = TorboxDeviceAuthorizationDto()))
+            return Response.success(
+                TorboxEnvelopeDto(success = true, data = TorboxDeviceAuthorizationDto())
+            )
         }
 
         override suspend fun redeemDeviceAuthorization(
             body: TorboxDeviceTokenRequestDto
         ): Response<TorboxEnvelopeDto<TorboxDeviceTokenDto>> {
-            return Response.success(TorboxEnvelopeDto(success = true, data = TorboxDeviceTokenDto()))
+            return Response.success(
+                TorboxEnvelopeDto(success = true, data = TorboxDeviceTokenDto())
+            )
         }
 
         override suspend fun checkCached(

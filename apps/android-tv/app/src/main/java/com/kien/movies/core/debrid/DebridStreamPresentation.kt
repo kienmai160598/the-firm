@@ -3,18 +3,18 @@ package com.kien.movies.core.debrid
 import com.kien.movies.core.streams.CompiledStreamBadgeFilter
 import com.kien.movies.core.streams.StreamBadgeMatcher
 import com.kien.movies.core.streams.StreamBadgeRules
-import com.kien.movies.data.local.StreamBadgeSettingsDataStore
 import com.kien.movies.data.local.DebridSettingsDataStore
+import com.kien.movies.data.local.StreamBadgeSettingsDataStore
 import com.kien.movies.domain.model.AddonStreams
 import com.kien.movies.domain.model.DebridSettings
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.StreamDebridCacheState
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 
 @Singleton
 class DebridStreamPresentation @Inject constructor(
@@ -22,7 +22,8 @@ class DebridStreamPresentation @Inject constructor(
     private val streamBadgeSettingsDataStore: StreamBadgeSettingsDataStore,
     private val formatter: DebridStreamFormatter
 ) {
-    private val badgeFilterCache = AtomicReference<Pair<StreamBadgeRules, List<CompiledStreamBadgeFilter>>?>()
+    private val badgeFilterCache =
+        AtomicReference<Pair<StreamBadgeRules, List<CompiledStreamBadgeFilter>>?>()
 
     suspend fun apply(
         groups: List<AddonStreams>,
@@ -55,9 +56,14 @@ class DebridStreamPresentation @Inject constructor(
             val debridStreams = visibleStreams.filter { stream -> stream.isManagedDebridStream() }
             if (debridStreams.isEmpty()) return@map group.copy(streams = visibleStreams)
 
-            val presentedDebridStreams = DirectDebridStreamFilter.applyPreferencesWithFacts(debridStreams, settings)
+            val presentedDebridStreams = DirectDebridStreamFilter.applyPreferencesWithFacts(
+                debridStreams,
+                settings
+            )
                 .map { (stream, facts) -> formatter.format(stream, settings, badgeFilters, facts) }
-            val passthroughStreams = visibleStreams.filterNot { stream -> stream.isManagedDebridStream() }
+            val passthroughStreams = visibleStreams.filterNot { stream ->
+                stream.isManagedDebridStream()
+            }
 
             group.copy(streams = presentedDebridStreams + passthroughStreams)
         }
@@ -76,15 +82,20 @@ class DebridStreamPresentation @Inject constructor(
         return isDirectDebrid() || (
             needsLocalDebridResolve() &&
                 status != null &&
-                DebridProviders.byId(status.providerId)?.supports(DebridProviderCapability.LocalTorrentCacheCheck) == true &&
+                DebridProviders.byId(
+                    status.providerId
+                )?.supports(DebridProviderCapability.LocalTorrentCacheCheck) ==
+                true &&
                 status.state != StreamDebridCacheState.CHECKING
             )
     }
 
-    private fun Stream.isUncachedDebridStream(): Boolean =
-        needsLocalDebridResolve() &&
-            DebridProviders.byId(debridCacheStatus?.providerId)?.supports(DebridProviderCapability.LocalTorrentCacheCheck) == true &&
-            debridCacheStatus?.state == StreamDebridCacheState.NOT_CACHED
+    private fun Stream.isUncachedDebridStream(): Boolean = needsLocalDebridResolve() &&
+        DebridProviders.byId(
+            debridCacheStatus?.providerId
+        )?.supports(DebridProviderCapability.LocalTorrentCacheCheck) ==
+        true &&
+        debridCacheStatus?.state == StreamDebridCacheState.NOT_CACHED
 
     private fun Stream.isInactiveResolverStream(settings: DebridSettings): Boolean {
         val streamProviderId = DebridProviders.byId(clientResolve?.service)?.id ?: return false

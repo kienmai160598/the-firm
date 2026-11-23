@@ -8,23 +8,25 @@ import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 
 @Singleton
-class PremiumizeCloudLibraryProviderApi @Inject constructor(
-    private val api: PremiumizeApi
-) : CloudLibraryProviderApi {
+class PremiumizeCloudLibraryProviderApi @Inject constructor(private val api: PremiumizeApi) : CloudLibraryProviderApi {
     override val provider = DebridProviders.Premiumize
 
-    override suspend fun listItems(apiKey: String): Result<List<CloudLibraryItem>> =
-        runCatching {
-            val response = api.listAllItems("Bearer $apiKey")
-            if (!response.isSuccessful || response.body()?.status.equals("error", ignoreCase = true)) {
-                throw IllegalStateException(response.body()?.message ?: response.body()?.code ?: response.errorBody()?.string().orEmpty().ifBlank { null })
-            }
-            premiumizeCloudItemsFromFiles(
-                files = response.body()?.files.orEmpty(),
-                providerId = provider.id,
-                providerName = provider.displayName
+    override suspend fun listItems(apiKey: String): Result<List<CloudLibraryItem>> = runCatching {
+        val response = api.listAllItems("Bearer $apiKey")
+        if (!response.isSuccessful ||
+            response.body()?.status.equals("error", ignoreCase = true)
+        ) {
+            throw IllegalStateException(
+                response.body()?.message ?: response.body()?.code
+                    ?: response.errorBody()?.string().orEmpty().ifBlank { null }
             )
         }
+        premiumizeCloudItemsFromFiles(
+            files = response.body()?.files.orEmpty(),
+            providerId = provider.id,
+            providerName = provider.displayName
+        )
+    }
 
     override suspend fun resolvePlayback(
         apiKey: String,
@@ -40,18 +42,24 @@ class PremiumizeCloudLibraryProviderApi @Inject constructor(
             )
         }
 
-        val fileId = file.id?.takeIf { it.isNotBlank() } ?: return CloudLibraryPlaybackResult.Failed()
+        val fileId =
+            file.id?.takeIf { it.isNotBlank() } ?: return CloudLibraryPlaybackResult.Failed()
         return try {
             val response = api.itemDetails(authorization = "Bearer $apiKey", itemId = fileId)
-            if (!response.isSuccessful || response.body()?.status.equals("error", ignoreCase = true)) {
-                return CloudLibraryPlaybackResult.Failed(response.body()?.message ?: response.body()?.code)
+            if (!response.isSuccessful ||
+                response.body()?.status.equals("error", ignoreCase = true)
+            ) {
+                return CloudLibraryPlaybackResult.Failed(
+                    response.body()?.message ?: response.body()?.code
+                )
             }
             val body = response.body()
             val url = body?.link?.takeIf { it.isNotBlank() }
                 ?: return CloudLibraryPlaybackResult.Failed()
             CloudLibraryPlaybackResult.Success(
                 url = url,
-                filename = body.name?.takeIf { it.isNotBlank() } ?: file.name.takeIf { it.isNotBlank() },
+                filename =
+                    body.name?.takeIf { it.isNotBlank() } ?: file.name.takeIf { it.isNotBlank() },
                 videoSizeBytes = body.size ?: file.sizeBytes
             )
         } catch (error: Exception) {
@@ -75,7 +83,11 @@ fun premiumizeCloudItemsFromFiles(
             val first = group.firstOrNull() ?: return@mapNotNull null
             val cloudFiles = group
                 .map { it.file }
-                .sortedWith(compareBy<CloudLibraryFile> { !it.playable }.thenBy { it.name.lowercase() })
+                .sortedWith(
+                    compareBy<CloudLibraryFile> {
+                        !it.playable
+                    }.thenBy { it.name.lowercase() }
+                )
             val size = cloudFiles
                 .mapNotNull { it.sizeBytes }
                 .takeIf { it.isNotEmpty() }
@@ -137,8 +149,7 @@ private fun PremiumizeCloudFileDto.toPremiumizeCloudFile(): PremiumizeMappedClou
     )
 }
 
-private fun String.pathBasename(): String =
-    substringAfterLast('/').substringAfterLast('\\')
+private fun String.pathBasename(): String = substringAfterLast('/').substringAfterLast('\\')
 
 private fun isPlayablePremiumizeCloudFile(name: String, mimeType: String?): Boolean {
     val normalizedMime = mimeType?.lowercase().orEmpty()

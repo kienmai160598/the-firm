@@ -13,9 +13,19 @@ class TrackingProviderRegistryTest {
         val trakt = FakeProvider(TrackingProviderId.TRAKT, authenticated = false, scrobble = true)
         val registry = TrackingProviderRegistry(listOf(simkl, trakt))
 
-        assertEquals(listOf(TrackingProviderId.TRAKT, TrackingProviderId.SIMKL), registry.providers().map { it.descriptor.id })
+        assertEquals(
+            listOf(TrackingProviderId.TRAKT, TrackingProviderId.SIMKL),
+            registry.providers().map {
+                it.descriptor.id
+            }
+        )
         assertEquals(setOf(TrackingProviderId.SIMKL), registry.connectedProviderIds())
-        assertEquals(listOf(TrackingProviderId.SIMKL), registry.connectedScrobblers().map { it.providerId })
+        assertEquals(
+            listOf(TrackingProviderId.SIMKL),
+            registry.connectedScrobblers().map {
+                it.providerId
+            }
+        )
         assertFalse(registry.isAuthenticated(TrackingProviderId.TRAKT))
         assertTrue(registry.isAuthenticated(TrackingProviderId.SIMKL))
     }
@@ -41,9 +51,14 @@ class TrackingProviderRegistryTest {
             capabilities = if (scrobble) setOf(TrackingCapability.SCROBBLE) else emptySet()
         )
         override val isAuthenticated = MutableStateFlow(authenticated)
-        override val scrobbler = if (scrobble) object : TrackingScrobbler {
-            override val providerId = id
-            override suspend fun scrobble(action: TrackingScrobbleAction, event: TrackingScrobbleEvent) = Unit
+        override val scrobbler = if (scrobble) {
+            object : TrackingScrobbler {
+                override val providerId = id
+                override suspend fun scrobble(
+                    action: TrackingScrobbleAction,
+                    event: TrackingScrobbleEvent
+                ) = Unit
+            }
         } else {
             null
         }

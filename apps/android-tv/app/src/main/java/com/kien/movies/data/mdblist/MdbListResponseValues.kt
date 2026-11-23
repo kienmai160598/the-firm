@@ -19,8 +19,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 
-internal fun mdbListResponseElement(body: String): JsonElement =
-    runCatching { Json.parseToJsonElement(body) }.getOrElse { throw MdbListDecodingException() }
+internal fun mdbListResponseElement(body: String): JsonElement = runCatching { Json.parseToJsonElement(body) }.getOrElse { throw MdbListDecodingException() }
 
 internal fun JsonElement.objectValue(): JsonObject = this as? JsonObject ?: throw MdbListDecodingException()
 internal fun JsonObject.objectValue(name: String): JsonObject? = when (val value = get(name)) {
@@ -50,12 +49,15 @@ private val mdbListLocalTimestamp = DateTimeFormatterBuilder()
     .optionalEnd()
     .toFormatter()
 
-internal fun mdbListTimestamp(value: String): Long =
-    parseMdbListTimestampFast(value) ?: parseMdbListTimestampSlow(value)
+internal fun mdbListTimestamp(value: String): Long = parseMdbListTimestampFast(value) ?: parseMdbListTimestampSlow(value)
 
-private fun parseMdbListTimestampSlow(value: String): Long = runCatching { Instant.parse(value).toEpochMilli() }
+private fun parseMdbListTimestampSlow(value: String): Long = runCatching {
+    Instant.parse(value).toEpochMilli()
+}
     .recoverCatching { OffsetDateTime.parse(value).toInstant().toEpochMilli() }
-    .recoverCatching { LocalDateTime.parse(value, mdbListLocalTimestamp).toInstant(ZoneOffset.UTC).toEpochMilli() }
+    .recoverCatching {
+        LocalDateTime.parse(value, mdbListLocalTimestamp).toInstant(ZoneOffset.UTC).toEpochMilli()
+    }
     .getOrElse { throw MdbListDecodingException() }
 
 private fun parseMdbListTimestampFast(text: String): Long? {
@@ -86,11 +88,14 @@ private fun parseMdbListTimestampFast(text: String): Long? {
     }
     val offsetSeconds = when {
         index == length -> if (separator == ' ') 0L else return null
+
         separator == ' ' -> return null
+
         text[index] == 'Z' || text[index] == 'z' -> {
             if (index != length - 1) return null
             0L
         }
+
         text[index] == '+' || text[index] == '-' -> {
             if (length - index != 6 || text[index + 3] != ':') return null
             val zoneHour = decimalAt(text, index + 1, 2)
@@ -100,9 +105,11 @@ private fun parseMdbListTimestampFast(text: String): Long? {
             val magnitude = zoneHour * 3_600L + zoneMinute * 60L
             if (text[index] == '-') -magnitude else magnitude
         }
+
         else -> return null
     }
-    val localSeconds = daysSinceEpoch(year, month, day) * 86_400L + hour * 3_600L + minute * 60L + second
+    val localSeconds =
+        daysSinceEpoch(year, month, day) * 86_400L + hour * 3_600L + minute * 60L + second
     return (localSeconds - offsetSeconds) * 1_000L + millis
 }
 
@@ -151,14 +158,21 @@ internal fun <T> mdbListPage(value: JsonObject, items: List<T>): MdbListPage<T> 
     val offset = pagination.number("offset")
     val limit = pagination.number("limit")
     val total = pagination.number("total")
-    val hasMore = pagination.flag("has_more") ?: if (offset != null && limit != null && total != null) {
-        offset + limit < total
-    } else false
+    val hasMore =
+        pagination.flag("has_more") ?: if (offset != null && limit != null && total != null) {
+            offset + limit < total
+        } else {
+            false
+        }
     val nextOffset = if (hasMore == true && cursor == null) {
-        if (offset == null || offset < 0L || limit == null || limit < 1L || offset + limit > Int.MAX_VALUE) {
+        if (offset == null || offset < 0L || limit == null || limit < 1L ||
+            offset + limit > Int.MAX_VALUE
+        ) {
             throw MdbListDecodingException()
         }
         (offset + limit).toInt()
-    } else null
+    } else {
+        null
+    }
     return MdbListPage(items, cursor, nextOffset, value.timestamp("server_time"))
 }

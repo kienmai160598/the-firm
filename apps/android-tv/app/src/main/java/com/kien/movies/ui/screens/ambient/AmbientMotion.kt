@@ -22,8 +22,7 @@ internal val ambientMotions = listOf(
     AmbientMotion(startScale = 1.02f, endScale = 1.08f, endX = 0.025f, endY = 0.02f)
 )
 
-internal fun nextAmbientMotion(previous: AmbientMotion?): AmbientMotion =
-    ambientMotions.filter { it != previous }.random()
+internal fun nextAmbientMotion(previous: AmbientMotion?): AmbientMotion = ambientMotions.filter { it != previous }.random()
 
 internal fun GraphicsLayerScope.applyAmbientMotion(motion: AmbientMotion, progress: Float) {
     val scale = lerp(motion.startScale, motion.endScale, progress)

@@ -29,17 +29,17 @@ import io.github.jan.supabase.realtime.websocket.KtorRealtimeWebsocketFactory
 import io.github.jan.supabase.storage.Storage
 import io.github.jan.supabase.storage.storage
 import io.github.jan.supabase.supabaseJson
-import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.statement.request
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -54,9 +54,7 @@ object SupabaseModule {
     @Provides
     @Singleton
     @OptIn(SupabaseInternal::class)
-    fun provideSupabaseClient(
-        serverConfiguration: ServerConfiguration
-    ): SupabaseClient = runBlocking(Dispatchers.IO) {
+    fun provideSupabaseClient(serverConfiguration: ServerConfiguration): SupabaseClient = runBlocking(Dispatchers.IO) {
         val userAgent = "Movies/${BuildConfig.VERSION_NAME.ifBlank { "dev" }}"
         val rateLimitCoordinator = BackendRateLimitCoordinator()
         lateinit var client: SupabaseClient
@@ -77,7 +75,9 @@ object SupabaseModule {
                     }
                     delayMillis(respectRetryAfterHeader = false) { retryCount ->
                         val retryResponse = response
-                        if (retryResponse != null && isRetryableBackendResponse(retryResponse.status.value)) {
+                        if (retryResponse != null &&
+                            isRetryableBackendResponse(retryResponse.status.value)
+                        ) {
                             backendRetryDelayMillis(
                                 retryCount = retryCount,
                                 retryAfterHeader = retryResponse.headers[HttpHeaders.RetryAfter]
@@ -128,7 +128,6 @@ object SupabaseModule {
         }
         client
     }
-
 
     @Provides
     @Singleton

@@ -19,12 +19,22 @@ class MdbListAuthRepository(
 
     fun hasRequiredCredentials(): Boolean = configuration.clientId.isNotBlank()
 
-    suspend fun startDeviceAuthorization(scope: MdbListAuthScope = store.scope()): MdbListDeviceSession = deviceMutex.withLock {
+    suspend fun startDeviceAuthorization(
+        scope: MdbListAuthScope = store.scope()
+    ): MdbListDeviceSession = deviceMutex.withLock {
         store.checkScope(scope)
-        if (!hasRequiredCredentials()) throw MdbListAuthException(MdbListAuthError.MISSING_CLIENT_ID)
+        if (!hasRequiredCredentials()) {
+            throw MdbListAuthException(
+                MdbListAuthError.MISSING_CLIENT_ID
+            )
+        }
         check(!state.value.isAuthenticated)
         val response = oauth("/oauth/device-authorization/", mapOf("scope" to "write"), scope)
-        if (response.status !in 200..299) throw MdbListApiException(response.status, response.errorCode())
+        if (response.status !in
+            200..299
+        ) {
+            throw MdbListApiException(response.status, response.errorCode())
+        }
         val payload = decode<MdbListDeviceResponse>(response.body)
         val deviceCode = payload.deviceCode?.takeIf(String::isNotBlank) ?: invalidResponse()
         val userCode = payload.userCode?.takeIf(String::isNotBlank) ?: invalidResponse()
@@ -45,7 +55,9 @@ class MdbListAuthRepository(
         session
     }
 
-    suspend fun pollDeviceAuthorization(scope: MdbListAuthScope = store.scope()): MdbListDevicePollResult = deviceMutex.withLock {
+    suspend fun pollDeviceAuthorization(
+        scope: MdbListAuthScope = store.scope()
+    ): MdbListDevicePollResult = deviceMutex.withLock {
         store.checkScope(scope)
         val current = state.value
         val session = current.session ?: scopeChanged()
@@ -56,12 +68,23 @@ class MdbListAuthRepository(
         }
         if (now < session.nextPollAtEpochMs) return@withLock MdbListDevicePollResult.Pending
         val deviceCode = store.deviceCode(scope) ?: scopeChanged()
-        if (!store.updateSession(session.copy(nextPollAtEpochMs = now + session.intervalSeconds * 1_000L), scope)) {
+        if (!store.updateSession(
+                session.copy(
+                    nextPollAtEpochMs =
+                        now + session.intervalSeconds * 1_000L
+                ),
+                scope
+            )
+        ) {
             scopeChanged()
         }
         val response = oauth(
             "/oauth/token/",
-            mapOf("grant_type" to "urn:ietf:params:oauth:grant-type:device_code", "device_code" to deviceCode, "scope" to "write"),
+            mapOf(
+                "grant_type" to "urn:ietf:params:oauth:grant-type:device_code",
+                "device_code" to deviceCode,
+                "scope" to "write"
+            ),
             scope
         )
         if (response.status in 200..299) {
@@ -71,22 +94,30 @@ class MdbListAuthRepository(
         }
         when (response.errorCode()) {
             "authorization_pending" -> MdbListDevicePollResult.Pending
+
             "slow_down" -> {
                 val interval = (session.intervalSeconds + 5).coerceAtMost(3_600)
                 store.updateSession(
-                    session.copy(intervalSeconds = interval, nextPollAtEpochMs = nowEpochMs() + interval * 1_000L),
+                    session.copy(
+                        intervalSeconds = interval,
+                        nextPollAtEpochMs =
+                            nowEpochMs() + interval * 1_000L
+                    ),
                     scope
                 )
                 MdbListDevicePollResult.Pending
             }
+
             "access_denied" -> {
                 store.cancelSession(MdbListAuthError.ACCESS_DENIED, scope)
                 MdbListDevicePollResult.Denied
             }
+
             "expired_token" -> {
                 store.cancelSession(MdbListAuthError.CODE_EXPIRED, scope)
                 MdbListDevicePollResult.Expired
             }
+
             else -> throw MdbListApiException(response.status, response.errorCode())
         }
     }
@@ -100,9 +131,17 @@ class MdbListAuthRepository(
         rejectedAccessToken: String? = null
     ): MdbListAuthorization = refreshMutex.withLock {
         store.checkScope(scope)
-        val current = store.authorization() ?: throw MdbListAuthException(MdbListAuthError.AUTHORIZATION_REVOKED)
-        if (rejectedAccessToken != null && current.tokens.accessToken != rejectedAccessToken) return@withLock current
-        if (rejectedAccessToken == null && current.tokens.expiresAtEpochMs - nowEpochMs() > 60_000L) {
+        val current =
+            store.authorization()
+                ?: throw MdbListAuthException(MdbListAuthError.AUTHORIZATION_REVOKED)
+        if (rejectedAccessToken != null &&
+            current.tokens.accessToken != rejectedAccessToken
+        ) {
+            return@withLock current
+        }
+        if (rejectedAccessToken == null &&
+            current.tokens.expiresAtEpochMs - nowEpochMs() > 60_000L
+        ) {
             return@withLock current
         }
         val response = oauth(
@@ -112,7 +151,11 @@ class MdbListAuthRepository(
         )
         if (response.status !in 200..299) {
             if (response.errorCode() in setOf("invalid_grant", "invalid_token")) {
-                store.clearAuth(scope, MdbListAuthError.AUTHORIZATION_REVOKED, current.tokens.accessToken)
+                store.clearAuth(
+                    scope,
+                    MdbListAuthError.AUTHORIZATION_REVOKED,
+                    current.tokens.accessToken
+                )
                 throw MdbListAuthException(MdbListAuthError.AUTHORIZATION_REVOKED)
             }
             throw MdbListApiException(response.status, response.errorCode())
@@ -148,21 +191,25 @@ class MdbListAuthRepository(
         }
     }
 
-    private suspend fun oauth(path: String, fields: Map<String, String>, scope: MdbListAuthScope) =
-        http.execute(
-            MdbListHttpRequest(
-                method = MdbListHttpMethod.POST,
-                path = path,
-                form = fields + ("client_id" to configuration.clientId),
-                limitKey = "oauth:${scope.profileId}"
-            ),
-            checkScope = { store.checkScope(scope) }
-        )
+    private suspend fun oauth(path: String, fields: Map<String, String>, scope: MdbListAuthScope) = http.execute(
+        MdbListHttpRequest(
+            method = MdbListHttpMethod.POST,
+            path = path,
+            form = fields + ("client_id" to configuration.clientId),
+            limitKey = "oauth:${scope.profileId}"
+        ),
+        checkScope = { store.checkScope(scope) }
+    )
 
-    private fun tokensFrom(response: MdbListHttpResponse, previousRefreshToken: String? = null): MdbListTokens {
+    private fun tokensFrom(
+        response: MdbListHttpResponse,
+        previousRefreshToken: String? = null
+    ): MdbListTokens {
         val payload = decode<MdbListTokenResponse>(response.body)
         val accessToken = payload.accessToken?.takeIf(String::isNotBlank) ?: invalidResponse()
-        val refreshToken = payload.refreshToken?.takeIf(String::isNotBlank) ?: previousRefreshToken ?: invalidResponse()
+        val refreshToken =
+            payload.refreshToken?.takeIf(String::isNotBlank) ?: previousRefreshToken
+                ?: invalidResponse()
         if (!payload.tokenType.equals("Bearer", ignoreCase = true)) invalidResponse()
         if (payload.scope != null && "write" !in payload.scope.split(Regex("\\s+"))) {
             throw MdbListAuthException(MdbListAuthError.INSUFFICIENT_SCOPE)
@@ -171,15 +218,17 @@ class MdbListAuthRepository(
     }
 
     private fun verificationUrl(value: String?) = value?.toHttpUrlOrNull()
-        ?.takeIf { it.isHttps && it.host == "mdblist.com" && it.username.isEmpty() && it.password.isEmpty() }
+        ?.takeIf {
+            it.isHttps && it.host == "mdblist.com" && it.username.isEmpty() &&
+                it.password.isEmpty()
+        }
         ?: invalidResponse()
 
     private fun expiresAt(seconds: Long?, now: Long): Long = seconds
         ?.takeIf { it > 0L && it <= (Long.MAX_VALUE - now) / 1_000L }
         ?.let { now + it * 1_000L } ?: invalidResponse()
 
-    private inline fun <reified T> decode(body: String): T =
-        runCatching { json.decodeFromString<T>(body) }.getOrElse { invalidResponse() }
+    private inline fun <reified T> decode(body: String): T = runCatching { json.decodeFromString<T>(body) }.getOrElse { invalidResponse() }
 
     private fun invalidResponse(): Nothing = throw MdbListAuthException(MdbListAuthError.INVALID_RESPONSE)
     private fun scopeChanged(): Nothing = throw CancellationException("MDBList account changed")

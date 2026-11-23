@@ -19,13 +19,18 @@ enum class ContentType {
 
     fun toApiString(fallbackType: String? = null): String = when (this) {
         MOVIE -> "movie"
+
         SERIES -> "series"
+
         CHANNEL -> "channel"
+
         TV -> "tv"
-        UNKNOWN -> fallbackType
-            ?.trim()
-            ?.takeIf { it.isNotEmpty() }
-            ?: "movie"
+
+        UNKNOWN ->
+            fallbackType
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: "movie"
     }
 }
 

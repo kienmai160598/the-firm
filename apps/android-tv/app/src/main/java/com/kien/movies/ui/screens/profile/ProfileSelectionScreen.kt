@@ -1,24 +1,5 @@
 package com.kien.movies.ui.screens.profile
 
-import com.kien.movies.ui.theme.expressiveFocusScale
-import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.components.expressive.M3eShapes
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.screens.detail.TvSizeFloors
-import com.kien.movies.ui.screens.detail.atLeastOnBox
-import com.kien.movies.ui.screens.detail.buttonLabelStyle
-import com.kien.movies.ui.screens.detail.tvButtonPadding
-import androidx.tv.material3.MaterialTheme
-import com.kien.movies.ui.theme.MoviesPrimitives
-import com.kien.movies.ui.util.contentTextDirection
-import com.kien.movies.ui.theme.MoviesMotion
-
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.brandWordmarkResource
-import com.kien.movies.ui.theme.ExpressiveFocus
-
 import android.graphics.Rect
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.activity.compose.BackHandler
@@ -26,17 +7,11 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -49,8 +24,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -68,6 +44,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -78,66 +57,85 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
 import com.kien.movies.core.sync.SetProfilePinResult
 import com.kien.movies.data.remote.supabase.AvatarCatalogItem
 import com.kien.movies.data.remote.supabase.ProfileBackgroundCatalogItem
+import com.kien.movies.domain.model.ProfileBackgroundSelection
 import com.kien.movies.domain.model.UserProfile
+import com.kien.movies.domain.model.resolveProfileBackgroundSelection
 import com.kien.movies.ui.components.AvatarPickerGrid
 import com.kien.movies.ui.components.CustomProfileBackgroundImage
 import com.kien.movies.ui.components.MemberBrandWordmark
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.ProfileAvatarCircle
 import com.kien.movies.ui.components.ProfileBackgroundImage
 import com.kien.movies.ui.components.ProfileBackgroundPicker
-import com.kien.movies.ui.components.ProfileAvatarCircle
 import com.kien.movies.ui.components.ProfileEditorTab
 import com.kien.movies.ui.components.ProfileEditorTabs
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.membership.Membership
+import com.kien.movies.ui.screens.detail.TvSizeFloors
+import com.kien.movies.ui.screens.detail.atLeastOnBox
+import com.kien.movies.ui.screens.detail.buttonLabelStyle
+import com.kien.movies.ui.screens.detail.tvButtonPadding
+import com.kien.movies.ui.theme.ExpressiveColors
+import com.kien.movies.ui.theme.ExpressiveFocus
+import com.kien.movies.ui.theme.ExpressiveMotion
+import com.kien.movies.ui.theme.MoviesMotion
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.brandWordmarkResource
+import com.kien.movies.ui.theme.expressiveFocusScale
+import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.rememberLongPressKeyTracker
-import com.kien.movies.domain.model.ProfileBackgroundSelection
-import com.kien.movies.domain.model.resolveProfileBackgroundSelection
 import kotlinx.coroutines.delay
 
 private object ProfileSelectionSpacing {
@@ -201,17 +199,16 @@ private enum class ProfilePinEntryStage {
     Confirm
 }
 
-private data class KeyboardVisibilityState(
-    val isVisible: Boolean,
-    val bottomPx: Int
-)
+private data class KeyboardVisibilityState(val isVisible: Boolean, val bottomPx: Int)
 
 @Composable
 fun ProfileSelectionScreen(
     onProfileSelected: () -> Unit,
     onProfileClicked: () -> Unit = {},
     onProfileSelectionFailed: () -> Unit = {},
-    onProfileFocusChanged: ((colorHex: String?, backgroundUrl: String?, memoryCacheKey: String?) -> Unit)? = null,
+    onProfileFocusChanged: (
+        (colorHex: String?, backgroundUrl: String?, memoryCacheKey: String?) -> Unit
+    )? = null,
     onProfileThemeFocused: ((com.kien.movies.domain.model.AppTheme?) -> Unit)? = null,
     screenMode: ProfileSelectionMode = ProfileSelectionMode.Selection,
     onBackPress: (() -> Unit)? = null,
@@ -232,7 +229,9 @@ fun ProfileSelectionScreen(
         buildMap {
             avatarCatalog.forEach { avatar -> put(avatar.id, avatar.imageUrl) }
             profiles.mapNotNull(UserProfile::avatarId).forEach { avatarId ->
-                viewModel.getAvatarImageUrl(avatarId)?.let { imageUrl -> putIfAbsent(avatarId, imageUrl) }
+                viewModel.getAvatarImageUrl(avatarId)?.let { imageUrl ->
+                    putIfAbsent(avatarId, imageUrl)
+                }
             }
         }
     }
@@ -257,7 +256,8 @@ fun ProfileSelectionScreen(
     val onProfileFocusedChange = remember(onProfileFocusChanged, onProfileThemeFocused) {
         { profile: UserProfile? ->
             focusedProfileId = profile?.id
-            focusedAvatarColor = profile?.avatarColorHex?.let(::parseProfileColor) ?: Color(0xFF555555)
+            focusedAvatarColor =
+                profile?.avatarColorHex?.let(::parseProfileColor) ?: Color(0xFF555555)
             Unit
         }
     }
@@ -340,9 +340,13 @@ fun ProfileSelectionScreen(
             is ProfileBackgroundSelection.Catalog -> profileBackgroundsById[backgroundSelection.id]
                 ?.takeIf { it.imageFile != null }
                 ?.let {
-                ProfileBackgroundArtwork.Catalog(it)
-            }
-            is ProfileBackgroundSelection.Custom -> ProfileBackgroundArtwork.Custom(backgroundSelection.url)
+                    ProfileBackgroundArtwork.Catalog(it)
+                }
+
+            is ProfileBackgroundSelection.Custom -> ProfileBackgroundArtwork.Custom(
+                backgroundSelection.url
+            )
+
             null -> null
         }
 
@@ -454,23 +458,37 @@ fun ProfileSelectionScreen(
                                         is SetProfilePinResult.Success -> {
                                             pinOverlayState = null
                                             pinOverlayError = null
-                                            profileActionMessage = context.getString(R.string.profile_pin_saved_for_profile, activePinOverlay.profile.name)
+                                            profileActionMessage =
+                                                context.getString(
+                                                    R.string.profile_pin_saved_for_profile,
+                                                    activePinOverlay.profile.name
+                                                )
                                         }
+
                                         is SetProfilePinResult.CurrentPinRequired -> {
-                                            pinOverlayState = ProfilePinOverlayState.VerifyCurrentForChange(
-                                                activePinOverlay.profile
-                                            )
-                                            pinOverlayError = context.getString(R.string.profile_pin_current_required)
+                                            pinOverlayState =
+                                                ProfilePinOverlayState.VerifyCurrentForChange(
+                                                    activePinOverlay.profile
+                                                )
+                                            pinOverlayError =
+                                                context.getString(
+                                                    R.string.profile_pin_current_required
+                                                )
                                         }
+
                                         is SetProfilePinResult.Failure -> {
-                                            pinOverlayError = context.getString(R.string.profile_pin_save_error)
+                                            pinOverlayError =
+                                                context.getString(R.string.profile_pin_save_error)
                                         }
                                     }
                                 }
                             }
 
                             is ProfilePinOverlayState.Unlock -> {
-                                viewModel.verifyProfilePin(activePinOverlay.profile.id, pin) { result ->
+                                viewModel.verifyProfilePin(
+                                    activePinOverlay.profile.id,
+                                    pin
+                                ) { result ->
                                     result.onSuccess { verify ->
                                         if (verify.unlocked) {
                                             pinOverlayError = null
@@ -478,19 +496,26 @@ fun ProfileSelectionScreen(
                                             selectProfile(activePinOverlay.profile.id)
                                         } else {
                                             pinOverlayError = if (verify.retryAfterSeconds > 0) {
-                                                context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)
+                                                context.getString(
+                                                    R.string.profile_pin_locked,
+                                                    verify.retryAfterSeconds
+                                                )
                                             } else {
                                                 context.getString(R.string.profile_pin_invalid)
                                             }
                                         }
                                     }.onFailure {
-                                        pinOverlayError = context.getString(R.string.profile_pin_verify_error)
+                                        pinOverlayError =
+                                            context.getString(R.string.profile_pin_verify_error)
                                     }
                                 }
                             }
 
                             is ProfilePinOverlayState.VerifyCurrentForChange -> {
-                                viewModel.verifyProfilePin(activePinOverlay.profile.id, pin) { result ->
+                                viewModel.verifyProfilePin(
+                                    activePinOverlay.profile.id,
+                                    pin
+                                ) { result ->
                                     result.onSuccess { verify ->
                                         if (verify.unlocked) {
                                             pinOverlayError = null
@@ -500,13 +525,17 @@ fun ProfileSelectionScreen(
                                             )
                                         } else {
                                             pinOverlayError = if (verify.retryAfterSeconds > 0) {
-                                                context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)
+                                                context.getString(
+                                                    R.string.profile_pin_locked,
+                                                    verify.retryAfterSeconds
+                                                )
                                             } else {
                                                 context.getString(R.string.profile_pin_incorrect)
                                             }
                                         }
                                     }.onFailure {
-                                        pinOverlayError = context.getString(R.string.profile_pin_verify_error)
+                                        pinOverlayError =
+                                            context.getString(R.string.profile_pin_verify_error)
                                     }
                                 }
                             }
@@ -519,15 +548,23 @@ fun ProfileSelectionScreen(
                                     if (success) {
                                         pinOverlayError = null
                                         pinOverlayState = null
-                                        profileActionMessage = context.getString(R.string.profile_pin_lock_removed_for_profile, activePinOverlay.profile.name)
+                                        profileActionMessage =
+                                            context.getString(
+                                                R.string.profile_pin_lock_removed_for_profile,
+                                                activePinOverlay.profile.name
+                                            )
                                     } else {
-                                        pinOverlayError = context.getString(R.string.profile_pin_incorrect)
+                                        pinOverlayError =
+                                            context.getString(R.string.profile_pin_incorrect)
                                     }
                                 }
                             }
 
                             is ProfilePinOverlayState.VerifyCurrentForDelete -> {
-                                viewModel.verifyProfilePin(activePinOverlay.profile.id, pin) { result ->
+                                viewModel.verifyProfilePin(
+                                    activePinOverlay.profile.id,
+                                    pin
+                                ) { result ->
                                     result.onSuccess { verify ->
                                         if (verify.unlocked) {
                                             pinOverlayError = null
@@ -535,13 +572,17 @@ fun ProfileSelectionScreen(
                                             profileToDelete = activePinOverlay.profile
                                         } else {
                                             pinOverlayError = if (verify.retryAfterSeconds > 0) {
-                                                context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)
+                                                context.getString(
+                                                    R.string.profile_pin_locked,
+                                                    verify.retryAfterSeconds
+                                                )
                                             } else {
                                                 context.getString(R.string.profile_pin_incorrect)
                                             }
                                         }
                                     }.onFailure {
-                                        pinOverlayError = context.getString(R.string.profile_pin_verify_error)
+                                        pinOverlayError =
+                                            context.getString(R.string.profile_pin_verify_error)
                                     }
                                 }
                             }
@@ -562,7 +603,13 @@ fun ProfileSelectionScreen(
                 avatarCatalog = avatarCatalog,
                 isCreating = isCreating,
                 onDismiss = { if (!isCreating) showCreateProfile = false },
-                onCreateProfile = { name, colorHex, avatarId, copyFromProfileId, copyProviderCredentials ->
+                onCreateProfile = {
+                        name,
+                        colorHex,
+                        avatarId,
+                        copyFromProfileId,
+                        copyProviderCredentials
+                    ->
                     viewModel.createProfile(
                         name = name,
                         avatarColorHex = colorHex,
@@ -573,8 +620,12 @@ fun ProfileSelectionScreen(
                         when (result) {
                             is CreateProfileResult.Created -> {
                                 showCreateProfile = false
-                                val sourceName = profiles.firstOrNull { it.id == copyFromProfileId }?.name
-                                if (result.settingsCopyResult?.isSuccess == true && sourceName != null) {
+                                val sourceName = profiles.firstOrNull {
+                                    it.id == copyFromProfileId
+                                }?.name
+                                if (result.settingsCopyResult?.isSuccess == true &&
+                                    sourceName != null
+                                ) {
                                     profileActionMessage = context.getString(
                                         R.string.profile_copy_settings_created_success,
                                         sourceName
@@ -585,8 +636,10 @@ fun ProfileSelectionScreen(
                                     )
                                 }
                             }
+
                             CreateProfileResult.Failed -> {
-                                profileActionMessage = context.getString(R.string.profile_create_error)
+                                profileActionMessage =
+                                    context.getString(R.string.profile_create_error)
                             }
                         }
                     }
@@ -731,7 +784,8 @@ fun ProfileSelectionScreen(
                             longPressedProfile = null
                             if (profilePinEnabled[profile.id] == true) {
                                 pinOverlayError = null
-                                pinOverlayState = ProfilePinOverlayState.VerifyCurrentForDelete(profile)
+                                pinOverlayState =
+                                    ProfilePinOverlayState.VerifyCurrentForDelete(profile)
                             } else {
                                 profileToDelete = profile
                             }
@@ -758,7 +812,9 @@ fun ProfileSelectionScreen(
                 },
                 onCopy = { sourceProfileId, copyProviderCredentials ->
                     settingsCopyError = null
-                    val sourceName = profiles.firstOrNull { it.id == sourceProfileId }?.name.orEmpty()
+                    val sourceName = profiles.firstOrNull {
+                        it.id == sourceProfileId
+                    }?.name.orEmpty()
                     viewModel.copyProfileSettings(
                         sourceProfileId = sourceProfileId,
                         targetProfileId = targetProfile.id,
@@ -772,7 +828,8 @@ fun ProfileSelectionScreen(
                                 targetProfile.name
                             )
                         } else {
-                            settingsCopyError = context.getString(R.string.profile_copy_settings_error)
+                            settingsCopyError =
+                                context.getString(R.string.profile_copy_settings_error)
                         }
                     }
                 }
@@ -833,7 +890,8 @@ private fun ProfileSelectionBackground(
     AnimatedContent(
         targetState = profileBackground,
         transitionSpec = {
-            fadeIn(ExpressiveMotion.defaultEffects()) togetherWith fadeOut(ExpressiveMotion.defaultEffects())
+            fadeIn(ExpressiveMotion.defaultEffects()) togetherWith
+                fadeOut(ExpressiveMotion.defaultEffects())
         },
         contentKey = { background ->
             when (background) {
@@ -851,11 +909,13 @@ private fun ProfileSelectionBackground(
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize()
             )
+
             is ProfileBackgroundArtwork.Custom -> CustomProfileBackgroundImage(
                 imageUrl = background.url,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize()
             )
+
             null -> {
                 Box(
                     modifier = Modifier
@@ -986,7 +1046,13 @@ internal fun ProfileGrid(
     val initialFocusIndex = remember(profiles, activeProfileId, canAddProfile) {
         profiles.indexOfFirst { it.id == activeProfileId }
             .takeIf { it >= 0 }
-            ?: if (profiles.isNotEmpty()) 0 else if (canAddProfile) 0 else -1
+            ?: if (profiles.isNotEmpty()) {
+                0
+            } else if (canAddProfile) {
+                0
+            } else {
+                -1
+            }
     }
     val focusRequesters = remember(totalItems) {
         List(totalItems) { FocusRequester() }
@@ -995,7 +1061,8 @@ internal fun ProfileGrid(
 
     LaunchedEffect(totalItems, initialFocusIndex, isManagementMode, enabled) {
         repeat(2) { withFrameNanos { } }
-        val focusIndex = lastFocusedIndex?.takeIf { it in focusRequesters.indices } ?: initialFocusIndex
+        val focusIndex =
+            lastFocusedIndex?.takeIf { it in focusRequesters.indices } ?: initialFocusIndex
         if (enabled && focusIndex in focusRequesters.indices) {
             runCatching { focusRequesters[focusIndex].requestFocus() }
         }
@@ -1068,11 +1135,7 @@ internal fun ProfileGrid(
     }
 }
 
-private fun profileGridWidth(
-    itemCount: Int,
-    cardWidth: Dp,
-    itemGap: Dp
-): Dp {
+private fun profileGridWidth(itemCount: Int, cardWidth: Dp, itemGap: Dp): Dp {
     if (itemCount <= 0) return 0.dp
     val gapCount = itemCount - 1
     return (cardWidth.value * itemCount + itemGap.value * gapCount).dp
@@ -1111,8 +1174,11 @@ private fun ProfileCard(
     Column(
         modifier = Modifier
             .width(
-                if (compact) ProfileSelectionSpacing.CompactCardWidth
-                else ProfileSelectionSpacing.CardWidth
+                if (compact) {
+                    ProfileSelectionSpacing.CompactCardWidth
+                } else {
+                    ProfileSelectionSpacing.CardWidth
+                }
             )
             .profileLift(focusProgressState)
             .focusRequester(focusRequester)
@@ -1142,7 +1208,10 @@ private fun ProfileCard(
                 }
                 if (native.action == AndroidKeyEvent.ACTION_UP &&
                     longPressTriggered &&
-                    (isProfileSelectKey(native.keyCode) || native.keyCode == AndroidKeyEvent.KEYCODE_MENU)
+                    (
+                        isProfileSelectKey(native.keyCode) ||
+                            native.keyCode == AndroidKeyEvent.KEYCODE_MENU
+                        )
                 ) {
                     longPressTriggered = false
                     return@onPreviewKeyEvent true
@@ -1164,8 +1233,11 @@ private fun ProfileCard(
     ) {
         Box(
             modifier = Modifier.size(
-                if (compact) ProfileSelectionSpacing.CompactAvatarContainer
-                else ProfileSelectionSpacing.AvatarContainer
+                if (compact) {
+                    ProfileSelectionSpacing.CompactAvatarContainer
+                } else {
+                    ProfileSelectionSpacing.AvatarContainer
+                }
             ),
             contentAlignment = Alignment.Center
         ) {
@@ -1204,8 +1276,11 @@ private fun ProfileCard(
 
         Spacer(
             modifier = Modifier.height(
-                if (compact) ProfileSelectionSpacing.CompactAvatarToName
-                else ProfileSelectionSpacing.AvatarToName
+                if (compact) {
+                    ProfileSelectionSpacing.CompactAvatarToName
+                } else {
+                    ProfileSelectionSpacing.AvatarToName
+                }
             )
         )
 
@@ -1268,14 +1343,23 @@ private fun AddProfileCard(
         MoviesTheme.colors.TextPrimary,
         focusProgress
     )
-    val plusColor = ExpressiveFocus.contentColor(isFocused, resting = MoviesTheme.colors.TextTertiary)
-    val addBackgroundColor = ExpressiveFocus.containerColor(isFocused, resting = addProfileRestingFill)
+    val plusColor = ExpressiveFocus.contentColor(
+        isFocused,
+        resting = MoviesTheme.colors.TextTertiary
+    )
+    val addBackgroundColor = ExpressiveFocus.containerColor(
+        isFocused,
+        resting = addProfileRestingFill
+    )
 
     Column(
         modifier = Modifier
             .width(
-                if (compact) ProfileSelectionSpacing.CompactCardWidth
-                else ProfileSelectionSpacing.CardWidth
+                if (compact) {
+                    ProfileSelectionSpacing.CompactCardWidth
+                } else {
+                    ProfileSelectionSpacing.CardWidth
+                }
             )
             .profileLift(focusProgressState)
             .focusRequester(focusRequester)
@@ -1299,8 +1383,11 @@ private fun AddProfileCard(
     ) {
         Box(
             modifier = Modifier.size(
-                if (compact) ProfileSelectionSpacing.CompactAvatarContainer
-                else ProfileSelectionSpacing.AvatarContainer
+                if (compact) {
+                    ProfileSelectionSpacing.CompactAvatarContainer
+                } else {
+                    ProfileSelectionSpacing.AvatarContainer
+                }
             ),
             contentAlignment = Alignment.Center
         ) {
@@ -1334,8 +1421,11 @@ private fun AddProfileCard(
 
         Spacer(
             modifier = Modifier.height(
-                if (compact) ProfileSelectionSpacing.CompactAvatarToName
-                else ProfileSelectionSpacing.AvatarToName
+                if (compact) {
+                    ProfileSelectionSpacing.CompactAvatarToName
+                } else {
+                    ProfileSelectionSpacing.AvatarToName
+                }
             )
         )
 
@@ -1442,8 +1532,11 @@ internal fun CreateProfileOverlay(
                         onClick = onDismiss
                     )
                     OverlayButton(
-                        text = if (isCreating) stringResource(R.string.profile_creating)
-                               else stringResource(R.string.profile_create_btn),
+                        text = if (isCreating) {
+                            stringResource(R.string.profile_creating)
+                        } else {
+                            stringResource(R.string.profile_create_btn)
+                        },
                         isPrimary = true,
                         enabled = profileName.isNotBlank() && !isCreating,
                         onClick = {
@@ -1487,7 +1580,9 @@ internal fun CreateProfileOverlay(
                     )
 
                     Text(
-                        text = profileName.ifBlank { stringResource(R.string.profile_name_placeholder) },
+                        text = profileName.ifBlank {
+                            stringResource(R.string.profile_name_placeholder)
+                        },
                         style = MaterialTheme.typography.labelLarge.copy(
                             textDirection = profileName.contentTextDirection()
                         ),
@@ -1503,7 +1598,9 @@ internal fun CreateProfileOverlay(
                         value = profileName,
                         onValueChange = { if (it.length <= 20) profileName = it },
                         focusRequester = nameFocusRequester,
-                        rightFocusRequester = avatarFocusRequester.takeIf { avatarCatalog.isNotEmpty() },
+                        rightFocusRequester = avatarFocusRequester.takeIf {
+                            avatarCatalog.isNotEmpty()
+                        },
                         onFocused = { leftPanelFocusRequester = nameFocusRequester }
                     )
 
@@ -1530,7 +1627,6 @@ internal fun CreateProfileOverlay(
                         enabled = !isCreating,
                         onClick = { showSettingsSourceDialog = true }
                     )
-
                 }
 
                 Spacer(modifier = Modifier.width(ProfileSelectionSpacing.EditorDividerSpacing))
@@ -1581,9 +1677,17 @@ internal fun CreateProfileOverlay(
                         )
 
                         Text(
-                            text = focusedAvatarName ?: stringResource(R.string.profile_avatar_focus_hint),
+                            text =
+                                focusedAvatarName
+                                    ?: stringResource(R.string.profile_avatar_focus_hint),
                             modifier = Modifier.fillMaxWidth(),
-                            color = if (focusedAvatarName != null) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextTertiary,
+                            color = if (focusedAvatarName !=
+                                null
+                            ) {
+                                MoviesTheme.colors.TextPrimary
+                            } else {
+                                MoviesTheme.colors.TextTertiary
+                            },
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center
@@ -1636,24 +1740,34 @@ private fun keyCodeToDigit(keyCode: Int): Char? {
     return when (keyCode) {
         AndroidKeyEvent.KEYCODE_0,
         AndroidKeyEvent.KEYCODE_NUMPAD_0 -> '0'
+
         AndroidKeyEvent.KEYCODE_1,
         AndroidKeyEvent.KEYCODE_NUMPAD_1 -> '1'
+
         AndroidKeyEvent.KEYCODE_2,
         AndroidKeyEvent.KEYCODE_NUMPAD_2 -> '2'
+
         AndroidKeyEvent.KEYCODE_3,
         AndroidKeyEvent.KEYCODE_NUMPAD_3 -> '3'
+
         AndroidKeyEvent.KEYCODE_4,
         AndroidKeyEvent.KEYCODE_NUMPAD_4 -> '4'
+
         AndroidKeyEvent.KEYCODE_5,
         AndroidKeyEvent.KEYCODE_NUMPAD_5 -> '5'
+
         AndroidKeyEvent.KEYCODE_6,
         AndroidKeyEvent.KEYCODE_NUMPAD_6 -> '6'
+
         AndroidKeyEvent.KEYCODE_7,
         AndroidKeyEvent.KEYCODE_NUMPAD_7 -> '7'
+
         AndroidKeyEvent.KEYCODE_8,
         AndroidKeyEvent.KEYCODE_NUMPAD_8 -> '8'
+
         AndroidKeyEvent.KEYCODE_9,
         AndroidKeyEvent.KEYCODE_NUMPAD_9 -> '9'
+
         else -> null
     }
 }
@@ -1661,7 +1775,9 @@ private fun keyCodeToDigit(keyCode: Int): Char? {
 @Composable
 private fun rememberKeyboardVisibilityState(): KeyboardVisibilityState {
     val view = LocalView.current
-    var state by remember(view) { mutableStateOf(KeyboardVisibilityState(isVisible = false, bottomPx = 0)) }
+    var state by remember(view) {
+        mutableStateOf(KeyboardVisibilityState(isVisible = false, bottomPx = 0))
+    }
 
     DisposableEffect(view) {
         val rect = Rect()
@@ -1727,8 +1843,10 @@ internal fun EditProfileOverlay(
     val hasChangedAvatarSelection = selectedAvatarId != profile.avatarId
     val previewAvatarImageUrl = when {
         selectedAvatar != null -> selectedAvatar.imageUrl
+
         !hasChangedAvatarSelection -> profile.avatarUrl?.takeIf { it.isNotBlank() }
             ?: avatarUrlResolver(profile.avatarId)
+
         else -> null
     }
     val nameFocusRequester = remember { FocusRequester() }
@@ -1801,8 +1919,11 @@ internal fun EditProfileOverlay(
                     )
                 }
                 OverlayButton(
-                    text = if (isSaving) stringResource(R.string.profile_saving)
-                           else stringResource(R.string.profile_save),
+                    text = if (isSaving) {
+                        stringResource(R.string.profile_saving)
+                    } else {
+                        stringResource(R.string.profile_save)
+                    },
                     isPrimary = true,
                     enabled = profileName.isNotBlank() && !isSaving,
                     onClick = {
@@ -1831,7 +1952,14 @@ internal fun EditProfileOverlay(
                 Column(
                     modifier = Modifier
                         .width(ProfileSelectionSpacing.EditorPreviewWidth)
-                        .padding(start = MoviesTheme.spacing.xl, top = MoviesTheme.spacing.xl + ProfileSelectionSpacing.EditorPreviewTopOffset, end = MoviesTheme.spacing.xl, bottom = MoviesTheme.spacing.xl),
+                        .padding(
+                            start = MoviesTheme.spacing.xl,
+                            top =
+                                MoviesTheme.spacing.xl +
+                                    ProfileSelectionSpacing.EditorPreviewTopOffset,
+                            end = MoviesTheme.spacing.xl,
+                            bottom = MoviesTheme.spacing.xl
+                        ),
                     verticalArrangement = Arrangement.spacedBy(18.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -1843,7 +1971,9 @@ internal fun EditProfileOverlay(
                     )
 
                     Text(
-                        text = profileName.ifBlank { stringResource(R.string.profile_name_placeholder) },
+                        text = profileName.ifBlank {
+                            stringResource(R.string.profile_name_placeholder)
+                        },
                         style = MaterialTheme.typography.labelLarge.copy(
                             textDirection = profileName.contentTextDirection()
                         ),
@@ -1860,7 +1990,8 @@ internal fun EditProfileOverlay(
                         onValueChange = { if (it.length <= 20) profileName = it },
                         focusRequester = nameFocusRequester,
                         rightFocusRequester = avatarFocusRequester.takeIf {
-                            selectedEditorTab == ProfileEditorTab.Avatar && avatarCatalog.isNotEmpty()
+                            selectedEditorTab == ProfileEditorTab.Avatar &&
+                                avatarCatalog.isNotEmpty()
                         },
                         onFocused = { leftPanelFocusRequester = nameFocusRequester }
                     )
@@ -1872,7 +2003,9 @@ internal fun EditProfileOverlay(
                             .fillMaxWidth()
                             .focusRequester(cancelFocusRequester)
                             .focusProperties {
-                                if (selectedEditorTab == ProfileEditorTab.Avatar && avatarCatalog.isNotEmpty()) {
+                                if (selectedEditorTab == ProfileEditorTab.Avatar &&
+                                    avatarCatalog.isNotEmpty()
+                                ) {
                                     end = avatarFocusRequester
                                 }
                             }
@@ -1910,7 +2043,9 @@ internal fun EditProfileOverlay(
                             )
 
                             Text(
-                                text = stringResource(R.string.profile_custom_avatar_web_panel_note),
+                                text = stringResource(
+                                    R.string.profile_custom_avatar_web_panel_note
+                                ),
                                 modifier = Modifier.fillMaxWidth(),
                                 color = MoviesTheme.colors.TextTertiary,
                                 fontSize = 12.sp.atLeastOnBox(TvSizeFloors.metaText),
@@ -1940,9 +2075,17 @@ internal fun EditProfileOverlay(
                                 )
 
                                 Text(
-                                    text = focusedAvatarName ?: stringResource(R.string.profile_avatar_focus_hint),
+                                    text =
+                                        focusedAvatarName
+                                            ?: stringResource(R.string.profile_avatar_focus_hint),
                                     modifier = Modifier.fillMaxWidth(),
-                                    color = if (focusedAvatarName != null) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextTertiary,
+                                    color = if (focusedAvatarName !=
+                                        null
+                                    ) {
+                                        MoviesTheme.colors.TextPrimary
+                                    } else {
+                                        MoviesTheme.colors.TextTertiary
+                                    },
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
                                     textAlign = TextAlign.Center
@@ -2058,7 +2201,12 @@ private fun ProfilePinOverlay(
         ),
         label = "pinCursorAlpha"
     )
-    val resolvedErrorMessage = if (isSingleEntryMode) errorMessage else internalErrorMessage ?: errorMessage
+    val resolvedErrorMessage = if (isSingleEntryMode) {
+        errorMessage
+    } else {
+        internalErrorMessage
+            ?: errorMessage
+    }
     val isErrorState = !resolvedErrorMessage.isNullOrEmpty()
     val mismatchMessage = stringResource(R.string.profile_pin_overlay_mismatch)
     val shouldUseCompactLayout = keyboardState.isVisible
@@ -2217,22 +2365,59 @@ private fun ProfilePinOverlay(
         contentAlignment = Alignment.Center
     ) {
         val headingText = when {
-            state is ProfilePinOverlayState.Unlock -> stringResource(R.string.profile_pin_overlay_unlock_heading, state.profile.name)
-            state is ProfilePinOverlayState.VerifyCurrentForChange -> stringResource(R.string.profile_pin_overlay_change_verify_heading, state.profile.name)
-            state is ProfilePinOverlayState.VerifyCurrentForRemove -> stringResource(R.string.profile_pin_overlay_remove_verify_heading, state.profile.name)
-            state is ProfilePinOverlayState.VerifyCurrentForDelete -> stringResource(R.string.profile_pin_overlay_delete_verify_heading, state.profile.name)
-            entryStage == ProfilePinEntryStage.Confirm -> stringResource(R.string.profile_pin_overlay_confirm_heading)
+            state is ProfilePinOverlayState.Unlock -> stringResource(
+                R.string.profile_pin_overlay_unlock_heading,
+                state.profile.name
+            )
+
+            state is ProfilePinOverlayState.VerifyCurrentForChange -> stringResource(
+                R.string.profile_pin_overlay_change_verify_heading,
+                state.profile.name
+            )
+
+            state is ProfilePinOverlayState.VerifyCurrentForRemove -> stringResource(
+                R.string.profile_pin_overlay_remove_verify_heading,
+                state.profile.name
+            )
+
+            state is ProfilePinOverlayState.VerifyCurrentForDelete -> stringResource(
+                R.string.profile_pin_overlay_delete_verify_heading,
+                state.profile.name
+            )
+
+            entryStage == ProfilePinEntryStage.Confirm -> stringResource(
+                R.string.profile_pin_overlay_confirm_heading
+            )
+
             else -> stringResource(R.string.profile_pin_overlay_set_heading, state.profile.name)
         }
         val supportText = when {
             !resolvedErrorMessage.isNullOrEmpty() -> resolvedErrorMessage
+
             isWorking && isSingleEntryMode -> stringResource(R.string.profile_pin_verifying)
+
             isWorking -> stringResource(R.string.action_saving)
-            state is ProfilePinOverlayState.Unlock -> stringResource(R.string.profile_pin_overlay_unlock_support)
-            state is ProfilePinOverlayState.VerifyCurrentForChange -> stringResource(R.string.profile_pin_overlay_change_verify_support)
-            state is ProfilePinOverlayState.VerifyCurrentForRemove -> stringResource(R.string.profile_pin_overlay_remove_verify_support)
-            state is ProfilePinOverlayState.VerifyCurrentForDelete -> stringResource(R.string.profile_pin_overlay_delete_verify_support)
-            entryStage == ProfilePinEntryStage.Confirm -> stringResource(R.string.profile_pin_overlay_confirm_support)
+
+            state is ProfilePinOverlayState.Unlock -> stringResource(
+                R.string.profile_pin_overlay_unlock_support
+            )
+
+            state is ProfilePinOverlayState.VerifyCurrentForChange -> stringResource(
+                R.string.profile_pin_overlay_change_verify_support
+            )
+
+            state is ProfilePinOverlayState.VerifyCurrentForRemove -> stringResource(
+                R.string.profile_pin_overlay_remove_verify_support
+            )
+
+            state is ProfilePinOverlayState.VerifyCurrentForDelete -> stringResource(
+                R.string.profile_pin_overlay_delete_verify_support
+            )
+
+            entryStage == ProfilePinEntryStage.Confirm -> stringResource(
+                R.string.profile_pin_overlay_confirm_support
+            )
+
             else -> stringResource(R.string.profile_pin_overlay_set_support)
         }
         val supportTextColor = if (isErrorState) {
@@ -2381,76 +2566,82 @@ private fun ProfilePinBoxes(
     )
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(boxGap),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        repeat(ProfilePinLength) { index ->
-            val isFilled = index < value.length
-            val isActive = index == value.length.coerceAtMost(ProfilePinLength - 1) &&
-                value.length < ProfilePinLength &&
-                isInputFocused &&
-                !isWorking
-            val borderColor by animateColorAsState(
-                targetValue = when {
-                    isErrorState -> pinErrorBorder()
-                    isFilled -> Color.White.copy(alpha = 0.92f)
-                    isActive -> Color.White
-                    else -> Color.White.copy(alpha = 0.72f)
-                },
-                animationSpec = ExpressiveMotion.defaultEffects(),
-                label = "pinBoxBorder"
-            )
-            val backgroundColor by animateColorAsState(
-                targetValue = when {
-                    isErrorState -> pinErrorFill()
-                    isFilled -> Color.White.copy(alpha = 0.07f)
-                    isActive -> Color.White.copy(alpha = 0.04f)
-                    else -> Color.Transparent
-                },
-                animationSpec = ExpressiveMotion.defaultEffects(),
-                label = "pinBoxBackground"
-            )
-            val borderWidth by animateDpAsState(
-                targetValue = if (isActive || isErrorState) MoviesTheme.spacing.xxs else MoviesTheme.spacing.hairline,
-                animationSpec = ExpressiveMotion.defaultEffects(),
-                label = "pinBoxBorderWidth"
-            )
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(boxGap),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            repeat(ProfilePinLength) { index ->
+                val isFilled = index < value.length
+                val isActive = index == value.length.coerceAtMost(ProfilePinLength - 1) &&
+                    value.length < ProfilePinLength &&
+                    isInputFocused &&
+                    !isWorking
+                val borderColor by animateColorAsState(
+                    targetValue = when {
+                        isErrorState -> pinErrorBorder()
+                        isFilled -> Color.White.copy(alpha = 0.92f)
+                        isActive -> Color.White
+                        else -> Color.White.copy(alpha = 0.72f)
+                    },
+                    animationSpec = ExpressiveMotion.defaultEffects(),
+                    label = "pinBoxBorder"
+                )
+                val backgroundColor by animateColorAsState(
+                    targetValue = when {
+                        isErrorState -> pinErrorFill()
+                        isFilled -> Color.White.copy(alpha = 0.07f)
+                        isActive -> Color.White.copy(alpha = 0.04f)
+                        else -> Color.Transparent
+                    },
+                    animationSpec = ExpressiveMotion.defaultEffects(),
+                    label = "pinBoxBackground"
+                )
+                val borderWidth by animateDpAsState(
+                    targetValue = if (isActive ||
+                        isErrorState
+                    ) {
+                        MoviesTheme.spacing.xxs
+                    } else {
+                        MoviesTheme.spacing.hairline
+                    },
+                    animationSpec = ExpressiveMotion.defaultEffects(),
+                    label = "pinBoxBorderWidth"
+                )
 
-            Box(
-                modifier = Modifier
-                    .size(boxSize)
-                    .clip(pinBoxShape())
-                    .background(backgroundColor)
-                    .border(
-                        border = BorderStroke(borderWidth, borderColor),
-                        shape = pinBoxShape()
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                when {
-                    isFilled -> {
-                        Box(
-                            modifier = Modifier
-                                .size(dotSize)
-                                .clip(CircleShape)
-                                .background(Color.White)
-                        )
-                    }
+                Box(
+                    modifier = Modifier
+                        .size(boxSize)
+                        .clip(pinBoxShape())
+                        .background(backgroundColor)
+                        .border(
+                            border = BorderStroke(borderWidth, borderColor),
+                            shape = pinBoxShape()
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    when {
+                        isFilled -> {
+                            Box(
+                                modifier = Modifier
+                                    .size(dotSize)
+                                    .clip(CircleShape)
+                                    .background(Color.White)
+                            )
+                        }
 
-                    isActive -> {
-                        Box(
-                            modifier = Modifier
-                                .width(MoviesTheme.spacing.xxs)
-                                .height(activeCursorHeight)
-                                .background(Color.White.copy(alpha = cursorAlpha))
-                        )
+                        isActive -> {
+                            Box(
+                                modifier = Modifier
+                                    .width(MoviesTheme.spacing.xxs)
+                                    .height(activeCursorHeight)
+                                    .background(Color.White.copy(alpha = cursorAlpha))
+                            )
+                        }
                     }
                 }
             }
         }
-    }
     }
 }
 
@@ -2571,7 +2762,9 @@ private fun OverlayButton(
             .focusable(enabled = enabled, interactionSource = interactionSource)
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent
-                if (enabled && native.action == AndroidKeyEvent.ACTION_UP && isProfileSelectKey(native.keyCode)) {
+                if (enabled && native.action == AndroidKeyEvent.ACTION_UP &&
+                    isProfileSelectKey(native.keyCode)
+                ) {
                     onClick()
                     true
                 } else {

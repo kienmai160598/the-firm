@@ -19,7 +19,7 @@ class RewrappableExtractorTest {
         val original = FakeExtractor()
         val wrapped = AutoSyncExtractorsFactory(
             delegate = ExtractorsFactory { arrayOf(original) },
-            sourceKey = "https://example.test/video.mkv",
+            sourceKey = "https://example.test/video.mkv"
         ).createExtractors().single()
         val replacement = FakeExtractor()
 

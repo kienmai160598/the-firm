@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.view.KeyEvent
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -50,6 +48,7 @@ import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.components.expressive.MoviesCardFocus
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
@@ -72,40 +71,44 @@ fun AnimeSkipSettingsContent(
         ) {
             val animeSkipListState = rememberLazyListState()
             Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                state = animeSkipListState,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = MoviesTheme.spacing.sm),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                item(key = "animeskip_enabled") {
-                    SettingsToggleRow(
-                        title = stringResource(R.string.animeskip_enable_title),
-                        subtitle = stringResource(R.string.animeskip_enable_subtitle),
-                        checked = enabled,
-                        onToggle = { viewModel.setEnabled(!enabled) },
-                        modifier = Modifier
-                            .padding(top = MoviesTheme.spacing.xxs)
-                            .then(
-                                if (initialFocusRequester != null) {
-                            Modifier.focusRequester(initialFocusRequester)
-                        } else {
-                            Modifier
-                        })
-                    )
+                LazyColumn(
+                    state = animeSkipListState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = MoviesTheme.spacing.sm),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    item(key = "animeskip_enabled") {
+                        SettingsToggleRow(
+                            title = stringResource(R.string.animeskip_enable_title),
+                            subtitle = stringResource(R.string.animeskip_enable_subtitle),
+                            checked = enabled,
+                            onToggle = { viewModel.setEnabled(!enabled) },
+                            modifier = Modifier
+                                .padding(top = MoviesTheme.spacing.xxs)
+                                .then(
+                                    if (initialFocusRequester != null) {
+                                        Modifier.focusRequester(initialFocusRequester)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
+                        )
+                    }
+                    item(key = "animeskip_client_id") {
+                        SettingsActionRow(
+                            title = stringResource(R.string.animeskip_client_id_title),
+                            subtitle = stringResource(R.string.animeskip_client_id_subtitle),
+                            value = maskClientId(
+                                clientId,
+                                stringResource(R.string.mdblist_not_set)
+                            ),
+                            onClick = { showDialog = true },
+                            enabled = enabled,
+                            modifier = Modifier
+                        )
+                    }
                 }
-                item(key = "animeskip_client_id") {
-                    SettingsActionRow(
-                        title = stringResource(R.string.animeskip_client_id_title),
-                        subtitle = stringResource(R.string.animeskip_client_id_subtitle),
-                        value = maskClientId(clientId, stringResource(R.string.mdblist_not_set)),
-                        onClick = { showDialog = true },
-                        enabled = enabled,
-                        modifier = Modifier
-                    )
-                }
-            }
-            SettingsVerticalScrollIndicators(state = animeSkipListState)
+                SettingsVerticalScrollIndicators(state = animeSkipListState)
             }
         }
     }
@@ -115,7 +118,10 @@ fun AnimeSkipSettingsContent(
             currentValue = clientId,
             viewModel = viewModel,
             onSaved = { showDialog = false },
-            onClear = { viewModel.validateAndSave("") {}; showDialog = false },
+            onClear = {
+                viewModel.validateAndSave("") {}
+                showDialog = false
+            },
             onDismiss = { showDialog = false }
         )
     }
@@ -151,10 +157,15 @@ private fun AnimeSkipClientIdDialog(
     ) {
         MoviesCard(
             onClick = { inputFocusRequester.requestFocus() },
-            modifier = Modifier.fillMaxWidth().onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
+            modifier = Modifier.fillMaxWidth().onFocusChanged {
+                isInputFocused =
+                    it.isFocused || it.hasFocus
+            },
             focus = MoviesCardFocus.Frosted
         ) {
-            Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)) {
+            Box(
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)
+            ) {
                 BasicTextField(
                     value = value,
                     onValueChange = { value = it },
@@ -173,8 +184,11 @@ private fun AnimeSkipClientIdDialog(
                         textDirection = TextDirection.Content
                     ),
                     cursorBrush = SolidColor(
-                        if (isInputFocused) MoviesTheme.colors.Primary
-                        else androidx.compose.ui.graphics.Color.Transparent
+                        if (isInputFocused) {
+                            MoviesTheme.colors.Primary
+                        } else {
+                            androidx.compose.ui.graphics.Color.Transparent
+                        }
                     ),
                     decorationBox = { innerTextField ->
                         if (value.isBlank()) {
@@ -206,7 +220,15 @@ private fun AnimeSkipClientIdDialog(
                 onClick = { if (!validating) viewModel.validateAndSave(value, onSaved) },
                 style = MoviesButtonStyle.Primary
             ) {
-                Text(if (validating) stringResource(R.string.action_saving) else stringResource(R.string.action_save))
+                Text(
+                    if (validating) {
+                        stringResource(
+                            R.string.action_saving
+                        )
+                    } else {
+                        stringResource(R.string.action_save)
+                    }
+                )
             }
         }
     }

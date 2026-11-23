@@ -21,7 +21,10 @@ class CustomThemePaletteTest {
         assertEquals(listOf(color), palette.focusRingGradient)
         assertEquals(SolidColor(color), palette.accentBrush())
         assertEquals(SolidColor(color), createFocusRingStyle(palette).brush())
-        assertEquals(SolidColor(color.copy(alpha = 0.5f)), createFocusRingStyle(palette).brush(0.5f))
+        assertEquals(
+            SolidColor(color.copy(alpha = 0.5f)),
+            createFocusRingStyle(palette).brush(0.5f)
+        )
         assertEquals(color, palette.secondary)
         assertEquals(color, palette.secondaryVariant)
     }

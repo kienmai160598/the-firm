@@ -19,7 +19,10 @@ class InAppYouTubeExtractorDecoderSupportTest {
 
     @Test
     fun `reads the codecs from youtube mime types`() {
-        assertEquals("av01.0.12M.10.0.110.09.16.09.0", videoCodecsParam("video/mp4; codecs=\"av01.0.12M.10.0.110.09.16.09.0\""))
+        assertEquals(
+            "av01.0.12M.10.0.110.09.16.09.0",
+            videoCodecsParam("video/mp4; codecs=\"av01.0.12M.10.0.110.09.16.09.0\"")
+        )
         assertEquals("vp9", videoCodecsParam("video/webm; codecs=\"vp9\""))
         assertNull(videoCodecsParam("video/mp4"))
     }
@@ -41,7 +44,12 @@ class InAppYouTubeExtractorDecoderSupportTest {
             video(url = "avc-1080p", codecs = "avc1.640028")
         )
 
-        assertEquals(listOf("vp9-2160p", "avc-1080p"), extractor.playableVideo(streams).map { it.url })
+        assertEquals(
+            listOf("vp9-2160p", "avc-1080p"),
+            extractor.playableVideo(streams).map {
+                it.url
+            }
+        )
     }
 
     @Test

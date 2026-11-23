@@ -18,7 +18,7 @@ internal object AutoSyncSampledReferenceAligner {
 
     fun findDelay(
         reference: List<SubtitleSyncCue>,
-        target: List<SubtitleSyncCue>,
+        target: List<SubtitleSyncCue>
     ): AutoSyncDelayOnlyAlignment? {
         if (reference.size < MIN_MATCHED_CUES || target.size < MIN_MATCHED_CUES) return null
         val referenceStarts = reference.map { it.startTimeMs }.sorted()
@@ -66,15 +66,11 @@ internal object AutoSyncSampledReferenceAligner {
             offsetMs = best.offsetMs.toDouble(),
             score = best.score,
             margin = margin,
-            segmentsPassed = best.segments,
+            segmentsPassed = best.segments
         )
     }
 
-    private fun evaluate(
-        seedOffsetMs: Long,
-        reference: List<Long>,
-        target: List<Long>,
-    ): Candidate {
+    private fun evaluate(seedOffsetMs: Long, reference: List<Long>, target: List<Long>): Candidate {
         val initialMatches = match(seedOffsetMs, reference, target)
         if (initialMatches.isEmpty()) return Candidate(seedOffsetMs, 0, 0.0, 0)
         val refinedOffset = initialMatches
@@ -92,11 +88,7 @@ internal object AutoSyncSampledReferenceAligner {
         return Candidate(refinedOffset, matches.size, score, segments)
     }
 
-    private fun match(
-        offsetMs: Long,
-        reference: List<Long>,
-        target: List<Long>,
-    ): List<Match> {
+    private fun match(offsetMs: Long, reference: List<Long>, target: List<Long>): List<Match> {
         val matches = ArrayList<Match>()
         var minimumTargetIndex = 0
         for (referenceMs in reference) {
@@ -137,6 +129,6 @@ internal object AutoSyncSampledReferenceAligner {
         val offsetMs: Long,
         val matches: Int,
         val score: Double,
-        val segments: Int,
+        val segments: Int
     )
 }

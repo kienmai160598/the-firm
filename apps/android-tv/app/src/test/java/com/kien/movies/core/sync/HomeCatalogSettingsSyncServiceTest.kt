@@ -20,6 +20,9 @@ class HomeCatalogSettingsSyncServiceTest {
         val merged = mergeHomeCatalogSettingsJson(remote, local)
 
         assertEquals("preserved", merged.getValue("future_setting").jsonPrimitive.content)
-        assertEquals(true, merged.getValue("hide_unreleased_content").jsonPrimitive.content.toBoolean())
+        assertEquals(
+            true,
+            merged.getValue("hide_unreleased_content").jsonPrimitive.content.toBoolean()
+        )
     }
 }

@@ -6,12 +6,13 @@
 
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.rememberMetaFloor
-import com.kien.movies.ui.util.contentTextDirection
-
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.gestures.BringIntoViewSpec
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -41,26 +43,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.gestures.BringIntoViewSpec
-import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Border
@@ -70,10 +65,14 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
-import com.kien.movies.domain.model.Collection
 import com.kien.movies.domain.model.CardDepthSurface
+import com.kien.movies.domain.model.Collection
 import com.kien.movies.domain.model.CollectionFolder
 import com.kien.movies.domain.model.PosterShape
+import com.kien.movies.ui.theme.ExpressiveMotion
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.rememberMetaFloor
+import com.kien.movies.ui.util.contentTextDirection
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -132,7 +131,11 @@ fun CollectionRowSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.md),
+                .padding(
+                    start = MoviesTheme.spacing.xxxl,
+                    end = MoviesTheme.spacing.xxxl,
+                    bottom = MoviesTheme.spacing.md
+                ),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -157,7 +160,11 @@ fun CollectionRowSection(
             object : BringIntoViewSpec {
                 override val scrollAnimationSpec: AnimationSpec<Float> =
                     defaultBringIntoViewSpec.scrollAnimationSpec
-                override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
+                override fun calculateScrollDistance(
+                    offset: Float,
+                    size: Float,
+                    containerSize: Float
+                ): Float {
                     val childSize = kotlin.math.abs(size)
                     if (isRtl) {
                         val childSmallerThanParent = childSize <= containerSize
@@ -172,7 +179,13 @@ fun CollectionRowSection(
                     } else {
                         val target = startPx.toFloat()
                         val space = containerSize - target
-                        val leading = if (childSize <= containerSize && space < childSize) containerSize - childSize else target
+                        val leading = if (childSize <= containerSize &&
+                            space < childSize
+                        ) {
+                            containerSize - childSize
+                        } else {
+                            target
+                        }
                         return offset - leading
                     }
                 }
@@ -220,7 +233,9 @@ fun CollectionRowSection(
                         folder = folder,
                         collection = collection,
                         posterCardStyle = posterCardStyle,
-                        onClick = remember(collection.id, folder.id) { { currentOnFolderClick(collection.id, folder.id) } },
+                        onClick = remember(collection.id, folder.id) {
+                            { currentOnFolderClick(collection.id, folder.id) }
+                        },
                         onFocused = remember(index, folder.id) {
                             {
                                 if (lastFocusedItemIndex != index) {
@@ -230,7 +245,13 @@ fun CollectionRowSection(
                                 currentOnFolderFocused(collection, folder)
                             }
                         },
-                        modifier = if (isEntryTarget) Modifier.focusRequester(entryFocusRequester!!) else Modifier,
+                        modifier = if (isEntryTarget) {
+                            Modifier.focusRequester(
+                                entryFocusRequester!!
+                            )
+                        } else {
+                            Modifier
+                        },
                         focusRequester = itemFocusRequesters.getOrPut(
                             folderFocusKey(index, folder)
                         ) { FocusRequester() }
@@ -256,9 +277,23 @@ private fun FolderCard(
     val tileHeight: Dp
     var isFocused by remember { mutableStateOf(false) }
     when (folder.tileShape) {
-        PosterShape.POSTER -> { tileWidth = posterCardStyle.width; tileHeight = posterCardStyle.height }
-        PosterShape.LANDSCAPE -> { tileWidth = posterCardStyle.width * (16f / 9f); tileHeight = posterCardStyle.width }
-        PosterShape.SQUARE -> { tileWidth = posterCardStyle.width; tileHeight = posterCardStyle.width }
+        PosterShape.POSTER -> {
+            tileWidth = posterCardStyle.width
+            tileHeight =
+                posterCardStyle.height
+        }
+
+        PosterShape.LANDSCAPE -> {
+            tileWidth = posterCardStyle.width * (16f / 9f)
+            tileHeight =
+                posterCardStyle.width
+        }
+
+        PosterShape.SQUARE -> {
+            tileWidth = posterCardStyle.width
+            tileHeight =
+                posterCardStyle.width
+        }
     }
 
     val shape = RoundedCornerShape(posterCardStyle.cornerRadius)

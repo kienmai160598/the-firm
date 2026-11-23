@@ -37,14 +37,25 @@ class StreamResumeProgressTest {
     }
 
     @Test fun `provider specific completion threshold is respected`() {
-        val remote = progress.copy(position = 0L, progressPercent = 85f, source = WatchProgress.SOURCE_SIMKL_PLAYBACK)
+        val remote = progress.copy(
+            position = 0L,
+            progressPercent = 85f,
+            source = WatchProgress.SOURCE_SIMKL_PLAYBACK
+        )
         assertNull(streamResumeProgress(remote, false))
-        assertEquals(remote.copy(completionThresholdOverride = 0.95f),
-            streamResumeProgress(remote.copy(completionThresholdOverride = 0.95f), false))
+        assertEquals(
+            remote.copy(completionThresholdOverride = 0.95f),
+            streamResumeProgress(remote.copy(completionThresholdOverride = 0.95f), false)
+        )
     }
 
     @Test fun `episode progress is preserved`() {
-        val episode = progress.copy(contentType = "series", videoId = "tt123:2:3", season = 2, episode = 3)
+        val episode = progress.copy(
+            contentType = "series",
+            videoId = "tt123:2:3",
+            season = 2,
+            episode = 3
+        )
         assertEquals(episode, streamResumeProgress(episode, false))
     }
 }

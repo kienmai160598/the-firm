@@ -11,7 +11,8 @@ import com.kien.movies.domain.model.PosterShape
 import com.kien.movies.domain.model.Video
 
 fun MetaDto.toDomain(episodeLabel: String = "Episode"): Meta {
-    val directorMembers = mapPeople(appExtras?.directors, roleFallback = "Director", forceRole = true)
+    val directorMembers =
+        mapPeople(appExtras?.directors, roleFallback = "Director", forceRole = true)
     val writerMembers = mapPeople(appExtras?.writers, roleFallback = "Writer", forceRole = true)
     val castMembers = mapPeople(appExtras?.cast)
     val directors = coerceStringList(director).ifEmpty { directorMembers.map { it.name } }
@@ -78,7 +79,9 @@ fun VideoDto.toDomain(episodeLabel: String = "Episode"): Video {
         title = name ?: title ?: "$episodeLabel ${episode ?: number ?: 0}",
         released = released,
         thumbnail = thumbnail,
-        streams = streams?.map { it.toDomain(addonName = "Embedded Streams", addonLogo = null) } ?: emptyList(),
+        streams =
+            streams?.map { it.toDomain(addonName = "Embedded Streams", addonLogo = null) }
+                ?: emptyList(),
         season = season,
         episode = episode ?: number,
         overview = overview ?: description,
@@ -113,10 +116,13 @@ private fun mapSeasonPosters(appExtras: AppExtrasDto?, videos: List<Video>): Map
     val positiveSeasons = seasons.filter { it > 0 }
     val posterSeasons = when {
         seasons.size == posters.size -> seasons
+
         positiveSeasons.size == posters.size -> positiveSeasons
+
         positiveSeasons.isNotEmpty() &&
             posters.size == positiveSeasons.size + 1 &&
             posters.first() == null -> listOf(0) + positiveSeasons
+
         else -> List(posters.size) { index -> index + 1 }
     }
     return posters.mapIndexedNotNull { index, element ->

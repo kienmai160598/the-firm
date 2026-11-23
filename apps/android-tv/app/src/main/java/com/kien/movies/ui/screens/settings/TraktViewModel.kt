@@ -4,24 +4,24 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kien.movies.R
+import com.kien.movies.data.local.MoreLikeThisSourcePreference
 import com.kien.movies.data.local.TraktAuthDataStore
 import com.kien.movies.data.local.TraktAuthState
 import com.kien.movies.data.local.TraktSettingsDataStore
-import com.kien.movies.data.local.MoreLikeThisSourcePreference
 import com.kien.movies.data.repository.TraktAuthService
 import com.kien.movies.data.repository.TraktProgressService
 import com.kien.movies.data.repository.TraktTokenPollResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 enum class TraktConnectionMode {
     DISCONNECTED,
@@ -135,7 +135,9 @@ class TraktViewModel @Inject constructor(
                     if (result.isSuccess) {
                         state.copy(
                             isLoading = false,
-                            statusMessage = context.getString(R.string.trakt_status_enter_activation_code)
+                            statusMessage = context.getString(
+                                R.string.trakt_status_enter_activation_code
+                            )
                         )
                     } else {
                         state.copy(
@@ -281,12 +283,16 @@ class TraktViewModel @Inject constructor(
                 deviceCodeExpiresAtMillis = authState.expiresAt,
                 credentialsConfigured = traktAuthService.hasRequiredCredentials(),
                 isPolling = if (mode == TraktConnectionMode.CONNECTED) false else current.isPolling,
-                connectedStats = if (mode == TraktConnectionMode.CONNECTED && !connectedIdentityChanged) {
+                connectedStats = if (mode == TraktConnectionMode.CONNECTED &&
+                    !connectedIdentityChanged
+                ) {
                     current.connectedStats
                 } else {
                     null
                 },
-                isStatsLoading = if (mode == TraktConnectionMode.CONNECTED && !connectedIdentityChanged) {
+                isStatsLoading = if (mode == TraktConnectionMode.CONNECTED &&
+                    !connectedIdentityChanged
+                ) {
                     current.isStatsLoading
                 } else {
                     false
@@ -323,7 +329,14 @@ class TraktViewModel @Inject constructor(
     private fun autoSyncAfterConnected() {
         lastAutoSyncAtMs = System.currentTimeMillis()
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, isStatsLoading = true, errorMessage = null, statusMessage = null) }
+            _uiState.update {
+                it.copy(
+                    isLoading = true,
+                    isStatsLoading = true,
+                    errorMessage = null,
+                    statusMessage = null
+                )
+            }
             traktProgressService.refreshNow()
             traktAuthService.fetchUserSettings()
             val stats = traktProgressService.getCachedStats(forceRefresh = true)
@@ -420,7 +433,9 @@ class TraktViewModel @Inject constructor(
                             it.copy(
                                 isPolling = true,
                                 pollIntervalSeconds = poll.pollIntervalSeconds,
-                                statusMessage = context.getString(R.string.trakt_status_rate_limited_slowing_polling)
+                                statusMessage = context.getString(
+                                    R.string.trakt_status_rate_limited_slowing_polling
+                                )
                             )
                         }
                     }

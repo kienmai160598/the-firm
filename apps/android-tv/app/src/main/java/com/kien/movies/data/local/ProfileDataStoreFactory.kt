@@ -11,6 +11,10 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.kien.movies.domain.model.DiscoverLocation
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
+import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,10 +22,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
-import javax.inject.Singleton
-import java.io.File
 
 private class ScopedDataStore(
     val store: DataStore<Preferences>,
@@ -30,8 +30,7 @@ private class ScopedDataStore(
 )
 
 internal val discoverLocationMigration = object : DataMigration<Preferences> {
-    override suspend fun shouldMigrate(currentData: Preferences): Boolean =
-        legacySearchDiscoverEnabledKey in currentData
+    override suspend fun shouldMigrate(currentData: Preferences): Boolean = legacySearchDiscoverEnabledKey in currentData
 
     override suspend fun migrate(currentData: Preferences): Preferences {
         val mutable = currentData.toMutablePreferences()
@@ -135,7 +134,9 @@ class ProfileDataStoreFactory @Inject constructor(
     private fun createAndCache(fileName: String): ScopedDataStore {
         val job = SupervisorJob()
         val scope = CoroutineScope(Dispatchers.IO + job)
-        val migrations = if (fileName == "layout_settings" || fileName.startsWith("layout_settings_p")) {
+        val migrations = if (fileName == "layout_settings" ||
+            fileName.startsWith("layout_settings_p")
+        ) {
             listOf(discoverLocationMigration)
         } else {
             emptyList()
@@ -151,17 +152,30 @@ class ProfileDataStoreFactory @Inject constructor(
         // to avoid this edge case (DataStore will overwrite on first write).
         val targetFile = File(dataStoreDir, "$fileName.preferences_pb")
         if (!targetFile.exists()) {
-            try { targetFile.createNewFile() } catch (_: Exception) { }
+            try {
+                targetFile.createNewFile()
+            } catch (_: Exception) { }
         }
         val store = PreferenceDataStoreFactory.create(
-            corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler { ex ->
-                Log.e("ProfileDataStoreFactory", "DataStore corrupted ($fileName): ${ex.message} — attempting shadow copy recovery")
+            corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler {
+                    ex
+                ->
+                Log.e(
+                    "ProfileDataStoreFactory",
+                    "DataStore corrupted ($fileName): ${ex.message} — attempting shadow copy recovery"
+                )
                 val recovered = recoverFromShadowCopy(fileName)
                 if (recovered != null) {
-                    Log.i("ProfileDataStoreFactory", "DataStore recovered from shadow copy ($fileName)")
+                    Log.i(
+                        "ProfileDataStoreFactory",
+                        "DataStore recovered from shadow copy ($fileName)"
+                    )
                     recovered
                 } else {
-                    Log.e("ProfileDataStoreFactory", "DataStore shadow copy unavailable ($fileName) — resetting to empty preferences")
+                    Log.e(
+                        "ProfileDataStoreFactory",
+                        "DataStore shadow copy unavailable ($fileName) — resetting to empty preferences"
+                    )
                     corruptedFileNames.add(fileName)
                     emptyPreferences()
                 }
@@ -189,7 +203,10 @@ class ProfileDataStoreFactory @Inject constructor(
                 sourceFile.copyTo(backupFile, overwrite = true)
             }
         } catch (e: Exception) {
-            Log.w("ProfileDataStoreFactory", "Failed to write shadow copy for $fileName: ${e.message}")
+            Log.w(
+                "ProfileDataStoreFactory",
+                "Failed to write shadow copy for $fileName: ${e.message}"
+            )
         }
     }
 
@@ -203,15 +220,20 @@ class ProfileDataStoreFactory @Inject constructor(
             val preferences = kotlinx.coroutines.runBlocking {
                 androidx.datastore.preferences.core.PreferencesSerializer.readFrom(source)
             }
-            Log.i("ProfileDataStoreFactory", "Parsed shadow copy for $fileName (${preferences.asMap().size} keys)")
+            Log.i(
+                "ProfileDataStoreFactory",
+                "Parsed shadow copy for $fileName (${preferences.asMap().size} keys)"
+            )
             preferences
         } catch (e: Exception) {
-            Log.w("ProfileDataStoreFactory", "Shadow copy recovery failed for $fileName: ${e.message}")
+            Log.w(
+                "ProfileDataStoreFactory",
+                "Shadow copy recovery failed for $fileName: ${e.message}"
+            )
             null
         }
     }
 }
-
 
 /**
  * Thin wrapper around a DataStore that writes a shadow copy of the underlying
@@ -243,7 +265,9 @@ private class ShadowCopyDataStore(
             }
         }
 
-    override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
+    override suspend fun updateData(
+        transform: suspend (t: Preferences) -> Preferences
+    ): Preferences {
         val result = delegate.updateData(transform)
         scope.launch(Dispatchers.IO) {
             try {

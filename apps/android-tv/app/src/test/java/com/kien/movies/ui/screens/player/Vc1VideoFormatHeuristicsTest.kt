@@ -34,10 +34,18 @@ class Vc1VideoFormatHeuristicsTest {
 
     @Test
     fun isLikelyVc1_detectsStreamNames() {
-        assertTrue(Vc1VideoFormatHeuristics.isLikelyVc1(streamName = "Movie.2008.1080p.BluRay.Remux.VC-1.DTS-HD.MA.5.1"))
+        assertTrue(
+            Vc1VideoFormatHeuristics.isLikelyVc1(
+                streamName = "Movie.2008.1080p.BluRay.Remux.VC-1.DTS-HD.MA.5.1"
+            )
+        )
         assertTrue(Vc1VideoFormatHeuristics.isLikelyVc1(streamName = "Film.Title.VC1.1080p.mkv"))
         assertTrue(Vc1VideoFormatHeuristics.isLikelyVc1(streamName = "[VC-1] Feature Presentation"))
-        assertFalse(Vc1VideoFormatHeuristics.isLikelyVc1(streamName = "Movie.2008.1080p.BluRay.Remux.AVC.DTS-HD.MA.5.1"))
+        assertFalse(
+            Vc1VideoFormatHeuristics.isLikelyVc1(
+                streamName = "Movie.2008.1080p.BluRay.Remux.AVC.DTS-HD.MA.5.1"
+            )
+        )
         assertFalse(Vc1VideoFormatHeuristics.isLikelyVc1(streamName = "Show.S01E01.1080p.HEVC.mkv"))
     }
 

@@ -5,14 +5,14 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 /**
  * Downloads subtitle files from remote URLs to local cache and provides
@@ -79,8 +79,13 @@ class SubtitleFileCache @Inject constructor(
                 }
 
                 val bodyBytes = response.body?.bytes() ?: return@withContext null
-                val normalizedText = SubtitleCharsetDetector.decode(bodyBytes, languageHint = input.lang)
-                val sanitizedText = com.kien.movies.ui.screens.player.SubtitleMojibakeSanitizer.sanitize(normalizedText).toString()
+                val normalizedText = SubtitleCharsetDetector.decode(
+                    bodyBytes,
+                    languageHint = input.lang
+                )
+                val sanitizedText = com.kien.movies.ui.screens.player.SubtitleMojibakeSanitizer.sanitize(
+                    normalizedText
+                ).toString()
                 file.writeText(sanitizedText, Charsets.UTF_8)
             }
 

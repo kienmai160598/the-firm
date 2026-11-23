@@ -5,8 +5,10 @@ package com.kien.movies.ui.screens.stream
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import androidx.activity.compose.BackHandler
+import android.util.Log
+import android.view.KeyEvent
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -28,15 +30,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
@@ -44,44 +53,35 @@ import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import android.view.KeyEvent
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import coil3.request.ImageRequest
-import coil3.request.crossfade
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import com.kien.movies.core.party.PartySource
-import com.kien.movies.core.party.matches
-import com.kien.movies.ui.util.contentTextDirection
-import com.kien.movies.ui.util.toAbsoluteAlignment
-import com.kien.movies.ui.util.localizeEpisodeTitle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
@@ -91,45 +91,43 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import com.kien.movies.R
+import com.kien.movies.core.party.PartySource
+import com.kien.movies.core.party.matches
 import com.kien.movies.core.streams.StreamBadgePlacement
 import com.kien.movies.core.streams.StreamBadgeSettings
 import com.kien.movies.data.local.PlayerPreference
 import com.kien.movies.domain.model.Stream
+import com.kien.movies.ui.components.P2pConsentDialog
 import com.kien.movies.ui.components.SourceChipItem
 import com.kien.movies.ui.components.SourceChipStatus
-import com.kien.movies.ui.components.P2pConsentDialog
 import com.kien.movies.ui.components.StreamBadgeChips
 import com.kien.movies.ui.components.StreamLabelBadge
 import com.kien.movies.ui.components.StreamsSkeletonList
-import com.kien.movies.ui.screens.player.LoadingOverlay
-import com.kien.movies.ui.screens.player.AddonFilterChips
-import com.kien.movies.ui.screens.player.focusChip
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.components.expressive.moviesCardColors
 import com.kien.movies.ui.components.expressive.moviesCardScale
-import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.navigation.sourceSelectionRestoreTarget
 import com.kien.movies.ui.screens.detail.TvSizeFloors
 import com.kien.movies.ui.screens.detail.atLeastOnBox
-import com.kien.movies.ui.navigation.sourceSelectionRestoreTarget
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.delay as coroutineDelay
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.launch as coroutineLaunch
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.ui.res.stringResource
-import com.kien.movies.R
-import android.util.Log
+import com.kien.movies.ui.screens.player.AddonFilterChips
+import com.kien.movies.ui.screens.player.LoadingOverlay
+import com.kien.movies.ui.screens.player.focusChip
+import com.kien.movies.ui.theme.ExpressiveMotion
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.util.contentTextDirection
+import com.kien.movies.ui.util.localizeEpisodeTitle
+import com.kien.movies.ui.util.toAbsoluteAlignment
 import dev.chrisbanes.haze.HazeInputScale
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
-
-
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.delay as coroutineDelay
+import kotlinx.coroutines.launch as coroutineLaunch
 
 // A 16 sp label is 22 sp tall on the box, so 13 dp above and below keeps the 48 dp control.
 private val RetryVerticalPadding = 13.dp
@@ -156,7 +154,15 @@ fun StreamScreen(
             R.string.stream_resume_from_time,
             com.kien.movies.ui.screens.detail.formatPlaybackTime(resumePositionMs)
         )
-        resumePercent != null -> stringResource(R.string.stream_resume_from_percent, (resumePercent * 100).toInt())
+
+        resumePercent != null -> stringResource(
+            R.string.stream_resume_from_percent,
+            (
+                resumePercent *
+                    100
+                ).toInt()
+        )
+
         else -> null
     }
     val sharedStream by viewModel.sharedStream.collectAsStateWithLifecycle()
@@ -194,7 +200,9 @@ fun StreamScreen(
     }
 
     fun launchExternalPlayer(playbackInfo: StreamPlaybackInfo) {
-        val url = playbackInfo.url ?: if (playbackInfo.isTorrent) "torrent://${playbackInfo.infoHash}" else return
+        val url =
+            playbackInfo.url
+                ?: if (playbackInfo.isTorrent) "torrent://${playbackInfo.infoHash}" else return
         scope.coroutineLaunch {
             viewModel.launchExternalPlayer(
                 playbackInfo = playbackInfo,
@@ -231,7 +239,12 @@ fun StreamScreen(
         if (openExternalInBrowser(playbackInfo)) {
             return
         }
-        val preference = if (playbackInfo.isServerStream) PlayerPreference.INTERNAL else playerPreference ?: return
+        val preference = if (playbackInfo.isServerStream) {
+            PlayerPreference.INTERNAL
+        } else {
+            playerPreference
+                ?: return
+        }
         if (playbackInfo.isTorrent && !p2pEnabled) {
             pendingTorrentPlaybackInfo = playbackInfo
             showP2pConsentDialog = true
@@ -241,11 +254,13 @@ fun StreamScreen(
             PlayerPreference.INTERNAL -> {
                 launchInternalPlayer(playbackInfo)
             }
+
             PlayerPreference.EXTERNAL -> {
                 if (playbackInfo.url != null || playbackInfo.isTorrent) {
                     launchExternalPlayer(playbackInfo)
                 }
             }
+
             PlayerPreference.ASK_EVERY_TIME -> {
                 pendingPlaybackInfo = playbackInfo
                 showPlayerChoiceDialog = true
@@ -264,12 +279,19 @@ fun StreamScreen(
             showP2pConsentDialog = true
             return
         }
-        val preference = if (playbackInfo.isServerStream) PlayerPreference.INTERNAL else playerPreference ?: return
+        val preference = if (playbackInfo.isServerStream) {
+            PlayerPreference.INTERNAL
+        } else {
+            playerPreference
+                ?: return
+        }
         if (uiState.isDirectAutoPlayFlow) {
             // Respect player preference even in direct autoplay flow
             when (preference) {
                 PlayerPreference.EXTERNAL -> {
-                    val url = playbackInfo.url ?: if (playbackInfo.isTorrent) "torrent://${playbackInfo.infoHash}" else null
+                    val url =
+                        playbackInfo.url
+                            ?: if (playbackInfo.isTorrent) "torrent://${playbackInfo.infoHash}" else null
                     url?.let { urlString ->
                         scope.coroutineLaunch {
                             viewModel.launchExternalPlayer(
@@ -286,11 +308,13 @@ fun StreamScreen(
                         }
                     }
                 }
+
                 PlayerPreference.ASK_EVERY_TIME -> {
                     pendingPlaybackInfo = playbackInfo
                     showPlayerChoiceDialog = true
                     viewModel.onEvent(StreamScreenEvent.OnAutoPlayConsumed)
                 }
+
                 else -> {
                     viewModel.onInternalPlayerLaunching()
                     onAutoPlayResolved(playbackInfo)
@@ -364,9 +388,14 @@ fun StreamScreen(
             // Respect player preference for cached links too
             when (playerPreference ?: return@LaunchedEffect) {
                 PlayerPreference.EXTERNAL -> {
-                    val url = playbackInfo.url ?: if (playbackInfo.isTorrent) "torrent://${playbackInfo.infoHash}" else null
+                    val url =
+                        playbackInfo.url
+                            ?: if (playbackInfo.isTorrent) "torrent://${playbackInfo.infoHash}" else null
                     url?.let { urlString ->
-                        Log.d("StreamScreen", "autoPlayPlaybackInfo EXTERNAL: launching player, will pop after 800ms")
+                        Log.d(
+                            "StreamScreen",
+                            "autoPlayPlaybackInfo EXTERNAL: launching player, will pop after 800ms"
+                        )
                         viewModel.launchExternalPlayer(
                             playbackInfo = playbackInfo,
                             url = urlString,
@@ -381,11 +410,13 @@ fun StreamScreen(
                     viewModel.onEvent(StreamScreenEvent.OnAutoPlayConsumed)
                     onBackPress()
                 }
+
                 PlayerPreference.ASK_EVERY_TIME -> {
                     pendingPlaybackInfo = playbackInfo
                     showPlayerChoiceDialog = true
                     viewModel.onEvent(StreamScreenEvent.OnAutoPlayConsumed)
                 }
+
                 else -> {
                     viewModel.onInternalPlayerLaunching()
                     onAutoPlayResolved(playbackInfo)
@@ -491,13 +522,18 @@ fun StreamScreen(
                     showAddonLogo = streamBadgeSettings.showAddonLogo,
                     badgePlacement = streamBadgeSettings.badgePlacement,
                     hasBadgeRules = streamBadgeSettings.rules.hasImport,
-                    onAddonFilterSelected = { viewModel.onEvent(StreamScreenEvent.OnAddonFilterSelected(it)) },
+                    onAddonFilterSelected = {
+                        viewModel.onEvent(StreamScreenEvent.OnAddonFilterSelected(it))
+                    },
                     onRefresh = { viewModel.onEvent(StreamScreenEvent.OnRefresh) },
                     sharedStream = sharedStream,
                     partySource = partySource,
                     onSharedStreamSelected = { stream ->
                         scope.coroutineLaunch {
-                            val playbackInfo = viewModel.resolveStreamForPlayback(stream, saveLastLink = false)
+                            val playbackInfo = viewModel.resolveStreamForPlayback(
+                                stream,
+                                saveLastLink = false
+                            )
                             if (playbackInfo != null) {
                                 pendingRestoreOnResume = true
                                 routePlayback(playbackInfo)
@@ -585,16 +621,11 @@ fun StreamScreen(
                 }
             )
         }
-
     }
 }
 
 @Composable
-internal fun StreamBackdrop(
-    backdrop: String?,
-    isLoading: Boolean,
-    modifier: Modifier = Modifier
-) {
+internal fun StreamBackdrop(backdrop: String?, isLoading: Boolean, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val backgroundColor = MoviesTheme.colors.Background
     val backdropModel = remember(context, backdrop) {
@@ -611,9 +642,10 @@ internal fun StreamBackdrop(
         label = "backdrop_image_alpha"
     )
 
-    Box(modifier = modifier
-        .fillMaxSize()
-        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
     ) {
         // Backdrop image
         if (backdropModel != null) {
@@ -636,10 +668,7 @@ internal fun StreamBackdrop(
 }
 
 @Composable
-private fun StreamGradientLayer(
-    bgColor: Color,
-    modifier: Modifier = Modifier
-) {
+private fun StreamGradientLayer(bgColor: Color, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .drawWithCache {
@@ -796,7 +825,9 @@ private fun RightStreamSection(
     hazeState: HazeState?,
     modifier: Modifier = Modifier
 ) {
-    val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+    val isRtl =
+        androidx.compose.ui.platform.LocalLayoutDirection.current ==
+            androidx.compose.ui.unit.LayoutDirection.Rtl
     var enter by remember { mutableStateOf(false) }
     var firstStreamFocusRequestId by remember { mutableStateOf(0) }
     var listHasFocus by remember { mutableStateOf(false) }
@@ -838,7 +869,10 @@ private fun RightStreamSection(
         // Focus the chip before the results change: once the focused card is gone,
         // Compose would otherwise park focus on another chip first.
         focusJob = scope.coroutineLaunch(start = CoroutineStart.UNDISPATCHED) {
-            chipListState.focusChip(chipFocusRequesters.indexOf(targetRequester), chipFocusRequesters)
+            chipListState.focusChip(
+                chipFocusRequesters.indexOf(targetRequester),
+                chipFocusRequesters
+            )
         }
         onAddonFilterSelected(addon)
     }
@@ -852,7 +886,9 @@ private fun RightStreamSection(
         }
     }
     LaunchedEffect(isLoading, firstStreamKey, userMovedFromFirstResult, firstResultFocusAssigned) {
-        if (!isLoading && firstStreamKey != null && !userMovedFromFirstResult && !firstResultFocusAssigned) {
+        if (!isLoading && firstStreamKey != null && !userMovedFromFirstResult &&
+            !firstResultFocusAssigned
+        ) {
             firstResultFocusAssigned = true
             firstStreamFocusRequestId += 1
         }
@@ -885,7 +921,11 @@ private fun RightStreamSection(
 
     Column(
         modifier = modifier
-            .padding(top = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.xxxl)
+            .padding(
+                top = MoviesTheme.spacing.xxxl,
+                end = MoviesTheme.spacing.xxxl,
+                bottom = MoviesTheme.spacing.xxxl
+            )
     ) {
         androidx.compose.animation.AnimatedVisibility(
             visible = enter,
@@ -926,7 +966,9 @@ private fun RightStreamSection(
                     ) {
                         Text(
                             text = text,
-                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.SemiBold
+                            ),
                             color = MoviesTheme.colors.TextPrimary
                         )
                     }
@@ -935,7 +977,8 @@ private fun RightStreamSection(
                 // Addon filter chips
                 Box(modifier = Modifier.height(MoviesTheme.spacing.huge)) {
                     androidx.compose.animation.AnimatedVisibility(
-                        visible = sourceChips.isNotEmpty() || (!isLoading && availableAddons.isNotEmpty()),
+                        visible =
+                            sourceChips.isNotEmpty() || (!isLoading && availableAddons.isNotEmpty()),
                         enter = fadeIn(animationSpec = ExpressiveMotion.defaultEffects()),
                         exit = fadeOut(animationSpec = ExpressiveMotion.defaultEffects())
                     ) {
@@ -943,7 +986,10 @@ private fun RightStreamSection(
                             addons = availableAddons,
                             sourceChips = sourceChips,
                             selectedAddon = selectedAddonFilter,
-                            isStillFetching = sourceChips.any { it.status == SourceChipStatus.LOADING },
+                            isStillFetching = sourceChips.any {
+                                it.status ==
+                                    SourceChipStatus.LOADING
+                            },
                             onRefresh = {
                                 userMovedFromFirstResult = false
                                 firstResultFocusAssigned = false
@@ -969,15 +1015,18 @@ private fun RightStreamSection(
                         sharedStream == null && isLoading -> {
                             LoadingState(showAddonLogo = showAddonLogo)
                         }
+
                         sharedStream == null && error != null -> {
                             ErrorState(
                                 message = error,
                                 onRetry = onRetry
                             )
                         }
+
                         sharedStream == null && streams.isEmpty() -> {
                             EmptyState()
                         }
+
                         else -> {
                             StreamsList(
                                 streams = streams,
@@ -1021,10 +1070,7 @@ private fun LoadingState(showAddonLogo: Boolean = true) {
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun ErrorState(
-    message: String,
-    onRetry: () -> Unit
-) {
+private fun ErrorState(message: String, onRetry: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -1112,7 +1158,9 @@ private fun StreamsList(
     onFocusChanged: (Boolean) -> Unit = {},
     onExpandStreams: () -> Unit = {}
 ) {
-    val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+    val isRtl =
+        androidx.compose.ui.platform.LocalLayoutDirection.current ==
+            androidx.compose.ui.unit.LayoutDirection.Rtl
     val lastKeyRepeatDispatchRef = remember { java.util.concurrent.atomic.AtomicLong(0L) }
     val restoreFocusRequester = remember { FocusRequester() }
     val streamListState = rememberLazyListState()
@@ -1152,7 +1200,10 @@ private fun StreamsList(
                 val correctedFirst = (streamListState.firstVisibleItemIndex + shift)
                     .coerceIn(0, (streamKeys.size - 1).coerceAtLeast(0))
                 try {
-                    streamListState.scrollToItem(correctedFirst, streamListState.firstVisibleItemScrollOffset)
+                    streamListState.scrollToItem(
+                        correctedFirst,
+                        streamListState.firstVisibleItemScrollOffset
+                    )
                 } catch (_: Exception) { }
                 withFrameNanos { }
                 runCatching { streamFocusRequesters[key]?.requestFocus() }
@@ -1173,8 +1224,11 @@ private fun StreamsList(
             withFrameNanos { }
             if (firstCardHasFocus || sharedCardHasFocus) return@LaunchedEffect
             runCatching {
-                if (sharedStream != null) sharedFocusRequester.requestFocus()
-                else streamFocusRequesters.getValue(requestedKey).requestFocus()
+                if (sharedStream != null) {
+                    sharedFocusRequester.requestFocus()
+                } else {
+                    streamFocusRequesters.getValue(requestedKey).requestFocus()
+                }
             }
         }
     }
@@ -1242,25 +1296,68 @@ private fun StreamsList(
                 when (event.key) {
                     Key.DirectionLeft -> {
                         if (isRtl) {
-                            if (currentIdx < allOptions.lastIndex) { onAddonFilterSelected(allOptions[currentIdx + 1]); true } else true
+                            if (currentIdx <
+                                allOptions.lastIndex
+                            ) {
+                                onAddonFilterSelected(
+                                    allOptions[
+                                        currentIdx +
+                                            1
+                                    ]
+                                )
+                                true
+                            } else {
+                                true
+                            }
                         } else {
-                            if (currentIdx > 0) { onAddonFilterSelected(allOptions[currentIdx - 1]); true }
-                            else { true }
+                            if (currentIdx >
+                                0
+                            ) {
+                                onAddonFilterSelected(allOptions[currentIdx - 1])
+                                true
+                            } else {
+                                true
+                            }
                         }
                     }
+
                     Key.DirectionRight -> {
                         if (isRtl) {
-                            if (currentIdx > 0) { onAddonFilterSelected(allOptions[currentIdx - 1]); true }
-                            else { true }
+                            if (currentIdx >
+                                0
+                            ) {
+                                onAddonFilterSelected(allOptions[currentIdx - 1])
+                                true
+                            } else {
+                                true
+                            }
                         } else {
-                            if (currentIdx < allOptions.lastIndex) { onAddonFilterSelected(allOptions[currentIdx + 1]); true } else true
+                            if (currentIdx <
+                                allOptions.lastIndex
+                            ) {
+                                onAddonFilterSelected(
+                                    allOptions[
+                                        currentIdx +
+                                            1
+                                    ]
+                                )
+                                true
+                            } else {
+                                true
+                            }
                         }
                     }
+
                     else -> false
                 }
             },
         verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
-        contentPadding = PaddingValues(start = MoviesTheme.spacing.sm, end = MoviesTheme.spacing.sm, top = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxl)
+        contentPadding = PaddingValues(
+            start = MoviesTheme.spacing.sm,
+            end = MoviesTheme.spacing.sm,
+            top = MoviesTheme.spacing.sm,
+            bottom = MoviesTheme.spacing.xxl
+        )
     ) {
         sharedStream?.let { shared ->
             item(key = "party_shared_stream") {
@@ -1284,8 +1381,11 @@ private fun StreamsList(
                         focusRequester = sharedFocusRequester,
                         onFocusChanged = { focused -> sharedCardHasFocus = focused },
                         onUpKey = {
-                            val idx = if (selectedAddonFilter == null) 1
-                                      else orderedAddonNames.indexOf(selectedAddonFilter) + 2
+                            val idx = if (selectedAddonFilter == null) {
+                                1
+                            } else {
+                                orderedAddonNames.indexOf(selectedAddonFilter) + 2
+                            }
                             onRequestChipFocus(idx)
                         },
                         outlined = true
@@ -1312,8 +1412,16 @@ private fun StreamsList(
                         ?: exceedsDeviceBudgetLabel.takeIf { stream.exceedsDeviceBudget },
                     onClick = { onStreamSelected(stream) },
                     focusRequester = when {
-                        shouldRestoreFocusedStream && index == focusedStreamIndex.coerceIn(0, (streams.lastIndex).coerceAtLeast(0)) -> restoreFocusRequester
-                        else -> streamFocusRequesters.getOrPut(streamKeys[index]) { FocusRequester() }
+                        shouldRestoreFocusedStream &&
+                            index ==
+                            focusedStreamIndex.coerceIn(
+                                0,
+                                (streams.lastIndex).coerceAtLeast(0)
+                            ) -> restoreFocusRequester
+
+                        else -> streamFocusRequesters.getOrPut(streamKeys[index]) {
+                            FocusRequester()
+                        }
                     },
                     onFocusChanged = { focused ->
                         if (focused) {
@@ -1324,11 +1432,18 @@ private fun StreamsList(
                             firstCardHasFocus = focused
                         }
                     },
-                    onUpKey = if (index == 0 && sharedStream == null) {{
-                        val idx = if (selectedAddonFilter == null) 1
-                                  else orderedAddonNames.indexOf(selectedAddonFilter) + 2
-                        onRequestChipFocus(idx)
-                    }} else null
+                    onUpKey = if (index == 0 && sharedStream == null) {
+                        {
+                            val idx = if (selectedAddonFilter == null) {
+                                1
+                            } else {
+                                orderedAddonNames.indexOf(selectedAddonFilter) + 2
+                            }
+                            onRequestChipFocus(idx)
+                        }
+                    } else {
+                        null
+                    }
                 )
             }
         }
@@ -1367,9 +1482,15 @@ private fun StreamCard(
     val context = LocalContext.current
     val density = LocalDensity.current
     val unknownStreamLabel = stringResource(R.string.stream_unknown)
-    val streamName = remember(stream, unknownStreamLabel) { stream.getDisplayNameOrNull() ?: unknownStreamLabel }
+    val streamName = remember(stream, unknownStreamLabel) {
+        stream.getDisplayNameOrNull()
+            ?: unknownStreamLabel
+    }
     val streamDescription = remember(stream) { stream.getDisplayDescription() }
-    val hasBadges = stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null) || reserveBadgeSpace
+    val hasBadges =
+        stream.badges.isNotEmpty() ||
+            (showFileSizeBadges && stream.behaviorHints?.videoSize != null) ||
+            reserveBadgeSpace
     val cardShape = M3eShapes.card
 
     var isFocused by remember { mutableStateOf(false) }
@@ -1389,7 +1510,7 @@ private fun StreamCard(
             ImageRequest.Builder(context)
                 .data(logo)
                 .size(width = logoDecodeSize, height = logoDecodeSize)
-                .memoryCacheKey("${logo}_${logoDecodeSize}x${logoDecodeSize}")
+                .memoryCacheKey("${logo}_${logoDecodeSize}x$logoDecodeSize")
                 .crossfade(false)
                 .build()
         }
@@ -1404,11 +1525,22 @@ private fun StreamCard(
                 isFocused = it.isFocused
                 onFocusChanged?.invoke(it.isFocused)
             }
-            .then(if (onUpKey != null) Modifier.onKeyEvent { event ->
-                if (event.nativeKeyEvent.action == KeyEvent.ACTION_DOWN && event.key == Key.DirectionUp) {
-                    onUpKey(); true
-                } else false
-            } else Modifier),
+            .then(
+                if (onUpKey != null) {
+                    Modifier.onKeyEvent { event ->
+                        if (event.nativeKeyEvent.action == KeyEvent.ACTION_DOWN &&
+                            event.key == Key.DirectionUp
+                        ) {
+                            onUpKey()
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                } else {
+                    Modifier
+                }
+            ),
         colors = moviesCardColors(),
         shape = CardDefaults.shape(shape = cardShape),
         border = streamCardBorder(outlineBorder(outlined, cardShape)),
@@ -1426,7 +1558,9 @@ private fun StreamCard(
                 verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
             ) {
                 if (hasBadges && badgePlacement == StreamBadgePlacement.TOP) {
-                    if (stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null)) {
+                    if (stream.badges.isNotEmpty() ||
+                        (showFileSizeBadges && stream.behaviorHints?.videoSize != null)
+                    ) {
                         StreamBadgeChips(
                             badges = stream.badges,
                             fileSizeBytes = stream.behaviorHints?.videoSize,
@@ -1441,7 +1575,9 @@ private fun StreamCard(
                 }
 
                 Row(
-                    modifier = Modifier.align(streamName.contentTextDirection().toAbsoluteAlignment()),
+                    modifier = Modifier.align(
+                        streamName.contentTextDirection().toAbsoluteAlignment()
+                    ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                 ) {
@@ -1462,7 +1598,9 @@ private fun StreamCard(
                     if (description.isNotBlank() && description != streamName) {
                         Text(
                             text = description,
-                            modifier = Modifier.align(description.contentTextDirection().toAbsoluteAlignment()),
+                            modifier = Modifier.align(
+                                description.contentTextDirection().toAbsoluteAlignment()
+                            ),
                             style = MaterialTheme.typography.bodySmall
                                 .atLeastOnBox(TvSizeFloors.metaText)
                                 .copy(textDirection = description.contentTextDirection()),
@@ -1472,7 +1610,9 @@ private fun StreamCard(
                 }
 
                 if (hasBadges && badgePlacement == StreamBadgePlacement.BOTTOM) {
-                    if (stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null)) {
+                    if (stream.badges.isNotEmpty() ||
+                        (showFileSizeBadges && stream.behaviorHints?.videoSize != null)
+                    ) {
                         StreamBadgeChips(
                             badges = stream.badges,
                             fileSizeBytes = stream.behaviorHints?.videoSize,
@@ -1521,15 +1661,17 @@ private fun StreamCard(
 }
 
 @Composable
-private fun outlineBorder(outlined: Boolean, shape: Shape): Border =
-    if (outlined) {
-        Border(
-            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Primary.copy(alpha = 0.65f)),
-            shape = shape
-        )
-    } else {
-        Border.None
-    }
+private fun outlineBorder(outlined: Boolean, shape: Shape): Border = if (outlined) {
+    Border(
+        border = BorderStroke(
+            MoviesTheme.spacing.hairline,
+            MoviesTheme.colors.Primary.copy(alpha = 0.65f)
+        ),
+        shape = shape
+    )
+} else {
+    Border.None
+}
 
 @Composable
 internal fun PlayerChoiceDialog(

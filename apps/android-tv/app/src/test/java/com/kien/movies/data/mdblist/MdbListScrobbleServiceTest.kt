@@ -1,7 +1,7 @@
 package com.kien.movies.data.mdblist
 
-import com.kien.movies.core.tracking.TrackingExternalIds
 import com.kien.movies.core.tracking.TrackingEpisode
+import com.kien.movies.core.tracking.TrackingExternalIds
 import com.kien.movies.core.tracking.TrackingMediaKind
 import com.kien.movies.core.tracking.TrackingMediaReference
 import com.kien.movies.core.tracking.TrackingScrobbleAction
@@ -34,16 +34,37 @@ class MdbListScrobbleServiceTest {
                 val start = action == TrackingScrobbleAction.START
                 val responseAction = if (start) "start" else "pause"
                 val timestamp = if (start) "started_at" else "paused_at"
-                harness.http.reply(body = """{"action":"$responseAction","progress":$expected,"$timestamp":"$MDBLIST_TEST_TIME"}""")
+                harness.http.reply(
+                    body = """{"action":"$responseAction","progress":$expected,"$timestamp":"$MDBLIST_TEST_TIME"}"""
+                )
 
-                service(harness).scrobble(harness.repository.currentScope(), action, TrackingScrobbleEvent(media, progress))
+                service(
+                    harness
+                ).scrobble(
+                    harness.repository.currentScope(),
+                    action,
+                    TrackingScrobbleEvent(media, progress)
+                )
 
                 val request = harness.http.engine.requests.last()
                 assertEquals("/scrobble/${action.wireValue}", request.path)
-                assertEquals(expected, mdbListResponseElement(request.body).objectValue().text("progress")!!.toDouble(), 0.0)
+                assertEquals(
+                    expected,
+                    mdbListResponseElement(
+                        request.body
+                    ).objectValue().text("progress")!!.toDouble(),
+                    0.0
+                )
                 assertTrue(harness.repository.currentSnapshot()!!.watched.isEmpty())
-                if (start) assertTrue(harness.repository.currentSnapshot()!!.playback.isEmpty())
-                else assertEquals(expected.toFloat(), harness.repository.currentSnapshot()!!.playback.single().progress, 0f)
+                if (start) {
+                    assertTrue(harness.repository.currentSnapshot()!!.playback.isEmpty())
+                } else {
+                    assertEquals(
+                        expected.toFloat(),
+                        harness.repository.currentSnapshot()!!.playback.single().progress,
+                        0f
+                    )
+                }
             }
             assertEquals(4, harness.http.engine.requests.size)
             assertTrue(harness.remote.calls.isEmpty())
@@ -53,10 +74,20 @@ class MdbListScrobbleServiceTest {
     @Test
     fun `start replaces paused progress without marking history even above eighty percent`() = runTest {
         val harness = MdbListSyncTestHarness(backgroundScope)
-        harness.seed(harness.snapshot().copy(watched = emptyList(), playback = listOf(mdbListTestPlayback())))
-        harness.http.reply(201, """{"id":8,"action":"start","progress":90,"started_at":"2026-09-06T01:00:00Z"}""")
+        harness.seed(
+            harness.snapshot().copy(
+                watched = emptyList(),
+                playback = listOf(mdbListTestPlayback())
+            )
+        )
+        harness.http.reply(
+            201,
+            """{"id":8,"action":"start","progress":90,"started_at":"2026-09-06T01:00:00Z"}"""
+        )
 
-        service(harness).scrobble(harness.repository.currentScope(), TrackingScrobbleAction.START, event(90.0))
+        service(
+            harness
+        ).scrobble(harness.repository.currentScope(), TrackingScrobbleAction.START, event(90.0))
 
         assertTrue(harness.repository.currentSnapshot()?.watched?.isEmpty() == true)
         assertTrue(harness.repository.currentSnapshot()?.playback?.isEmpty() == true)
@@ -68,14 +99,26 @@ class MdbListScrobbleServiceTest {
         for (action in listOf(TrackingScrobbleAction.PAUSE, TrackingScrobbleAction.STOP)) {
             for (progress in listOf(79.99, 80.0, 100.0)) {
                 val harness = MdbListSyncTestHarness(backgroundScope)
-                harness.http.reply(body = if (progress < 80.0) {
-                    """{"id":7,"action":"pause","progress":$progress,"paused_at":"2026-09-06T01:00:00Z"}"""
-                } else """{"action":"scrobble","progress":$progress,"watched_at":"2026-09-06T01:00:00Z"}""")
+                harness.http.reply(
+                    body = if (progress < 80.0) {
+                        """{"id":7,"action":"pause","progress":$progress,"paused_at":"2026-09-06T01:00:00Z"}"""
+                    } else {
+                        """{"action":"scrobble","progress":$progress,"watched_at":"2026-09-06T01:00:00Z"}"""
+                    }
+                )
 
-                service(harness).scrobble(harness.repository.currentScope(), action, event(progress))
+                service(
+                    harness
+                ).scrobble(harness.repository.currentScope(), action, event(progress))
 
-                assertEquals(progress >= 80.0, harness.repository.currentSnapshot()!!.watched.isNotEmpty())
-                assertEquals(progress < 80.0, harness.repository.currentSnapshot()!!.playback.isNotEmpty())
+                assertEquals(
+                    progress >= 80.0,
+                    harness.repository.currentSnapshot()!!.watched.isNotEmpty()
+                )
+                assertEquals(
+                    progress < 80.0,
+                    harness.repository.currentSnapshot()!!.playback.isNotEmpty()
+                )
                 assertEquals(1, harness.http.engine.requests.size)
                 assertTrue(harness.remote.calls.isEmpty())
             }
@@ -85,9 +128,14 @@ class MdbListScrobbleServiceTest {
     @Test
     fun `minimal stop response still saves resumable progress without inventing a playback ID`() = runTest {
         val harness = MdbListSyncTestHarness(backgroundScope)
-        harness.http.reply(body = """{"action":"pause","progress":35}""", headers = mapOf("Date" to "Sun, 06 Sep 2026 01:00:00 GMT"))
+        harness.http.reply(
+            body = """{"action":"pause","progress":35}""",
+            headers = mapOf("Date" to "Sun, 06 Sep 2026 01:00:00 GMT")
+        )
 
-        service(harness).scrobble(harness.repository.currentScope(), TrackingScrobbleAction.STOP, event(35.0))
+        service(
+            harness
+        ).scrobble(harness.repository.currentScope(), TrackingScrobbleAction.STOP, event(35.0))
 
         val playback = harness.repository.currentSnapshot()!!.playback.single()
         assertEquals(null, playback.id)
@@ -98,18 +146,28 @@ class MdbListScrobbleServiceTest {
     @Test
     fun `paused timestamp never falls back to an old session start time`() {
         val target = MdbListMutationTarget(MdbListItemType.MOVIE, mdbListTestMovie().media)
-        val response = MdbListHttpResponse(200, """{"action":"pause","progress":30,"started_at":"2026-09-05T00:00:00Z"}""", mapOf("Date" to "Sun, 06 Sep 2026 01:00:00 GMT"))
-        val receipt = decodeMdbListScrobbleReceipt(response, target, TrackingScrobbleAction.PAUSE, 0)
+        val response =
+            MdbListHttpResponse(
+                200,
+                """{"action":"pause","progress":30,"started_at":"2026-09-05T00:00:00Z"}""",
+                mapOf("Date" to "Sun, 06 Sep 2026 01:00:00 GMT")
+            )
+        val receipt =
+            decodeMdbListScrobbleReceipt(response, target, TrackingScrobbleAction.PAUSE, 0)
         assertEquals("2026-09-06T01:00:00Z", receipt.timestamp)
     }
 
     @Test
     fun `server resolved episode coordinates and IDs are applied to local history`() {
         val target = MdbListMutationTarget(MdbListItemType.EPISODE, mdbListTestMovie().media, 1, 12)
-        val response = MdbListHttpResponse(200, """{
+        val response =
+            MdbListHttpResponse(
+                200,
+                """{
           "action":"scrobble","progress":95,"watched_at":"2026-09-06T01:00:00Z",
           "show":{"ids":{"tmdb":1,"imdb":"tt1"}},"episode":{"season":2,"number":3,"ids":{"tmdb":900},"title":"Resolved"}
-        }""")
+        }"""
+            )
         val receipt = decodeMdbListScrobbleReceipt(response, target, TrackingScrobbleAction.STOP, 0)
         val snapshot = MdbListSyncSnapshot(42).applyScrobble(receipt)
         val watched = snapshot.watched.single()
@@ -121,38 +179,67 @@ class MdbListScrobbleServiceTest {
 
     @Test
     fun `malformed or unrelated media response never fabricates progress`() = runTest {
-        for (body in listOf("{}", """{"action":"pause","progress":101}""", """{"action":"pause","progress":40,"movie":{"ids":{"imdb":"tt999"}}}""")) {
+        for (body in listOf(
+            "{}",
+            """{"action":"pause","progress":101}""",
+            """{"action":"pause","progress":40,"movie":{"ids":{"imdb":"tt999"}}}"""
+        )) {
             val harness = MdbListSyncTestHarness(backgroundScope)
             harness.http.reply(body = body)
             expectMdbListFailure<MdbListDecodingException> {
-                service(harness).scrobble(harness.repository.currentScope(), TrackingScrobbleAction.PAUSE, event(40.0))
+                service(
+                    harness
+                ).scrobble(
+                    harness.repository.currentScope(),
+                    TrackingScrobbleAction.PAUSE,
+                    event(40.0)
+                )
             }
             assertTrue(harness.repository.currentSnapshot()?.playback?.isEmpty() == true)
             assertTrue(harness.repository.currentSnapshot()?.watched?.isEmpty() == true)
-            assertEquals(setOf(MdbListSyncBucket.WATCHED, MdbListSyncBucket.PLAYBACK), harness.repository.currentSnapshot()?.invalidatedBuckets)
+            assertEquals(
+                setOf(MdbListSyncBucket.WATCHED, MdbListSyncBucket.PLAYBACK),
+                harness.repository.currentSnapshot()?.invalidatedBuckets
+            )
             assertEquals(1, harness.http.engine.requests.size)
         }
     }
 
     @Test
     fun `clear removes paused progress and retains watched history for true false and absent sessions`() = runTest {
-        for ((status, body) in listOf(200 to """{"action":"clear","deleted":true}""", 200 to """{"action":"clear","deleted":false}""", 404 to "{}")) {
+        for ((status, body) in listOf(
+            200 to """{"action":"clear","deleted":true}""",
+            200 to """{"action":"clear","deleted":false}""",
+            404 to "{}"
+        )) {
             val harness = MdbListSyncTestHarness(backgroundScope)
             harness.seed(harness.snapshot().copy(playback = listOf(mdbListTestPlayback())))
             harness.http.reply(status, body)
 
             service(harness).clear(harness.repository.currentScope(), "tmdb:1", null, null)
 
-            assertEquals(listOf(mdbListTestMovie()), harness.repository.currentSnapshot()?.watched)
+            assertEquals(
+                listOf(mdbListTestMovie()),
+                harness.repository.currentSnapshot()?.watched
+            )
             assertTrue(harness.repository.currentSnapshot()?.playback?.isEmpty() == true)
-            assertEquals(listOf("/scrobble/clear"), harness.http.engine.requests.map { it.path })
+            assertEquals(
+                listOf("/scrobble/clear"),
+                harness.http.engine.requests.map {
+                    it.path
+                }
+            )
         }
     }
 
     @Test
     fun `clearing one episode leaves other episodes untouched`() = runTest {
         val harness = MdbListSyncTestHarness(backgroundScope)
-        val first = mdbListTestPlayback().copy(type = MdbListItemType.EPISODE, season = 1, episode = 1)
+        val first = mdbListTestPlayback().copy(
+            type = MdbListItemType.EPISODE,
+            season = 1,
+            episode = 1
+        )
         val second = first.copy(id = 8, episode = 2)
         harness.seed(harness.snapshot().copy(playback = listOf(first, second)))
         harness.http.reply(body = """{"action":"clear","deleted":true}""")
@@ -165,30 +252,62 @@ class MdbListScrobbleServiceTest {
     fun `cancellation after dispatch records pending reconciliation without retrying the write`() = runTest {
         val harness = MdbListSyncTestHarness(backgroundScope)
         val dispatched = CompletableDeferred<Unit>()
-        harness.http.engine.intercept = { dispatched.complete(Unit); awaitCancellation() }
-        val job = launch { service(harness).scrobble(harness.repository.currentScope(), TrackingScrobbleAction.STOP, event(95.0)) }
+        harness.http.engine.intercept = {
+            dispatched.complete(Unit)
+            awaitCancellation()
+        }
+        val job =
+            launch {
+                service(
+                    harness
+                ).scrobble(
+                    harness.repository.currentScope(),
+                    TrackingScrobbleAction.STOP,
+                    event(95.0)
+                )
+            }
         runCurrent()
         assertTrue(dispatched.isCompleted)
         job.cancel()
         job.join()
         assertEquals(1, harness.http.engine.requests.size)
         assertTrue(harness.repository.currentSnapshot()?.watched?.isEmpty() == true)
-        assertEquals(setOf(MdbListSyncBucket.WATCHED, MdbListSyncBucket.PLAYBACK), harness.repository.currentSnapshot()?.invalidatedBuckets)
+        assertEquals(
+            setOf(MdbListSyncBucket.WATCHED, MdbListSyncBucket.PLAYBACK),
+            harness.repository.currentSnapshot()?.invalidatedBuckets
+        )
     }
 
     @Test
     fun `unsupported identifiers and nonfinite progress never dispatch requests`() = runTest {
         val harness = MdbListSyncTestHarness(backgroundScope)
         val service = service(harness)
-        service.scrobble(harness.repository.currentScope(), TrackingScrobbleAction.PAUSE, event(Double.NaN))
-        service.scrobble(harness.repository.currentScope(), TrackingScrobbleAction.PAUSE, event(Double.POSITIVE_INFINITY))
-        service.scrobble(harness.repository.currentScope(), TrackingScrobbleAction.PAUSE, event(40.0).copy(media = event(40.0).media.copy(ids = TrackingExternalIds(mal = 100))))
+        service.scrobble(
+            harness.repository.currentScope(),
+            TrackingScrobbleAction.PAUSE,
+            event(Double.NaN)
+        )
+        service.scrobble(
+            harness.repository.currentScope(),
+            TrackingScrobbleAction.PAUSE,
+            event(Double.POSITIVE_INFINITY)
+        )
+        service.scrobble(
+            harness.repository.currentScope(),
+            TrackingScrobbleAction.PAUSE,
+            event(40.0).copy(media = event(40.0).media.copy(ids = TrackingExternalIds(mal = 100)))
+        )
         assertTrue(harness.http.engine.requests.isEmpty())
         assertFalse(harness.repository.state.value.hasLoaded)
     }
 
     private fun service(harness: MdbListSyncTestHarness) = MdbListScrobbleService(harness.http.api, harness.repository)
     private fun event(progress: Double) = TrackingScrobbleEvent(
-        TrackingMediaReference(TrackingMediaKind.MOVIE, "Movie", ids = TrackingExternalIds(imdb = "tt1")), progress
+        TrackingMediaReference(
+            TrackingMediaKind.MOVIE,
+            "Movie",
+            ids = TrackingExternalIds(imdb = "tt1")
+        ),
+        progress
     )
 }

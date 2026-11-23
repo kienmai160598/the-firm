@@ -69,7 +69,8 @@ class MpvPlaybackErrorPolicyTest {
 
     @Test
     fun watchdog_surfaceWaitDoesNotCountAsIdle() {
-        val before = advance(MpvStartupWatchdogPolicy.surfaceWaitTicks - 1, waitingForSurface = true)
+        val before =
+            advance(MpvStartupWatchdogPolicy.surfaceWaitTicks - 1, waitingForSurface = true)
         assertEquals(MpvStartupWatchdogPolicy.Action.Continue, before.action)
 
         val fired = advance(MpvStartupWatchdogPolicy.surfaceWaitTicks, waitingForSurface = true)
@@ -301,7 +302,10 @@ class MpvPlaybackErrorPolicyTest {
     fun nonHttpKind_separatesFormatInvalidContentAndOpenFailure() {
         assertEquals(
             MpvNonHttpExplanationKind.UnsupportedFormat,
-            mpvNonHttpExplanationKind("video output initialization failed", "[vd] Could not open codec.")
+            mpvNonHttpExplanationKind(
+                "video output initialization failed",
+                "[vd] Could not open codec."
+            )
         )
         assertEquals(
             MpvNonHttpExplanationKind.InvalidContent,
@@ -316,7 +320,9 @@ class MpvPlaybackErrorPolicyTest {
     @Test
     fun warnLine_keepsCodecReasonAndDropsUnrelatedNoise() {
         assertTrue(mpvWarnLineIsUseful("vd", "Hardware decoding of hevc is not supported"))
-        assertTrue(mpvWarnLineIsUseful("ffmpeg/video", "h264_mediacodec: Failed to initialize decoder"))
+        assertTrue(
+            mpvWarnLineIsUseful("ffmpeg/video", "h264_mediacodec: Failed to initialize decoder")
+        )
         assertTrue(mpvWarnLineIsUseful("vo/gpu/libplacebo", "Failed (re)creating swapchain!"))
         assertTrue(mpvWarnLineIsUseful("cplayer", "Could not initialize video chain."))
         assertTrue(mpvWarnLineIsUseful("vd", "Error while decoding frame!"))
@@ -348,15 +354,27 @@ class MpvPlaybackErrorPolicyTest {
 
     @Test
     fun rememberLog_keepsOpenFailureAheadOfYtdlNoise() {
-        val remembered = rememberMpvErrorLog(current = null, line = "[ffmpeg] https: HTTP error 428")
+        val remembered = rememberMpvErrorLog(
+            current = null,
+            line = "[ffmpeg] https: HTTP error 428"
+        )
             .let { rememberMpvErrorLog(it, "[stream] Failed to open") }
             .let { rememberMpvErrorLog(it, "[ytdl_hook] Subprocess failed: init") }
-            .let { rememberMpvErrorLog(it, "[ytdl_hook] youtube-dl failed: not found or not enough permissions") }
+            .let {
+                rememberMpvErrorLog(
+                    it,
+                    "[ytdl_hook] youtube-dl failed: not found or not enough permissions"
+                )
+            }
             .let { rememberMpvErrorLog(it, "[cplayer] loading failed") }
 
         assertEquals(
             "HTTP 428 [loading failed]",
-            mpvDirectErrorMessage(fileError = "loading failed", logLine = remembered, fallback = "Playback error")
+            mpvDirectErrorMessage(
+                fileError = "loading failed",
+                logLine = remembered,
+                fallback = "Playback error"
+            )
         )
     }
 
@@ -375,12 +393,16 @@ class MpvPlaybackErrorPolicyTest {
     @Test
     fun permanentHttpStatus_skipsRetryOnlyForDeterministicClientErrors() {
         listOf(400, 401, 403, 404, 410).forEach { assertTrue("$it", isPermanentHttpStatus(it)) }
-        listOf(408, 425, 429, 500, 502, 503, 504).forEach { assertFalse("$it", isPermanentHttpStatus(it)) }
+        listOf(408, 425, 429, 500, 502, 503, 504).forEach {
+            assertFalse("$it", isPermanentHttpStatus(it))
+        }
     }
 
     @Test
     fun cacheGrowth_ignoresNoiseBelowAQuarterSecond() {
-        assertFalse(MpvStartupWatchdogPolicy.cacheIsProgressing(previousSec = 1.0, currentSec = 1.2))
+        assertFalse(
+            MpvStartupWatchdogPolicy.cacheIsProgressing(previousSec = 1.0, currentSec = 1.2)
+        )
         assertTrue(MpvStartupWatchdogPolicy.cacheIsProgressing(previousSec = 1.0, currentSec = 1.3))
     }
 
@@ -392,7 +414,7 @@ class MpvPlaybackErrorPolicyTest {
         ticks: Int,
         waitingForSurface: Boolean = false,
         idleActive: Boolean = false,
-        cacheProgressing: Boolean = false,
+        cacheProgressing: Boolean = false
     ): MpvStartupWatchdogPolicy.Step {
         var counters = MpvStartupWatchdogPolicy.Counters()
         var step = MpvStartupWatchdogPolicy.Step(MpvStartupWatchdogPolicy.Action.Continue, counters)

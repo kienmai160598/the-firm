@@ -1,7 +1,5 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -26,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipPath
+import com.kien.movies.ui.theme.MoviesTheme
 
 // Each preview scrolls by a whole number of card periods per cycle so the RepeatMode.Restart loop
 // lands on a pixel-identical frame and the snap back is invisible.
@@ -45,10 +44,7 @@ fun ClassicLayoutPreview(
 }
 
 @Composable
-private fun AnimatedClassicLayoutPreview(
-    modifier: Modifier,
-    accentColor: Color
-) {
+private fun AnimatedClassicLayoutPreview(modifier: Modifier, accentColor: Color) {
     val infiniteTransition = rememberInfiniteTransition(label = "classicPreview")
     val scrollOffset by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -67,10 +63,7 @@ private fun AnimatedClassicLayoutPreview(
 }
 
 @Composable
-private fun StaticClassicLayoutPreview(
-    modifier: Modifier,
-    accentColor: Color
-) {
+private fun StaticClassicLayoutPreview(modifier: Modifier, accentColor: Color) {
     ClassicLayoutPreviewFrame(
         modifier = modifier,
         accentColor = accentColor,
@@ -79,11 +72,7 @@ private fun StaticClassicLayoutPreview(
 }
 
 @Composable
-private fun ClassicLayoutPreviewFrame(
-    modifier: Modifier,
-    accentColor: Color,
-    scrollOffset: Float
-) {
+private fun ClassicLayoutPreviewFrame(modifier: Modifier, accentColor: Color, scrollOffset: Float) {
     val bgColor = MoviesTheme.colors.Background
     val cardColor = accentColor.copy(alpha = 0.6f)
     val cardColorDim = accentColor.copy(alpha = 0.3f)
@@ -158,10 +147,7 @@ fun GridLayoutPreview(
 }
 
 @Composable
-private fun AnimatedGridLayoutPreview(
-    modifier: Modifier,
-    accentColor: Color
-) {
+private fun AnimatedGridLayoutPreview(modifier: Modifier, accentColor: Color) {
     val infiniteTransition = rememberInfiniteTransition(label = "gridPreview")
     val scrollOffset by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -181,10 +167,7 @@ private fun AnimatedGridLayoutPreview(
 }
 
 @Composable
-private fun StaticGridLayoutPreview(
-    modifier: Modifier,
-    accentColor: Color
-) {
+private fun StaticGridLayoutPreview(modifier: Modifier, accentColor: Color) {
     GridLayoutPreviewFrame(
         modifier = modifier,
         accentColor = accentColor,
@@ -193,11 +176,7 @@ private fun StaticGridLayoutPreview(
 }
 
 @Composable
-private fun GridLayoutPreviewFrame(
-    modifier: Modifier,
-    accentColor: Color,
-    scrollOffset: Float
-) {
+private fun GridLayoutPreviewFrame(modifier: Modifier, accentColor: Color, scrollOffset: Float) {
     val bgColor = MoviesTheme.colors.Background
     val cardColor = accentColor.copy(alpha = 0.5f)
     val cardColorAlt = accentColor.copy(alpha = 0.3f)
@@ -256,10 +235,7 @@ fun ModernLayoutPreview(
 }
 
 @Composable
-private fun AnimatedModernLayoutPreview(
-    modifier: Modifier,
-    accentColor: Color
-) {
+private fun AnimatedModernLayoutPreview(modifier: Modifier, accentColor: Color) {
     val infiniteTransition = rememberInfiniteTransition(label = "modernPreview")
     val scrollOffset by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -279,10 +255,7 @@ private fun AnimatedModernLayoutPreview(
 }
 
 @Composable
-private fun StaticModernLayoutPreview(
-    modifier: Modifier,
-    accentColor: Color
-) {
+private fun StaticModernLayoutPreview(modifier: Modifier, accentColor: Color) {
     ModernLayoutPreviewFrame(
         modifier = modifier,
         accentColor = accentColor,
@@ -291,20 +264,13 @@ private fun StaticModernLayoutPreview(
 }
 
 @Composable
-private fun ModernLayoutPreviewFrame(
-    modifier: Modifier,
-    accentColor: Color,
-    scrollOffset: Float
-) {
+private fun ModernLayoutPreviewFrame(modifier: Modifier, accentColor: Color, scrollOffset: Float) {
     LayoutPreviewFrame(modifier = modifier, background = MoviesTheme.colors.Background) {
         drawModernLayoutPreview(scrollOffset, accentColor)
     }
 }
 
-private fun DrawScope.drawModernLayoutPreview(
-    scrollOffset: Float,
-    accentColor: Color
-) {
+private fun DrawScope.drawModernLayoutPreview(scrollOffset: Float, accentColor: Color) {
     val w = size.width
     val h = size.height
     val horizontalPadding = w * 0.05f

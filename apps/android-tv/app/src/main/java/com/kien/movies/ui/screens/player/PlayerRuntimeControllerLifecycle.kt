@@ -127,8 +127,11 @@ internal fun PlayerRuntimeController.notifyAudioSessionUpdate(active: Boolean) {
     _exoPlayer?.let { player ->
         try {
             val intent = Intent(
-                if (active) AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION
-                else AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION
+                if (active) {
+                    AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION
+                } else {
+                    AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION
+                }
             )
             intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, player.audioSessionId)
             intent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, context.packageName)

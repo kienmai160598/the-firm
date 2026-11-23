@@ -23,11 +23,10 @@ object StreamTextSizeParser {
      * parsing as last resort. Shared by formatting, filtering, and sorting so
      * the fallback chain cannot drift between call sites.
      */
-    fun effectiveSizeBytes(stream: Stream): Long? =
-        stream.clientResolve?.stream?.raw?.size
-            ?: stream.behaviorHints?.videoSize
-            ?: stream.debridCacheStatus?.cachedSize
-            ?: sizeBytesFromStreamText(stream)
+    fun effectiveSizeBytes(stream: Stream): Long? = stream.clientResolve?.stream?.raw?.size
+        ?: stream.behaviorHints?.videoSize
+        ?: stream.debridCacheStatus?.cachedSize
+        ?: sizeBytesFromStreamText(stream)
 
     fun sizeBytesFromText(text: String?): Long? {
         if (text.isNullOrBlank()) return null
@@ -43,8 +42,7 @@ object StreamTextSizeParser {
         return (value * multiplier).toLong().takeIf { it > 0L }
     }
 
-    fun sizeBytesFromStreamText(stream: Stream): Long? =
-        sizeBytesFromText(stream.description)
-            ?: sizeBytesFromText(stream.title)
-            ?: sizeBytesFromText(stream.name)
+    fun sizeBytesFromStreamText(stream: Stream): Long? = sizeBytesFromText(stream.description)
+        ?: sizeBytesFromText(stream.title)
+        ?: sizeBytesFromText(stream.name)
 }

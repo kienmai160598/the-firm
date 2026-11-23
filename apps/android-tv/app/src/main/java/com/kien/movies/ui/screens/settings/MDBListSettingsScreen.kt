@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.view.KeyEvent
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
@@ -74,12 +72,9 @@ import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import com.kien.movies.ui.components.expressive.MoviesSurface
 import com.kien.movies.ui.theme.MoviesMotion
+import com.kien.movies.ui.theme.MoviesTheme
 
-private data class RatingOrderItem(
-    val provider: String,
-    val checked: Boolean,
-    val enabled: Boolean
-)
+private data class RatingOrderItem(val provider: String, val checked: Boolean, val enabled: Boolean)
 
 @Composable
 fun MDBListSettingsContent(
@@ -109,7 +104,10 @@ fun MDBListSettingsContent(
             currentValue = uiState.apiKey,
             viewModel = viewModel,
             onSaved = { showApiKeyDialog = false },
-            onClear = { viewModel.validateAndSaveApiKey("") {}; showApiKeyDialog = false },
+            onClear = {
+                viewModel.validateAndSaveApiKey("") {}
+                showApiKeyDialog = false
+            },
             onDismiss = { showApiKeyDialog = false }
         )
     }
@@ -185,7 +183,9 @@ internal fun MDBListSettingsBody(
                                 checked = uiState.enabled,
                                 onToggle = {
                                     if (uiState.movingRatingKey == null) {
-                                        onEvent(MDBListSettingsEvent.ToggleEnabled(!uiState.enabled))
+                                        onEvent(
+                                            MDBListSettingsEvent.ToggleEnabled(!uiState.enabled)
+                                        )
                                     }
                                 },
                                 modifier = if (initialFocusRequester != null) {
@@ -197,12 +197,17 @@ internal fun MDBListSettingsBody(
 
                             SettingsActionRow(
                                 title = stringResource(R.string.mdblist_api_key_title),
-                                subtitle = stringResource(R.string.mdblist_ratings_credentials_subtitle),
+                                subtitle = stringResource(
+                                    R.string.mdblist_ratings_credentials_subtitle
+                                ),
                                 value = maskApiKey(
                                     uiState.apiKey,
                                     stringResource(
-                                        if (uiState.isConnected) R.string.mdblist_ratings_connected_account
-                                        else R.string.mdblist_not_set
+                                        if (uiState.isConnected) {
+                                            R.string.mdblist_ratings_connected_account
+                                        } else {
+                                            R.string.mdblist_not_set
+                                        }
                                     )
                                 ),
                                 onClick = {
@@ -220,7 +225,11 @@ internal fun MDBListSettingsBody(
                                 enabled = uiState.enabled,
                                 onToggle = {
                                     if (uiState.movingRatingKey == null) {
-                                        onEvent(MDBListSettingsEvent.ToggleShowOnHero(!uiState.showOnHero))
+                                        onEvent(
+                                            MDBListSettingsEvent.ToggleShowOnHero(
+                                                !uiState.showOnHero
+                                            )
+                                        )
                                     }
                                 },
                                 modifier = Modifier.focusProperties {
@@ -250,8 +259,11 @@ internal fun MDBListSettingsBody(
                         enabled = item.enabled,
                         isMoving = isMoving,
                         canMove = item.enabled && ratingItems.size > 1,
-                        actionsEnabled = item.enabled && (uiState.movingRatingKey == null || isMoving),
-                        moveFocusRequester = moveButtonFocusRequesters.getOrPut(item.provider) { FocusRequester() },
+                        actionsEnabled =
+                            item.enabled && (uiState.movingRatingKey == null || isMoving),
+                        moveFocusRequester = moveButtonFocusRequesters.getOrPut(item.provider) {
+                            FocusRequester()
+                        },
                         onToggle = { toggleEvent?.let { onEvent(it) } },
                         onStartMove = onItemStartMove,
                         onConfirmMove = onItemConfirmMove
@@ -307,7 +319,9 @@ private fun MDBListApiKeyDialog(
                 .onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
             focus = MoviesCardFocus.Frosted
         ) {
-            Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)) {
+            Box(
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)
+            ) {
                 BasicTextField(
                     value = value,
                     onValueChange = { value = it },
@@ -323,18 +337,25 @@ private fun MDBListApiKeyDialog(
                     keyboardActions = KeyboardActions(
                         onDone = { keyboardController?.hide() }
                     ),
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = LocalContentColor.current,
-                                            textDirection = TextDirection.Content),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(
+                        color = LocalContentColor.current,
+                        textDirection = TextDirection.Content
+                    ),
                     cursorBrush = SolidColor(
-                        if (isInputFocused) MoviesTheme.colors.Primary
-                        else androidx.compose.ui.graphics.Color.Transparent
+                        if (isInputFocused) {
+                            MoviesTheme.colors.Primary
+                        } else {
+                            androidx.compose.ui.graphics.Color.Transparent
+                        }
                     ),
                     decorationBox = { innerTextField ->
                         if (value.isBlank()) {
                             Text(
                                 text = stringResource(R.string.mdblist_dialog_placeholder),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = LocalContentColor.current.copy(alpha = SETTINGS_TERTIARY_TEXT_ALPHA)
+                                color = LocalContentColor.current.copy(
+                                    alpha = SETTINGS_TERTIARY_TEXT_ALPHA
+                                )
                             )
                         }
                         innerTextField()
@@ -359,7 +380,15 @@ private fun MDBListApiKeyDialog(
                 onClick = { if (!validating) viewModel.validateAndSaveApiKey(value, onSaved) },
                 style = MoviesButtonStyle.Primary
             ) {
-                Text(if (validating) stringResource(R.string.action_saving) else stringResource(R.string.action_save))
+                Text(
+                    if (validating) {
+                        stringResource(
+                            R.string.action_saving
+                        )
+                    } else {
+                        stringResource(R.string.action_save)
+                    }
+                )
             }
         }
     }
@@ -453,7 +482,8 @@ private fun RatingOrderRow(
                             if (!canToggle) disabled()
                             role = Role.Switch
                             contentDescription = title
-                            toggleableState = if (checked) ToggleableState.On else ToggleableState.Off
+                            toggleableState =
+                                if (checked) ToggleableState.On else ToggleableState.Off
                         },
                     resting = Color.Transparent
                 ) {

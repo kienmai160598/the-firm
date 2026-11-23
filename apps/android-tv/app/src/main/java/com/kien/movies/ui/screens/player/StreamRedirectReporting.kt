@@ -5,8 +5,8 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
 import com.kien.movies.domain.model.Stream
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.util.concurrent.atomic.AtomicReference
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 /**
  * Reports the url the stream was actually served from whenever opening it followed a redirect.
@@ -19,21 +19,22 @@ internal class RedirectReportingDataSource(
     private val upstream: DataSource,
     private val requestedUrl: String,
     private val onRedirect: (resolvedUrl: String) -> Unit
-) : DataSource by upstream, androidx.media3.common.ByteBufferDataReader {
+) : DataSource by upstream,
+    androidx.media3.common.ByteBufferDataReader {
 
     // Interface delegation only covers DataSource, so without these the cache sees an upstream that
     // cannot do buffer reads and throws once a read crosses from a cached span back to the network.
-    override fun supportsByteBufferRead(): Boolean =
-        upstream is androidx.media3.common.ByteBufferDataReader && upstream.supportsByteBufferRead()
+    override fun supportsByteBufferRead(): Boolean = upstream is androidx.media3.common.ByteBufferDataReader && upstream.supportsByteBufferRead()
 
-    override fun read(buffer: java.nio.ByteBuffer, length: Int): Int =
-        (upstream as androidx.media3.common.ByteBufferDataReader).read(buffer, length)
+    override fun read(buffer: java.nio.ByteBuffer, length: Int): Int = (upstream as androidx.media3.common.ByteBufferDataReader).read(buffer, length)
 
     override fun open(dataSpec: DataSpec): Long {
         val length = upstream.open(dataSpec)
         if (dataSpec.uri.toString() == requestedUrl) {
             val resolvedUrl = upstream.uri?.toString()
-            if (resolvedUrl != null && canonicalStreamUrl(resolvedUrl) != canonicalStreamUrl(requestedUrl)) {
+            if (resolvedUrl != null &&
+                canonicalStreamUrl(resolvedUrl) != canonicalStreamUrl(requestedUrl)
+            ) {
                 onRedirect(resolvedUrl)
             }
         }
@@ -51,10 +52,9 @@ internal class RedirectReportingDataSource(
     ) : DataSource.Factory {
         private val lastReportedUrl = AtomicReference<String?>(null)
 
-        override fun createDataSource(): DataSource =
-            RedirectReportingDataSource(upstream.createDataSource(), requestedUrl) { resolvedUrl ->
-                if (lastReportedUrl.getAndSet(resolvedUrl) != resolvedUrl) onRedirect(resolvedUrl)
-            }
+        override fun createDataSource(): DataSource = RedirectReportingDataSource(upstream.createDataSource(), requestedUrl) { resolvedUrl ->
+            if (lastReportedUrl.getAndSet(resolvedUrl) != resolvedUrl) onRedirect(resolvedUrl)
+        }
     }
 }
 
@@ -85,7 +85,8 @@ internal fun findRedirectTargetStream(
         if (candidate == requested) return@firstOrNull false
         candidate == resolved || (
             requestedQuery.isNotEmpty() &&
-                canonicalStreamUrl("${candidateUrl.substringBefore('?')}?$requestedQuery") == resolved
+                canonicalStreamUrl("${candidateUrl.substringBefore('?')}?$requestedQuery") ==
+                resolved
             )
     }
 }

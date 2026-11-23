@@ -15,7 +15,9 @@ class EpisodeAutoPlayLoadingTest {
         )
 
         assertTrue(searching.showEpisodeAutoPlayLoadingOverlay)
-        assertTrue(searching.copy(isLoadingEpisodeStreams = false).showEpisodeAutoPlayLoadingOverlay)
+        assertTrue(
+            searching.copy(isLoadingEpisodeStreams = false).showEpisodeAutoPlayLoadingOverlay
+        )
     }
 
     @Test

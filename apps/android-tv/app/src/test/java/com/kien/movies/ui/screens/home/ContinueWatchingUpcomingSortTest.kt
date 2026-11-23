@@ -1,13 +1,13 @@
 package com.kien.movies.ui.screens.home
 
 import com.kien.movies.domain.model.ContinueWatchingSortMode
+import java.util.TimeZone
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.TimeZone
 
 @RunWith(Parameterized::class)
 class ContinueWatchingUpcomingSortTest(private val mode: ContinueWatchingSortMode) {
@@ -89,6 +89,9 @@ class ContinueWatchingUpcomingSortTest(private val mode: ContinueWatchingSortMod
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun modes() = listOf(ContinueWatchingSortMode.SPLIT_UPCOMING, ContinueWatchingSortMode.STREAMING_STYLE)
+        fun modes() = listOf(
+            ContinueWatchingSortMode.SPLIT_UPCOMING,
+            ContinueWatchingSortMode.STREAMING_STYLE
+        )
     }
 }

@@ -2,11 +2,11 @@ package com.kien.movies.data.repository
 
 import android.util.Log
 import com.kien.movies.data.remote.api.TraktApi
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class TraktEpisodeMappingService @Inject constructor(
@@ -18,14 +18,14 @@ class TraktEpisodeMappingService @Inject constructor(
         private const val TAG = "TraktEpMapSvc"
     }
 
-    internal suspend fun isTraktAuthenticated(): Boolean =
-        traktAuthService.getCurrentAuthState().isAuthenticated
+    internal suspend fun isTraktAuthenticated(): Boolean = traktAuthService.getCurrentAuthState().isAuthenticated
 
     private val cacheMutex = Mutex()
     private val mappingCache = mutableMapOf<String, EpisodeMappingEntry>()
     private val traktEpisodesCache = mutableMapOf<String, List<EpisodeMappingEntry>>()
     private val reverseMappingCache = mutableMapOf<String, EpisodeMappingEntry>()
-    private val traktEpisodesInFlight = mutableMapOf<String, CompletableDeferred<List<EpisodeMappingEntry>>>()
+    private val traktEpisodesInFlight =
+        mutableMapOf<String, CompletableDeferred<List<EpisodeMappingEntry>>>()
 
     internal suspend fun prefetchEpisodeMapping(
         contentId: String?,
@@ -41,10 +41,7 @@ class TraktEpisodeMappingService @Inject constructor(
      * Pre-fetches addon episode data for [contentIds] so that subsequent calls to
      * [resolveAddonEpisodeMapping] hit the cache. Limits concurrency to [concurrency].
      */
-    internal suspend fun prefetchAddonEpisodes(
-        contentIds: List<String>,
-        concurrency: Int = 8
-    ) = addonEpisodeListService.prefetch(contentIds, concurrency)
+    internal suspend fun prefetchAddonEpisodes(contentIds: List<String>, concurrency: Int = 8) = addonEpisodeListService.prefetch(contentIds, concurrency)
 
     internal suspend fun resolveAddonEpisodeMapping(
         contentId: String?,
@@ -81,7 +78,8 @@ class TraktEpisodeMappingService @Inject constructor(
         }
         if (addonHasEpisode) return null
 
-        val showLookupId = resolveShowLookupId(contentId = resolvedContentId, videoId = null) ?: return null
+        val showLookupId =
+            resolveShowLookupId(contentId = resolvedContentId, videoId = null) ?: return null
         val traktEpisodes = getTraktEpisodes(showLookupId)
         if (traktEpisodes.isEmpty()) return null
 
@@ -133,7 +131,8 @@ class TraktEpisodeMappingService @Inject constructor(
         val addonEpisodes = getAddonEpisodes(resolvedContentId, resolvedContentType)
         if (addonEpisodes.isEmpty()) return null
 
-        val showLookupId = resolveShowLookupId(contentId = resolvedContentId, videoId = videoId) ?: return null
+        val showLookupId =
+            resolveShowLookupId(contentId = resolvedContentId, videoId = videoId) ?: return null
         val traktEpisodes = getTraktEpisodes(showLookupId)
         if (traktEpisodes.isEmpty()) return null
 
@@ -172,7 +171,11 @@ class TraktEpisodeMappingService @Inject constructor(
 
         val existingDeferred = cacheMutex.withLock { traktEpisodesInFlight[showLookupId] }
         if (existingDeferred != null) {
-            return try { existingDeferred.await() } catch (_: Exception) { emptyList() }
+            return try {
+                existingDeferred.await()
+            } catch (_: Exception) {
+                emptyList()
+            }
         }
 
         val deferred = CompletableDeferred<List<EpisodeMappingEntry>>()
@@ -187,7 +190,11 @@ class TraktEpisodeMappingService @Inject constructor(
         }
         if (!weOwn) {
             val other = cacheMutex.withLock { traktEpisodesInFlight[showLookupId] }
-            return try { other?.await() ?: emptyList() } catch (_: Exception) { emptyList() }
+            return try {
+                other?.await() ?: emptyList()
+            } catch (_: Exception) {
+                emptyList()
+            }
         }
 
         val seasonsResponse = traktAuthService.executeAuthorizedRequest { authHeader ->
@@ -217,7 +224,8 @@ class TraktEpisodeMappingService @Inject constructor(
             .flatMap { seasonDto ->
                 seasonDto.episodes.orEmpty().asSequence()
                     .mapNotNull { episodeDto ->
-                        val seasonNumber = episodeDto.season ?: seasonDto.number ?: return@mapNotNull null
+                        val seasonNumber =
+                            episodeDto.season ?: seasonDto.number ?: return@mapNotNull null
                         val episodeNumber = episodeDto.number ?: return@mapNotNull null
                         EpisodeMappingEntry(
                             season = seasonNumber,
@@ -250,7 +258,8 @@ class TraktEpisodeMappingService @Inject constructor(
         episode: Int?
     ): String? {
         val resolvedContentId = contentId?.trim()?.takeIf { it.isNotBlank() } ?: return null
-        val resolvedContentType = contentType?.trim()?.lowercase()?.takeIf { it.isNotBlank() } ?: return null
+        val resolvedContentType =
+            contentType?.trim()?.lowercase()?.takeIf { it.isNotBlank() } ?: return null
         val resolvedSeason = season ?: return null
         val resolvedEpisode = episode ?: return null
         val resolvedVideoId = videoId?.trim().orEmpty()

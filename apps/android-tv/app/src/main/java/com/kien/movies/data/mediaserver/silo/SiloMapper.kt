@@ -30,15 +30,17 @@ internal class SiloMapper(address: String, private val connectionId: String) {
     fun artwork(url: String?): String? {
         val value = url?.trim()?.takeIf { it.isNotEmpty() } ?: return null
         return when {
-            value.startsWith("http://", ignoreCase = true) || value.startsWith("https://", ignoreCase = true) -> value
+            value.startsWith("http://", ignoreCase = true) ||
+                value.startsWith("https://", ignoreCase = true) -> value
+
             value.startsWith("/") -> origin + value
+
             else -> null
         }
     }
 
     /** Silo signs artwork for a few hours; the link names its title so it can be renewed later. */
-    fun artwork(url: String?, contentId: String, kind: SiloArtworkKind): String? =
-        artwork(url)?.let { SiloArtworkLink.mark(it, connectionId, contentId, kind) }
+    fun artwork(url: String?, contentId: String, kind: SiloArtworkKind): String? = artwork(url)?.let { SiloArtworkLink.mark(it, connectionId, contentId, kind) }
 
     fun preview(item: CatalogItemWire): MetaPreview? {
         val kind = siloKind(item.type) ?: return null
@@ -60,7 +62,9 @@ internal class SiloMapper(address: String, private val connectionId: String) {
         )
     }
 
-    fun title(item: CatalogItemWire): ServerTitle? = preview(item)?.let { ServerTitle(it, item.externalIds()) }
+    fun title(item: CatalogItemWire): ServerTitle? = preview(item)?.let {
+        ServerTitle(it, item.externalIds())
+    }
 
     fun details(item: CatalogItemWire, episodes: List<EpisodeWire>): Meta {
         val kind = siloKind(item.type) ?: ServerMediaKind.MOVIE
@@ -80,10 +84,20 @@ internal class SiloMapper(address: String, private val connectionId: String) {
             imdbRating = item.ratingImdb?.oneDecimal(),
             genres = item.genres,
             runtime = item.runtime?.takeIf { it > 0 }?.let { "$it min" },
-            director = item.crew.filter { it.job.equals("Director", ignoreCase = true) }.map { it.name },
-            writer = item.crew.filter { it.job?.contains("Writ", ignoreCase = true) == true }.map { it.name }.distinct(),
+            director = item.crew.filter {
+                it.job.equals("Director", ignoreCase = true)
+            }.map { it.name },
+            writer = item.crew.filter {
+                it.job?.contains("Writ", ignoreCase = true) == true
+            }.map { it.name }.distinct(),
             cast = actors.map { it.name },
-            castMembers = actors.map { MetaCastMember(name = it.name, character = it.character, photo = artwork(it.photoUrl)) },
+            castMembers = actors.map {
+                MetaCastMember(
+                    name = it.name,
+                    character = it.character,
+                    photo = artwork(it.photoUrl)
+                )
+            },
             videos = episodes.map(::video),
             ageRating = item.contentRating,
             country = item.countries.firstOrNull(),
@@ -110,14 +124,21 @@ internal class SiloMapper(address: String, private val connectionId: String) {
 
     fun userState(item: CatalogItemWire): ServerUserState? {
         val data = item.userData
-        val played = data?.played ?: item.userState?.played ?: if (item.positionSeconds != null) false else return null
+        val played =
+            data?.played ?: item.userState?.played
+                ?: if (item.positionSeconds != null) false else return null
         val runtimeMs = item.runtime?.let { it * 60_000L }
         return ServerUserState(
             videoId = ref(item.contentId),
             positionMs = seconds(data?.positionSeconds ?: item.positionSeconds),
-            durationMs = seconds(data?.durationSeconds ?: item.durationSeconds).takeIf { it > 0 } ?: runtimeMs ?: 0L,
+            durationMs =
+                seconds(data?.durationSeconds ?: item.durationSeconds).takeIf { it > 0 }
+                    ?: runtimeMs
+                    ?: 0L,
             played = played,
-            lastPlayedEpochMs = item.progressUpdatedAt?.let { runCatching { Instant.parse(it).toEpochMilli() }.getOrNull() },
+            lastPlayedEpochMs = item.progressUpdatedAt?.let {
+                runCatching { Instant.parse(it).toEpochMilli() }.getOrNull()
+            },
             season = item.seasonNumber,
             episode = item.episodeNumber,
             title = item.title
@@ -129,7 +150,10 @@ internal class SiloMapper(address: String, private val connectionId: String) {
         return ServerUserState(
             videoId = ref(episode.contentId),
             positionMs = seconds(data.positionSeconds),
-            durationMs = seconds(data.durationSeconds).takeIf { it > 0 } ?: episode.runtime?.let { it * 60_000L } ?: 0L,
+            durationMs =
+                seconds(data.durationSeconds).takeIf { it > 0 }
+                    ?: episode.runtime?.let { it * 60_000L }
+                    ?: 0L,
             played = data.played,
             lastPlayedEpochMs = null,
             season = episode.seasonNumber,
@@ -140,16 +164,26 @@ internal class SiloMapper(address: String, private val connectionId: String) {
 
     /** A continue watching card: an episode (or season) shows its series, a movie itself. */
     fun resumeTitle(item: CatalogItemWire): ServerTitle? {
-        val partOfSeries = item.type.equals("episode", ignoreCase = true) || item.type.equals("season", ignoreCase = true)
+        val partOfSeries =
+            item.type.equals("episode", ignoreCase = true) ||
+                item.type.equals("season", ignoreCase = true)
         if (!partOfSeries) return title(item)
         val seriesId = item.seriesId?.takeIf { it.isNotBlank() } ?: return null
         val preview = MetaPreview(
             id = ref(seriesId),
             type = ContentType.SERIES,
             name = item.seriesTitle ?: item.title,
-            poster = artwork(item.seriesPosterUrl ?: item.posterUrl, seriesId, SiloArtworkKind.POSTER),
+            poster = artwork(
+                item.seriesPosterUrl ?: item.posterUrl,
+                seriesId,
+                SiloArtworkKind.POSTER
+            ),
             posterShape = PosterShape.POSTER,
-            background = artwork(item.seriesBackdropUrl ?: item.backdropUrl, seriesId, SiloArtworkKind.BACKGROUND),
+            background = artwork(
+                item.seriesBackdropUrl ?: item.backdropUrl,
+                seriesId,
+                SiloArtworkKind.BACKGROUND
+            ),
             logo = artwork(item.logoUrl, seriesId, SiloArtworkKind.LOGO),
             description = item.overview,
             releaseInfo = null,
@@ -166,11 +200,24 @@ internal class SiloMapper(address: String, private val connectionId: String) {
             val edition = version.editionRaw?.trim()?.takeIf { it.isNotEmpty() }
             ServerCandidate(
                 target = ServerPlaybackTarget(ref, version.fileId),
-                title = edition?.takeIf { usable.size > 1 } ?: version.resolution.ifBlank { version.container.uppercase() },
+                title =
+                    edition?.takeIf { usable.size > 1 }
+                        ?: version.resolution.ifBlank { version.container.uppercase() },
                 description = listOfNotNull(
                     version.videoLabel(),
-                    (version.audioTracks.firstOrNull { it.default } ?: version.audioTracks.firstOrNull())?.label(),
-                    version.container.takeIf { it.isNotBlank() }?.uppercase()?.let { if (it == "MATROSKA") "MKV" else it }
+                    (
+                        version.audioTracks.firstOrNull { it.default }
+                            ?: version.audioTracks.firstOrNull()
+                        )?.label(),
+                    version.container.takeIf { it.isNotBlank() }?.uppercase()?.let {
+                        if (it ==
+                            "MATROSKA"
+                        ) {
+                            "MKV"
+                        } else {
+                            it
+                        }
+                    }
                 ).joinToString(" • ").ifBlank { null },
                 filename = version.fileName,
                 sizeBytes = version.fileSize?.takeIf { it > 0 }
@@ -178,14 +225,20 @@ internal class SiloMapper(address: String, private val connectionId: String) {
         }
     }
 
-    fun indexEntry(item: CatalogItemWire): ServerIndexEntry =
-        ServerIndexEntry(itemId = item.contentId, ids = item.externalIds(), year = item.year)
+    fun indexEntry(item: CatalogItemWire): ServerIndexEntry = ServerIndexEntry(itemId = item.contentId, ids = item.externalIds(), year = item.year)
 
     private fun releaseInfo(item: CatalogItemWire, kind: ServerMediaKind): String? {
-        val start = item.year ?: (item.releaseDate ?: item.firstAirDate)?.take(4)?.toIntOrNull() ?: return null
+        val start =
+            item.year ?: (item.releaseDate ?: item.firstAirDate)?.take(4)?.toIntOrNull()
+                ?: return null
         if (kind != ServerMediaKind.SERIES) return start.toString()
         val end = item.lastAirDate?.take(4)?.toIntOrNull()
-        val running = item.showStatus?.let { it.equals("Continuing", true) || it.equals("Returning Series", true) } == true
+        val running =
+            item.showStatus?.let {
+                it.equals("Continuing", true) ||
+                    it.equals("Returning Series", true)
+            } ==
+                true
         return when {
             running -> "$start-"
             end != null && end != start -> "$start-$end"
@@ -229,7 +282,9 @@ internal fun contentIdExternalIds(contentId: String): TrackingExternalIds {
 internal fun contentIdCandidates(kind: ServerMediaKind, ids: TrackingExternalIds): List<String> {
     val tmdb = ids.tmdb?.let { "tmdb-$it" }
     val imdb = ids.imdb?.trim()?.lowercase()?.takeIf { IMDB_ID.matches(it) }?.let { "imdb-$it" }
-    val tvdb = ids.tvdb?.trim()?.takeIf { it.all(Char::isDigit) && it.isNotEmpty() }?.let { "tvdb-$it" }
+    val tvdb = ids.tvdb?.trim()?.takeIf {
+        it.all(Char::isDigit) && it.isNotEmpty()
+    }?.let { "tvdb-$it" }
     return when (kind) {
         ServerMediaKind.MOVIE -> listOfNotNull(tmdb, imdb, tvdb).map { "movie-$it" }
         ServerMediaKind.SERIES -> listOfNotNull(tvdb, tmdb, imdb).map { "series-$it" }

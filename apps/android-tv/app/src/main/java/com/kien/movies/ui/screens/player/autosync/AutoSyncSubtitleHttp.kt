@@ -3,6 +3,8 @@ package com.kien.movies.ui.screens.player.autosync
 import androidx.annotation.VisibleForTesting
 import com.kien.movies.core.player.SubtitleCharsetDetector
 import com.kien.movies.ui.screens.player.PlayerPlaybackNetworking
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
@@ -10,8 +12,6 @@ import okhttp3.Callback
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
-import java.io.ByteArrayOutputStream
-import java.io.IOException
 
 /**
  * AutoSync-only subtitle HTTP path.
@@ -30,7 +30,7 @@ internal object AutoSyncSubtitleHttp {
         url: String,
         headers: Map<String, String>,
         maxResponseBodyBytes: Int,
-        languageHint: String? = null,
+        languageHint: String? = null
     ): AutoSyncRawHttpResponse {
         val requestBuilder = Request.Builder()
             .url(url)
@@ -59,7 +59,7 @@ internal object AutoSyncSubtitleHttp {
                         val failure =
                             if (call.isCanceled()) {
                                 CancellationException(
-                                    "Cancelled AutoSync subtitle HTTP request",
+                                    "Cancelled AutoSync subtitle HTTP request"
                                 ).also { it.initCause(error) }
                             } else {
                                 error
@@ -82,12 +82,12 @@ internal object AutoSyncSubtitleHttp {
                                     body = readResponseBodyLimited(
                                         body = current.body,
                                         maxBytes = maxResponseBodyBytes,
-                                        languageHint = languageHint,
+                                        languageHint = languageHint
                                     ),
                                     headers = current.headers
                                         .toMultimap()
                                         .mapValues { (_, values) -> values.joinToString(",") }
-                                        .mapKeys { (name, _) -> name.lowercase() },
+                                        .mapKeys { (name, _) -> name.lowercase() }
                                 )
                             }
 
@@ -100,7 +100,7 @@ internal object AutoSyncSubtitleHttp {
                             val failure =
                                 if (call.isCanceled() && error !is CancellationException) {
                                     CancellationException(
-                                        "Cancelled AutoSync subtitle HTTP request",
+                                        "Cancelled AutoSync subtitle HTTP request"
                                     ).also { it.initCause(error) }
                                 } else {
                                     error
@@ -108,7 +108,7 @@ internal object AutoSyncSubtitleHttp {
                             continuation.resumeWith(Result.failure(failure))
                         }
                     }
-                },
+                }
             )
         }
     }
@@ -117,7 +117,7 @@ internal object AutoSyncSubtitleHttp {
     internal fun readResponseBodyLimited(
         body: ResponseBody?,
         maxBytes: Int,
-        languageHint: String?,
+        languageHint: String?
     ): String {
         if (body == null) return ""
 
@@ -140,7 +140,7 @@ internal object AutoSyncSubtitleHttp {
                 val read = stream.read(
                     buffer,
                     0,
-                    minOf(buffer.size, remaining),
+                    minOf(buffer.size, remaining)
                 )
                 if (read < 0) break
                 if (read == 0) continue
@@ -156,7 +156,10 @@ internal object AutoSyncSubtitleHttp {
 
         // Same decoding as the regular subtitle download: addon files (e.g. Subscene) are often
         // Windows-1252 without a charset header, and a blind UTF-8 decode turns accents into U+FFFD.
-        val decoded = SubtitleCharsetDetector.decode(output.toByteArray(), languageHint = languageHint)
+        val decoded = SubtitleCharsetDetector.decode(
+            output.toByteArray(),
+            languageHint = languageHint
+        )
 
         return if (truncated) "$decoded$TRUNCATION_SUFFIX" else decoded
     }
@@ -167,6 +170,5 @@ internal data class AutoSyncRawHttpResponse(
     val statusText: String,
     val url: String,
     val body: String,
-    val headers: Map<String, String>,
+    val headers: Map<String, String>
 )
-

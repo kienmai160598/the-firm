@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 private const val TAG = "TvChannelSync"
 private const val JOB_ID_PERIODIC = 10_010
 private const val JOB_ID_IMMEDIATE = 10_011
-private const val PERIODIC_INTERVAL_MS = 15 * 60_000L  // 15 minutes (JobScheduler OS minimum)
+private const val PERIODIC_INTERVAL_MS = 15 * 60_000L // 15 minutes (JobScheduler OS minimum)
 
 /**
  * Background job that keeps the Continue Watching preview channel in sync when the app
@@ -48,7 +48,8 @@ class TvChannelRefreshJobService : JobService() {
 
     override fun onStartJob(params: JobParameters): Boolean {
         val entryPoint = EntryPointAccessors.fromApplication(
-            applicationContext, TvChannelJobEntryPoint::class.java
+            applicationContext,
+            TvChannelJobEntryPoint::class.java
         )
         val syncService = entryPoint.channelSyncService()
         val manager = entryPoint.channelManager()
@@ -93,7 +94,10 @@ class TvChannelRefreshJobService : JobService() {
                 .setPersisted(true)
                 .build()
             if (!scheduler.scheduleSafely(job)) return
-            Log.d(TAG, "Scheduled periodic TV channel refresh every ${PERIODIC_INTERVAL_MS / 60_000}min")
+            Log.d(
+                TAG,
+                "Scheduled periodic TV channel refresh every ${PERIODIC_INTERVAL_MS / 60_000}min"
+            )
         }
 
         fun scheduleImmediate(context: Context) {

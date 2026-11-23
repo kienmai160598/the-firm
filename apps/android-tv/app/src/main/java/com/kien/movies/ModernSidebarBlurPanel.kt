@@ -39,8 +39,8 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import com.kien.movies.ui.components.AutoResizeText
 import com.kien.movies.ui.components.BrandWordmark
@@ -52,13 +52,14 @@ import com.kien.movies.ui.theme.MoviesStrokes
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.rememberRawSvgPainter
-import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeInputScale
+import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 
 private val SidebarLeadingVisualSize = MoviesComponents.tokens.sidebar.leadingVisual
 private val SidebarContentGap = MoviesComponents.tokens.sidebar.contentGap
-private val SidebarProfileContentGap = MoviesComponents.tokens.sidebar.contentGap + MoviesTheme.spacing.xs
+private val SidebarProfileContentGap =
+    MoviesComponents.tokens.sidebar.contentGap + MoviesTheme.spacing.xs
 
 @Composable
 internal fun ModernSidebarBlurPanel(
@@ -109,10 +110,12 @@ internal fun ModernSidebarBlurPanel(
             isAmoledBlack -> 1f
             else -> 0.97f
         }
-        Brush.verticalGradient(listOf(
-            baseColor.copy(alpha = alpha),
-            baseColor.copy(alpha = alpha)
-        ))
+        Brush.verticalGradient(
+            listOf(
+                baseColor.copy(alpha = alpha),
+                baseColor.copy(alpha = alpha)
+            )
+        )
     }
     val panelBorderColor = remember(isAmoledBlack, blurEnabled, borderBase) {
         if (!blurEnabled && isAmoledBlack) borderBase.copy(alpha = 0.9f) else Color.Transparent
@@ -134,12 +137,20 @@ internal fun ModernSidebarBlurPanel(
             .background(brush = panelBackgroundBrush, shape = panelShape)
             .then(
                 if (panelBorderColor != Color.Transparent) {
-                    Modifier.border(width = MoviesStrokes.tokens.hairline, color = panelBorderColor, shape = panelShape)
+                    Modifier.border(
+                        width = MoviesStrokes.tokens.hairline,
+                        color = panelBorderColor,
+                        shape = panelShape
+                    )
                 } else {
                     Modifier
                 }
             )
-            .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.lg - MoviesTheme.spacing.xxs)
+            .padding(
+                horizontal = MoviesTheme.spacing.md,
+                vertical =
+                    MoviesTheme.spacing.lg - MoviesTheme.spacing.xxs
+            )
     ) {
         if (showProfileSelector && activeProfileName.isNotEmpty()) {
             Box(
@@ -189,7 +200,9 @@ internal fun ModernSidebarBlurPanel(
         ) {
             Column(
                 modifier = Modifier.offset(y = (-12).dp),
-                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm - MoviesTheme.spacing.xxs)
+                verticalArrangement = Arrangement.spacedBy(
+                    MoviesTheme.spacing.sm - MoviesTheme.spacing.xxs
+                )
             ) {
                 drawerItems.forEachIndexed { index, item ->
                     key(item.route) {
@@ -250,43 +263,48 @@ private fun SidebarNavigationItem(
                     this.selected = selected
                 }
                 .fillMaxWidth()
-                .padding(horizontal = MoviesTheme.spacing.lg - MoviesTheme.spacing.xxs, vertical = MoviesTheme.spacing.sm + MoviesTheme.spacing.xxs),
+                .padding(
+                    horizontal = MoviesTheme.spacing.lg - MoviesTheme.spacing.xxs,
+                    vertical =
+                        MoviesTheme.spacing.sm + MoviesTheme.spacing.xxs
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-        Box(
-            modifier = Modifier
-                .size(SidebarLeadingVisualSize)
-                .graphicsLayer {
-                    scaleX = iconScale
-                    scaleY = iconScale
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            val iconModifier = Modifier.size(MoviesComponents.tokens.sidebar.iconSize)
-            when {
-                icon != null -> Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = LocalContentColor.current,
-                    modifier = iconModifier
-                )
-                iconRes != null -> Icon(
-                    painter = rememberRawSvgPainter(iconRes),
-                    contentDescription = null,
-                    tint = LocalContentColor.current,
-                    modifier = iconModifier
-                )
-            }
-        }
-        Spacer(modifier = Modifier.width(SidebarContentGap))
+            Box(
+                modifier = Modifier
+                    .size(SidebarLeadingVisualSize)
+                    .graphicsLayer {
+                        scaleX = iconScale
+                        scaleY = iconScale
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                val iconModifier = Modifier.size(MoviesComponents.tokens.sidebar.iconSize)
+                when {
+                    icon != null -> Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = LocalContentColor.current,
+                        modifier = iconModifier
+                    )
 
-        AutoResizeText(
-            text = label,
-            color = LocalContentColor.current,
-            modifier = Modifier
-                .weight(1f)
-                .graphicsLayer { alpha = labelAlpha }
-        )
+                    iconRes != null -> Icon(
+                        painter = rememberRawSvgPainter(iconRes),
+                        contentDescription = null,
+                        tint = LocalContentColor.current,
+                        modifier = iconModifier
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(SidebarContentGap))
+
+            AutoResizeText(
+                text = label,
+                color = LocalContentColor.current,
+                modifier = Modifier
+                    .weight(1f)
+                    .graphicsLayer { alpha = labelAlpha }
+            )
         }
     }
 }
@@ -319,33 +337,37 @@ private fun SidebarProfileItem(
                     role = Role.Button
                 }
                 .fillMaxWidth()
-                .padding(horizontal = MoviesTheme.spacing.lg - MoviesTheme.spacing.xxs, vertical = MoviesTheme.spacing.sm + MoviesTheme.spacing.xxs),
+                .padding(
+                    horizontal = MoviesTheme.spacing.lg - MoviesTheme.spacing.xxs,
+                    vertical =
+                        MoviesTheme.spacing.sm + MoviesTheme.spacing.xxs
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-        Box(
-            modifier = Modifier.size(SidebarLeadingVisualSize),
-            contentAlignment = Alignment.Center
-        ) {
-            ProfileAvatarCircle(
-                name = profileName,
-                colorHex = profileColorHex,
-                size = SidebarLeadingVisualSize,
-                avatarImageUrl = profileAvatarImageUrl,
-                imageCrossfade = false
+            Box(
+                modifier = Modifier.size(SidebarLeadingVisualSize),
+                contentAlignment = Alignment.Center
+            ) {
+                ProfileAvatarCircle(
+                    name = profileName,
+                    colorHex = profileColorHex,
+                    size = SidebarLeadingVisualSize,
+                    avatarImageUrl = profileAvatarImageUrl,
+                    imageCrossfade = false
+                )
+            }
+            Spacer(modifier = Modifier.width(SidebarProfileContentGap))
+            AutoResizeText(
+                text = profileName,
+                color = LocalContentColor.current,
+                modifier = Modifier
+                    .weight(1f)
+                    .graphicsLayer { alpha = labelAlpha },
+                style = androidx.tv.material3.MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    textDirection = profileName.contentTextDirection()
+                )
             )
-        }
-        Spacer(modifier = Modifier.width(SidebarProfileContentGap))
-        AutoResizeText(
-            text = profileName,
-            color = LocalContentColor.current,
-            modifier = Modifier
-                .weight(1f)
-                .graphicsLayer { alpha = labelAlpha },
-            style = androidx.tv.material3.MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.SemiBold,
-                textDirection = profileName.contentTextDirection()
-            )
-        )
         }
     }
 }

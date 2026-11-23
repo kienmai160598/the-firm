@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -67,9 +65,10 @@ import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.TvSizeFloors
 import java.util.Locale
 import kotlin.math.roundToInt
-import com.kien.movies.ui.theme.TvSizeFloors
 
 @Composable
 internal fun LanguageSelectionDialog(
@@ -82,7 +81,13 @@ internal fun LanguageSelectionDialog(
 ) {
     val tmdbTitle = stringResource(R.string.tmdb_language_dialog_title)
     val sortedLanguages = remember {
-        val baseList = if (title == tmdbTitle) AVAILABLE_TMDB_LANGUAGES else AVAILABLE_SUBTITLE_LANGUAGES
+        val baseList = if (title ==
+            tmdbTitle
+        ) {
+            AVAILABLE_TMDB_LANGUAGES
+        } else {
+            AVAILABLE_SUBTITLE_LANGUAGES
+        }
         baseList.sortedBy { it.displayName.lowercase() }
     }
     val originalHint = stringResource(R.string.audio_lang_original_hint)
@@ -91,14 +96,23 @@ internal fun LanguageSelectionDialog(
             add(SettingsPickerOption(null, stringResource(R.string.action_none)))
         }
         extraOptions.forEach { (code, name) ->
-            add(SettingsPickerOption(
-                code, name,
-                description = if (code == AudioLanguageOption.ORIGINAL) originalHint else null,
-                trailing = if (code == AudioLanguageOption.ORIGINAL) null else code.uppercase()
-            ))
+            add(
+                SettingsPickerOption(
+                    code,
+                    name,
+                    description = if (code == AudioLanguageOption.ORIGINAL) originalHint else null,
+                    trailing = if (code == AudioLanguageOption.ORIGINAL) null else code.uppercase()
+                )
+            )
         }
         sortedLanguages.forEach { language ->
-            add(SettingsPickerOption(language.code, language.displayName, trailing = language.code.uppercase()))
+            add(
+                SettingsPickerOption(
+                    language.code,
+                    language.displayName,
+                    trailing = language.code.uppercase()
+                )
+            )
         }
     }
 
@@ -135,7 +149,9 @@ internal fun ColorSelectionDialog(
         .let { if (it >= 0) it else 0 }
     val colorListState = rememberLazyListState(initialFirstVisibleItemIndex = focusedColorIndex)
     var currentChipColor by remember { mutableStateOf(initialChip) }
-    var alphaPercent by remember { mutableIntStateOf((selectedColor.alpha * 100f).roundToInt().coerceIn(0, 100)) }
+    var alphaPercent by remember {
+        mutableIntStateOf((selectedColor.alpha * 100f).roundToInt().coerceIn(0, 100))
+    }
 
     MoviesDialog(
         onDismiss = onDismiss,
@@ -284,7 +300,9 @@ internal fun ColorSelectionDialog(
                     )
                 }
                 MoviesCard(
-                    onClick = { onColorSelected(currentChipColor.copy(alpha = alphaPercent / 100f)) },
+                    onClick = {
+                        onColorSelected(currentChipColor.copy(alpha = alphaPercent / 100f))
+                    },
                     selected = true,
                     shape = M3eShapes.capsule,
                     modifier = Modifier.weight(1f)
@@ -345,10 +363,14 @@ internal fun ColorOption(
                 border = MoviesTheme.focusRing.border(3.dp),
                 shape = CircleShape
             ),
-            border = if (isSelected) Border(
-                border = BorderStroke(3.dp, MoviesTheme.colors.Primary),
-                shape = CircleShape
-            ) else Border.None
+            border = if (isSelected) {
+                Border(
+                    border = BorderStroke(3.dp, MoviesTheme.colors.Primary),
+                    shape = CircleShape
+                )
+            } else {
+                Border.None
+            }
         ),
         shape = CardDefaults.shape(shape = CircleShape),
         scale = CardDefaults.scale(focusedScale = 1.15f)
@@ -363,7 +385,11 @@ internal fun ColorOption(
                         .size(40.dp)
                         .clip(CircleShape)
                         .background(Color.Gray)
-                        .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, CircleShape)
+                        .border(
+                            MoviesTheme.spacing.hairline,
+                            MoviesTheme.colors.Border,
+                            CircleShape
+                        )
                 )
             } else {
                 Box(
@@ -371,7 +397,11 @@ internal fun ColorOption(
                         .size(40.dp)
                         .clip(CircleShape)
                         .background(color)
-                        .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, CircleShape)
+                        .border(
+                            MoviesTheme.spacing.hairline,
+                            MoviesTheme.colors.Border,
+                            CircleShape
+                        )
                 )
             }
 
@@ -379,7 +409,13 @@ internal fun ColorOption(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = if (color == Color.White || color == Color.Yellow) Color.Black else Color.White,
+                    tint = if (color == Color.White ||
+                        color == Color.Yellow
+                    ) {
+                        Color.Black
+                    } else {
+                        Color.White
+                    },
                     modifier = Modifier.size(20.dp)
                 )
             }

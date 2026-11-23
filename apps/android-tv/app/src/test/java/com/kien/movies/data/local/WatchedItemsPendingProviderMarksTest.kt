@@ -33,7 +33,11 @@ class WatchedItemsPendingProviderMarksTest {
     fun `episodes and marks made without a provider are never pending`() = runTest {
         val preferences = harness()
 
-        preferences.markAsWatched(item("tt_show", season = 1, episode = 2), profileId = 1, pendingProviderMark = true)
+        preferences.markAsWatched(
+            item("tt_show", season = 1, episode = 2),
+            profileId = 1,
+            pendingProviderMark = true
+        )
         preferences.markAsWatched(item("tt_movie"), profileId = 1)
 
         assertEquals(emptySet<String>(), preferences.observePendingProviderMarks(1).first())
@@ -66,10 +70,18 @@ class WatchedItemsPendingProviderMarksTest {
     @Test
     fun `a pending mark whose item is gone is not reported`() = runTest {
         val preferences = harness()
-        preferences.markAsWatched(item(VIDEO, watchedAt = 50L), profileId = 1, pendingProviderMark = true)
+        preferences.markAsWatched(
+            item(VIDEO, watchedAt = 50L),
+            profileId = 1,
+            pendingProviderMark = true
+        )
 
         // A Movies sync snapshot that no longer has it, taken after it was pushed.
-        preferences.replaceWithRemoteItems(remoteItems = emptyList(), lastSuccessfulPushMs = 100L, profileId = 1)
+        preferences.replaceWithRemoteItems(
+            remoteItems = emptyList(),
+            lastSuccessfulPushMs = 100L,
+            profileId = 1
+        )
 
         assertEquals(emptySet<String>(), preferences.observePendingProviderMarks(1).first())
     }
@@ -94,15 +106,19 @@ class WatchedItemsPendingProviderMarksTest {
         return WatchedItemsPreferences(factory, profileManager)
     }
 
-    private fun item(contentId: String, season: Int? = null, episode: Int? = null, watchedAt: Long = 10L) =
-        WatchedItem(
-            contentId = contentId,
-            contentType = if (season != null) "series" else "youtube",
-            title = contentId,
-            season = season,
-            episode = episode,
-            watchedAt = watchedAt
-        )
+    private fun item(
+        contentId: String,
+        season: Int? = null,
+        episode: Int? = null,
+        watchedAt: Long = 10L
+    ) = WatchedItem(
+        contentId = contentId,
+        contentType = if (season != null) "series" else "youtube",
+        title = contentId,
+        season = season,
+        episode = episode,
+        watchedAt = watchedAt
+    )
 
     private companion object {
         const val VIDEO = "yt_id:abc123"

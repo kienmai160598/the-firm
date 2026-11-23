@@ -38,7 +38,7 @@ class CollectionManagementViewModelReorderTest {
     private fun createViewModel(
         collectionsFlow: MutableStateFlow<List<Collection>>,
         dataStore: CollectionsDataStore = mockk(relaxed = true),
-        syncService: CollectionSyncService = mockk(relaxed = true),
+        syncService: CollectionSyncService = mockk(relaxed = true)
     ): Triple<CollectionManagementViewModel, CollectionsDataStore, CollectionSyncService> {
         every { dataStore.collections } returns collectionsFlow
         val vm = CollectionManagementViewModel(
@@ -117,10 +117,13 @@ class CollectionManagementViewModelReorderTest {
         val (vm, _, _) = createViewModel(flow, dataStore = store, syncService = sync)
 
         val vmStore = ViewModelStore()
-        ViewModelProvider(vmStore, object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T = vm as T
-        })[CollectionManagementViewModel::class.java]
+        ViewModelProvider(
+            vmStore,
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T = vm as T
+            }
+        )[CollectionManagementViewModel::class.java]
         runCurrent()
 
         vm.enterCollectionMoveMode("c1")
@@ -137,7 +140,10 @@ class CollectionManagementViewModelReorderTest {
 
     @Test
     fun `cancelCollectionMove restores baseline order without persisting`() = runTest {
-        val flow = MutableStateFlow(listOf(testCollection("c1"), testCollection("c2"), testCollection("c3")))
+        val flow =
+            MutableStateFlow(
+                listOf(testCollection("c1"), testCollection("c2"), testCollection("c3"))
+            )
         val (vm, store, sync) = createViewModel(flow)
         runCurrent()
 

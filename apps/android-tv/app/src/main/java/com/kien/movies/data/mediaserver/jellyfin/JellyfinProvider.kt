@@ -7,10 +7,13 @@ import com.kien.movies.data.mediaserver.mediabrowser.ServerClientIdentity
 import com.kien.movies.data.mediaserver.mediabrowser.pathSegment
 import okhttp3.OkHttpClient
 
-internal class JellyfinProvider(
-    http: OkHttpClient,
-    identity: ServerClientIdentity
-) : MediaBrowserProvider(authorizationHeader = "Authorization", apiPath = "", http = http, identity = identity) {
+internal class JellyfinProvider(http: OkHttpClient, identity: ServerClientIdentity) :
+    MediaBrowserProvider(
+        authorizationHeader = "Authorization",
+        apiPath = "",
+        http = http,
+        identity = identity
+    ) {
     override val id: String = "jellyfin"
     override val displayName: String = "Jellyfin"
     override val minimumVersion: String = "10.9"
@@ -19,19 +22,15 @@ internal class JellyfinProvider(
 
     override fun itemsEndpoint(userId: String) = Endpoint("/Items", mapOf("userId" to userId))
 
-    override fun itemEndpoint(userId: String, itemId: String) =
-        Endpoint("/Items/${pathSegment(itemId)}", mapOf("userId" to userId))
+    override fun itemEndpoint(userId: String, itemId: String) = Endpoint("/Items/${pathSegment(itemId)}", mapOf("userId" to userId))
 
     override fun resumeEndpoint(userId: String) = Endpoint("/UserItems/Resume", mapOf("userId" to userId))
 
-    override fun playedEndpoint(userId: String, itemId: String) =
-        Endpoint("/UserPlayedItems/${pathSegment(itemId)}", mapOf("userId" to userId))
+    override fun playedEndpoint(userId: String, itemId: String) = Endpoint("/UserPlayedItems/${pathSegment(itemId)}", mapOf("userId" to userId))
 
-    override fun titleLookupQuery(query: ServerTitleQuery): Map<String, String>? =
-        query.name?.trim()?.takeIf { it.isNotEmpty() }?.let { mapOf("searchTerm" to it) }
+    override fun titleLookupQuery(query: ServerTitleQuery): Map<String, String>? = query.name?.trim()?.takeIf { it.isNotEmpty() }?.let { mapOf("searchTerm" to it) }
 
-    override fun titleRetryQuery(query: ServerTitleQuery): Map<String, String>? =
-        query.originalName?.trim()
-            ?.takeIf { it.isNotEmpty() && !it.equals(query.name?.trim(), ignoreCase = true) }
-            ?.let { mapOf("searchTerm" to it) }
+    override fun titleRetryQuery(query: ServerTitleQuery): Map<String, String>? = query.originalName?.trim()
+        ?.takeIf { it.isNotEmpty() && !it.equals(query.name?.trim(), ignoreCase = true) }
+        ?.let { mapOf("searchTerm" to it) }
 }

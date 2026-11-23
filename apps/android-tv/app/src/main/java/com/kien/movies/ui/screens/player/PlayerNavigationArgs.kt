@@ -1,8 +1,8 @@
 package com.kien.movies.ui.screens.player
 
 import androidx.lifecycle.SavedStateHandle
-import org.json.JSONArray
 import java.net.URLDecoder
+import org.json.JSONArray
 
 internal data class PlayerNavigationArgs(
     val streamUrl: String,
@@ -76,7 +76,9 @@ internal data class PlayerNavigationArgs(
                 headersJson = decodedOrNull("headers"),
                 // NavController already decodes these IDs.
                 contentId = savedStateHandle.get<String>("contentId")?.takeIf { it.isNotEmpty() },
-                contentType = savedStateHandle.get<String>("contentType")?.takeIf { it.isNotEmpty() },
+                contentType = savedStateHandle.get<String>("contentType")?.takeIf {
+                    it.isNotEmpty()
+                },
                 contentName = decodedOrNull("contentName"),
                 poster = decodedOrNull("poster"),
                 backdrop = decodedOrNull("backdrop"),
@@ -89,7 +91,9 @@ internal data class PlayerNavigationArgs(
                 filename = decodedOrNull("filename"),
                 videoHash = savedStateHandle.get<String>("videoHash")?.takeIf { it.isNotEmpty() },
                 videoSize = savedStateHandle.get<String>("videoSize")?.toLongOrNull(),
-                startFromBeginning = savedStateHandle.get<String>("startFromBeginning")?.toBooleanStrictOrNull() == true,
+                startFromBeginning =
+                    savedStateHandle.get<String>("startFromBeginning")?.toBooleanStrictOrNull() ==
+                        true,
                 addonName = decodedOrNull("addonName"),
                 addonLogo = decodedOrNull("addonLogo"),
                 streamDescription = decodedOrNull("streamDescription"),
@@ -100,12 +104,16 @@ internal data class PlayerNavigationArgs(
                 cloudSessionToken = decodedOrNull("cloudSessionToken"),
                 rememberedAudioLanguage = decodedOrNull("rememberedAudioLanguage"),
                 rememberedAudioName = decodedOrNull("rememberedAudioName"),
-                launchStartedAtMs = savedStateHandle.get<String>("launchStartedAtMs")?.toLongOrNull(),
+                launchStartedAtMs = savedStateHandle.get<String>(
+                    "launchStartedAtMs"
+                )?.toLongOrNull(),
                 profileId = savedStateHandle.get<String>("profileId")?.toIntOrNull(),
                 audioDelayMs = savedStateHandle.get<String>("audioDelayMs")?.toIntOrNull(),
                 audioDelayLanguage = decodedOrNull("audioDelayLanguage"),
-                fromLinkCache = savedStateHandle.get<String>("fromLinkCache")?.toBooleanStrictOrNull() == true,
-                autoPlayNav = savedStateHandle.get<String>("autoPlayNav")?.toBooleanStrictOrNull() == true
+                fromLinkCache =
+                    savedStateHandle.get<String>("fromLinkCache")?.toBooleanStrictOrNull() == true,
+                autoPlayNav =
+                    savedStateHandle.get<String>("autoPlayNav")?.toBooleanStrictOrNull() == true
             )
         }
     }

@@ -1,13 +1,6 @@
 @file:OptIn(ExperimentalTvMaterial3Api::class)
 
-
 package com.kien.movies.ui.screens.settings
-
-import com.kien.movies.core.network.NetworkConnectionKind
-import com.kien.movies.core.network.NetworkTransport
-import com.kien.movies.core.network.networkConnectionKind
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.util.keepLtr
 
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -22,6 +15,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,10 +24,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SignalWifiOff
@@ -68,9 +61,16 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.core.network.NetworkConnectionKind
+import com.kien.movies.core.network.NetworkTransport
+import com.kien.movies.core.network.networkConnectionKind
 import com.kien.movies.data.local.Dv7HandlingMode
 import com.kien.movies.data.local.InternalPlayerEngine
 import com.kien.movies.domain.model.ExperienceMode
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.util.keepLtr
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -78,8 +78,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
 
 @dagger.hilt.EntryPoint
 @dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
@@ -127,9 +125,23 @@ private fun NetworkCapabilities.toTransportSet(): Set<NetworkTransport> {
 @Composable
 private fun ConnectionStatusBadge(type: NetworkConnectionKind) {
     val (icon, label, color) = when (type) {
-        NetworkConnectionKind.Wifi -> Triple(Icons.Default.Wifi, stringResource(R.string.network_connection_wifi), MoviesTheme.colors.Success)
-        NetworkConnectionKind.Ethernet -> Triple(Icons.Default.Wifi, stringResource(R.string.network_connection_ethernet), MoviesTheme.colors.Success)
-        NetworkConnectionKind.Offline -> Triple(Icons.Default.SignalWifiOff, stringResource(R.string.network_connection_offline), MoviesTheme.colors.Error)
+        NetworkConnectionKind.Wifi -> Triple(
+            Icons.Default.Wifi,
+            stringResource(R.string.network_connection_wifi),
+            MoviesTheme.colors.Success
+        )
+
+        NetworkConnectionKind.Ethernet -> Triple(
+            Icons.Default.Wifi,
+            stringResource(R.string.network_connection_ethernet),
+            MoviesTheme.colors.Success
+        )
+
+        NetworkConnectionKind.Offline -> Triple(
+            Icons.Default.SignalWifiOff,
+            stringResource(R.string.network_connection_offline),
+            MoviesTheme.colors.Error
+        )
     }
     Row(
         modifier = Modifier
@@ -162,7 +174,9 @@ private suspend fun fetchFastComUrls(context: android.content.Context): List<Str
         inputStream.bufferedReader().use { it.readText() }.also { disconnect() }
     }
     val scriptPath = Regex("""<script src="(/app[^"]+\.js)"""").find(html)?.groupValues?.get(1)
-        ?: throw Exception(context.getString(com.kien.movies.R.string.network_fast_error_script_path_missing))
+        ?: throw Exception(
+            context.getString(com.kien.movies.R.string.network_fast_error_script_path_missing)
+        )
 
     // 2. Extract the API token from the JS bundle
     val js = (URL("https://fast.com$scriptPath").openConnection() as HttpURLConnection).run {
@@ -172,11 +186,15 @@ private suspend fun fetchFastComUrls(context: android.content.Context): List<Str
         inputStream.bufferedReader().use { it.readText() }.also { disconnect() }
     }
     val token = Regex("""token:"([^"]+)"""").find(js)?.groupValues?.get(1)
-        ?: throw Exception(context.getString(com.kien.movies.R.string.network_fast_error_token_missing))
+        ?: throw Exception(
+            context.getString(com.kien.movies.R.string.network_fast_error_token_missing)
+        )
 
     // 3. Fetch CDN URLs from the speed-test API
-    val apiJson = (URL("https://api.fast.com/netflix/speedtest/v2?https=true&token=$token&urlCount=15")
-        .openConnection() as HttpURLConnection).run {
+    val apiJson = (
+        URL("https://api.fast.com/netflix/speedtest/v2?https=true&token=$token&urlCount=15")
+            .openConnection() as HttpURLConnection
+        ).run {
         connectTimeout = 5_000
         readTimeout = 10_000
         setRequestProperty("User-Agent", "Mozilla/5.0")
@@ -250,7 +268,10 @@ fun AdvancedSettingsContent(
             estimatedBitrate = formatBitrate
         } else if (!lastStreamUrl.isNullOrBlank() && dvDiagnostics.durationMs > 0) {
             kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                val size = com.kien.movies.core.network.StreamSpeedTester.getStreamContentLength(lastStreamUrl, lastHeadersMap)
+                val size = com.kien.movies.core.network.StreamSpeedTester.getStreamContentLength(
+                    lastStreamUrl,
+                    lastHeadersMap
+                )
                 if (size > 0) {
                     val durationSecs = dvDiagnostics.durationMs / 1000.0
                     if (durationSecs > 0) {
@@ -288,39 +309,44 @@ fun AdvancedSettingsContent(
                 }
 
                 val measureChunkBytes =
-                    com.kien.movies.data.local.PlayerSettings.DEFAULT_PARALLEL_CHUNK_SIZE_KB.toLong() * 1024L
+                    com.kien.movies.data.local.PlayerSettings.DEFAULT_PARALLEL_CHUNK_SIZE_KB.toLong() *
+                        1024L
 
                 streamTestState = "Parallel1"
-                streamParallel1Speed = com.kien.movies.core.network.StreamSpeedTester.runParallelChunkTest(
-                    lastStreamUrl,
-                    lastHeadersMap,
-                    chunkSizeBytes = measureChunkBytes,
-                    parallelConnections = 1
-                ).mbps
+                streamParallel1Speed =
+                    com.kien.movies.core.network.StreamSpeedTester.runParallelChunkTest(
+                        lastStreamUrl,
+                        lastHeadersMap,
+                        chunkSizeBytes = measureChunkBytes,
+                        parallelConnections = 1
+                    ).mbps
 
                 streamTestState = "Parallel4"
-                streamParallel4Speed = com.kien.movies.core.network.StreamSpeedTester.runParallelChunkTest(
-                    lastStreamUrl,
-                    lastHeadersMap,
-                    chunkSizeBytes = measureChunkBytes,
-                    parallelConnections = 4
-                ).mbps
+                streamParallel4Speed =
+                    com.kien.movies.core.network.StreamSpeedTester.runParallelChunkTest(
+                        lastStreamUrl,
+                        lastHeadersMap,
+                        chunkSizeBytes = measureChunkBytes,
+                        parallelConnections = 4
+                    ).mbps
 
                 streamTestState = "Parallel8"
-                streamParallel8Speed = com.kien.movies.core.network.StreamSpeedTester.runParallelChunkTest(
-                    lastStreamUrl,
-                    lastHeadersMap,
-                    chunkSizeBytes = measureChunkBytes,
-                    parallelConnections = 8
-                ).mbps
+                streamParallel8Speed =
+                    com.kien.movies.core.network.StreamSpeedTester.runParallelChunkTest(
+                        lastStreamUrl,
+                        lastHeadersMap,
+                        chunkSizeBytes = measureChunkBytes,
+                        parallelConnections = 8
+                    ).mbps
 
                 streamTestState = "Parallel16"
-                streamParallel16Speed = com.kien.movies.core.network.StreamSpeedTester.runParallelChunkTest(
-                    lastStreamUrl,
-                    lastHeadersMap,
-                    chunkSizeBytes = measureChunkBytes,
-                    parallelConnections = 16
-                ).mbps
+                streamParallel16Speed =
+                    com.kien.movies.core.network.StreamSpeedTester.runParallelChunkTest(
+                        lastStreamUrl,
+                        lastHeadersMap,
+                        chunkSizeBytes = measureChunkBytes,
+                        parallelConnections = 16
+                    ).mbps
 
                 streamTestState = "Done"
             } catch (e: java.lang.Exception) {
@@ -395,7 +421,6 @@ fun AdvancedSettingsContent(
                 }
                 downloadMbps = if (elapsed > 0) (totalBytes * 8.0) / (elapsed * 1000.0) else 0.0
                 testState = NetworkTestState.Done
-
             } catch (e: Exception) {
                 errorMessage = e.localizedMessage ?: unknownError
                 testState = NetworkTestState.Error
@@ -407,448 +432,526 @@ fun AdvancedSettingsContent(
     var showExperienceModeConfirmation by remember { mutableStateOf(false) }
     var showSentryDialog by remember { mutableStateOf(false) }
     Box(modifier = Modifier.fillMaxSize()) {
-    LazyColumn(
-        state = networkListState,
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        item(key = "header") {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                SettingsDetailHeader(
-                    modifier = Modifier.weight(1f),
-                    title = stringResource(R.string.settings_advanced),
-                    subtitle = stringResource(R.string.settings_advanced_subtitle)
-                )
-                AnimatedVisibility(
-                    visible = testState != NetworkTestState.Idle,
-                    enter = fadeIn(),
-                    exit = fadeOut()
+        LazyColumn(
+            state = networkListState,
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            item(key = "header") {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    ConnectionStatusBadge(type = connectionType)
+                    SettingsDetailHeader(
+                        modifier = Modifier.weight(1f),
+                        title = stringResource(R.string.settings_advanced),
+                        subtitle = stringResource(R.string.settings_advanced_subtitle)
+                    )
+                    AnimatedVisibility(
+                        visible = testState != NetworkTestState.Idle,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        ConnectionStatusBadge(type = connectionType)
+                    }
                 }
             }
-        }
 
-        item(key = "experience_mode_settings") {
-            SettingsGroupCard(
-                modifier = Modifier.fillMaxWidth(),
-                title = stringResource(R.string.experience_mode_group_title)
-            ) {
-                SettingsActionRow(
-                    title = stringResource(R.string.experience_mode_switch_to_essential),
-                    subtitle = stringResource(R.string.experience_mode_switch_to_essential_subtitle),
-                    value = stringResource(R.string.experience_mode_advanced),
-                    onClick = { showExperienceModeConfirmation = true },
-                    modifier = if (initialFocusRequester != null) {
-                        Modifier.focusRequester(initialFocusRequester)
-                    } else {
-                        Modifier
-                    }
-                )
-            }
-        }
-
-        item(key = "performance_settings") {
-            SettingsGroupCard(
-                modifier = Modifier.fillMaxWidth(),
-                title = stringResource(R.string.advanced_section_performance)
-            ) {
-                SettingsToggleRow(
-                    title = stringResource(R.string.advanced_fast_horizontal_navigation),
-                    subtitle = stringResource(R.string.advanced_fast_horizontal_navigation_subtitle),
-                    checked = uiState.fastHorizontalNavigationEnabled,
-                    onToggle = {
-                        viewModel.onEvent(
-                            AdvancedSettingsEvent.SetFastHorizontalNavigationEnabled(
-                                !uiState.fastHorizontalNavigationEnabled
-                            )
-                        )
-                    }
-                )
-                SettingsToggleRow(
-                    title = stringResource(R.string.advanced_nuvio_focus_scroll),
-                    subtitle = stringResource(R.string.advanced_nuvio_focus_scroll_subtitle),
-                    checked = uiState.smoothBringIntoViewEnabled,
-                    onToggle = {
-                        viewModel.onEvent(
-                            AdvancedSettingsEvent.SetSmoothBringIntoViewEnabled(
-                                !uiState.smoothBringIntoViewEnabled
-                            )
-                        )
-                    }
-                )
-                SettingsToggleRow(
-                    title = stringResource(R.string.advanced_rgb565),
-                    subtitle = stringResource(R.string.advanced_rgb565_subtitle),
-                    checked = uiState.rgb565Enabled,
-                    onToggle = {
-                        viewModel.onEvent(
-                            AdvancedSettingsEvent.SetRgb565Enabled(
-                                !uiState.rgb565Enabled
-                            )
-                        )
-                    }
-                )
-                SettingsToggleRow(
-                    title = stringResource(R.string.advanced_hardware_bitmaps),
-                    subtitle = stringResource(R.string.advanced_hardware_bitmaps_subtitle),
-                    checked = uiState.hardwareBitmapsEnabled,
-                    onToggle = {
-                        viewModel.onEvent(
-                            AdvancedSettingsEvent.SetHardwareBitmapsEnabled(
-                                !uiState.hardwareBitmapsEnabled
-                            )
-                        )
-                    }
-                )
-            }
-        }
-
-        item(key = "startup_settings") {
-            SettingsGroupCard(
-                modifier = Modifier.fillMaxWidth(),
-                title = stringResource(R.string.advanced_section_startup)
-            ) {
-                val profileManager = remember {
-                    dagger.hilt.android.EntryPointAccessors.fromApplication(
-                        context.applicationContext,
-                        ProfileManagerEntryPoint::class.java
-                    ).profileManager()
+            item(key = "experience_mode_settings") {
+                SettingsGroupCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = stringResource(R.string.experience_mode_group_title)
+                ) {
+                    SettingsActionRow(
+                        title = stringResource(R.string.experience_mode_switch_to_essential),
+                        subtitle = stringResource(
+                            R.string.experience_mode_switch_to_essential_subtitle
+                        ),
+                        value = stringResource(R.string.experience_mode_advanced),
+                        onClick = { showExperienceModeConfirmation = true },
+                        modifier = if (initialFocusRequester != null) {
+                            Modifier.focusRequester(initialFocusRequester)
+                        } else {
+                            Modifier
+                        }
+                    )
                 }
-                val startupSplashEnabled by profileManager.startupSplashEnabled.collectAsState()
-                SettingsToggleRow(
-                    title = stringResource(R.string.appearance_startup_splash),
-                    subtitle = stringResource(R.string.appearance_startup_splash_subtitle),
-                    checked = startupSplashEnabled,
-                    onToggle = {
-                        scope.launch {
-                            profileManager.setStartupSplashEnabled(!startupSplashEnabled)
-                        }
-                    }
-                )
-                val rememberLastProfileEnabled by profileManager.rememberLastProfileEnabled.collectAsState()
-                SettingsToggleRow(
-                    title = stringResource(R.string.advanced_remember_last_profile),
-                    subtitle = stringResource(R.string.advanced_remember_last_profile_subtitle),
-                    checked = rememberLastProfileEnabled,
-                    onToggle = {
-                        scope.launch {
-                            profileManager.setRememberLastProfileEnabled(!rememberLastProfileEnabled)
-                        }
-                    }
-                )
-
-                val confirmExitEnabled by profileManager.confirmExitEnabled.collectAsState()
-                SettingsToggleRow(
-                    title = stringResource(R.string.advanced_confirm_exit),
-                    subtitle = stringResource(R.string.advanced_confirm_exit_subtitle),
-                    checked = confirmExitEnabled,
-                    onToggle = {
-                        scope.launch {
-                            profileManager.setConfirmExitEnabled(!confirmExitEnabled)
-                        }
-                    }
-                )
             }
-        }
 
-        item(key = "playback_issue_reports") {
-            SettingsGroupCard(
-                modifier = Modifier.fillMaxWidth(),
-                title = stringResource(R.string.advanced_section_diagnostics)
-            ) {
-                SettingsToggleRow(
-                    title = stringResource(R.string.advanced_sentry_reports),
-                    subtitle = stringResource(R.string.advanced_sentry_reports_subtitle),
-                    checked = uiState.sentryEnabled,
-                    onToggle = { showSentryDialog = true }
-                )
-                SettingsToggleRow(
-                    title = stringResource(R.string.advanced_playback_issue_reports),
-                    subtitle = stringResource(R.string.advanced_playback_issue_reports_subtitle),
-                    checked = uiState.playbackIssueReportsEnabled,
-                    onToggle = {
-                        viewModel.onEvent(
-                            AdvancedSettingsEvent.SetPlaybackIssueReportsEnabled(
-                                !uiState.playbackIssueReportsEnabled
+            item(key = "performance_settings") {
+                SettingsGroupCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = stringResource(R.string.advanced_section_performance)
+                ) {
+                    SettingsToggleRow(
+                        title = stringResource(R.string.advanced_fast_horizontal_navigation),
+                        subtitle = stringResource(
+                            R.string.advanced_fast_horizontal_navigation_subtitle
+                        ),
+                        checked = uiState.fastHorizontalNavigationEnabled,
+                        onToggle = {
+                            viewModel.onEvent(
+                                AdvancedSettingsEvent.SetFastHorizontalNavigationEnabled(
+                                    !uiState.fastHorizontalNavigationEnabled
+                                )
                             )
-                        )
-                    }
-                )
-                SettingsToggleRow(
-                    title = stringResource(R.string.advanced_player_stats_hud),
-                    subtitle = stringResource(R.string.advanced_player_stats_hud_subtitle),
-                    checked = uiState.playerStatsHudEnabled,
-                    onToggle = {
-                        viewModel.onEvent(
-                            AdvancedSettingsEvent.SetPlayerStatsHudEnabled(
-                                !uiState.playerStatsHudEnabled
+                        }
+                    )
+                    SettingsToggleRow(
+                        title = stringResource(R.string.advanced_nuvio_focus_scroll),
+                        subtitle = stringResource(R.string.advanced_nuvio_focus_scroll_subtitle),
+                        checked = uiState.smoothBringIntoViewEnabled,
+                        onToggle = {
+                            viewModel.onEvent(
+                                AdvancedSettingsEvent.SetSmoothBringIntoViewEnabled(
+                                    !uiState.smoothBringIntoViewEnabled
+                                )
                             )
-                        )
-                    }
-                )
+                        }
+                    )
+                    SettingsToggleRow(
+                        title = stringResource(R.string.advanced_rgb565),
+                        subtitle = stringResource(R.string.advanced_rgb565_subtitle),
+                        checked = uiState.rgb565Enabled,
+                        onToggle = {
+                            viewModel.onEvent(
+                                AdvancedSettingsEvent.SetRgb565Enabled(
+                                    !uiState.rgb565Enabled
+                                )
+                            )
+                        }
+                    )
+                    SettingsToggleRow(
+                        title = stringResource(R.string.advanced_hardware_bitmaps),
+                        subtitle = stringResource(R.string.advanced_hardware_bitmaps_subtitle),
+                        checked = uiState.hardwareBitmapsEnabled,
+                        onToggle = {
+                            viewModel.onEvent(
+                                AdvancedSettingsEvent.SetHardwareBitmapsEnabled(
+                                    !uiState.hardwareBitmapsEnabled
+                                )
+                            )
+                        }
+                    )
+                }
             }
-        }
 
-        item(key = "network_tests") {
-            SettingsGroupCard(
-                modifier = Modifier.fillMaxWidth(),
-                title = stringResource(R.string.advanced_section_network_tests)
-            ) {
-                val isRunning = testState == NetworkTestState.TestingLatency ||
+            item(key = "startup_settings") {
+                SettingsGroupCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = stringResource(R.string.advanced_section_startup)
+                ) {
+                    val profileManager = remember {
+                        dagger.hilt.android.EntryPointAccessors.fromApplication(
+                            context.applicationContext,
+                            ProfileManagerEntryPoint::class.java
+                        ).profileManager()
+                    }
+                    val startupSplashEnabled by profileManager.startupSplashEnabled.collectAsState()
+                    SettingsToggleRow(
+                        title = stringResource(R.string.appearance_startup_splash),
+                        subtitle = stringResource(R.string.appearance_startup_splash_subtitle),
+                        checked = startupSplashEnabled,
+                        onToggle = {
+                            scope.launch {
+                                profileManager.setStartupSplashEnabled(!startupSplashEnabled)
+                            }
+                        }
+                    )
+                    val rememberLastProfileEnabled by profileManager.rememberLastProfileEnabled.collectAsState()
+                    SettingsToggleRow(
+                        title = stringResource(R.string.advanced_remember_last_profile),
+                        subtitle = stringResource(R.string.advanced_remember_last_profile_subtitle),
+                        checked = rememberLastProfileEnabled,
+                        onToggle = {
+                            scope.launch {
+                                profileManager.setRememberLastProfileEnabled(
+                                    !rememberLastProfileEnabled
+                                )
+                            }
+                        }
+                    )
+
+                    val confirmExitEnabled by profileManager.confirmExitEnabled.collectAsState()
+                    SettingsToggleRow(
+                        title = stringResource(R.string.advanced_confirm_exit),
+                        subtitle = stringResource(R.string.advanced_confirm_exit_subtitle),
+                        checked = confirmExitEnabled,
+                        onToggle = {
+                            scope.launch {
+                                profileManager.setConfirmExitEnabled(!confirmExitEnabled)
+                            }
+                        }
+                    )
+                }
+            }
+
+            item(key = "playback_issue_reports") {
+                SettingsGroupCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = stringResource(R.string.advanced_section_diagnostics)
+                ) {
+                    SettingsToggleRow(
+                        title = stringResource(R.string.advanced_sentry_reports),
+                        subtitle = stringResource(R.string.advanced_sentry_reports_subtitle),
+                        checked = uiState.sentryEnabled,
+                        onToggle = { showSentryDialog = true }
+                    )
+                    SettingsToggleRow(
+                        title = stringResource(R.string.advanced_playback_issue_reports),
+                        subtitle = stringResource(
+                            R.string.advanced_playback_issue_reports_subtitle
+                        ),
+                        checked = uiState.playbackIssueReportsEnabled,
+                        onToggle = {
+                            viewModel.onEvent(
+                                AdvancedSettingsEvent.SetPlaybackIssueReportsEnabled(
+                                    !uiState.playbackIssueReportsEnabled
+                                )
+                            )
+                        }
+                    )
+                    SettingsToggleRow(
+                        title = stringResource(R.string.advanced_player_stats_hud),
+                        subtitle = stringResource(R.string.advanced_player_stats_hud_subtitle),
+                        checked = uiState.playerStatsHudEnabled,
+                        onToggle = {
+                            viewModel.onEvent(
+                                AdvancedSettingsEvent.SetPlayerStatsHudEnabled(
+                                    !uiState.playerStatsHudEnabled
+                                )
+                            )
+                        }
+                    )
+                }
+            }
+
+            item(key = "network_tests") {
+                SettingsGroupCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = stringResource(R.string.advanced_section_network_tests)
+                ) {
+                    val isRunning = testState == NetworkTestState.TestingLatency ||
                         testState == NetworkTestState.TestingDownload
-                SettingsActionRow(
-                    title = stringResource(
-                        if (isRunning) R.string.network_speed_test_running
-                        else R.string.network_speed_test_run
-                    ),
-                    subtitle = stringResource(R.string.network_speed_test_subtitle),
-                    value = if (isRunning) stringResource(
-                        when (testState) {
-                            NetworkTestState.TestingLatency -> R.string.network_testing_latency
-                            else -> R.string.network_testing_download
-                        }
-                    ) else null,
-                    onClick = { if (!isRunning) runSpeedTest() }
-                )
-                val isStreamRunning = streamTestState != "Idle" && streamTestState != "Done" && streamTestState != "Error"
-                val hasStream = !lastStreamUrl.isNullOrBlank()
-                SettingsActionRow(
-                    title = stringResource(
-                        if (isStreamRunning) R.string.stream_test_btn_running
-                        else R.string.stream_test_card_title
-                    ),
-                    subtitle = if (hasStream) {
-                        stringResource(R.string.stream_test_server_label, lastStreamUrl.let { android.net.Uri.parse(it).host } ?: stringResource(R.string.stream_quality_unknown))
-                    } else {
-                        stringResource(R.string.stream_test_no_stream)
-                    },
-                    value = if (isStreamRunning) {
-                        when (streamTestState) {
-                            "Baseline" -> stringResource(R.string.stream_test_btn_measuring_baseline)
-                            "Parallel1" -> stringResource(R.string.stream_test_btn_measuring_parallel1)
-                            "Parallel4" -> stringResource(R.string.stream_test_btn_measuring_parallel4)
-                            "Parallel8" -> stringResource(R.string.stream_test_btn_measuring_parallel8)
-                            "Parallel16" -> stringResource(R.string.stream_test_btn_measuring_parallel16)
-                            else -> stringResource(R.string.stream_test_btn_running)
-                        }
-                    } else null,
-                    enabled = hasStream && !isStreamRunning,
-                    onClick = { if (hasStream && !isStreamRunning) runStreamDiagnostics() }
-                )
-            }
-        }
-
-        if (testState != NetworkTestState.Idle) {
-            item(key = "speed_results") {
-                SettingsGroupCard(modifier = Modifier.fillMaxWidth()) {
-                    Column(
-                        modifier = Modifier.padding(MoviesTheme.spacing.xs),
-                        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.network_results_title),
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MoviesTheme.colors.TextSecondary
-                        )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl)
-                        ) {
-                            NetworkMetricCard(
-                                modifier = Modifier.weight(1f),
-                                icon = Icons.Default.Timer,
-                                label = stringResource(R.string.network_latency_label),
-                                value = latencyMs?.let { "$it ms" },
-                                loading = testState == NetworkTestState.TestingLatency
+                    SettingsActionRow(
+                        title = stringResource(
+                            if (isRunning) {
+                                R.string.network_speed_test_running
+                            } else {
+                                R.string.network_speed_test_run
+                            }
+                        ),
+                        subtitle = stringResource(R.string.network_speed_test_subtitle),
+                        value = if (isRunning) {
+                            stringResource(
+                                when (testState) {
+                                    NetworkTestState.TestingLatency -> R.string.network_testing_latency
+                                    else -> R.string.network_testing_download
+                                }
                             )
-                            NetworkMetricCard(
-                                modifier = Modifier.weight(1f),
-                                icon = Icons.Default.Speed,
-                                label = stringResource(R.string.network_download_label),
-                                value = downloadMbps?.let { "%.1f Mbps".format(it) },
-                                loading = testState == NetworkTestState.TestingDownload
+                        } else {
+                            null
+                        },
+                        onClick = { if (!isRunning) runSpeedTest() }
+                    )
+                    val isStreamRunning =
+                        streamTestState != "Idle" && streamTestState != "Done" &&
+                            streamTestState != "Error"
+                    val hasStream = !lastStreamUrl.isNullOrBlank()
+                    SettingsActionRow(
+                        title = stringResource(
+                            if (isStreamRunning) {
+                                R.string.stream_test_btn_running
+                            } else {
+                                R.string.stream_test_card_title
+                            }
+                        ),
+                        subtitle = if (hasStream) {
+                            stringResource(
+                                R.string.stream_test_server_label,
+                                lastStreamUrl.let { android.net.Uri.parse(it).host }
+                                    ?: stringResource(R.string.stream_quality_unknown)
                             )
-                        }
+                        } else {
+                            stringResource(R.string.stream_test_no_stream)
+                        },
+                        value = if (isStreamRunning) {
+                            when (streamTestState) {
+                                "Baseline" -> stringResource(
+                                    R.string.stream_test_btn_measuring_baseline
+                                )
 
-                        if (testState == NetworkTestState.Error && errorMessage != null) {
-                            Text(
-                                text = stringResource(R.string.network_error_prefix, errorMessage!!),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MoviesTheme.colors.Error
-                            )
-                        }
+                                "Parallel1" -> stringResource(
+                                    R.string.stream_test_btn_measuring_parallel1
+                                )
 
-                        Text(
-                            text = stringResource(R.string.network_powered_by_fast),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MoviesTheme.colors.TextSecondary.copy(alpha = 0.45f)
-                        )
-                    }
+                                "Parallel4" -> stringResource(
+                                    R.string.stream_test_btn_measuring_parallel4
+                                )
+
+                                "Parallel8" -> stringResource(
+                                    R.string.stream_test_btn_measuring_parallel8
+                                )
+
+                                "Parallel16" -> stringResource(
+                                    R.string.stream_test_btn_measuring_parallel16
+                                )
+
+                                else -> stringResource(R.string.stream_test_btn_running)
+                            }
+                        } else {
+                            null
+                        },
+                        enabled = hasStream && !isStreamRunning,
+                        onClick = { if (hasStream && !isStreamRunning) runStreamDiagnostics() }
+                    )
                 }
             }
-        }
 
-        if (streamTestState != "Idle") {
-            item(key = "stream_speed_results") {
-                SettingsGroupCard(modifier = Modifier.fillMaxWidth()) {
-                    Column(
-                        modifier = Modifier.padding(MoviesTheme.spacing.xs),
-                        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+            if (testState != NetworkTestState.Idle) {
+                item(key = "speed_results") {
+                    SettingsGroupCard(modifier = Modifier.fillMaxWidth()) {
+                        Column(
+                            modifier = Modifier.padding(MoviesTheme.spacing.xs),
+                            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
                         ) {
                             Text(
-                                text = stringResource(R.string.stream_test_section_header),
+                                text = stringResource(R.string.network_results_title),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MoviesTheme.colors.TextSecondary
                             )
 
-                            val bitrateMbps = estimatedBitrate?.takeIf { it > 0 }?.let { it.toDouble() / 1_000_000.0 }
-                            if (bitrateMbps != null) {
-                                Text(
-                                    text = stringResource(R.string.stream_test_video_bitrate, "%.1f Mbps".format(bitrateMbps)),
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = MoviesTheme.colors.TextPrimary
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl)
+                            ) {
+                                NetworkMetricCard(
+                                    modifier = Modifier.weight(1f),
+                                    icon = Icons.Default.Timer,
+                                    label = stringResource(R.string.network_latency_label),
+                                    value = latencyMs?.let { "$it ms" },
+                                    loading = testState == NetworkTestState.TestingLatency
+                                )
+                                NetworkMetricCard(
+                                    modifier = Modifier.weight(1f),
+                                    icon = Icons.Default.Speed,
+                                    label = stringResource(R.string.network_download_label),
+                                    value = downloadMbps?.let { "%.1f Mbps".format(it) },
+                                    loading = testState == NetworkTestState.TestingDownload
                                 )
                             }
-                        }
 
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
-                        ) {
-                            StreamTestResultRow(
-                                label = stringResource(R.string.stream_test_label_baseline),
-                                speed = streamBaselineSpeed,
-                                isRunning = streamTestState == "Baseline"
-                            )
-                            StreamTestResultRow(
-                                label = stringResource(R.string.stream_test_label_parallel1),
-                                speed = streamParallel1Speed,
-                                isRunning = streamTestState == "Parallel1"
-                            )
-                            StreamTestResultRow(
-                                label = stringResource(R.string.stream_test_label_parallel4),
-                                speed = streamParallel4Speed,
-                                isRunning = streamTestState == "Parallel4"
-                            )
-                            StreamTestResultRow(
-                                label = stringResource(R.string.stream_test_label_parallel8),
-                                speed = streamParallel8Speed,
-                                isRunning = streamTestState == "Parallel8"
-                            )
-                            StreamTestResultRow(
-                                label = stringResource(R.string.stream_test_label_parallel16),
-                                speed = streamParallel16Speed,
-                                isRunning = streamTestState == "Parallel16"
-                            )
-
-                            if (streamTestState == "Error" && streamErrorMessage != null) {
+                            if (testState == NetworkTestState.Error && errorMessage != null) {
                                 Text(
-                                    text = stringResource(R.string.stream_test_error_prefix, streamErrorMessage!!),
+                                    text = stringResource(
+                                        R.string.network_error_prefix,
+                                        errorMessage!!
+                                    ),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MoviesTheme.colors.Error
                                 )
                             }
+
+                            Text(
+                                text = stringResource(R.string.network_powered_by_fast),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MoviesTheme.colors.TextSecondary.copy(alpha = 0.45f)
+                            )
                         }
                     }
                 }
             }
-        }
 
-        item(key = "clear_cw_cache") {
-            SettingsGroupCard(
-                modifier = Modifier.fillMaxWidth(),
-                title = stringResource(R.string.advanced_section_cache)
-            ) {
-                var cleared by remember { mutableStateOf(false) }
-                SettingsActionRow(
-                    title = stringResource(R.string.advanced_clear_cw_cache),
-                    subtitle = if (cleared) {
-                        stringResource(R.string.advanced_clear_cw_cache_done)
-                    } else {
-                        stringResource(R.string.advanced_clear_cw_cache_subtitle)
-                    },
-                    onClick = {
-                        if (!cleared) {
-                            scope.launch {
-                                val entryPoint = dagger.hilt.android.EntryPointAccessors
-                                    .fromApplication(
-                                        context.applicationContext,
-                                        ClearCwCacheEntryPoint::class.java
+            if (streamTestState != "Idle") {
+                item(key = "stream_speed_results") {
+                    SettingsGroupCard(modifier = Modifier.fillMaxWidth()) {
+                        Column(
+                            modifier = Modifier.padding(MoviesTheme.spacing.xs),
+                            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.stream_test_section_header),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MoviesTheme.colors.TextSecondary
+                                )
+
+                                val bitrateMbps = estimatedBitrate?.takeIf { it > 0 }?.let {
+                                    it.toDouble() /
+                                        1_000_000.0
+                                }
+                                if (bitrateMbps != null) {
+                                    Text(
+                                        text = stringResource(
+                                            R.string.stream_test_video_bitrate,
+                                            "%.1f Mbps".format(bitrateMbps)
+                                        ),
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            fontWeight = FontWeight.Bold
+                                        ),
+                                        color = MoviesTheme.colors.TextPrimary
                                     )
-                                entryPoint.cwEnrichmentCache().clearAll()
-                                cleared = true
+                                }
+                            }
+
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
+                            ) {
+                                StreamTestResultRow(
+                                    label = stringResource(R.string.stream_test_label_baseline),
+                                    speed = streamBaselineSpeed,
+                                    isRunning = streamTestState == "Baseline"
+                                )
+                                StreamTestResultRow(
+                                    label = stringResource(R.string.stream_test_label_parallel1),
+                                    speed = streamParallel1Speed,
+                                    isRunning = streamTestState == "Parallel1"
+                                )
+                                StreamTestResultRow(
+                                    label = stringResource(R.string.stream_test_label_parallel4),
+                                    speed = streamParallel4Speed,
+                                    isRunning = streamTestState == "Parallel4"
+                                )
+                                StreamTestResultRow(
+                                    label = stringResource(R.string.stream_test_label_parallel8),
+                                    speed = streamParallel8Speed,
+                                    isRunning = streamTestState == "Parallel8"
+                                )
+                                StreamTestResultRow(
+                                    label = stringResource(R.string.stream_test_label_parallel16),
+                                    speed = streamParallel16Speed,
+                                    isRunning = streamTestState == "Parallel16"
+                                )
+
+                                if (streamTestState == "Error" && streamErrorMessage != null) {
+                                    Text(
+                                        text = stringResource(
+                                            R.string.stream_test_error_prefix,
+                                            streamErrorMessage!!
+                                        ),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MoviesTheme.colors.Error
+                                    )
+                                }
                             }
                         }
                     }
-                )
+                }
             }
-        }
 
-        if (dvPlayerSettings.internalPlayerEngine == InternalPlayerEngine.EXOPLAYER ||
-            dvPlayerSettings.internalPlayerEngine == InternalPlayerEngine.AUTO) {
-            item(key = "dv_conversion_mode") {
-                val overrideEnabled = dvPlayerSettings.dv7HandlingMode == Dv7HandlingMode.DV81_LIBDOVI
-                var showModeDialog by remember { mutableStateOf(false) }
-                val modeOptions = listOf(
-                    SettingsPickerOption(
-                        -1,
-                        stringResource(R.string.dv7_libdovi_mode_none_title),
-                        stringResource(R.string.dv7_libdovi_mode_none_sub)
-                    ),
-                    SettingsPickerOption(0, stringResource(R.string.dv7_libdovi_mode_0_title), stringResource(R.string.dv7_libdovi_mode_0_sub)),
-                    SettingsPickerOption(1, stringResource(R.string.dv7_libdovi_mode_1_title), stringResource(R.string.dv7_libdovi_mode_1_sub)),
-                    SettingsPickerOption(2, stringResource(R.string.dv7_libdovi_mode_2_title), stringResource(R.string.dv7_libdovi_mode_2_sub)),
-                    SettingsPickerOption(3, stringResource(R.string.dv7_libdovi_mode_3_title), stringResource(R.string.dv7_libdovi_mode_3_sub)),
-                    SettingsPickerOption(4, stringResource(R.string.dv7_libdovi_mode_4_title), stringResource(R.string.dv7_libdovi_mode_4_sub))
-                )
-                val effectiveOverride = if (overrideEnabled) dvPlayerSettings.dv7LibdoviModeOverride else -1
-                val currentLabel = modeOptions.firstOrNull { it.value == effectiveOverride }?.title
-                    ?: modeOptions.first().title
+            item(key = "clear_cw_cache") {
                 SettingsGroupCard(
                     modifier = Modifier.fillMaxWidth(),
-                    title = stringResource(R.string.advanced_section_dv_diagnostics)
+                    title = stringResource(R.string.advanced_section_cache)
                 ) {
+                    var cleared by remember { mutableStateOf(false) }
                     SettingsActionRow(
-                        title = stringResource(R.string.dv7_libdovi_mode_row_title),
-                        subtitle = stringResource(R.string.dv7_libdovi_mode_caption),
-                        value = currentLabel,
-                        onClick = { showModeDialog = true },
-                        enabled = overrideEnabled
-                    )
-                }
-                if (showModeDialog) {
-                    SettingsSingleChoiceDialog(
-                        title = stringResource(R.string.dv7_libdovi_mode_row_title),
-                        subtitle = stringResource(R.string.dv7_libdovi_mode_caption),
-                        options = modeOptions,
-                        selectedValue = effectiveOverride,
-                        onOptionSelected = { value ->
-                            scope.launch { playbackVm.setDv7LibdoviModeOverride(value) }
-                            showModeDialog = false
+                        title = stringResource(R.string.advanced_clear_cw_cache),
+                        subtitle = if (cleared) {
+                            stringResource(R.string.advanced_clear_cw_cache_done)
+                        } else {
+                            stringResource(R.string.advanced_clear_cw_cache_subtitle)
                         },
-                        onDismiss = { showModeDialog = false },
-                        width = 460.dp,
-                        maxHeight = 360.dp
+                        onClick = {
+                            if (!cleared) {
+                                scope.launch {
+                                    val entryPoint = dagger.hilt.android.EntryPointAccessors
+                                        .fromApplication(
+                                            context.applicationContext,
+                                            ClearCwCacheEntryPoint::class.java
+                                        )
+                                    entryPoint.cwEnrichmentCache().clearAll()
+                                    cleared = true
+                                }
+                            }
+                        }
                     )
                 }
             }
 
-            diagnosticsCardItems(
-                diagnostics = dvDiagnostics,
-                dvCurrentlyEnabled = dvPlayerSettings.dv7HandlingMode != Dv7HandlingMode.OFF
-            )
+            if (dvPlayerSettings.internalPlayerEngine == InternalPlayerEngine.EXOPLAYER ||
+                dvPlayerSettings.internalPlayerEngine == InternalPlayerEngine.AUTO
+            ) {
+                item(key = "dv_conversion_mode") {
+                    val overrideEnabled =
+                        dvPlayerSettings.dv7HandlingMode == Dv7HandlingMode.DV81_LIBDOVI
+                    var showModeDialog by remember { mutableStateOf(false) }
+                    val modeOptions = listOf(
+                        SettingsPickerOption(
+                            -1,
+                            stringResource(R.string.dv7_libdovi_mode_none_title),
+                            stringResource(R.string.dv7_libdovi_mode_none_sub)
+                        ),
+                        SettingsPickerOption(
+                            0,
+                            stringResource(R.string.dv7_libdovi_mode_0_title),
+                            stringResource(R.string.dv7_libdovi_mode_0_sub)
+                        ),
+                        SettingsPickerOption(
+                            1,
+                            stringResource(R.string.dv7_libdovi_mode_1_title),
+                            stringResource(R.string.dv7_libdovi_mode_1_sub)
+                        ),
+                        SettingsPickerOption(
+                            2,
+                            stringResource(R.string.dv7_libdovi_mode_2_title),
+                            stringResource(R.string.dv7_libdovi_mode_2_sub)
+                        ),
+                        SettingsPickerOption(
+                            3,
+                            stringResource(R.string.dv7_libdovi_mode_3_title),
+                            stringResource(R.string.dv7_libdovi_mode_3_sub)
+                        ),
+                        SettingsPickerOption(
+                            4,
+                            stringResource(R.string.dv7_libdovi_mode_4_title),
+                            stringResource(R.string.dv7_libdovi_mode_4_sub)
+                        )
+                    )
+                    val effectiveOverride = if (overrideEnabled) dvPlayerSettings.dv7LibdoviModeOverride else -1
+                    val currentLabel =
+                        modeOptions.firstOrNull { it.value == effectiveOverride }?.title
+                            ?: modeOptions.first().title
+                    SettingsGroupCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        title = stringResource(R.string.advanced_section_dv_diagnostics)
+                    ) {
+                        SettingsActionRow(
+                            title = stringResource(R.string.dv7_libdovi_mode_row_title),
+                            subtitle = stringResource(R.string.dv7_libdovi_mode_caption),
+                            value = currentLabel,
+                            onClick = { showModeDialog = true },
+                            enabled = overrideEnabled
+                        )
+                    }
+                    if (showModeDialog) {
+                        SettingsSingleChoiceDialog(
+                            title = stringResource(R.string.dv7_libdovi_mode_row_title),
+                            subtitle = stringResource(R.string.dv7_libdovi_mode_caption),
+                            options = modeOptions,
+                            selectedValue = effectiveOverride,
+                            onOptionSelected = { value ->
+                                scope.launch { playbackVm.setDv7LibdoviModeOverride(value) }
+                                showModeDialog = false
+                            },
+                            onDismiss = { showModeDialog = false },
+                            width = 460.dp,
+                            maxHeight = 360.dp
+                        )
+                    }
+                }
+
+                diagnosticsCardItems(
+                    diagnostics = dvDiagnostics,
+                    dvCurrentlyEnabled = dvPlayerSettings.dv7HandlingMode != Dv7HandlingMode.OFF
+                )
+            }
         }
-    }
         SettingsVerticalScrollIndicators(state = networkListState)
     }
 
@@ -917,17 +1020,19 @@ private fun NetworkMetricCard(
                 else -> "–"
             },
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-            color = if (value != null && !loading) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextTertiary
+            color = if (value != null &&
+                !loading
+            ) {
+                MoviesTheme.colors.TextPrimary
+            } else {
+                MoviesTheme.colors.TextTertiary
+            }
         )
     }
 }
 
 @Composable
-private fun StreamTestResultRow(
-    label: String,
-    speed: Double?,
-    isRunning: Boolean
-) {
+private fun StreamTestResultRow(label: String, speed: Double?, isRunning: Boolean) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -945,7 +1050,13 @@ private fun StreamTestResultRow(
                 else -> "---"
             },
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-            color = if (speed != null && !isRunning) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextTertiary
+            color = if (speed != null &&
+                !isRunning
+            ) {
+                MoviesTheme.colors.TextPrimary
+            } else {
+                MoviesTheme.colors.TextTertiary
+            }
         )
     }
 }

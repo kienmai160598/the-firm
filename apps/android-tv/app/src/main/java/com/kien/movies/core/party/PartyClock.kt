@@ -5,7 +5,7 @@ import kotlin.time.TimeSource
 
 internal class PartyClock(
     private val timeSource: TimeSource = TimeSource.Monotonic,
-    private val wallClockMs: () -> Long = { System.currentTimeMillis() },
+    private val wallClockMs: () -> Long = { System.currentTimeMillis() }
 ) {
     private var anchorServerMs: Long? = null
     private var anchorMark: TimeMark? = null

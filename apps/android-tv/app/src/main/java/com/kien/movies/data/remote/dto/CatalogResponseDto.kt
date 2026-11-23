@@ -4,9 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class CatalogResponseDto(
-    @Json(name = "metas") val metas: List<MetaPreviewDto?> = emptyList()
-)
+data class CatalogResponseDto(@Json(name = "metas") val metas: List<MetaPreviewDto?> = emptyList())
 
 @JsonClass(generateAdapter = true)
 data class MetaPreviewDto(

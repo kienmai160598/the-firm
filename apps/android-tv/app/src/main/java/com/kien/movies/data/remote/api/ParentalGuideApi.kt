@@ -22,7 +22,9 @@ data class ImdbApiParentsGuideResponse(
 @JsonClass(generateAdapter = true)
 data class ImdbApiParentsGuideCategory(
     @Json(name = "category") val category: String,
-    @Json(name = "severityBreakdowns") val severityBreakdowns: List<ImdbApiSeverityBreakdown>? = null,
+    @Json(
+        name = "severityBreakdowns"
+    ) val severityBreakdowns: List<ImdbApiSeverityBreakdown>? = null,
     @Json(name = "reviews") val reviews: List<ImdbApiParentsGuideReview>? = null
 )
 

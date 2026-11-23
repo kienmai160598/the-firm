@@ -14,19 +14,25 @@ internal class SpeechTimeline {
     // decides whether a buffer gets analysed, so it is harmless, while waiting on a lock held by a
     // background-priority thread would delay video frames.
     @Volatile private var values = ByteArray(INITIAL_CAPACITY)
+
     @Volatile private var knownFrames = 0
+
     /** One past the highest frame ever recorded, so scans stop there rather than at capacity. */
     @Volatile private var knownEnd = 0
     private var probabilitySum = 0.0
 
-    data class Diagnostics(val analysedSeconds: Double, val speechSeconds: Double, val lastMediaMs: Long?)
+    data class Diagnostics(
+        val analysedSeconds: Double,
+        val speechSeconds: Double,
+        val lastMediaMs: Long?
+    )
 
     /** Constant-time summary; repeated analysis of a frame replaces its earlier contribution. */
     @Synchronized
     fun diagnostics(): Diagnostics = Diagnostics(
         knownFrames * FRAME_DURATION_MS / 1_000.0,
         probabilitySum * FRAME_DURATION_MS / 1_000.0,
-        if (knownFrames == 0) null else (knownEnd * FRAME_DURATION_MS).toLong(),
+        if (knownFrames == 0) null else (knownEnd * FRAME_DURATION_MS).toLong()
     )
 
     @Volatile
@@ -106,7 +112,8 @@ internal class SpeechTimeline {
     fun knownFramesIn(fromFrame: Int, toFrame: Int): Int {
         val current = values
         var count = 0
-        for (frame in fromFrame.coerceAtLeast(0) until toFrame.coerceAtMost(minOf(current.size, knownEnd))) {
+        for (frame in fromFrame.coerceAtLeast(0) until
+            toFrame.coerceAtMost(minOf(current.size, knownEnd))) {
             if (current[frame].toInt() != 0) count++
         }
         return count
@@ -156,7 +163,7 @@ internal class SpeechTimeline {
         fromFrame: Int = 0,
         toFrame: Int = Int.MAX_VALUE,
         joinGapFrames: Int = DEFAULT_JOIN_GAP_FRAMES,
-        maxFrames: Int = Int.MAX_VALUE,
+        maxFrames: Int = Int.MAX_VALUE
     ): List<SpeechSegment> {
         if (knownFrames == 0) return emptyList()
         val start = fromFrame.coerceAtLeast(0)
@@ -225,6 +232,7 @@ internal class SpeechTimeline {
 
         /** Two minutes: shorter gaps cost less to carry than a separate transform. */
         val DEFAULT_JOIN_GAP_FRAMES = (120_000 / FRAME_DURATION_MS).toInt()
+
         /** Six hours; anything beyond is ignored. */
         private const val MAX_FRAMES = (6L * 3_600_000_000L / FRAME_DURATION_US).toInt()
 

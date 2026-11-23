@@ -15,7 +15,7 @@ class StillWatchingGatingTest {
             autoPlayNextEpisodeEnabled = true,
             nextEpisodeHasAired = true,
             consecutiveAutoPlayCount = 5,
-            threshold = 3,
+            threshold = 3
         )
         assertFalse(result)
     }
@@ -27,7 +27,7 @@ class StillWatchingGatingTest {
             autoPlayNextEpisodeEnabled = false,
             nextEpisodeHasAired = true,
             consecutiveAutoPlayCount = 5,
-            threshold = 3,
+            threshold = 3
         )
         assertFalse(result)
     }
@@ -39,7 +39,7 @@ class StillWatchingGatingTest {
             autoPlayNextEpisodeEnabled = true,
             nextEpisodeHasAired = false,
             consecutiveAutoPlayCount = 5,
-            threshold = 3,
+            threshold = 3
         )
         assertFalse(result)
     }
@@ -51,7 +51,7 @@ class StillWatchingGatingTest {
             autoPlayNextEpisodeEnabled = true,
             nextEpisodeHasAired = true,
             consecutiveAutoPlayCount = 2,
-            threshold = 3,
+            threshold = 3
         )
         assertFalse(result)
     }
@@ -63,7 +63,7 @@ class StillWatchingGatingTest {
             autoPlayNextEpisodeEnabled = true,
             nextEpisodeHasAired = true,
             consecutiveAutoPlayCount = 3,
-            threshold = 3,
+            threshold = 3
         )
         assertTrue(result)
     }
@@ -86,7 +86,7 @@ class StillWatchingGatingTest {
             overview = null,
             released = null,
             hasAired = true,
-            unairedMessage = null,
+            unairedMessage = null
         )
         assertNull(PlayerUiState().postPlayMode)
         val state = PlayerUiState(

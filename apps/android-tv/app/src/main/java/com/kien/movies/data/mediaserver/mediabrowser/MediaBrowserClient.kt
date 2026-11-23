@@ -21,11 +21,7 @@ import okhttp3.Response
 import okio.Buffer
 import okio.BufferedSource
 
-class ServerClientIdentity(
-    val device: String,
-    val version: String,
-    val deviceId: () -> String
-)
+class ServerClientIdentity(val device: String, val version: String, val deviceId: () -> String)
 
 internal class MediaBrowserClient(
     private val authorizationHeader: String,
@@ -70,7 +66,8 @@ internal class MediaBrowserClient(
                 .header(authorizationHeader, authorizationValue(token))
                 .method(
                     method,
-                    body?.toRequestBody(JSON_MEDIA_TYPE) ?: if (method == "POST") ByteArray(0).toRequestBody() else null
+                    body?.toRequestBody(JSON_MEDIA_TYPE)
+                        ?: if (method == "POST") ByteArray(0).toRequestBody() else null
                 )
                 .build()
         } catch (_: IllegalArgumentException) {
@@ -114,9 +111,13 @@ internal class MediaBrowserClient(
             override fun onResponse(call: Call, response: Response) {
                 response.use {
                     try {
-                        val body = response.body?.let { readBoundedBody(it.source(), it.contentLength()) }.orEmpty()
+                        val body = response.body?.let {
+                            readBoundedBody(it.source(), it.contentLength())
+                        }.orEmpty()
                         if (continuation.isActive) {
-                            continuation.resume(ApiResponse(response.code, body, response.header("Location")))
+                            continuation.resume(
+                                ApiResponse(response.code, body, response.header("Location"))
+                            )
                         }
                     } catch (error: IOException) {
                         if (continuation.isActive) continuation.resumeWithException(error)
@@ -143,28 +144,37 @@ internal class MediaBrowserClient(
     }
 }
 
-internal class ApiResponse(
-    val status: Int,
-    val body: String,
-    val location: String?
-) {
+internal class ApiResponse(val status: Int, val body: String, val location: String?) {
     override fun toString(): String = "ApiResponse(status=$status)"
 }
 
-internal fun buildUrl(baseUrl: String, path: String, query: Map<String, String?> = emptyMap()): String {
+internal fun buildUrl(
+    baseUrl: String,
+    path: String,
+    query: Map<String, String?> = emptyMap()
+): String {
     require(path.startsWith('/'))
     val base = requireNotNull(baseUrl.toHttpUrlOrNull())
     return base.newBuilder()
         .encodedPath(base.encodedPath.trimEnd('/') + path)
         .query(null)
         .fragment(null)
-        .apply { query.forEach { (key, value) -> if (value != null) addQueryParameter(key, value) } }
+        .apply {
+            query.forEach { (key, value) ->
+                if (value !=
+                    null
+                ) {
+                    addQueryParameter(key, value)
+                }
+            }
+        }
         .build()
         .toString()
 }
 
-internal fun pathSegment(value: String): String =
-    HttpUrl.Builder().scheme("http").host("h").addPathSegment(value).build().encodedPath.removePrefix("/")
+internal fun pathSegment(value: String): String = HttpUrl.Builder().scheme(
+    "http"
+).host("h").addPathSegment(value).build().encodedPath.removePrefix("/")
 
 internal fun normalizeServerAddress(input: String, apiPath: String = ""): String? {
     var value = input.trim().trimEnd('/')
@@ -176,7 +186,15 @@ internal fun normalizeServerAddress(input: String, apiPath: String = ""): String
         .removeSuffix("/web/index.html")
         .removeSuffix("/web")
         .trimEnd('/')
-        .let { if (apiPath.isNotEmpty() && it.endsWith(apiPath, ignoreCase = true)) it.dropLast(apiPath.length) else it }
+        .let {
+            if (apiPath.isNotEmpty() &&
+                it.endsWith(apiPath, ignoreCase = true)
+            ) {
+                it.dropLast(apiPath.length)
+            } else {
+                it
+            }
+        }
     return url.newBuilder()
         .encodedPath(path.ifEmpty { "/" })
         .query(null)
@@ -186,7 +204,13 @@ internal fun normalizeServerAddress(input: String, apiPath: String = ""): String
         .trimEnd('/')
 }
 
-private fun readBoundedBody(source: BufferedSource, contentLength: Long, maxBytes: Long = 16L * 1024L * 1024L): String {
+private fun readBoundedBody(
+    source: BufferedSource,
+    contentLength: Long,
+    maxBytes: Long = 16L *
+        1024L *
+        1024L
+): String {
     if (contentLength > maxBytes) throw IOException("Response exceeds size limit")
     val buffer = Buffer()
     while (true) {

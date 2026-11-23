@@ -6,9 +6,9 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.data.local.ProfileDataStoreFactory
-import java.io.IOException
 import io.mockk.every
 import io.mockk.mockk
+import java.io.IOException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
@@ -60,7 +60,10 @@ class SimklSyncRepositoryStorageTest {
         }
     }
 
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
 
     @Test
     fun `commitScrobble with pause writes only to playback storage and does not re-serialize base snapshot`() = runTest {
@@ -79,7 +82,10 @@ class SimklSyncRepositoryStorageTest {
         val entries = (1..500).map { i ->
             SimklLibraryEntry(
                 mediaType = SimklMediaType.MOVIES,
-                movie = SimklMedia(title = "Movie $i", ids = mapOf("imdb" to JsonPrimitive("tt$i")))
+                movie = SimklMedia(
+                    title = "Movie $i",
+                    ids = mapOf("imdb" to JsonPrimitive("tt$i"))
+                )
             )
         }
         val baseSnapshot = SimklSyncSnapshot(
@@ -146,7 +152,10 @@ class SimklSyncRepositoryStorageTest {
             entries = listOf(
                 SimklLibraryEntry(
                     mediaType = SimklMediaType.MOVIES,
-                    movie = SimklMedia(title = "Movie 1", ids = mapOf("imdb" to JsonPrimitive("tt1")))
+                    movie = SimklMedia(
+                        title = "Movie 1",
+                        ids = mapOf("imdb" to JsonPrimitive("tt1"))
+                    )
                 )
             ),
             playback = emptyList()
@@ -202,7 +211,10 @@ class SimklSyncRepositoryStorageTest {
             entries = listOf(
                 SimklLibraryEntry(
                     mediaType = SimklMediaType.MOVIES,
-                    movie = SimklMedia(title = "Movie 1", ids = mapOf("imdb" to JsonPrimitive("tt1")))
+                    movie = SimklMedia(
+                        title = "Movie 1",
+                        ids = mapOf("imdb" to JsonPrimitive("tt1"))
+                    )
                 )
             ),
             playback = listOf(session)
@@ -325,14 +337,15 @@ class SimklSyncRepositoryStorageTest {
 
         override val data: Flow<Preferences> = state.onEach { readCount += 1 }
 
-        override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences =
-            mutex.withLock {
-                opLog += "$name:edit"
-                if (failEdits) throw IOException("Disk unavailable")
-                transform(state.value).also { updated ->
-                    state.value = updated
-                }
+        override suspend fun updateData(
+            transform: suspend (t: Preferences) -> Preferences
+        ): Preferences = mutex.withLock {
+            opLog += "$name:edit"
+            if (failEdits) throw IOException("Disk unavailable")
+            transform(state.value).also { updated ->
+                state.value = updated
             }
+        }
 
         fun resetReadCount() {
             readCount = 0

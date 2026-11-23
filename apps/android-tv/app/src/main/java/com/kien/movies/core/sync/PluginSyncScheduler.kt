@@ -1,12 +1,12 @@
 package com.kien.movies.core.sync
 
 import com.kien.movies.data.local.PluginSyncProfile
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlin.coroutines.coroutineContext
 
 /**
  * Runs one plugin pull at a time.

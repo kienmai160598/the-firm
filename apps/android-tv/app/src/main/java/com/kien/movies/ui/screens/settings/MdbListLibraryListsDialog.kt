@@ -61,13 +61,24 @@ internal fun MdbListLibraryListsDialog(
                         subtitle = null,
                         checked = option.visible,
                         onToggle = { onToggle(option) },
-                        modifier = if (index == 0) Modifier.focusRequester(firstListFocusRequester) else Modifier
+                        modifier = if (index ==
+                            0
+                        ) {
+                            Modifier.focusRequester(firstListFocusRequester)
+                        } else {
+                            Modifier
+                        }
                     )
                 }
             }
-            state.isLoading -> Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+
+            state.isLoading -> Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
                 LoadingIndicator(modifier = Modifier.padding(MoviesTheme.spacing.md).size(28.dp))
             }
+
             else -> Text(
                 text = stringResource(R.string.mdblist_library_lists_empty),
                 style = MaterialTheme.typography.bodyMedium,

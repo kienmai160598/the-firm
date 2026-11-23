@@ -25,8 +25,12 @@ internal fun postPlayRecommendationPrefetchProgress(
     )
     val triggerProgress = if (durationMs > 0L) {
         movieRecommendationTriggerPositionMs(
-            durationMs, threshold, skipIntervals, episodeThresholdMode,
-            episodeThresholdPercent, episodeThresholdMinutesBeforeEnd
+            durationMs,
+            threshold,
+            skipIntervals,
+            episodeThresholdMode,
+            episodeThresholdPercent,
+            episodeThresholdMinutesBeforeEnd
         ).toFloat() / durationMs
     } else {
         threshold / 100f
@@ -54,6 +58,7 @@ internal fun shouldShowPostPlayRecommendation(
             episodeThresholdPercent = episodeThresholdPercent,
             episodeThresholdMinutesBeforeEnd = episodeThresholdMinutesBeforeEnd
         )
+
         ContentType.SERIES -> PlayerNextEpisodeRules.shouldShowNextEpisodeCard(
             positionMs = positionMs,
             durationMs = durationMs,
@@ -62,6 +67,7 @@ internal fun shouldShowPostPlayRecommendation(
             thresholdPercent = episodeThresholdPercent,
             thresholdMinutesBeforeEnd = episodeThresholdMinutesBeforeEnd
         )
+
         else -> false
     }
 }
@@ -78,8 +84,12 @@ private fun shouldShowMovieRecommendation(
     if (durationMs <= 0L) return false
     val position = positionMs.coerceIn(0L, durationMs)
     return position >= movieRecommendationTriggerPositionMs(
-        durationMs, thresholdPercent, skipIntervals, episodeThresholdMode,
-        episodeThresholdPercent, episodeThresholdMinutesBeforeEnd
+        durationMs,
+        thresholdPercent,
+        skipIntervals,
+        episodeThresholdMode,
+        episodeThresholdPercent,
+        episodeThresholdMinutesBeforeEnd
     )
 }
 
@@ -107,7 +117,8 @@ private fun movieRecommendationTriggerPositionMs(
     }
     val firstCreditsStart = credits.minOfOrNull { it.startTime }
     val scenes = validIntervals.filter {
-        it.type == "post-credits" && (firstCreditsStart == null || it.startTime >= firstCreditsStart)
+        it.type == "post-credits" &&
+            (firstCreditsStart == null || it.startTime >= firstCreditsStart)
     }
     if (scenes.isNotEmpty()) {
         // Keep a playable scene even when its submitted end exceeds this release's runtime.
@@ -120,6 +131,7 @@ private fun movieRecommendationTriggerPositionMs(
     val userThresholdMs = when (episodeThresholdMode) {
         NextEpisodeThresholdMode.PERCENTAGE ->
             ((1.0 - episodeThresholdPercent.coerceIn(97f, 100f) / 100.0) * durationMs).toLong()
+
         NextEpisodeThresholdMode.MINUTES_BEFORE_END ->
             (episodeThresholdMinutesBeforeEnd.coerceIn(0f, 3.5f) * 60_000f).toLong()
     }

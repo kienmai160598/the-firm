@@ -3,6 +3,10 @@ package com.kien.movies.ui.screens.detail
 import com.kien.movies.core.tracking.TrackingMembershipRemovalConfirmation
 import com.kien.movies.domain.model.DetailImdbRatingsVisibility
 import com.kien.movies.domain.model.EpisodeOptionsOverlayStyle
+import com.kien.movies.domain.model.HomeImdbRatingsVisibility
+import com.kien.movies.domain.model.LibraryListTab
+import com.kien.movies.domain.model.LibrarySourceMode
+import com.kien.movies.domain.model.MDBListRatings
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.MetaTrailer
@@ -10,10 +14,6 @@ import com.kien.movies.domain.model.NextToWatch
 import com.kien.movies.domain.model.TraktCommentReview
 import com.kien.movies.domain.model.Video
 import com.kien.movies.domain.model.WatchProgress
-import com.kien.movies.domain.model.LibraryListTab
-import com.kien.movies.domain.model.LibrarySourceMode
-import com.kien.movies.domain.model.MDBListRatings
-import com.kien.movies.domain.model.HomeImdbRatingsVisibility
 
 enum class MoreLikeThisSource {
     TMDB,
@@ -117,6 +117,7 @@ sealed class MetaDetailsEvent {
     data object OnPlayButtonFocused : MetaDetailsEvent()
     data object OnTrailerButtonClick : MetaDetailsEvent()
     data object OnTrailerEnded : MetaDetailsEvent()
+
     /** User pressed Back while the full-screen trailer was showing. */
     data object OnTrailerBackPress : MetaDetailsEvent()
     data class OnSharedTrailerSelected(val trailer: MetaTrailer) : MetaDetailsEvent()

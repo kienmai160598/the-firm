@@ -5,10 +5,11 @@
 
 package com.kien.movies.ui.screens.player
 
+import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,45 +22,44 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.runtime.withFrameNanos
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.launch as coroutineLaunch
-import kotlinx.coroutines.flow.first
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import android.view.KeyEvent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import com.kien.movies.R
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.SourceChipStatus
 import com.kien.movies.ui.theme.MoviesTheme
-import androidx.compose.ui.res.stringResource
-import com.kien.movies.R
 import com.kien.movies.ui.util.localizeEpisodeTitle
-import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch as coroutineLaunch
 
 @Composable
 internal fun StreamSourcesSidePanel(
@@ -73,7 +73,9 @@ internal fun StreamSourcesSidePanel(
     onExpandStreams: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+    val isRtl =
+        androidx.compose.ui.platform.LocalLayoutDirection.current ==
+            androidx.compose.ui.unit.LayoutDirection.Rtl
     val streamListState = rememberLazyListState()
     var userMovedFromFirstResult by remember { mutableStateOf(false) }
     var firstResultFocusAssigned by remember { mutableStateOf(false) }
@@ -153,7 +155,8 @@ internal fun StreamSourcesSidePanel(
         val newIndex = streamKeys.indexOf(key)
         if (newIndex < 0) return@LaunchedEffect
         val firstVisible = streamListState.firstVisibleItemIndex
-        val lastVisible = streamListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: firstVisible
+        val lastVisible =
+            streamListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: firstVisible
         if (newIndex < firstVisible || newIndex > lastVisible) {
             streamListState.scrollToItem(newIndex)
         }
@@ -176,13 +179,21 @@ internal fun StreamSourcesSidePanel(
         val hasAddonChips = orderedAddonNames.isNotEmpty() ||
             uiState.sourceAvailableAddons.isNotEmpty() || uiState.sourceChips.isNotEmpty()
         runCatching {
-            if (hasAddonChips) allFocusRequester.requestFocus()
-            else closeButtonFocusRequester.requestFocus()
+            if (hasAddonChips) {
+                allFocusRequester.requestFocus()
+            } else {
+                closeButtonFocusRequester.requestFocus()
+            }
         }
     }
 
     // Focus the first result as soon as one is available, unless the user has moved elsewhere.
-    LaunchedEffect(uiState.isLoadingSourceStreams, firstStreamKey, userMovedFromFirstResult, firstResultFocusAssigned) {
+    LaunchedEffect(
+        uiState.isLoadingSourceStreams,
+        firstStreamKey,
+        userMovedFromFirstResult,
+        firstResultFocusAssigned
+    ) {
         if (firstStreamKey != null &&
             !userMovedFromFirstResult && !firstResultFocusAssigned
         ) {
@@ -217,7 +228,12 @@ internal fun StreamSourcesSidePanel(
         trackedFirstStreamKey = firstStreamKey
     }
 
-    LaunchedEffect(firstStreamFocusRequestId, firstStreamKey, currentStreamKey, userMovedFromFirstResult) {
+    LaunchedEffect(
+        firstStreamFocusRequestId,
+        firstStreamKey,
+        currentStreamKey,
+        userMovedFromFirstResult
+    ) {
         val requestedKey = currentStreamKey ?: firstStreamKey
         if (firstStreamFocusRequestId <= 0 || requestedKey == null || userMovedFromFirstResult) {
             return@LaunchedEffect
@@ -258,7 +274,10 @@ internal fun StreamSourcesSidePanel(
         // Focus the chip before the results change: once the focused card is gone,
         // Compose would otherwise park focus on another chip first.
         focusJob = scope.coroutineLaunch(start = CoroutineStart.UNDISPATCHED) {
-            chipListState.focusChip(chipFocusRequesters.indexOf(targetRequester), chipFocusRequesters)
+            chipListState.focusChip(
+                chipFocusRequesters.indexOf(targetRequester),
+                chipFocusRequesters
+            )
         }
         onAddonFilterSelected(addon)
     }
@@ -298,11 +317,21 @@ internal fun StreamSourcesSidePanel(
                             if (event.nativeKeyEvent.action == KeyEvent.ACTION_DOWN &&
                                 event.key == Key.DirectionDown
                             ) {
-                                val activeIdx = if (uiState.sourceSelectedAddonFilter == null) 1
-                                    else (orderedAddonNames.indexOf(uiState.sourceSelectedAddonFilter) + 2).coerceAtLeast(1)
+                                val activeIdx = if (uiState.sourceSelectedAddonFilter == null) {
+                                    1
+                                } else {
+                                    (
+                                        orderedAddonNames.indexOf(
+                                            uiState.sourceSelectedAddonFilter
+                                        ) +
+                                            2
+                                        ).coerceAtLeast(1)
+                                }
                                 requestChipFocus(activeIdx)
                                 true
-                            } else false
+                            } else {
+                                false
+                            }
                         }
                 )
             }
@@ -311,7 +340,9 @@ internal fun StreamSourcesSidePanel(
 
             // Current content info
             val context = LocalContext.current
-            val seasonEpisodeCode = if (uiState.currentSeason != null && uiState.currentEpisode != null) {
+            val seasonEpisodeCode = if (uiState.currentSeason != null &&
+                uiState.currentEpisode != null
+            ) {
                 stringResource(
                     R.string.season_episode_format,
                     uiState.currentSeason,
@@ -339,7 +370,8 @@ internal fun StreamSourcesSidePanel(
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
             AnimatedVisibility(
-                visible = uiState.sourceChips.isNotEmpty() || uiState.sourceAvailableAddons.isNotEmpty(),
+                visible =
+                    uiState.sourceChips.isNotEmpty() || uiState.sourceAvailableAddons.isNotEmpty(),
                 enter = fadeIn(animationSpec = tween(200)),
                 exit = fadeOut(animationSpec = tween(120))
             ) {
@@ -364,7 +396,9 @@ internal fun StreamSourcesSidePanel(
                         chipListState = chipListState,
                         onUpKey = {
                             userMovedFromFirstResult = true
-                            try { closeButtonFocusRequester.requestFocus() } catch (_: Exception) {}
+                            try {
+                                closeButtonFocusRequester.requestFocus()
+                            } catch (_: Exception) {}
                         },
                         onFocusIndexChanged = { index ->
                             if (index != 1) userMovedFromFirstResult = true
@@ -405,7 +439,8 @@ internal fun StreamSourcesSidePanel(
                 }
 
                 else -> {
-                    val lastKeyRepeatDispatchRef = remember { java.util.concurrent.atomic.AtomicLong(0L) }
+                    val lastKeyRepeatDispatchRef =
+                        remember { java.util.concurrent.atomic.AtomicLong(0L) }
 
                     val lastVisibleIndex = remember(streamListState) {
                         androidx.compose.runtime.derivedStateOf {
@@ -431,28 +466,45 @@ internal fun StreamSourcesSidePanel(
                             .fillMaxHeight()
                             .onFocusChanged { listHasFocus = it.hasFocus }
                             .onKeyEvent { event ->
-                                if (event.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) return@onKeyEvent false
+                                if (event.nativeKeyEvent.action !=
+                                    KeyEvent.ACTION_DOWN
+                                ) {
+                                    return@onKeyEvent false
+                                }
 
                                 // Throttle rapid key repeats (long-press)
                                 if (event.nativeKeyEvent.repeatCount > 0) {
                                     val now = android.os.SystemClock.uptimeMillis()
-                                    if (now - lastKeyRepeatDispatchRef.get() < 112L) return@onKeyEvent true
+                                    if (now - lastKeyRepeatDispatchRef.get() <
+                                        112L
+                                    ) {
+                                        return@onKeyEvent true
+                                    }
                                     lastKeyRepeatDispatchRef.set(now)
                                 }
 
                                 // Up counts too: the list can open on the playing stream, not the top.
-                                if (event.key == Key.DirectionDown || event.key == Key.DirectionUp) {
+                                if (event.key == Key.DirectionDown ||
+                                    event.key == Key.DirectionUp
+                                ) {
                                     userMovedFromFirstResult = true
                                 }
 
                                 if (orderedAddonNames.isEmpty()) return@onKeyEvent false
                                 val allOptions = listOf<String?>(null) + orderedAddonNames
-                                val currentIdx = allOptions.indexOf(uiState.sourceSelectedAddonFilter)
+                                val currentIdx = allOptions.indexOf(
+                                    uiState.sourceSelectedAddonFilter
+                                )
                                 when (event.key) {
                                     Key.DirectionLeft -> {
                                         if (isRtl) {
                                             if (currentIdx < allOptions.lastIndex) {
-                                                onAddonFilterSelectedGuarded(allOptions[currentIdx + 1])
+                                                onAddonFilterSelectedGuarded(
+                                                    allOptions[
+                                                        currentIdx +
+                                                            1
+                                                    ]
+                                                )
                                                 true
                                             } else {
                                                 // Boundary hit on rightmost tab in RTL
@@ -460,24 +512,40 @@ internal fun StreamSourcesSidePanel(
                                             }
                                         } else {
                                             if (currentIdx > 0) {
-                                                onAddonFilterSelectedGuarded(allOptions[currentIdx - 1])
+                                                onAddonFilterSelectedGuarded(
+                                                    allOptions[
+                                                        currentIdx -
+                                                            1
+                                                    ]
+                                                )
                                                 true
                                             } else {
                                                 true
                                             }
                                         }
                                     }
+
                                     Key.DirectionRight -> {
                                         if (isRtl) {
                                             if (currentIdx > 0) {
-                                                onAddonFilterSelectedGuarded(allOptions[currentIdx - 1])
+                                                onAddonFilterSelectedGuarded(
+                                                    allOptions[
+                                                        currentIdx -
+                                                            1
+                                                    ]
+                                                )
                                                 true
                                             } else {
                                                 true
                                             }
                                         } else {
                                             if (currentIdx < allOptions.lastIndex) {
-                                                onAddonFilterSelectedGuarded(allOptions[currentIdx + 1])
+                                                onAddonFilterSelectedGuarded(
+                                                    allOptions[
+                                                        currentIdx +
+                                                            1
+                                                    ]
+                                                )
                                                 true
                                             } else {
                                                 // Boundary hit on rightmost tab in LTR: consume so focus doesn't escape overlay
@@ -485,6 +553,7 @@ internal fun StreamSourcesSidePanel(
                                             }
                                         }
                                     }
+
                                     else -> false
                                 }
                             }
@@ -512,11 +581,21 @@ internal fun StreamSourcesSidePanel(
                                         firstCardHasFocus = focused
                                     }
                                 },
-                                onUpKey = if (index == 0 && chipFocusRequesters.isNotEmpty()) {{
-                                    val idx = if (uiState.sourceSelectedAddonFilter == null) 1
-                                              else orderedAddonNames.indexOf(uiState.sourceSelectedAddonFilter) + 2
-                                    requestChipFocus(idx)
-                                }} else null
+                                onUpKey = if (index == 0 && chipFocusRequesters.isNotEmpty()) {
+                                    {
+                                        val idx = if (uiState.sourceSelectedAddonFilter == null) {
+                                            1
+                                        } else {
+                                            orderedAddonNames.indexOf(
+                                                uiState.sourceSelectedAddonFilter
+                                            ) +
+                                                2
+                                        }
+                                        requestChipFocus(idx)
+                                    }
+                                } else {
+                                    null
+                                }
                             )
                         }
                         if (uiState.isLoadingSourceStreams) {

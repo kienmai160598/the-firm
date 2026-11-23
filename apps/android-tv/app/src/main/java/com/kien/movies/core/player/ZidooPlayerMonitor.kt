@@ -2,14 +2,14 @@ package com.kien.movies.core.player
 
 import android.os.Build
 import android.util.Log
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
 
 /**
  * Monitors the Zidoo internal player (VS10 engine) via its local REST API.
@@ -45,10 +45,7 @@ object ZidooPlayerMonitor {
     /**
      * Result from monitoring Zidoo player playback.
      */
-    data class ZidooPlaybackResult(
-        val positionMs: Long,
-        val durationMs: Long
-    )
+    data class ZidooPlaybackResult(val positionMs: Long, val durationMs: Long)
 
     /**
      * Returns true if the current device is likely a Zidoo media player.
@@ -110,10 +107,15 @@ object ZidooPlayerMonitor {
                 if (status == null) {
                     // API unreachable — if we were tracking playback, treat as stopped
                     if (wasPlaying) {
-                        Log.d(TAG, "API unreachable after playback detected, returning last position")
+                        Log.d(
+                            TAG,
+                            "API unreachable after playback detected, returning last position"
+                        )
                         return@withTimeoutOrNull if (lastPosition > 0L) {
                             ZidooPlaybackResult(lastPosition, lastDuration)
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                     // Never saw playback — might not be a Zidoo device or player not started yet
                     consecutiveStoppedPolls++
@@ -149,7 +151,9 @@ object ZidooPlayerMonitor {
                         Log.d(TAG, "Playback stopped. pos=${lastPosition}ms, dur=${lastDuration}ms")
                         return@withTimeoutOrNull if (lastPosition > 0L) {
                             ZidooPlaybackResult(lastPosition, lastDuration)
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 } else {
                     // Not playing yet

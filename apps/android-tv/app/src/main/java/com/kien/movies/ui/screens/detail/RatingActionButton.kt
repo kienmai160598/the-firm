@@ -54,11 +54,7 @@ import kotlin.math.sin
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-internal fun RatingActionButton(
-    rating: Double?,
-    onClick: () -> Unit,
-    onFocused: () -> Unit = {}
-) {
+internal fun RatingActionButton(rating: Double?, onClick: () -> Unit, onFocused: () -> Unit = {}) {
     val rated = rating != null
     val twirl = remember { Animatable(0f) }
     var shown by remember { mutableStateOf(rating) }
@@ -103,7 +99,13 @@ internal fun RatingActionButton(
             Icon(
                 imageVector = if (rated) Icons.Rounded.Star else Icons.Rounded.StarOutline,
                 contentDescription = null,
-                tint = if (rated && !focused) MoviesTheme.colors.Secondary else LocalContentColor.current,
+                tint = if (rated &&
+                    !focused
+                ) {
+                    MoviesTheme.colors.Secondary
+                } else {
+                    LocalContentColor.current
+                },
                 modifier = Modifier
                     .size(MoviesTheme.spacing.xl)
                     .graphicsLayer {
@@ -117,8 +119,16 @@ internal fun RatingActionButton(
             AnimatedContent(
                 targetState = rating,
                 transitionSpec = {
-                    (slideInVertically { it / 2 } + fadeIn(ExpressiveMotion.defaultEffects())) togetherWith
-                        (slideOutVertically { -it / 2 } + fadeOut(ExpressiveMotion.defaultEffects())) using
+                    (
+                        slideInVertically {
+                            it / 2
+                        } + fadeIn(ExpressiveMotion.defaultEffects())
+                        ) togetherWith
+                        (
+                            slideOutVertically {
+                                -it / 2
+                            } + fadeOut(ExpressiveMotion.defaultEffects())
+                            ) using
                         SizeTransform(clip = false)
                 },
                 label = "rating_action_value"

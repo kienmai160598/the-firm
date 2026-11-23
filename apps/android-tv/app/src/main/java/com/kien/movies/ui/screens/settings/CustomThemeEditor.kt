@@ -65,7 +65,9 @@ internal fun CustomThemeDialog(
     onSave: (CustomThemeColors) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var gradientEnabled by remember(allowGradient) { mutableStateOf(allowGradient && !initialColors.isSolid) }
+    var gradientEnabled by remember(allowGradient) {
+        mutableStateOf(allowGradient && !initialColors.isSolid)
+    }
     val editorFocusRing = remember { createFocusRingStyle(ThemeColors.White) }
     CompositionLocalProvider(LocalMoviesFocusRingStyle provides editorFocusRing) {
         MoviesDialog(
@@ -86,7 +88,11 @@ internal fun CustomThemeDialog(
                 gradientEnabled = gradientEnabled,
                 onSave = onSave,
                 onDismiss = onDismiss,
-                onGradientChanged = if (allowGradient) { { gradientEnabled = it } } else null
+                onGradientChanged = if (allowGradient) {
+                    { gradientEnabled = it }
+                } else {
+                    null
+                }
             )
         }
     }
@@ -146,7 +152,15 @@ internal fun CustomThemeEditor(
                         selected = selected,
                         onClick = { onGradientChanged(gradient) },
                         modifier = Modifier
-                            .then(if (selected) Modifier.focusRequester(modeFocusRequester) else Modifier)
+                            .then(
+                                if (selected) {
+                                    Modifier.focusRequester(
+                                        modeFocusRequester
+                                    )
+                                } else {
+                                    Modifier
+                                }
+                            )
                             .semantics {
                                 role = Role.RadioButton
                                 this.selected = selected
@@ -175,7 +189,13 @@ internal fun CustomThemeEditor(
                                 selected = index == selectedIndex,
                                 onClick = { selectedIndex = index },
                                 modifier = Modifier.weight(1f).then(
-                                    if (index == 0) Modifier.focusRequester(firstColorFocusRequester) else Modifier
+                                    if (index ==
+                                        0
+                                    ) {
+                                        Modifier.focusRequester(firstColorFocusRequester)
+                                    } else {
+                                        Modifier
+                                    }
                                 )
                             )
                         }
@@ -190,15 +210,25 @@ internal fun CustomThemeEditor(
                 )
 
                 MoviesCard(
-                    onClick = { restoreHexFocus = true; showHexEditor = true },
+                    onClick = {
+                        restoreHexFocus = true
+                        showHexEditor = true
+                    },
                     modifier = Modifier.fillMaxWidth().focusRequester(hexFocusRequester)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
+                        modifier = Modifier.fillMaxWidth().padding(
+                            horizontal = 12.dp,
+                            vertical = 9.dp
+                        ),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
                         Text(
                             stringResource(R.string.custom_theme_enter_hex),
                             style = MaterialTheme.typography.labelMedium,
@@ -206,7 +236,9 @@ internal fun CustomThemeEditor(
                         )
                         Text(
                             formatHexColor(selectedColor),
-                            style = MaterialTheme.typography.labelMedium.copy(fontFamily = FontFamily.Monospace)
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontFamily = FontFamily.Monospace
+                            )
                         )
                     }
                 }

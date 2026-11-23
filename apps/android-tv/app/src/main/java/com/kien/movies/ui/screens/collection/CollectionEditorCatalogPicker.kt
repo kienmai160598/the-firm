@@ -1,10 +1,5 @@
 package com.kien.movies.ui.screens.collection
 
-import com.kien.movies.ui.components.expressive.MoviesCardFocus
-import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,9 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -42,14 +37,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -68,8 +69,8 @@ import androidx.tv.material3.Switch
 import androidx.tv.material3.SwitchDefaults
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
+import com.kien.movies.R
 import com.kien.movies.domain.model.AddonCatalogCollectionSource
-import com.kien.movies.domain.model.catalogTypesMatch
 import com.kien.movies.domain.model.CollectionFolder
 import com.kien.movies.domain.model.CollectionSource
 import com.kien.movies.domain.model.FolderViewMode
@@ -79,15 +80,13 @@ import com.kien.movies.domain.model.TmdbCollectionMediaType
 import com.kien.movies.domain.model.TmdbCollectionSort
 import com.kien.movies.domain.model.TmdbCollectionSource
 import com.kien.movies.domain.model.TmdbCollectionSourceType
+import com.kien.movies.domain.model.catalogTypesMatch
 import com.kien.movies.ui.components.LoadingIndicator
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
-import com.kien.movies.R
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.toggleableState
-import androidx.compose.ui.state.ToggleableState
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.theme.metaFloor
 import com.kien.movies.ui.theme.screenTitleFloor
@@ -114,7 +113,11 @@ fun CatalogPickerContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = MoviesTheme.spacing.xxxl, start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl)
+            .padding(
+                top = MoviesTheme.spacing.xxxl,
+                start = MoviesTheme.spacing.xxxl,
+                end = MoviesTheme.spacing.xxxl
+            )
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -138,74 +141,99 @@ fun CatalogPickerContent(
         Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
         Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            state = pickerListState,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = MoviesTheme.spacing.sm, end = MoviesTheme.spacing.sm, top = MoviesTheme.spacing.xs, bottom = MoviesTheme.spacing.xxxl),
-            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
-        ) {
-            itemsIndexed(
-                items = catalogs,
-                key = { index, c -> "${c.addonId}_${c.type}_${c.catalogId}_$index" }
-            ) { index, catalog ->
-                val isAdded = alreadyAdded.any {
-                    it is AddonCatalogCollectionSource && it.addonId == catalog.addonId && catalogTypesMatch(it.type, catalog.type) && it.catalogId == catalog.catalogId
-                }
-                MoviesCard(
-                    onClick = { onToggle(catalog) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .blockHorizontalFocus()
-                        .then(if (index == 0) Modifier.focusRequester(firstCatalogFocusRequester) else Modifier)
-                        .semantics {
-                            role = Role.Checkbox
-                            toggleableState = if (isAdded) ToggleableState.On else ToggleableState.Off
-                        },
-                    selected = isAdded,
-                    focus = MoviesCardFocus.Frosted
-                ) {
-                    Row(
+            LazyColumn(
+                state = pickerListState,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = MoviesTheme.spacing.sm,
+                    end = MoviesTheme.spacing.sm,
+                    top = MoviesTheme.spacing.xs,
+                    bottom = MoviesTheme.spacing.xxxl
+                ),
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
+            ) {
+                itemsIndexed(
+                    items = catalogs,
+                    key = { index, c -> "${c.addonId}_${c.type}_${c.catalogId}_$index" }
+                ) { index, catalog ->
+                    val isAdded = alreadyAdded.any {
+                        it is AddonCatalogCollectionSource && it.addonId == catalog.addonId &&
+                            catalogTypesMatch(it.type, catalog.type) &&
+                            it.catalogId == catalog.catalogId
+                    }
+                    MoviesCard(
+                        onClick = { onToggle(catalog) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(MoviesTheme.spacing.lg),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                            .blockHorizontalFocus()
+                            .then(
+                                if (index ==
+                                    0
+                                ) {
+                                    Modifier.focusRequester(firstCatalogFocusRequester)
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            .semantics {
+                                role = Role.Checkbox
+                                toggleableState =
+                                    if (isAdded) ToggleableState.On else ToggleableState.Off
+                            },
+                        selected = isAdded,
+                        focus = MoviesCardFocus.Frosted
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = catalog.catalogName.replaceFirstChar { it.uppercase() },
-                                style = MaterialTheme.typography.titleSmall.bodyFloor(),
-                                color = MoviesTheme.colors.TextPrimary
-                            )
-                            val supportingGenreText = when {
-                                catalog.genreRequired -> stringResource(R.string.collections_editor_genre_required)
-                                catalog.genreOptions.isNotEmpty() -> stringResource(R.string.collections_editor_genre_optional)
-                                else -> null
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(MoviesTheme.spacing.lg),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = catalog.catalogName.replaceFirstChar { it.uppercase() },
+                                    style = MaterialTheme.typography.titleSmall.bodyFloor(),
+                                    color = MoviesTheme.colors.TextPrimary
+                                )
+                                val supportingGenreText = when {
+                                    catalog.genreRequired -> stringResource(
+                                        R.string.collections_editor_genre_required
+                                    )
+
+                                    catalog.genreOptions.isNotEmpty() -> stringResource(
+                                        R.string.collections_editor_genre_optional
+                                    )
+
+                                    else -> null
+                                }
+                                Text(
+                                    text = listOfNotNull(
+                                        "${catalog.type} - ${catalog.addonName}",
+                                        supportingGenreText
+                                    ).joinToString(" • "),
+                                    style = MaterialTheme.typography.bodySmall.metaFloor(),
+                                    color = MoviesTheme.colors.TextTertiary
+                                )
                             }
-                            Text(
-                                text = listOfNotNull("${catalog.type} - ${catalog.addonName}", supportingGenreText).joinToString(" • "),
-                                style = MaterialTheme.typography.bodySmall.metaFloor(),
-                                color = MoviesTheme.colors.TextTertiary
-                            )
-                        }
-                        if (isAdded) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = null,
-                                tint = MoviesTheme.colors.TextSecondary
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = null,
-                                tint = MoviesTheme.colors.TextTertiary
-                            )
+                            if (isAdded) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = null,
+                                    tint = MoviesTheme.colors.TextSecondary
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = null,
+                                    tint = MoviesTheme.colors.TextTertiary
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
-        SettingsVerticalScrollIndicators(state = pickerListState)
+            SettingsVerticalScrollIndicators(state = pickerListState)
         }
     }
 }

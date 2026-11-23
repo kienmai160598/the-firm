@@ -33,15 +33,20 @@ internal data class StyledSubtitleCues(val blocks: List<StyledSubtitleBlock> = e
     val isEmpty: Boolean get() = blocks.all { it.text.isEmpty() }
 }
 
-internal fun styledSubtitleCues(blocks: List<StyledSubtitleBlock>): StyledSubtitleCues =
-    StyledSubtitleCues(
-        blocks
-            .filter { it.text.isNotEmpty() }
-            .groupBy { it.vertical to it.horizontal }
-            .map { (position, grouped) ->
-                StyledSubtitleBlock(grouped.map { it.text }.joinLines(), position.first, position.second)
-            }
-    )
+internal fun styledSubtitleCues(blocks: List<StyledSubtitleBlock>): StyledSubtitleCues = StyledSubtitleCues(
+    blocks
+        .filter { it.text.isNotEmpty() }
+        .groupBy { it.vertical to it.horizontal }
+        .map { (position, grouped) ->
+            StyledSubtitleBlock(
+                grouped.map {
+                    it.text
+                }.joinLines(),
+                position.first,
+                position.second
+            )
+        }
+)
 
 internal fun List<AnnotatedString>.joinLines(): AnnotatedString = buildAnnotatedString {
     this@joinLines.forEachIndexed { index, line ->
@@ -106,11 +111,16 @@ internal class StyledCueTextOutput(
 
 private fun Cue.verticalPosition(): SubtitleVerticalPosition = when {
     line == Cue.DIMEN_UNSET -> SubtitleVerticalPosition.BOTTOM
+
     lineType == Cue.LINE_TYPE_NUMBER ->
         if (line >= 0f) SubtitleVerticalPosition.TOP else SubtitleVerticalPosition.BOTTOM
+
     lineType != Cue.LINE_TYPE_FRACTION -> SubtitleVerticalPosition.BOTTOM
+
     line < 1f / 3f -> SubtitleVerticalPosition.TOP
+
     line <= 2f / 3f -> SubtitleVerticalPosition.MIDDLE
+
     else -> SubtitleVerticalPosition.BOTTOM
 }
 
@@ -128,11 +138,20 @@ private fun CharSequence.toSubtitleAnnotatedString(): AnnotatedString {
         spanned.getSpans(0, spanned.length, Any::class.java).forEach { span ->
             val spanStyle = when {
                 span is UnderlineSpan -> SpanStyle(textDecoration = TextDecoration.Underline)
+
                 span is ForegroundColorSpan -> SpanStyle(color = Color(span.foregroundColor))
-                span is StyleSpan && span.style == Typeface.BOLD -> SpanStyle(fontWeight = FontWeight.Bold)
-                span is StyleSpan && span.style == Typeface.ITALIC -> SpanStyle(fontStyle = FontStyle.Italic)
+
+                span is StyleSpan && span.style == Typeface.BOLD -> SpanStyle(
+                    fontWeight = FontWeight.Bold
+                )
+
+                span is StyleSpan && span.style == Typeface.ITALIC -> SpanStyle(
+                    fontStyle = FontStyle.Italic
+                )
+
                 span is StyleSpan && span.style == Typeface.BOLD_ITALIC ->
                     SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic)
+
                 else -> null
             } ?: return@forEach
             addStyle(spanStyle, spanned.getSpanStart(span), spanned.getSpanEnd(span))

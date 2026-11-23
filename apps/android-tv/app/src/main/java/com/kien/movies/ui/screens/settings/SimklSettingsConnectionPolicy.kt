@@ -8,5 +8,4 @@ internal fun shouldRefreshMissingSimklIdentity(
     isRefreshBlocked: Boolean
 ): Boolean = state.isAuthenticated && state.username.isNullOrBlank() && !isRefreshBlocked
 
-internal fun shouldCancelSimklPolling(mode: SimklConnectionMode): Boolean =
-    mode == SimklConnectionMode.DISCONNECTED
+internal fun shouldCancelSimklPolling(mode: SimklConnectionMode): Boolean = mode == SimklConnectionMode.DISCONNECTED

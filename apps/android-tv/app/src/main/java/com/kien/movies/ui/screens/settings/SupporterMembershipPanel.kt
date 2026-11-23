@@ -103,7 +103,11 @@ internal fun SupporterMembershipPanel(
             .fillMaxSize()
             .clip(RoundedCornerShape(28.dp))
             .background(MembershipCardColor)
-            .border(MoviesTheme.spacing.hairline, Color.White.copy(alpha = 0.1f), RoundedCornerShape(28.dp))
+            .border(
+                MoviesTheme.spacing.hairline,
+                Color.White.copy(alpha = 0.1f),
+                RoundedCornerShape(28.dp)
+            )
             .padding(horizontal = 28.dp, vertical = MoviesTheme.spacing.xxl)
     ) {
         MembershipPanelFront(
@@ -305,9 +309,7 @@ private fun GrantMembershipContent(overview: MembershipOverview) {
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
-private fun MembershipTierTitle(
-    tier: MemberTier
-) {
+private fun MembershipTierTitle(tier: MemberTier) {
     val badgeStyle = remember(tier) { tier.badgeStyle() }
     val tierSize = remember(tier) { mutableStateOf(IntSize.Zero) }
     val tierBrush = rememberMemberBadgeGradientBrush(

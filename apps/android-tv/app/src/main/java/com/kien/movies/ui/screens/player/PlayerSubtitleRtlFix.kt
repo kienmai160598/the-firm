@@ -83,8 +83,10 @@ internal object PlayerSubtitleRtlFix {
     private fun copyTimedCues(entry: CuesWithTiming, cues: List<Cue>): CuesWithTiming {
         val durationUs = when {
             entry.durationUs != C.TIME_UNSET -> entry.durationUs
+
             entry.endTimeUs != C.TIME_UNSET && entry.startTimeUs != C.TIME_UNSET ->
                 (entry.endTimeUs - entry.startTimeUs).coerceAtLeast(1L)
+
             else -> 5_000_000L
         }
         return CuesWithTiming(cues, entry.startTimeUs, durationUs)
@@ -92,7 +94,11 @@ internal object PlayerSubtitleRtlFix {
 
     private fun wrapArabicLines(text: CharSequence): CharSequence {
         val preserveSpans = text is Spanned
-        val builder: Appendable = if (preserveSpans) SpannableStringBuilder() else StringBuilder(text.length + 8)
+        val builder: Appendable = if (preserveSpans) {
+            SpannableStringBuilder()
+        } else {
+            StringBuilder(text.length + 8)
+        }
         val lines = text.splitByNewlines()
         for (i in lines.indices) {
             if (i > 0) builder.append('\n')
@@ -118,7 +124,13 @@ internal object PlayerSubtitleRtlFix {
 
     private fun fixHebrewLines(text: CharSequence, isBuiltInSubtitle: Boolean): CharSequence? {
         val preserveSpans = text is Spanned
-        val builder: Appendable = if (preserveSpans) SpannableStringBuilder() else StringBuilder(text.length)
+        val builder: Appendable = if (preserveSpans) {
+            SpannableStringBuilder()
+        } else {
+            StringBuilder(
+                text.length
+            )
+        }
         val lines = text.splitByNewlines()
         var changed = false
         for (i in lines.indices) {
@@ -150,8 +162,10 @@ internal object PlayerSubtitleRtlFix {
                 codePoint in 0x0750..0x077F || // Arabic Supplement
                 codePoint in 0x0870..0x08FF || // Arabic Extended
                 codePoint in 0xFB50..0xFDFF || // Arabic Presentation Forms-A
-                codePoint in 0xFE70..0xFEFF || // Arabic Presentation Forms-B
-                Character.getDirectionality(codePoint) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
+                codePoint in 0xFE70..0xFEFF ||
+                // Arabic Presentation Forms-B
+                Character.getDirectionality(codePoint) ==
+                Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
             ) {
                 return true
             }
@@ -213,7 +227,13 @@ internal object PlayerSubtitleRtlFix {
             } else {
                 val c = line[range.first]
                 val m = mirrorPunctuation(c)
-                if (m != c) out.append(m) else out.append(line.subSequence(range.first, range.first + 1))
+                if (m !=
+                    c
+                ) {
+                    out.append(m)
+                } else {
+                    out.append(line.subSequence(range.first, range.first + 1))
+                }
             }
         }
     }
@@ -281,9 +301,8 @@ internal object PlayerSubtitleRtlFix {
         return sb
     }
 
-    private fun isDirectionalMark(c: Char): Boolean =
-        c == '\u202A' || c == '\u202B' || c == '\u202C' || // LRE / RLE / PDF
-            c == '\u200E' || c == '\u200F' // LRM / RLM
+    private fun isDirectionalMark(c: Char): Boolean = c == '\u202A' || c == '\u202B' || c == '\u202C' || // LRE / RLE / PDF
+        c == '\u200E' || c == '\u200F' // LRM / RLM
 
     private fun CharSequence.splitByNewlines(): List<CharSequence> {
         val result = mutableListOf<CharSequence>()
@@ -358,6 +377,7 @@ internal object PlayerSubtitleRtlFix {
         return false
     }
 
-    private val RTL_PUNCTUATION = setOf('.', ',', '?', '!', '-', ':', ';', '…', ')', '(', '\'', '"') + ('0'..'9')
+    private val RTL_PUNCTUATION =
+        setOf('.', ',', '?', '!', '-', ':', ';', '…', ')', '(', '\'', '"') + ('0'..'9')
     private val MOBILE_RTL_PUNCTUATION = setOf('.', ',', '?', '!', '-', ':', ';', '…', ')', '(')
 }

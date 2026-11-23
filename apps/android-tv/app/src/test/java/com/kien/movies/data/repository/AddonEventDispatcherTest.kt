@@ -78,30 +78,42 @@ class AddonEventDispatcherTest {
                 trackingAddon("https://all.example"),
                 trackingAddon("https://tt-only.example", idPrefixes = listOf("tt")),
                 trackingAddon("https://disabled.example", enabled = false),
-                trackingAddon("https://player-only.example", resources = listOf(ADDON_PLAYER_RESOURCE))
+                trackingAddon(
+                    "https://player-only.example",
+                    resources = listOf(ADDON_PLAYER_RESOURCE)
+                )
             )
         )
 
         dispatcher.library("series", "kitsu:48239", AddonLibraryAction.LIBRARY_ADD)
         dispatcher.library("series", "srv1:conn:item", AddonLibraryAction.LIBRARY_ADD)
 
-        coVerify(timeout = 2_000) { api.sendEvent(match { it.startsWith("https://all.example/") }) }
+        coVerify(timeout = 2_000) {
+            api.sendEvent(match { it.startsWith("https://all.example/") })
+        }
         Thread.sleep(200)
-        assertEquals(listOf("https://all.example/library/series/kitsu%3A48239/action=libraryAdd.json"), delivered)
+        assertEquals(
+            listOf("https://all.example/library/series/kitsu%3A48239/action=libraryAdd.json"),
+            delivered
+        )
     }
 
     @Test
     fun `a slow addon does not delay events for other addons`() = runBlocking {
         val fastDelivered = CompletableDeferred<Unit>()
         val api = mockk<AddonApi>()
-        coEvery { api.sendEvent(match { it.startsWith("https://slow.example/") }) } coAnswers { awaitCancellation() }
+        coEvery { api.sendEvent(match { it.startsWith("https://slow.example/") }) } coAnswers
+            { awaitCancellation() }
         coEvery { api.sendEvent(match { it.startsWith("https://fast.example/") }) } coAnswers {
             fastDelivered.complete(Unit)
             Response.success(ResponseBody.create(null, "{}"))
         }
         val dispatcher = AddonEventDispatcher(
             api,
-            repositoryWith(trackingAddon("https://slow.example"), trackingAddon("https://fast.example"))
+            repositoryWith(
+                trackingAddon("https://slow.example"),
+                trackingAddon("https://fast.example")
+            )
         )
 
         dispatcher.player(
@@ -118,19 +130,37 @@ class AddonEventDispatcherTest {
         )
 
         withTimeout(2_000) { fastDelivered.await() }
-        coVerify(timeout = 2_000) { api.sendEvent(match { it.startsWith("https://fast.example/") && it.contains("action=pause") }) }
+        coVerify(timeout = 2_000) {
+            api.sendEvent(
+                match {
+                    it.startsWith("https://fast.example/") &&
+                        it.contains("action=pause")
+                }
+            )
+        }
     }
 
     @Test
     fun `events for one addon keep their order`() = runBlocking {
         val delivered = Collections.synchronizedList(mutableListOf<String>())
         val api = recordingApi(delivered)
-        val dispatcher = AddonEventDispatcher(api, repositoryWith(trackingAddon("https://addon.example")))
+        val dispatcher =
+            AddonEventDispatcher(api, repositoryWith(trackingAddon("https://addon.example")))
         val target = AddonPlayerEventTarget("series", "tt1:1:7")
 
-        listOf(AddonPlayerAction.START, AddonPlayerAction.PAUSE, AddonPlayerAction.START, AddonPlayerAction.STOP)
+        listOf(
+            AddonPlayerAction.START,
+            AddonPlayerAction.PAUSE,
+            AddonPlayerAction.START,
+            AddonPlayerAction.STOP
+        )
             .forEachIndexed { index, action ->
-                dispatcher.player(target, action, currentTimeMs = index * 1_000L, durationMs = 10_000L)
+                dispatcher.player(
+                    target,
+                    action,
+                    currentTimeMs = index * 1_000L,
+                    durationMs = 10_000L
+                )
             }
 
         coVerify(timeout = 2_000, exactly = 4) { api.sendEvent(any()) }
@@ -146,7 +176,11 @@ class AddonEventDispatcherTest {
             mockk(relaxed = true),
             repositoryWith(
                 trackingAddon("https://player.example", resources = listOf(ADDON_PLAYER_RESOURCE)),
-                trackingAddon("https://library-off.example", resources = listOf(ADDON_LIBRARY_RESOURCE), enabled = false)
+                trackingAddon(
+                    "https://library-off.example",
+                    resources = listOf(ADDON_LIBRARY_RESOURCE),
+                    enabled = false
+                )
             )
         )
 
@@ -180,7 +214,9 @@ class AddonEventDispatcherTest {
         catalogs = emptyList(),
         types = listOf(ContentType.MOVIE, ContentType.SERIES),
         rawTypes = listOf("movie", "series"),
-        resources = resources.map { AddonResource(name = it, types = listOf("movie", "series"), idPrefixes = null) },
+        resources = resources.map {
+            AddonResource(name = it, types = listOf("movie", "series"), idPrefixes = null)
+        },
         idPrefixes = idPrefixes,
         enabled = enabled
     )

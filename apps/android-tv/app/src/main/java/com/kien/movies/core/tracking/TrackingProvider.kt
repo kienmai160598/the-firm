@@ -1,8 +1,8 @@
 package com.kien.movies.core.tracking
 
-import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.StateFlow
 
 enum class TrackingProviderId(val storageId: String) {
     TRAKT("trakt"),
@@ -50,9 +50,13 @@ interface TrackingProvider {
 @Singleton
 class TrackingProviderRegistry private constructor(providers: Collection<TrackingProvider>) {
     @Inject
-    constructor(providers: Set<@JvmSuppressWildcards TrackingProvider>) : this(providers as Collection<TrackingProvider>)
+    constructor(
+        providers: Set<@JvmSuppressWildcards TrackingProvider>
+    ) : this(providers as Collection<TrackingProvider>)
 
-    internal constructor(providers: List<TrackingProvider>) : this(providers as Collection<TrackingProvider>)
+    internal constructor(providers: List<TrackingProvider>) : this(
+        providers as Collection<TrackingProvider>
+    )
 
     private val providersById = providers.associateBy { it.descriptor.id }
 
@@ -60,7 +64,9 @@ class TrackingProviderRegistry private constructor(providers: Collection<Trackin
         require(providersById.size == providers.size)
     }
 
-    fun providers(): List<TrackingProvider> = providersById.values.sortedBy { it.descriptor.id.ordinal }
+    fun providers(): List<TrackingProvider> = providersById.values.sortedBy {
+        it.descriptor.id.ordinal
+    }
 
     fun provider(id: TrackingProviderId): TrackingProvider? = providersById[id]
 
@@ -72,7 +78,8 @@ class TrackingProviderRegistry private constructor(providers: Collection<Trackin
 
     fun connectedScrobblers(): List<TrackingScrobbler> = providers()
         .filter { provider ->
-            provider.isAuthenticated.value && TrackingCapability.SCROBBLE in provider.descriptor.capabilities
+            provider.isAuthenticated.value &&
+                TrackingCapability.SCROBBLE in provider.descriptor.capabilities
         }
         .mapNotNull(TrackingProvider::scrobbler)
 }

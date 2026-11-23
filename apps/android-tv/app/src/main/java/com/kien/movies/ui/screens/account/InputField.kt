@@ -2,11 +2,6 @@
 
 package com.kien.movies.ui.screens.account
 
-import com.kien.movies.ui.components.expressive.MoviesSurface
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.bodyFloor
-import com.kien.movies.ui.theme.tvControlHeight
-
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
@@ -25,16 +20,20 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.kien.movies.ui.components.expressive.MoviesSurface
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.bodyFloor
+import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
 internal fun InputField(
@@ -97,7 +96,9 @@ internal fun InputField(
                 color = LocalContentColor.current,
                 textDirection = TextDirection.Content
             ),
-            cursorBrush = SolidColor(if (isEditing) MoviesTheme.colors.Secondary else Color.Transparent),
+            cursorBrush = SolidColor(
+                if (isEditing) MoviesTheme.colors.Secondary else Color.Transparent
+            ),
             visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
             decorationBox = { innerTextField ->
                 if (value.isEmpty()) {

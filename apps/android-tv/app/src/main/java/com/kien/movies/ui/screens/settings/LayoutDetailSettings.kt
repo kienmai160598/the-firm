@@ -36,19 +36,29 @@ internal fun LayoutDetailPageSection(
         title = stringResource(R.string.random_episode_title),
         subtitle = stringResource(R.string.layout_random_episode_sub),
         checked = uiState.randomEpisodeEnabled,
-        onToggle = { onEvent(LayoutSettingsEvent.SetRandomEpisodeEnabled(!uiState.randomEpisodeEnabled)) }
+        onToggle = {
+            onEvent(LayoutSettingsEvent.SetRandomEpisodeEnabled(!uiState.randomEpisodeEnabled))
+        }
     )
     SettingsToggleRow(
         title = stringResource(R.string.layout_season_posters),
         subtitle = stringResource(R.string.layout_season_posters_sub),
         checked = uiState.detailSeasonPostersEnabled,
-        onToggle = { onEvent(LayoutSettingsEvent.SetDetailSeasonPostersEnabled(!uiState.detailSeasonPostersEnabled)) }
+        onToggle = {
+            onEvent(
+                LayoutSettingsEvent.SetDetailSeasonPostersEnabled(
+                    !uiState.detailSeasonPostersEnabled
+                )
+            )
+        }
     )
     SettingsToggleRow(
         title = stringResource(R.string.layout_blur_unwatched),
         subtitle = stringResource(R.string.layout_blur_unwatched_sub),
         checked = uiState.blurUnwatchedEpisodes,
-        onToggle = { onEvent(LayoutSettingsEvent.SetBlurUnwatchedEpisodes(!uiState.blurUnwatchedEpisodes)) }
+        onToggle = {
+            onEvent(LayoutSettingsEvent.SetBlurUnwatchedEpisodes(!uiState.blurUnwatchedEpisodes))
+        }
     )
     SettingsActionRow(
         title = stringResource(R.string.layout_episode_ratings),
@@ -64,7 +74,11 @@ internal fun LayoutDetailPageSection(
             subtitle = stringResource(R.string.audio_autoplay_trailers_sub),
             checked = uiState.detailPageTrailerAutoplayEnabled,
             onToggle = {
-                onEvent(LayoutSettingsEvent.SetDetailPageTrailerAutoplayEnabled(!uiState.detailPageTrailerAutoplayEnabled))
+                onEvent(
+                    LayoutSettingsEvent.SetDetailPageTrailerAutoplayEnabled(
+                        !uiState.detailPageTrailerAutoplayEnabled
+                    )
+                )
             }
         )
         if (uiState.detailPageTrailerAutoplayEnabled) {
@@ -73,7 +87,11 @@ internal fun LayoutDetailPageSection(
                 subtitle = stringResource(R.string.layout_trailer_play_in_background_sub),
                 checked = uiState.detailPageTrailerPlayInBackground,
                 onToggle = {
-                    onEvent(LayoutSettingsEvent.SetDetailPageTrailerPlayInBackground(!uiState.detailPageTrailerPlayInBackground))
+                    onEvent(
+                        LayoutSettingsEvent.SetDetailPageTrailerPlayInBackground(
+                            !uiState.detailPageTrailerPlayInBackground
+                        )
+                    )
                 }
             )
             if (uiState.detailPageTrailerPlayInBackground) {
@@ -82,7 +100,11 @@ internal fun LayoutDetailPageSection(
                     subtitle = stringResource(R.string.layout_trailer_pause_on_scroll_sub),
                     checked = uiState.detailPageTrailerPauseOnScroll,
                     onToggle = {
-                        onEvent(LayoutSettingsEvent.SetDetailPageTrailerPauseOnScroll(!uiState.detailPageTrailerPauseOnScroll))
+                        onEvent(
+                            LayoutSettingsEvent.SetDetailPageTrailerPauseOnScroll(
+                                !uiState.detailPageTrailerPauseOnScroll
+                            )
+                        )
                     }
                 )
             }
@@ -102,13 +124,19 @@ internal fun LayoutDetailPageSection(
             title = stringResource(R.string.layout_trailer_4k),
             subtitle = stringResource(R.string.layout_trailer_4k_sub),
             checked = uiState.trailer4kEnabled,
-            onToggle = { onEvent(LayoutSettingsEvent.SetTrailer4kEnabled(!uiState.trailer4kEnabled)) }
+            onToggle = {
+                onEvent(LayoutSettingsEvent.SetTrailer4kEnabled(!uiState.trailer4kEnabled))
+            }
         )
         SettingsToggleRow(
             title = stringResource(R.string.layout_trailer_subtitles),
             subtitle = stringResource(R.string.layout_trailer_subtitles_sub),
             checked = uiState.trailerSubtitlesEnabled,
-            onToggle = { onEvent(LayoutSettingsEvent.SetTrailerSubtitlesEnabled(!uiState.trailerSubtitlesEnabled)) }
+            onToggle = {
+                onEvent(
+                    LayoutSettingsEvent.SetTrailerSubtitlesEnabled(!uiState.trailerSubtitlesEnabled)
+                )
+            }
         )
     }
     SettingsToggleRow(
@@ -116,7 +144,11 @@ internal fun LayoutDetailPageSection(
         subtitle = stringResource(R.string.layout_trailer_button_sub),
         checked = uiState.detailPageTrailerButtonEnabled,
         onToggle = {
-            onEvent(LayoutSettingsEvent.SetDetailPageTrailerButtonEnabled(!uiState.detailPageTrailerButtonEnabled))
+            onEvent(
+                LayoutSettingsEvent.SetDetailPageTrailerButtonEnabled(
+                    !uiState.detailPageTrailerButtonEnabled
+                )
+            )
         }
     )
 
@@ -126,14 +158,20 @@ internal fun LayoutDetailPageSection(
         subtitle = stringResource(R.string.layout_prefer_external_meta_sub),
         checked = uiState.preferExternalMetaAddonDetail,
         onToggle = {
-            onEvent(LayoutSettingsEvent.SetPreferExternalMetaAddonDetail(!uiState.preferExternalMetaAddonDetail))
+            onEvent(
+                LayoutSettingsEvent.SetPreferExternalMetaAddonDetail(
+                    !uiState.preferExternalMetaAddonDetail
+                )
+            )
         }
     )
     SettingsToggleRow(
         title = stringResource(R.string.layout_show_full_release_date),
         subtitle = stringResource(R.string.layout_show_full_release_date_sub),
         checked = uiState.showFullReleaseDate,
-        onToggle = { onEvent(LayoutSettingsEvent.SetShowFullReleaseDate(!uiState.showFullReleaseDate)) }
+        onToggle = {
+            onEvent(LayoutSettingsEvent.SetShowFullReleaseDate(!uiState.showFullReleaseDate))
+        }
     )
 
     if (showOverlayStyleDialog) {
@@ -238,33 +276,46 @@ internal fun LayoutStreamsSection(
 }
 
 @Composable
-private fun episodeRatingsVisibilityLabel(visibility: DetailImdbRatingsVisibility): String =
-    when (visibility) {
-        DetailImdbRatingsVisibility.SHOW_ALL -> stringResource(R.string.layout_ratings_show)
-        DetailImdbRatingsVisibility.HIDE_UNWATCHED_EPISODES -> stringResource(R.string.layout_ratings_hide_unwatched)
-        DetailImdbRatingsVisibility.HIDE_EPISODES,
-        DetailImdbRatingsVisibility.HIDE_ALL -> stringResource(R.string.layout_ratings_hide)
-    }
+private fun episodeRatingsVisibilityLabel(visibility: DetailImdbRatingsVisibility): String = when (visibility) {
+    DetailImdbRatingsVisibility.SHOW_ALL -> stringResource(R.string.layout_ratings_show)
+
+    DetailImdbRatingsVisibility.HIDE_UNWATCHED_EPISODES -> stringResource(
+        R.string.layout_ratings_hide_unwatched
+    )
+
+    DetailImdbRatingsVisibility.HIDE_EPISODES,
+    DetailImdbRatingsVisibility.HIDE_ALL -> stringResource(R.string.layout_ratings_hide)
+}
 
 @Composable
-private fun episodeOptionsOverlayStyleLabel(style: EpisodeOptionsOverlayStyle): String =
-    when (style) {
-        EpisodeOptionsOverlayStyle.NONE -> stringResource(R.string.layout_episode_options_overlay_none)
-        EpisodeOptionsOverlayStyle.ARTWORK -> stringResource(R.string.layout_episode_options_overlay_artwork)
-        EpisodeOptionsOverlayStyle.BLUR -> stringResource(R.string.layout_episode_options_overlay_blur)
-    }
+private fun episodeOptionsOverlayStyleLabel(style: EpisodeOptionsOverlayStyle): String = when (style) {
+    EpisodeOptionsOverlayStyle.NONE -> stringResource(
+        R.string.layout_episode_options_overlay_none
+    )
+
+    EpisodeOptionsOverlayStyle.ARTWORK -> stringResource(
+        R.string.layout_episode_options_overlay_artwork
+    )
+
+    EpisodeOptionsOverlayStyle.BLUR -> stringResource(
+        R.string.layout_episode_options_overlay_blur
+    )
+}
 
 @Composable
-private fun streamBadgePlacementLabel(placement: StreamBadgePlacement): String =
-    when (placement) {
-        StreamBadgePlacement.TOP -> stringResource(R.string.settings_stream_badge_position_top)
-        StreamBadgePlacement.BOTTOM -> stringResource(R.string.settings_stream_badge_position_bottom)
-    }
+private fun streamBadgePlacementLabel(placement: StreamBadgePlacement): String = when (placement) {
+    StreamBadgePlacement.TOP -> stringResource(R.string.settings_stream_badge_position_top)
+
+    StreamBadgePlacement.BOTTOM -> stringResource(
+        R.string.settings_stream_badge_position_bottom
+    )
+}
 
 @Composable
-private fun playerBadgesLabel(uiState: StreamBadgeSettingsUiState): String =
-    uiState.rules.imports.firstOrNull { it.sourceUrl.equals(uiState.playerBadgeSource, ignoreCase = true) }?.sourceUrl
-        ?: stringResource(R.string.settings_stream_player_badges_same)
+private fun playerBadgesLabel(uiState: StreamBadgeSettingsUiState): String = uiState.rules.imports.firstOrNull {
+    it.sourceUrl.equals(uiState.playerBadgeSource, ignoreCase = true)
+}?.sourceUrl
+    ?: stringResource(R.string.settings_stream_player_badges_same)
 
 @Composable
 private fun PlayerBadgesDialog(

@@ -41,8 +41,7 @@ internal val SettingsStillButtonScale: ButtonScale =
     ButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
 
 @Composable
-internal fun Modifier.settingsRowFocusScale(focused: Boolean): Modifier =
-    expressiveFocusScale(focused, ExpressiveFocus.CONTROL_SCALE)
+internal fun Modifier.settingsRowFocusScale(focused: Boolean): Modifier = expressiveFocusScale(focused, ExpressiveFocus.CONTROL_SCALE)
 
 @Composable
 @ReadOnlyComposable
@@ -54,10 +53,7 @@ internal fun settingsRowCornerShape(): RoundedCornerShape = RowCornerShape
  */
 @Composable
 @ReadOnlyComposable
-internal fun settingsRowText(
-    contentAlpha: Float = 1f,
-    emphasis: Float = 1f
-): Color = LocalContentColor.current.copy(alpha = emphasis * contentAlpha)
+internal fun settingsRowText(contentAlpha: Float = 1f, emphasis: Float = 1f): Color = LocalContentColor.current.copy(alpha = emphasis * contentAlpha)
 
 internal fun settingsOptionScale(): Float = ExpressiveFocus.CONTROL_SCALE
 
@@ -71,13 +67,11 @@ internal fun settingsOptionColors(selected: Boolean): CardColors = moviesCardCol
 
 @Composable
 @ReadOnlyComposable
-internal fun settingsOptionSupportingColor(): Color =
-    LocalContentColor.current.copy(alpha = OPTION_SUPPORTING_ALPHA)
+internal fun settingsOptionSupportingColor(): Color = LocalContentColor.current.copy(alpha = OPTION_SUPPORTING_ALPHA)
 
 /** The kit's button fills: the brighter frosted capsule for the [primary] action. */
 @Composable
-internal fun settingsDialogButtonColors(primary: Boolean, focused: Boolean): ButtonColors =
-    moviesButtonColors(if (primary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary)
+internal fun settingsDialogButtonColors(primary: Boolean, focused: Boolean): ButtonColors = moviesButtonColors(if (primary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary)
 
 @Composable
 internal fun settingsDialogButtonShape(focused: Boolean): ButtonShape = moviesButtonShape
@@ -88,9 +82,12 @@ internal fun settingsDialogButtonShape(focused: Boolean): ButtonShape = moviesBu
  */
 @Composable
 @ReadOnlyComposable
-internal fun settingsRowValueColor(valueColor: Color, contentAlpha: Float, focused: Boolean): Color =
-    if (focused || valueColor == MoviesTheme.colors.TextSecondary) {
-        settingsRowText(contentAlpha, SETTINGS_SECONDARY_TEXT_ALPHA)
-    } else {
-        valueColor.copy(alpha = contentAlpha)
-    }
+internal fun settingsRowValueColor(
+    valueColor: Color,
+    contentAlpha: Float,
+    focused: Boolean
+): Color = if (focused || valueColor == MoviesTheme.colors.TextSecondary) {
+    settingsRowText(contentAlpha, SETTINGS_SECONDARY_TEXT_ALPHA)
+} else {
+    valueColor.copy(alpha = contentAlpha)
+}

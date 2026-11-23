@@ -8,17 +8,15 @@ import com.kien.movies.domain.model.MetaPreview
 
 internal const val MIN_SEARCH_QUERY_LENGTH = 2
 
-internal fun submittedSearchQuery(rawQuery: String): String =
-    rawQuery.trim().takeIf { it.length >= MIN_SEARCH_QUERY_LENGTH }.orEmpty()
+internal fun submittedSearchQuery(rawQuery: String): String = rawQuery.trim().takeIf { it.length >= MIN_SEARCH_QUERY_LENGTH }.orEmpty()
 
 internal fun shouldShowDiscoverInSearch(
     discoverLocation: DiscoverLocation,
     query: String,
     submittedQuery: String
-): Boolean =
-    discoverLocation == DiscoverLocation.IN_SEARCH &&
-        query.trim().length < MIN_SEARCH_QUERY_LENGTH &&
-        submittedQuery.isBlank()
+): Boolean = discoverLocation == DiscoverLocation.IN_SEARCH &&
+    query.trim().length < MIN_SEARCH_QUERY_LENGTH &&
+    submittedQuery.isBlank()
 
 @Immutable
 data class SearchUiState(

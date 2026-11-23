@@ -7,27 +7,25 @@ import android.os.Build
 import android.os.StrictMode
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
-import com.kien.movies.core.image.CustomPosterFallbackInterceptor
-import com.kien.movies.core.image.HardwareBitmapSettingInterceptor
+import coil3.bitmapFactoryMaxParallelism
 import coil3.disk.DiskCache
-import coil3.memory.MemoryCache
-import coil3.gif.GifDecoder
 import coil3.gif.AnimatedImageDecoder
-import coil3.svg.SvgDecoder
-import coil3.request.crossfade
+import coil3.gif.GifDecoder
+import coil3.memory.MemoryCache
 import coil3.request.allowHardware
 import coil3.request.allowRgb565
-import coil3.bitmapFactoryMaxParallelism
-
-import okio.Path.Companion.toOkioPath
+import coil3.request.crossfade
+import coil3.svg.SvgDecoder
 import com.kien.movies.core.diagnostics.SentryInitializer
+import com.kien.movies.core.image.CustomPosterFallbackInterceptor
+import com.kien.movies.core.image.HardwareBitmapSettingInterceptor
 import com.kien.movies.core.image.StaleWhileRevalidateCacheStrategy
-import com.kien.movies.core.runtime.PluginRuntimeHooks
-import com.kien.movies.core.sync.StartupSyncService
-import com.kien.movies.core.sync.androidtv.AndroidTvChannelSyncService
 import com.kien.movies.core.network.IPv4FirstDns
 import com.kien.movies.core.network.NoDelaySocketFactory
 import com.kien.movies.core.network.imageNetworkFetcherFactory
+import com.kien.movies.core.runtime.PluginRuntimeHooks
+import com.kien.movies.core.sync.StartupSyncService
+import com.kien.movies.core.sync.androidtv.AndroidTvChannelSyncService
 import com.kien.movies.data.local.ImagePerformancePreferences
 import com.kien.movies.data.local.SentrySettingsDataStore
 import com.kien.movies.data.mediaserver.ServerUserStateProjection
@@ -38,24 +36,34 @@ import com.kien.movies.data.mediaserver.silo.SiloArtworkRefresher
 import com.kien.movies.data.simkl.SimklAnimeIdPreferenceHolder
 import com.kien.movies.ui.screens.settings.MemoryBudget
 import dagger.hilt.android.HiltAndroidApp
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
-import javax.inject.Inject
+import okio.Path.Companion.toOkioPath
 
 @HiltAndroidApp
-class MoviesApplication : Application(), SingletonImageLoader.Factory {
+class MoviesApplication :
+    Application(),
+    SingletonImageLoader.Factory {
 
     @Inject lateinit var startupSyncService: StartupSyncService
+
     @Inject lateinit var androidTvChannelSyncService: AndroidTvChannelSyncService
+
     @Inject lateinit var sentrySettingsDataStore: SentrySettingsDataStore
+
     @Inject lateinit var imagePerformancePreferences: ImagePerformancePreferences
+
     @Inject lateinit var simklAnimeIdPreferenceHolder: SimklAnimeIdPreferenceHolder
+
     @Inject lateinit var serverUserStateProjection: ServerUserStateProjection
+
     @Inject lateinit var plexArtworkSigner: PlexArtworkSigner
+
     @Inject lateinit var siloArtworkRefresher: SiloArtworkRefresher
 
     companion object {
@@ -118,9 +126,21 @@ class MoviesApplication : Application(), SingletonImageLoader.Factory {
                 .connectTimeout(4, TimeUnit.SECONDS)
                 .readTimeout(5, TimeUnit.SECONDS)
                 .callTimeout(8, TimeUnit.SECONDS)
-                .addInterceptor(PlexArtworkInterceptor { if (::plexArtworkSigner.isInitialized) plexArtworkSigner else null })
-                .addNetworkInterceptor(PlexArtworkInterceptor.Token { if (::plexArtworkSigner.isInitialized) plexArtworkSigner else null })
-                .addInterceptor(SiloArtworkInterceptor({ if (::siloArtworkRefresher.isInitialized) siloArtworkRefresher else null }))
+                .addInterceptor(
+                    PlexArtworkInterceptor {
+                        if (::plexArtworkSigner.isInitialized) plexArtworkSigner else null
+                    }
+                )
+                .addNetworkInterceptor(
+                    PlexArtworkInterceptor.Token {
+                        if (::plexArtworkSigner.isInitialized) plexArtworkSigner else null
+                    }
+                )
+                .addInterceptor(
+                    SiloArtworkInterceptor({
+                        if (::siloArtworkRefresher.isInitialized) siloArtworkRefresher else null
+                    })
+                )
                 .addInterceptor { chain ->
                     try {
                         chain.proceed(chain.request())
@@ -139,7 +159,11 @@ class MoviesApplication : Application(), SingletonImageLoader.Factory {
 
         return ImageLoader.Builder(this)
             .components {
-                add(HardwareBitmapSettingInterceptor { imagePerformancePreferences.hardwareBitmapsEnabled })
+                add(
+                    HardwareBitmapSettingInterceptor {
+                        imagePerformancePreferences.hardwareBitmapsEnabled
+                    }
+                )
                 add(CustomPosterFallbackInterceptor())
                 if (Build.VERSION.SDK_INT >= 28) {
                     add(AnimatedImageDecoder.Factory())
@@ -153,9 +177,9 @@ class MoviesApplication : Application(), SingletonImageLoader.Factory {
                         cacheStrategy = {
                             StaleWhileRevalidateCacheStrategy(
                                 revalidationClient = { imageOkHttpClient },
-                                imageLoaderProvider = imageLoaderRef,
+                                imageLoaderProvider = imageLoaderRef
                             )
-                        },
+                        }
                     )
                 )
             }

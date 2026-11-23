@@ -4,15 +4,15 @@ import android.app.Activity
 import android.app.Application
 import android.os.Build
 import android.util.Log
+import com.kien.movies.MoviesApplication
 import com.lagradost.cloudstream3.AcraApplication
 import com.lagradost.cloudstream3.app
 import com.lagradost.nicehttp.ignoreAllSSLErrors
-import com.kien.movies.MoviesApplication
+import java.io.File
+import java.security.Security
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import org.conscrypt.Conscrypt
-import java.io.File
-import java.security.Security
 
 object PluginRuntimeHooks {
     @Volatile private var application: Application? = null
@@ -37,7 +37,7 @@ object PluginRuntimeHooks {
      */
     fun ensureCloudstreamInitialized() {
         if (isCloudstreamInitialized) return
-        
+
         synchronized(this) {
             if (isCloudstreamInitialized) return
             val currentApp = application ?: return
@@ -55,15 +55,20 @@ object PluginRuntimeHooks {
                     .followRedirects(true)
                     .followSslRedirects(true)
                     .ignoreAllSSLErrors()
-                    .cache(Cache(
-                        directory = File(currentApp.cacheDir, "http_cache"),
-                        maxSize = 50L * 1024L * 1024L
-                    ))
+                    .cache(
+                        Cache(
+                            directory = File(currentApp.cacheDir, "http_cache"),
+                            maxSize = 50L * 1024L * 1024L
+                        )
+                    )
                     .build()
             } catch (e: Throwable) {
-                Log.w("MoviesApplication", "Failed to initialize NiceHttp client (API ${Build.VERSION.SDK_INT}): ${e.message}")
+                Log.w(
+                    "MoviesApplication",
+                    "Failed to initialize NiceHttp client (API ${Build.VERSION.SDK_INT}): ${e.message}"
+                )
             }
-            
+
             isCloudstreamInitialized = true
         }
     }

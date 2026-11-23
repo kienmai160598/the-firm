@@ -1,22 +1,22 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.screens.home.continueWatchingItemKey
-
-import com.kien.movies.ui.theme.MoviesTheme
-
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -25,19 +25,17 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.focusGroup
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
 import com.kien.movies.domain.model.ContinueWatchingCardStyle
 import com.kien.movies.ui.screens.home.ContinueWatchingItem
+import com.kien.movies.ui.screens.home.continueWatchingItemKey
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlin.math.abs
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -112,10 +110,11 @@ fun GridContinueWatchingSection(
             state = listState,
             modifier = Modifier
                 .then(
-                    if (fullWidth != Dp.Unspecified)
+                    if (fullWidth != Dp.Unspecified) {
                         Modifier.requiredWidth(fullWidth)
-                    else
+                    } else {
                         Modifier.fillMaxWidth()
+                    }
                 )
                 .focusRequester(rowFocusRequester)
                 .focusRestorer {
@@ -166,13 +165,23 @@ fun GridContinueWatchingSection(
                             }
                         },
                     cardWidth = when (cardStyle) {
-                        ContinueWatchingCardStyle.POSTER -> posterCardWidth ?: posterCardHeight?.let { it * (2f / 3f) } ?: 120.dp
+                        ContinueWatchingCardStyle.POSTER ->
+                            posterCardWidth
+                                ?: posterCardHeight?.let { it * (2f / 3f) }
+                                ?: 120.dp
+
                         ContinueWatchingCardStyle.WIDE -> 320.dp
+
                         ContinueWatchingCardStyle.CARD -> 220.dp
                     },
                     imageHeight = when (cardStyle) {
-                        ContinueWatchingCardStyle.POSTER -> posterCardHeight ?: posterCardWidth?.let { it * 1.5f } ?: 180.dp
+                        ContinueWatchingCardStyle.POSTER ->
+                            posterCardHeight
+                                ?: posterCardWidth?.let { it * 1.5f }
+                                ?: 180.dp
+
                         ContinueWatchingCardStyle.WIDE -> 128.dp
+
                         ContinueWatchingCardStyle.CARD -> 124.dp
                     }
                 )
@@ -186,7 +195,13 @@ fun GridContinueWatchingSection(
             item = menuItem,
             onDismiss = { optionsItem = null },
             onRemove = {
-                val targetIndex = if (items.size <= 1) null else minOf(lastFocusedIndex.intValue, items.size - 2)
+                val targetIndex = if (items.size <=
+                    1
+                ) {
+                    null
+                } else {
+                    minOf(lastFocusedIndex.intValue, items.size - 2)
+                }
                 pendingFocusIndex = targetIndex
                 onRemoveItem(menuItem)
                 optionsItem = null
@@ -205,7 +220,8 @@ fun GridContinueWatchingSection(
                 optionsItem = null
             },
             onMarkWatched = {
-                pendingFocusIndex = if (items.size <= 1) null else minOf(lastFocusedIndex.intValue, items.lastIndex)
+                pendingFocusIndex =
+                    if (items.size <= 1) null else minOf(lastFocusedIndex.intValue, items.lastIndex)
                 onMarkWatched(menuItem)
                 optionsItem = null
             }

@@ -20,11 +20,7 @@ import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.accentBrush
 
 @Composable
-fun WatchedMarker(
-    modifier: Modifier = Modifier,
-    size: Dp = 21.dp,
-    iconSize: Dp = 20.dp
-) {
+fun WatchedMarker(modifier: Modifier = Modifier, size: Dp = 21.dp, iconSize: Dp = 20.dp) {
     val palette = MoviesTheme.palette
 
     Box(

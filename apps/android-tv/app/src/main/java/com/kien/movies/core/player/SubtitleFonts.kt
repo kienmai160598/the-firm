@@ -2,6 +2,9 @@ package com.kien.movies.core.player
 
 import android.content.Context
 import android.graphics.Typeface
+import java.io.File
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -9,9 +12,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.io.File
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 
 @Serializable
 data class SubtitleFont(val id: String, val name: String)
@@ -39,16 +39,24 @@ class SubtitleFontStore private constructor(private val dir: File) {
         else -> typefaces[id]
     }
 
-    fun typeface(id: String): Typeface? =
-        cachedTypeface(id) ?: if (SubtitleFonts.isCustom(id)) load(id) else null
+    fun typeface(id: String): Typeface? = cachedTypeface(id) ?: if (SubtitleFonts.isCustom(id)) load(id) else null
 
-    fun fontFile(id: String): File? = if (SubtitleFonts.isCustom(id)) file(id).takeIf { it.isFile } else null
+    fun fontFile(id: String): File? = if (SubtitleFonts.isCustom(id)) {
+        file(id).takeIf {
+            it.isFile
+        }
+    } else {
+        null
+    }
 
     @Synchronized
     fun import(fileName: String, bytes: ByteArray): SubtitleFont {
         require(isSupportedSubtitleFont(fileName, bytes))
         val current = mutableFonts.value
-        current.firstOrNull { file(it.id).takeIf(File::isFile)?.readBytes()?.contentEquals(bytes) == true }
+        current.firstOrNull {
+            file(it.id).takeIf(File::isFile)?.readBytes()?.contentEquals(bytes) ==
+                true
+        }
             ?.let { return it }
         val name = fileName.substringBeforeLast('.').trim().take(80).ifBlank { fileName }
         val font = SubtitleFont("custom-${UUID.randomUUID()}", name)
@@ -106,8 +114,9 @@ class SubtitleFontStore private constructor(private val dir: File) {
         private var instance: SubtitleFontStore? = null
 
         fun get(context: Context): SubtitleFontStore = instance ?: synchronized(this) {
-            instance ?: SubtitleFontStore(File(context.applicationContext.filesDir, "subtitle-fonts"))
-                .also { instance = it }
+            instance
+                ?: SubtitleFontStore(File(context.applicationContext.filesDir, "subtitle-fonts"))
+                    .also { instance = it }
         }
     }
 }
@@ -118,7 +127,10 @@ fun isSupportedSubtitleFont(fileName: String, bytes: ByteArray): Boolean {
     val signature = bytes.take(4).map { it.toInt() and 255 }
     if (signature != listOf(0, 1, 0, 0) && bytes.decodeToString(0, 4) != "OTTO") return false
     fun uint16(offset: Int) = ((bytes[offset].toInt() and 255) shl 8) or (bytes[offset + 1].toInt() and 255)
-    fun uint32(offset: Int): Long = (0..3).fold(0L) { value, i -> (value shl 8) or (bytes[offset + i].toLong() and 255) }
+    fun uint32(offset: Int): Long = (0..3).fold(0L) { value, i ->
+        (value shl 8) or
+            (bytes[offset + i].toLong() and 255)
+    }
     val tables = uint16(4)
     if (tables == 0 || 12L + tables * 16L > bytes.size) return false
     return (0 until tables).all { index ->

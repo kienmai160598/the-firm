@@ -1,7 +1,7 @@
 package com.kien.movies.ui.screens.detail
 
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.focus.FocusRequester
 
 suspend fun FocusRequester.requestFocusAfterFrames(frames: Int = 2): Boolean {
     repeat(frames.coerceAtLeast(0)) {

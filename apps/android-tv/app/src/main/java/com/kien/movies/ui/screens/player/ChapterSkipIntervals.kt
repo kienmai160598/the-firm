@@ -25,18 +25,20 @@ internal object ChapterSkipIntervals {
 
     // Strict: title must be essentially the label, optionally followed by a number.
     // e.g. "OP", "OP 2", "Opening", "Opening Credits", but NOT "The Opening Scene".
-    private val OPENING_PATTERN = Regex("^\\s*(op(ening)?)(\\s*(credits|theme))?\\s*\\d*\\s*$", RegexOption.IGNORE_CASE)
-    private val ENDING_PATTERN = Regex("^\\s*(ed|ending)(\\s*(credits|theme))?\\s*\\d*\\s*$", RegexOption.IGNORE_CASE)
-    private val CREDITS_PATTERN = Regex("^\\s*(end|closing)?\\s*credits\\s*$", RegexOption.IGNORE_CASE)
-    private val RECAP_PATTERN = Regex("^\\s*(recap|previously(\\s+on.*)?)\\s*$", RegexOption.IGNORE_CASE)
+    private val OPENING_PATTERN =
+        Regex("^\\s*(op(ening)?)(\\s*(credits|theme))?\\s*\\d*\\s*$", RegexOption.IGNORE_CASE)
+    private val ENDING_PATTERN =
+        Regex("^\\s*(ed|ending)(\\s*(credits|theme))?\\s*\\d*\\s*$", RegexOption.IGNORE_CASE)
+    private val CREDITS_PATTERN =
+        Regex("^\\s*(end|closing)?\\s*credits\\s*$", RegexOption.IGNORE_CASE)
+    private val RECAP_PATTERN =
+        Regex("^\\s*(recap|previously(\\s+on.*)?)\\s*$", RegexOption.IGNORE_CASE)
     private val INTRO_PATTERN = Regex("^\\s*intro\\s*$", RegexOption.IGNORE_CASE)
 
-    private val POST_CREDITS_PATTERN = Regex("(post|mid|after)[\\s-]credits", RegexOption.IGNORE_CASE)
+    private val POST_CREDITS_PATTERN =
+        Regex("(post|mid|after)[\\s-]credits", RegexOption.IGNORE_CASE)
 
-    fun fromChapters(
-        chapters: List<PlayerChapter>,
-        durationMs: Long
-    ): List<SkipInterval> {
+    fun fromChapters(chapters: List<PlayerChapter>, durationMs: Long): List<SkipInterval> {
         if (chapters.size < 2 || durationMs <= 0L) return emptyList()
 
         val classified = chapters.mapIndexed { index, chapter ->
@@ -99,7 +101,7 @@ internal object ChapterSkipIntervals {
         ENDING("outro"),
         RECAP("recap"),
         INTRO("intro"),
-        POST_CREDITS("post-credits"),
+        POST_CREDITS("post-credits")
     }
 
     private data class ClassifiedChapter(

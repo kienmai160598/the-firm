@@ -18,7 +18,7 @@ class DebridFileSelectionTest(private val provider: String) {
     fun `filename takes priority over raw filename and episode`() {
         val files = listOf(file(4, "Show.S01E01.mkv"), file(8, "Show.S01E02.mkv"))
         val metadata = resolve(filename = "Show.S01E02.mkv").copy(
-            stream = StreamClientResolveStream(raw = rawFilename("Show.S01E01.mkv")),
+            stream = StreamClientResolveStream(raw = rawFilename("Show.S01E01.mkv"))
         )
 
         assertSelected(8, files, metadata, season = 1, episode = 1)
@@ -33,7 +33,7 @@ class DebridFileSelectionTest(private val provider: String) {
             file(2, "作品二.mp4"),
             file(3, "作品二.mkv"),
             file(4, "Show.S01E02.mkv"),
-            file(5, "Show-S01E02.mkv"),
+            file(5, "Show-S01E02.mkv")
         )
 
         assertSelected(3, files, resolve(filename = "作品二.mkv"))
@@ -44,7 +44,7 @@ class DebridFileSelectionTest(private val provider: String) {
     fun `full path distinguishes repeated basenames and handles windows separators`() {
         val files = listOf(
             file(1, "Show/Season 1/Episode 02.mkv"),
-            file(2, "Show/Season 2/Episode 02.mkv"),
+            file(2, "Show/Season 2/Episode 02.mkv")
         )
 
         assertSelected(2, files, resolve(filename = "Season 2\\Episode 02.mkv"))
@@ -56,7 +56,7 @@ class DebridFileSelectionTest(private val provider: String) {
     fun `full path suffix matches only at folder boundaries`() {
         val files = listOf(
             file(1, "AnotherShow/episode.mkv"),
-            file(2, "Pack/Show/episode.mkv"),
+            file(2, "Pack/Show/episode.mkv")
         )
 
         assertSelected(2, files, resolve(filename = "Show/episode.mkv"))
@@ -66,7 +66,7 @@ class DebridFileSelectionTest(private val provider: String) {
     fun `exact filename case wins before case insensitive fallback`() {
         val files = listOf(
             file(1, "Season 4/Attack on Titan - 02.mkv"),
-            file(2, "Season 1/Attack On Titan - 02.mkv"),
+            file(2, "Season 1/Attack On Titan - 02.mkv")
         )
 
         assertSelected(2, files, resolve(filename = "Attack On Titan - 02.mkv"))
@@ -79,7 +79,7 @@ class DebridFileSelectionTest(private val provider: String) {
         val files = listOf(
             file(1, "Show.S01E02/Show.S01E20.mkv"),
             file(2, "Show.1x20.mkv"),
-            file(3, "Show.1x02.mkv"),
+            file(3, "Show.1x02.mkv")
         )
 
         assertSelected(3, files, resolve(season = 1, episode = 2))
@@ -89,7 +89,8 @@ class DebridFileSelectionTest(private val provider: String) {
     @Test
     fun `episode fallback handles unpadded uppercase and padded numbers`() {
         for (name in listOf("Show.S1E2.MKV", "Show.s01e02.mkv", "Show.1x2.mp4", "Show.01x02.mkv")) {
-            val files = listOf(file(1, "Show.S11E02.mkv"), file(2, "Show.S01E21.mkv"), file(3, name))
+            val files =
+                listOf(file(1, "Show.S11E02.mkv"), file(2, "Show.S01E21.mkv"), file(3, name))
             assertSelected(3, files, resolve(filename = "missing.mkv"), season = 1, episode = 2)
         }
     }
@@ -99,7 +100,7 @@ class DebridFileSelectionTest(private val provider: String) {
         val files = listOf(
             file(1, "Show.S01E01.mkv"),
             file(2, "Show.S01E02.720p.mkv"),
-            file(3, "Show.S01E02.1080p.mkv"),
+            file(3, "Show.S01E02.1080p.mkv")
         )
 
         assertSelected(null, files, resolve(fileIdx = 0), season = 1, episode = 3)
@@ -109,10 +110,11 @@ class DebridFileSelectionTest(private val provider: String) {
 
     @Test
     fun `display description does not select the first dual audio file`() {
-        val files = listOf(file(1, "Show.S01E01 [Dual Audio].mkv"), file(2, "Show.S01E02 [Dual Audio].mkv"))
+        val files =
+            listOf(file(1, "Show.S01E01 [Dual Audio].mkv"), file(2, "Show.S01E02 [Dual Audio].mkv"))
         val metadata = resolve().copy(
             torrentName = "Show.S01E02.mkv\nDubbed / Dual Audio",
-            title = "Show.S01E01 [Dual Audio].mkv",
+            title = "Show.S01E01 [Dual Audio].mkv"
         )
 
         assertSelected(2, files, metadata, season = 1, episode = 2)
@@ -148,7 +150,7 @@ class DebridFileSelectionTest(private val provider: String) {
         files: List<TorboxTorrentFileDto>,
         metadata: StreamClientResolve,
         season: Int? = null,
-        episode: Int? = null,
+        episode: Int? = null
     ) {
         for (ordered in listOf(files, files.reversed())) {
             assertEquals(expected, select(ordered, metadata, season, episode))
@@ -159,17 +161,30 @@ class DebridFileSelectionTest(private val provider: String) {
         files: List<TorboxTorrentFileDto>,
         metadata: StreamClientResolve,
         season: Int? = null,
-        episode: Int? = null,
+        episode: Int? = null
     ): Int? = when (provider) {
         "torbox" -> TorboxFileSelector().selectFile(files, metadata, season, episode)?.id
+
         "realdebrid" -> RealDebridFileSelector().selectFile(
             files.map { RealDebridTorrentFileDto(id = it.id, path = it.name, bytes = it.size) },
-            metadata, season, episode,
+            metadata,
+            season,
+            episode
         )?.id
+
         "premiumize" -> PremiumizeDirectDownloadFileSelector().selectFile(
-            files.map { PremiumizeDirectDownloadFileDto(path = it.name, size = it.size, link = "https://example.com/${it.id}") },
-            metadata, season, episode,
+            files.map {
+                PremiumizeDirectDownloadFileDto(
+                    path = it.name,
+                    size = it.size,
+                    link = "https://example.com/${it.id}"
+                )
+            },
+            metadata,
+            season,
+            episode
         )?.link?.substringAfterLast('/')?.toInt()
+
         else -> error(provider)
     }
 
@@ -177,14 +192,14 @@ class DebridFileSelectionTest(private val provider: String) {
         id = id,
         name = path,
         shortName = path.substringAfterLast('/'),
-        size = 1000L - id,
+        size = 1000L - id
     )
 
     private fun resolve(
         fileIdx: Int? = null,
         filename: String? = null,
         season: Int? = null,
-        episode: Int? = null,
+        episode: Int? = null
     ) = StreamClientResolve(
         type = "torrent",
         infoHash = "hash",
@@ -202,7 +217,7 @@ class DebridFileSelectionTest(private val provider: String) {
         service = provider,
         serviceIndex = null,
         serviceExtension = null,
-        isCached = true,
+        isCached = true
     )
 
     private fun rawFilename(filename: String) = StreamClientResolveRaw(
@@ -213,7 +228,7 @@ class DebridFileSelectionTest(private val provider: String) {
         tracker = null,
         indexer = null,
         network = null,
-        parsed = null,
+        parsed = null
     )
 
     companion object {

@@ -2,21 +2,21 @@ package com.kien.movies.ui.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kien.movies.data.repository.DevelopmentSponsor
 import com.kien.movies.data.repository.GitHubContributor
 import com.kien.movies.data.repository.GitHubContributorsRepository
 import com.kien.movies.data.repository.MembershipOverviewRepository
-import com.kien.movies.data.repository.DevelopmentSponsor
 import com.kien.movies.data.repository.SponsorsRepository
 import com.kien.movies.data.repository.SupporterMember
 import com.kien.movies.data.repository.SupportersRepository
 import com.kien.movies.domain.model.MembershipOverviewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 enum class SupportersContributorsTab {
     Supporters,
@@ -163,7 +163,11 @@ class SupportersContributorsViewModel @Inject constructor(
                             isSupportersLoading = false,
                             hasLoadedSupporters = false,
                             supporters = emptyList(),
-                            supportersErrorMessage = error.message ?: appContext.getString(com.kien.movies.R.string.supporters_error_load)
+                            supportersErrorMessage =
+                                error.message
+                                    ?: appContext.getString(
+                                        com.kien.movies.R.string.supporters_error_load
+                                    )
                         )
                     }
                 }
@@ -200,7 +204,11 @@ class SupportersContributorsViewModel @Inject constructor(
                             isContributorsLoading = false,
                             hasLoadedContributors = false,
                             contributors = emptyList(),
-                            contributorsErrorMessage = error.message ?: appContext.getString(com.kien.movies.R.string.contributors_error_load)
+                            contributorsErrorMessage =
+                                error.message
+                                    ?: appContext.getString(
+                                        com.kien.movies.R.string.contributors_error_load
+                                    )
                         )
                     }
                 }
@@ -237,7 +245,11 @@ class SupportersContributorsViewModel @Inject constructor(
                             isSponsorsLoading = false,
                             hasLoadedSponsors = false,
                             sponsors = emptyList(),
-                            sponsorsErrorMessage = error.message ?: appContext.getString(com.kien.movies.R.string.sponsors_error_load)
+                            sponsorsErrorMessage =
+                                error.message
+                                    ?: appContext.getString(
+                                        com.kien.movies.R.string.sponsors_error_load
+                                    )
                         )
                     }
                 }

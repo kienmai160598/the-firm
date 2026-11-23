@@ -10,8 +10,9 @@ import java.util.concurrent.ConcurrentHashMap
 private val CODECS_PARAM_REGEX = Regex("codecs=\"([^\"]+)\"", RegexOption.IGNORE_CASE)
 
 /** The `codecs` parameter of a YouTube format's `mimeType`, e.g. `av01.0.12M.10`. */
-internal fun videoCodecsParam(formatMimeType: String): String? =
-    CODECS_PARAM_REGEX.find(formatMimeType)?.groupValues?.getOrNull(1)?.trim()?.takeIf { it.isNotEmpty() }
+internal fun videoCodecsParam(formatMimeType: String): String? = CODECS_PARAM_REGEX.find(formatMimeType)?.groupValues?.getOrNull(1)?.trim()?.takeIf {
+    it.isNotEmpty()
+}
 
 /**
  * The decoder MIME type for a `codecs` string, e.g. `av01.0.12M.10` -> `video/av01`. Null when
@@ -38,23 +39,26 @@ internal object VideoDecoderSupport {
     private val cache = ConcurrentHashMap<String, Boolean>()
 
     @OptIn(UnstableApi::class)
-    fun canDecode(codecs: String, width: Int, height: Int, fps: Int): Boolean =
-        cache.getOrPut("$codecs|$width|$height|$fps") {
-            val mimeType = videoCodecMimeType(codecs) ?: return@getOrPut true
-            val format = Format.Builder()
-                .setSampleMimeType(mimeType)
-                .setCodecs(codecs)
-                .apply {
-                    if (width > 0 && height > 0) setWidth(width).setHeight(height)
-                    if (fps > 0) setFrameRate(fps.toFloat())
-                }
-                .build()
-            try {
-                MediaCodecUtil.getDecoderInfos(mimeType, /* secure= */ false, /* tunneling= */ false)
-                    .any { it.isFormatSupported(format) }
-            } catch (e: Exception) {
-                // If the device can't be asked, don't drop streams on a guess.
-                true
+    fun canDecode(codecs: String, width: Int, height: Int, fps: Int): Boolean = cache.getOrPut("$codecs|$width|$height|$fps") {
+        val mimeType = videoCodecMimeType(codecs) ?: return@getOrPut true
+        val format = Format.Builder()
+            .setSampleMimeType(mimeType)
+            .setCodecs(codecs)
+            .apply {
+                if (width > 0 && height > 0) setWidth(width).setHeight(height)
+                if (fps > 0) setFrameRate(fps.toFloat())
             }
+            .build()
+        try {
+            MediaCodecUtil.getDecoderInfos(
+                mimeType, /* secure= */
+                false, /* tunneling= */
+                false
+            )
+                .any { it.isFormatSupported(format) }
+        } catch (e: Exception) {
+            // If the device can't be asked, don't drop streams on a guess.
+            true
         }
+    }
 }

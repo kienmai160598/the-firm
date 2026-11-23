@@ -10,16 +10,16 @@ import android.view.Display
 import androidx.media3.common.MimeTypes
 import io.github.anilbeesetti.nextlib.mediainfo.MediaInfo
 import io.github.anilbeesetti.nextlib.mediainfo.MediaInfoBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
-import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 /**
  * Auto frame rate matching utility.
@@ -44,15 +44,19 @@ object FrameRateUtils {
     private val CLEAN_REFRESH_MULTIPLES = listOf(3f, 4f, 5f, 6f)
     private const val REFRESH_ERROR_SLACK = 0.0001f
 
-    data class DisplayModeSwitchResult(
-        val appliedMode: Display.Mode
-    )
+    data class DisplayModeSwitchResult(val appliedMode: Display.Mode)
 
     private var originalModeId: Int? = null
 
     private const val FRAME_RATE_CACHE_SIZE = 64
-    private val frameRateCache = object : LinkedHashMap<String, FrameRateDetection>(FRAME_RATE_CACHE_SIZE, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, FrameRateDetection>?): Boolean {
+    private val frameRateCache = object : LinkedHashMap<String, FrameRateDetection>(
+        FRAME_RATE_CACHE_SIZE,
+        0.75f,
+        true
+    ) {
+        override fun removeEldestEntry(
+            eldest: MutableMap.MutableEntry<String, FrameRateDetection>?
+        ): Boolean {
             return size > FRAME_RATE_CACHE_SIZE
         }
     }
@@ -103,7 +107,11 @@ object FrameRateUtils {
         }
     }
 
-    internal fun buildCacheKey(url: String, headers: Map<String, String>, filename: String?): String {
+    internal fun buildCacheKey(
+        url: String,
+        headers: Map<String, String>,
+        filename: String?
+    ): String {
         val sanitized = sanitizeHeaders(headers)
         val baseKey = if (!filename.isNullOrBlank()) {
             "file://${parseUriHost(url)}/$filename"
@@ -126,14 +134,23 @@ object FrameRateUtils {
         }
     }
 
-    fun getCachedFrameRate(url: String, headers: Map<String, String>, filename: String? = null): FrameRateDetection? {
+    fun getCachedFrameRate(
+        url: String,
+        headers: Map<String, String>,
+        filename: String? = null
+    ): FrameRateDetection? {
         val key = buildCacheKey(url, headers, filename)
         return synchronized(frameRateCache) {
             frameRateCache[key]
         }
     }
 
-    fun cacheFrameRate(url: String, headers: Map<String, String>, detection: FrameRateDetection, filename: String? = null) {
+    fun cacheFrameRate(
+        url: String,
+        headers: Map<String, String>,
+        detection: FrameRateDetection,
+        filename: String? = null
+    ) {
         val key = buildCacheKey(url, headers, filename)
         synchronized(frameRateCache) {
             frameRateCache[key] = detection
@@ -192,7 +209,8 @@ object FrameRateUtils {
 
         var weight = minCadenceError
 
-        val isCinemaOrNtscContent = fps in 23.5f..24.5f || fps in 29.5f..30.5f || fps in 59.5f..60.5f
+        val isCinemaOrNtscContent =
+            fps in 23.5f..24.5f || fps in 29.5f..30.5f || fps in 59.5f..60.5f
         val isPalRefresh = abs(refresh - 25.0f) <= 0.1f || abs(refresh - 50.0f) <= 0.1f
         if (isCinemaOrNtscContent && isPalRefresh) {
             weight += 0.5f
@@ -239,14 +257,19 @@ object FrameRateUtils {
                 has23976 && has24 -> {
                     if (prefer23976Near24) {
                         NTSC_FILM_FPS
-                    } else if (abs(detectedFps - NTSC_FILM_FPS) <= abs(detectedFps - CINEMA_24_FPS)) {
+                    } else if (abs(detectedFps - NTSC_FILM_FPS) <=
+                        abs(detectedFps - CINEMA_24_FPS)
+                    ) {
                         NTSC_FILM_FPS
                     } else {
                         CINEMA_24_FPS
                     }
                 }
+
                 has23976 -> NTSC_FILM_FPS
+
                 has24 -> CINEMA_24_FPS
+
                 else -> detectedFps
             }
         } catch (_: Exception) {
@@ -262,13 +285,17 @@ object FrameRateUtils {
         val modeExact = pickBestForTarget(modes, frameRate)
         val modeDouble = pickBestForTarget(modes, frameRate * 2f)
         val modePulldown = pickBestForTarget(modes, frameRate * 2.5f)
-        val pulldownError = modePulldown?.let { refreshError(it.refreshRate, frameRate * 2.5f) } ?: Float.MAX_VALUE
+        val pulldownError =
+            modePulldown?.let { refreshError(it.refreshRate, frameRate * 2.5f) } ?: Float.MAX_VALUE
         // Lowest clean multiple first (24 fps: 72, 96, 120, 144 Hz), before 3:2 pulldown at 60 Hz,
         // but only when it matches the frame rate at least as closely as the pulldown mode does.
         val modeMultiple = CLEAN_REFRESH_MULTIPLES.firstNotNullOfOrNull { multiple ->
             val target = frameRate * multiple
             pickBestForTarget(modes, target)
-                ?.takeIf { refreshError(it.refreshRate, target) <= pulldownError + REFRESH_ERROR_SLACK }
+                ?.takeIf {
+                    refreshError(it.refreshRate, target) <=
+                        pulldownError + REFRESH_ERROR_SLACK
+                }
         }
         val modeFallback = modes.minByOrNull { refreshWeight(it.refreshRate, frameRate) }
         return modeExact ?: modeDouble ?: modeMultiple ?: modePulldown ?: modeFallback ?: activeMode
@@ -379,7 +406,10 @@ object FrameRateUtils {
             }
             recordOriginalMode(display)
             if (modeBest.modeId == activeMode.modeId) {
-                Log.d(TAG, "Display already at optimal rate ${activeMode.refreshRate}Hz for ${frameRate}fps")
+                Log.d(
+                    TAG,
+                    "Display already at optimal rate ${activeMode.refreshRate}Hz for ${frameRate}fps"
+                )
                 return@withContext Pair<Display.Mode?, DisplayModeSwitchResult?>(
                     null,
                     DisplayModeSwitchResult(activeMode)
@@ -488,7 +518,11 @@ object FrameRateUtils {
     // Samples come in decode order. With B-frames that is not presentation order, and the newest samples
     // of any read can be ahead of frames that were never read, so sort and leave those out.
     // skipFirst drops the lowest timestamps after sorting, not the first samples decoded.
-    internal fun averageSampleDurationUs(timestampsUs: List<Long>, skipFirst: Int, skipLast: Int): Float? {
+    internal fun averageSampleDurationUs(
+        timestampsUs: List<Long>,
+        skipFirst: Int,
+        skipLast: Int
+    ): Float? {
         val sorted = timestampsUs.sorted()
         val last = sorted.size - 1 - skipLast
         val intervals = last - skipFirst
@@ -497,7 +531,10 @@ object FrameRateUtils {
         return average.takeIf { it > 0f }
     }
 
-    private fun snapProbeRateByFrameDuration(measuredFps: Float, averageFrameDurationUs: Float): Float {
+    private fun snapProbeRateByFrameDuration(
+        measuredFps: Float,
+        averageFrameDurationUs: Float
+    ): Float {
         if (measuredFps in 23.5f..24.5f) {
             val frameUs23976 = 1_000_000f / NTSC_FILM_FPS
             val frameUs24 = 1_000_000f / CINEMA_24_FPS
@@ -593,7 +630,10 @@ object FrameRateUtils {
                     }
                     val warmed = total > 0L
                     if (warmed) {
-                        Log.d(TAG, "AFR CDN warmup drained ${total}B (rangeSatisfied=${response.code == 206})")
+                        Log.d(
+                            TAG,
+                            "AFR CDN warmup drained ${total}B (rangeSatisfied=${response.code == 206})"
+                        )
                     }
                     warmed
                 }
@@ -612,8 +652,12 @@ object FrameRateUtils {
         mimeType: String? = null,
         filename: String? = null
     ): FrameRateDetection? {
-        detectFrameRateWithOkHttpProbe(context, sourceUrl, headers, mimeType, filename)?.let { return it }
-        detectFrameRateFromNextLib(context, sourceUrl, headers, mimeType, filename)?.let { return it }
+        detectFrameRateWithOkHttpProbe(context, sourceUrl, headers, mimeType, filename)?.let {
+            return it
+        }
+        detectFrameRateFromNextLib(context, sourceUrl, headers, mimeType, filename)?.let {
+            return it
+        }
         return detectFrameRateFromExtractor(context, sourceUrl, headers)
     }
 
@@ -635,7 +679,9 @@ object FrameRateUtils {
         if (isResolveProxyUrl(sourceUrl)) {
             val embeddedResolveUrl = extractEmbeddedResolveUrl(sourceUrl)
             if (!embeddedResolveUrl.isNullOrBlank()) {
-                detectFrameRateWithExtractor(context, embeddedResolveUrl, headers)?.let { return it }
+                detectFrameRateWithExtractor(context, embeddedResolveUrl, headers)?.let {
+                    return it
+                }
             }
         }
         return detectFrameRateWithExtractor(context, sourceUrl, headers)
@@ -647,13 +693,21 @@ object FrameRateUtils {
         filename: String? = null
     ): Boolean {
         if (mimeType?.equals(MimeTypes.VIDEO_MP4, ignoreCase = true) == true ||
-            mimeType?.equals("video/iso.segment", ignoreCase = true) == true) return true
+            mimeType?.equals("video/iso.segment", ignoreCase = true) == true
+        ) {
+            return true
+        }
         if (filename != null) {
             val lower = filename.lowercase(Locale.ROOT)
-            if (lower.endsWith(".mp4") || lower.endsWith(".m4v") || lower.endsWith(".mov")) return true
+            if (lower.endsWith(".mp4") || lower.endsWith(".m4v") ||
+                lower.endsWith(".mov")
+            ) {
+                return true
+            }
         }
         val normalized = sourceUrl.substringBefore('?').lowercase(Locale.ROOT)
-        return normalized.endsWith(".mp4") || normalized.endsWith(".m4v") || normalized.endsWith(".mov")
+        return normalized.endsWith(".mp4") || normalized.endsWith(".m4v") ||
+            normalized.endsWith(".mov")
     }
 
     internal fun parseContentRangeTotalLength(contentRangeHeader: String?): Long? {
@@ -662,7 +716,6 @@ object FrameRateUtils {
         if (totalStr == "*") return null
         return totalStr.toLongOrNull()?.takeIf { it > 0L }
     }
-
 
     internal data class HttpRangeFetchResult(
         val success: Boolean,
@@ -703,7 +756,10 @@ object FrameRateUtils {
                         } else {
                             raf.writeInt(newMdatSize.toInt())
                         }
-                        Log.d(TAG, "Patched mdat box size to $newMdatSize for compact MP4 probe at pos $pos")
+                        Log.d(
+                            TAG,
+                            "Patched mdat box size to $newMdatSize for compact MP4 probe at pos $pos"
+                        )
                         break
                     }
 
@@ -808,7 +864,11 @@ object FrameRateUtils {
         if (isLiveStreamUrl(sourceUrl)) return null
 
         val targetUrl = if (isResolveProxyUrl(sourceUrl)) {
-            extractEmbeddedResolveUrl(sourceUrl)?.takeIf { parseUriScheme(it) == "http" || parseUriScheme(it) == "https" } ?: sourceUrl
+            extractEmbeddedResolveUrl(sourceUrl)?.takeIf {
+                parseUriScheme(it) == "http" ||
+                    parseUriScheme(it) == "https"
+            }
+                ?: sourceUrl
         } else {
             sourceUrl
         }
@@ -828,12 +888,18 @@ object FrameRateUtils {
             // Pass 1: Head Range Probe (first 4 MB - bytes=0-4194303)
             val headMaxBytes = 4_194_304L + 65_536L
             val headResult = fetchHttpRangeToFile(
-                targetUrl, headers, "bytes=0-4194303", headMaxBytes, tempFile, fileOffset = 0L,
+                targetUrl,
+                headers,
+                "bytes=0-4194303",
+                headMaxBytes,
+                tempFile,
+                fileOffset = 0L,
                 isCancelled = isCancelled
             )
             if (isCancelled()) return null
             val isMp4Detected = isMp4Source(targetUrl, mimeType, filename) || hasFtypAtom(tempFile)
-            val isMkvDetected = isMkvSource(targetUrl, mimeType, filename) || hasEbmlHeader(tempFile)
+            val isMkvDetected =
+                isMkvSource(targetUrl, mimeType, filename) || hasEbmlHeader(tempFile)
 
             if (headResult.success && tempFile.length() > 0) {
                 // For MP4/MKV files where moov/header is in the first 4MB, probe immediately.
@@ -853,7 +919,10 @@ object FrameRateUtils {
                         isCancelled = isCancelled
                     )
                     if (mkvDetection != null) return mkvDetection
-                    Log.d(TAG, "MKV OkHttp probe exhausted; aborting for full-URL NextLib/extractor fallback")
+                    Log.d(
+                        TAG,
+                        "MKV OkHttp probe exhausted; aborting for full-URL NextLib/extractor fallback"
+                    )
                     return null
                 }
 
@@ -864,11 +933,17 @@ object FrameRateUtils {
                         allowTimestampSampling = false
                     )
                     if (detection != null) {
-                        Log.d(TAG, "OkHttp AFR probe Pass 1 (head 4MB) succeeded: FPS=${detection.snapped}")
+                        Log.d(
+                            TAG,
+                            "OkHttp AFR probe Pass 1 (head 4MB) succeeded: FPS=${detection.snapped}"
+                        )
                         return detection
                     }
                 } else {
-                    Log.d(TAG, "Pass 1 head 4MB does not contain 'moov' atom; proceeding directly to Pass 2 tail probe")
+                    Log.d(
+                        TAG,
+                        "Pass 1 head 4MB does not contain 'moov' atom; proceeding directly to Pass 2 tail probe"
+                    )
                 }
             }
 
@@ -902,7 +977,10 @@ object FrameRateUtils {
                     val tailRange = "bytes=$tailStart-${tailStart + safeTailSizeBytes - 1}"
                     val tailMaxBytes = safeTailSizeBytes + 65_536L
 
-                    Log.d(TAG, "OkHttp AFR probe Pass 2 fetching range $tailRange (size: $safeTailSizeBytes bytes)")
+                    Log.d(
+                        TAG,
+                        "OkHttp AFR probe Pass 2 fetching range $tailRange (size: $safeTailSizeBytes bytes)"
+                    )
 
                     // Strategy A: Sparse offset file (Head at 0, Tail at original tailStart)
                     // Preserves exact co64/stco sample chunk offsets for Android Stagefright native MPEG4Extractor.
@@ -910,13 +988,23 @@ object FrameRateUtils {
                     val usableSpace = runCatching { context.cacheDir.usableSpace }.getOrDefault(0L)
                     if (usableSpace > 50_000_000L) { // Requires only 50 MB usable disk space for 14 MB sparse blocks
                         val tailResultSparse = fetchHttpRangeToFile(
-                            targetUrl, headers, tailRange, tailMaxBytes, tempFile, fileOffset = tailStart,
+                            targetUrl,
+                            headers,
+                            tailRange,
+                            tailMaxBytes,
+                            tempFile,
+                            fileOffset = tailStart,
                             isCancelled = isCancelled
                         )
-                        if (tailResultSparse.success && tailResultSparse.rangeSatisfied && tempFile.length() > 0) {
+                        if (tailResultSparse.success && tailResultSparse.rangeSatisfied &&
+                            tempFile.length() > 0
+                        ) {
                             val detection = detectFrameRateFromLocalFile(context, tempFile)
                             if (detection != null) {
-                                Log.d(TAG, "OkHttp AFR probe Pass 2 (sparse head+tail file) succeeded for MP4: FPS=${detection.snapped}")
+                                Log.d(
+                                    TAG,
+                                    "OkHttp AFR probe Pass 2 (sparse head+tail file) succeeded for MP4: FPS=${detection.snapped}"
+                                )
                                 return detection
                             }
                         }
@@ -926,20 +1014,35 @@ object FrameRateUtils {
                     if (isCancelled()) return null
                     tempFile.delete()
                     val headResultCompact = fetchHttpRangeToFile(
-                        targetUrl, headers, "bytes=0-4194303", headMaxBytes, tempFile, fileOffset = 0L,
+                        targetUrl,
+                        headers,
+                        "bytes=0-4194303",
+                        headMaxBytes,
+                        tempFile,
+                        fileOffset = 0L,
                         isCancelled = isCancelled
                     )
                     if (headResultCompact.success && headResultCompact.rangeSatisfied) {
                         val compactOffset = tempFile.length()
                         val tailResultCompact = fetchHttpRangeToFile(
-                            targetUrl, headers, tailRange, tailMaxBytes, tempFile, fileOffset = compactOffset,
+                            targetUrl,
+                            headers,
+                            tailRange,
+                            tailMaxBytes,
+                            tempFile,
+                            fileOffset = compactOffset,
                             isCancelled = isCancelled
                         )
-                        if (tailResultCompact.success && tailResultCompact.rangeSatisfied && tempFile.length() > 0) {
+                        if (tailResultCompact.success && tailResultCompact.rangeSatisfied &&
+                            tempFile.length() > 0
+                        ) {
                             patchMdatHeaderForCompactMp4(tempFile, compactOffset)
                             val detection = detectFrameRateFromLocalFile(context, tempFile)
                             if (detection != null) {
-                                Log.d(TAG, "OkHttp AFR probe Pass 2 (compact head+tail file) succeeded for MP4: FPS=${detection.snapped}")
+                                Log.d(
+                                    TAG,
+                                    "OkHttp AFR probe Pass 2 (compact head+tail file) succeeded for MP4: FPS=${detection.snapped}"
+                                )
                                 return detection
                             }
                         }
@@ -1013,7 +1116,10 @@ object FrameRateUtils {
         // Tracks already fully in the safe prefix but NextLib still failed — sparse won't help
         // (likely missing DefaultDuration). Fall through to full-URL fallbacks.
         if (layout.tracksCompleteInPrefix) {
-            Log.d(TAG, "MKV Tracks already complete in head but FPS not found; skipping sparse probe")
+            Log.d(
+                TAG,
+                "MKV Tracks already complete in head but FPS not found; skipping sparse probe"
+            )
             return null
         }
 
@@ -1043,25 +1149,34 @@ object FrameRateUtils {
             }
             val peekBuf = peekFile.readBytes()
             val tracksHeader = MatroskaAfrProbe.readElementFromBufferStart(peekBuf, tracksOffset)
-            if (tracksHeader == null || tracksHeader.id != MatroskaAfrProbe.ID_TRACKS || tracksHeader.unknownSize) {
+            if (tracksHeader == null || tracksHeader.id != MatroskaAfrProbe.ID_TRACKS ||
+                tracksHeader.unknownSize
+            ) {
                 Log.w(TAG, "MKV Tracks peek did not yield a sized Tracks element")
                 return null
             }
             val tracksTotalSize = tracksHeader.headerSize + tracksHeader.dataSize
-            if (tracksTotalSize <= 0L || tracksTotalSize > MatroskaAfrProbe.MAX_TRACKS_FETCH_BYTES) {
+            if (tracksTotalSize <= 0L ||
+                tracksTotalSize > MatroskaAfrProbe.MAX_TRACKS_FETCH_BYTES
+            ) {
                 Log.w(TAG, "MKV Tracks element size $tracksTotalSize outside probe limits")
                 return null
             }
 
             // Keep the safe prefix at 0, then append Tracks contiguously at EOF. Writing at the
             // remote absolute offset creates a sparse hole that breaks Matroska demuxers.
-            if (layout != null && layout.safePrefixLength > 0L && tempFile.length() > layout.safePrefixLength) {
+            if (layout != null && layout.safePrefixLength > 0L &&
+                tempFile.length() > layout.safePrefixLength
+            ) {
                 MatroskaAfrProbe.truncateToSafePrefix(tempFile, layout)
             }
             val tracksWriteOffset = tempFile.length()
 
             val tracksRange = "bytes=$tracksOffset-${tracksOffset + tracksTotalSize - 1}"
-            Log.d(TAG, "OkHttp AFR MKV Pass 2 fetching Tracks range $tracksRange (append at $tracksWriteOffset)")
+            Log.d(
+                TAG,
+                "OkHttp AFR MKV Pass 2 fetching Tracks range $tracksRange (append at $tracksWriteOffset)"
+            )
             val tracksResult = fetchHttpRangeToFile(
                 url = targetUrl,
                 headers = headers,
@@ -1085,7 +1200,10 @@ object FrameRateUtils {
                     contentEnd = tempFile.length()
                 )
                 if (patched != null) {
-                    Log.d(TAG, "MKV sparse Tracks file has no Cluster; appended stub Cluster (length=$patched)")
+                    Log.d(
+                        TAG,
+                        "MKV sparse Tracks file has no Cluster; appended stub Cluster (length=$patched)"
+                    )
                 } else {
                     Log.w(TAG, "MKV sparse Tracks stub Cluster patch failed")
                 }
@@ -1096,7 +1214,10 @@ object FrameRateUtils {
                 file = tempFile,
                 allowTimestampSampling = allowMkvLocalTimestampSampling(tempFile)
             )?.let { detection ->
-                Log.d(TAG, "OkHttp AFR MKV Pass 2 (sparse Tracks) succeeded: FPS=${detection.snapped}")
+                Log.d(
+                    TAG,
+                    "OkHttp AFR MKV Pass 2 (sparse Tracks) succeeded: FPS=${detection.snapped}"
+                )
                 return detection
             }
         } finally {
@@ -1138,10 +1259,12 @@ object FrameRateUtils {
                     Log.d(TAG, "MP4 mdat end resolved at ${walk.mdatEnd}")
                     return walk.mdatEnd
                 }
+
                 is Mp4MdatWalkResult.Failed -> {
                     Log.w(TAG, "MP4 box walk failed to resolve mdat end")
                     return null
                 }
+
                 is Mp4MdatWalkResult.NeedHeaderAt -> {
                     val peekAt = walk.offset
                     if (peekAt < 0L || peekAt >= contentLength) return null
@@ -1210,10 +1333,12 @@ object FrameRateUtils {
                             headerSize = 16
                             boxSize = size64
                         }
+
                         size32 == 0L -> {
                             headerSize = 8
                             boxSize = contentLength - pos
                         }
+
                         else -> {
                             headerSize = 8
                             boxSize = size32
@@ -1269,7 +1394,10 @@ object FrameRateUtils {
             .header("Range", rangeHeader)
 
         if (headers.none { it.key.equals("User-Agent", ignoreCase = true) }) {
-            requestBuilder.header("User-Agent", com.kien.movies.ui.screens.player.PlayerMediaSourceFactory.DEFAULT_USER_AGENT)
+            requestBuilder.header(
+                "User-Agent",
+                com.kien.movies.ui.screens.player.PlayerMediaSourceFactory.DEFAULT_USER_AGENT
+            )
         }
 
         headers.forEach { (k, v) ->
@@ -1282,7 +1410,10 @@ object FrameRateUtils {
         return try {
             call.execute().use { response ->
                 if (response.code != 206 && response.code != 200) {
-                    Log.w(TAG, "fetchHttpRangeToFile server did not return 200/206 Content (code=${response.code})")
+                    Log.w(
+                        TAG,
+                        "fetchHttpRangeToFile server did not return 200/206 Content (code=${response.code})"
+                    )
                     return HttpRangeFetchResult(success = false)
                 }
                 val totalLength = parseContentRangeTotalLength(response.header("Content-Range"))
@@ -1333,7 +1464,10 @@ object FrameRateUtils {
             .head()
 
         if (headers.none { it.key.equals("User-Agent", ignoreCase = true) }) {
-            requestBuilder.header("User-Agent", com.kien.movies.ui.screens.player.PlayerMediaSourceFactory.DEFAULT_USER_AGENT)
+            requestBuilder.header(
+                "User-Agent",
+                com.kien.movies.ui.screens.player.PlayerMediaSourceFactory.DEFAULT_USER_AGENT
+            )
         }
 
         headers.forEach { (k, v) ->
@@ -1417,7 +1551,9 @@ object FrameRateUtils {
         val embeddedResolveUrl = extractEmbeddedResolveUrl(sourceUrl)
         val shouldPreferEmbedded = isResolveProxyUrl(sourceUrl)
         val candidates = buildList {
-            if (shouldPreferEmbedded && !embeddedResolveUrl.isNullOrBlank() && embeddedResolveUrl != sourceUrl) {
+            if (shouldPreferEmbedded && !embeddedResolveUrl.isNullOrBlank() &&
+                embeddedResolveUrl != sourceUrl
+            ) {
                 add(embeddedResolveUrl)
                 add(sourceUrl)
                 return@buildList
@@ -1524,7 +1660,8 @@ object FrameRateUtils {
             }
 
             val averageFrameDurationUs =
-                averageSampleDurationUs(timestamps, ignoreSamples, TIMESTAMP_REORDER_MARGIN) ?: return null
+                averageSampleDurationUs(timestamps, ignoreSamples, TIMESTAMP_REORDER_MARGIN)
+                    ?: return null
 
             val measured = 1_000_000f / averageFrameDurationUs
             if (!isValidVideoFrameRate(measured)) return null
@@ -1585,7 +1722,10 @@ object FrameRateUtils {
     ): Boolean {
         if (mimeType?.equals(MimeTypes.VIDEO_MATROSKA, ignoreCase = true) == true ||
             mimeType?.equals("video/mkv", ignoreCase = true) == true ||
-            mimeType?.equals("video/x-matroska", ignoreCase = true) == true) return true
+            mimeType?.equals("video/x-matroska", ignoreCase = true) == true
+        ) {
+            return true
+        }
         if (filename?.endsWith(MKV_EXTENSION, ignoreCase = true) == true) return true
         val normalized = sourceUrl.substringBefore('?').lowercase(Locale.ROOT)
         return normalized.endsWith(MKV_EXTENSION)

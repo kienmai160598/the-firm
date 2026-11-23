@@ -78,7 +78,10 @@ class ExternalExtractorRegistry @Inject constructor() {
     fun installGlobal() {
         if (installed) return
         installed = true
-        Log.d(TAG, "installGlobal: library extractorApis has ${extractorApis.size} built-in extractors")
+        Log.d(
+            TAG,
+            "installGlobal: library extractorApis has ${extractorApis.size} built-in extractors"
+        )
     }
 
     fun getMissingExtractorDomains(): Set<String> = missingExtractorDomains.toSet()

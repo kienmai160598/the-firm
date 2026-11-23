@@ -42,7 +42,11 @@ data class DebridSettings(
 
     val hasCloudLibraryProvider: Boolean
         get() = DebridProviders.configuredServices(this)
-            .any { credential -> credential.provider.supports(com.kien.movies.core.debrid.DebridProviderCapability.CloudLibrary) }
+            .any { credential ->
+                credential.provider.supports(
+                    com.kien.movies.core.debrid.DebridProviderCapability.CloudLibrary
+                )
+            }
 
     val canUseCloudLibrary: Boolean
         get() = cloudLibraryEnabled && hasCloudLibraryProvider
@@ -150,7 +154,8 @@ enum class DebridStreamQuality(val label: String) {
     UNKNOWN("Unknown");
 
     companion object {
-        val defaultOrder = listOf(BLURAY_REMUX, BLURAY, WEB_DL, WEBRIP, HDRIP, HD_RIP, DVDRIP, HDTV, CAM, TS, TC, SCR, UNKNOWN)
+        val defaultOrder =
+            listOf(BLURAY_REMUX, BLURAY, WEB_DL, WEBRIP, HDRIP, HD_RIP, DVDRIP, HDTV, CAM, TS, TC, SCR, UNKNOWN)
     }
 }
 
@@ -173,7 +178,8 @@ enum class DebridStreamVisualTag(val label: String) {
     UNKNOWN("Unknown");
 
     companion object {
-        val defaultOrder = listOf(HDR_DV, DV_ONLY, HDR_ONLY, HDR10_PLUS, HDR10, DV, HDR, HLG, TEN_BIT, IMAX, SDR, THREE_D, AI, H_OU, H_SBS, UNKNOWN)
+        val defaultOrder =
+            listOf(HDR_DV, DV_ONLY, HDR_ONLY, HDR10_PLUS, HDR10, DV, HDR, HLG, TEN_BIT, IMAX, SDR, THREE_D, AI, H_OU, H_SBS, UNKNOWN)
     }
 }
 
@@ -193,7 +199,8 @@ enum class DebridStreamAudioTag(val label: String) {
     UNKNOWN("Unknown");
 
     companion object {
-        val defaultOrder = listOf(ATMOS, DD_PLUS, DD, DTS_X, DTS_HD_MA, DTS_HD, DTS_ES, DTS, TRUEHD, OPUS, FLAC, AAC, UNKNOWN)
+        val defaultOrder =
+            listOf(ATMOS, DD_PLUS, DD, DTS_X, DTS_HD_MA, DTS_HD, DTS_ES, DTS, TRUEHD, OPUS, FLAC, AAC, UNKNOWN)
     }
 }
 
@@ -248,11 +255,23 @@ data class DebridStreamSortCriterion(
     companion object {
         val originalOrder = emptyList<DebridStreamSortCriterion>()
         val defaultOrder = listOf(
-            DebridStreamSortCriterion(DebridStreamSortKey.RESOLUTION, DebridStreamSortDirection.DESC),
+            DebridStreamSortCriterion(
+                DebridStreamSortKey.RESOLUTION,
+                DebridStreamSortDirection.DESC
+            ),
             DebridStreamSortCriterion(DebridStreamSortKey.QUALITY, DebridStreamSortDirection.DESC),
-            DebridStreamSortCriterion(DebridStreamSortKey.VISUAL_TAG, DebridStreamSortDirection.DESC),
-            DebridStreamSortCriterion(DebridStreamSortKey.AUDIO_TAG, DebridStreamSortDirection.DESC),
-            DebridStreamSortCriterion(DebridStreamSortKey.AUDIO_CHANNEL, DebridStreamSortDirection.DESC),
+            DebridStreamSortCriterion(
+                DebridStreamSortKey.VISUAL_TAG,
+                DebridStreamSortDirection.DESC
+            ),
+            DebridStreamSortCriterion(
+                DebridStreamSortKey.AUDIO_TAG,
+                DebridStreamSortDirection.DESC
+            ),
+            DebridStreamSortCriterion(
+                DebridStreamSortKey.AUDIO_CHANNEL,
+                DebridStreamSortDirection.DESC
+            ),
             DebridStreamSortCriterion(DebridStreamSortKey.ENCODE, DebridStreamSortDirection.DESC),
             DebridStreamSortCriterion(DebridStreamSortKey.SIZE, DebridStreamSortDirection.DESC)
         )
@@ -276,8 +295,6 @@ enum class DebridStreamSortDirection {
     DESC
 }
 
-fun normalizeDebridInstantPlaybackPreparationLimit(value: Int): Int =
-    value.coerceIn(0, DEBRID_PREPARE_INSTANT_PLAYBACK_MAX_LIMIT)
+fun normalizeDebridInstantPlaybackPreparationLimit(value: Int): Int = value.coerceIn(0, DEBRID_PREPARE_INSTANT_PLAYBACK_MAX_LIMIT)
 
-fun normalizeDebridStreamMaxResults(value: Int): Int =
-    if (value <= 0) 0 else value.coerceIn(1, 100)
+fun normalizeDebridStreamMaxResults(value: Int): Int = if (value <= 0) 0 else value.coerceIn(1, 100)

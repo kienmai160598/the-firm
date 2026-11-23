@@ -18,6 +18,7 @@ private val RestingTrackHeight = 4.dp
 private val FocusedTrackHeight = 8.dp
 private val ThumbRadius = 9.dp
 private val InactiveTrackColor = Color.White.copy(alpha = 0.24f)
+
 // Drawn over the inactive track, so the buffered part shows white at about 0.4.
 private val BufferedTrackColor = Color.White.copy(alpha = 0.21f)
 private val ThumbColor = Color.White

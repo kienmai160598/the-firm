@@ -39,7 +39,13 @@ data class MDBListMediaResponseDto(
                 else -> 100.0
             }
             val rawValue = rating.value?.takeIf { it >= 0 } ?: return@mapNotNull null
-            val value = if (source == "letterboxd" && rating.score != null) rating.score / 20.0 else rawValue
+            val value = if (source == "letterboxd" &&
+                rating.score != null
+            ) {
+                rating.score / 20.0
+            } else {
+                rawValue
+            }
             if (value !in 0.0..maximum) return@mapNotNull null
             source to value
         }.distinctBy { it.first }.toMap()

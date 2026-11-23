@@ -46,5 +46,4 @@ private fun SimklPlaybackSession.playbackKey(): String? {
 }
 
 /** When our own row was last written. A row without either timestamp cannot win. */
-private fun SimklPlaybackSession.playedAtEpochMs(): Long? =
-    parseSimklUtcEpochMs(pausedAt) ?: parseSimklUtcEpochMs(watchedAt)
+private fun SimklPlaybackSession.playedAtEpochMs(): Long? = parseSimklUtcEpochMs(pausedAt) ?: parseSimklUtcEpochMs(watchedAt)

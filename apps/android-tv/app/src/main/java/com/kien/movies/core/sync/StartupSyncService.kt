@@ -6,13 +6,16 @@ import com.kien.movies.core.auth.AuthManager
 import com.kien.movies.core.plugin.PluginManager
 import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.data.local.StartupSyncPreferences
-import com.kien.movies.data.local.effectivePluginProfileId
 import com.kien.movies.data.local.WatchProgressPreferences
+import com.kien.movies.data.local.effectivePluginProfileId
 import com.kien.movies.data.repository.AddonRepositoryImpl
 import com.kien.movies.data.repository.LibraryRepositoryImpl
 import com.kien.movies.data.repository.WatchProgressRepositoryImpl
 import com.kien.movies.domain.model.AuthState
 import com.kien.movies.domain.model.LibrarySourceMode
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,15 +24,12 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 private const val TAG = "StartupSyncService"
 private const val FORCE_RESYNC_MIN_INTERVAL_MS = 30_000L
@@ -38,10 +38,7 @@ private const val FOREGROUND_ACTIVITY_PULL_DELAY_MS = 2_500L
 private const val FOREGROUND_ACTIVITY_PULL_MIN_INTERVAL_MS = 2 * 60_000L
 private const val PERIODIC_SURFACE_PULL_INTERVAL_MS = 15 * 60_000L
 
-internal data class SurfacePullFreshness(
-    val key: String? = null,
-    val pulledAtMs: Long = 0L
-) {
+internal data class SurfacePullFreshness(val key: String? = null, val pulledAtMs: Long = 0L) {
     fun isRecent(candidateKey: String, nowMs: Long, minIntervalMs: Long): Boolean {
         return key == candidateKey &&
             pulledAtMs > 0L &&
@@ -93,12 +90,16 @@ class StartupSyncService @Inject constructor(
     private var lastPulledIncludedProfileSettings: Boolean = false
     private var lastPulledAtMs: Long = 0L
     private var activityPullFreshness = SurfacePullFreshness()
+
     @Volatile
     private var forceSyncRequested: Boolean = false
+
     @Volatile
     private var forceSyncIncludesProfileSettings: Boolean = true
+
     @Volatile
     private var pendingResyncKey: String? = null
+
     @Volatile
     private var pendingResyncIncludesProfileSettings: Boolean = false
 
@@ -116,6 +117,7 @@ class StartupSyncService @Inject constructor(
                         )
                         if (force && started) forceSyncRequested = false
                     }
+
                     is AuthState.SignedOut -> {
                         startupPullJob?.cancel()
                         startupPullJob = null
@@ -133,6 +135,7 @@ class StartupSyncService @Inject constructor(
                         pendingResyncKey = null
                         pendingResyncIncludesProfileSettings = false
                     }
+
                     is AuthState.Loading -> Unit
                 }
             }
@@ -156,7 +159,8 @@ class StartupSyncService @Inject constructor(
 
     fun requestSyncNow(includeProfileSettings: Boolean = true) {
         forceSyncRequested = true
-        forceSyncIncludesProfileSettings = forceSyncIncludesProfileSettings || includeProfileSettings
+        forceSyncIncludesProfileSettings =
+            forceSyncIncludesProfileSettings || includeProfileSettings
         when (val state = authManager.authState.value) {
             is AuthState.FullAccount -> {
                 val started = scheduleStartupPull(
@@ -166,6 +170,7 @@ class StartupSyncService @Inject constructor(
                 )
                 if (started) forceSyncRequested = false
             }
+
             else -> Unit
         }
     }
@@ -207,7 +212,10 @@ class StartupSyncService @Inject constructor(
                     removeMissingLocal = true
                 )
 
-                Log.d(TAG, "Manual addon sync pulled ${remoteAddonUrls.size} addons for profile $profileId")
+                Log.d(
+                    TAG,
+                    "Manual addon sync pulled ${remoteAddonUrls.size} addons for profile $profileId"
+                )
             } catch (e: Exception) {
                 Log.e(TAG, "Manual addon sync failed for profile $profileId", e)
             } finally {
@@ -230,8 +238,11 @@ class StartupSyncService @Inject constructor(
             Log.i(TAG, "Realtime surface pull requested profile=$profileId surface=$surface")
             when (surface) {
                 "addons" -> pullRealtimeAddons(profileId)
+
                 "plugins" -> enqueuePluginSync()
+
                 "library" -> pullMoviesLibrary(profileId)
+
                 "watch_progress" -> {
                     syncWatchProgressDelta(
                         profileId = profileId,
@@ -239,6 +250,7 @@ class StartupSyncService @Inject constructor(
                         failureMessage = "Realtime watch progress pull failed"
                     )
                 }
+
                 "watched_items" -> {
                     if (watchProgressSyncService.shouldUseSupabaseWatchProgressSync(profileId)) {
                         pullWatchedItemsDelta(profileId = profileId, pushUnsynced = false)
@@ -246,42 +258,71 @@ class StartupSyncService @Inject constructor(
                         watchProgressRepository.hasCompletedInitialWatchedItemsPull = true
                     }
                 }
+
                 "profile_settings" -> {
                     profileSettingsSyncService.pullCurrentProfileFromRemote()
                         .onSuccess { applied ->
-                            Log.d(TAG, "Realtime profile settings pull completed profile=$profileId applied=$applied")
+                            Log.d(
+                                TAG,
+                                "Realtime profile settings pull completed profile=$profileId applied=$applied"
+                            )
                         }
                         .onFailure { error ->
-                            Log.e(TAG, "Realtime profile settings pull failed profile=$profileId", error)
+                            Log.e(
+                                TAG,
+                                "Realtime profile settings pull failed profile=$profileId",
+                                error
+                            )
                         }
                 }
+
                 "provider_credentials" -> {
                     providerCredentialSyncService.syncFromRemote(profileId)
                         .onSuccess { applied ->
-                            Log.d(TAG, "Realtime provider credential pull completed profile=$profileId applied=$applied")
+                            Log.d(
+                                TAG,
+                                "Realtime provider credential pull completed profile=$profileId applied=$applied"
+                            )
                         }
                         .onFailure { error ->
-                            Log.e(TAG, "Realtime provider credential pull failed profile=$profileId", error)
+                            Log.e(
+                                TAG,
+                                "Realtime provider credential pull failed profile=$profileId",
+                                error
+                            )
                         }
                 }
+
                 "collections" -> {
                     collectionSyncService.pullFromRemote()
                         .onSuccess { applied ->
-                            Log.d(TAG, "Realtime collections pull completed profile=$profileId applied=$applied")
+                            Log.d(
+                                TAG,
+                                "Realtime collections pull completed profile=$profileId applied=$applied"
+                            )
                         }
                         .onFailure { error ->
                             Log.e(TAG, "Realtime collections pull failed profile=$profileId", error)
                         }
                 }
+
                 "home_catalog_settings" -> {
                     homeCatalogSettingsSyncService.pullFromRemote()
                         .onSuccess { applied ->
-                            Log.d(TAG, "Realtime home catalog settings pull completed profile=$profileId applied=$applied")
+                            Log.d(
+                                TAG,
+                                "Realtime home catalog settings pull completed profile=$profileId applied=$applied"
+                            )
                         }
                         .onFailure { error ->
-                            Log.e(TAG, "Realtime home catalog settings pull failed profile=$profileId", error)
+                            Log.e(
+                                TAG,
+                                "Realtime home catalog settings pull failed profile=$profileId",
+                                error
+                            )
                         }
                 }
+
                 "profiles" -> {
                     profileSyncService.pullFromRemote(force = true)
                         .onSuccess { profiles ->
@@ -291,6 +332,7 @@ class StartupSyncService @Inject constructor(
                             Log.e(TAG, "Realtime profiles pull failed", error)
                         }
                 }
+
                 else -> Log.w(TAG, "Unknown realtime sync surface=$surface profile=$profileId")
             }
         }
@@ -309,8 +351,13 @@ class StartupSyncService @Inject constructor(
 
         activityPullJob = scope.launch {
             if (delayMs > 0L) delay(delayMs)
-            val currentState = authManager.authState.value as? AuthState.FullAccount ?: return@launch
-            if (pullKey(currentState.userId) != key || startupPullJob?.isActive == true) return@launch
+            val currentState =
+                authManager.authState.value as? AuthState.FullAccount ?: return@launch
+            if (pullKey(currentState.userId) != key ||
+                startupPullJob?.isActive == true
+            ) {
+                return@launch
+            }
             val profileId = profileManager.activeProfileId.value
             Log.d(TAG, "Activity sync started profile=$profileId reason=$reason")
             val succeeded = coroutineScope {
@@ -324,7 +371,10 @@ class StartupSyncService @Inject constructor(
                     pulledAtMs = SystemClock.elapsedRealtime()
                 )
             }
-            Log.d(TAG, "Activity sync completed profile=$profileId reason=$reason succeeded=$succeeded")
+            Log.d(
+                TAG,
+                "Activity sync completed profile=$profileId reason=$reason succeeded=$succeeded"
+            )
         }
         return true
     }
@@ -333,7 +383,9 @@ class StartupSyncService @Inject constructor(
         if (authManager.authState.value !is AuthState.FullAccount) return false
 
         val profileId = profileManager.activeProfileId.value
-        val shouldUseSupabaseWatchProgressSync = watchProgressSyncService.shouldUseSupabaseWatchProgressSync(profileId)
+        val shouldUseSupabaseWatchProgressSync = watchProgressSyncService.shouldUseSupabaseWatchProgressSync(
+            profileId
+        )
         Log.d(
             TAG,
             "Periodic watch state pull: profile=$profileId shouldUseSupabaseWatchProgressSync=$shouldUseSupabaseWatchProgressSync"
@@ -350,7 +402,10 @@ class StartupSyncService @Inject constructor(
         } else {
             watchProgressRepository.hasCompletedInitialPull = true
             watchProgressRepository.hasCompletedInitialWatchedItemsPull = true
-            Log.d(TAG, "Skipping periodic Supabase watch state pull for profile $profileId because a tracking provider is active")
+            Log.d(
+                TAG,
+                "Skipping periodic Supabase watch state pull for profile $profileId because a tracking provider is active"
+            )
             return true
         }
     }
@@ -365,7 +420,7 @@ class StartupSyncService @Inject constructor(
 
     private fun pullKey(userId: String): String {
         val profileId = profileManager.activeProfileId.value
-        return "${userId}_p${profileId}"
+        return "${userId}_p$profileId"
     }
 
     private fun scheduleStartupPull(
@@ -423,12 +478,16 @@ class StartupSyncService @Inject constructor(
                     break
                 }
 
-                Log.w(TAG, "Startup sync attempt $attempt failed for key=$key", result.exceptionOrNull())
+                Log.w(
+                    TAG,
+                    "Startup sync attempt $attempt failed for key=$key",
+                    result.exceptionOrNull()
+                )
                 if (attempt < maxAttempts) {
                     delay(3000)
                 }
             }
-            
+
             val resyncKey = pendingResyncKey
             if (resyncKey != null) {
                 val resyncIncludesProfileSettings = pendingResyncIncludesProfileSettings
@@ -477,7 +536,9 @@ class StartupSyncService @Inject constructor(
 
             Log.d(TAG, "Pulling remote data for profile $profileId")
             pullBroadRemoteData(profileId, includeProfileSettings) {
-                val shouldUseSupabaseWatchProgressSync = watchProgressSyncService.shouldUseSupabaseWatchProgressSync(profileId)
+                val shouldUseSupabaseWatchProgressSync = watchProgressSyncService.shouldUseSupabaseWatchProgressSync(
+                    profileId
+                )
                 Log.d(
                     TAG,
                     "Watch progress sync: shouldUseSupabaseWatchProgressSync=$shouldUseSupabaseWatchProgressSync"
@@ -495,7 +556,10 @@ class StartupSyncService @Inject constructor(
                 } else {
                     watchProgressRepository.hasCompletedInitialPull = true
                     watchProgressRepository.hasCompletedInitialWatchedItemsPull = true
-                    Log.d(TAG, "Skipping Supabase watched items and watch progress for profile $profileId because a tracking provider is active")
+                    Log.d(
+                        TAG,
+                        "Skipping Supabase watched items and watch progress for profile $profileId because a tracking provider is active"
+                    )
                 }
             }
             startupSyncPreferences.markFullPull(
@@ -521,7 +585,9 @@ class StartupSyncService @Inject constructor(
         try {
             Log.d(TAG, "Running warm remote sync for profile $profileId")
             pullBroadRemoteData(profileId, includeProfileSettings) {
-                val shouldUseSupabaseWatchProgressSync = watchProgressSyncService.shouldUseSupabaseWatchProgressSync(profileId)
+                val shouldUseSupabaseWatchProgressSync = watchProgressSyncService.shouldUseSupabaseWatchProgressSync(
+                    profileId
+                )
                 Log.d(
                     TAG,
                     "Warm watch progress sync: shouldUseSupabaseWatchProgressSync=$shouldUseSupabaseWatchProgressSync"
@@ -538,7 +604,10 @@ class StartupSyncService @Inject constructor(
                 } else {
                     watchProgressRepository.hasCompletedInitialPull = true
                     watchProgressRepository.hasCompletedInitialWatchedItemsPull = true
-                    Log.d(TAG, "Skipping warm Supabase watch progress sync for profile $profileId because a tracking provider is active")
+                    Log.d(
+                        TAG,
+                        "Skipping warm Supabase watch progress sync for profile $profileId because a tracking provider is active"
+                    )
                 }
             }
             startupSyncPreferences.markFullPull(
@@ -566,7 +635,10 @@ class StartupSyncService @Inject constructor(
         if (includeProfileSettings) {
             profileSettingsSyncService.pullCurrentProfileFromRemote()
                 .onSuccess { applied ->
-                    Log.d(TAG, "Profile settings blob pull completed for profile $profileId (applied=$applied)")
+                    Log.d(
+                        TAG,
+                        "Profile settings blob pull completed for profile $profileId (applied=$applied)"
+                    )
                 }
                 .onFailure { e ->
                     Log.e(TAG, "Failed to pull profile settings blob, keeping local settings", e)
@@ -575,7 +647,10 @@ class StartupSyncService @Inject constructor(
 
         providerCredentialSyncService.syncFromRemote(profileId)
             .onSuccess { applied ->
-                Log.d(TAG, "Provider credential sync completed for profile $profileId applied=$applied")
+                Log.d(
+                    TAG,
+                    "Provider credential sync completed for profile $profileId applied=$applied"
+                )
             }
             .onFailure { error ->
                 Log.e(TAG, "Failed to sync provider credentials, keeping local credentials", error)
@@ -583,11 +658,14 @@ class StartupSyncService @Inject constructor(
 
         coroutineScope {
             val libraryJob = async {
-                val isTrackingLibrary = libraryRepository.sourceMode.first() != LibrarySourceMode.LOCAL
+                val isTrackingLibrary =
+                    libraryRepository.sourceMode.first() != LibrarySourceMode.LOCAL
                 if (!isTrackingLibrary) {
                     libraryRepository.isSyncingFromRemote = true
                     try {
-                        val result = librarySyncService.syncFromRemote(profileId).getOrElse { throw it }
+                        val result = librarySyncService.syncFromRemote(profileId).getOrElse {
+                            throw it
+                        }
                         libraryRepository.hasCompletedInitialPull = true
                         Log.d(
                             TAG,
@@ -608,12 +686,17 @@ class StartupSyncService @Inject constructor(
             val addonJob = async {
                 addonRepository.isSyncingFromRemote = true
                 try {
-                    val remoteAddonUrls = addonSyncService.getRemoteAddonUrls().getOrElse { throw it }
+                    val remoteAddonUrls = addonSyncService.getRemoteAddonUrls().getOrElse {
+                        throw it
+                    }
                     addonRepository.reconcileWithRemoteAddonUrls(
                         remoteUrls = remoteAddonUrls,
                         removeMissingLocal = true
                     )
-                    Log.d(TAG, "Pulled ${remoteAddonUrls.size} addons from remote for profile $profileId")
+                    Log.d(
+                        TAG,
+                        "Pulled ${remoteAddonUrls.size} addons from remote for profile $profileId"
+                    )
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to pull addons from remote, keeping local cache", e)
                 } finally {
@@ -633,7 +716,10 @@ class StartupSyncService @Inject constructor(
                 try {
                     collectionSyncService.pullFromRemote()
                         .onSuccess { applied ->
-                            Log.d(TAG, "Collections pull completed for profile $profileId (applied=$applied)")
+                            Log.d(
+                                TAG,
+                                "Collections pull completed for profile $profileId (applied=$applied)"
+                            )
                         }
                         .onFailure { e ->
                             Log.e(TAG, "Failed to pull collections from remote, keeping local", e)
@@ -647,10 +733,17 @@ class StartupSyncService @Inject constructor(
                 try {
                     homeCatalogSettingsSyncService.pullFromRemote()
                         .onSuccess { applied ->
-                            Log.d(TAG, "Home catalog settings pull completed for profile $profileId (applied=$applied)")
+                            Log.d(
+                                TAG,
+                                "Home catalog settings pull completed for profile $profileId (applied=$applied)"
+                            )
                         }
                         .onFailure { e ->
-                            Log.e(TAG, "Failed to pull home catalog settings from remote, keeping local", e)
+                            Log.e(
+                                TAG,
+                                "Failed to pull home catalog settings from remote, keeping local",
+                                e
+                            )
                         }
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to pull home catalog settings from remote", e)
@@ -692,13 +785,19 @@ class StartupSyncService @Inject constructor(
                 remotePlugins = remotePlugins,
                 removeMissingLocal = true
             )
-            Log.d(TAG, "Pulled ${remotePlugins.size} plugin repos from remote for profile $profileId")
+            Log.d(
+                TAG,
+                "Pulled ${remotePlugins.size} plugin repos from remote for profile $profileId"
+            )
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             Log.e(TAG, "Failed to pull plugins from remote, keeping local cache", e)
         } finally {
-            val ownsPull = synchronized(pluginSyncGenerationLock) { pluginSyncGeneration == generation }
+            val ownsPull = synchronized(pluginSyncGenerationLock) {
+                pluginSyncGeneration ==
+                    generation
+            }
             if (ownsPull) {
                 pluginManager.isSyncingFromRemote = false
                 if (coroutineContext.isActive) {
@@ -714,7 +813,10 @@ class StartupSyncService @Inject constructor(
         val isTrackingLibrary = libraryRepository.sourceMode.first() != LibrarySourceMode.LOCAL
         if (isTrackingLibrary) {
             libraryRepository.hasCompletedInitialPull = true
-            Log.d(TAG, "Skipping Movies library pull for profile $profileId because a tracking library provider is active")
+            Log.d(
+                TAG,
+                "Skipping Movies library pull for profile $profileId because a tracking library provider is active"
+            )
             return true
         }
 
@@ -745,7 +847,10 @@ class StartupSyncService @Inject constructor(
                 remoteUrls = remoteAddonUrls,
                 removeMissingLocal = true
             )
-            Log.d(TAG, "Realtime addons pull reconciled ${remoteAddonUrls.size} addons for profile $profileId")
+            Log.d(
+                TAG,
+                "Realtime addons pull reconciled ${remoteAddonUrls.size} addons for profile $profileId"
+            )
         } catch (e: Exception) {
             Log.e(TAG, "Realtime addons pull failed profile=$profileId", e)
         } finally {
@@ -759,7 +864,11 @@ class StartupSyncService @Inject constructor(
     ): Boolean {
         return try {
             Log.d(TAG, "Starting watched items delta sync for profile $profileId")
-            val watchedItemsResult = watchedItemsSyncService.syncDeltaFromRemote(profileId).getOrElse { throw it }
+            val watchedItemsResult = watchedItemsSyncService.syncDeltaFromRemote(
+                profileId
+            ).getOrElse {
+                throw it
+            }
             watchProgressRepository.hasCompletedInitialWatchedItemsPull = true
             Log.d(
                 TAG,
@@ -779,7 +888,11 @@ class StartupSyncService @Inject constructor(
     private suspend fun pullWatchedItemsSnapshot(profileId: Int) {
         try {
             Log.d(TAG, "Starting watched items snapshot sync for profile $profileId")
-            val watchedItemsResult = watchedItemsSyncService.syncSnapshotFromRemote(profileId).getOrElse { throw it }
+            val watchedItemsResult = watchedItemsSyncService.syncSnapshotFromRemote(
+                profileId
+            ).getOrElse {
+                throw it
+            }
             watchProgressRepository.hasCompletedInitialWatchedItemsPull = true
             Log.d(
                 TAG,
@@ -845,7 +958,9 @@ class StartupSyncService @Inject constructor(
                     .values.mapTo(mutableSetOf()) { it.contentId }
                 val cachedInProgress = cwEnrichmentCache.getInProgressSnapshot()
                 val cachedNextUp = cwEnrichmentCache.getNextUpSnapshot()
-                val filteredInProgress = cachedInProgress.filter { it.contentId in currentContentIds }
+                val filteredInProgress = cachedInProgress.filter {
+                    it.contentId in currentContentIds
+                }
                 val filteredNextUp = cachedNextUp.filter { it.contentId in currentContentIds }
                 if (filteredInProgress.size != cachedInProgress.size) {
                     cwEnrichmentCache.saveInProgressSnapshot(filteredInProgress, force = true)

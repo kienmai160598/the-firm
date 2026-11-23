@@ -116,15 +116,18 @@ class PluginSyncProfileTest {
             stores.getOrPut(firstArg<Int>() to secondArg<String>()) { TestPreferencesStore() }
         }
         val activeProfileId = MutableStateFlow(profileId)
-        val profiles = MutableStateFlow(listOf(
-            UserProfile(1, "Primary", "#000000"),
-            UserProfile(2, "Independent", "#000000"),
-            UserProfile(3, "Shared", "#000000", usesPrimaryPlugins = true)
-        ))
+        val profiles = MutableStateFlow(
+            listOf(
+                UserProfile(1, "Primary", "#000000"),
+                UserProfile(2, "Independent", "#000000"),
+                UserProfile(3, "Shared", "#000000", usesPrimaryPlugins = true)
+            )
+        )
         val profileManager = mockk<ProfileManager>()
         every { profileManager.activeProfileId } returns activeProfileId
         every { profileManager.profiles } returns profiles
-        every { profileManager.activeProfile } answers { profiles.value.first { it.id == activeProfileId.value } }
+        every { profileManager.activeProfile } answers
+            { profiles.value.first { it.id == activeProfileId.value } }
         val authManager = mockk<AuthManager>(relaxed = true)
         val identity = mockk<SyncClientIdentity>()
         every { identity.currentClientId() } returns "nuvio-tv-plugin-sync-test"
@@ -153,7 +156,14 @@ class PluginSyncProfileTest {
             profileManager,
             identity
         )
-        return Harness(plugins, service, activeProfileId, factory, pushedProfiles, pushedRepositoryIds)
+        return Harness(
+            plugins,
+            service,
+            activeProfileId,
+            factory,
+            pushedProfiles,
+            pushedRepositoryIds
+        )
     }
 
     private data class Harness(

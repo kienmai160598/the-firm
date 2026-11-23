@@ -110,12 +110,27 @@ internal fun ChaptersSidePanel(
                         chapter = chapter,
                         isCurrent = index == currentIndex,
                         progress = if (index == currentIndex && endMs > chapter.startMs) {
-                            ((positionMs - chapter.startMs).toFloat() / (endMs - chapter.startMs)).coerceIn(0f, 1f)
+                            ((positionMs - chapter.startMs).toFloat() / (endMs - chapter.startMs)).coerceIn(
+                                0f,
+                                1f
+                            )
                         } else {
                             null
                         },
-                        remainingMs = if (index == currentIndex) (endMs - positionMs).coerceAtLeast(0L) else null,
-                        modifier = if (index == openedAtIndex) Modifier.focusRequester(focusRequester) else Modifier,
+                        remainingMs = if (index ==
+                            currentIndex
+                        ) {
+                            (endMs - positionMs).coerceAtLeast(0L)
+                        } else {
+                            null
+                        },
+                        modifier = if (index ==
+                            openedAtIndex
+                        ) {
+                            Modifier.focusRequester(focusRequester)
+                        } else {
+                            Modifier
+                        },
                         onClick = { onChapterSelected(index) }
                     )
                 }
@@ -196,7 +211,10 @@ private fun ChapterItem(
                         )
                     }
                     Text(
-                        text = stringResource(R.string.player_chapter_remaining, formatTime(remainingMs)),
+                        text = stringResource(
+                            R.string.player_chapter_remaining,
+                            formatTime(remainingMs)
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = PlayerListItemStyle.supportingColor()
                     )

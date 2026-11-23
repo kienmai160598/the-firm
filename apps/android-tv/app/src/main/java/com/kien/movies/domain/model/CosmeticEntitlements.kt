@@ -10,9 +10,7 @@ enum class CosmeticEntitlement {
     PROFILE_AVATARS
 }
 
-data class CosmeticEntitlements(
-    val unlocked: Set<CosmeticEntitlement> = emptySet()
-) {
+data class CosmeticEntitlements(val unlocked: Set<CosmeticEntitlement> = emptySet()) {
     fun includes(entitlement: CosmeticEntitlement): Boolean = entitlement in unlocked
 
     companion object {

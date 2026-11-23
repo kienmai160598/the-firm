@@ -4,9 +4,9 @@ import android.app.Activity
 import android.os.SystemClock
 import android.util.Log
 import com.kien.movies.R
+import java.lang.ref.WeakReference
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.lang.ref.WeakReference
 
 internal fun PlayerRuntimeController.attachHostActivity(activity: Activity?) {
     hostActivityRef = activity?.let { WeakReference(it) }
@@ -100,6 +100,7 @@ internal fun PlayerRuntimeController.currentHostActivity(): Activity? {
 
 private fun String.safeStartupHost(): String {
     return runCatching {
-        android.net.Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
+        android.net.Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() }
+            ?: "unknown"
     }.getOrDefault("unknown")
 }

@@ -42,8 +42,16 @@ internal fun EpisodeShuffleDialog(
     onPlayManually: (Video) -> Unit = onPlay,
     onStartFromBeginning: (Video) -> Unit = onPlay
 ) {
-    val picker by produceState<RandomEpisodePicker?>(null, meta.videos, watchedEpisodes, episodeProgress) {
-        val updated = withContext(Dispatchers.Default) { RandomEpisodePicker(meta, watchedEpisodes, episodeProgress) }
+    val picker by produceState<RandomEpisodePicker?>(
+        null,
+        meta.videos,
+        watchedEpisodes,
+        episodeProgress
+    ) {
+        val updated =
+            withContext(Dispatchers.Default) {
+                RandomEpisodePicker(meta, watchedEpisodes, episodeProgress)
+            }
         updated.inheritHistoryFrom(value)
         value = updated
     }
@@ -56,7 +64,13 @@ internal fun EpisodeShuffleDialog(
     val unwatchedCount = readyPicker?.count(false) ?: 0
     val allCount = readyPicker?.count(true) ?: 0
     val focusAll = includeWatched || unwatchedCount == 0
-    val previewEpisode = if (starting) selectedEpisode else selectedEpisode?.let { readyPicker?.find(it.id, includeWatched) }
+    val previewEpisode = if (starting) {
+        selectedEpisode
+    } else {
+        selectedEpisode?.let {
+            readyPicker?.find(it.id, includeWatched)
+        }
+    }
 
     fun playEpisode(play: (Video) -> Unit) {
         if (starting) return
@@ -65,7 +79,12 @@ internal fun EpisodeShuffleDialog(
         starting = true
         scope.launch {
             try {
-                if (onSaveSettings(EpisodeShuffleSettings(enabled = true, includeWatched = includeWatched))) play(episode)
+                if (onSaveSettings(
+                        EpisodeShuffleSettings(enabled = true, includeWatched = includeWatched)
+                    )
+                ) {
+                    play(episode)
+                }
             } finally {
                 starting = false
             }
@@ -78,7 +97,9 @@ internal fun EpisodeShuffleDialog(
             episode = previewEpisode,
             includeWatched = includeWatched,
             isWatched = readyPicker?.isWatched(previewEpisode) == true,
-            isResume = episodeProgress[previewEpisode.season to previewEpisode.episode]?.isInProgress() == true,
+            isResume =
+                episodeProgress[previewEpisode.season to previewEpisode.episode]?.isInProgress() ==
+                    true,
             showManualPlayOption = showManualPlayOption,
             blurUnwatchedEpisodes = blurUnwatchedEpisodes,
             canShuffleAgain = (readyPicker?.count(includeWatched) ?: 0) > 1,
@@ -103,6 +124,7 @@ internal fun EpisodeShuffleDialog(
         }
         when {
             readyPicker == null -> Text(stringResource(R.string.random_episode_loading))
+
             allCount == 0 -> {
                 Text(stringResource(R.string.random_episode_empty_subtitle))
                 MoviesButton(
@@ -113,6 +135,7 @@ internal fun EpisodeShuffleDialog(
                     Text(stringResource(R.string.action_close), style = buttonLabelStyle())
                 }
             }
+
             else -> {
                 for (include in listOf(false, true)) {
                     MoviesButton(

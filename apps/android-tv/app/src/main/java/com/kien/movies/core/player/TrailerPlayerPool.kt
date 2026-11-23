@@ -115,7 +115,10 @@ class TrailerPlayerPool @Inject constructor(
         }
         settingsScope.launch {
             runCatching {
-                playerSettingsDataStore.moviesPerformanceModeEnabled.collect { cachedForceNative = it }
+                playerSettingsDataStore.moviesPerformanceModeEnabled.collect {
+                    cachedForceNative =
+                        it
+                }
             }
         }
         settingsScope.launch {
@@ -230,7 +233,9 @@ class TrailerPlayerPool @Inject constructor(
     ): Boolean {
         val player = _player ?: return false
         if (loadedVideoUrl != videoUrl) return false
-        if (!player.playWhenReady || player.playbackState == Player.STATE_ENDED || player.currentMediaItem == null) {
+        if (!player.playWhenReady || player.playbackState == Player.STATE_ENDED ||
+            player.currentMediaItem == null
+        ) {
             return false
         }
         pendingHandoff = TrailerHandoff(
@@ -250,10 +255,14 @@ class TrailerPlayerPool @Inject constructor(
         return true
     }
 
-    fun peekHandoff(itemId: String): TrailerHandoff? = pendingHandoff?.takeIf { it.itemId == itemId }
+    fun peekHandoff(itemId: String): TrailerHandoff? = pendingHandoff?.takeIf {
+        it.itemId == itemId
+    }
 
-    fun pendingHandoffFor(videoUrl: String?): TrailerHandoff? =
-        pendingHandoff?.takeIf { videoUrl != null && it.videoUrl == videoUrl && loadedVideoUrl == videoUrl }
+    fun pendingHandoffFor(videoUrl: String?): TrailerHandoff? = pendingHandoff?.takeIf {
+        videoUrl != null && it.videoUrl == videoUrl &&
+            loadedVideoUrl == videoUrl
+    }
 
     fun claimHandoff(token: Any, videoUrl: String): TrailerHandoff? {
         val handoff = pendingHandoffFor(videoUrl) ?: return null
@@ -335,10 +344,14 @@ class TrailerPlayerPool @Inject constructor(
         )
         val loadControlBuilder = DefaultLoadControl.Builder()
             .setBufferDurationsMs(
-                /* minBufferMs = */ 30_000,
-                /* maxBufferMs = */ 120_000,
-                /* bufferForPlaybackMs = */ 5_000,
-                /* bufferForPlaybackAfterRebufferMs = */ 10_000
+                /* minBufferMs = */
+                30_000,
+                /* maxBufferMs = */
+                120_000,
+                /* bufferForPlaybackMs = */
+                5_000,
+                /* bufferForPlaybackAfterRebufferMs = */
+                10_000
             )
             .setTargetBufferBytes(targetBufferMb * 1024 * 1024)
             // The byte cap must hold even before minBufferMs is reached, or a high-bitrate
@@ -346,10 +359,14 @@ class TrailerPlayerPool @Inject constructor(
             .setPrioritizeTimeOverSizeThresholds(false)
         if (forceNative) {
             val allocator = DefaultAllocator(
-                /* trimOnReset = */ true,
-                /* individualAllocationSize = */ 65536,
-                /* initialAllocationCount = */ 0,
-                /* forceNativeAllocation = */ true
+                /* trimOnReset = */
+                true,
+                /* individualAllocationSize = */
+                65536,
+                /* initialAllocationCount = */
+                0,
+                /* forceNativeAllocation = */
+                true
             )
             loadControlBuilder.setAllocator(allocator)
         }
@@ -373,7 +390,10 @@ class TrailerPlayerPool @Inject constructor(
             ) {
                 super.buildTextRenderers(
                     context,
-                    SdhFilteringTextOutput(CenteredTextOutput(output)) { cachedPlayerSettings?.subtitleStyle?.stripSdh == true },
+                    SdhFilteringTextOutput(CenteredTextOutput(output)) {
+                        cachedPlayerSettings?.subtitleStyle?.stripSdh ==
+                            true
+                    },
                     outputLooper,
                     extensionRendererMode,
                     out

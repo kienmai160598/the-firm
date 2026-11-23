@@ -45,7 +45,11 @@ class UpdateDownloadStore @Inject constructor(
     suspend fun pendingInstall(): Pair<String, File>? {
         val (tag, path) = updatePreferences.downloadedUpdate.first() ?: return null
         val file = File(path)
-        if (!file.exists() || !VersionUtils.isRemoteNewer(tag, BuildConfig.VERSION_NAME)) return null
+        if (!file.exists() ||
+            !VersionUtils.isRemoteNewer(tag, BuildConfig.VERSION_NAME)
+        ) {
+            return null
+        }
         return tag to file
     }
 

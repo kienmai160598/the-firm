@@ -11,10 +11,7 @@ data class DebridProvider(
     val capabilities: Set<DebridProviderCapability> = emptySet()
 )
 
-data class DebridServiceCredential(
-    val provider: DebridProvider,
-    val apiKey: String
-)
+data class DebridServiceCredential(val provider: DebridProvider, val apiKey: String)
 
 enum class DebridProviderCapability {
     ClientResolve,
@@ -84,8 +81,7 @@ object DebridProviders {
 
     fun instantName(id: String?): String = "${displayName(id)} Instant"
 
-    fun addonId(id: String?): String =
-        "debrid:${byId(id)?.id ?: id?.trim().orEmpty().ifBlank { "unknown" }}"
+    fun addonId(id: String?): String = "debrid:${byId(id)?.id ?: id?.trim().orEmpty().ifBlank { "unknown" }}"
 
     fun displayName(id: String?): String {
         return byId(id)?.displayName ?: id.toFallbackDisplayName()
@@ -95,19 +91,17 @@ object DebridProviders {
         return byId(id)?.shortName ?: id?.trim()?.takeIf { it.isNotBlank() }?.uppercase().orEmpty()
     }
 
-    fun configuredServices(settings: DebridSettings): List<DebridServiceCredential> =
-        registered.mapNotNull { provider ->
-            settings.apiKeyFor(provider.id)
-                .trim()
-                .takeIf { provider.visibleInUi && it.isNotBlank() }
-                ?.let { apiKey -> DebridServiceCredential(provider, apiKey) }
-        }
+    fun configuredServices(settings: DebridSettings): List<DebridServiceCredential> = registered.mapNotNull { provider ->
+        settings.apiKeyFor(provider.id)
+            .trim()
+            .takeIf { provider.visibleInUi && it.isNotBlank() }
+            ?.let { apiKey -> DebridServiceCredential(provider, apiKey) }
+    }
 
-    fun configuredResolverServices(settings: DebridSettings): List<DebridServiceCredential> =
-        configuredServices(settings).filter { credential ->
-            credential.provider.supports(DebridProviderCapability.ClientResolve) ||
-                credential.provider.supports(DebridProviderCapability.LocalTorrentResolve)
-        }
+    fun configuredResolverServices(settings: DebridSettings): List<DebridServiceCredential> = configuredServices(settings).filter { credential ->
+        credential.provider.supports(DebridProviderCapability.ClientResolve) ||
+            credential.provider.supports(DebridProviderCapability.LocalTorrentResolve)
+    }
 
     fun preferredResolverService(settings: DebridSettings): DebridServiceCredential? {
         val services = configuredResolverServices(settings)
@@ -134,5 +128,4 @@ object DebridProviders {
     }
 }
 
-fun DebridProvider.supports(capability: DebridProviderCapability): Boolean =
-    capability in capabilities
+fun DebridProvider.supports(capability: DebridProviderCapability): Boolean = capability in capabilities

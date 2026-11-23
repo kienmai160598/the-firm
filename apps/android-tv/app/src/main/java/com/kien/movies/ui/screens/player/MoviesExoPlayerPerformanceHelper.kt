@@ -48,7 +48,7 @@ object MoviesExoPlayerPerformanceHelper {
     )
 
     // ─── Constants ────────────────────────────────────────────────────────────
-    const val DEFAULT_MOVIES_ALLOCATOR_SEGMENT_SIZE = 64 * 1024        // 64 KB
+    const val DEFAULT_MOVIES_ALLOCATOR_SEGMENT_SIZE = 64 * 1024 // 64 KB
 
     // Mirrors ARENA_CHUNK_SIZE in the forked DefaultAllocatorNative, whose pool covers 512 of them.
     const val NATIVE_ARENA_CHUNK_SIZE = 64 * 1024
@@ -57,10 +57,12 @@ object MoviesExoPlayerPerformanceHelper {
     const val DEFAULT_MOVIES_TARGET_BUFFER_BYTES = DEFAULT_MOVIES_TARGET_BUFFER_MB * 1024 * 1024
     const val DEFAULT_MOVIES_MIN_BUFFER_MS = 15_000
     const val DEFAULT_MOVIES_MAX_BUFFER_MS = 45_000
+
     // Native holds its buffers in the arena rather than the java heap, so it can afford a back
     // buffer that keeps a short seek back off the network.
     const val DEFAULT_MOVIES_BACK_BUFFER_MS = 15_000
-    const val DEFAULT_MOVIES_INITIAL_BITRATE_ESTIMATE = 50_000_000L     // 50 Mbps
+    const val DEFAULT_MOVIES_INITIAL_BITRATE_ESTIMATE = 50_000_000L // 50 Mbps
+
     // Parallel chunk fetching keeps more sockets alive than the old cap of 8, which was evicting
     // live chunk connections mid playback and forcing cold reopens.
     const val MOVIES_SHARED_POOL_MAX_IDLE = 32
@@ -97,12 +99,16 @@ object MoviesExoPlayerPerformanceHelper {
     fun updateSettings(settings: PlayerSettings, context: Context) {
         val customBuffers = settings.bufferEngineEnabled
         val bufferSettings = settings.bufferSettings
-        
-        minBufferMs = if (customBuffers) bufferSettings.minBufferMs else DEFAULT_MOVIES_MIN_BUFFER_MS
-        maxBufferMs = if (customBuffers) bufferSettings.maxBufferMs else DEFAULT_MOVIES_MAX_BUFFER_MS
+
+        minBufferMs =
+            if (customBuffers) bufferSettings.minBufferMs else DEFAULT_MOVIES_MIN_BUFFER_MS
+        maxBufferMs =
+            if (customBuffers) bufferSettings.maxBufferMs else DEFAULT_MOVIES_MAX_BUFFER_MS
         bufferForPlaybackMs = if (customBuffers) bufferSettings.bufferForPlaybackMs else 3_000
-        bufferForPlaybackAfterRebufferMs = if (customBuffers) bufferSettings.bufferForPlaybackAfterRebufferMs else 3_000
-        backBufferMs = if (customBuffers) bufferSettings.backBufferDurationMs else DEFAULT_MOVIES_BACK_BUFFER_MS
+        bufferForPlaybackAfterRebufferMs =
+            if (customBuffers) bufferSettings.bufferForPlaybackAfterRebufferMs else 3_000
+        backBufferMs =
+            if (customBuffers) bufferSettings.backBufferDurationMs else DEFAULT_MOVIES_BACK_BUFFER_MS
 
         val safeLimitMb = getSafeNativeMemoryLimitMb(context)
         targetBufferSizeMb = if (customBuffers && !settings.bufferBudgetManaged) {
@@ -124,10 +130,15 @@ object MoviesExoPlayerPerformanceHelper {
                     safeLimitMb
                 }
             }
+
             customBuffers -> {
-                if (settings.bufferBudgetManaged) MemoryBudget.budgetMb
-                else MemoryBudget.effectiveBufferMb(bufferSettings.targetBufferSizeMb)
+                if (settings.bufferBudgetManaged) {
+                    MemoryBudget.budgetMb
+                } else {
+                    MemoryBudget.effectiveBufferMb(bufferSettings.targetBufferSizeMb)
+                }
             }
+
             else -> MemoryBudget.defaultBufferSizeMb
         }
         calculatedMemoryUsageMb = MemoryBudget.totalUsageMb(
@@ -185,7 +196,9 @@ object MoviesExoPlayerPerformanceHelper {
         if (cachedDevicePhysicalRamBytes > 0L) {
             return cachedDevicePhysicalRamBytes
         }
-        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as? android.app.ActivityManager
+        val activityManager = context.getSystemService(
+            Context.ACTIVITY_SERVICE
+        ) as? android.app.ActivityManager
         if (activityManager != null) {
             val memoryInfo = android.app.ActivityManager.MemoryInfo()
             activityManager.getMemoryInfo(memoryInfo)
@@ -237,13 +250,21 @@ object MoviesExoPlayerPerformanceHelper {
         val totalMem = getDevicePhysicalRamBytes(context)
         val gb = 1024L * 1024L * 1024L
         return when {
-            totalMem <= 0L -> 200 // Safe default
+            totalMem <= 0L -> 200
+
+            // Safe default
             totalMem < 1.15 * gb -> 100
+
             totalMem < 1.45 * gb -> 200
+
             totalMem < 2.3 * gb -> 200
+
             totalMem < 3.2 * gb -> 500
+
             totalMem < 4.8 * gb -> 1000
+
             totalMem < 6.8 * gb -> 1600
+
             else -> 2000
         }
     }
@@ -286,7 +307,8 @@ object MoviesExoPlayerPerformanceHelper {
                         "native arena chunk $NATIVE_ARENA_CHUNK_SIZE; native pooling is disabled"
                 )
             }
-            val allocator = DefaultAllocator(true, DEFAULT_MOVIES_ALLOCATOR_SEGMENT_SIZE, 0, enabled)
+            val allocator =
+                DefaultAllocator(true, DEFAULT_MOVIES_ALLOCATOR_SEGMENT_SIZE, 0, enabled)
             liveAllocator = allocator
             val resolvedBackBufferMs = backBufferMs.coerceAtLeast(0)
             android.util.Log.i(
@@ -364,7 +386,10 @@ object MoviesExoPlayerPerformanceHelper {
         if (!enabled) return false
         val bufferedPos = player.bufferedPosition
         val currentPos = player.currentPosition
-        val backBufferStart = (currentPos - SEEK_BACK_BUFFER_THRESHOLD_MS - SEEK_BACKWARD_TOLERANCE_MS)
+        val backBufferStart = (
+            currentPos - SEEK_BACK_BUFFER_THRESHOLD_MS -
+                SEEK_BACKWARD_TOLERANCE_MS
+            )
             .coerceAtLeast(0L)
         return positionMs in backBufferStart..bufferedPos
     }
@@ -396,9 +421,10 @@ object MoviesExoPlayerPerformanceHelper {
      * Puts the given [builder] on the shared connection pool. Playback stays on HTTP/1.1: on
      * HTTP/2 the player made about as much Java garbage as it downloaded, for no speed gain.
      */
-    fun applyNetworkOptimizations(builder: okhttp3.OkHttpClient.Builder): okhttp3.OkHttpClient.Builder =
-        builder.connectionPool(sharedConnectionPool)
-            .protocols(listOf(okhttp3.Protocol.HTTP_1_1))
+    fun applyNetworkOptimizations(
+        builder: okhttp3.OkHttpClient.Builder
+    ): okhttp3.OkHttpClient.Builder = builder.connectionPool(sharedConnectionPool)
+        .protocols(listOf(okhttp3.Protocol.HTTP_1_1))
 
     // ─── Audio Renderer ───────────────────────────────────────────────────────
 

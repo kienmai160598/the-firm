@@ -21,7 +21,10 @@ class MdbListAuthRepositoryTest {
         assertNull(request.accessToken)
         assertFalse(request.retrySafe)
         assertEquals("ABCD-EFGH", session.userCode)
-        assertEquals("https://mdblist.com/oauth/device/?user_code=ABCD-EFGH", session.verificationUriComplete)
+        assertEquals(
+            "https://mdblist.com/oauth/device/?user_code=ABCD-EFGH",
+            session.verificationUriComplete
+        )
         assertEquals(harness.now + 300_000L, session.expiresAtEpochMs)
         assertFalse(harness.store.state.value.isAuthenticated)
     }
@@ -29,7 +32,12 @@ class MdbListAuthRepositoryTest {
     @Test
     fun `missing client fails before network access`() = runTest {
         val harness = MdbListTestHarness()
-        val auth = MdbListAuthRepository(harness.http, harness.configuration.copy(clientId = ""), harness.store)
+        val auth =
+            MdbListAuthRepository(
+                harness.http,
+                harness.configuration.copy(clientId = ""),
+                harness.store
+            )
 
         val error = expectMdbListFailure<MdbListAuthException> { auth.startDeviceAuthorization() }
 
@@ -40,14 +48,23 @@ class MdbListAuthRepositoryTest {
     @Test
     fun `untrusted verification destination and invalid response do not persist authorization`() = runTest {
         for (body in listOf(
-            "{}", "not-json",
-            MdbListTestHarness.DEVICE_RESPONSE.replace("https://mdblist.com", "https://example.com"),
-            MdbListTestHarness.DEVICE_RESPONSE.replace("\"expires_in\":300", "\"expires_in\":-1"),
+            "{}",
+            "not-json",
+            MdbListTestHarness.DEVICE_RESPONSE.replace(
+                "https://mdblist.com",
+                "https://example.com"
+            ),
+            MdbListTestHarness.DEVICE_RESPONSE.replace(
+                "\"expires_in\":300",
+                "\"expires_in\":-1"
+            ),
             MdbListTestHarness.DEVICE_RESPONSE.replace("\"interval\":5", "\"interval\":0")
         )) {
             val harness = MdbListTestHarness()
             harness.reply(body = body)
-            expectMdbListFailure<MdbListAuthException> { harness.auth.startDeviceAuthorization() }
+            expectMdbListFailure<MdbListAuthException> {
+                harness.auth.startDeviceAuthorization()
+            }
             assertNull(harness.store.state.value.session)
         }
     }
@@ -57,7 +74,9 @@ class MdbListAuthRepositoryTest {
         val harness = MdbListTestHarness()
         harness.pending()
 
-        repeat(3) { assertEquals(MdbListDevicePollResult.Pending, harness.auth.pollDeviceAuthorization()) }
+        repeat(3) {
+            assertEquals(MdbListDevicePollResult.Pending, harness.auth.pollDeviceAuthorization())
+        }
 
         assertEquals(1, harness.engine.requests.size)
     }
@@ -74,7 +93,10 @@ class MdbListAuthRepositoryTest {
         val request = harness.engine.requests.last()
         assertEquals("/oauth/token/", request.path)
         assertEquals("device-secret", request.form?.get("device_code"))
-        assertEquals("urn:ietf:params:oauth:grant-type:device_code", request.form?.get("grant_type"))
+        assertEquals(
+            "urn:ietf:params:oauth:grant-type:device_code",
+            request.form?.get("grant_type")
+        )
         assertEquals("write", request.form?.get("scope"))
         assertEquals(harness.now + 5_000L, harness.store.state.value.session?.nextPollAtEpochMs)
     }
@@ -146,8 +168,14 @@ class MdbListAuthRepositoryTest {
         val harness = MdbListTestHarness()
         harness.pending()
         harness.now += 5_000L
-        harness.reply(body = MdbListTestHarness.TOKEN_RESPONSE.replace("\"scope\":\"write\"", "\"scope\":\"read\""))
-        val error = expectMdbListFailure<MdbListAuthException> { harness.auth.pollDeviceAuthorization() }
+        harness.reply(
+            body = MdbListTestHarness.TOKEN_RESPONSE.replace(
+                "\"scope\":\"write\"",
+                "\"scope\":\"read\""
+            )
+        )
+        val error =
+            expectMdbListFailure<MdbListAuthException> { harness.auth.pollDeviceAuthorization() }
         assertEquals(MdbListAuthError.INSUFFICIENT_SCOPE, error.error)
         assertFalse(harness.store.state.value.isAuthenticated)
     }
@@ -185,8 +213,12 @@ class MdbListAuthRepositoryTest {
             val harness = MdbListTestHarness()
             val scope = harness.store.scope()
             if (switchProfile) harness.store.selectProfile(2) else harness.store.cancelSession()
-            expectMdbListFailure<CancellationException> { harness.auth.startDeviceAuthorization(scope) }
-            expectMdbListFailure<CancellationException> { harness.auth.pollDeviceAuthorization(scope) }
+            expectMdbListFailure<CancellationException> {
+                harness.auth.startDeviceAuthorization(scope)
+            }
+            expectMdbListFailure<CancellationException> {
+                harness.auth.pollDeviceAuthorization(scope)
+            }
             harness.connected()
             expectMdbListFailure<CancellationException> { harness.auth.disconnect(scope) }
             assertTrue(harness.store.state.value.isAuthenticated)
@@ -213,7 +245,9 @@ class MdbListAuthRepositoryTest {
     fun `refresh response may retain previous refresh token`() = runTest {
         val harness = MdbListTestHarness()
         harness.connected(expiresIn = 1)
-        harness.reply(body = """{"access_token":"renewed","token_type":"bearer","expires_in":300}""")
+        harness.reply(
+            body = """{"access_token":"renewed","token_type":"bearer","expires_in":300}"""
+        )
 
         val current = harness.auth.authorization(harness.store.scope())
 

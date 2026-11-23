@@ -6,29 +6,31 @@ import com.kien.movies.core.auth.AuthManager
 import com.kien.movies.core.network.NetworkResult
 import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.core.sync.LibrarySyncService
-import com.kien.movies.core.tracking.TrackingListManager
-import com.kien.movies.core.tracking.TrackingLibraryProviderRegistry
-import com.kien.movies.core.tracking.TrackingMembershipApplyResult
-import com.kien.movies.core.tracking.TrackingProviderId
 import com.kien.movies.core.tracking.LOCAL_LIBRARY_LIST_KEY
+import com.kien.movies.core.tracking.TrackingLibraryProviderRegistry
+import com.kien.movies.core.tracking.TrackingListManager
+import com.kien.movies.core.tracking.TrackingMembershipApplyResult
 import com.kien.movies.core.tracking.TrackingMembershipMutationException
-import com.kien.movies.core.tracking.dispatchTrackingMembershipChanges
+import com.kien.movies.core.tracking.TrackingProviderId
 import com.kien.movies.core.tracking.TrackingRefreshIntent
+import com.kien.movies.core.tracking.dispatchTrackingMembershipChanges
 import com.kien.movies.core.tracking.effectiveLibrarySourceMode
 import com.kien.movies.core.tracking.providerId
 import com.kien.movies.data.local.LibraryPreferences
 import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.data.mediaserver.ServerItemRef
-import com.kien.movies.domain.repository.MetaRepository
 import com.kien.movies.domain.model.LibraryEntry
 import com.kien.movies.domain.model.LibraryEntryInput
+import com.kien.movies.domain.model.LibraryListPrivacy
 import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.LibrarySourceMode
 import com.kien.movies.domain.model.ListMembershipChanges
 import com.kien.movies.domain.model.ListMembershipSnapshot
 import com.kien.movies.domain.model.SavedLibraryItem
-import com.kien.movies.domain.model.LibraryListPrivacy
 import com.kien.movies.domain.repository.LibraryRepository
+import com.kien.movies.domain.repository.MetaRepository
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,19 +38,17 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -61,7 +61,7 @@ class LibraryRepositoryImpl @Inject constructor(
     private val metaRepository: MetaRepository,
     private val trackingProviders: TrackingLibraryProviderRegistry,
     private val profileManager: ProfileManager,
-    private val addonEventDispatcher: AddonEventDispatcher,
+    private val addonEventDispatcher: AddonEventDispatcher
 ) : LibraryRepository {
 
     private val syncScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -70,7 +70,10 @@ class LibraryRepositoryImpl @Inject constructor(
     private val _isSyncingFromRemote = MutableStateFlow(false)
     var isSyncingFromRemote: Boolean
         get() = _isSyncingFromRemote.value
-        set(value) { _isSyncingFromRemote.value = value }
+        set(value) {
+            _isSyncingFromRemote.value = value
+        }
+
     @Volatile
     var hasCompletedInitialPull = false
 
@@ -197,7 +200,11 @@ class LibraryRepositoryImpl @Inject constructor(
     ): TrackingMembershipApplyResult {
         val provider = sourceMode.first().providerId?.let(trackingProviders::provider)
         if (provider != null) {
-            if (item.isServerItem) throw IllegalStateException(appContext.getString(R.string.library_server_title_unsupported))
+            if (item.isServerItem) {
+                throw IllegalStateException(
+                    appContext.getString(R.string.library_server_title_unsupported)
+                )
+            }
             val currentMembership = provider.getMembershipSnapshot(item).listMembership
             val changes = ListMembershipChanges(
                 provider.toggledDefaultMembership(currentMembership)
@@ -300,13 +307,19 @@ class LibraryRepositoryImpl @Inject constructor(
                 .takeIf { providerMembership -> providerMembership.isNotEmpty() }
                 ?.let { provider to ListMembershipChanges(it) }
         }
-        if (item.isServerItem && requestedChanges.any { (_, change) -> change.desiredMembership.values.any { it } }) {
-            throw IllegalStateException(appContext.getString(R.string.library_server_title_unsupported))
+        if (item.isServerItem &&
+            requestedChanges.any { (_, change) -> change.desiredMembership.values.any { it } }
+        ) {
+            throw IllegalStateException(
+                appContext.getString(R.string.library_server_title_unsupported)
+            )
         }
         val providerChanges = if (item.isServerItem) emptyList() else requestedChanges
         val requiredConfirmations = providerChanges.mapNotNull { (provider, providerChange) ->
             provider.membershipRemovalConfirmation(item, providerChange)
-                ?.takeUnless { confirmation -> confirmation.providerId in confirmedRemovalProviders }
+                ?.takeUnless { confirmation ->
+                    confirmation.providerId in confirmedRemovalProviders
+                }
         }
         if (requiredConfirmations.isNotEmpty()) {
             return TrackingMembershipApplyResult(requiredConfirmations)
@@ -346,7 +359,12 @@ class LibraryRepositoryImpl @Inject constructor(
         return TrackingMembershipApplyResult()
     }
 
-    override suspend fun createPersonalList(name: String, description: String?, privacy: LibraryListPrivacy, source: LibrarySourceMode) {
+    override suspend fun createPersonalList(
+        name: String,
+        description: String?,
+        privacy: LibraryListPrivacy,
+        source: LibrarySourceMode
+    ) {
         selectedListManager(source).createList(name, description, privacy)
     }
 
@@ -364,7 +382,10 @@ class LibraryRepositoryImpl @Inject constructor(
         selectedListManager(source, listOf(listId)).deleteList(listId)
     }
 
-    override suspend fun reorderPersonalLists(orderedListIds: List<String>, source: LibrarySourceMode) {
+    override suspend fun reorderPersonalLists(
+        orderedListIds: List<String>,
+        source: LibrarySourceMode
+    ) {
         selectedListManager(source, orderedListIds).reorderLists(orderedListIds)
     }
 
@@ -379,7 +400,8 @@ class LibraryRepositoryImpl @Inject constructor(
         check(provider.isAuthenticated.first()) { "Connect the library account first" }
         require(keys.all(provider::recognizesListKey)) { "Invalid list for the library provider" }
         check(profileManager.activeProfileId.value == profileId) { "Profile changed" }
-        return provider.listManager ?: throw IllegalStateException("This provider does not support list management")
+        return provider.listManager
+            ?: throw IllegalStateException("This provider does not support list management")
     }
 
     override suspend fun refreshNow() {
@@ -387,7 +409,6 @@ class LibraryRepositoryImpl @Inject constructor(
             ?.let(trackingProviders::provider)
             ?.refresh(TrackingRefreshIntent.USER_INITIATED)
     }
-
 
     private fun LibraryEntryInput.toSavedLibraryItem(): SavedLibraryItem {
         return SavedLibraryItem(

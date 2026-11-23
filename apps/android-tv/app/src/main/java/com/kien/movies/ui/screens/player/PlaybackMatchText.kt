@@ -37,14 +37,22 @@ private fun audioTokens(codec: String?, profiles: List<String>): List<String> {
     return buildList {
         when {
             label.startsWith("E-AC-3") -> addAll(listOf("DD+", "DDP", "EAC3"))
+
             label == "AC-3" -> addAll(listOf("DD", "AC3"))
+
             label == "AC-4" -> addAll(listOf("AC-4", "AC4"))
+
             label.startsWith("DTS") -> {
                 add("DTS")
-                if (label.contains("HD") || profileLabels.any { it.contains("DTS-HD") }) add("DTS-HD")
+                if (label.contains("HD") ||
+                    profileLabels.any { it.contains("DTS-HD") }
+                ) {
+                    add("DTS-HD")
+                }
                 if (profileLabels.any { it.contains("MA") }) add("DTS-HD MA")
                 if (profileLabels.any { it.contains("DTS:X") }) add("DTS:X")
             }
+
             else -> add(codec)
         }
         if (label.endsWith("JOC") || profileLabels.any { it.contains("ATMOS") }) add("Atmos")
@@ -59,7 +67,8 @@ private fun channelsToken(channels: Int?): String? = when (channels) {
     else -> null
 }
 
-private val REFINE_DTS_HD_MA = Regex("""dts-?hd[ ._-]?ma\b|master[ ._-]?audio""", RegexOption.IGNORE_CASE)
+private val REFINE_DTS_HD_MA =
+    Regex("""dts-?hd[ ._-]?ma\b|master[ ._-]?audio""", RegexOption.IGNORE_CASE)
 private val REFINE_DTS_X = Regex("""\bdts[ ._:-]?x\b""", RegexOption.IGNORE_CASE)
 private val REFINE_HDR10_PLUS = Regex("""\bhdr10\+""", RegexOption.IGNORE_CASE)
 
@@ -74,21 +83,24 @@ internal fun refinePlaybackText(decoderText: String, metadata: List<String>): St
     val joined = metadata.joinToString(" ")
     val metaLower = joined.lowercase()
     val extra = mutableListOf<String>()
-    val hasEac3OrTruehd = decoderText.contains("DD+") || decoderText.contains("DDP")
-        || decoderText.contains("EAC3") || decoderText.contains("TrueHD")
+    val hasEac3OrTruehd = decoderText.contains("DD+") || decoderText.contains("DDP") ||
+        decoderText.contains("EAC3") || decoderText.contains("TrueHD")
     if (hasEac3OrTruehd && !decoderText.contains("Atmos") && metaLower.contains("atmos")) {
         extra += "Atmos"
     }
-    if (decoderText.contains("DTS-HD") && !decoderText.contains("DTS-HD MA")
-        && REFINE_DTS_HD_MA.containsMatchIn(joined)) {
+    if (decoderText.contains("DTS-HD") && !decoderText.contains("DTS-HD MA") &&
+        REFINE_DTS_HD_MA.containsMatchIn(joined)
+    ) {
         extra += "DTS-HD MA"
     }
-    if (decoderText.contains("DTS") && !decoderText.contains("DTS:X")
-        && REFINE_DTS_X.containsMatchIn(joined)) {
+    if (decoderText.contains("DTS") && !decoderText.contains("DTS:X") &&
+        REFINE_DTS_X.containsMatchIn(joined)
+    ) {
         extra += "DTS:X"
     }
-    if (decoderText.contains("HDR10") && !decoderText.contains("HDR10+")
-        && REFINE_HDR10_PLUS.containsMatchIn(joined)) {
+    if (decoderText.contains("HDR10") && !decoderText.contains("HDR10+") &&
+        REFINE_HDR10_PLUS.containsMatchIn(joined)
+    ) {
         extra += "HDR10+"
     }
     if (extra.isEmpty()) return decoderText

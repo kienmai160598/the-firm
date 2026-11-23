@@ -9,6 +9,8 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import java.io.File
+import java.nio.file.Files
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -18,8 +20,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.io.File
-import java.nio.file.Files
 
 class ProfileManagerRemovedProfileDataTest {
 
@@ -43,7 +43,8 @@ class ProfileManagerRemovedProfileDataTest {
             every { confirmExitEnabled } returns flowOf(false)
             every { startupSplashEnabled } returns flowOf(true)
         }
-        coEvery { profileDataStore.replaceAllProfiles(any()) } answers { storedProfiles.value = firstArg() }
+        coEvery { profileDataStore.replaceAllProfiles(any()) } answers
+            { storedProfiles.value = firstArg() }
         coEvery { profileDataStore.deleteProfile(any()) } answers {
             storedProfiles.value = storedProfiles.value.filterNot { it.id == firstArg<Int>() }
         }

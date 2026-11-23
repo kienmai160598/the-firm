@@ -11,11 +11,7 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-class ProtectedProfilePreferences(
-    context: Context,
-    name: String,
-    private val keyAlias: String
-) {
+class ProtectedProfilePreferences(context: Context, name: String, private val keyAlias: String) {
     private val preferences = context.getSharedPreferences(name, Context.MODE_PRIVATE)
     private val lock = Any()
 
@@ -30,7 +26,12 @@ class ProtectedProfilePreferences(
             cipher.updateAAD("$keyAlias:$key".toByteArray(Charsets.UTF_8))
             cipher.doFinal(decode(parts[1])).toString(Charsets.UTF_8)
         } catch (_: Exception) {
-            if (!preferences.edit().remove(key).commit()) throw IOException("Unable to clear protected credentials")
+            if (!preferences.edit().remove(
+                    key
+                ).commit()
+            ) {
+                throw IOException("Unable to clear protected credentials")
+            }
             null
         }
     }
@@ -51,7 +52,11 @@ class ProtectedProfilePreferences(
     }
 
     fun clear() = synchronized(lock) {
-        if (!preferences.edit().clear().commit()) throw IOException("Unable to clear protected credentials")
+        if (!preferences.edit().clear().commit()) {
+            throw IOException(
+                "Unable to clear protected credentials"
+            )
+        }
     }
 
     private fun secretKey(): SecretKey {
@@ -59,7 +64,10 @@ class ProtectedProfilePreferences(
         (keyStore.getKey(keyAlias, null) as? SecretKey)?.let { return it }
         return KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore").run {
             init(
-                KeyGenParameterSpec.Builder(keyAlias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+                KeyGenParameterSpec.Builder(
+                    keyAlias,
+                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+                )
                     .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                     .build()

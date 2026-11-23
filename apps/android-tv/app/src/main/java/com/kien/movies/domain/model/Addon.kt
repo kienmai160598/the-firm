@@ -28,8 +28,7 @@ data class Addon(
         get() = enabled
 }
 
-fun List<Addon>.enabledAddons(): List<Addon> =
-    filter { it.enabled }
+fun List<Addon>.enabledAddons(): List<Addon> = filter { it.enabled }
 
 @Immutable
 data class CatalogDescriptor(
@@ -48,8 +47,7 @@ data class CatalogDescriptor(
         get() = rawType.trim().ifBlank { type.toApiString() }
 
     /** True when the catalog is only usable through search (it has a required "search" extra). */
-    fun isSearchOnlyCatalog(): Boolean =
-        extra.any { it.name.equals("search", ignoreCase = true) && it.isRequired }
+    fun isSearchOnlyCatalog(): Boolean = extra.any { it.name.equals("search", ignoreCase = true) && it.isRequired }
 }
 
 @Immutable
@@ -62,11 +60,7 @@ data class CatalogExtra(
 )
 
 @Immutable
-data class AddonResource(
-    val name: String,
-    val types: List<String>,
-    val idPrefixes: List<String>?
-)
+data class AddonResource(val name: String, val types: List<String>, val idPrefixes: List<String>?)
 
 @Immutable
 data class AddonBehaviorHints(
@@ -76,7 +70,4 @@ data class AddonBehaviorHints(
 )
 
 @Immutable
-data class StremioAddonsConfig(
-    val issuer: String? = null,
-    val signature: String? = null
-)
+data class StremioAddonsConfig(val issuer: String? = null, val signature: String? = null)

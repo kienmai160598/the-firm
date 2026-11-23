@@ -1,10 +1,10 @@
 package com.kien.movies.ui.screens.player.autosync
 
 import com.kien.movies.ui.screens.player.SubtitleSyncCue
-import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class AutoSyncNoFitTrackerTest {
     @Test
@@ -26,8 +26,12 @@ class AutoSyncNoFitTrackerTest {
 
         assertTrue(AutoSyncNoFitTracker.isNoFit(null))
         assertFalse(AutoSyncNoFitTracker.isNoFit(fit))
-        assertTrue(AutoSyncNoFitTracker.isNoFit(fit.copy(confident = false, activityMargin = 0.004)))
-        assertFalse(AutoSyncNoFitTracker.isNoFit(fit.copy(confident = false, activityMargin = 0.015)))
+        assertTrue(
+            AutoSyncNoFitTracker.isNoFit(fit.copy(confident = false, activityMargin = 0.004))
+        )
+        assertFalse(
+            AutoSyncNoFitTracker.isNoFit(fit.copy(confident = false, activityMargin = 0.015))
+        )
     }
 
     @Test
@@ -43,27 +47,36 @@ class AutoSyncNoFitTrackerTest {
         assertFalse(
             AutoSyncNoFitTracker.confirmsNoFit(
                 fit.copy(confident = false, activityMargin = 0.015),
-                sampledReference = false,
-            ),
+                sampledReference = false
+            )
         )
     }
 
     @Test
     fun aNoFitIsConfirmedOnlyWhenEveryTriedReferenceAgreed() {
         // Every ranked reference tried, all no-fit.
-        assertTrue(AutoSyncNoFitTracker.isConfirmedNoFit(3, 3, rankedReferences = 3, abandoned = false))
+        assertTrue(
+            AutoSyncNoFitTracker.isConfirmedNoFit(3, 3, rankedReferences = 3, abandoned = false)
+        )
         // Abandoned early by the tracker after enough independent sources.
-        assertTrue(AutoSyncNoFitTracker.isConfirmedNoFit(3, 3, rankedReferences = 5, abandoned = true))
+        assertTrue(
+            AutoSyncNoFitTracker.isConfirmedNoFit(3, 3, rankedReferences = 5, abandoned = true)
+        )
         // One reference left untried.
-        assertFalse(AutoSyncNoFitTracker.isConfirmedNoFit(2, 2, rankedReferences = 3, abandoned = false))
+        assertFalse(
+            AutoSyncNoFitTracker.isConfirmedNoFit(2, 2, rankedReferences = 3, abandoned = false)
+        )
         // One pair was inconclusive or a fit.
-        assertFalse(AutoSyncNoFitTracker.isConfirmedNoFit(3, 2, rankedReferences = 3, abandoned = false))
+        assertFalse(
+            AutoSyncNoFitTracker.isConfirmedNoFit(3, 2, rankedReferences = 3, abandoned = false)
+        )
         // Never evaluated.
-        assertFalse(AutoSyncNoFitTracker.isConfirmedNoFit(0, 0, rankedReferences = 0, abandoned = false))
+        assertFalse(
+            AutoSyncNoFitTracker.isConfirmedNoFit(0, 0, rankedReferences = 0, abandoned = false)
+        )
     }
 
-    private fun activity(seed: Int) =
-        checkNotNull(AutoSyncTimelineRetimer.prepareUnitActivity(timeline(seed)))
+    private fun activity(seed: Int) = checkNotNull(AutoSyncTimelineRetimer.prepareUnitActivity(timeline(seed)))
 
     private fun timeline(seed: Int): List<SubtitleSyncCue> {
         val random = kotlin.random.Random(seed)

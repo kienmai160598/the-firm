@@ -3,12 +3,12 @@ package com.kien.movies.core.player.dvmkv
 import androidx.media3.common.C
 import androidx.media3.common.ParserException
 import androidx.media3.extractor.ExtractorInput
+import java.io.EOFException
+import java.io.IOException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.io.EOFException
-import java.io.IOException
 
 class MatroskaTruncatedTailTest {
 
@@ -17,9 +17,12 @@ class MatroskaTruncatedTailTest {
         val reader = VarintReader()
         val result = reader.readUnsignedVarint(
             FakeExtractorInput(byteArrayOf(0x00)),
-            /* allowEndOfInput = */ true,
-            /* removeLengthMask = */ false,
-            /* maximumAllowedLength = */ 4
+            /* allowEndOfInput = */
+            true,
+            /* removeLengthMask = */
+            false,
+            /* maximumAllowedLength = */
+            4
         )
         assertEquals(C.RESULT_MAX_LENGTH_EXCEEDED.toLong(), result)
     }
@@ -30,9 +33,12 @@ class MatroskaTruncatedTailTest {
         try {
             reader.readUnsignedVarint(
                 FakeExtractorInput(byteArrayOf(0x00)),
-                /* allowEndOfInput = */ false,
-                /* removeLengthMask = */ true,
-                /* maximumAllowedLength = */ 8
+                /* allowEndOfInput = */
+                false,
+                /* removeLengthMask = */
+                true,
+                /* maximumAllowedLength = */
+                8
             )
             throw AssertionError("expected ParserException")
         } catch (e: ParserException) {
@@ -81,7 +87,12 @@ class MatroskaTruncatedTailTest {
             return toRead
         }
 
-        override fun readFully(target: ByteArray, offset: Int, length: Int, allowEndOfInput: Boolean): Boolean {
+        override fun readFully(
+            target: ByteArray,
+            offset: Int,
+            length: Int,
+            allowEndOfInput: Boolean
+        ): Boolean {
             if (length == 0) return true
             if (position >= data.size) {
                 if (allowEndOfInput) return false
@@ -130,7 +141,12 @@ class MatroskaTruncatedTailTest {
             return toPeek
         }
 
-        override fun peekFully(target: ByteArray, offset: Int, length: Int, allowEndOfInput: Boolean): Boolean {
+        override fun peekFully(
+            target: ByteArray,
+            offset: Int,
+            length: Int,
+            allowEndOfInput: Boolean
+        ): Boolean {
             if (peekPosition + length > data.size) {
                 if (allowEndOfInput && peekPosition >= data.size) return false
                 throw EOFException()
@@ -174,9 +190,7 @@ class MatroskaTruncatedTailTest {
         }
     }
 
-    private class RecordingProcessor(
-        private val level1Ids: Set<Int> = emptySet()
-    ) : EbmlProcessor {
+    private class RecordingProcessor(private val level1Ids: Set<Int> = emptySet()) : EbmlProcessor {
         val seenIds = mutableListOf<Int>()
 
         override fun getElementType(id: Int): Int {

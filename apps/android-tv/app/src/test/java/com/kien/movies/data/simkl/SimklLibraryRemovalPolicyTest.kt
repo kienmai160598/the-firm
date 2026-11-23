@@ -123,6 +123,5 @@ class SimklLibraryRemovalPolicyTest {
         assertEquals(SimklLibraryMutation.Move(destination.trackingStatus), result)
     }
 
-    private fun definition(status: SimklListStatus): SimklLibraryStatusDefinition =
-        simklLibraryStatusDefinitions.single { it.status == status }
+    private fun definition(status: SimklListStatus): SimklLibraryStatusDefinition = simklLibraryStatusDefinitions.single { it.status == status }
 }

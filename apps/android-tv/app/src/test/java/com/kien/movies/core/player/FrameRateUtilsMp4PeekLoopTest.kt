@@ -3,14 +3,14 @@ package com.kien.movies.core.player
 import android.content.Context
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Test
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.net.ServerSocket
 import java.net.Socket
 import java.util.Collections
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Test
 
 // Reproduces the MP4 peek loop bug: when a server returns a 206 with fewer than 8 bytes for a
 // box-header peek, the mdat walk cannot progress and must abort instead of re-requesting the

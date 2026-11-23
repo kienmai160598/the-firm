@@ -30,7 +30,12 @@ class SimklRatingsTest {
 
         val show = movie().copy(kind = TrackingMediaKind.SHOW)
         assertTrue("shows" in body(buildSimklRatingBody(show, entry = null, rating = 7)))
-        assertTrue("anime" in body(buildSimklRatingBody(show, entry = showEntry(SimklMediaType.ANIME), rating = 7)))
+        assertTrue(
+            "anime" in
+                body(
+                    buildSimklRatingBody(show, entry = showEntry(SimklMediaType.ANIME), rating = 7)
+                )
+        )
     }
 
     @Test
@@ -43,19 +48,33 @@ class SimklRatingsTest {
         )
 
         assertEquals(6, snapshot.ratingEntry(movie())?.userRating)
-        assertNull(snapshot.ratingEntry(movie().copy(kind = TrackingMediaKind.SHOW, catalog = null)))
+        assertNull(
+            snapshot.ratingEntry(movie().copy(kind = TrackingMediaKind.SHOW, catalog = null))
+        )
 
         val updated = snapshot.withRating(movie(), rating = 9, ratedAt = "2026-11-06T10:00:00Z")
         assertEquals(9, updated?.ratingEntry(movie())?.userRating)
         assertEquals("2026-11-06T10:00:00Z", updated?.ratingEntry(movie())?.userRatedAt)
-        assertNull(updated?.withRating(movie(), rating = null, ratedAt = "x")?.ratingEntry(movie())?.userRating)
+        assertNull(
+            updated?.withRating(
+                movie(),
+                rating = null,
+                ratedAt = "x"
+            )?.ratingEntry(movie())?.userRating
+        )
         assertNull(SimklSyncSnapshot().withRating(movie(), rating = 9, ratedAt = null))
     }
 
     @Test
     fun `not found items count as failures`() {
-        assertEquals(0, simklNotFoundCount("""{"added":{"movies":1},"not_found":{"movies":[],"shows":[]}}"""))
-        assertEquals(1, simklNotFoundCount("""{"added":{"movies":0},"not_found":{"movies":[{"rating":11}]}}"""))
+        assertEquals(
+            0,
+            simklNotFoundCount("""{"added":{"movies":1},"not_found":{"movies":[],"shows":[]}}""")
+        )
+        assertEquals(
+            1,
+            simklNotFoundCount("""{"added":{"movies":0},"not_found":{"movies":[{"rating":11}]}}""")
+        )
         assertEquals(0, simklNotFoundCount(""))
     }
 
@@ -76,7 +95,11 @@ class SimklRatingsTest {
 
     private fun movieEntry() = SimklLibraryEntry(
         mediaType = SimklMediaType.MOVIES,
-        movie = SimklMedia(title = "Movie", year = 2024, ids = mapOf("imdb" to JsonPrimitive("tt1")))
+        movie = SimklMedia(
+            title = "Movie",
+            year = 2024,
+            ids = mapOf("imdb" to JsonPrimitive("tt1"))
+        )
     )
 
     private fun showEntry(type: SimklMediaType) = SimklLibraryEntry(

@@ -47,10 +47,7 @@ internal const val MemberBadgeGradientAngleDegrees = 100f
 internal const val MemberBadgeGradientWidthMultiplier = 2.4f
 internal const val MemberBadgeSweepHalfDurationMs = 2_750
 
-internal data class MemberBadgeStyle(
-    val label: String,
-    val colorStops: List<Pair<Float, Color>>
-)
+internal data class MemberBadgeStyle(val label: String, val colorStops: List<Pair<Float, Color>>)
 
 internal fun MemberTier.badgeStyle(): MemberBadgeStyle = when (this) {
     MemberTier.SUPPORTER -> MemberBadgeStyle(
@@ -61,6 +58,7 @@ internal fun MemberTier.badgeStyle(): MemberBadgeStyle = when (this) {
             1f to Color(0xFFD4843D)
         )
     )
+
     MemberTier.SUPPORTER_PLUS -> MemberBadgeStyle(
         label = "Supporter+",
         colorStops = listOf(
@@ -108,10 +106,7 @@ fun MemberBrandWordmark(
 }
 
 @Composable
-private fun LocalMemberSuffix(
-    tier: MemberTier,
-    height: Dp
-) {
+private fun LocalMemberSuffix(tier: MemberTier, height: Dp) {
     val badgeStyle = remember(tier) { tier.badgeStyle() }
     var visible by remember(tier) { mutableStateOf(false) }
     var badgeSize by remember(tier) { mutableStateOf(IntSize.Zero) }
@@ -143,10 +138,7 @@ private fun LocalMemberSuffix(
 }
 
 @Composable
-internal fun rememberMemberBadgeGradientBrush(
-    style: MemberBadgeStyle,
-    size: IntSize
-): Brush {
+internal fun rememberMemberBadgeGradientBrush(style: MemberBadgeStyle, size: IntSize): Brush {
     val gradientTransition = rememberInfiniteTransition(label = "memberBadgeGradient")
     val gradientProgress by gradientTransition.animateFloat(
         initialValue = 0f,
@@ -200,11 +192,7 @@ private fun memberBadgeGradientBrush(
 }
 
 @Composable
-private fun MemberSuffixVisibility(
-    visible: Boolean,
-    spacing: Dp,
-    content: @Composable () -> Unit
-) {
+private fun MemberSuffixVisibility(visible: Boolean, spacing: Dp, content: @Composable () -> Unit) {
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(tween(360)) +

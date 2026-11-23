@@ -12,7 +12,11 @@ class FilenameEpisodeMatcherTest {
     @Test
     fun `SxxExx pattern replaces episode number`() {
         val result = FilenameEpisodeMatcher.buildNextFilename(
-            "Show.Name.S01E03.1080p.WEB-DL.mkv", 1, 3, 1, 4
+            "Show.Name.S01E03.1080p.WEB-DL.mkv",
+            1,
+            3,
+            1,
+            4
         )
         assertEquals("Show.Name.S01E04.1080p.WEB-DL.mkv", result)
     }
@@ -20,7 +24,11 @@ class FilenameEpisodeMatcherTest {
     @Test
     fun `SxxExx pattern replaces season and episode`() {
         val result = FilenameEpisodeMatcher.buildNextFilename(
-            "Show.Name.S01E12.1080p.mkv", 1, 12, 2, 1
+            "Show.Name.S01E12.1080p.mkv",
+            1,
+            12,
+            2,
+            1
         )
         assertEquals("Show.Name.S02E01.1080p.mkv", result)
     }
@@ -28,7 +36,11 @@ class FilenameEpisodeMatcherTest {
     @Test
     fun `SxEx without zero padding`() {
         val result = FilenameEpisodeMatcher.buildNextFilename(
-            "Show.S1E3.mkv", 1, 3, 1, 4
+            "Show.S1E3.mkv",
+            1,
+            3,
+            1,
+            4
         )
         assertEquals("Show.S1E4.mkv", result)
     }
@@ -36,7 +48,11 @@ class FilenameEpisodeMatcherTest {
     @Test
     fun `lowercase sxxexx`() {
         val result = FilenameEpisodeMatcher.buildNextFilename(
-            "show.s01e03.web.mkv", 1, 3, 1, 4
+            "show.s01e03.web.mkv",
+            1,
+            3,
+            1,
+            4
         )
         assertEquals("show.s01e04.web.mkv", result)
     }
@@ -44,7 +60,11 @@ class FilenameEpisodeMatcherTest {
     @Test
     fun `1x03 pattern`() {
         val result = FilenameEpisodeMatcher.buildNextFilename(
-            "Show.1x03.DVDRip.mkv", 1, 3, 1, 4
+            "Show.1x03.DVDRip.mkv",
+            1,
+            3,
+            1,
+            4
         )
         assertEquals("Show.1x04.DVDRip.mkv", result)
     }
@@ -52,7 +72,11 @@ class FilenameEpisodeMatcherTest {
     @Test
     fun `01x03 pattern with zero padding`() {
         val result = FilenameEpisodeMatcher.buildNextFilename(
-            "Show.01x03.DVDRip.mkv", 1, 3, 1, 4
+            "Show.01x03.DVDRip.mkv",
+            1,
+            3,
+            1,
+            4
         )
         assertEquals("Show.01x04.DVDRip.mkv", result)
     }
@@ -60,7 +84,11 @@ class FilenameEpisodeMatcherTest {
     @Test
     fun `EP03 pattern`() {
         val result = FilenameEpisodeMatcher.buildNextFilename(
-            "Anime.EP03.720p.mkv", null, 3, null, 4
+            "Anime.EP03.720p.mkv",
+            null,
+            3,
+            null,
+            4
         )
         assertEquals("Anime.EP04.720p.mkv", result)
     }
@@ -68,7 +96,11 @@ class FilenameEpisodeMatcherTest {
     @Test
     fun `EP dot 03 pattern`() {
         val result = FilenameEpisodeMatcher.buildNextFilename(
-            "Anime.EP.03.720p.mkv", null, 3, null, 4
+            "Anime.EP.03.720p.mkv",
+            null,
+            3,
+            null,
+            4
         )
         assertEquals("Anime.EP.04.720p.mkv", result)
     }
@@ -76,7 +108,11 @@ class FilenameEpisodeMatcherTest {
     @Test
     fun `E03 pattern`() {
         val result = FilenameEpisodeMatcher.buildNextFilename(
-            "Show.E03.mkv", null, 3, null, 4
+            "Show.E03.mkv",
+            null,
+            3,
+            null,
+            4
         )
         assertEquals("Show.E04.mkv", result)
     }
@@ -84,7 +120,11 @@ class FilenameEpisodeMatcherTest {
     @Test
     fun `movie filename returns null`() {
         val result = FilenameEpisodeMatcher.buildNextFilename(
-            "The.Matrix.1999.2160p.UHD.BluRay.mkv", null, 0, null, 0
+            "The.Matrix.1999.2160p.UHD.BluRay.mkv",
+            null,
+            0,
+            null,
+            0
         )
         assertNull(result)
     }
@@ -92,7 +132,11 @@ class FilenameEpisodeMatcherTest {
     @Test
     fun `1920x1080 is not matched as season x episode`() {
         val result = FilenameEpisodeMatcher.buildNextFilename(
-            "Movie.1920x1080.BluRay.mkv", 1920, 1080, 1920, 1081
+            "Movie.1920x1080.BluRay.mkv",
+            1920,
+            1080,
+            1920,
+            1081
         )
         assertNull(result)
     }
@@ -100,7 +144,11 @@ class FilenameEpisodeMatcherTest {
     @Test
     fun `zero padding preserved`() {
         val result = FilenameEpisodeMatcher.buildNextFilename(
-            "Show.S01E03.mkv", 1, 3, 1, 10
+            "Show.S01E03.mkv",
+            1,
+            3,
+            1,
+            10
         )
         assertEquals("Show.S01E10.mkv", result)
     }

@@ -26,17 +26,19 @@ interface SimklSyncRemote {
     suspend fun fetchPlayback(): List<SimklPlaybackSession>
 }
 
-class SimklApiSyncRemote @Inject constructor(
-    private val client: SimklApiClient
-) : SimklSyncRemote {
-    private val json = Json { ignoreUnknownKeys = true; explicitNulls = false }
+class SimklApiSyncRemote @Inject constructor(private val client: SimklApiClient) : SimklSyncRemote {
+    private val json = Json {
+        ignoreUnknownKeys = true
+        explicitNulls = false
+    }
 
     override suspend fun fetchActivities(): SimklActivities = client.execute(
         SimklApiRequest(SimklHttpMethod.GET, "/sync/activities")
     ).body.decode()
 
     override suspend fun fetchAllItems(request: SimklAllItemsRequest): SimklAllItemsResponse {
-        val path = request.type?.let { type -> "/sync/all-items/${type.apiValue}" } ?: "/sync/all-items"
+        val path =
+            request.type?.let { type -> "/sync/all-items/${type.apiValue}" } ?: "/sync/all-items"
         val query = when (request) {
             is SimklAllItemsRequest.Bootstrap -> mapOf(
                 "extended" to "full_anime_seasons",
@@ -45,6 +47,7 @@ class SimklApiSyncRemote @Inject constructor(
                 "include_all_episodes" to "yes",
                 "language" to "en"
             )
+
             is SimklAllItemsRequest.Changes -> mapOf(
                 "date_from" to request.dateFrom,
                 "extended" to "full_anime_seasons",
@@ -53,6 +56,7 @@ class SimklApiSyncRemote @Inject constructor(
                 "include_all_episodes" to "yes",
                 "language" to "en"
             )
+
             SimklAllItemsRequest.CurrentIds -> mapOf("extended" to "simkl_ids_only")
         }
         return client.execute(

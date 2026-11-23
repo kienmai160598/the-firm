@@ -25,7 +25,7 @@ import kotlin.math.max
 /** Observes embedded text timestamps while forwarding the extractor output unchanged to Media3. */
 internal class AutoSyncExtractorsFactory(
     private val delegate: ExtractorsFactory,
-    private val sourceKey: String,
+    private val sourceKey: String
 ) : ExtractorsFactory {
     init {
         EmbeddedSubtitleCueStore.reset(sourceKey)
@@ -33,19 +33,17 @@ internal class AutoSyncExtractorsFactory(
 
     override fun createExtractors(): Array<Extractor> = wrap(delegate.createExtractors())
 
-    override fun createExtractors(uri: Uri, responseHeaders: Map<String, List<String>>): Array<Extractor> =
-        wrap(delegate.createExtractors(uri, responseHeaders))
+    override fun createExtractors(
+        uri: Uri,
+        responseHeaders: Map<String, List<String>>
+    ): Array<Extractor> = wrap(delegate.createExtractors(uri, responseHeaders))
 
-    private fun wrap(extractors: Array<Extractor>): Array<Extractor> =
-        Array<Extractor>(extractors.size) { index ->
-            ObservingExtractor(extractors[index], sourceKey)
-        }
+    private fun wrap(extractors: Array<Extractor>): Array<Extractor> = Array<Extractor>(extractors.size) { index ->
+        ObservingExtractor(extractors[index], sourceKey)
+    }
 }
 
-private class ObservingExtractor(
-    private val delegate: Extractor,
-    private val sourceKey: String,
-) : RewrappableExtractor {
+private class ObservingExtractor(private val delegate: Extractor, private val sourceKey: String) : RewrappableExtractor {
     override val wrappedExtractor: Extractor get() = delegate
     override fun rewrap(inner: Extractor): Extractor = ObservingExtractor(inner, sourceKey)
     override fun sniff(input: ExtractorInput) = delegate.sniff(input)
@@ -56,7 +54,7 @@ private class ObservingExtractor(
     override fun seek(position: Long, timeUs: Long) {
         EmbeddedSubtitleCueStore.beginNewGeneration(
             sourceKey = sourceKey,
-            targetTimeMs = timeUs.takeIf { it != C.TIME_UNSET }?.div(1_000L),
+            targetTimeMs = timeUs.takeIf { it != C.TIME_UNSET }?.div(1_000L)
         )
         delegate.seek(position, timeUs)
     }
@@ -67,7 +65,7 @@ private class ObservingExtractor(
 
 private class ObservingExtractorOutput(
     private val delegate: ExtractorOutput,
-    private val sourceKey: String,
+    private val sourceKey: String
 ) : ExtractorOutput {
     private val textTracks = mutableMapOf<Int, TrackOutput>()
 
@@ -75,7 +73,9 @@ private class ObservingExtractorOutput(
         val output = delegate.track(id, type)
         return if (type == C.TRACK_TYPE_TEXT) {
             textTracks.getOrPut(id) { ObservingTextTrackOutput(output, sourceKey, id) }
-        } else output
+        } else {
+            output
+        }
     }
 
     override fun endTracks() = delegate.endTracks()
@@ -85,7 +85,7 @@ private class ObservingExtractorOutput(
 private class ObservingTextTrackOutput(
     private val delegate: TrackOutput,
     private val sourceKey: String,
-    private val trackId: Int,
+    private val trackId: Int
 ) : TrackOutput {
     private val cueDecoder = CueDecoder()
     private var format: Format? = null
@@ -100,7 +100,12 @@ private class ObservingTextTrackOutput(
         delegate.format(format)
     }
 
-    override fun sampleData(input: DataReader, length: Int, allowEndOfInput: Boolean, sampleDataPart: Int): Int {
+    override fun sampleData(
+        input: DataReader,
+        length: Int,
+        allowEndOfInput: Boolean,
+        sampleDataPart: Int
+    ): Int {
         if (sampleDataPart != TrackOutput.SAMPLE_DATA_PART_MAIN) {
             return delegate.sampleData(input, length, allowEndOfInput, sampleDataPart)
         }
@@ -117,11 +122,21 @@ private class ObservingTextTrackOutput(
     }
 
     override fun sampleData(data: ParsableByteArray, length: Int, sampleDataPart: Int) {
-        if (sampleDataPart == TrackOutput.SAMPLE_DATA_PART_MAIN) append(data.data, data.position, length)
+        if (sampleDataPart ==
+            TrackOutput.SAMPLE_DATA_PART_MAIN
+        ) {
+            append(data.data, data.position, length)
+        }
         delegate.sampleData(data, length, sampleDataPart)
     }
 
-    override fun sampleMetadata(timeUs: Long, flags: Int, size: Int, offset: Int, cryptoData: TrackOutput.CryptoData?) {
+    override fun sampleMetadata(
+        timeUs: Long,
+        flags: Int,
+        size: Int,
+        offset: Int,
+        cryptoData: TrackOutput.CryptoData?
+    ) {
         observe(timeUs, size, offset)
         delegate.sampleMetadata(timeUs, flags, size, offset, cryptoData)
         start = (end - offset).coerceIn(start, end)
@@ -141,7 +156,9 @@ private class ObservingTextTrackOutput(
         if (currentFormat?.sampleMimeType == MimeTypes.APPLICATION_MEDIA3_CUES &&
             sampleStart >= start && sampleStart + size <= end
         ) {
-            val decoded = runCatching { cueDecoder.decode(timeUs, buffered, sampleStart, size) }.getOrNull()
+            val decoded = runCatching {
+                cueDecoder.decode(timeUs, buffered, sampleStart, size)
+            }.getOrNull()
             if (decoded != null) {
                 val startUs = decoded.startTimeUs.takeIf { it != C.TIME_UNSET } ?: timeUs
                 val endUs = when {
@@ -159,7 +176,13 @@ private class ObservingTextTrackOutput(
 
     private fun record(startUs: Long, endUs: Long, text: String) {
         val startMs = startUs / 1_000L
-        val endMs = if (endUs == C.TIME_UNSET || endUs <= startUs) startMs + 5_000L else max(startMs + 1, endUs / 1_000L)
+        val endMs = if (endUs == C.TIME_UNSET ||
+            endUs <= startUs
+        ) {
+            startMs + 5_000L
+        } else {
+            max(startMs + 1, endUs / 1_000L)
+        }
         val currentFormat = format
         EmbeddedSubtitleCueStore.record(
             sourceKey = sourceKey,
@@ -168,7 +191,7 @@ private class ObservingTextTrackOutput(
             label = currentFormat?.label,
             selectionFlags = currentFormat?.selectionFlags ?: 0,
             roleFlags = currentFormat?.roleFlags ?: 0,
-            cue = SubtitleSyncCue(startTimeMs = startMs, endTimeMs = endMs, text = text),
+            cue = SubtitleSyncCue(startTimeMs = startMs, endTimeMs = endMs, text = text)
         )
     }
 
@@ -180,10 +203,13 @@ private class ObservingTextTrackOutput(
             buffered.copyInto(buffered, 0, start, end)
             start = 0
             end = retained
-            if (buffered.size < required) buffered = buffered.copyOf(max(required, max(buffered.size * 2, 256)))
+            if (buffered.size <
+                required
+            ) {
+                buffered = buffered.copyOf(max(required, max(buffered.size * 2, 256)))
+            }
         }
         data.copyInto(buffered, end, offset, offset + length)
         end += length
     }
 }
-

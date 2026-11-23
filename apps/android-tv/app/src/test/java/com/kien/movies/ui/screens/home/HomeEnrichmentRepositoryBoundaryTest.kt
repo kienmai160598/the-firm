@@ -16,6 +16,9 @@ import com.kien.movies.domain.repository.AddonRepository
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import java.io.IOException
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -30,9 +33,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import retrofit2.Response
-import java.io.IOException
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * The retry depends on a contract between two classes: MetaRepositoryImpl reports a transport
@@ -111,7 +111,12 @@ class HomeEnrichmentRepositoryBoundaryTest {
         val addonRepository = mockk<AddonRepository>(relaxed = true) {
             every { getInstalledAddons() } returns flowOf(listOf(metaAddon()))
         }
-        return MetaRepositoryImpl(context = context, api = api, addonRepository = addonRepository, serverCatalog = mockk(relaxed = true))
+        return MetaRepositoryImpl(
+            context = context,
+            api = api,
+            addonRepository = addonRepository,
+            serverCatalog = mockk(relaxed = true)
+        )
     }
 
     /** Deliberately not the catalog source, or the lookup short-circuits as source-sufficient. */

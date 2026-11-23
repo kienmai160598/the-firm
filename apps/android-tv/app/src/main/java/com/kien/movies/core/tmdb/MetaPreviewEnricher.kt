@@ -6,6 +6,8 @@ import com.kien.movies.domain.model.MDBListSettings
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.TmdbSettings
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -13,8 +15,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "MetaPreviewEnricher"
 private const val ENRICHMENT_CONCURRENCY = 4

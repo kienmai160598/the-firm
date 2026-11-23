@@ -105,10 +105,15 @@ class LivePlaybackUiPolicyTest {
         )
     }
 
-    private fun growth(vararg readings: Pair<Long, Boolean>, mediaKey: String = "a"): LivePlaybackUiPolicy.DurationGrowth =
-        readings.fold(LivePlaybackUiPolicy.DurationGrowth()) { state, (durationMs, fromRequestedMedia) ->
-            LivePlaybackUiPolicy.nextDurationGrowth(state, mediaKey, durationMs, fromRequestedMedia)
-        }
+    private fun growth(
+        vararg readings: Pair<Long, Boolean>,
+        mediaKey: String = "a"
+    ): LivePlaybackUiPolicy.DurationGrowth = readings.fold(LivePlaybackUiPolicy.DurationGrowth()) {
+            state,
+            (durationMs, fromRequestedMedia)
+        ->
+        LivePlaybackUiPolicy.nextDurationGrowth(state, mediaKey, durationMs, fromRequestedMedia)
+    }
 
     @Test
     fun `fixed vod duration does not count as growing`() {

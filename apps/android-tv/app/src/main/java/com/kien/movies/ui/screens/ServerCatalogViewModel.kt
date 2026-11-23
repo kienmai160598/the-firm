@@ -23,7 +23,9 @@ class ServerCatalogViewModel @Inject constructor(
     private val serverCatalog: ServerCatalog
 ) : ViewModel() {
     private val collection = ServerItemRef.parse(savedStateHandle.get<String>("itemId"))
-    private val connectionId = savedStateHandle.get<String>("addonId")?.let(ServerCatalog::connectionIdFromAddonId)
+    private val connectionId = savedStateHandle.get<String>(
+        "addonId"
+    )?.let(ServerCatalog::connectionIdFromAddonId)
     private val catalogId = savedStateHandle.get<String>("catalogId")
     private val _row = MutableStateFlow<CatalogRow?>(null)
     private val _failed = MutableStateFlow(false)
@@ -35,7 +37,12 @@ class ServerCatalogViewModel @Inject constructor(
             _row.value = loadOrNull {
                 when {
                     collection != null -> serverCatalog.collectionRow(collection)
-                    connectionId != null && catalogId != null -> serverCatalog.row(connectionId, catalogId)
+
+                    connectionId != null && catalogId != null -> serverCatalog.row(
+                        connectionId,
+                        catalogId
+                    )
+
                     else -> null
                 }
             }
@@ -51,17 +58,17 @@ class ServerCatalogViewModel @Inject constructor(
             val page = loadOrNull { serverCatalog.page(current, current.nextCatalogSkip()) }
             _row.update { row ->
                 row ?: return@update null
-                page?.let(row::mergeCatalogPage)?.copy(isLoading = false) ?: row.copy(isLoading = false, hasMore = false)
+                page?.let(row::mergeCatalogPage)?.copy(isLoading = false)
+                    ?: row.copy(isLoading = false, hasMore = false)
             }
         }
     }
 
-    private suspend fun loadOrNull(block: suspend () -> CatalogRow?): CatalogRow? =
-        try {
-            block()
-        } catch (error: CancellationException) {
-            throw error
-        } catch (_: Exception) {
-            null
-        }
+    private suspend fun loadOrNull(block: suspend () -> CatalogRow?): CatalogRow? = try {
+        block()
+    } catch (error: CancellationException) {
+        throw error
+    } catch (_: Exception) {
+        null
+    }
 }

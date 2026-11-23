@@ -87,7 +87,9 @@ class PlayerStreamRouteStateTest {
         assertEquals("Six + Seven: 100% Done", args.initialEpisodeTitle)
         assertEquals(
             "Bearer a+b==",
-            Json.parseToJsonElement(args.headersJson!!).jsonObject["Authorization"]!!.jsonPrimitive.content
+            Json.parseToJsonElement(
+                args.headersJson!!
+            ).jsonObject["Authorization"]!!.jsonPrimitive.content
         )
         assertEquals("1080p WEB", args.streamName)
         assertEquals("Show S01E06 [1080p] 100%.mkv", args.filename)

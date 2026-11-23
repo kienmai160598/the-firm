@@ -19,10 +19,7 @@ internal enum class SimklSeedDiagnosticFlag {
     TIMESTAMP_TIE
 }
 
-internal data class SimklDiagnosticEpisode(
-    val season: Int?,
-    val episode: Int
-) {
+internal data class SimklDiagnosticEpisode(val season: Int?, val episode: Int) {
     fun display(): String = season?.let { value -> "S${value}E$episode" } ?: "E$episode"
 }
 
@@ -215,8 +212,16 @@ internal fun buildSimklSeedDiagnosticReport(
                     add(SimklSeedDiagnosticFlag.PLAYBACK_PRESENT)
                 }
                 if (
-                    (entry.lastWatched != null && parseSimklEpisodeMarker(entry.lastWatched) == null) ||
-                    (entry.nextToWatch != null && parseSimklEpisodeMarker(entry.nextToWatch) == null)
+                    (
+                        entry.lastWatched != null && parseSimklEpisodeMarker(
+                            entry.lastWatched
+                        ) == null
+                        ) ||
+                    (
+                        entry.nextToWatch != null && parseSimklEpisodeMarker(
+                            entry.nextToWatch
+                        ) == null
+                        )
                 ) {
                     add(SimklSeedDiagnosticFlag.SUMMARY_MARKER_UNPARSEABLE)
                 }
@@ -264,11 +269,9 @@ internal fun buildSimklSeedDiagnosticReport(
 
 private fun String.diagnosticKey(): String = trim().lowercase(Locale.ROOT)
 
-private fun com.kien.movies.domain.model.WatchedItem?.toDiagnosticEpisode(): SimklDiagnosticEpisode? =
-    this?.episode?.let { episode -> SimklDiagnosticEpisode(season, episode) }
+private fun com.kien.movies.domain.model.WatchedItem?.toDiagnosticEpisode(): SimklDiagnosticEpisode? = this?.episode?.let { episode -> SimklDiagnosticEpisode(season, episode) }
 
-private fun WatchProgress?.toDiagnosticEpisode(): SimklDiagnosticEpisode? =
-    this?.episode?.let { episode -> SimklDiagnosticEpisode(season, episode) }
+private fun WatchProgress?.toDiagnosticEpisode(): SimklDiagnosticEpisode? = this?.episode?.let { episode -> SimklDiagnosticEpisode(season, episode) }
 
 private fun parseSimklEpisodeMarker(value: String?): SimklDiagnosticEpisode? {
     val match = value?.trim()?.let(SIMKL_EPISODE_MARKER::matchEntire) ?: return null

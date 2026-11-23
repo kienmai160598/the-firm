@@ -1,8 +1,8 @@
 package com.kien.movies.core.network
 
-import okhttp3.Dns
 import java.net.Inet4Address
 import java.net.InetAddress
+import okhttp3.Dns
 
 /**
  * Custom DNS that reorders resolved addresses to place IPv4 (Inet4Address)

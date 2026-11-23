@@ -36,8 +36,13 @@ object PluginModule {
         externalExtensionRunner: ExternalExtensionRunner
     ): PluginManager {
         return PluginManager(
-            dataStore, runtime, pluginSyncService, authManager,
-            externalRepoParser, externalExtensionLoader, externalExtensionRunner
+            dataStore,
+            runtime,
+            pluginSyncService,
+            authManager,
+            externalRepoParser,
+            externalExtensionLoader,
+            externalExtensionRunner
         )
     }
 }

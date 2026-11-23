@@ -1,9 +1,9 @@
 package com.kien.movies.data.remote.api
 
-import com.kien.movies.data.remote.dto.TorboxCreateTorrentDataDto
-import com.kien.movies.data.remote.dto.TorboxCloudItemDto
 import com.kien.movies.data.remote.dto.TorboxCachedItemDto
 import com.kien.movies.data.remote.dto.TorboxCheckCachedRequestDto
+import com.kien.movies.data.remote.dto.TorboxCloudItemDto
+import com.kien.movies.data.remote.dto.TorboxCreateTorrentDataDto
 import com.kien.movies.data.remote.dto.TorboxDeviceAuthorizationDto
 import com.kien.movies.data.remote.dto.TorboxDeviceTokenDto
 import com.kien.movies.data.remote.dto.TorboxDeviceTokenRequestDto
@@ -22,9 +22,7 @@ import retrofit2.http.Query
 
 interface TorboxApi {
     @GET("v1/api/user/me")
-    suspend fun getUser(
-        @Header("Authorization") authorization: String
-    ): Response<ResponseBody>
+    suspend fun getUser(@Header("Authorization") authorization: String): Response<ResponseBody>
 
     @GET("v1/api/user/auth/device/start")
     suspend fun startDeviceAuthorization(

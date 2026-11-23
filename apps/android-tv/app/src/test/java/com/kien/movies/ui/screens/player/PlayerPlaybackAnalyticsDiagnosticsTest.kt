@@ -16,8 +16,14 @@ class PlayerPlaybackAnalyticsDiagnosticsTest {
 
     @Test
     fun `fully buffered or empty duration reports 100`() {
-        assertEquals(100, safeBufferedPercentage(bufferedPositionMs = 10_000L, durationMs = 10_000L))
-        assertEquals(100, safeBufferedPercentage(bufferedPositionMs = 12_000L, durationMs = 10_000L))
+        assertEquals(
+            100,
+            safeBufferedPercentage(bufferedPositionMs = 10_000L, durationMs = 10_000L)
+        )
+        assertEquals(
+            100,
+            safeBufferedPercentage(bufferedPositionMs = 12_000L, durationMs = 10_000L)
+        )
         assertEquals(100, safeBufferedPercentage(bufferedPositionMs = 0L, durationMs = 0L))
     }
 

@@ -15,7 +15,9 @@ import com.kien.movies.domain.model.MetaTrailer
 internal fun coerceStringList(value: Any?): List<String> {
     return when (value) {
         null -> emptyList()
+
         is String -> listOf(value)
+
         is List<*> -> value.mapNotNull { entry ->
             when (entry) {
                 is String -> entry
@@ -23,10 +25,12 @@ internal fun coerceStringList(value: Any?): List<String> {
                 else -> null
             }
         }
+
         is Map<*, *> -> {
             val name = value["name"] as? String
             if (!name.isNullOrBlank()) listOf(name) else emptyList()
         }
+
         else -> emptyList()
     }.mapNotNull { it.trim().takeIf(String::isNotBlank) }
 }
@@ -41,7 +45,12 @@ internal fun mapPeople(
         if (name.isBlank()) return@mapNotNull null
         MetaCastMember(
             name = name,
-            character = if (forceRole) roleFallback else person.character?.takeIf { it.isNotBlank() } ?: roleFallback,
+            character = if (forceRole) {
+                roleFallback
+            } else {
+                person.character?.takeIf { it.isNotBlank() }
+                    ?: roleFallback
+            },
             photo = person.photo?.takeIf { it.isNotBlank() },
             tmdbId = person.tmdbId
         )
@@ -87,9 +96,7 @@ internal fun collectTrailerYtIds(
         .distinct()
 }
 
-internal fun mapReleaseDates(
-    envelope: MetaReleaseDatesEnvelopeDto?
-): List<MetaReleaseDateCountry> {
+internal fun mapReleaseDates(envelope: MetaReleaseDatesEnvelopeDto?): List<MetaReleaseDateCountry> {
     return envelope?.results.orEmpty().mapNotNull(::mapReleaseDateCountry)
 }
 

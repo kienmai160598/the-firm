@@ -11,33 +11,33 @@ import androidx.compose.ui.text.withStyle
 
 private val assOverrideBlock = Regex("""\{[^}]*\}""")
 private val assAlignment = Regex("""\\an([1-9])(?!\d)""")
-private val assStyleTag = Regex("""\\(?:([ibu])(\d*)(?![a-z])|(1?c)(?:&H([0-9A-Fa-f]{1,8})&?|(?![a-z]))|r(?![a-z]))""")
+private val assStyleTag =
+    Regex("""\\(?:([ibu])(\d*)(?![a-z])|(1?c)(?:&H([0-9A-Fa-f]{1,8})&?|(?![a-z]))|r(?![a-z]))""")
 
-internal fun parseMpvSubtitleText(text: String): StyledSubtitleCues =
-    styledSubtitleCues(
-        text.split('\n').map(String::trim).filter { it.isNotEmpty() }.map { event ->
-            val alignment = assOverrideBlock.findAll(event)
-                .flatMap { block -> assAlignment.findAll(block.value) }
-                .lastOrNull()
-                ?.groupValues
-                ?.get(1)
-                ?.toInt()
-                ?: 2
-            StyledSubtitleBlock(
-                text = event.toAnnotatedEvent(),
-                vertical = when (alignment) {
-                    in 7..9 -> SubtitleVerticalPosition.TOP
-                    in 4..6 -> SubtitleVerticalPosition.MIDDLE
-                    else -> SubtitleVerticalPosition.BOTTOM
-                },
-                horizontal = when (alignment % 3) {
-                    1 -> SubtitleHorizontalPosition.START
-                    0 -> SubtitleHorizontalPosition.END
-                    else -> SubtitleHorizontalPosition.CENTER
-                }
-            )
-        }
-    )
+internal fun parseMpvSubtitleText(text: String): StyledSubtitleCues = styledSubtitleCues(
+    text.split('\n').map(String::trim).filter { it.isNotEmpty() }.map { event ->
+        val alignment = assOverrideBlock.findAll(event)
+            .flatMap { block -> assAlignment.findAll(block.value) }
+            .lastOrNull()
+            ?.groupValues
+            ?.get(1)
+            ?.toInt()
+            ?: 2
+        StyledSubtitleBlock(
+            text = event.toAnnotatedEvent(),
+            vertical = when (alignment) {
+                in 7..9 -> SubtitleVerticalPosition.TOP
+                in 4..6 -> SubtitleVerticalPosition.MIDDLE
+                else -> SubtitleVerticalPosition.BOTTOM
+            },
+            horizontal = when (alignment % 3) {
+                1 -> SubtitleHorizontalPosition.START
+                0 -> SubtitleHorizontalPosition.END
+                else -> SubtitleHorizontalPosition.CENTER
+            }
+        )
+    }
+)
 
 private fun String.toAnnotatedEvent(): AnnotatedString = buildAnnotatedString {
     var italic = false
@@ -76,7 +76,9 @@ private fun String.toAnnotatedEvent(): AnnotatedString = buildAnnotatedString {
                         "u" -> underline = enabled
                     }
                 }
+
                 colorTag.isNotEmpty() -> color = bgr.takeIf { it.isNotEmpty() }?.let(::assBgrColor)
+
                 else -> {
                     italic = false
                     bold = false

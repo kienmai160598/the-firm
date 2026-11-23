@@ -106,12 +106,11 @@ class MoviesFrameMetricsBenchmark {
      * journey is the usual one on an emulator without stream sources: the detail screen
      * trailer is not reachable there, so the journey degrades by design.
      */
-    private fun degradedAllowed(journey: Journey): Boolean =
-        instrumentationArg("degradedAllowed")
-            ?.split(",")
-            ?.map { it.trim() }
-            ?.filter { it.isNotEmpty() }
-            ?.contains(journey.key) == true
+    private fun degradedAllowed(journey: Journey): Boolean = instrumentationArg("degradedAllowed")
+        ?.split(",")
+        ?.map { it.trim() }
+        ?.filter { it.isNotEmpty() }
+        ?.contains(journey.key) == true
 
     private companion object {
         /**

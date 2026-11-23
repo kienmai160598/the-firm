@@ -14,7 +14,7 @@ internal enum class NetworkTransport { Wifi, Ethernet, Cellular, Vpn }
  */
 internal fun networkConnectionKind(
     active: Set<NetworkTransport>?,
-    others: () -> List<Set<NetworkTransport>> = { emptyList() },
+    others: () -> List<Set<NetworkTransport>> = { emptyList() }
 ): NetworkConnectionKind {
     if (active == null) return NetworkConnectionKind.Offline
     physicalConnection(active)?.let { return it }

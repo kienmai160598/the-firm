@@ -3,6 +3,7 @@ package com.kien.movies.ui.screens.profile
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kien.movies.core.build.BoxBuild
 import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.core.sync.ProfileSettingsSyncService
 import com.kien.movies.core.sync.ProfileSyncService
@@ -14,10 +15,10 @@ import com.kien.movies.data.remote.supabase.ProfileBackgroundCatalogItem
 import com.kien.movies.data.remote.supabase.ProfileBackgroundRepository
 import com.kien.movies.data.remote.supabase.SupabaseProfilePinVerifyResult
 import com.kien.movies.data.repository.MemberAccessRepository
-import com.kien.movies.core.build.BoxBuild
 import com.kien.movies.domain.model.CosmeticEntitlement
 import com.kien.movies.domain.model.UserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,13 +33,9 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 sealed interface CreateProfileResult {
-    data class Created(
-        val profile: UserProfile,
-        val settingsCopyResult: Result<Unit>?
-    ) : CreateProfileResult
+    data class Created(val profile: UserProfile, val settingsCopyResult: Result<Unit>?) : CreateProfileResult
 
     data object Failed : CreateProfileResult
 }
@@ -96,7 +93,8 @@ class ProfileSelectionViewModel @Inject constructor(
 
     // Declared before init: the theme collector below can emit synchronously on
     // Main.immediate when the theme stores are already cached.
-    private val _profileThemes = MutableStateFlow<Map<Int, com.kien.movies.domain.model.AppTheme>>(emptyMap())
+    private val _profileThemes =
+        MutableStateFlow<Map<Int, com.kien.movies.domain.model.AppTheme>>(emptyMap())
     val profileThemes: StateFlow<Map<Int, com.kien.movies.domain.model.AppTheme>> = _profileThemes.asStateFlow()
 
     init {
@@ -304,7 +302,9 @@ class ProfileSelectionViewModel @Inject constructor(
             val result = profileSyncService.setProfilePin(profileId, pin, currentPin)
             // Server reporting CurrentPinRequired means a PIN exists remotely —
             // reconcile local cache so we never forget it again.
-            if (result is SetProfilePinResult.Success || result is SetProfilePinResult.CurrentPinRequired) {
+            if (result is SetProfilePinResult.Success ||
+                result is SetProfilePinResult.CurrentPinRequired
+            ) {
                 profileLockStateDataStore.setPinEnabled(profileId, true)
             }
             _isPinOperationInProgress.value = false
@@ -325,7 +325,11 @@ class ProfileSelectionViewModel @Inject constructor(
         }
     }
 
-    fun verifyProfilePin(profileId: Int, pin: String, onComplete: (Result<SupabaseProfilePinVerifyResult>) -> Unit) {
+    fun verifyProfilePin(
+        profileId: Int,
+        pin: String,
+        onComplete: (Result<SupabaseProfilePinVerifyResult>) -> Unit
+    ) {
         if (_isPinOperationInProgress.value) return
         viewModelScope.launch {
             _isPinOperationInProgress.value = true

@@ -47,10 +47,9 @@ internal class StreamSearchSessionCache(
         val isComplete: Boolean
     )
 
-    private class Session(
-        val state: MutableStateFlow<Snapshot>
-    ) {
+    private class Session(val state: MutableStateFlow<Snapshot>) {
         lateinit var job: Job
+
         @Volatile var invalidated: Boolean = false
         var completedAtMs: Long? = null
         var lastSuccessfulResult: NetworkResult.Success<List<AddonStreams>>? = null
@@ -99,7 +98,9 @@ internal class StreamSearchSessionCache(
             compareByDescending<Map.Entry<StreamSearchRequestKey, Session>> { it.key == key }
                 .thenByDescending { it.key.searchMode.isEmpty() }
         )
-        ordered.firstNotNullOfOrNull { snapshotData(it.value)?.takeIf { streams -> streams.isNotEmpty() } }
+        ordered.firstNotNullOfOrNull {
+            snapshotData(it.value)?.takeIf { streams -> streams.isNotEmpty() }
+        }
             ?: ordered.firstNotNullOfOrNull { snapshotData(it.value) }
     }
 
@@ -244,19 +245,18 @@ internal class StreamSearchSessionCache(
         job.cancel()
     }
 
-    private fun snapshotData(session: Session): List<AddonStreams>? =
-        (session.state.value.result as? NetworkResult.Success)?.data
-            ?: session.lastSuccessfulResult?.data
+    private fun snapshotData(session: Session): List<AddonStreams>? = (session.state.value.result as? NetworkResult.Success)?.data
+        ?: session.lastSuccessfulResult?.data
 
-    private fun StreamSearchRequestKey.matchesMediaRequest(other: StreamSearchRequestKey): Boolean =
-        profileId == other.profileId &&
-            type == other.type &&
-            videoId == other.videoId &&
-            season == other.season &&
-            episode == other.episode
+    private fun StreamSearchRequestKey.matchesMediaRequest(other: StreamSearchRequestKey): Boolean = profileId == other.profileId &&
+        type == other.type &&
+        videoId == other.videoId &&
+        season == other.season &&
+        episode == other.episode
 
-    private fun StreamSearchRequestKey.matchesCachedRequest(other: StreamSearchRequestKey): Boolean =
-        matchesMediaRequest(other) && sourceConfiguration == other.sourceConfiguration
+    private fun StreamSearchRequestKey.matchesCachedRequest(
+        other: StreamSearchRequestKey
+    ): Boolean = matchesMediaRequest(other) && sourceConfiguration == other.sourceConfiguration
 
     private companion object {
         const val DEFAULT_COMPLETED_TTL_MS = 15 * 60 * 1_000L

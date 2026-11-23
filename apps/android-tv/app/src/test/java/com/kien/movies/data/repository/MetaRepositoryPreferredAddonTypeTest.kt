@@ -13,6 +13,8 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.system.measureTimeMillis
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -24,8 +26,6 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import retrofit2.Response
-import java.util.concurrent.atomic.AtomicInteger
-import kotlin.system.measureTimeMillis
 
 /**
  * The details screen tries [MetaRepositoryImpl.getMeta] first, so it has to handle "tv"
@@ -61,7 +61,11 @@ class MetaRepositoryPreferredAddonTypeTest {
     @Test
     fun `type is used as given when the addon is not installed`() = runTest {
         val api = apiReturningMeta()
-        val repository = newRepository(api, addon(metaTypes = listOf("series"), baseUrl = "https://other.example"))
+        val repository =
+            newRepository(
+                api,
+                addon(metaTypes = listOf("series"), baseUrl = "https://other.example")
+            )
 
         repository.getMeta(baseUrl, "tv", contentId).last()
 
@@ -95,7 +99,8 @@ class MetaRepositoryPreferredAddonTypeTest {
         val api = apiReturningMeta()
         // What getInstalledAddons() looks like during a cold start: a StateFlow
         // seeded with emptyList(), filled in once manifests are loaded.
-        val repository = newRepository(api, flowOf(emptyList(), listOf(addon(metaTypes = listOf("series")))))
+        val repository =
+            newRepository(api, flowOf(emptyList(), listOf(addon(metaTypes = listOf("series")))))
 
         repository.getMeta(baseUrl, "tv", contentId).last()
 
@@ -168,8 +173,7 @@ class MetaRepositoryPreferredAddonTypeTest {
         return url.captured
     }
 
-    private fun newRepository(api: AddonApi, vararg addons: Addon): MetaRepositoryImpl =
-        newRepository(api, flowOf(addons.toList()))
+    private fun newRepository(api: AddonApi, vararg addons: Addon): MetaRepositoryImpl = newRepository(api, flowOf(addons.toList()))
 
     private fun newRepository(api: AddonApi, addonsFlow: Flow<List<Addon>>): MetaRepositoryImpl {
         val context = mockk<Context>(relaxed = true) {
@@ -179,6 +183,11 @@ class MetaRepositoryPreferredAddonTypeTest {
         val addonRepository = mockk<AddonRepository>(relaxed = true) {
             every { getInstalledAddons() } returns addonsFlow
         }
-        return MetaRepositoryImpl(context = context, api = api, addonRepository = addonRepository, serverCatalog = mockk(relaxed = true))
+        return MetaRepositoryImpl(
+            context = context,
+            api = api,
+            addonRepository = addonRepository,
+            serverCatalog = mockk(relaxed = true)
+        )
     }
 }

@@ -93,11 +93,14 @@ internal object HlsParameterSetInit {
             }
             when {
                 line == "#EXT-X-ENDLIST" -> ended = true
+
                 line == "#EXT-X-DISCONTINUITY" -> return null
+
                 line.startsWith("#EXT-X-STREAM-INF") ||
                     line.startsWith("#EXT-X-MAP") ||
                     line.startsWith("#EXT-X-BYTERANGE") ||
                     line.startsWith("#EXT-X-DEFINE") -> return null
+
                 line.startsWith("#EXT-X-KEY") && !line.contains("METHOD=NONE") -> return null
             }
         }
@@ -126,7 +129,11 @@ internal object HlsParameterSetInit {
 
     private fun scan(data: ByteArray): Scan {
         val start = findSyncOffset(data)
-            ?: return Scan(head = null, conclusive = data.size >= SYNC_CHECK_PACKETS * TS_PACKET_SIZE)
+            ?: return Scan(
+                head = null,
+                conclusive =
+                    data.size >= SYNC_CHECK_PACKETS * TS_PACKET_SIZE
+            )
         var pmtPid = -1
         var videoPid = -1
         var patPacket: ByteArray? = null
@@ -152,10 +159,14 @@ internal object HlsParameterSetInit {
                     pmtPid = parsePmtPid(data, payload, packetEnd) ?: continue
                     patPacket = data.copyOfRange(packetStart, packetEnd)
                 }
+
                 pid == pmtPid && unitStart && pmtPacket == null -> {
-                    videoPid = parseH264Pid(data, payload, packetEnd) ?: return Scan(head = null, conclusive = true)
+                    videoPid =
+                        parseH264Pid(data, payload, packetEnd)
+                            ?: return Scan(head = null, conclusive = true)
                     pmtPacket = data.copyOfRange(packetStart, packetEnd)
                 }
+
                 pid == videoPid && videoPid >= 0 -> {
                     if (unitStart) {
                         val esStart = pesPayloadStart(data, payload, packetEnd)
@@ -171,7 +182,15 @@ internal object HlsParameterSetInit {
         val pat = patPacket ?: return Scan(head = null, conclusive = false)
         val pmt = pmtPacket ?: return Scan(head = null, conclusive = false)
         val parameterSets = scanParameterSets(videoData.toByteArray())
-        val head = SegmentHead(pat, pmt, videoPid, parameterSets.sps, parameterSets.pps, parameterSets.reachedFirstSlice)
+        val head =
+            SegmentHead(
+                pat,
+                pmt,
+                videoPid,
+                parameterSets.sps,
+                parameterSets.pps,
+                parameterSets.reachedFirstSlice
+            )
         return Scan(head, conclusive = parameterSets.reachedFirstSlice)
     }
 
@@ -192,7 +211,11 @@ internal object HlsParameterSetInit {
         return out.toByteArray()
     }
 
-    private class ParameterSets(val sps: ByteArray?, val pps: ByteArray?, val reachedFirstSlice: Boolean)
+    private class ParameterSets(
+        val sps: ByteArray?,
+        val pps: ByteArray?,
+        val reachedFirstSlice: Boolean
+    )
 
     private fun scanParameterSets(es: ByteArray): ParameterSets {
         var sps: ByteArray? = null
@@ -222,19 +245,22 @@ internal object HlsParameterSetInit {
     private fun findStartCode(data: ByteArray, from: Int): Int {
         var i = from
         while (i + 2 < data.size) {
-            if (data[i].toInt() == 0 && data[i + 1].toInt() == 0 && data[i + 2].toInt() == 1) return i
+            if (data[i].toInt() == 0 && data[i + 1].toInt() == 0 &&
+                data[i + 2].toInt() == 1
+            ) {
+                return i
+            }
             i++
         }
         return -1
     }
 
-    private fun findSyncOffset(data: ByteArray): Int? =
-        (0 until minOf(TS_PACKET_SIZE, data.size)).firstOrNull { candidate ->
-            (0 until SYNC_CHECK_PACKETS).all { packet ->
-                val index = candidate + packet * TS_PACKET_SIZE
-                index < data.size && data.u8(index) == TS_SYNC_BYTE
-            }
+    private fun findSyncOffset(data: ByteArray): Int? = (0 until minOf(TS_PACKET_SIZE, data.size)).firstOrNull { candidate ->
+        (0 until SYNC_CHECK_PACKETS).all { packet ->
+            val index = candidate + packet * TS_PACKET_SIZE
+            index < data.size && data.u8(index) == TS_SYNC_BYTE
         }
+    }
 
     /** Start of a section in a packet payload, past its pointer field. */
     private fun sectionStart(data: ByteArray, payload: Int, end: Int): Int? {
@@ -278,7 +304,11 @@ internal object HlsParameterSetInit {
 
     private fun pesPayloadStart(data: ByteArray, payload: Int, end: Int): Int? {
         if (payload + 9 > end) return null
-        if (data.u8(payload) != 0 || data.u8(payload + 1) != 0 || data.u8(payload + 2) != 1) return null
+        if (data.u8(payload) != 0 || data.u8(payload + 1) != 0 ||
+            data.u8(payload + 2) != 1
+        ) {
+            return null
+        }
         return (payload + 9 + data.u8(payload + 8)).takeIf { it <= end }
     }
 

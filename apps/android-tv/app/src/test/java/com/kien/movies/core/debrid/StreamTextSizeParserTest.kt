@@ -52,7 +52,8 @@ class StreamTextSizeParserTest {
         )
         assertEquals(1024L * 1024 * 1024, StreamTextSizeParser.sizeBytesFromStreamText(stream))
 
-        val titleOnly = sampleStream(name = "Torrentio 4k", title = "Movie\n💾 2 GB", description = null)
+        val titleOnly =
+            sampleStream(name = "Torrentio 4k", title = "Movie\n💾 2 GB", description = null)
         assertEquals(2048L * 1024 * 1024, StreamTextSizeParser.sizeBytesFromStreamText(titleOnly))
     }
 

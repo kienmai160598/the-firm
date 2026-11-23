@@ -1,5 +1,6 @@
 package com.kien.movies.ui.screens.detail
 
+import android.util.Log
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -23,14 +24,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
@@ -39,17 +46,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.Icon
-import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Text
-import coil3.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -57,37 +59,35 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
-import android.util.Log
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Icon
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.kien.movies.R
 import com.kien.movies.core.tracking.TrackingRatingState
 import com.kien.movies.domain.model.ContentType
-import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MDBListRatings
-import com.kien.movies.domain.model.Video
+import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.NextToWatch
+import com.kien.movies.domain.model.Video
 import com.kien.movies.domain.model.isWatchedAsOneItem
 import com.kien.movies.ui.components.ImdbRatingSourceLabel
 import com.kien.movies.ui.components.MDBListRatingsRow
 import com.kien.movies.ui.components.SynopsisDescription
-import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.MoviesIconButton
 import com.kien.movies.ui.theme.ExpressiveMotion
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Shuffle
-import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.graphics.painter.Painter
-import coil3.request.ImageRequest
-import coil3.request.crossfade
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.localizedGenreLabel
 import com.kien.movies.ui.util.rememberLongPressKeyTracker
-import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.rememberRawSvgPainter
 import java.util.Locale
 
@@ -133,7 +133,8 @@ fun HeroContentSection(
 ) {
     val context = LocalContext.current
     val isSeriesApi = remember(meta.apiType) {
-        meta.apiType.equals("series", ignoreCase = true) || meta.apiType.equals("tv", ignoreCase = true)
+        meta.apiType.equals("series", ignoreCase = true) ||
+            meta.apiType.equals("tv", ignoreCase = true)
     }
     val logoModel = remember(context, meta.logo) {
         meta.logo?.let { logo ->
@@ -148,8 +149,10 @@ fun HeroContentSection(
         !meta.logo.isNullOrBlank() &&
             !logoLoadFailed &&
             !(isTrailerPlaying && hideLogoDuringTrailer)
-    val libraryAddPainter = rememberRawSvgPainter(rawIconRes = com.kien.movies.R.raw.library_add_plus)
-    val trailerPainter = rememberRawSvgPainter(rawIconRes = com.kien.movies.R.raw.trailer_play_button)
+    val libraryAddPainter =
+        rememberRawSvgPainter(rawIconRes = com.kien.movies.R.raw.library_add_plus)
+    val trailerPainter =
+        rememberRawSvgPainter(rawIconRes = com.kien.movies.R.raw.trailer_play_button)
     val strCreator = stringResource(R.string.hero_creator)
     val strDirector = stringResource(R.string.hero_director)
     val strWriter = stringResource(R.string.hero_writer)
@@ -158,9 +161,17 @@ fun HeroContentSection(
         val writerLine = meta.writer.takeIf { it.isNotEmpty() }?.joinToString(", ")
         when {
             !directorLine.isNullOrBlank() -> {
-                if (isSeriesApi) strCreator.format(directorLine) else strDirector.format(directorLine)
+                if (isSeriesApi) {
+                    strCreator.format(
+                        directorLine
+                    )
+                } else {
+                    strDirector.format(directorLine)
+                }
             }
+
             !writerLine.isNullOrBlank() -> strWriter.format(writerLine)
+
             else -> null
         }
     }
@@ -201,7 +212,11 @@ fun HeroContentSection(
                 .animateContentSize(
                     animationSpec = ExpressiveMotion.standardDefaultSpatial()
                 )
-                .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.lg),
+                .padding(
+                    start = MoviesTheme.spacing.xxxl,
+                    end = MoviesTheme.spacing.xxxl,
+                    bottom = MoviesTheme.spacing.lg
+                ),
             verticalArrangement = Arrangement.Bottom
         ) {
             // Logo/Title — always visible during trailer, animates size
@@ -267,7 +282,13 @@ fun HeroContentSection(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         PlayButton(
-                            text = if (isPlayEnabled) nextToWatch?.displayText else stringResource(R.string.playback_unavailable),
+                            text = if (isPlayEnabled) {
+                                nextToWatch?.displayText
+                            } else {
+                                stringResource(
+                                    R.string.playback_unavailable
+                                )
+                            },
                             enabled = isPlayEnabled,
                             onClick = onPlayClick,
                             onLongPress = onPlayLongPress,
@@ -286,7 +307,13 @@ fun HeroContentSection(
                             } else {
                                 null
                             },
-                            contentDescription = if (isInLibrary) stringResource(R.string.hero_remove_from_library) else stringResource(R.string.hero_add_to_library),
+                            contentDescription = if (isInLibrary) {
+                                stringResource(
+                                    R.string.hero_remove_from_library
+                                )
+                            } else {
+                                stringResource(R.string.hero_add_to_library)
+                            },
                             onClick = onToggleLibrary,
                             onLongPress = onLibraryLongPress,
                             onFocused = onHeroActionFocused
@@ -427,10 +454,14 @@ internal fun PlayButton(
             }
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent
-                if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0 && isSelectKey(native.keyCode)) {
+                if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0 &&
+                    isSelectKey(native.keyCode)
+                ) {
                     longPressTriggered = false
                 }
-                if (enabled && onLongPress != null && native.action == AndroidKeyEvent.ACTION_DOWN) {
+                if (enabled && onLongPress != null &&
+                    native.action == AndroidKeyEvent.ACTION_DOWN
+                ) {
                     if (native.keyCode == AndroidKeyEvent.KEYCODE_MENU) {
                         longPressTriggered = true
                         if (native.repeatCount == 0) onLongPress()
@@ -560,7 +591,9 @@ private fun ActionIconButton(
             }
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent
-                if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0 && isSelectKey(native.keyCode)) {
+                if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0 &&
+                    isSelectKey(native.keyCode)
+                ) {
                     longPressTriggered = false
                 }
                 if (onLongPress != null && native.action == AndroidKeyEvent.ACTION_DOWN) {
@@ -604,6 +637,7 @@ private fun ActionIconButton(
                 contentDescription = contentDescription,
                 modifier = Modifier.size(22.dp.atLeastOnBox(TvSizeFloors.buttonIcon))
             )
+
             icon != null -> Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
@@ -631,8 +665,22 @@ private fun MetaInfoRow(
     val yearText = remember(meta.releaseInfo, meta.released, meta.type, showFullReleaseDate) {
         if (showFullReleaseDate && meta.type == ContentType.MOVIE) {
             meta.released
-                ?.let { runCatching { java.time.OffsetDateTime.parse(it).toLocalDate() }.getOrNull() }
-                ?.let { val locale = java.util.Locale.getDefault(); java.text.SimpleDateFormat(android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMMMy"), locale).format(java.util.Date(it.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli())) }
+                ?.let {
+                    runCatching { java.time.OffsetDateTime.parse(it).toLocalDate() }.getOrNull()
+                }
+                ?.let {
+                    val locale = java.util.Locale.getDefault()
+                    java.text.SimpleDateFormat(
+                        android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMMMy"),
+                        locale
+                    ).format(
+                        java.util.Date(
+                            it.atStartOfDay(
+                                java.time.ZoneId.systemDefault()
+                            ).toInstant().toEpochMilli()
+                        )
+                    )
+                }
                 ?: formatYearRange(meta.releaseInfo)
         } else {
             formatYearRange(meta.releaseInfo)
@@ -651,15 +699,40 @@ private fun MetaInfoRow(
         meta.ageRating?.trim()?.takeIf { it.isNotBlank() }
     }
     val isSeries = meta.type == ContentType.SERIES || meta.type == ContentType.TV
-    val strStatusEnded = stringResource(if (isSeries) R.string.series_status_ended else R.string.movie_status_ended)
-    val strStatusContinuing = stringResource(if (isSeries) R.string.series_status_continuing else R.string.movie_status_continuing)
-    val strStatusCurrent = stringResource(if (isSeries) R.string.series_status_current else R.string.movie_status_current)
-    val strStatusCancelled = stringResource(if (isSeries) R.string.series_status_cancelled else R.string.movie_status_cancelled)
-    val strStatusReleased = stringResource(if (isSeries) R.string.series_status_released else R.string.movie_status_released)
-    val strStatusPlanned = stringResource(if (isSeries) R.string.series_status_planned else R.string.movie_status_planned)
-    val strStatusRumored = stringResource(if (isSeries) R.string.series_status_rumored else R.string.movie_status_rumored)
-    val strStatusInProduction = stringResource(if (isSeries) R.string.series_status_in_production else R.string.movie_status_in_production)
-    val strStatusPostProduction = stringResource(if (isSeries) R.string.series_status_post_production else R.string.movie_status_post_production)
+    val strStatusEnded =
+        stringResource(if (isSeries) R.string.series_status_ended else R.string.movie_status_ended)
+    val strStatusContinuing =
+        stringResource(
+            if (isSeries) R.string.series_status_continuing else R.string.movie_status_continuing
+        )
+    val strStatusCurrent =
+        stringResource(
+            if (isSeries) R.string.series_status_current else R.string.movie_status_current
+        )
+    val strStatusCancelled =
+        stringResource(
+            if (isSeries) R.string.series_status_cancelled else R.string.movie_status_cancelled
+        )
+    val strStatusReleased =
+        stringResource(
+            if (isSeries) R.string.series_status_released else R.string.movie_status_released
+        )
+    val strStatusPlanned =
+        stringResource(
+            if (isSeries) R.string.series_status_planned else R.string.movie_status_planned
+        )
+    val strStatusRumored =
+        stringResource(
+            if (isSeries) R.string.series_status_rumored else R.string.movie_status_rumored
+        )
+    val strStatusInProduction =
+        stringResource(
+            if (isSeries) R.string.series_status_in_production else R.string.movie_status_in_production
+        )
+    val strStatusPostProduction =
+        stringResource(
+            if (isSeries) R.string.series_status_post_production else R.string.movie_status_post_production
+        )
     val statusBadge = remember(meta.status, isSeries) {
         when (meta.status?.trim()?.lowercase()) {
             "ended" -> strStatusEnded.uppercase()
@@ -674,7 +747,10 @@ private fun MetaInfoRow(
             else -> meta.status?.trim()?.takeIf { it.isNotBlank() }?.uppercase()
         }
     }
-    Log.d("HeroBadge", "name=${meta.name} ageRating=${meta.ageRating} status=${meta.status} ageRatingBadge=$ageRatingBadge statusBadge=$statusBadge")
+    Log.d(
+        "HeroBadge",
+        "name=${meta.name} ageRating=${meta.ageRating} status=${meta.status} ageRatingBadge=$ageRatingBadge statusBadge=$statusBadge"
+    )
     val secondaryItems = remember(runtimeText, meta.country, meta.language) {
         buildList<String> {
             runtimeText?.takeIf { it.isNotBlank() }?.let { add(it) }
@@ -779,7 +855,9 @@ private fun MetaInfoRow(
                         )
                     }
                 }
-                if ((ageRatingBadge != null || statusBadge != null) && secondaryItems.isNotEmpty()) {
+                if ((ageRatingBadge != null || statusBadge != null) &&
+                    secondaryItems.isNotEmpty()
+                ) {
                     MetaInfoDivider()
                 }
                 secondaryItems.forEachIndexed { index, value ->
@@ -799,14 +877,14 @@ private fun MetaInfoRow(
 }
 
 @Composable
-private fun HeroMetaBadge(
-    text: String,
-    contentColor: Color = MoviesTheme.colors.TextSecondary
-) {
+private fun HeroMetaBadge(text: String, contentColor: Color = MoviesTheme.colors.TextSecondary) {
     Box(
         modifier = Modifier
             .border(
-                border = BorderStroke(MoviesTheme.spacing.hairline, contentColor.copy(alpha = 0.55f)),
+                border = BorderStroke(
+                    MoviesTheme.spacing.hairline,
+                    contentColor.copy(alpha = 0.55f)
+                ),
                 shape = heroBadgeShape()
             )
             .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs),
@@ -884,7 +962,6 @@ private fun isSelectOrMenuKey(keyCode: Int): Boolean {
     return isSelectKey(keyCode) || keyCode == AndroidKeyEvent.KEYCODE_MENU
 }
 
-
 private fun formatYearRange(releaseInfo: String?): String? {
     if (releaseInfo.isNullOrBlank()) return null
     return releaseInfo.trim()
@@ -904,10 +981,15 @@ private fun formatRuntime(runtime: String): String? {
         val hours = Regex("(\\d+)\\s*h").find(trimmed)?.groupValues?.get(1)?.toIntOrNull() ?: 0
         val mins = Regex("(\\d+)\\s*m").find(trimmed)?.groupValues?.get(1)?.toIntOrNull() ?: 0
         val total = hours * 60 + mins
-        if (total > 0) return if (total >= 60) {
-            val h = total / 60; val m = total % 60
-            if (m > 0) "${h}h ${m}m" else "${h}h"
-        } else "${total}m"
+        if (total > 0) {
+            return if (total >= 60) {
+                val h = total / 60
+                val m = total % 60
+                if (m > 0) "${h}h ${m}m" else "${h}h"
+            } else {
+                "${total}m"
+            }
+        }
     }
     // "H:MM" or "HH:MM" format
     if (trimmed.contains(':')) {
@@ -915,10 +997,14 @@ private fun formatRuntime(runtime: String): String? {
         val hours = parts.getOrNull(0)?.toIntOrNull() ?: 0
         val mins = parts.getOrNull(1)?.toIntOrNull() ?: 0
         val total = hours * 60 + mins
-        if (total > 0) return if (total >= 60) {
-            val m = total % 60
-            if (m > 0) "${hours}h ${m}m" else "${hours}h"
-        } else "${total}m"
+        if (total > 0) {
+            return if (total >= 60) {
+                val m = total % 60
+                if (m > 0) "${hours}h ${m}m" else "${hours}h"
+            } else {
+                "${total}m"
+            }
+        }
     }
     // Plain number (minutes)
     val minutes = trimmed.filter { it.isDigit() }.toIntOrNull() ?: return runtime

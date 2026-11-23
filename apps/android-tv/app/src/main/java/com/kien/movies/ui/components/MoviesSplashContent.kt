@@ -61,15 +61,13 @@ internal fun MoviesSplashBackground(modifier: Modifier = Modifier) {
     )
 }
 
-private fun brandGlow(glow: Color): Brush =
-    object : ShaderBrush() {
-        override fun createShader(size: Size): Shader =
-            RadialGradientShader(
-                center = Offset(size.width * GLOW_CENTER_X, size.height * GLOW_CENTER_Y),
-                radius = size.width * GLOW_RADIUS_FRACTION,
-                colors = listOf(glow, glow.copy(alpha = 0f))
-            )
-    }
+private fun brandGlow(glow: Color): Brush = object : ShaderBrush() {
+    override fun createShader(size: Size): Shader = RadialGradientShader(
+        center = Offset(size.width * GLOW_CENTER_X, size.height * GLOW_CENTER_Y),
+        radius = size.width * GLOW_RADIUS_FRACTION,
+        colors = listOf(glow, glow.copy(alpha = 0f))
+    )
+}
 
 /**
  * The box build's startup content: a horizontal lockup made for a 16:9 screen. The mark is the

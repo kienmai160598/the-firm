@@ -12,6 +12,9 @@ import com.kien.movies.domain.model.ScraperInfo
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -21,9 +24,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -48,8 +48,7 @@ class PluginDataStore @Inject constructor(
         )
     }
 
-    private fun store(profileId: Int = effectiveProfileId()) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = effectiveProfileId()) = factory.get(profileId, FEATURE)
 
     /** A pinned sync writes the profile it started for, including after the active profile changes. */
     private fun sharedPluginWriteBlocked(): Boolean {
@@ -85,8 +84,14 @@ class PluginDataStore @Inject constructor(
         Types.newParameterizedType(List::class.java, String::class.java)
     )
 
-    private val repoListType = Types.newParameterizedType(List::class.java, PluginRepository::class.java)
-    private val scraperListType = Types.newParameterizedType(List::class.java, ScraperInfo::class.java)
+    private val repoListType = Types.newParameterizedType(
+        List::class.java,
+        PluginRepository::class.java
+    )
+    private val scraperListType = Types.newParameterizedType(
+        List::class.java,
+        ScraperInfo::class.java
+    )
     private val settingsMapType = Types.newParameterizedType(
         Map::class.java,
         String::class.java,
@@ -97,7 +102,7 @@ class PluginDataStore @Inject constructor(
     val codeDir: File
         get() {
             val pid = effectiveProfileId()
-            val dirName = if (pid == 1) "plugin_code" else "plugin_code_p${pid}"
+            val dirName = if (pid == 1) "plugin_code" else "plugin_code_p$pid"
             return File(context.filesDir, dirName)
         }
 
@@ -110,7 +115,8 @@ class PluginDataStore @Inject constructor(
         factory.get(pid, FEATURE).data.map { prefs ->
             prefs[repositoriesKey]?.let { json ->
                 try {
-                    moshi.adapter<List<PluginRepository>>(repoListType).fromJson(json) ?: emptyList()
+                    moshi.adapter<List<PluginRepository>>(repoListType).fromJson(json)
+                        ?: emptyList()
                 } catch (e: Exception) {
                     emptyList()
                 }
@@ -119,7 +125,7 @@ class PluginDataStore @Inject constructor(
     }
 
     suspend fun saveRepositories(repos: List<PluginRepository>) {
-            if (sharedPluginWriteBlocked()) return
+        if (sharedPluginWriteBlocked()) return
         val json = moshi.adapter<List<PluginRepository>>(repoListType).toJson(repos)
         store().edit { prefs ->
             prefs[repositoriesKey] = json
@@ -127,7 +133,7 @@ class PluginDataStore @Inject constructor(
     }
 
     suspend fun addRepository(repo: PluginRepository) {
-            if (sharedPluginWriteBlocked()) return
+        if (sharedPluginWriteBlocked()) return
         val current = repositories.first().toMutableList()
         current.removeAll { it.id == repo.id }
         current.add(repo)
@@ -135,7 +141,7 @@ class PluginDataStore @Inject constructor(
     }
 
     suspend fun removeRepository(repoId: String) {
-            if (sharedPluginWriteBlocked()) return
+        if (sharedPluginWriteBlocked()) return
         val current = repositories.first().toMutableList()
         current.removeAll { it.id == repoId }
         saveRepositories(current)
@@ -167,7 +173,7 @@ class PluginDataStore @Inject constructor(
     }
 
     suspend fun saveScrapers(scrapers: List<ScraperInfo>) {
-            if (sharedPluginWriteBlocked()) return
+        if (sharedPluginWriteBlocked()) return
         val json = moshi.adapter<List<ScraperInfo>>(scraperListType).toJson(scrapers)
         store().edit { prefs ->
             prefs[scrapersKey] = json
@@ -194,7 +200,7 @@ class PluginDataStore @Inject constructor(
     }
 
     suspend fun setPluginsEnabled(enabled: Boolean) {
-            if (sharedPluginWriteBlocked()) return
+        if (sharedPluginWriteBlocked()) return
         store().edit { prefs ->
             prefs[pluginsEnabledKey] = enabled
         }
@@ -207,7 +213,7 @@ class PluginDataStore @Inject constructor(
     }
 
     suspend fun setGroupStreamsByRepository(enabled: Boolean) {
-            if (sharedPluginWriteBlocked()) return
+        if (sharedPluginWriteBlocked()) return
         store().edit { prefs ->
             prefs[groupStreamsByRepositoryKey] = enabled
         }
@@ -250,7 +256,8 @@ class PluginDataStore @Inject constructor(
         val allSettings = prefs[scraperSettingsKey]?.let { json ->
             try {
                 @Suppress("UNCHECKED_CAST")
-                moshi.adapter<Map<String, Map<String, Any>>>(settingsMapType).fromJson(json) ?: emptyMap()
+                moshi.adapter<Map<String, Map<String, Any>>>(settingsMapType).fromJson(json)
+                    ?: emptyMap()
             } catch (e: Exception) {
                 emptyMap()
             }
@@ -265,7 +272,9 @@ class PluginDataStore @Inject constructor(
         val allSettings = prefs[scraperSettingsKey]?.let { json ->
             try {
                 @Suppress("UNCHECKED_CAST")
-                moshi.adapter<Map<String, Map<String, Any>>>(settingsMapType).fromJson(json)?.toMutableMap()
+                moshi.adapter<Map<String, Map<String, Any>>>(
+                    settingsMapType
+                ).fromJson(json)?.toMutableMap()
                     ?: mutableMapOf()
             } catch (e: Exception) {
                 mutableMapOf()

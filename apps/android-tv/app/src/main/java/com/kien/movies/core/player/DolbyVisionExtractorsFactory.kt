@@ -50,14 +50,12 @@ internal class DolbyVisionExtractorsFactory(
     private val stripHdr10PlusSei: Boolean = false
 ) : ExtractorsFactory {
 
-    override fun createExtractors(): Array<Extractor> =
-        delegate.createExtractors().map(::wrap).toTypedArray()
+    override fun createExtractors(): Array<Extractor> = delegate.createExtractors().map(::wrap).toTypedArray()
 
     override fun createExtractors(
         uri: Uri,
         responseHeaders: Map<String, List<String>>
-    ): Array<Extractor> =
-        delegate.createExtractors(uri, responseHeaders).map(::wrap).toTypedArray()
+    ): Array<Extractor> = delegate.createExtractors(uri, responseHeaders).map(::wrap).toTypedArray()
 
     private fun wrap(extractor: Extractor): Extractor {
         // Matroska is swapped unconditionally: the vendored extractor carries the
@@ -68,11 +66,18 @@ internal class DolbyVisionExtractorsFactory(
         if (extractor.javaClass.name == STOCK_MATROSKA_EXTRACTOR) {
             return DvMatroskaExtractor(
                 DefaultSubtitleParserFactory(),
-                /* flags= */ 0,
+                /* flags= */
+                0,
                 DolbyVisionMatroskaTransformer(
-                    config = if (config.active) config else DolbyVisionConversionConfig(active = false),
+                    config = if (config.active) {
+                        config
+                    } else {
+                        DolbyVisionConversionConfig(
+                            active = false
+                        )
+                    },
                     stripRpuOnly = stripDvRpu && !config.active,
-                    stripHdr10PlusSei = stripHdr10PlusSei,
+                    stripHdr10PlusSei = stripHdr10PlusSei
                 )
             )
         }
@@ -86,8 +91,11 @@ internal class DolbyVisionExtractorsFactory(
         return when {
             // RPU is in-band in the sample for these containers, so reachable here.
             name.contains("FragmentedMp4Extractor") -> NalFormat.LENGTH_DELIMITED
+
             name.contains("Mp4Extractor") -> NalFormat.LENGTH_DELIMITED
+
             name.contains("TsExtractor") -> NalFormat.ANNEX_B
+
             else -> null
         }
     }
@@ -106,7 +114,9 @@ internal enum class NalFormat { ANNEX_B, LENGTH_DELIMITED }
  */
 internal object DolbyVisionConversionStats {
     private val codecStringRewriteCount = AtomicLong(0)
+
     @Volatile private var lastSourceProfile: Int? = null
+
     @Volatile private var lastConversionMode: Int? = null
 
     fun reset() {
@@ -162,9 +172,11 @@ internal data class DolbyVisionConversionConfig(
         if (!active) return false
         return when (profile) {
             7 -> true
+
             // DV5 is already single-layer; only convert it when the user explicitly chose
             // Convert to DV8.1. AUTO leaves DV5 alone (converting it breaks colors).
             5 -> dv5Enabled && manualDv81
+
             else -> false
         }
     }
@@ -174,9 +186,13 @@ internal data class DolbyVisionConversionConfig(
         if (forcedMode in 0..4) return forcedMode
         return when {
             (profile == 7 || profile == null) && preserveMapping -> 5
+
             profile == 5 -> 3
-            manualDv81 -> 2 // manual Convert to DV8.1 prefers mode 2 (falls back to 1)
-            else -> 1       // AUTO convert stays on mode 1
+
+            manualDv81 -> 2
+
+            // manual Convert to DV8.1 prefers mode 2 (falls back to 1)
+            else -> 1 // AUTO convert stays on mode 1
         }
     }
 }
@@ -192,15 +208,16 @@ private class DolbyVisionExtractor(
 ) : Extractor {
 
     override fun init(output: ExtractorOutput) {
-        delegate.init(DolbyVisionExtractorOutput(output, config, nalFormat, stripDvRpu, stripHdr10PlusSei))
+        delegate.init(
+            DolbyVisionExtractorOutput(output, config, nalFormat, stripDvRpu, stripHdr10PlusSei)
+        )
     }
 
     @Throws(IOException::class)
     override fun sniff(input: ExtractorInput): Boolean = delegate.sniff(input)
 
     @Throws(IOException::class)
-    override fun read(input: ExtractorInput, seekPosition: PositionHolder): Int =
-        delegate.read(input, seekPosition)
+    override fun read(input: ExtractorInput, seekPosition: PositionHolder): Int = delegate.read(input, seekPosition)
 
     override fun seek(position: Long, timeUs: Long) = delegate.seek(position, timeUs)
 
@@ -284,7 +301,8 @@ private class NativeOptimizedVideoTrackOutput(
         nalLengthFieldLength = parseNalLengthFieldLength(format)
 
         val strippedCodecs = if (stripDvRpu) stripDvCodecString(format.codecs) else null
-        val codecsToUse = strippedCodecs ?: if (converting) rewriteDvCodecString(format.codecs) else format.codecs
+        val codecsToUse =
+            strippedCodecs ?: if (converting) rewriteDvCodecString(format.codecs) else format.codecs
 
         var outFormat = format
         if (converting) {
@@ -302,8 +320,9 @@ private class NativeOptimizedVideoTrackOutput(
         }
 
         val rewriteSamples = converting && !(profile == 5 && !config.convertDv5Rpu)
-        val shouldStripDovi = stripDvRpu && strippedCodecs != null && strippedCodecs != format.codecs
-        
+        val shouldStripDovi =
+            stripDvRpu && strippedCodecs != null && strippedCodecs != format.codecs
+
         shouldProcess = rewriteSamples || shouldStripDovi || stripHdr10PlusSei
         codecs = outFormat.codecs
         delegate.format(outFormat)
@@ -316,7 +335,14 @@ private class NativeOptimizedVideoTrackOutput(
         allowEndOfInput: Boolean,
         sampleDataPart: Int
     ): Int {
-        if (!shouldProcess) return delegate.sampleData(input, length, allowEndOfInput, sampleDataPart)
+        if (!shouldProcess) {
+            return delegate.sampleData(
+                input,
+                length,
+                allowEndOfInput,
+                sampleDataPart
+            )
+        }
         ensureInputScratch(length)
         val read = input.read(inputScratch, 0, length)
         if (read == C.RESULT_END_OF_INPUT) {
@@ -335,11 +361,7 @@ private class NativeOptimizedVideoTrackOutput(
         return read
     }
 
-    override fun sampleData(
-        data: ParsableByteArray,
-        length: Int,
-        sampleDataPart: Int
-    ) {
+    override fun sampleData(data: ParsableByteArray, length: Int, sampleDataPart: Int) {
         if (!shouldProcess || sampleDataPart != TrackOutput.SAMPLE_DATA_PART_MAIN || length <= 0) {
             delegate.sampleData(data, length, sampleDataPart)
             return

@@ -192,12 +192,7 @@ class SimklScrobbleReconciliationTest {
         )
     )
 
-    private fun animeEntry(
-        media: SimklMedia,
-        season: Int,
-        episode: Int,
-        tvdbSeason: Int? = null
-    ) = SimklLibraryEntry(
+    private fun animeEntry(media: SimklMedia, season: Int, episode: Int, tvdbSeason: Int? = null) = SimklLibraryEntry(
         mediaType = SimklMediaType.ANIME,
         status = SimklListStatus.WATCHING,
         show = media,

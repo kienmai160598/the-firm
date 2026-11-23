@@ -20,6 +20,7 @@ internal object AutoSyncPreferences {
     private const val KEY_SYNC_TOLERANCE_MS = "automatic_subtitle_sync_tolerance_ms"
 
     private val lock = Any()
+
     @Volatile private var initialized = false
     private var lastStartupSessionKey: Int? = null
     private var lastStartupPlaybackKey: String? = null
@@ -45,7 +46,10 @@ internal object AutoSyncPreferences {
         if (initialized) return
         synchronized(lock) {
             if (initialized) return
-            val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val prefs = context.applicationContext.getSharedPreferences(
+                PREFS_NAME,
+                Context.MODE_PRIVATE
+            )
             _enabled.value = prefs.getBoolean(KEY_ENABLED, true)
             _enabledState.value = _enabled.value
             _aggressiveMode.value = prefs.getBoolean(KEY_AGGRESSIVE_MODE, true)

@@ -18,12 +18,12 @@ import com.kien.movies.R
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.ui.screens.player.autosync.AutoSyncLibassSubtitles
 import com.kien.movies.ui.screens.player.autosync.AutoSyncSyncedSubtitle
+import java.lang.ref.WeakReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.ref.WeakReference
 
 /**
  * Buffer-preserving sidecar path for external addon subtitles on ExoPlayer.
@@ -61,12 +61,12 @@ internal fun PlayerRuntimeController.canAttachAddonSubtitleViaSidecar(subtitle: 
 
 internal fun PlayerRuntimeController.canAttachAddonSubtitleViaSidecar(
     url: String,
-    useLibass: Boolean,
+    useLibass: Boolean
 ): Boolean {
     val mime = PlayerSubtitleUtils.mimeTypeFromUrl(url)
     if (mime == MimeTypes.TEXT_SSA && useLibass) return false
     return sidecarParserFactory.supportsFormat(
-        Format.Builder().setSampleMimeType(mime).build(),
+        Format.Builder().setSampleMimeType(mime).build()
     )
 }
 
@@ -117,7 +117,7 @@ internal fun PlayerRuntimeController.stopSidecarAddonSubtitle(clearView: Boolean
  */
 internal fun PlayerRuntimeController.startSidecarAddonSubtitle(
     subtitle: Subtitle,
-    rawBodyLoader: (suspend () -> String)? = null,
+    rawBodyLoader: (suspend () -> String)? = null
 ): Boolean {
     if (!canAttachAddonSubtitleViaSidecar(subtitle)) return false
 
@@ -135,8 +135,7 @@ internal fun PlayerRuntimeController.startSidecarAddonSubtitle(
         view.setTag(R.id.player_view_sidecar_generation_tag, subtitleKey)
         showSidecarCues(view, emptyList())
     }
-    fun isCurrent() =
-        activeSidecarSubtitleKey == subtitleKey && activeSidecarGeneration == generation
+    fun isCurrent() = activeSidecarSubtitleKey == subtitleKey && activeSidecarGeneration == generation
 
     sidecarSubtitleJob = scope.launch {
         try {
@@ -203,8 +202,7 @@ internal fun PlayerRuntimeController.startSidecarAddonSubtitle(
 }
 
 /** Identifies one attachment of [url]; changes whenever the sidecar restarts or stops. */
-internal fun PlayerRuntimeController.currentSidecarGenerationFor(url: String): Long? =
-    activeSidecarGeneration.takeIf { activeSidecarSubtitleKey == url && it != 0L }
+internal fun PlayerRuntimeController.currentSidecarGenerationFor(url: String): Long? = activeSidecarGeneration.takeIf { activeSidecarSubtitleKey == url && it != 0L }
 
 /**
  * Replaces the cues of the attached subtitle with already-parsed [cues], switching the
@@ -215,7 +213,7 @@ internal fun PlayerRuntimeController.commitPreparedSidecarSubtitle(
     expectedCurrentUrl: String,
     newUrl: String,
     cues: List<CuesWithTiming>,
-    expectedGeneration: Long? = null,
+    expectedGeneration: Long? = null
 ): Boolean {
     if (cues.isEmpty() || activeSidecarSubtitleKey != expectedCurrentUrl) return false
     if (expectedGeneration != null && activeSidecarGeneration != expectedGeneration) return false
@@ -314,7 +312,13 @@ internal fun parseSidecarTimedCuesRobust(rawText: String, sourceUrl: String): Si
         val parsed = parseSidecarTimedCuesWithMime(cleaned, mime)
         if (parsed.isNotEmpty()) {
             val fixed = PlayerSubtitleRtlFix.fixTimedCues(parsed, isBuiltInSubtitle = false)
-            val normalized = if (mime == MimeTypes.TEXT_VTT) normalizeTimedCuePositions(fixed) else fixed
+            val normalized = if (mime ==
+                MimeTypes.TEXT_VTT
+            ) {
+                normalizeTimedCuePositions(fixed)
+            } else {
+                fixed
+            }
             return SidecarParseResult(
                 normalized,
                 mime,
@@ -327,7 +331,13 @@ internal fun parseSidecarTimedCuesRobust(rawText: String, sourceUrl: String): Si
     if (lenient.isNotEmpty()) {
         val mime = PlayerSubtitleUtils.sniffSubtitleMimeType(cleaned, sourceUrl)
         val fixed = PlayerSubtitleRtlFix.fixTimedCues(lenient, isBuiltInSubtitle = false)
-        val normalized = if (mime == MimeTypes.TEXT_VTT) normalizeTimedCuePositions(fixed) else fixed
+        val normalized = if (mime ==
+            MimeTypes.TEXT_VTT
+        ) {
+            normalizeTimedCuePositions(fixed)
+        } else {
+            fixed
+        }
         return SidecarParseResult(
             normalized,
             mime,
@@ -347,8 +357,10 @@ private fun normalizeTimedCuePositions(cues: List<CuesWithTiming>): List<CuesWit
         val normalized = entry.cues.map { PlayerSubtitleUtils.normalizeBottomCuePosition(it) }
         val durationUs = when {
             entry.durationUs != C.TIME_UNSET -> entry.durationUs
+
             entry.endTimeUs != C.TIME_UNSET && entry.startTimeUs != C.TIME_UNSET ->
                 (entry.endTimeUs - entry.startTimeUs).coerceAtLeast(1L)
+
             else -> C.TIME_UNSET
         }
         CuesWithTiming(normalized, entry.startTimeUs, durationUs)
@@ -382,7 +394,10 @@ private fun parseSidecarTimedCuesWithMime(rawText: String, mimeType: String): Li
  * Lenient SRT/VTT path using [PlayerSubtitleCueParser] when Media3 rejects slightly malformed files.
  * Uses each cue's exact [SubtitleSyncCue.endTimeMs] (not stretched to the next cue start).
  */
-internal fun parseSidecarTimedCuesLenient(rawText: String, sourceUrl: String): List<CuesWithTiming> {
+internal fun parseSidecarTimedCuesLenient(
+    rawText: String,
+    sourceUrl: String
+): List<CuesWithTiming> {
     val syncCues = try {
         PlayerSubtitleCueParser.parseFromText(rawText, sourceUrl)
             .filter { it.text.isNotBlank() && it.startTimeMs >= 0L }
@@ -406,10 +421,7 @@ internal fun parseSidecarTimedCuesLenient(rawText: String, sourceUrl: String): L
 }
 
 /** [cues] must be ordered by [CuesWithTiming.startTimeUs]; the scan stops at the first later cue. */
-internal fun collectActiveSidecarCues(
-    cues: List<CuesWithTiming>,
-    positionUs: Long
-): List<Cue> {
+internal fun collectActiveSidecarCues(cues: List<CuesWithTiming>, positionUs: Long): List<Cue> {
     if (cues.isEmpty()) return emptyList()
     val active = ArrayList<Cue>(4)
     for (entry in cues) {

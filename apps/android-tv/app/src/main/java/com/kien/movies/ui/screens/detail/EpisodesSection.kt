@@ -1,18 +1,15 @@
 package com.kien.movies.ui.screens.detail
 
+import android.text.format.DateFormat
 import android.view.KeyEvent as AndroidKeyEvent
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
-import com.kien.movies.ui.theme.MoviesPrimitives
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.Canvas
-import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,58 +25,60 @@ import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kien.movies.core.util.parseEpisodeReleaseLocalDate
 import androidx.tv.material3.Border
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -95,12 +94,15 @@ import coil3.request.crossfade
 import coil3.request.transformations
 import com.kien.movies.R
 import com.kien.movies.core.tracking.TrackingMediaReference
+import com.kien.movies.core.util.parseEpisodeReleaseLocalDate
+import com.kien.movies.domain.model.CardDepthSurface
+import com.kien.movies.domain.model.EpisodeOptionsOverlayStyle
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.Video
-import com.kien.movies.domain.model.EpisodeOptionsOverlayStyle
 import com.kien.movies.ui.components.FocusMarqueeText
 import com.kien.movies.ui.components.ImdbRatingSourceLabel
 import com.kien.movies.ui.components.LightweightCard
+import com.kien.movies.ui.components.LocalCardDepthStyle
 import com.kien.movies.ui.components.MonochromePosterPlaceholder
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.WatchedMarker
@@ -108,21 +110,19 @@ import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.domain.model.CardDepthSurface
-import com.kien.movies.ui.components.LocalCardDepthStyle
 import com.kien.movies.ui.components.moviesCardDepth
-import android.text.format.DateFormat
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.shadow
+import com.kien.movies.ui.theme.ExpressiveColors
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.util.SmoothDownscaleTransformation
+import com.kien.movies.ui.util.contentTextDirection
+import com.kien.movies.ui.util.localizeEpisodeTitle
+import com.kien.movies.ui.util.rememberLongPressKeyTracker
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
-import com.kien.movies.ui.util.contentTextDirection
-import com.kien.movies.ui.util.localizeEpisodeTitle
-import com.kien.movies.ui.util.SmoothDownscaleTransformation
-import com.kien.movies.ui.util.rememberLongPressKeyTracker
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 
 private const val EPISODE_CARD_CONTENT_TYPE = "episode_card"
 private const val EPISODE_SCROLL_REPEAT_THROTTLE_MS = 80L
@@ -136,9 +136,7 @@ private val SEASON_TAB_BOX_VERTICAL_PADDING = 12.dp
 private const val UNSELECTED_TAB_TEXT_ALPHA = 0.64f
 
 @Immutable
-data class SeasonPosterTabsStyle(
-    val posters: Map<Int, String?>
-)
+data class SeasonPosterTabsStyle(val posters: Map<Int, String?>)
 
 internal fun resolveSeasonPosters(meta: Meta, seasons: List<Int>): Map<Int, String>? {
     val posters = seasons.mapNotNull { season ->
@@ -150,7 +148,11 @@ internal fun resolveSeasonPosters(meta: Meta, seasons: List<Int>): Map<Int, Stri
     return posters.takeIf { it.isNotEmpty() }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
+@OptIn(
+    ExperimentalTvMaterial3Api::class,
+    ExperimentalFoundationApi::class,
+    androidx.compose.ui.ExperimentalComposeUiApi::class
+)
 @Composable
 fun SeasonTabs(
     seasons: List<Int>,
@@ -227,12 +229,15 @@ fun SeasonTabs(
         object : BringIntoViewSpec {
             override val scrollAnimationSpec: AnimationSpec<Float> = defaultBringIntoViewSpec.scrollAnimationSpec
 
-            override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float =
-                if (isRtl) {
-                    (offset + size) - (containerSize - rowStartPaddingPx)
-                } else {
-                    offset - rowStartPaddingPx
-                }
+            override fun calculateScrollDistance(
+                offset: Float,
+                size: Float,
+                containerSize: Float
+            ): Float = if (isRtl) {
+                (offset + size) - (containerSize - rowStartPaddingPx)
+            } else {
+                offset - rowStartPaddingPx
+            }
         }
     }
 
@@ -267,8 +272,19 @@ fun SeasonTabs(
                 }
                 .focusGroup(),
             state = lazyListState,
-            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xl),
-            horizontalArrangement = Arrangement.spacedBy(if (posterStyle != null) MoviesTheme.spacing.lg else MoviesTheme.spacing.md)
+            contentPadding = PaddingValues(
+                horizontal = MoviesTheme.spacing.xxxl,
+                vertical = MoviesTheme.spacing.xl
+            ),
+            horizontalArrangement = Arrangement.spacedBy(
+                if (posterStyle !=
+                    null
+                ) {
+                    MoviesTheme.spacing.lg
+                } else {
+                    MoviesTheme.spacing.md
+                }
+            )
         ) {
             items(sortedSeasons, key = { it }) { season ->
                 val isSelected = season == selectedSeason
@@ -280,8 +296,18 @@ fun SeasonTabs(
                 SeasonTab(
                     season = season,
                     isSelected = isSelected,
-                    isLeftEdge = if (isRtl) season == sortedSeasons.last() else season == sortedSeasons.first(),
-                    isRightEdge = if (isRtl) season == sortedSeasons.first() else season == sortedSeasons.last(),
+                    isLeftEdge = if (isRtl) {
+                        season == sortedSeasons.last()
+                    } else {
+                        season ==
+                            sortedSeasons.first()
+                    },
+                    isRightEdge = if (isRtl) {
+                        season == sortedSeasons.first()
+                    } else {
+                        season ==
+                            sortedSeasons.last()
+                    },
                     isFocusEnabled = isFocusEnabled,
                     rowHasFocus = isSelected && seasonRowHasFocus,
                     isPosterMode = posterStyle != null,
@@ -323,7 +349,13 @@ private fun SeasonTab(
     var isFocused by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
-    val label = if (season == 0) stringResource(R.string.episodes_specials) else stringResource(R.string.episodes_season, season)
+    val label = if (season ==
+        0
+    ) {
+        stringResource(R.string.episodes_specials)
+    } else {
+        stringResource(R.string.episodes_season, season)
+    }
     val isHighlighted = isFocused || (isSelected && !rowHasFocus)
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -378,7 +410,10 @@ private fun SeasonTab(
                     }
                     if (native.action == AndroidKeyEvent.ACTION_UP &&
                         longPressTriggered &&
-                        (isSelectKey(native.keyCode) || native.keyCode == AndroidKeyEvent.KEYCODE_MENU)
+                        (
+                            isSelectKey(native.keyCode) ||
+                                native.keyCode == AndroidKeyEvent.KEYCODE_MENU
+                            )
                     ) {
                         longPressTriggered = false
                         return@onPreviewKeyEvent true
@@ -469,11 +504,16 @@ private fun SeasonPosterImage(posterUrl: String?, shape: Shape) {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
+@OptIn(
+    ExperimentalTvMaterial3Api::class,
+    ExperimentalFoundationApi::class,
+    androidx.compose.ui.ExperimentalComposeUiApi::class
+)
 @Composable
 fun EpisodesRow(
     episodes: List<Video>,
-    episodeProgressMap: Map<Pair<Int, Int>, com.kien.movies.domain.model.WatchProgress> = emptyMap(),
+    episodeProgressMap: Map<Pair<Int, Int>, com.kien.movies.domain.model.WatchProgress> =
+        emptyMap(),
     episodeRatings: Map<Pair<Int, Int>, Double> = emptyMap(),
     watchedEpisodes: Set<Pair<Int, Int>> = emptySet(),
     episodeWatchedPendingKeys: Set<String> = emptySet(),
@@ -512,15 +552,16 @@ fun EpisodesRow(
     val cardMetrics = rememberEpisodeCardMetrics(posterCardCornerRadiusDp)
     val density = LocalDensity.current
     val rowPrefetchStrategy = remember { LazyListPrefetchStrategy(nestedPrefetchItemCount = 2) }
-    val initialEpisodeIndex = remember(dedupedEpisodes, restoreEpisodeId, scrollToEpisodeId, anchorEpisodeId) {
-        val initialEpisodeId = restoreEpisodeId ?: scrollToEpisodeId ?: anchorEpisodeId
-        val targetIndex = dedupedEpisodes.indexOfFirst { it.id == initialEpisodeId }
-        if (restoreEpisodeId != null) {
-            (targetIndex - 1).coerceAtLeast(0)
-        } else {
-            targetIndex.coerceAtLeast(0)
+    val initialEpisodeIndex =
+        remember(dedupedEpisodes, restoreEpisodeId, scrollToEpisodeId, anchorEpisodeId) {
+            val initialEpisodeId = restoreEpisodeId ?: scrollToEpisodeId ?: anchorEpisodeId
+            val targetIndex = dedupedEpisodes.indexOfFirst { it.id == initialEpisodeId }
+            if (restoreEpisodeId != null) {
+                (targetIndex - 1).coerceAtLeast(0)
+            } else {
+                targetIndex.coerceAtLeast(0)
+            }
         }
-    }
     val lazyListState = rememberLazyListState(
         initialFirstVisibleItemIndex = initialEpisodeIndex,
         prefetchStrategy = rowPrefetchStrategy
@@ -549,7 +590,12 @@ fun EpisodesRow(
         }
         val index = dedupedEpisodes.indexOfFirst { it.id == restoreEpisodeId }
         if (index >= 0) {
-            val offsetPx = with(density) { (cardMetrics.cardWidth * 2f / 3f - cardMetrics.itemSpacing).roundToPx() }
+            val offsetPx = with(density) {
+                (
+                    cardMetrics.cardWidth * 2f / 3f -
+                        cardMetrics.itemSpacing
+                    ).roundToPx()
+            }
             lazyListState.scrollToItem(index, scrollOffset = -offsetPx)
         }
         repeat(EPISODE_RESTORE_FOCUS_ATTEMPTS) {
@@ -567,7 +613,10 @@ fun EpisodesRow(
         if (scrollToEpisodeId.isNullOrBlank()) return@LaunchedEffect
         val index = dedupedEpisodes.indexOfFirst { it.id == scrollToEpisodeId }
         if (index < 0) return@LaunchedEffect
-        val offsetPx = with(density) { (cardMetrics.cardWidth * 2f / 3f - cardMetrics.itemSpacing).roundToPx() }
+        val offsetPx =
+            with(density) {
+                (cardMetrics.cardWidth * 2f / 3f - cardMetrics.itemSpacing).roundToPx()
+            }
         lazyListState.scrollToItem(index, scrollOffset = -offsetPx)
         onScrollToEpisodeHandled()
     }
@@ -625,11 +674,28 @@ fun EpisodesRow(
             key = { it.id },
             contentType = { EPISODE_CARD_CONTENT_TYPE }
         ) { episode ->
-            val seasonEp = remember(episode.season, episode.episode) { episode.season?.let { s -> episode.episode?.let { e -> s to e } } }
-            val progress = remember(seasonEp, episodeProgressMap) { seasonEp?.let { episodeProgressMap[it] } }
-            val imdbRating = remember(seasonEp, episodeRatings) { seasonEp?.let { episodeRatings[it] } }
-            val isMarkedWatched = remember(seasonEp, watchedEpisodes) { seasonEp?.let { watchedEpisodes.contains(it) } ?: false }
-            val episodeFocusRequester = remember(episode.id) { episodeFocusRequesters.getOrPut(episode.id) { FocusRequester() } }
+            val seasonEp =
+                remember(episode.season, episode.episode) {
+                    episode.season?.let { s ->
+                        episode.episode?.let { e ->
+                            s to
+                                e
+                        }
+                    }
+                }
+            val progress =
+                remember(seasonEp, episodeProgressMap) { seasonEp?.let { episodeProgressMap[it] } }
+            val imdbRating =
+                remember(seasonEp, episodeRatings) { seasonEp?.let { episodeRatings[it] } }
+            val isMarkedWatched =
+                remember(seasonEp, watchedEpisodes) {
+                    seasonEp?.let { watchedEpisodes.contains(it) }
+                        ?: false
+                }
+            val episodeFocusRequester =
+                remember(episode.id) {
+                    episodeFocusRequesters.getOrPut(episode.id) { FocusRequester() }
+                }
             val episodeOnClick = remember(episode, onEpisodeClick) { { onEpisodeClick(episode) } }
             val episodeOnLongPress = remember(episode.id) { { optionsEpisode = episode } }
             val episodeOnFocused = remember(episode.id) { { onEpisodeFocused(episode.id) } }
@@ -660,8 +726,8 @@ fun EpisodesRow(
     optionsEpisode?.let { selectedEpisode ->
         val selectedWatched = selectedEpisode.season?.let { season ->
             selectedEpisode.episode?.let { episode ->
-                episodeProgressMap[season to episode]?.isCompleted() == true
-                    || watchedEpisodes.contains(season to episode)
+                episodeProgressMap[season to episode]?.isCompleted() == true ||
+                    watchedEpisodes.contains(season to episode)
             }
         } ?: false
         val isPending = episodeWatchedPendingKeys.contains(episodePendingKey(selectedEpisode))
@@ -764,7 +830,11 @@ private fun EpisodeCard(
         imdbRating?.takeIf { it > 0.0 }?.let { String.format(Locale.US, "%.1f", it) }
     }
     val description = remember(episode.overview) { episode.overview?.trim().orEmpty() }
-    val isWatched = remember(watchProgress, isMarkedWatched) { watchProgress?.isCompleted() == true || isMarkedWatched }
+    val isWatched =
+        remember(watchProgress, isMarkedWatched) {
+            watchProgress?.isCompleted() == true ||
+                isMarkedWatched
+        }
     val shouldBlur = remember(blurUnwatched, isWatched) { blurUnwatched && !isWatched }
     val progressPercent = remember(watchProgress) { watchProgress?.progressPercentage ?: 0f }
     val showProgress = remember(watchProgress) { watchProgress?.isInProgress() == true }
@@ -840,21 +910,25 @@ private fun EpisodeCard(
         )
     }
     val badgeBgColor = remember { Color.Black.copy(alpha = 0.42f) }
-    val badgeShape = remember(cardMetrics.episodeBadgeCornerRadius) { RoundedCornerShape(cardMetrics.episodeBadgeCornerRadius) }
+    val badgeShape =
+        remember(cardMetrics.episodeBadgeCornerRadius) {
+            RoundedCornerShape(cardMetrics.episodeBadgeCornerRadius)
+        }
     val progressBgColor = remember { Color.Black.copy(alpha = 0.45f) }
     val notStartedBadgeColor = remember(textSecondary) { textSecondary.copy(alpha = 0.9f) }
-    val thumbnailRequest = remember(context, episode.thumbnail, thumbnailWidthPx, thumbnailHeightPx, shouldBlur) {
-        ImageRequest.Builder(context)
-            .data(episode.thumbnail)
-            .crossfade(true)
-            .size(width = thumbnailWidthPx, height = thumbnailHeightPx)
-            .apply {
-                if (shouldBlur) {
-                    transformations(com.kien.movies.ui.util.BlurTransformation())
+    val thumbnailRequest =
+        remember(context, episode.thumbnail, thumbnailWidthPx, thumbnailHeightPx, shouldBlur) {
+            ImageRequest.Builder(context)
+                .data(episode.thumbnail)
+                .crossfade(true)
+                .size(width = thumbnailWidthPx, height = thumbnailHeightPx)
+                .apply {
+                    if (shouldBlur) {
+                        transformations(com.kien.movies.ui.util.BlurTransformation())
+                    }
                 }
-            }
-            .build()
-    }
+                .build()
+        }
     val overlayBackdropUrl = remember(episode.thumbnail) {
         episodeOverlayBackdropUrl(episode.thumbnail)
     }
@@ -989,7 +1063,10 @@ private fun EpisodeCard(
                     fallbackBorderAlpha = 0.12f
                 )
         ) {
-            val bgPainter = remember(cardBgColor) { androidx.compose.ui.graphics.painter.ColorPainter(cardBgColor) }
+            val bgPainter =
+                remember(cardBgColor) {
+                    androidx.compose.ui.graphics.painter.ColorPainter(cardBgColor)
+                }
             AsyncImage(
                 model = thumbnailRequest,
                 // The card announces the episode title through FocusMarqueeText below, so the
@@ -1002,8 +1079,7 @@ private fun EpisodeCard(
                             CompositingStrategy.Offscreen
                     }
                     .clipToBounds()
-
-                    //Gradient for text legibility
+                    // Gradient for text legibility
                     .drawWithContent {
                         drawContent()
 
@@ -1070,13 +1146,15 @@ private fun EpisodeCard(
                     text = episode.title.localizeEpisodeTitle(context),
                     focused = isFocused && !suppressMarquee,
                     style = titleStyle,
-                    color = textPrimary,
+                    color = textPrimary
                 )
 
                 if (description.isNotBlank()) {
                     Text(
                         text = description,
-                        style = descriptionStyle.copy(textDirection = description.contentTextDirection()),
+                        style = descriptionStyle.copy(
+                            textDirection = description.contentTextDirection()
+                        ),
                         maxLines = cardMetrics.descriptionMaxLines,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -1090,7 +1168,9 @@ private fun EpisodeCard(
                     ) {
                         runtimeLabel?.let { runtime ->
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs),
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    MoviesTheme.spacing.xs
+                                ),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
@@ -1109,7 +1189,9 @@ private fun EpisodeCard(
 
                         ratingLabel?.let { rating ->
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs),
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    MoviesTheme.spacing.xs
+                                ),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 ImdbRatingSourceLabel(
@@ -1161,7 +1243,10 @@ private fun EpisodeCard(
                                 drawRoundRect(color = progressBgColor, cornerRadius = cr)
                                 drawRoundRect(
                                     color = progressFillColor,
-                                    size = androidx.compose.ui.geometry.Size(fillWidth, size.height),
+                                    size = androidx.compose.ui.geometry.Size(
+                                        fillWidth,
+                                        size.height
+                                    ),
                                     cornerRadius = cr
                                 )
                             }
@@ -1249,7 +1334,13 @@ fun SeasonOptionsDialog(
 
     MoviesDialog(
         onDismiss = onDismiss,
-        title = if (season == 0) stringResource(R.string.episodes_specials) else stringResource(R.string.episodes_season, season),
+        title = if (season ==
+            0
+        ) {
+            stringResource(R.string.episodes_specials)
+        } else {
+            stringResource(R.string.episodes_season, season)
+        },
         subtitle = stringResource(R.string.episodes_season_actions)
     ) {
         MoviesButton(

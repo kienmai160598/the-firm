@@ -9,7 +9,7 @@ internal object PlayerFirstFrameWatchdogPolicy {
 
     enum class RecoveryAction {
         None,
-        ForcePlayWhenReady,
+        ForcePlayWhenReady
     }
 
     data class Input(
@@ -17,7 +17,7 @@ internal object PlayerFirstFrameWatchdogPolicy {
         val currentStreamHasVideoTrack: Boolean,
         val playbackState: Int,
         val playWhenReady: Boolean,
-        val userPausedManually: Boolean,
+        val userPausedManually: Boolean
     )
 
     fun evaluate(input: Input): RecoveryAction {

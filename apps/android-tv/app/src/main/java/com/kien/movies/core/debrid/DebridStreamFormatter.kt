@@ -15,9 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DebridStreamFormatter @Inject constructor(
-    private val engine: DebridStreamTemplateEngine
-) {
+class DebridStreamFormatter @Inject constructor(private val engine: DebridStreamTemplateEngine) {
     fun format(
         stream: Stream,
         settings: DebridSettings,
@@ -26,7 +24,11 @@ class DebridStreamFormatter @Inject constructor(
     ): Stream {
         if (!stream.isManagedDebridForFormatting()) return stream
         val matchedBadges = StreamBadgeMatcher.matchedBadges(stream, compiledBadgeFilters)
-        val values = buildValues(stream, matchedBadges, facts ?: DirectDebridStreamFilter.facts(stream, settings))
+        val values = buildValues(
+            stream,
+            matchedBadges,
+            facts ?: DirectDebridStreamFilter.facts(stream, settings)
+        )
         val formattedName = engine.render(settings.streamNameTemplate, values)
             .lineSequence()
             .joinToString(" ") { it.trim() }
@@ -40,7 +42,10 @@ class DebridStreamFormatter @Inject constructor(
             .trim()
 
         return stream.copy(
-            name = formattedName.ifBlank { stream.name ?: DebridProviders.instantName(stream.clientResolve?.service) },
+            name = formattedName.ifBlank {
+                stream.name
+                    ?: DebridProviders.instantName(stream.clientResolve?.service)
+            },
             description = formattedDescription.ifBlank { stream.description ?: stream.title },
             badges = matchedBadges
         )
@@ -62,9 +67,18 @@ class DebridStreamFormatter @Inject constructor(
             addAll(parsed?.hdr.orEmpty())
             parsed?.bitDepth?.takeIf { it.isNotBlank() }?.let { add(it) }
         }.ifEmpty { facts.visualTags.labelsExcludingUnknown { it.label } }
-        val audioTags = parsed?.audio.orEmpty().ifEmpty { facts.audioTags.labelsExcludingUnknown { it.label } }
-        val audioChannels = parsed?.channels.orEmpty().ifEmpty { facts.audioChannels.labelsExcludingUnknown { it.label } }
-        val languages = parsed?.languages.orEmpty().ifEmpty { facts.languages.map { it.code }.filterNot { it == "unknown" } }
+        val audioTags = parsed?.audio.orEmpty().ifEmpty {
+            facts.audioTags.labelsExcludingUnknown { it.label }
+        }
+        val audioChannels = parsed?.channels.orEmpty().ifEmpty {
+            facts.audioChannels.labelsExcludingUnknown { it.label }
+        }
+        val languages = parsed?.languages.orEmpty().ifEmpty {
+            facts.languages.map { it.code }.filterNot {
+                it ==
+                    "unknown"
+            }
+        }
         val edition = parsed?.edition ?: buildEdition(parsed)
         val matchedBadgeNames = matchedBadges.map { it.name }
 
@@ -86,7 +100,8 @@ class DebridStreamFormatter @Inject constructor(
             "stream.audioChannels" to audioChannels,
             "stream.languages" to languages,
             "stream.languageEmojis" to languages.map { languageEmoji(it) },
-            "stream.size" to StreamTextSizeParser.effectiveSizeBytes(stream)?.let(::DebridTemplateBytes),
+            "stream.size" to
+                StreamTextSizeParser.effectiveSizeBytes(stream)?.let(::DebridTemplateBytes),
             "stream.folderSize" to raw?.folderSize?.let(::DebridTemplateBytes),
             "stream.encode" to (parsed?.codec?.uppercase() ?: facts.encode.labelUnlessUnknown()),
             "stream.indexer" to (raw?.indexer ?: raw?.tracker),
@@ -94,7 +109,11 @@ class DebridStreamFormatter @Inject constructor(
             "stream.releaseGroup" to parsed?.group,
             "stream.duration" to parsed?.duration,
             "stream.edition" to edition,
-            "stream.filename" to (raw?.filename ?: resolve?.filename ?: stream.behaviorHints?.filename ?: stream.debridCacheStatus?.cachedName),
+            "stream.filename" to
+                (
+                    raw?.filename ?: resolve?.filename ?: stream.behaviorHints?.filename
+                        ?: stream.debridCacheStatus?.cachedName
+                    ),
             "stream.regexMatched" to matchedBadgeNames,
             "stream.rseMatched" to matchedBadgeNames,
             "stream.type" to streamType(stream, resolve),
@@ -117,7 +136,9 @@ class DebridStreamFormatter @Inject constructor(
     private fun serviceCached(stream: Stream, resolve: StreamClientResolve?): Boolean? {
         return when (stream.debridCacheStatus?.state) {
             StreamDebridCacheState.CACHED -> true
+
             StreamDebridCacheState.NOT_CACHED -> false
+
             StreamDebridCacheState.CHECKING,
             StreamDebridCacheState.UNKNOWN,
             null -> resolve?.isCached
@@ -134,11 +155,9 @@ class DebridStreamFormatter @Inject constructor(
         return DebridProviders.displayName(serviceId(stream, resolve))
     }
 
-    private fun serviceId(stream: Stream, resolve: StreamClientResolve?): String? =
-        stream.debridCacheStatus?.providerId ?: resolve?.service
+    private fun serviceId(stream: Stream, resolve: StreamClientResolve?): String? = stream.debridCacheStatus?.providerId ?: resolve?.service
 
-    private fun Stream.isManagedDebridForFormatting(): Boolean =
-        isDirectDebrid() || debridCacheStatus != null
+    private fun Stream.isManagedDebridForFormatting(): Boolean = isDirectDebrid() || debridCacheStatus != null
 
     private fun buildEdition(parsed: StreamClientResolveParsed?): String? {
         if (parsed == null) return null
@@ -156,7 +175,11 @@ class DebridStreamFormatter @Inject constructor(
         seasons: List<Int>,
         episodes: List<Int>
     ): List<String> {
-        if (season != null && episode != null) return listOf("S${season.twoDigits()}E${episode.twoDigits()}")
+        if (season != null &&
+            episode != null
+        ) {
+            return listOf("S${season.twoDigits()}E${episode.twoDigits()}")
+        }
         if (seasons.isEmpty() || episodes.isEmpty()) return emptyList()
         return seasons.flatMap { s -> episodes.map { e -> "S${s.twoDigits()}E${e.twoDigits()}" } }
     }
@@ -171,17 +194,13 @@ class DebridStreamFormatter @Inject constructor(
 
     private fun Int.twoDigits(): String = toString().padStart(2, '0')
 
-    private fun DebridStreamResolution.labelUnlessUnknown(): String? =
-        label.takeUnless { this == DebridStreamResolution.UNKNOWN }
+    private fun DebridStreamResolution.labelUnlessUnknown(): String? = label.takeUnless { this == DebridStreamResolution.UNKNOWN }
 
-    private fun DebridStreamQuality.labelUnlessUnknown(): String? =
-        label.takeUnless { this == DebridStreamQuality.UNKNOWN }
+    private fun DebridStreamQuality.labelUnlessUnknown(): String? = label.takeUnless { this == DebridStreamQuality.UNKNOWN }
 
-    private fun DebridStreamEncode.labelUnlessUnknown(): String? =
-        label.takeUnless { this == DebridStreamEncode.UNKNOWN }
+    private fun DebridStreamEncode.labelUnlessUnknown(): String? = label.takeUnless { this == DebridStreamEncode.UNKNOWN }
 
-    private fun <T> List<T>.labelsExcludingUnknown(label: (T) -> String): List<String> =
-        map(label).filterNot { it.equals("Unknown", ignoreCase = true) }
+    private fun <T> List<T>.labelsExcludingUnknown(label: (T) -> String): List<String> = map(label).filterNot { it.equals("Unknown", ignoreCase = true) }
 
     private fun languageEmoji(language: String): String {
         return when (language.lowercase()) {

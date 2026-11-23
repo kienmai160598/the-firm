@@ -28,7 +28,9 @@ class SpeechStartsTest {
 
     @Test
     fun lineStartsAreShortIntervalsAroundEachStart() {
-        val track = SubtitleSpeechTrack.fromCues(listOf(Triple(1_000L, 3_000L, "Hello"), Triple(5_000L, 6_500L, "There")))
+        val track = SubtitleSpeechTrack.fromCues(
+            listOf(Triple(1_000L, 3_000L, "Hello"), Triple(5_000L, 6_500L, "There"))
+        )
         val starts = track.starts
         assertEquals(2, starts.size)
         assertEquals(listOf(920L, 4_920L), starts.startsMs.toList())
@@ -49,8 +51,14 @@ class SpeechStartsTest {
         val frames = ((t + 10_000L) / SpeechTimeline.FRAME_DURATION_MS).toInt()
         val p = FloatArray(frames) { 0.05f }
         for ((a, b, _) in cues) {
-            val from = ((a + trueShiftMs + SubtitleAudioAligner.DETECTOR_BIAS_MS) / SpeechTimeline.FRAME_DURATION_MS).toInt()
-            val to = ((b + trueShiftMs + SubtitleAudioAligner.DETECTOR_BIAS_MS) / SpeechTimeline.FRAME_DURATION_MS).toInt()
+            val from = (
+                (a + trueShiftMs + SubtitleAudioAligner.DETECTOR_BIAS_MS) /
+                    SpeechTimeline.FRAME_DURATION_MS
+                ).toInt()
+            val to = (
+                (b + trueShiftMs + SubtitleAudioAligner.DETECTOR_BIAS_MS) /
+                    SpeechTimeline.FRAME_DURATION_MS
+                ).toInt()
             for (f in from until minOf(to, frames)) p[f] = 0.9f
         }
         val segments = listOf(SpeechSegment(0, p))
@@ -61,8 +69,8 @@ class SpeechStartsTest {
                 track = track.starts,
                 scales = doubleArrayOf(1.0),
                 minShiftMs = -60_000.0,
-                maxShiftMs = 60_000.0,
-            ),
+                maxShiftMs = 60_000.0
+            )
         )
         assertTrue(abs(starts.shiftMs - trueShiftMs) < 150.0, "starts $starts")
         assertTrue(starts.separation > 0.2, "starts stand out: $starts")

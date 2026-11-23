@@ -3,6 +3,9 @@ package com.kien.movies.ui.screens.player.autosync
 import android.os.SystemClock
 import androidx.media3.common.C
 import com.kien.movies.ui.screens.player.SubtitleSyncCue
+import kotlin.math.abs
+import kotlin.math.exp
+import kotlin.math.roundToLong
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -17,9 +20,6 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlin.math.abs
-import kotlin.math.exp
-import kotlin.math.roundToLong
 
 /**
  * Android-only AutoSync V2.
@@ -89,10 +89,10 @@ internal object AutomaticSubtitleSync {
         object : LinkedHashMap<ParsedSubtitleCacheKey, CachedParsedSubtitle>(
             MAX_PARSED_SUBTITLE_CACHE_ENTRIES,
             0.75f,
-            true,
+            true
         ) {
             override fun removeEldestEntry(
-                eldest: MutableMap.MutableEntry<ParsedSubtitleCacheKey, CachedParsedSubtitle>?,
+                eldest: MutableMap.MutableEntry<ParsedSubtitleCacheKey, CachedParsedSubtitle>?
             ): Boolean = size > MAX_PARSED_SUBTITLE_CACHE_ENTRIES
         }
 
@@ -106,10 +106,10 @@ internal object AutomaticSubtitleSync {
         object : LinkedHashMap<Pair<String, String>, AutoSyncResolvedTimeline>(
             MAX_RESOLVED_CACHE_ENTRIES,
             0.75f,
-            true,
+            true
         ) {
             override fun removeEldestEntry(
-                eldest: MutableMap.MutableEntry<Pair<String, String>, AutoSyncResolvedTimeline>?,
+                eldest: MutableMap.MutableEntry<Pair<String, String>, AutoSyncResolvedTimeline>?
             ): Boolean = size > MAX_RESOLVED_CACHE_ENTRIES
         }
 
@@ -126,7 +126,7 @@ internal object AutomaticSubtitleSync {
         onAnalysisOutcome: ((AutoSyncAnalysisOutcome) -> Unit)? = null,
         sourceHeaders: Map<String, String> = emptyMap(),
         /** False when the player does not feed [EmbeddedSubtitleCueStore] (mpv): indexed references only. */
-        allowLiveReference: Boolean = true,
+        allowLiveReference: Boolean = true
     ): AutoSyncResolvedTimeline? {
         if (alternativeSubtitles.isEmpty() && alternativeSubtitlesProvider == null) {
             synchronized(resolvedCacheLock) { resolvedCache[sourceKey to selectedSubtitleUrl] }
@@ -138,7 +138,7 @@ internal object AutomaticSubtitleSync {
             val indexedTimelineDeferred = async {
                 EmbeddedSubtitleTimelineLoader.load(
                     sourceUrl = sourceKey,
-                    sourceHeaders = sourceHeaders,
+                    sourceHeaders = sourceHeaders
                 )
             }
             val selectedSubtitleDeferred = async {
@@ -160,14 +160,14 @@ internal object AutomaticSubtitleSync {
                         loadSelectedSubtitle(
                             url = selectedSubtitleUrl,
                             headers = selectedSubtitleHeaders,
-                            rawBodyOverride = body,
+                            rawBodyOverride = body
                         )
                     }
                 } else {
                     loadSelectedSubtitle(
                         url = selectedSubtitleUrl,
                         headers = selectedSubtitleHeaders,
-                        languageHint = preferredLanguage,
+                        languageHint = preferredLanguage
                     )
                 }
             }
@@ -196,7 +196,7 @@ internal object AutomaticSubtitleSync {
                         language.isNullOrBlank() ||
                             SubtitleLanguageMatching.matchesLanguageCode(
                                 candidate.language,
-                                language,
+                                language
                             )
                     }
                     .distinctBy { it.url }
@@ -225,7 +225,7 @@ internal object AutomaticSubtitleSync {
                             headers = emptyMap(),
                             languageHint = candidate.language,
                             downloadSemaphore = alternativeDownloadSemaphore,
-                            parseSemaphore = alternativeParseSemaphore,
+                            parseSemaphore = alternativeParseSemaphore
                         )
                     }
                     activeCount++
@@ -279,34 +279,29 @@ internal object AutomaticSubtitleSync {
                 return true
             }
 
-            fun currentExternalCandidates(): List<AutoSyncSubtitleCandidate> =
-                (alternativeSubtitlesProvider?.invoke() ?: alternativeSubtitles)
-                    .distinctBy { it.url }
+            fun currentExternalCandidates(): List<AutoSyncSubtitleCandidate> = (alternativeSubtitlesProvider?.invoke() ?: alternativeSubtitles)
+                .distinctBy { it.url }
 
-            fun selectedLanguage(
-                candidates: List<AutoSyncSubtitleCandidate>,
-            ): String? =
-                candidates.firstOrNull { it.url == selectedSubtitleUrl }
-                    ?.language
-                    ?.takeIf { it.isNotBlank() }
-                    ?: preferredLanguage?.takeIf { it.isNotBlank() }
+            fun selectedLanguage(candidates: List<AutoSyncSubtitleCandidate>): String? = candidates.firstOrNull { it.url == selectedSubtitleUrl }
+                ?.language
+                ?.takeIf { it.isNotBlank() }
+                ?: preferredLanguage?.takeIf { it.isNotBlank() }
 
             fun sameLanguageAlternatives(
                 candidates: List<AutoSyncSubtitleCandidate>,
-                language: String?,
-            ): List<AutoSyncSubtitleCandidate> =
-                candidates
-                    .asSequence()
-                    .filter { it.url.isNotBlank() && it.url != selectedSubtitleUrl }
-                    .filter { candidate ->
-                        language.isNullOrBlank() ||
-                            SubtitleLanguageMatching.matchesLanguageCode(
-                                candidate.language,
-                                language,
-                            )
-                    }
-                    .distinctBy { it.url }
-                    .toList()
+                language: String?
+            ): List<AutoSyncSubtitleCandidate> = candidates
+                .asSequence()
+                .filter { it.url.isNotBlank() && it.url != selectedSubtitleUrl }
+                .filter { candidate ->
+                    language.isNullOrBlank() ||
+                        SubtitleLanguageMatching.matchesLanguageCode(
+                            candidate.language,
+                            language
+                        )
+                }
+                .distinctBy { it.url }
+                .toList()
 
             var availableCandidates = currentExternalCandidates()
             var language = selectedLanguage(availableCandidates)
@@ -346,7 +341,6 @@ internal object AutomaticSubtitleSync {
                         delay(waitSliceMs)
                     }
                 }
-
             }
 
             if (selected == null) {
@@ -380,7 +374,7 @@ internal object AutomaticSubtitleSync {
                                 headers = emptyMap(),
                                 languageHint = candidate.language,
                                 downloadSemaphore = alternativeDownloadSemaphore,
-                                parseSemaphore = alternativeParseSemaphore,
+                                parseSemaphore = alternativeParseSemaphore
                             )
                         }
                         prefetchedAlternativeLoads[candidate.url] = job
@@ -459,7 +453,7 @@ internal object AutomaticSubtitleSync {
                         indexedTimeline?.skipLiveFallbackWait == true -> 0L
                         else -> LIVE_REFERENCE_WAIT_MS
                     },
-                    allowSparseLiveReference = useSparseLiveReference,
+                    allowSparseLiveReference = useSparseLiveReference
                 )
                 referenceTracks = liveSelection.primary
                 forcedFallbackTracks = liveSelection.forcedFallback
@@ -492,11 +486,11 @@ internal object AutomaticSubtitleSync {
                                 AutoSyncReferenceConsistency.Reference(
                                     key = track.key,
                                     activity = it,
-                                    cueCount = track.cues.size,
+                                    cueCount = track.cues.size
                                 )
                             }
                         },
-                        cancellationCheck = { consistencyContext.ensureActive() },
+                        cancellationCheck = { consistencyContext.ensureActive() }
                     )
                 }
                 if (outliers.isNotEmpty()) {
@@ -515,7 +509,7 @@ internal object AutomaticSubtitleSync {
                     ?: AutoSyncSubtitleCandidate(
                         url = selectedSubtitleUrl,
                         language = language ?: preferredLanguage.orEmpty(),
-                        name = "Selected",
+                        name = "Selected"
                     )
 
             // Put the selected subtitle into the same pool. It remains eligible, but is no
@@ -567,8 +561,7 @@ internal object AutomaticSubtitleSync {
                 }
             }
 
-            fun headersForCandidate(url: String): Map<String, String> =
-                if (url == selectedSubtitleUrl) selectedSubtitleHeaders else emptyMap()
+            fun headersForCandidate(url: String): Map<String, String> = if (url == selectedSubtitleUrl) selectedSubtitleHeaders else emptyMap()
 
             fun scheduleMoreLoads() {
                 refreshCandidatePool()
@@ -590,7 +583,7 @@ internal object AutomaticSubtitleSync {
                                 headers = emptyMap(),
                                 languageHint = candidate.language,
                                 downloadSemaphore = alternativeDownloadSemaphore,
-                                parseSemaphore = alternativeParseSemaphore,
+                                parseSemaphore = alternativeParseSemaphore
                             )
                         }
                     }
@@ -615,7 +608,7 @@ internal object AutomaticSubtitleSync {
                     // Prioritize only that bounded continuation; never drop or cap other work.
                     if (
                         it.family.completedUsableAttempts in
-                            1 until REFERENCE_SEARCH_CHECKPOINT
+                        1 until REFERENCE_SEARCH_CHECKPOINT
                     ) {
                         1
                     } else {
@@ -631,20 +624,20 @@ internal object AutomaticSubtitleSync {
 
             suspend fun admitLoadedCandidate(
                 candidate: AutoSyncSubtitleCandidate,
-                loaded: LoadedSubtitle,
+                loaded: LoadedSubtitle
             ) {
                 loadedByUrl[candidate.url] = loaded
                 val index = candidateOrder[candidate.url] ?: return
                 val alternative = LoadedAlternative(
                     index = index,
                     candidate = candidate,
-                    loaded = loaded,
+                    loaded = loaded
                 )
 
                 val equivalent = timingFamilies.firstOrNull { family ->
                     constantTimelineShiftMs(
                         family.representative.loaded.cues,
-                        loaded.cues,
+                        loaded.cues
                     ) != null
                 }
                 if (equivalent != null) {
@@ -663,13 +656,13 @@ internal object AutomaticSubtitleSync {
                             target = loaded.cues,
                             referenceActivityCache = referenceActivityCache,
                             preparedTargetActivity = targetActivity,
-                            cancellationCheck = { pipelineContext.ensureActive() },
+                            cancellationCheck = { pipelineContext.ensureActive() }
                         )
                     }
                 } else {
                     AutoSyncDelayPreflight.Result(
                         best = null,
-                        evidenceByReferenceKey = emptyMap(),
+                        evidenceByReferenceKey = emptyMap()
                     )
                 }
                 val preflight = preflightResult.best
@@ -678,7 +671,7 @@ internal object AutomaticSubtitleSync {
                     rankReferenceCandidates(
                         target = loaded.cues,
                         referenceTracks = referenceTracks,
-                        preferredReferenceKey = preflight?.referenceKey,
+                        preferredReferenceKey = preflight?.referenceKey
                     )
                 }
 
@@ -689,7 +682,7 @@ internal object AutomaticSubtitleSync {
                     preflight = preflight,
                     preflightEvidenceByReferenceKey =
                         preflightResult.evidenceByReferenceKey,
-                    rankedReferences = rankedReferences,
+                    rankedReferences = rankedReferences
                 )
                 timingFamilies += family
 
@@ -706,18 +699,17 @@ internal object AutomaticSubtitleSync {
                         preflightHint = evidence?.validatedAlignment?.let { alignment ->
                             AutoSyncDelayPreflight.Match(
                                 referenceKey = ranked.track.key,
-                                alignment = alignment,
+                                alignment = alignment
                             )
                         },
                         preflightEvidence = evidence?.search,
                         preflightChampion = isPreflightChampion,
                         schedulingScore = maxOf(
                             ranked.cheapAffinity,
-                            championHint?.score ?: Double.NEGATIVE_INFINITY,
-                        ),
+                            championHint?.score ?: Double.NEGATIVE_INFINITY
+                        )
                     )
                 }
-
             }
 
             fun startPairJobs() {
@@ -745,11 +737,11 @@ internal object AutomaticSubtitleSync {
                             preflightHint = hypothesis.preflightHint,
                             preflightEvidence = hypothesis.preflightEvidence,
                             allowPrecomputedDelayFastPath = hypothesis.preflightChampion,
-                            preparedTargetActivity = hypothesis.family.targetActivity,
+                            preparedTargetActivity = hypothesis.family.targetActivity
                         )
                         CompletedPairEvaluation(
                             hypothesis = hypothesis,
-                            evaluation = evaluation,
+                            evaluation = evaluation
                         )
                     }
                 }
@@ -759,7 +751,7 @@ internal object AutomaticSubtitleSync {
             fun isBetterMatch(
                 candidate: TimelineRetimeMatch,
                 current: TimelineRetimeMatch?,
-                sameTarget: Boolean,
+                sameTarget: Boolean
             ): Boolean {
                 if (current == null) return true
                 if (candidate.timeline.confident != current.timeline.confident) {
@@ -779,8 +771,7 @@ internal object AutomaticSubtitleSync {
                 return candidate.track.key < current.track.key
             }
 
-            suspend fun evaluateForcedReferenceFallback():
-                Pair<CandidateTimingFamilyState, TimelineRetimeMatch>? {
+            suspend fun evaluateForcedReferenceFallback(): Pair<CandidateTimingFamilyState, TimelineRetimeMatch>? {
                 if (forcedFallbackTracks.isEmpty() || timingFamilies.isEmpty()) return null
 
                 var fallbackBestFamily: CandidateTimingFamilyState? = null
@@ -798,13 +789,13 @@ internal object AutomaticSubtitleSync {
                                     target = target,
                                     referenceActivityCache = referenceActivityCache,
                                     preparedTargetActivity = family.targetActivity,
-                                    cancellationCheck = { pipelineContext.ensureActive() },
+                                    cancellationCheck = { pipelineContext.ensureActive() }
                                 )
                             }
                         } else {
                             AutoSyncDelayPreflight.Result(
                                 best = null,
-                                evidenceByReferenceKey = emptyMap(),
+                                evidenceByReferenceKey = emptyMap()
                             )
                         }
                     val preflight = preflightResult.best
@@ -812,7 +803,7 @@ internal object AutomaticSubtitleSync {
                         rankReferenceCandidates(
                             target = target,
                             referenceTracks = forcedFallbackTracks,
-                            preferredReferenceKey = preflight?.referenceKey,
+                            preferredReferenceKey = preflight?.referenceKey
                         )
                     }
 
@@ -831,12 +822,12 @@ internal object AutomaticSubtitleSync {
                             preflightHint = evidence?.validatedAlignment?.let { alignment ->
                                 AutoSyncDelayPreflight.Match(
                                     referenceKey = referenceKey,
-                                    alignment = alignment,
+                                    alignment = alignment
                                 )
                             },
                             preflightEvidence = evidence?.search,
                             allowPrecomputedDelayFastPath = isPreflightChampion,
-                            preparedTargetActivity = family.targetActivity,
+                            preparedTargetActivity = family.targetActivity
                         )
                         fallbackPairs++
 
@@ -847,7 +838,7 @@ internal object AutomaticSubtitleSync {
                             isBetterMatch(
                                 match,
                                 fallbackBestMatch,
-                                sameTarget = family === fallbackBestFamily,
+                                sameTarget = family === fallbackBestFamily
                             )
                         ) {
                             fallbackBestMatch = match
@@ -867,7 +858,7 @@ internal object AutomaticSubtitleSync {
             // longer before settling; they never reject a match passive mode would apply.
             fun canStopForFamily(
                 family: CandidateTimingFamilyState,
-                match: TimelineRetimeMatch,
+                match: TimelineRetimeMatch
             ): Boolean {
                 if (isExceptionalMatch(match)) return true
                 val requiredAttempts =
@@ -878,22 +869,18 @@ internal object AutomaticSubtitleSync {
                 return isStrongCheckpointMatch(match, aggressiveMode) ||
                     isAsymmetricReferenceCheckpointMatch(
                         match,
-                        targetCueCount = family.representative.loaded.cues.size,
+                        targetCueCount = family.representative.loaded.cues.size
                     )
             }
 
-            fun hasEqualOrHigherPriorityOutstanding(
-                family: CandidateTimingFamilyState,
-            ): Boolean {
+            fun hasEqualOrHigherPriorityOutstanding(family: CandidateTimingFamilyState): Boolean {
                 val threshold = family.bestSchedulingScore
                 if (!threshold.isFinite()) return true
                 return queuedPairs.any { it.schedulingScore >= threshold } ||
                     activePairPriorities.values.any { it >= threshold }
             }
 
-            fun recordCompletedPair(
-                completed: CompletedPairEvaluation,
-            ) {
+            fun recordCompletedPair(completed: CompletedPairEvaluation) {
                 evaluatedPairs++
 
                 val family = completed.hypothesis.family
@@ -902,7 +889,7 @@ internal object AutomaticSubtitleSync {
                 if (
                     AutoSyncNoFitTracker.confirmsNoFit(
                         result = pairMatch?.timeline,
-                        sampledReference = completed.hypothesis.rankedReference.track.sampled,
+                        sampledReference = completed.hypothesis.rankedReference.track.sampled
                     )
                 ) {
                     family.noFitPairs++
@@ -932,7 +919,7 @@ internal object AutomaticSubtitleSync {
                 ) {
                     val referenceActivity = preparedReferenceActivity(
                         completed.hypothesis.rankedReference.track,
-                        referenceActivityCache,
+                        referenceActivityCache
                     )
                     if (referenceActivity != null && family.noFit.recordNoFit(referenceActivity)) {
                         family.abandoned = true
@@ -974,8 +961,7 @@ internal object AutomaticSubtitleSync {
             scheduleMoreLoads()
             startPairJobs()
 
-            fun authoritativeStopFamily(): CandidateTimingFamilyState? =
-                findStopFamily()
+            fun authoritativeStopFamily(): CandidateTimingFamilyState? = findStopFamily()
 
             var strongStop = false
             try {
@@ -1078,14 +1064,14 @@ internal object AutomaticSubtitleSync {
                         evaluatedPairs = selectedFamily.evaluatedPairs,
                         noFitPairs = selectedFamily.noFitPairs,
                         rankedReferences = selectedFamily.rankedReferences.size,
-                        abandoned = selectedFamily.abandoned,
+                        abandoned = selectedFamily.abandoned
                     )
                 onAnalysisOutcome?.invoke(
                     if (confirmedNoFit) {
                         AutoSyncAnalysisOutcome.NO_FIT
                     } else {
                         AutoSyncAnalysisOutcome.INCONCLUSIVE
-                    },
+                    }
                 )
                 if (!selectedResolved) {
                     selectedSubtitleDeferred.cancel()
@@ -1106,7 +1092,7 @@ internal object AutomaticSubtitleSync {
                         match = resolvedWinningMatch,
                         representativeTarget =
                             resolvedWinningFamily.representative.loaded.cues,
-                        target = winningMember.loaded.cues,
+                        target = winningMember.loaded.cues
                     ) ?: resolvedWinningMatch
                 }
 
@@ -1118,11 +1104,14 @@ internal object AutomaticSubtitleSync {
                 subtitleUrl = winningMember.candidate.url,
                 subtitleHeaders = headersForCandidate(winningMember.candidate.url),
                 subtitleBody = winningMember.loaded.rawBody,
-                timeline = memberMatch.timeline,
+                timeline = memberMatch.timeline
             )
         }
         if (result != null) {
-            synchronized(resolvedCacheLock) { resolvedCache[sourceKey to result.subtitleUrl] = result }
+            synchronized(resolvedCacheLock) {
+                resolvedCache[sourceKey to result.subtitleUrl] =
+                    result
+            }
         }
         return result
     }
@@ -1136,7 +1125,7 @@ internal object AutomaticSubtitleSync {
         preflightHint: AutoSyncDelayPreflight.Match? = null,
         preflightEvidence: AutoSyncTimelineRetimer.DelayOnlySearchEvidence? = null,
         allowPrecomputedDelayFastPath: Boolean = false,
-        preparedTargetActivity: AutoSyncTimelineRetimer.PreparedActivity? = null,
+        preparedTargetActivity: AutoSyncTimelineRetimer.PreparedActivity? = null
     ): PairEvaluation = withContext(autoSyncDispatcher) {
         val evaluationContext = currentCoroutineContext()
         val targetActivity =
@@ -1163,7 +1152,7 @@ internal object AutomaticSubtitleSync {
                     ?.alignment,
             delayOnlyEvidence = preflightEvidence,
             allowPrecomputedDelayFastPath = allowPrecomputedDelayFastPath,
-            cancellationCheck = { evaluationContext.ensureActive() },
+            cancellationCheck = { evaluationContext.ensureActive() }
         )
         if (timeline == null) {
             return@withContext PairEvaluation(match = null)
@@ -1177,7 +1166,7 @@ internal object AutomaticSubtitleSync {
     /** Unit-scale activity for [track], prepared once per run and shared across workers. */
     internal fun preparedReferenceActivity(
         track: ReferenceTrack,
-        cache: MutableMap<String, AutoSyncTimelineRetimer.PreparedActivity?>,
+        cache: MutableMap<String, AutoSyncTimelineRetimer.PreparedActivity?>
     ): AutoSyncTimelineRetimer.PreparedActivity? = synchronized(cache) {
         if (cache.containsKey(track.key)) {
             cache[track.key]
@@ -1188,7 +1177,7 @@ internal object AutomaticSubtitleSync {
 
     private fun constantTimelineShiftMs(
         representative: List<SubtitleSyncCue>,
-        candidate: List<SubtitleSyncCue>,
+        candidate: List<SubtitleSyncCue>
     ): Long? {
         if (representative.size < 4 || representative.size != candidate.size) return null
 
@@ -1209,7 +1198,7 @@ internal object AutomaticSubtitleSync {
     private fun reuseShiftEquivalentMatch(
         match: TimelineRetimeMatch,
         representativeTarget: List<SubtitleSyncCue>,
-        target: List<SubtitleSyncCue>,
+        target: List<SubtitleSyncCue>
     ): TimelineRetimeMatch? {
         val shiftMs = constantTimelineShiftMs(representativeTarget, target)
             ?: return null
@@ -1222,48 +1211,44 @@ internal object AutomaticSubtitleSync {
                     val targetCue = target[index]
                     cue.copy(
                         originalStartTimeMs = targetCue.startTimeMs,
-                        originalEndTimeMs = targetCue.endTimeMs,
+                        originalEndTimeMs = targetCue.endTimeMs
                     )
                 },
                 alignmentInterceptMs =
                     timeline.alignmentInterceptMs -
-                        timeline.alignmentScale * shiftMs.toDouble(),
-            ),
+                        timeline.alignmentScale * shiftMs.toDouble()
+            )
         )
     }
 
     private fun rankReferenceCandidates(
         target: List<SubtitleSyncCue>,
         referenceTracks: List<ReferenceTrack>,
-        preferredReferenceKey: String? = null,
-    ): List<RankedReferenceCandidate> =
-        groupEquivalentReferenceTimelines(referenceTracks)
-            .mapNotNull { group ->
-                group.members.minWithOrNull(
-                    compareBy<ReferenceTrack> { isSdhReferenceTrack(it) }
-                        .thenBy { it.key },
-                )
-            }
-            .map { track ->
-                RankedReferenceCandidate(
-                    track = track,
-                    cheapAffinity = cheapReferenceAffinity(track.cues, target),
-                    suitability = referenceSuitabilityScore(track, target),
-                )
-            }
-            .sortedWith(
-                compareByDescending<RankedReferenceCandidate> {
-                    if (it.track.key == preferredReferenceKey) 1 else 0
-                }.thenByDescending { it.cheapAffinity }
-                    .thenByDescending { it.suitability }
-                    .thenBy { isSdhReferenceTrack(it.track) }
-                    .thenBy { it.track.key },
+        preferredReferenceKey: String? = null
+    ): List<RankedReferenceCandidate> = groupEquivalentReferenceTimelines(referenceTracks)
+        .mapNotNull { group ->
+            group.members.minWithOrNull(
+                compareBy<ReferenceTrack> { isSdhReferenceTrack(it) }
+                    .thenBy { it.key }
             )
+        }
+        .map { track ->
+            RankedReferenceCandidate(
+                track = track,
+                cheapAffinity = cheapReferenceAffinity(track.cues, target),
+                suitability = referenceSuitabilityScore(track, target)
+            )
+        }
+        .sortedWith(
+            compareByDescending<RankedReferenceCandidate> {
+                if (it.track.key == preferredReferenceKey) 1 else 0
+            }.thenByDescending { it.cheapAffinity }
+                .thenByDescending { it.suitability }
+                .thenBy { isSdhReferenceTrack(it.track) }
+                .thenBy { it.track.key }
+        )
 
-    private fun referenceCueRatio(
-        track: ReferenceTrack,
-        target: List<SubtitleSyncCue>,
-    ): Double {
+    private fun referenceCueRatio(track: ReferenceTrack, target: List<SubtitleSyncCue>): Double {
         if (track.cues.isEmpty() || target.isEmpty()) return 0.0
         val smaller = minOf(track.cues.size, target.size).toDouble()
         val larger = maxOf(track.cues.size, target.size).toDouble()
@@ -1272,7 +1257,7 @@ internal object AutomaticSubtitleSync {
 
     private fun referenceSuitabilityScore(
         track: ReferenceTrack,
-        target: List<SubtitleSyncCue>,
+        target: List<SubtitleSyncCue>
     ): Double {
         if (track.cues.isEmpty() || target.isEmpty()) return 0.0
         val cueRatio = referenceCueRatio(track, target)
@@ -1287,7 +1272,7 @@ internal object AutomaticSubtitleSync {
 
     private fun cheapReferenceAffinity(
         reference: List<SubtitleSyncCue>,
-        target: List<SubtitleSyncCue>,
+        target: List<SubtitleSyncCue>
     ): Double {
         if (reference.size < 4 || target.size < 4) return 0.0
 
@@ -1302,7 +1287,7 @@ internal object AutomaticSubtitleSync {
             25.0 / 24.0,
             24.0 / 25.0,
             24.0 / 23.976,
-            23.976 / 24.0,
+            23.976 / 24.0
         )
 
         val referenceSpan = reference.last().startTimeMs - reference.first().startTimeMs
@@ -1324,11 +1309,15 @@ internal object AutomaticSubtitleSync {
 
             for (anchor in 0 until CHEAP_REFERENCE_OFFSET_CANDIDATES) {
                 val referenceIndex =
-                    (anchor.toLong() * referenceSample.lastIndex /
-                        (CHEAP_REFERENCE_OFFSET_CANDIDATES - 1)).toInt()
+                    (
+                        anchor.toLong() * referenceSample.lastIndex /
+                            (CHEAP_REFERENCE_OFFSET_CANDIDATES - 1)
+                        ).toInt()
                 val targetIndex =
-                    (anchor.toLong() * targetSample.lastIndex /
-                        (CHEAP_REFERENCE_OFFSET_CANDIDATES - 1)).toInt()
+                    (
+                        anchor.toLong() * targetSample.lastIndex /
+                            (CHEAP_REFERENCE_OFFSET_CANDIDATES - 1)
+                        ).toInt()
 
                 offsets += referenceSample[referenceIndex].startTimeMs -
                     (targetSample[targetIndex].startTimeMs.toDouble() * scale).roundToLong()
@@ -1350,7 +1339,7 @@ internal object AutomaticSubtitleSync {
                     if (insertion > 0) {
                         nearest = minOf(
                             nearest,
-                            abs(reference[insertion - 1].startTimeMs - shiftedStart),
+                            abs(reference[insertion - 1].startTimeMs - shiftedStart)
                         )
                     }
 
@@ -1374,7 +1363,7 @@ internal object AutomaticSubtitleSync {
 
     private fun evenlySampleCues(
         cues: List<SubtitleSyncCue>,
-        maxSamples: Int,
+        maxSamples: Int
     ): List<SubtitleSyncCue> {
         if (cues.size <= maxSamples) return cues
         if (maxSamples <= 1) return listOf(cues.first())
@@ -1387,10 +1376,7 @@ internal object AutomaticSubtitleSync {
             .distinctBy { it.startTimeMs }
     }
 
-    private fun lowerBoundCueStart(
-        cues: List<SubtitleSyncCue>,
-        timeMs: Long,
-    ): Int {
+    private fun lowerBoundCueStart(cues: List<SubtitleSyncCue>, timeMs: Long): Int {
         var low = 0
         var high = cues.size
         while (low < high) {
@@ -1406,7 +1392,7 @@ internal object AutomaticSubtitleSync {
         rawBodyOverride: String? = null,
         languageHint: String? = null,
         downloadSemaphore: Semaphore? = null,
-        parseSemaphore: Semaphore? = null,
+        parseSemaphore: Semaphore? = null
     ): LoadedSubtitle? {
         val cacheKey = ParsedSubtitleCacheKey(url, stableHeaderIdentity(headers))
         if (rawBodyOverride == null) {
@@ -1415,7 +1401,7 @@ internal object AutomaticSubtitleSync {
             }?.let { cached ->
                 return LoadedSubtitle(
                     cues = cached.cues,
-                    rawBody = cached.rawBody,
+                    rawBody = cached.rawBody
                 )
             }
         }
@@ -1444,7 +1430,7 @@ internal object AutomaticSubtitleSync {
                     val parsed = AutoSyncSubtitleCueParser.parse(
                         text = text,
                         sourceUrl = url,
-                        cancellationCheck = { parseContext.ensureActive() },
+                        cancellationCheck = { parseContext.ensureActive() }
                     )
                     parseContext.ensureActive()
                     AutoSyncTimelineRetimer.normalizeExternalTimeline(parsed)
@@ -1474,31 +1460,30 @@ internal object AutomaticSubtitleSync {
             synchronized(parsedSubtitleCacheLock) {
                 parsedSubtitleCache[cacheKey] = CachedParsedSubtitle(
                     cues = immutable,
-                    rawBody = text,
+                    rawBody = text
                 )
             }
         }
         return LoadedSubtitle(
             cues = immutable,
-            rawBody = text,
+            rawBody = text
         )
     }
 
     internal suspend fun downloadSubtitleBody(
         url: String,
         headers: Map<String, String>,
-        languageHint: String? = null,
-    ): String =
-        downloadSubtitleTextWithSingle429Retry(
-            url = url,
-            headers = headers,
-            languageHint = languageHint,
-        )
+        languageHint: String? = null
+    ): String = downloadSubtitleTextWithSingle429Retry(
+        url = url,
+        headers = headers,
+        languageHint = languageHint
+    )
 
     private suspend fun downloadSubtitleTextWithSingle429Retry(
         url: String,
         headers: Map<String, String>,
-        languageHint: String?,
+        languageHint: String?
     ): String {
         val first = requestSubtitle(url, headers, languageHint)
         if (first.status == 429) {
@@ -1511,20 +1496,17 @@ internal object AutomaticSubtitleSync {
     private suspend fun requestSubtitle(
         url: String,
         headers: Map<String, String>,
-        languageHint: String?,
-    ): AutoSyncRawHttpResponse =
-        withTimeoutOrNull(SUBTITLE_DOWNLOAD_TIMEOUT_MS) {
-            AutoSyncSubtitleHttp.get(
-                url = url,
-                headers = mapOf("Accept" to "*/*") + headers,
-                maxResponseBodyBytes = MAX_SUBTITLE_RESPONSE_BYTES,
-                languageHint = languageHint,
-            )
-        } ?: error("subtitle request timed out after ${SUBTITLE_DOWNLOAD_TIMEOUT_MS}ms")
+        languageHint: String?
+    ): AutoSyncRawHttpResponse = withTimeoutOrNull(SUBTITLE_DOWNLOAD_TIMEOUT_MS) {
+        AutoSyncSubtitleHttp.get(
+            url = url,
+            headers = mapOf("Accept" to "*/*") + headers,
+            maxResponseBodyBytes = MAX_SUBTITLE_RESPONSE_BYTES,
+            languageHint = languageHint
+        )
+    } ?: error("subtitle request timed out after ${SUBTITLE_DOWNLOAD_TIMEOUT_MS}ms")
 
-    private fun validatedSubtitleBody(
-        response: AutoSyncRawHttpResponse,
-    ): String {
+    private fun validatedSubtitleBody(response: AutoSyncRawHttpResponse): String {
         if (response.status !in 200..299) error("subtitle HTTP ${response.status}")
         if (response.body.endsWith("\n...[truncated]")) {
             error("subtitle response exceeded $MAX_SUBTITLE_RESPONSE_BYTES bytes")
@@ -1538,7 +1520,7 @@ internal object AutomaticSubtitleSync {
         preferredLanguage: String?,
         target: List<SubtitleSyncCue>,
         waitMs: Long = LIVE_REFERENCE_WAIT_MS,
-        allowSparseLiveReference: Boolean = false,
+        allowSparseLiveReference: Boolean = false
     ): ReferenceSelection {
         val targetSpan = referenceSpanMs(target).coerceAtLeast(1L)
         val started = SystemClock.elapsedRealtime()
@@ -1555,10 +1537,11 @@ internal object AutomaticSubtitleSync {
             val eligibleProfiles = profiles.filter { profile ->
                 profile.fullDialogueCandidate &&
                     profile.cueCount >= MIN_LIVE_REFERENCE_CUES &&
-                    profile.spanMs.toDouble() / targetSpan.toDouble() >= MIN_LIVE_REFERENCE_SPAN_RATIO
+                    profile.spanMs.toDouble() / targetSpan.toDouble() >=
+                    MIN_LIVE_REFERENCE_SPAN_RATIO
             }
             val ready = orderReferenceProfiles(
-                eligibleProfiles.filter { profile -> profile.fullDialogue },
+                eligibleProfiles.filter { profile -> profile.fullDialogue }
             )
             val sparseReady = if (allowSparseLiveReference) {
                 orderReferenceProfiles(
@@ -1569,13 +1552,13 @@ internal object AutomaticSubtitleSync {
                         }
                         .map { track -> buildReferenceProfile(track.copy(sampled = true)) }
                         .filter { profile -> profile.fullDialogue }
-                        .toList(),
+                        .toList()
                 )
             } else {
                 emptyList()
             }
             forcedFallback = orderReferenceProfiles(
-                eligibleProfiles.filter { profile -> isForcedReferenceTrack(profile.track) },
+                eligibleProfiles.filter { profile -> isForcedReferenceTrack(profile.track) }
             )
 
             val signature = prepared.joinToString("|") { track ->
@@ -1591,13 +1574,13 @@ internal object AutomaticSubtitleSync {
                     primary = ready.map { it.track.copy(cues = it.track.cues.toList()) },
                     forcedFallback = forcedFallback.map {
                         it.track.copy(cues = it.track.cues.toList())
-                    },
+                    }
                 )
             }
 
             if (sparseReady.isNotEmpty()) {
                 return ReferenceSelection(
-                    primary = sparseReady.map { it.track.copy(cues = it.track.cues.toList()) },
+                    primary = sparseReady.map { it.track.copy(cues = it.track.cues.toList()) }
                 )
             }
 
@@ -1608,7 +1591,7 @@ internal object AutomaticSubtitleSync {
 
         if (forcedFallback.isNotEmpty()) {
             return ReferenceSelection(
-                primary = forcedFallback.map { it.track.copy(cues = it.track.cues.toList()) },
+                primary = forcedFallback.map { it.track.copy(cues = it.track.cues.toList()) }
             )
         }
 
@@ -1616,7 +1599,7 @@ internal object AutomaticSubtitleSync {
     }
 
     private fun groupEquivalentReferenceTimelines(
-        referenceTracks: List<ReferenceTrack>,
+        referenceTracks: List<ReferenceTrack>
     ): List<ReferenceTimingGroup> {
         val buckets = linkedMapOf<ReferenceTimingFingerprint, MutableList<ReferenceTimingGroup>>()
         referenceTracks.forEach { track ->
@@ -1625,13 +1608,18 @@ internal object AutomaticSubtitleSync {
             val exactGroup = bucket.firstOrNull { group ->
                 sameReferenceTiming(group.members.first().cues, track.cues)
             }
-            if (exactGroup != null) exactGroup.members += track
-            else bucket += ReferenceTimingGroup(mutableListOf(track))
+            if (exactGroup != null) {
+                exactGroup.members += track
+            } else {
+                bucket += ReferenceTimingGroup(mutableListOf(track))
+            }
         }
         return buckets.values.flatten()
     }
 
-    private fun referenceTimingFingerprint(cues: List<SubtitleSyncCue>): ReferenceTimingFingerprint {
+    private fun referenceTimingFingerprint(
+        cues: List<SubtitleSyncCue>
+    ): ReferenceTimingFingerprint {
         var timingHash = 1_125_899_906_842_597L
         for (cue in cues) {
             timingHash = timingHash * 31L + cue.startTimeMs
@@ -1641,13 +1629,13 @@ internal object AutomaticSubtitleSync {
             cueCount = cues.size,
             firstStartMs = cues.firstOrNull()?.startTimeMs ?: -1L,
             lastStartMs = cues.lastOrNull()?.startTimeMs ?: -1L,
-            timingHash = timingHash,
+            timingHash = timingHash
         )
     }
 
     private fun sameReferenceTiming(
         left: List<SubtitleSyncCue>,
-        right: List<SubtitleSyncCue>,
+        right: List<SubtitleSyncCue>
     ): Boolean {
         if (left.size != right.size) return false
         return left.indices.all { index ->
@@ -1703,17 +1691,16 @@ internal object AutomaticSubtitleSync {
             densityPerMinute = density,
             fullDialogueCandidate = fullDialogueCandidate,
             fullDialogue = fullDialogue,
-            rankingScore = rankingScore,
+            rankingScore = rankingScore
         )
     }
 
-    private fun orderReferenceProfiles(profiles: List<ReferenceProfile>): List<ReferenceProfile> =
-        profiles.sortedWith(
-            compareByDescending<ReferenceProfile> { it.fullDialogue }
-                .thenByDescending { it.rankingScore }
-                .thenBy { isSdhReferenceTrack(it.track) }
-                .thenBy { it.track.key },
-        )
+    private fun orderReferenceProfiles(profiles: List<ReferenceProfile>): List<ReferenceProfile> = profiles.sortedWith(
+        compareByDescending<ReferenceProfile> { it.fullDialogue }
+            .thenByDescending { it.rankingScore }
+            .thenBy { isSdhReferenceTrack(it.track) }
+            .thenBy { it.track.key }
+    )
 
     private fun isForcedReferenceTrack(track: ReferenceTrack): Boolean {
         if ((track.selectionFlags and C.SELECTION_FLAG_FORCED) != 0) return true
@@ -1778,15 +1765,13 @@ internal object AutomaticSubtitleSync {
         return out
     }
 
-    private fun normalizedCueText(text: String): String =
-        text.replace('\r', ' ')
-            .replace('\n', ' ')
-            .replace(Regex("\\s+"), " ")
-            .trim()
-            .lowercase()
+    private fun normalizedCueText(text: String): String = text.replace('\r', ' ')
+        .replace('\n', ' ')
+        .replace(Regex("\\s+"), " ")
+        .trim()
+        .lowercase()
 
-    private fun referenceSpanMs(cues: List<SubtitleSyncCue>): Long =
-        if (cues.size < 2) 0L else cues.last().endTimeMs - cues.first().startTimeMs
+    private fun referenceSpanMs(cues: List<SubtitleSyncCue>): Long = if (cues.size < 2) 0L else cues.last().endTimeMs - cues.first().startTimeMs
 
     private fun directTimelineQualityScore(match: TimelineRetimeMatch): Double {
         val result = match.timeline
@@ -1812,7 +1797,7 @@ internal object AutomaticSubtitleSync {
 
     private fun isStrongCheckpointMatch(
         match: TimelineRetimeMatch,
-        aggressiveMode: Boolean,
+        aggressiveMode: Boolean
     ): Boolean {
         val result = match.timeline
         val qualityThreshold =
@@ -1838,7 +1823,7 @@ internal object AutomaticSubtitleSync {
 
     private fun isAsymmetricReferenceCheckpointMatch(
         match: TimelineRetimeMatch,
-        targetCueCount: Int,
+        targetCueCount: Int
     ): Boolean {
         if (targetCueCount <= 0) return false
         val result = match.timeline
@@ -1862,23 +1847,23 @@ internal object AutomaticSubtitleSync {
         delayOnlyHint: AutoSyncDelayOnlyAlignment? = null,
         delayOnlyEvidence: AutoSyncTimelineRetimer.DelayOnlySearchEvidence? = null,
         allowPrecomputedDelayFastPath: Boolean = true,
-        cancellationCheck: (() -> Unit)? = null,
+        cancellationCheck: (() -> Unit)? = null
     ): AutoSyncTimelineRetimeResult? {
         if (track.sampled) {
             val alignment = AutoSyncSampledReferenceAligner.findDelay(
                 reference = track.cues,
-                target = target,
+                target = target
             ) ?: return null
             return AutoSyncTimelineRetimer.buildDelayOnlyTimeline(target, alignment).copy(
                 alignmentSource = "sampled-delay",
-                referenceCoverage = alignment.score,
+                referenceCoverage = alignment.score
             )
         }
 
         val relaxDelayMargin = AutoSyncTimelineRetimer.shouldRelaxDelayOnlyMargin(
             sdhReference = isSdhReferenceTrack(track),
             referenceSize = track.cues.size,
-            targetSize = target.size,
+            targetSize = target.size
         )
 
         return AutoSyncTimelineRetimer.retime(
@@ -1894,37 +1879,31 @@ internal object AutomaticSubtitleSync {
             precomputedDelayOnly = delayOnlyHint,
             precomputedDelayOnlyEvidence = delayOnlyEvidence,
             allowPrecomputedDelayFastPath = allowPrecomputedDelayFastPath,
-            cancellationCheck = cancellationCheck,
+            cancellationCheck = cancellationCheck
         )
     }
 
-    private fun stableHeaderIdentity(
-        headers: Map<String, String>,
-    ): List<Pair<String, String>> =
-        headers.entries
-            .sortedBy { it.key.lowercase() }
-            .map { (key, value) -> key.lowercase() to value }
+    private fun stableHeaderIdentity(headers: Map<String, String>): List<Pair<String, String>> = headers.entries
+        .sortedBy { it.key.lowercase() }
+        .map { (key, value) -> key.lowercase() to value }
 
     private fun fmt(value: Double): String = "%.4f".format(value)
 
     private data class ParsedSubtitleCacheKey(
         val url: String,
-        val headers: List<Pair<String, String>>,
+        val headers: List<Pair<String, String>>
     )
-    private data class LoadedSubtitle(
-        val cues: List<SubtitleSyncCue>,
-        val rawBody: String?,
-    )
+    private data class LoadedSubtitle(val cues: List<SubtitleSyncCue>, val rawBody: String?)
     private data class ReferenceTimingFingerprint(
         val cueCount: Int,
         val firstStartMs: Long,
         val lastStartMs: Long,
-        val timingHash: Long,
+        val timingHash: Long
     )
     private data class ReferenceTimingGroup(val members: MutableList<ReferenceTrack>)
     private data class ReferenceSelection(
         val primary: List<ReferenceTrack> = emptyList(),
-        val forcedFallback: List<ReferenceTrack> = emptyList(),
+        val forcedFallback: List<ReferenceTrack> = emptyList()
     )
     private data class ReferenceProfile(
         val track: ReferenceTrack,
@@ -1933,24 +1912,19 @@ internal object AutomaticSubtitleSync {
         val densityPerMinute: Double,
         val fullDialogueCandidate: Boolean,
         val fullDialogue: Boolean,
-        val rankingScore: Double,
+        val rankingScore: Double
     )
     private data class RankedReferenceCandidate(
         val track: ReferenceTrack,
         val cheapAffinity: Double,
-        val suitability: Double,
+        val suitability: Double
     )
-    private data class PairEvaluation(
-        val match: TimelineRetimeMatch?,
-    )
-    private data class CachedParsedSubtitle(
-        val cues: List<SubtitleSyncCue>,
-        val rawBody: String,
-    )
+    private data class PairEvaluation(val match: TimelineRetimeMatch?)
+    private data class CachedParsedSubtitle(val cues: List<SubtitleSyncCue>, val rawBody: String)
     private data class LoadedAlternative(
         val index: Int,
         val candidate: AutoSyncSubtitleCandidate,
-        val loaded: LoadedSubtitle,
+        val loaded: LoadedSubtitle
     )
     private class CandidateTimingFamilyState(
         val representative: LoadedAlternative,
@@ -1967,7 +1941,7 @@ internal object AutomaticSubtitleSync {
         var abandoned: Boolean = false,
         var evaluatedPairs: Int = 0,
         /** Pairs that confirmed a no-fit ([AutoSyncNoFitTracker.confirmsNoFit]). */
-        var noFitPairs: Int = 0,
+        var noFitPairs: Int = 0
     )
     private data class PairHypothesis(
         val family: CandidateTimingFamilyState,
@@ -1975,27 +1949,21 @@ internal object AutomaticSubtitleSync {
         val preflightHint: AutoSyncDelayPreflight.Match?,
         val preflightEvidence: AutoSyncTimelineRetimer.DelayOnlySearchEvidence?,
         val preflightChampion: Boolean,
-        val schedulingScore: Double,
+        val schedulingScore: Double
     )
     private data class CompletedPairEvaluation(
         val hypothesis: PairHypothesis,
-        val evaluation: PairEvaluation,
+        val evaluation: PairEvaluation
     )
     private sealed class SchedulerEvent {
-        data class CandidateLoaded(
-            val url: String,
-            val loaded: LoadedSubtitle?,
-        ) : SchedulerEvent()
+        data class CandidateLoaded(val url: String, val loaded: LoadedSubtitle?) : SchedulerEvent()
 
-        data class PairEvaluated(
-            val jobId: Int,
-            val completed: CompletedPairEvaluation,
-        ) : SchedulerEvent()
+        data class PairEvaluated(val jobId: Int, val completed: CompletedPairEvaluation) : SchedulerEvent()
     }
 
     private data class TimelineRetimeMatch(
         val track: ReferenceTrack,
-        val timeline: AutoSyncTimelineRetimeResult,
+        val timeline: AutoSyncTimelineRetimeResult
     )
 }
 
@@ -2008,7 +1976,7 @@ internal enum class AutoSyncAnalysisOutcome {
     NO_FIT,
 
     /** No confident match, but nothing shows that the selected subtitle does not fit. */
-    INCONCLUSIVE,
+    INCONCLUSIVE
 }
 
 internal data class AutoSyncResolvedTimeline(
@@ -2017,7 +1985,7 @@ internal data class AutoSyncResolvedTimeline(
     val subtitleBody: String?,
     val timeline: AutoSyncTimelineRetimeResult,
     /** Applied before on this stream: the viewer's own delay since then is kept, not reset. */
-    val reused: Boolean = false,
+    val reused: Boolean = false
 )
 
 internal data class ReferenceTrack(
@@ -2029,7 +1997,7 @@ internal data class ReferenceTrack(
     val roleFlags: Int = 0,
     val generation: Long = 0L,
     val estimatedEndStartsMs: Set<Long> = emptySet(),
-    val sampled: Boolean = false,
+    val sampled: Boolean = false
 )
 
 /** Thread-safe accumulation of the embedded text timing already passing through Media3. */
@@ -2043,12 +2011,12 @@ internal object EmbeddedSubtitleCueStore {
         var label: String?,
         var selectionFlags: Int,
         var roleFlags: Int,
-        val cues: LinkedHashMap<String, SubtitleSyncCue> = linkedMapOf(),
+        val cues: LinkedHashMap<String, SubtitleSyncCue> = linkedMapOf()
     )
 
     private data class RetainedGeneration(
         val generation: Long,
-        val tracks: MutableMap<String, Track>,
+        val tracks: MutableMap<String, Track>
     )
 
     private val lock = Any()
@@ -2070,7 +2038,6 @@ internal object EmbeddedSubtitleCueStore {
             lastSeekTargetMs.remove(sourceKey)
             lastSeekWallMs.remove(sourceKey)
         }
-
     }
 
     fun beginNewGeneration(sourceKey: String, targetTimeMs: Long?) {
@@ -2086,8 +2053,10 @@ internal object EmbeddedSubtitleCueStore {
                     now - previousWall <= SEEK_DEDUP_WINDOW_MS &&
                     when {
                         previousTarget == null && targetTimeMs == null -> true
+
                         previousTarget != null && targetTimeMs != null ->
                             abs(previousTarget - targetTimeMs) <= SEEK_TARGET_TOLERANCE_MS
+
                         else -> false
                     }
 
@@ -2118,7 +2087,7 @@ internal object EmbeddedSubtitleCueStore {
         label: String?,
         selectionFlags: Int,
         roleFlags: Int,
-        cue: SubtitleSyncCue,
+        cue: SubtitleSyncCue
     ) {
         if (sourceKey.isBlank() || trackKey.isBlank()) return
 
@@ -2130,7 +2099,7 @@ internal object EmbeddedSubtitleCueStore {
                         language = language,
                         label = label,
                         selectionFlags = selectionFlags,
-                        roleFlags = roleFlags,
+                        roleFlags = roleFlags
                     )
                 }
 
@@ -2142,13 +2111,9 @@ internal object EmbeddedSubtitleCueStore {
             val cueKey = "${cue.startTimeMs}:${cue.endTimeMs}:${cue.text}"
             track.cues[cueKey] = cue
         }
-
     }
 
-    fun candidateTracks(
-        sourceKey: String,
-        preferredLanguage: String?,
-    ): List<ReferenceTrack> = synchronized(lock) {
+    fun candidateTracks(sourceKey: String, preferredLanguage: String?): List<ReferenceTrack> = synchronized(lock) {
         val preferred = preferredLanguage?.trim()?.lowercase().orEmpty()
         val currentGeneration = generations[sourceKey] ?: 0L
 
@@ -2171,7 +2136,7 @@ internal object EmbeddedSubtitleCueStore {
                         label = track.label,
                         selectionFlags = track.selectionFlags,
                         roleFlags = track.roleFlags,
-                        generation = generation,
+                        generation = generation
                     )
                 }
             }
@@ -2183,7 +2148,7 @@ internal object EmbeddedSubtitleCueStore {
                     it.cues.size
                 }.thenByDescending {
                     it.generation
-                },
+                }
             )
     }
 

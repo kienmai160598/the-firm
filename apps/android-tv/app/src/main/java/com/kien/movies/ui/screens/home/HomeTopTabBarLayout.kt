@@ -62,5 +62,4 @@ internal fun rememberGridSectionHeaderWithoutHero(gridState: LazyGridState): Sta
 // A full hero block grows up to the top tab bar's row, so a title wider than the logo slot would
 // run under the bar; the logo never does because it stops left of it.
 @Composable
-internal fun Modifier.heroTitleWidthUnderTopBar(): Modifier =
-    if (topTabBarFloatsOver()) widthIn(max = HeroLogoMaxWidth) else this
+internal fun Modifier.heroTitleWidthUnderTopBar(): Modifier = if (topTabBarFloatsOver()) widthIn(max = HeroLogoMaxWidth) else this

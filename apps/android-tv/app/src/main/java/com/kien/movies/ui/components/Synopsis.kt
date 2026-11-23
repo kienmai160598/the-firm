@@ -7,10 +7,6 @@ package com.kien.movies.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -49,7 +45,10 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -58,14 +57,14 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.contentTextDirection
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.exp
-import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 @Composable
 fun SynopsisDescription(
@@ -128,7 +127,10 @@ fun SynopsisDescription(
                         indication = null,
                         onClick = onShowFullDescription
                     )
-                    .semantics { role = Role.Button; contentDescription = readMoreLabel }
+                    .semantics {
+                        role = Role.Button
+                        contentDescription = readMoreLabel
+                    }
                     .padding(horizontal = highlightInset, vertical = 8.dp)
             } else {
                 Modifier
@@ -165,11 +167,7 @@ fun SynopsisDescription(
 }
 
 @Composable
-fun SynopsisOverlay(
-    title: String,
-    description: String,
-    onDismiss: () -> Unit
-) {
+fun SynopsisOverlay(title: String, description: String, onDismiss: () -> Unit) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val contentFocusRequester = remember { FocusRequester() }
@@ -253,7 +251,9 @@ fun SynopsisOverlay(
                             if (maxScroll > 0f) {
                                 val viewportHeight = size.height
                                 val trackInset = 8.dp.toPx()
-                                val trackHeight = (viewportHeight - trackInset * 2f).coerceAtLeast(0f)
+                                val trackHeight = (viewportHeight - trackInset * 2f).coerceAtLeast(
+                                    0f
+                                )
                                 val contentHeight = viewportHeight + maxScroll
                                 val thumbHeight = (trackHeight * viewportHeight / contentHeight)
                                     .coerceAtLeast(36.dp.toPx())
@@ -281,18 +281,26 @@ fun SynopsisOverlay(
                         .onPreviewKeyEvent { event ->
                             when {
                                 event.type != KeyEventType.KeyDown -> false
-                                event.key == Key.DirectionDown && scrollState.value < scrollState.maxValue -> {
-                                    requestSmoothScroll((
-                                        maxOf(requestedScrollPosition, scrollState.value) + 260
-                                    ).coerceAtMost(scrollState.maxValue))
+
+                                event.key == Key.DirectionDown &&
+                                    scrollState.value < scrollState.maxValue -> {
+                                    requestSmoothScroll(
+                                        (
+                                            maxOf(requestedScrollPosition, scrollState.value) + 260
+                                            ).coerceAtMost(scrollState.maxValue)
+                                    )
                                     true
                                 }
+
                                 event.key == Key.DirectionUp && scrollState.value > 0 -> {
-                                    requestSmoothScroll((
-                                        minOf(requestedScrollPosition, scrollState.value) - 260
-                                    ).coerceAtLeast(0))
+                                    requestSmoothScroll(
+                                        (
+                                            minOf(requestedScrollPosition, scrollState.value) - 260
+                                            ).coerceAtLeast(0)
+                                    )
                                     true
                                 }
+
                                 else -> false
                             }
                         }

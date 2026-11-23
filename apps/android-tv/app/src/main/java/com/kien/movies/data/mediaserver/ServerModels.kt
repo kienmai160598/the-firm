@@ -25,7 +25,9 @@ enum class ServerMediaKind(val contentType: String) {
 
 fun ServerMediaKind.domainType(): ContentType = when (this) {
     ServerMediaKind.MOVIE -> ContentType.MOVIE
+
     ServerMediaKind.SERIES -> ContentType.SERIES
+
     ServerMediaKind.COLLECTION,
     ServerMediaKind.MIXED -> ContentType.UNKNOWN
 }
@@ -37,8 +39,8 @@ data class ServerLibrary(
     val kind: ServerMediaKind,
     val selected: Boolean = true
 ) {
-    fun holds(kind: ServerMediaKind): Boolean =
-        this.kind == kind || (this.kind == ServerMediaKind.MIXED && kind != ServerMediaKind.COLLECTION)
+    fun holds(kind: ServerMediaKind): Boolean = this.kind == kind ||
+        (this.kind == ServerMediaKind.MIXED && kind != ServerMediaKind.COLLECTION)
 }
 
 @Serializable
@@ -59,14 +61,10 @@ data class ServerConnection(
     val selectedLibraries: List<ServerLibrary>
         get() = libraries.filter { it.selected }
 
-    fun selectedLibraries(kind: ServerMediaKind): List<ServerLibrary> =
-        selectedLibraries.filter { it.holds(kind) }
+    fun selectedLibraries(kind: ServerMediaKind): List<ServerLibrary> = selectedLibraries.filter { it.holds(kind) }
 }
 
-class ServerSession(
-    val connection: ServerConnection,
-    val token: String
-) {
+class ServerSession(val connection: ServerConnection, val token: String) {
     override fun toString(): String = "ServerSession(connection=${connection.id})"
 }
 
@@ -81,10 +79,7 @@ class ServerSignIn(
     override fun toString(): String = "ServerSignIn(serverId=$serverId)"
 }
 
-data class ServerItemRef(
-    val connectionId: String,
-    val itemId: String
-) {
+data class ServerItemRef(val connectionId: String, val itemId: String) {
     fun encode(): String = "$PREFIX$connectionId:${itemId.escapeSegment()}"
 
     companion object {
@@ -110,17 +105,11 @@ private fun String.unescapeSegment(): String? {
     return replace("%3A", ":", ignoreCase = true).replace("%25", "%")
 }
 
-data class ServerPlaybackTarget(
-    val item: ServerItemRef,
-    val mediaSourceId: String?
-) {
+data class ServerPlaybackTarget(val item: ServerItemRef, val mediaSourceId: String?) {
     fun key(): String = "${item.encode()}:${mediaSourceId.orEmpty()}"
 }
 
-data class ServerPage<T>(
-    val items: List<T>,
-    val totalCount: Int?
-)
+data class ServerPage<T>(val items: List<T>, val totalCount: Int?)
 
 data class ServerTitle(
     val preview: MetaPreview,
@@ -159,9 +148,7 @@ data class ServerPlaybackRequest(
     val subtitleStreamIndex: Int? = null
 )
 
-data class ServerPlayerCapabilities(
-    val allowDirectPlay: Boolean = true
-)
+data class ServerPlayerCapabilities(val allowDirectPlay: Boolean = true)
 
 enum class ServerPlayMethod(val wireName: String) {
     DIRECT_PLAY("DirectPlay"),
@@ -216,9 +203,6 @@ enum class ServerFailure {
     FAILED
 }
 
-class ServerException(
-    val failure: ServerFailure,
-    message: String? = null
-) : Exception(message ?: failure.name)
+class ServerException(val failure: ServerFailure, message: String? = null) : Exception(message ?: failure.name)
 
 fun Throwable.serverFailure(): ServerFailure = (this as? ServerException)?.failure ?: ServerFailure.FAILED

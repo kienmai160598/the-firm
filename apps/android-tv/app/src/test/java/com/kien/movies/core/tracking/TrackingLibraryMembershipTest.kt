@@ -1,8 +1,8 @@
 package com.kien.movies.core.tracking
 
-import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.LibraryEntry
 import com.kien.movies.domain.model.LibraryEntryInput
+import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.ListMembershipChanges
 import com.kien.movies.domain.model.ListMembershipSnapshot
 import kotlinx.coroutines.flow.Flow
@@ -85,7 +85,11 @@ class TrackingLibraryMembershipTest {
 
     @Test
     fun `membership dispatch attempts every provider and isolates failures`() = runTest {
-        val trakt = FakeLibraryProvider(TrackingProviderId.TRAKT, failure = IllegalStateException("offline"))
+        val trakt =
+            FakeLibraryProvider(
+                TrackingProviderId.TRAKT,
+                failure = IllegalStateException("offline")
+            )
         val simkl = FakeLibraryProvider(TrackingProviderId.SIMKL)
         val changes = ListMembershipChanges(mapOf("list" to true))
 
@@ -102,11 +106,7 @@ class TrackingLibraryMembershipTest {
         assertTrue(simkl.lastConfirmed)
     }
 
-    private fun statusTab(
-        key: String,
-        contentTypes: Set<String>,
-        destination: Boolean = true
-    ) = LibraryListTab(
+    private fun statusTab(key: String, contentTypes: Set<String>, destination: Boolean = true) = LibraryListTab(
         key = key,
         title = key,
         type = LibraryListTab.Type.STATUS,
@@ -128,8 +128,7 @@ class TrackingLibraryMembershipTest {
         var lastConfirmed = false
 
         override fun recognizesListKey(key: String): Boolean = true
-        override fun observeMembership(itemId: String, itemType: String): Flow<Set<String>> =
-            flowOf(emptySet())
+        override fun observeMembership(itemId: String, itemType: String): Flow<Set<String>> = flowOf(emptySet())
 
         override fun toggledDefaultMembership(
             currentMembership: Map<String, Boolean>

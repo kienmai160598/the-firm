@@ -71,6 +71,7 @@ internal class TopTabBarState(
                 TopTabBarFocus.Bar -> focusSelectedTab()
                 TopTabBarFocus.Content -> enterContent()
             }
+
             TopTabBarStep.ExitApp -> if (!longPressBackHeld.value) onExitApp.value()
         }
     }

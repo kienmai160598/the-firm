@@ -36,7 +36,11 @@ class LetterboxDetectorTest {
             if (inBar && x != 7) black else bright
         }
 
-        assertEquals(15f / height + 0.01f, LetterboxDetector.detectBar(pixels, width, height)!!, 0.0001f)
+        assertEquals(
+            15f / height + 0.01f,
+            LetterboxDetector.detectBar(pixels, width, height)!!,
+            0.0001f
+        )
     }
 
     @Test
@@ -87,11 +91,19 @@ class LetterboxDetectorTest {
 
     @Test
     fun `sampling stops after first fifth of trailer`() {
-        assertEquals(false, LetterboxDetector.isSampleWindowOver(positionMs = 23_000, durationMs = 120_000))
-        assertEquals(true, LetterboxDetector.isSampleWindowOver(positionMs = 24_000, durationMs = 120_000))
-        assertEquals(false, LetterboxDetector.isSampleWindowOver(positionMs = 60_000, durationMs = -1))
+        assertEquals(
+            false,
+            LetterboxDetector.isSampleWindowOver(positionMs = 23_000, durationMs = 120_000)
+        )
+        assertEquals(
+            true,
+            LetterboxDetector.isSampleWindowOver(positionMs = 24_000, durationMs = 120_000)
+        )
+        assertEquals(
+            false,
+            LetterboxDetector.isSampleWindowOver(positionMs = 60_000, durationMs = -1)
+        )
     }
 
-    private fun frame(color: (x: Int, y: Int) -> Int): IntArray =
-        IntArray(width * height) { index -> color(index % width, index / width) }
+    private fun frame(color: (x: Int, y: Int) -> Int): IntArray = IntArray(width * height) { index -> color(index % width, index / width) }
 }

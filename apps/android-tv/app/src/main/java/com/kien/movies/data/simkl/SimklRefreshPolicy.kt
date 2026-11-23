@@ -1,7 +1,7 @@
 package com.kien.movies.data.simkl
 
-import com.kien.movies.core.tracking.TrackingRefreshIntent
 import com.kien.movies.core.tracking.TrackingRefreshGate
+import com.kien.movies.core.tracking.TrackingRefreshIntent
 
 const val SIMKL_AUTOMATIC_REFRESH_INTERVAL_MINUTES = 15
 const val SIMKL_AUTOMATIC_REFRESH_INTERVAL_MS =

@@ -122,10 +122,7 @@ data class MdbListLibraryItem(
 }
 
 @Serializable
-data class MdbListLibraryOrderItem(
-    val type: MdbListItemType,
-    val ids: MdbListIds
-)
+data class MdbListLibraryOrderItem(val type: MdbListItemType, val ids: MdbListIds)
 
 @Serializable
 data class MdbListLibrarySnapshot(
@@ -144,7 +141,14 @@ data class MdbListLibrarySnapshot(
     fun visibleTabs(): List<LibraryListTab> = tabs().filterNot { it.key in hiddenListKeys }
 
     /** Items of the visible lists only. */
-    fun visible(): MdbListLibrarySnapshot = if (hiddenListKeys.isEmpty()) this else copy(itemsByList = itemsByList - hiddenListKeys)
+    fun visible(): MdbListLibrarySnapshot = if (hiddenListKeys.isEmpty()) {
+        this
+    } else {
+        copy(
+            itemsByList =
+                itemsByList - hiddenListKeys
+        )
+    }
 
     /** Every list except the Watchlist can be hidden. */
     fun listOptions(): List<MdbListLibraryListOption> = tabs()
@@ -153,8 +157,11 @@ data class MdbListLibrarySnapshot(
 
     fun tabs(): List<LibraryListTab> = listOf(
         LibraryListTab(
-            MDBLIST_WATCHLIST_KEY, "Watchlist", LibraryListTab.Type.WATCHLIST,
-            trackingProviderId = "mdblist", supportedContentTypes = setOf("movie", "series")
+            MDBLIST_WATCHLIST_KEY,
+            "Watchlist",
+            LibraryListTab.Type.WATCHLIST,
+            trackingProviderId = "mdblist",
+            supportedContentTypes = setOf("movie", "series")
         )
     ) + lists.map(MdbListLibraryList::tab) + dynamicLists.map(MdbListDynamicList::tab) +
         externalLists.map(MdbListExternalList::tab) + likedLists.map(MdbListLikedList::tab)
@@ -166,8 +173,4 @@ private fun mdbListSupportedContentTypes(mediaType: MdbListItemType?): Set<Strin
     else -> setOf("movie", "series")
 }
 
-data class MdbListLibraryListOption(
-    val key: String,
-    val name: String,
-    val visible: Boolean
-)
+data class MdbListLibraryListOption(val key: String, val name: String, val visible: Boolean)

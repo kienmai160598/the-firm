@@ -17,9 +17,11 @@ class MoviesFocusRingStyle internal constructor(
     fun brush(alpha: Float = 1f): Brush {
         val normalizedAlpha = alpha.coerceIn(0f, 1f)
         if (normalizedAlpha == 1f) return fullBrush
-        return createThemeBrush(gradientColors.map { color ->
-            color.copy(alpha = color.alpha * normalizedAlpha)
-        })
+        return createThemeBrush(
+            gradientColors.map { color ->
+                color.copy(alpha = color.alpha * normalizedAlpha)
+            }
+        )
     }
 
     fun border(width: Dp, alpha: Float = 1f): BorderStroke {

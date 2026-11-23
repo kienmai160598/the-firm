@@ -5,23 +5,23 @@ import android.util.Log
 import com.kien.movies.core.network.NetworkResult
 import com.kien.movies.core.network.safeApiCall
 import com.kien.movies.core.poster.withCustomPosterUrls
+import com.kien.movies.data.local.LayoutPreferenceDataStore
 import com.kien.movies.data.mapper.toDomainOrNull
 import com.kien.movies.data.mediaserver.ServerCatalog
 import com.kien.movies.data.mediaserver.messageRes
 import com.kien.movies.data.mediaserver.serverFailure
-import com.kien.movies.data.local.LayoutPreferenceDataStore
 import com.kien.movies.data.remote.api.AddonApi
 import com.kien.movies.domain.model.CatalogRow
 import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.repository.CatalogRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.net.URLEncoder
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import java.net.URLEncoder
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class CatalogRepositoryImpl @Inject constructor(
@@ -51,7 +51,16 @@ class CatalogRepositoryImpl @Inject constructor(
 
         if (ServerCatalog.isServerAddon(addonBaseUrl)) {
             val row = try {
-                serverCatalog.catalog(addonBaseUrl, addonId, addonName, catalogId, catalogName, type, skip, extraArgs)
+                serverCatalog.catalog(
+                    addonBaseUrl,
+                    addonId,
+                    addonName,
+                    catalogId,
+                    catalogName,
+                    type,
+                    skip,
+                    extraArgs
+                )
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
@@ -79,7 +88,11 @@ class CatalogRepositoryImpl @Inject constructor(
                     .mapNotNull { it?.toDomainOrNull(type, addonBaseUrl) }
                     .distinctBy { it.id }
                     .withCustomPosterUrls(
-                        com.kien.movies.core.poster.patternForScreen(posterPattern, posterScreen, enabledScreens)
+                        com.kien.movies.core.poster.patternForScreen(
+                            posterPattern,
+                            posterScreen,
+                            enabledScreens
+                        )
                     )
                 Log.d(
                     TAG,
@@ -105,6 +118,7 @@ class CatalogRepositoryImpl @Inject constructor(
                 )
                 emit(NetworkResult.Success(catalogRow))
             }
+
             is NetworkResult.Error -> {
                 Log.w(
                     TAG,
@@ -112,6 +126,7 @@ class CatalogRepositoryImpl @Inject constructor(
                 )
                 emit(result)
             }
+
             NetworkResult.Loading -> { /* Already emitted */ }
         }
     }
@@ -125,7 +140,13 @@ class CatalogRepositoryImpl @Inject constructor(
     ): String {
         val trimmedBase = baseUrl.trimEnd('/')
         val queryStart = trimmedBase.indexOf('?')
-        val basePath = if (queryStart >= 0) trimmedBase.substring(0, queryStart).trimEnd('/') else trimmedBase
+        val basePath = if (queryStart >=
+            0
+        ) {
+            trimmedBase.substring(0, queryStart).trimEnd('/')
+        } else {
+            trimmedBase
+        }
         val baseQuery = if (queryStart >= 0) trimmedBase.substring(queryStart) else ""
 
         val catalogPath = if (extraArgs.isEmpty()) {

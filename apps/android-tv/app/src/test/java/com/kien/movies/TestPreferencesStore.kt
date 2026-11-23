@@ -8,9 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class TestPreferencesStore(
-    initial: Preferences = emptyPreferences()
-) : DataStore<Preferences> {
+class TestPreferencesStore(initial: Preferences = emptyPreferences()) : DataStore<Preferences> {
     private val mutex = Mutex()
     private val state = MutableStateFlow(initial)
 

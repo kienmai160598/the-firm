@@ -5,9 +5,9 @@ import com.kien.movies.domain.model.AddonStreams
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.StreamDebridCacheState
 import com.kien.movies.domain.model.StreamDebridCacheStatus
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.first
 
 @Singleton
 class LocalDebridAvailabilityService @Inject constructor(
@@ -17,7 +17,9 @@ class LocalDebridAvailabilityService @Inject constructor(
     suspend fun markChecking(groups: List<AddonStreams>): List<AddonStreams> {
         val account = cacheCheckAccount() ?: return groups
         return groups.updateAvailabilityStatus { stream ->
-            if (stream.localAvailabilityHash() == null || stream.debridCacheStatus?.state == StreamDebridCacheState.CACHED) {
+            if (stream.localAvailabilityHash() == null ||
+                stream.debridCacheStatus?.state == StreamDebridCacheState.CACHED
+            ) {
                 stream
             } else {
                 stream.copy(
@@ -59,13 +61,23 @@ class LocalDebridAvailabilityService @Inject constructor(
 
         return groups.updateAvailabilityStatus { stream ->
             val hash = stream.localAvailabilityHash() ?: return@updateAvailabilityStatus stream
-            if (stream.debridCacheStatus?.state in FINAL_CACHE_STATES) return@updateAvailabilityStatus stream
+            if (stream.debridCacheStatus?.state in
+                FINAL_CACHE_STATES
+            ) {
+                return@updateAvailabilityStatus stream
+            }
             val cachedItem = cached[hash]
             stream.copy(
                 debridCacheStatus = StreamDebridCacheStatus(
                     providerId = account.provider.id,
                     providerName = account.provider.displayName,
-                    state = if (cachedItem == null) StreamDebridCacheState.NOT_CACHED else StreamDebridCacheState.CACHED,
+                    state = if (cachedItem ==
+                        null
+                    ) {
+                        StreamDebridCacheState.NOT_CACHED
+                    } else {
+                        StreamDebridCacheState.CACHED
+                    },
                     cachedName = cachedItem?.name,
                     cachedSize = cachedItem?.size
                 )
@@ -82,7 +94,9 @@ class LocalDebridAvailabilityService @Inject constructor(
         val settings = dataStore.settings.first()
         if (!settings.canResolvePlayableLinks) return null
         return settings.activeResolverCredential
-            ?.takeIf { credential -> credential.provider.supports(DebridProviderCapability.LocalTorrentCacheCheck) }
+            ?.takeIf { credential ->
+                credential.provider.supports(DebridProviderCapability.LocalTorrentCacheCheck)
+            }
     }
 }
 
@@ -91,21 +105,19 @@ private val FINAL_CACHE_STATES = setOf(
     StreamDebridCacheState.NOT_CACHED
 )
 
-fun Stream.localAvailabilityHash(): String? =
-    getEffectiveInfoHash()
-        ?.trim()
-        ?.lowercase()
-        ?.takeIf { needsLocalDebridResolve() && it.isNotBlank() }
+fun Stream.localAvailabilityHash(): String? = getEffectiveInfoHash()
+    ?.trim()
+    ?.lowercase()
+    ?.takeIf { needsLocalDebridResolve() && it.isNotBlank() }
 
 private fun List<AddonStreams>.updateAvailabilityStatus(
     transform: (Stream) -> Stream
-): List<AddonStreams> =
-    map { group ->
-        var changed = false
-        val updatedStreams = group.streams.map { stream ->
-            val updated = transform(stream)
-            if (updated != stream) changed = true
-            updated
-        }
-        if (changed) group.copy(streams = updatedStreams) else group
+): List<AddonStreams> = map { group ->
+    var changed = false
+    val updatedStreams = group.streams.map { stream ->
+        val updated = transform(stream)
+        if (updated != stream) changed = true
+        updated
     }
+    if (changed) group.copy(streams = updatedStreams) else group
+}

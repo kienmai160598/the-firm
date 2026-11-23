@@ -63,8 +63,9 @@ private const val BACKDROP_FADE_OUT_MS = 700
 private const val BLACK_HOLD_MS = 300L
 private const val ALL_FAILED_RETRY_MS = 15_000L
 private const val EMPTY_POLL_MS = 500L
-private const val MOTION_DURATION_MS = BACKDROP_FADE_IN_MS + TITLE_DELAY_MS.toInt() + TITLE_FADE_IN_MS +
-    SLIDE_HOLD_MS.toInt() + GENRES_FADE_OUT_MS + TITLE_FADE_OUT_MS + BACKDROP_FADE_OUT_MS
+private const val MOTION_DURATION_MS =
+    BACKDROP_FADE_IN_MS + TITLE_DELAY_MS.toInt() + TITLE_FADE_IN_MS +
+        SLIDE_HOLD_MS.toInt() + GENRES_FADE_OUT_MS + TITLE_FADE_OUT_MS + BACKDROP_FADE_OUT_MS
 
 private class LoadedSlide(
     val slide: AmbientSlide,
@@ -73,10 +74,7 @@ private class LoadedSlide(
 )
 
 @Composable
-fun AmbientSlideshow(
-    slides: List<AmbientSlide>,
-    modifier: Modifier = Modifier
-) {
+fun AmbientSlideshow(slides: List<AmbientSlide>, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
@@ -107,9 +105,16 @@ fun AmbientSlideshow(
                     delay(EMPTY_POLL_MS)
                     continue
                 }
-                val loaded = (pending ?: async {
-                    loadSlide(context, available[index % available.size], screenWidthPx, screenHeightPx)
-                }).await()
+                val loaded = (
+                    pending ?: async {
+                        loadSlide(
+                            context,
+                            available[index % available.size],
+                            screenWidthPx,
+                            screenHeightPx
+                        )
+                    }
+                    ).await()
                 index += 1
                 val upcoming = latestSlides
                 pending = upcoming.takeIf { it.isNotEmpty() }?.let { list ->
@@ -131,18 +136,27 @@ fun AmbientSlideshow(
                 val motionJob = launch {
                     motionProgress.animateTo(1f, tween(MOTION_DURATION_MS, easing = LinearEasing))
                 }
-                backdropAlpha.animateTo(1f, tween(BACKDROP_FADE_IN_MS, easing = FastOutSlowInEasing))
+                backdropAlpha.animateTo(
+                    1f,
+                    tween(BACKDROP_FADE_IN_MS, easing = FastOutSlowInEasing)
+                )
                 delay(TITLE_DELAY_MS)
                 val genresJob = launch {
                     delay(GENRES_DELAY_MS)
-                    genresAlpha.animateTo(1f, tween(GENRES_FADE_IN_MS, easing = LinearOutSlowInEasing))
+                    genresAlpha.animateTo(
+                        1f,
+                        tween(GENRES_FADE_IN_MS, easing = LinearOutSlowInEasing)
+                    )
                 }
                 titleAlpha.animateTo(1f, tween(TITLE_FADE_IN_MS, easing = LinearOutSlowInEasing))
                 delay(SLIDE_HOLD_MS)
                 genresJob.cancel()
                 genresAlpha.animateTo(0f, tween(GENRES_FADE_OUT_MS, easing = FastOutSlowInEasing))
                 titleAlpha.animateTo(0f, tween(TITLE_FADE_OUT_MS, easing = FastOutSlowInEasing))
-                backdropAlpha.animateTo(0f, tween(BACKDROP_FADE_OUT_MS, easing = FastOutSlowInEasing))
+                backdropAlpha.animateTo(
+                    0f,
+                    tween(BACKDROP_FADE_OUT_MS, easing = FastOutSlowInEasing)
+                )
                 motionJob.cancel()
                 delay(BLACK_HOLD_MS)
             }

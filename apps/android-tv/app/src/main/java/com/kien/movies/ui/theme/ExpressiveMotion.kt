@@ -24,8 +24,7 @@ internal object ExpressiveMotion {
      * Expressive default spatial spring: what Material 3's tab indicator slides and resizes with
      * (TabRow uses MotionSchemeKeyTokens.DefaultSpatial).
      */
-    fun <T> expressiveDefaultSpatial(): SpringSpec<T> =
-        spring(dampingRatio = 0.8f, stiffness = 380f)
+    fun <T> expressiveDefaultSpatial(): SpringSpec<T> = spring(dampingRatio = 0.8f, stiffness = 380f)
 
     /** Standard default spatial spring: large surfaces that move without overshoot. */
     fun <T> standardDefaultSpatial(): SpringSpec<T> = spring(dampingRatio = 0.9f, stiffness = 700f)
@@ -37,6 +36,5 @@ internal object ExpressiveMotion {
     fun <T> slowEffects(): SpringSpec<T> = spring(dampingRatio = 1f, stiffness = 800f)
 
     /** Expressive cards zoom on focus like the launcher's tiles; other themes keep still cards. */
-    fun cardFocusScale(theme: AppTheme): Float =
-        if (theme == AppTheme.EXPRESSIVE) EXPRESSIVE_CARD_FOCUS_SCALE else 1f
+    fun cardFocusScale(theme: AppTheme): Float = if (theme == AppTheme.EXPRESSIVE) EXPRESSIVE_CARD_FOCUS_SCALE else 1f
 }

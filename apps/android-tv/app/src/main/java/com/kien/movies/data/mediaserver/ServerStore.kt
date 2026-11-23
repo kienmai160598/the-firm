@@ -24,10 +24,9 @@ data class StoredServers(
 }
 
 @Singleton
-class AndroidServerPersistence @Inject constructor(
-    @ApplicationContext context: Context
-) : ServerPersistence {
-    private val preferences = ProtectedProfilePreferences(context, "media_servers", "com.kien.movies.mediaservers.v1")
+class AndroidServerPersistence @Inject constructor(@ApplicationContext context: Context) : ServerPersistence {
+    private val preferences =
+        ProtectedProfilePreferences(context, "media_servers", "com.kien.movies.mediaservers.v1")
 
     override fun read(profileId: Int): String? = preferences.read(profileId)
     override fun write(profileId: Int, value: String?) = preferences.write(profileId, value)

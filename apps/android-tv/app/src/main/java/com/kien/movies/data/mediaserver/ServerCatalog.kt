@@ -21,10 +21,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-data class ServerLibraryRef(
-    val connection: ServerConnection,
-    val library: ServerLibrary
-) {
+data class ServerLibraryRef(val connection: ServerConnection, val library: ServerLibrary) {
     val title: String
         get() = "${connection.name} · ${library.name}"
 }
@@ -62,16 +59,13 @@ class ServerCatalog @Inject constructor(
         }.filter { it.catalogs.isNotEmpty() }
     }
 
-    fun libraries(): List<ServerLibraryRef> =
-        repository.enabledConnections().flatMap { connection ->
-            connection.selectedLibraries.map { ServerLibraryRef(connection, it) }
-        }
+    fun libraries(): List<ServerLibraryRef> = repository.enabledConnections().flatMap { connection ->
+        connection.selectedLibraries.map { ServerLibraryRef(connection, it) }
+    }
 
-    fun titleLibraries(): List<ServerLibraryRef> =
-        libraries().filter { it.library.kind != ServerMediaKind.COLLECTION }
+    fun titleLibraries(): List<ServerLibraryRef> = libraries().filter { it.library.kind != ServerMediaKind.COLLECTION }
 
-    fun sourceLabel(connectionId: String): String =
-        repository.connection(connectionId)?.let(repository::sourceLabel).orEmpty()
+    fun sourceLabel(connectionId: String): String = repository.connection(connectionId)?.let(repository::sourceLabel).orEmpty()
 
     suspend fun catalog(
         addonBaseUrl: String,
@@ -83,17 +77,29 @@ class ServerCatalog @Inject constructor(
         skip: Int,
         extraArgs: Map<String, String>
     ): CatalogRow {
-        val connectionId = connectionId(addonBaseUrl) ?: throw ServerException(ServerFailure.NOT_FOUND)
-        val connection = repository.connection(connectionId) ?: throw ServerException(ServerFailure.NOT_FOUND)
+        val connectionId =
+            connectionId(addonBaseUrl) ?: throw ServerException(ServerFailure.NOT_FOUND)
+        val connection =
+            repository.connection(connectionId) ?: throw ServerException(ServerFailure.NOT_FOUND)
         val query = extraArgs["search"]?.trim()?.takeIf { it.isNotEmpty() }
         val page = when {
             catalogId == RESUME_ID -> resumePage(connection, skip)
+
             catalogId.startsWith(COLLECTION_PREFIX) -> pageOf(connection, skip) {
                 repository.call(connection.id) { provider, session ->
-                    provider.collectionPage(session, catalogId.removePrefix(COLLECTION_PREFIX), skip, PAGE_SIZE)
+                    provider.collectionPage(
+                        session,
+                        catalogId.removePrefix(COLLECTION_PREFIX),
+                        skip,
+                        PAGE_SIZE
+                    )
                 }
             }
-            catalogId.startsWith(SEARCH_PREFIX) -> searchPage(connection, catalogId.removePrefix(SEARCH_PREFIX), query, skip)
+
+            catalogId.startsWith(
+                SEARCH_PREFIX
+            ) -> searchPage(connection, catalogId.removePrefix(SEARCH_PREFIX), query, skip)
+
             else -> {
                 val library = connection.libraries.firstOrNull { it.id == catalogId }
                     ?: throw ServerException(ServerFailure.NOT_FOUND)
@@ -124,7 +130,9 @@ class ServerCatalog @Inject constructor(
     }
 
     suspend fun collectionRow(ref: ServerItemRef): CatalogRow {
-        val connection = repository.connection(ref.connectionId) ?: throw ServerException(ServerFailure.NOT_FOUND)
+        val connection =
+            repository.connection(ref.connectionId)
+                ?: throw ServerException(ServerFailure.NOT_FOUND)
         val name = details(ref).meta.name
         val row = CatalogRow(
             addonId = addonId(connection.id),
@@ -140,8 +148,12 @@ class ServerCatalog @Inject constructor(
     }
 
     suspend fun row(connectionId: String, catalogId: String): CatalogRow {
-        val addon = repository.connection(connectionId)?.let(::addonFor) ?: throw ServerException(ServerFailure.NOT_FOUND)
-        val descriptor = addon.catalogs.firstOrNull { it.id == catalogId } ?: throw ServerException(ServerFailure.NOT_FOUND)
+        val addon =
+            repository.connection(connectionId)?.let(::addonFor)
+                ?: throw ServerException(ServerFailure.NOT_FOUND)
+        val descriptor =
+            addon.catalogs.firstOrNull { it.id == catalogId }
+                ?: throw ServerException(ServerFailure.NOT_FOUND)
         val row = CatalogRow(
             addonId = addon.id,
             addonName = addon.displayName,
@@ -155,12 +167,21 @@ class ServerCatalog @Inject constructor(
         return page(row, skip = 0)
     }
 
-    suspend fun page(row: CatalogRow, skip: Int): CatalogRow =
-        catalog(row.addonBaseUrl, row.addonId, row.addonName, row.catalogId, row.catalogName, row.apiType, skip, row.extraArgs)
+    suspend fun page(row: CatalogRow, skip: Int): CatalogRow = catalog(
+        row.addonBaseUrl,
+        row.addonId,
+        row.addonName,
+        row.catalogId,
+        row.catalogName,
+        row.apiType,
+        skip,
+        row.extraArgs
+    )
 
-    suspend fun details(ref: ServerItemRef): ServerItemDetails =
-        repository.call(ref.connectionId) { provider, session -> provider.details(session, ref.itemId) }
-            .also { detailsLoaded.tryEmit(it) }
+    suspend fun details(ref: ServerItemRef): ServerItemDetails = repository.call(ref.connectionId) { provider, session ->
+        provider.details(session, ref.itemId)
+    }
+        .also { detailsLoaded.tryEmit(it) }
 
     private fun addonFor(connection: ServerConnection): Addon? {
         val provider = repository.provider(connection) ?: return null
@@ -185,7 +206,10 @@ class ServerCatalog @Inject constructor(
             )
         }
         val searches = SEARCH_KINDS
-            .filter { kind -> provider.supports(ServerCapability.SEARCH) && libraries.any { it.holds(kind) } }
+            .filter { kind ->
+                provider.supports(ServerCapability.SEARCH) &&
+                    libraries.any { it.holds(kind) }
+            }
             .map { kind ->
                 CatalogDescriptor(
                     type = kind.domainType(),
@@ -206,32 +230,45 @@ class ServerCatalog @Inject constructor(
             baseUrl = baseUrl(connection.id),
             catalogs = listOfNotNull(resume) + catalogs + searches,
             types = listOf(ContentType.MOVIE, ContentType.SERIES),
-            resources = listOf(AddonResource(name = "catalog", types = emptyList(), idPrefixes = null))
+            resources = listOf(
+                AddonResource(name = "catalog", types = emptyList(), idPrefixes = null)
+            )
         )
     }
 
     private suspend fun resumePage(connection: ServerConnection, skip: Int): Page {
         if (skip > 0) return Page(emptyList(), null)
         val presenter = presenter(connection)
-        val items = repository.call(connection.id) { provider, session -> provider.resumeItems(session, PAGE_SIZE) }
+        val items = repository.call(connection.id) { provider, session ->
+            provider.resumeItems(session, PAGE_SIZE)
+        }
             .map(presenter)
         return Page(items, null)
     }
 
-    private suspend fun searchPage(connection: ServerConnection, contentType: String, query: String?, skip: Int): Page {
+    private suspend fun searchPage(
+        connection: ServerConnection,
+        contentType: String,
+        query: String?,
+        skip: Int
+    ): Page {
         val kind = ServerMediaKind.fromContentType(contentType)
         if (query == null || kind == null || skip > 0) return Page(emptyList(), null)
         val libraries = connection.selectedLibraries(kind)
         val presenter = presenter(connection)
         val items = repository.call(connection.id) { provider, session ->
-            if (!provider.supports(ServerCapability.SEARCH)) throw ServerException(ServerFailure.UNSUPPORTED)
+            if (!provider.supports(
+                    ServerCapability.SEARCH
+                )
+            ) {
+                throw ServerException(ServerFailure.UNSUPPORTED)
+            }
             provider.search(session, kind, libraries, query, SEARCH_LIMIT)
         }.map(presenter)
         return Page(items, null)
     }
 
-    private fun ServerMediaKind.searchLabel(): Int =
-        if (this == ServerMediaKind.SERIES) R.string.type_series_plural else R.string.type_movies
+    private fun ServerMediaKind.searchLabel(): Int = if (this == ServerMediaKind.SERIES) R.string.type_series_plural else R.string.type_movies
 
     private suspend fun pageOf(
         connection: ServerConnection,
@@ -240,7 +277,9 @@ class ServerCatalog @Inject constructor(
     ): Page {
         val page = load()
         val loaded = skip + page.items.size
-        val hasMore = page.items.isNotEmpty() && (page.totalCount?.let { loaded < it } ?: (page.items.size >= PAGE_SIZE))
+        val hasMore =
+            page.items.isNotEmpty() &&
+                (page.totalCount?.let { loaded < it } ?: (page.items.size >= PAGE_SIZE))
         return Page(page.items.map(presenter(connection)), loaded.takeIf { hasMore })
     }
 
@@ -267,8 +306,7 @@ class ServerCatalog @Inject constructor(
 
         fun isServerAddonId(addonId: String?): Boolean = addonId?.startsWith(ADDON_ID_PREFIX) == true
 
-        fun isCollection(id: String?, type: String?): Boolean =
-            type == ServerMediaKind.COLLECTION.contentType && ServerItemRef.isServerId(id)
+        fun isCollection(id: String?, type: String?): Boolean = type == ServerMediaKind.COLLECTION.contentType && ServerItemRef.isServerId(id)
 
         fun isServerKey(key: String): Boolean = key.startsWith(ADDON_ID_PREFIX) || key.startsWith(BASE_URL_PREFIX)
 

@@ -27,17 +27,26 @@ import kotlin.math.roundToInt
  */
 internal class SubtitleCandidatePool(
     private val target: SubtitleSpeechTrack,
-    private val log: (String) -> Unit = {},
+    private val log: (String) -> Unit = {}
 ) {
     /** [chosen]: the mapping is for the chosen subtitle itself (it fits; no switch needed). */
-    class Winner(val key: String, val model: SubtitleSyncModel, val method: String, val chosen: Boolean = false)
+    class Winner(
+        val key: String,
+        val model: SubtitleSyncModel,
+        val method: String,
+        val chosen: Boolean = false
+    )
 
     private class Candidate(val key: String, val track: SubtitleSpeechTrack) {
         /** Frame-rate ratios that fit the video's length; null until the length is known. */
         var scales: DoubleArray? = null
     }
 
-    private class Reference(val key: String, val track: SubtitleSpeechTrack, val matcher: WordAnchorMatcher)
+    private class Reference(
+        val key: String,
+        val track: SubtitleSpeechTrack,
+        val matcher: WordAnchorMatcher
+    )
 
     private val lock = Any()
     private val active = ArrayList<Candidate>()
@@ -65,8 +74,12 @@ internal class SubtitleCandidatePool(
         get() = synchronized(lock) {
             when {
                 arrived == 0 -> ""
+
                 active.isEmpty() -> "none of $arrived fit the audio"
-                else -> "testing ${active.size}" + if (ruledOut > 0) " · $ruledOut ruled out" else ""
+
+                else ->
+                    "testing ${active.size}" +
+                        if (ruledOut > 0) " · $ruledOut ruled out" else ""
             }
         }
 
@@ -138,7 +151,9 @@ internal class SubtitleCandidatePool(
             if (scales.isEmpty()) {
                 iterator.remove()
                 ruledOut++
-                log("candidate ${candidate.key} ruled out: ends at ${lastEndMs / 1_000}s, video ${durationMs / 1_000}s")
+                log(
+                    "candidate ${candidate.key} ruled out: ends at ${lastEndMs / 1_000}s, video ${durationMs / 1_000}s"
+                )
             } else {
                 candidate.scales = scales
             }
@@ -156,21 +171,33 @@ internal class SubtitleCandidatePool(
         val speech = SubtitleAudioAligner.prepare(
             segments = segments,
             minShiftMs = -AudioSyncTracker.MAX_SHIFT_MS,
-            maxShiftMs = AudioSyncTracker.MAX_SHIFT_MS,
+            maxShiftMs = AudioSyncTracker.MAX_SHIFT_MS
         ) ?: return null
 
         var best: Pair<Candidate, SubtitleAudioAligner.Estimate>? = null
-        val batch = List(minOf(BATCH_SIZE, candidates.size)) { candidates[(cursor + it) % candidates.size] }
+        val batch = List(minOf(BATCH_SIZE, candidates.size)) {
+            candidates[
+                (cursor + it) %
+                    candidates.size
+            ]
+        }
         cursor = (cursor + batch.size) % candidates.size
         for (candidate in batch) {
             val scales = candidate.scales ?: SubtitleAudioAligner.CANDIDATE_SCALES
             val estimate = speech.estimate(candidate.track, scales)
             if (estimate != null && AudioSyncTracker.isLockable(
-                    estimate, segments, knownFrames, candidate.track,
-                    AudioSyncTracker.rivalRate(speech, candidate.track, estimate, scales),
+                    estimate,
+                    segments,
+                    knownFrames,
+                    candidate.track,
+                    AudioSyncTracker.rivalRate(speech, candidate.track, estimate, scales)
                 )
             ) {
-                if (best == null || estimate.prominence > best.second.prominence) best = candidate to estimate
+                if (best == null ||
+                    estimate.prominence > best.second.prominence
+                ) {
+                    best = candidate to estimate
+                }
             }
             // VAD is probabilistic. Music, sparse dialogue, or a different opening can make a
             // correct file look weak now; a later sampled scene may confirm it. Keep every
@@ -215,22 +242,28 @@ internal class SubtitleCandidatePool(
             fromFrame = from,
             minShiftMs = -AudioSyncTracker.MAX_SHIFT_MS,
             maxShiftMs = AudioSyncTracker.MAX_SHIFT_MS,
-            detectorBiasMs = 0.0,
+            detectorBiasMs = 0.0
         ) ?: return null
 
-        fun fits(track: SubtitleSpeechTrack, scales: DoubleArray): SubtitleAudioAligner.Estimate? =
-            pinnedSpeech.estimate(track, scales)?.takeIf {
-                !it.atSearchEdge && it.peak >= PINNED_MIN_PEAK && it.prominence >= PINNED_MIN_PROMINENCE &&
-                    it.cueCount >= MIN_CUES
-            }
+        fun fits(track: SubtitleSpeechTrack, scales: DoubleArray): SubtitleAudioAligner.Estimate? = pinnedSpeech.estimate(track, scales)?.takeIf {
+            !it.atSearchEdge && it.peak >= PINNED_MIN_PEAK &&
+                it.prominence >= PINNED_MIN_PROMINENCE &&
+                it.cueCount >= MIN_CUES
+        }
         // The subtitle's own rate first, and never a 0.1% stretch: over the window it moves lines by
         // barely a second, so it can split the difference of a scene the release adds and then drift
         // for the rest of the film. A real 0.1% rate is left to recognition across the whole film.
-        (fits(target, doubleArrayOf(1.0)) ?: fits(target, measurableScales(null)))?.let { estimate ->
+        (
+            fits(
+                target,
+                doubleArrayOf(1.0)
+            ) ?: fits(target, measurableScales(null))
+            )?.let { estimate ->
             // The chosen subtitle lines up with the reference where the words were heard, even if
             // the two files differ elsewhere (so no whole-file bridge was found): sync it with that.
             finish("the chosen subtitle matches the recognised reference: $estimate")
-            val model = SubtitleSyncModel(listOf(SubtitleSyncSegment(0L, estimate.scale, estimate.shiftMs)))
+            val model =
+                SubtitleSyncModel(listOf(SubtitleSyncSegment(0L, estimate.scale, estimate.shiftMs)))
             return Winner("", model, "speech recognition", chosen = true)
         }
         var best: Pair<Candidate, SubtitleAudioAligner.Estimate>? = null
@@ -239,18 +272,23 @@ internal class SubtitleCandidatePool(
             if (best == null || estimate.peak > best.second.peak) best = candidate to estimate
         }
         val (candidate, estimate) = best ?: return null
-        log("candidate ${candidate.key} locked through reference ${reference.key}: fit=$fit $estimate")
+        log(
+            "candidate ${candidate.key} locked through reference ${reference.key}: fit=$fit $estimate"
+        )
         return win(candidate, estimate.scale, estimate.shiftMs, "speech recognition")
     }
 
     /** The unstretched rate and the frame-rate conversions large enough to show within the window. */
-    private fun measurableScales(scales: DoubleArray?): DoubleArray =
-        (scales ?: SubtitleAudioAligner.CANDIDATE_SCALES)
-            .filter { it == 1.0 || abs(it - 1.0) > MIN_PINNED_STRETCH }.toDoubleArray()
+    private fun measurableScales(scales: DoubleArray?): DoubleArray = (scales ?: SubtitleAudioAligner.CANDIDATE_SCALES)
+        .filter { it == 1.0 || abs(it - 1.0) > MIN_PINNED_STRETCH }.toDoubleArray()
 
     private fun win(candidate: Candidate, scale: Double, shiftMs: Double, method: String): Winner {
         finished = true
-        return Winner(candidate.key, SubtitleSyncModel(listOf(SubtitleSyncSegment(0L, scale, shiftMs))), method)
+        return Winner(
+            candidate.key,
+            SubtitleSyncModel(listOf(SubtitleSyncSegment(0L, scale, shiftMs))),
+            method
+        )
     }
 
     private fun finish(reason: String) {
@@ -286,27 +324,37 @@ internal class SubtitleCandidatePool(
         }
 
         private val bibliographic = mapOf(
-            "alb" to "sqi", "arm" to "hye", "baq" to "eus", "bur" to "mya", "chi" to "zho", "cze" to "ces",
-            "dut" to "nld", "fre" to "fra", "geo" to "kat", "ger" to "deu", "gre" to "ell", "ice" to "isl",
-            "mac" to "mkd", "mao" to "mri", "may" to "msa", "per" to "fas", "rum" to "ron", "mol" to "ron",
-            "slo" to "slk", "tib" to "bod", "wel" to "cym", "scc" to "srp", "scr" to "hrv",
+            "alb" to "sqi", "arm" to "hye", "baq" to "eus", "bur" to "mya", "chi" to "zho",
+            "cze" to "ces",
+            "dut" to "nld", "fre" to "fra", "geo" to "kat", "ger" to "deu", "gre" to "ell",
+            "ice" to "isl",
+            "mac" to "mkd", "mao" to "mri", "may" to "msa", "per" to "fas", "rum" to "ron",
+            "mol" to "ron",
+            "slo" to "slk", "tib" to "bod", "wel" to "cym", "scc" to "srp", "scr" to "hrv"
         )
 
         /** Subtitle site codes that name a regional variant. */
         private val variantCodes = mapOf(
-            "pob" to "por-BR", "pb" to "por-BR",
-            "spl" to "spa-419", "ea" to "spa-419", "spn" to "spa", "sp" to "spa",
-            "zht" to "zho-Hant", "zhs" to "zho",
+            "pob" to "por-BR",
+            "pb" to "por-BR",
+            "spl" to "spa-419",
+            "ea" to "spa-419",
+            "spn" to "spa",
+            "sp" to "spa",
+            "zht" to "zho-Hant",
+            "zhs" to "zho"
         )
         private val brazilian = setOf("br", "bra", "brazil", "brasil", "brazilian", "brasileiro")
-        private val latinAmerican = setOf("419", "la", "lat", "latam", "latin", "latino", "latinoamericano", "mx")
-        private val traditionalChinese = setOf("hant", "tw", "hk", "mo", "taiwan", "hong", "traditional", "cht")
+        private val latinAmerican =
+            setOf("419", "la", "lat", "latam", "latin", "latino", "latinoamericano", "mx")
+        private val traditionalChinese =
+            setOf("hant", "tw", "hk", "mo", "taiwan", "hong", "traditional", "cht")
         private val simplifiedChinese = setOf("hans", "cn", "simplified")
 
         private val languageNames: Map<String, String> by lazy {
             Locale.getISOLanguages().associateBy(
                 { Locale(it).getDisplayLanguage(Locale.ENGLISH).lowercase() },
-                { runCatching { Locale(it).isO3Language }.getOrDefault(it) },
+                { runCatching { Locale(it).isO3Language }.getOrDefault(it) }
             )
         }
 
@@ -325,8 +373,14 @@ internal class SubtitleCandidatePool(
             val base = baseLanguageKey(value, code)
             val variant = when (base) {
                 "por" -> "BR".takeIf { words.any { it in brazilian } }
+
                 "spa" -> "419".takeIf { words.any { it in latinAmerican } }
-                "zho" -> "Hant".takeIf { words.any { it in traditionalChinese } && words.none { it in simplifiedChinese } }
+
+                "zho" -> "Hant".takeIf {
+                    words.any { it in traditionalChinese } &&
+                        words.none { it in simplifiedChinese }
+                }
+
                 else -> null
             }
             return if (variant == null) base else "$base-$variant"
@@ -340,7 +394,9 @@ internal class SubtitleCandidatePool(
             }
             val name = value.substringBefore('(').trim()
             return languageNames[name]
-                ?: languageNames.entries.firstOrNull { it.key.length >= 4 && name.startsWith(it.key) }?.value
+                ?: languageNames.entries.firstOrNull {
+                    it.key.length >= 4 && name.startsWith(it.key)
+                }?.value
                 ?: value
         }
     }

@@ -6,9 +6,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MemberCatalogStorage @Inject constructor(
-    @ApplicationContext context: Context
-) {
+class MemberCatalogStorage @Inject constructor(@ApplicationContext context: Context) {
     private val preferences = context.getSharedPreferences("member_catalogs", Context.MODE_PRIVATE)
 
     fun loadAvatarCatalogPayload(): String? = preferences.getString(AvatarCatalogKey, null)
@@ -17,8 +15,7 @@ class MemberCatalogStorage @Inject constructor(
         preferences.edit().putString(AvatarCatalogKey, payload).apply()
     }
 
-    fun loadProfileBackgroundCatalogPayload(): String? =
-        preferences.getString(ProfileBackgroundCatalogKey, null)
+    fun loadProfileBackgroundCatalogPayload(): String? = preferences.getString(ProfileBackgroundCatalogKey, null)
 
     fun saveProfileBackgroundCatalogPayload(payload: String) {
         preferences.edit().putString(ProfileBackgroundCatalogKey, payload).apply()

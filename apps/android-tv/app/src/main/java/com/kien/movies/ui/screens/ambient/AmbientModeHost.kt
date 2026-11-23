@@ -55,7 +55,11 @@ fun AmbientModeHost(
     LaunchedEffect(isShowing) {
         if (isShowing) {
             keyboardController?.hide()
-            (localView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager)
+            (
+                localView.context.getSystemService(
+                    Context.INPUT_METHOD_SERVICE
+                ) as? InputMethodManager
+                )
                 ?.hideSoftInputFromWindow(localView.windowToken, 0)
             onShown()
             viewModel.onShown()

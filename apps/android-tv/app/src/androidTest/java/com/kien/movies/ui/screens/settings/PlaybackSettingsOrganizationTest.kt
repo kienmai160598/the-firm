@@ -116,10 +116,14 @@ class PlaybackSettingsOrganizationTest {
     fun bufferSectionIsHiddenForLibmpvOnly() {
         setSections(PlayerSettings(internalPlayerEngine = InternalPlayerEngine.MVP_PLAYER))
 
-        composeRule.onAllNodes(hasTestTag(PlaybackSettingsTestTags.section(PlaybackSection.BUFFER_NETWORK)))
+        composeRule.onAllNodes(
+            hasTestTag(PlaybackSettingsTestTags.section(PlaybackSection.BUFFER_NETWORK))
+        )
             .assertCountEquals(0)
         assertTrue(
-            composeRule.onAllNodes(hasTestTag(PlaybackSettingsTestTags.section(PlaybackSection.VIDEO)))
+            composeRule.onAllNodes(
+                hasTestTag(PlaybackSettingsTestTags.section(PlaybackSection.VIDEO))
+            )
                 .fetchSemanticsNodes().size == 1
         )
     }

@@ -8,7 +8,9 @@ internal const val MDBLIST_EMPTY_LIKED_LISTS = """{"lists":[],"pagination":{"pag
 internal const val MDBLIST_LIBRARY_MOVIE_PAGE = """{"movies":[{"id":278,"imdb_id":"tt0111161","title":"Shawshank","release_year":1994,"rank":1}],"shows":[]}"""
 
 internal fun mdbListLibraryListsBody(version: String? = "v1", count: Int = 0) = """[
-    {"id":7,"user_id":42,"name":"Favourites","type":"static","private":true,"items":$count,"last_updated_at":${version?.let { "\"$it\"" } ?: "null"}}
+    {"id":7,"user_id":42,"name":"Favourites","type":"static","private":true,"items":$count,"last_updated_at":${version?.let {
+    "\"$it\""
+} ?: "null"}}
 ]"""
 
 internal fun mdbListLibrarySnapshot(now: Long) = MdbListLibrarySnapshot(
@@ -19,9 +21,16 @@ internal fun mdbListLibrarySnapshot(now: Long) = MdbListLibrarySnapshot(
 )
 
 internal fun MdbListSyncTestHarness.libraryService(coroutineScope: CoroutineScope) = MdbListLibraryService(
-    http.api, repository, http.store, activeProfile, coroutineScope, { http.now }
+    http.api,
+    repository,
+    http.store,
+    activeProfile,
+    coroutineScope,
+    { http.now }
 )
 
-internal fun MdbListSyncTestHarness.seedLibrary(library: MdbListLibrarySnapshot = mdbListLibrarySnapshot(http.now)) {
+internal fun MdbListSyncTestHarness.seedLibrary(
+    library: MdbListLibrarySnapshot = mdbListLibrarySnapshot(http.now)
+) {
     seed(snapshot().copy(library = library))
 }

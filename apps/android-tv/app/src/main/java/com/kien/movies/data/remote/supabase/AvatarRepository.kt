@@ -9,6 +9,10 @@ import com.kien.movies.domain.model.UserProfile
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,10 +29,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlin.time.Duration.Companion.days
 
 private const val MemberAvatarBucket = "membership-profile-avatars"
 private const val MemberAvatarTag = "MemberAvatars"
@@ -67,7 +67,10 @@ class AvatarRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
     private val storedCatalog = loadStoredCatalog()
     private var standardMetadata = storedCatalog?.standardItems.orEmpty()
     private var memberMetadata = storedCatalog?.memberItems.orEmpty()
@@ -145,7 +148,11 @@ class AvatarRepository @Inject constructor(
                         } catch (error: CancellationException) {
                             throw error
                         } catch (error: Exception) {
-                            Log.w(MemberAvatarTag, "Unable to load supporter avatar ${item.id}", error)
+                            Log.w(
+                                MemberAvatarTag,
+                                "Unable to load supporter avatar ${item.id}",
+                                error
+                            )
                             toMemberCatalogFallbackItem(item)
                         }
                     }
@@ -181,7 +188,9 @@ class AvatarRepository @Inject constructor(
     fun getAvatarImageUrl(avatarId: String, catalog: List<AvatarCatalogItem>): String? {
         return catalog.find { it.id == avatarId }?.imageUrl
             ?: latestCachedMemberAvatar(avatarId)?.toFileUriString()
-            ?: memberMetadata.firstOrNull { it.id == avatarId }?.let { toMemberCatalogFallbackItem(it).imageUrl }
+            ?: memberMetadata.firstOrNull {
+                it.id == avatarId
+            }?.let { toMemberCatalogFallbackItem(it).imageUrl }
     }
 
     fun invalidateCache() {
@@ -201,7 +210,13 @@ class AvatarRepository @Inject constructor(
 
     private fun refreshStandardCatalogInBackground() {
         if (standardRefreshJob?.isActive == true) return
-        if (!isAvatarCatalogRefreshDue(lastStandardRefreshAtMs, SystemClock.elapsedRealtime())) return
+        if (!isAvatarCatalogRefreshDue(
+                lastStandardRefreshAtMs,
+                SystemClock.elapsedRealtime()
+            )
+        ) {
+            return
+        }
         standardRefreshJob = scope.launch {
             try {
                 fetchStandardAvatarCatalog()
@@ -248,15 +263,14 @@ class AvatarRepository @Inject constructor(
         )
     }
 
-    private fun toStandardCatalogItem(item: SupabaseAvatarCatalogItem): AvatarCatalogItem =
-        AvatarCatalogItem(
-            id = item.id,
-            displayName = item.displayName,
-            imageUrl = avatarImageUrl(item.storagePath),
-            category = item.category,
-            sortOrder = item.sortOrder,
-            bgColor = item.bgColor
-        )
+    private fun toStandardCatalogItem(item: SupabaseAvatarCatalogItem): AvatarCatalogItem = AvatarCatalogItem(
+        id = item.id,
+        displayName = item.displayName,
+        imageUrl = avatarImageUrl(item.storagePath),
+        category = item.category,
+        sortOrder = item.sortOrder,
+        bgColor = item.bgColor
+    )
 
     private fun loadCachedMemberAvatar(item: SupabaseMemberAvatarCatalogItem): AvatarCatalogItem {
         val imageFile = memberAvatarFile(item).takeIf { it.isFile && it.length() > 0L }
@@ -267,30 +281,34 @@ class AvatarRepository @Inject constructor(
         }
     }
 
-    private fun toMemberCatalogFallbackItem(item: SupabaseMemberAvatarCatalogItem): AvatarCatalogItem =
-        AvatarCatalogItem(
-            id = item.id,
-            displayName = item.displayName,
-            imageUrl = avatarImageUrl(item.storagePath.trim().trimStart('/')),
-            category = item.category,
-            sortOrder = item.sortOrder,
-            bgColor = item.bgColor,
-            memberOnly = true
-        )
+    private fun toMemberCatalogFallbackItem(
+        item: SupabaseMemberAvatarCatalogItem
+    ): AvatarCatalogItem = AvatarCatalogItem(
+        id = item.id,
+        displayName = item.displayName,
+        imageUrl = avatarImageUrl(item.storagePath.trim().trimStart('/')),
+        category = item.category,
+        sortOrder = item.sortOrder,
+        bgColor = item.bgColor,
+        memberOnly = true
+    )
 
-    private fun toMemberCatalogItem(item: SupabaseMemberAvatarCatalogItem, imageFile: File) =
-        AvatarCatalogItem(
-            id = item.id,
-            displayName = item.displayName,
-            imageUrl = imageFile.toFileUriString(),
-            category = item.category,
-            sortOrder = item.sortOrder,
-            bgColor = item.bgColor,
-            memberOnly = true
-        )
+    private fun toMemberCatalogItem(item: SupabaseMemberAvatarCatalogItem, imageFile: File) = AvatarCatalogItem(
+        id = item.id,
+        displayName = item.displayName,
+        imageUrl = imageFile.toFileUriString(),
+        category = item.category,
+        sortOrder = item.sortOrder,
+        bgColor = item.bgColor,
+        memberOnly = true
+    )
 
     private fun avatarImageUrl(storagePath: String): String {
-        if (storagePath.startsWith("http://") || storagePath.startsWith("https://")) return storagePath
+        if (storagePath.startsWith("http://") ||
+            storagePath.startsWith("https://")
+        ) {
+            return storagePath
+        }
         val baseUrl = serverConfiguration.avatarPublicBaseUrl.orEmpty().trimEnd('/')
         return if (baseUrl.isNotEmpty()) "$baseUrl/$storagePath" else storagePath
     }
@@ -314,9 +332,11 @@ class AvatarRepository @Inject constructor(
 
     private fun memberAvatarFile(item: SupabaseMemberAvatarCatalogItem): File {
         val extension = item.storagePath.substringAfterLast('.', "img")
-        .takeIf { it.length in 2..5 && it.all(Char::isLetterOrDigit) }
-        ?: "img"
-        return context.cacheDir.resolve("member_profile_avatars/${item.id}-v${item.assetVersion}.$extension")
+            .takeIf { it.length in 2..5 && it.all(Char::isLetterOrDigit) }
+            ?: "img"
+        return context.cacheDir.resolve(
+            "member_profile_avatars/${item.id}-v${item.assetVersion}.$extension"
+        )
     }
 
     private fun latestCachedMemberAvatar(avatarId: String): File? {

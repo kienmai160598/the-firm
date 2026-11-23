@@ -1,16 +1,14 @@
 package com.kien.movies.updater
 
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 @Singleton
-class ApkDownloader @Inject constructor(
-    private val okHttpClient: OkHttpClient
-) {
+class ApkDownloader @Inject constructor(private val okHttpClient: OkHttpClient) {
 
     suspend fun download(
         url: String,

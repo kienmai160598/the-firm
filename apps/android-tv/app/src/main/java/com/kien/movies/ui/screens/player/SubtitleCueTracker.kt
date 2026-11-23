@@ -27,10 +27,13 @@ internal class SubtitleCueTracker {
         val hasBitmap = cues.any { it.bitmap != null }
         publish(
             key = cues.joinToString("\u0000") { cue ->
-                cue.bitmap?.let { "\u0001${System.identityHashCode(it)}" } ?: cue.text?.toString().orEmpty()
+                cue.bitmap?.let { "\u0001${System.identityHashCode(it)}" }
+                    ?: cue.text?.toString().orEmpty()
             },
             visible = cues.any { !it.text.isNullOrBlank() || it.bitmap != null },
-            text = cues.mapNotNull { it.text?.toString()?.takeIf(String::isNotBlank) }.joinToString("\n"),
+            text = cues.mapNotNull {
+                it.text?.toString()?.takeIf(String::isNotBlank)
+            }.joinToString("\n"),
             hasBitmap = hasBitmap
         )
     }
@@ -48,7 +51,8 @@ internal class SubtitleCueTracker {
     private fun publish(key: String, visible: Boolean, text: String, hasBitmap: Boolean) {
         if (key == lastKey) return
         lastKey = key
-        mutableState.value = SubtitleCueState(mutableState.value.version + 1, visible, text, hasBitmap)
+        mutableState.value =
+            SubtitleCueState(mutableState.value.version + 1, visible, text, hasBitmap)
     }
 }
 

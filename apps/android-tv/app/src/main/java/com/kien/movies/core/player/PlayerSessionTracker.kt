@@ -1,11 +1,11 @@
 package com.kien.movies.core.player
 
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Tracks whether the in-app player is open, from controller creation until the player exits.

@@ -19,10 +19,7 @@ import okhttp3.Response
 import okio.Buffer
 
 /** Requests to plex.tv and to Plex Media Server, with the X-Plex-* headers both expect. */
-internal class PlexClient(
-    http: OkHttpClient,
-    private val identity: ServerClientIdentity
-) {
+internal class PlexClient(http: OkHttpClient, private val identity: ServerClientIdentity) {
     private val http = http.newBuilder()
         .followRedirects(false)
         .followSslRedirects(false)
@@ -65,11 +62,22 @@ internal class PlexClient(
                 .url(buildUrl(baseUrl, path, query))
                 .header("Accept", "application/json")
                 .apply {
-                    (headers + extraHeaders).forEach { (name, value) -> header(name, value.headerValue()) }
+                    (headers + extraHeaders).forEach { (name, value) ->
+                        header(name, value.headerValue())
+                    }
                     token?.let { header(TOKEN_HEADER, it.headerValue()) }
                     range?.let { header("Range", "bytes=${it.first}-${it.last}") }
                 }
-                .method(method, if (method == "POST" || method == "PUT") ByteArray(0).toRequestBody() else null)
+                .method(
+                    method,
+                    if (method == "POST" ||
+                        method == "PUT"
+                    ) {
+                        ByteArray(0).toRequestBody()
+                    } else {
+                        null
+                    }
+                )
                 .build()
         } catch (_: IllegalArgumentException) {
             throw ServerException(ServerFailure.NOT_FOUND)
@@ -103,8 +111,18 @@ internal class PlexClient(
             override fun onResponse(call: Call, response: Response) {
                 response.use {
                     try {
-                        val body = if (readBody) response.body?.let { readBounded(it.source(), it.contentLength()) }.orEmpty() else ""
-                        if (continuation.isActive) continuation.resume(PlexResponse(response.code, body))
+                        val body = if (readBody) {
+                            response.body?.let {
+                                readBounded(it.source(), it.contentLength())
+                            }.orEmpty()
+                        } else {
+                            ""
+                        }
+                        if (continuation.isActive) {
+                            continuation.resume(
+                                PlexResponse(response.code, body)
+                            )
+                        }
                     } catch (error: IOException) {
                         if (continuation.isActive) continuation.resumeWithException(error)
                     }

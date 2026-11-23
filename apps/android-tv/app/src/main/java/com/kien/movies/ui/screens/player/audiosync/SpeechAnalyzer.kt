@@ -14,10 +14,7 @@ import kotlin.math.sin
  * Blocks must arrive in presentation order. A timestamp jump, a rate change or [reset] restarts the
  * resampler and the VAD state, so seeks and dropped input never smear speech across the gap.
  */
-internal class SpeechAnalyzer(
-    private val vad: SileroVad,
-    private val timeline: SpeechTimeline,
-) {
+internal class SpeechAnalyzer(private val vad: SileroVad, private val timeline: SpeechTimeline) {
     /** Receives every analysed 16 kHz chunk (after warm-up) with its frame and speech probability. */
     interface ChunkListener {
         fun onChunk(frame: Int, chunk: FloatArray, probability: Float)
@@ -50,9 +47,11 @@ internal class SpeechAnalyzer(
     private var nextFrame = 0
     private var warmupChunks = 0
     private var running = false
+
     @Volatile
     var starts: Long = 0L
         private set
+
     @Volatile
     var lastStartReason: String = "not started"
         private set
@@ -71,8 +70,13 @@ internal class SpeechAnalyzer(
         val deltaUs = if (running) timeUs - expectedNextTimeUs() else 0L
         val reason = when {
             !running -> "initial or reset"
+
             sampleRate != sourceRate -> "rate $sourceRate->$sampleRate"
-            abs(deltaUs) > CONTINUITY_TOLERANCE_US -> "timestamp delta=${deltaUs}us block=$count@$sampleRate timeUs=$timeUs"
+
+            abs(
+                deltaUs
+            ) > CONTINUITY_TOLERANCE_US -> "timestamp delta=${deltaUs}us block=$count@$sampleRate timeUs=$timeUs"
+
             else -> null
         }
         if (reason != null) {
@@ -84,8 +88,7 @@ internal class SpeechAnalyzer(
         produceOutput()
     }
 
-    private fun expectedNextTimeUs(): Long =
-        runStartTimeUs + receivedSamples * 1_000_000L / sourceRate.coerceAtLeast(1)
+    private fun expectedNextTimeUs(): Long = runStartTimeUs + receivedSamples * 1_000_000L / sourceRate.coerceAtLeast(1)
 
     private fun start(sampleRate: Int, timeUs: Long) {
         starts++
@@ -155,13 +158,15 @@ internal class SpeechAnalyzer(
      * Windowed-sinc low-pass resampler as a polyphase bank: the fractional source position is
      * rounded to one of [PHASES] precomputed tap sets, so each output sample is one dot product.
      */
-    private class ResampleKernel(
-        val halfWidth: Int,
-        private val bank: FloatArray,
-    ) {
+    private class ResampleKernel(val halfWidth: Int, private val bank: FloatArray) {
         private val taps = 2 * halfWidth
 
-        fun interpolate(history: FloatArray, historyStart: Long, historyLength: Int, position: Double): Float {
+        fun interpolate(
+            history: FloatArray,
+            historyStart: Long,
+            historyLength: Int,
+            position: Double
+        ): Float {
             if (halfWidth == 0) {
                 val index = (position.toLong() - historyStart).toInt()
                 return if (index in 0 until historyLength) history[index] else 0f
@@ -205,7 +210,13 @@ internal class SpeechAnalyzer(
                         val x = (k - halfWidth + 1) - fraction
                         val ax = abs(x)
                         val sinc = if (ax < 1e-9) 1.0 else sin(PI * cutoff * x) / (PI * cutoff * x)
-                        val window = if (ax >= halfWidth) 0.0 else 0.5 + 0.5 * cos(PI * x / halfWidth)
+                        val window = if (ax >=
+                            halfWidth
+                        ) {
+                            0.0
+                        } else {
+                            0.5 + 0.5 * cos(PI * x / halfWidth)
+                        }
                         bank[phase * taps + k] = (cutoff * sinc * window).toFloat()
                     }
                 }
@@ -216,6 +227,7 @@ internal class SpeechAnalyzer(
 
     companion object {
         private const val CONTINUITY_TOLERANCE_US = 40_000L
+
         /** The LSTM needs a few chunks after a reset before its output is meaningful. */
         private const val WARMUP_CHUNKS = 4
     }

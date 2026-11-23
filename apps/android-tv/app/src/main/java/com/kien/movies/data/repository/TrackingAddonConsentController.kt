@@ -10,10 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-data class PendingTrackingAddonInstall(
-    val installUrl: String,
-    val addon: Addon
-)
+data class PendingTrackingAddonInstall(val installUrl: String, val addon: Addon)
 
 @Singleton
 class TrackingAddonConsentController @Inject constructor(

@@ -36,10 +36,7 @@ import kotlin.math.max
 private const val BOUNDS_ANIMATION_MS = 450
 
 @Composable
-fun BackgroundTrailerLayer(
-    controller: BackgroundTrailerController,
-    modifier: Modifier = Modifier
-) {
+fun BackgroundTrailerLayer(controller: BackgroundTrailerController, modifier: Modifier = Modifier) {
     val request = controller.activeRequest ?: return
     val latestRequest by rememberUpdatedState(request)
     var layerRect by remember { mutableStateOf<Rect?>(null) }
@@ -74,7 +71,10 @@ fun BackgroundTrailerLayer(
         toRect = targetRect
         toZoom = targetZoom
         progress.snapTo(0f)
-        progress.animateTo(1f, tween(durationMillis = BOUNDS_ANIMATION_MS, easing = FastOutSlowInEasing))
+        progress.animateTo(
+            1f,
+            tween(durationMillis = BOUNDS_ANIMATION_MS, easing = FastOutSlowInEasing)
+        )
     }
 
     Box(
@@ -109,7 +109,9 @@ fun BackgroundTrailerLayer(
                         val full = layerRect
                         val start = fromRect
                         val end = toRect
-                        if (full != null && start != null && end != null && full.width > 0f && full.height > 0f) {
+                        if (full != null && start != null && end != null && full.width > 0f &&
+                            full.height > 0f
+                        ) {
                             val rect = lerpRect(start, end, progress.value)
                             val cover = max(rect.width / full.width, rect.height / full.height)
                             val scale = cover * lerp(fromZoom, toZoom, progress.value)
@@ -134,8 +136,12 @@ fun BackgroundTrailerLayer(
                     muted = request.muted,
                     seekRequestToken = request.seekRequestToken,
                     seekDeltaMs = request.seekDeltaMs,
-                    onProgressChanged = { position, duration -> latestRequest.onProgressChanged(position, duration) },
-                    onRemoteKey = { keyCode, action, repeatCount -> latestRequest.onRemoteKey(keyCode, action, repeatCount) },
+                    onProgressChanged = { position, duration ->
+                        latestRequest.onProgressChanged(position, duration)
+                    },
+                    onRemoteKey = { keyCode, action, repeatCount ->
+                        latestRequest.onRemoteKey(keyCode, action, repeatCount)
+                    },
                     cropToFill = request.cropToFill,
                     autoCropLetterbox = request.autoCropLetterbox,
                     detectLetterbox = true,
@@ -166,6 +172,9 @@ private fun lerpRect(start: Rect, stop: Rect, fraction: Float): Rect = Rect(
 )
 
 private class LayerRectShape(private val rect: Rect) : Shape {
-    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline =
-        Outline.Rectangle(rect)
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline = Outline.Rectangle(rect)
 }

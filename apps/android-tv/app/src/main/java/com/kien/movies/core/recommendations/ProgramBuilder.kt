@@ -13,15 +13,13 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ProgramBuilder @Inject constructor(
-    @ApplicationContext private val context: Context
-) {
+class ProgramBuilder @Inject constructor(@ApplicationContext private val context: Context) {
 
-    fun watchNextId(progress: WatchProgress): String =
-        if (progress.season != null && progress.episode != null)
-            "wn_${progress.contentId}_s${progress.season}e${progress.episode}"
-        else
-            "wn_${progress.contentId}"
+    fun watchNextId(progress: WatchProgress): String = if (progress.season != null && progress.episode != null) {
+        "wn_${progress.contentId}_s${progress.season}e${progress.episode}"
+    } else {
+        "wn_${progress.contentId}"
+    }
 
     fun buildWatchNextProgram(progress: WatchProgress): WatchNextProgram {
         val isMovie = progress.contentType == "movie"
@@ -41,7 +39,9 @@ class ProgramBuilder @Inject constructor(
 
         builder.setPosterArtAspectRatio(TvContractCompat.PreviewPrograms.ASPECT_RATIO_16_9)
 
-        val horizontalArt = (progress.backdrop ?: progress.poster)?.takeUnless(PlexArtworkLink::needsToken)
+        val horizontalArt = (progress.backdrop ?: progress.poster)?.takeUnless(
+            PlexArtworkLink::needsToken
+        )
         horizontalArt?.let {
             val uriWithCacheBuster = Uri.parse(it).buildUpon()
                 .appendQueryParameter("v", "horizontal_fix")
@@ -53,7 +53,11 @@ class ProgramBuilder @Inject constructor(
             val positionMs = if (progress.position > 0) {
                 progress.position.toInt()
             } else {
-                (progress.progressPercent?.let { it / 100f * progress.duration }?.toLong() ?: 0L).toInt()
+                (
+                    progress.progressPercent?.let {
+                        it / 100f * progress.duration
+                    }?.toLong() ?: 0L
+                    ).toInt()
             }
             builder.setLastPlaybackPositionMillis(positionMs)
             builder.setDurationMillis(progress.duration.toInt())
@@ -106,7 +110,9 @@ class ProgramBuilder @Inject constructor(
                     TvContractCompat.WatchNextPrograms._ID,
                     TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID
                 ),
-                null, null, null
+                null,
+                null,
+                null
             )
             cursor?.use {
                 while (it.moveToNext()) {
@@ -118,7 +124,9 @@ class ProgramBuilder @Inject constructor(
                         if (watchNextIdMatchesContentId(providerId, contentId)) {
                             val pkIdx = it.getColumnIndex(TvContractCompat.WatchNextPrograms._ID)
                             if (pkIdx >= 0) {
-                                val uri = TvContractCompat.buildWatchNextProgramUri(it.getLong(pkIdx))
+                                val uri = TvContractCompat.buildWatchNextProgramUri(
+                                    it.getLong(pkIdx)
+                                )
                                 context.contentResolver.delete(uri, null, null)
                             }
                         }
@@ -135,10 +143,14 @@ class ProgramBuilder @Inject constructor(
             val cursor = context.contentResolver.query(
                 TvContractCompat.WatchNextPrograms.CONTENT_URI,
                 arrayOf(TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID),
-                null, null, null
+                null,
+                null,
+                null
             )
             cursor?.use {
-                val idIdx = it.getColumnIndex(TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID)
+                val idIdx = it.getColumnIndex(
+                    TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID
+                )
                 if (idIdx >= 0) {
                     while (it.moveToNext()) {
                         val providerId = it.getString(idIdx)
@@ -162,7 +174,9 @@ class ProgramBuilder @Inject constructor(
                     TvContractCompat.WatchNextPrograms._ID,
                     TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID
                 ),
-                null, null, null
+                null,
+                null,
+                null
             )
             cursor?.let {
                 while (it.moveToNext()) {
@@ -174,7 +188,9 @@ class ProgramBuilder @Inject constructor(
                         if (providerId?.startsWith("wn_") == true) {
                             val pkIdx = it.getColumnIndex(TvContractCompat.WatchNextPrograms._ID)
                             if (pkIdx >= 0) {
-                                val uri = TvContractCompat.buildWatchNextProgramUri(it.getLong(pkIdx))
+                                val uri = TvContractCompat.buildWatchNextProgramUri(
+                                    it.getLong(pkIdx)
+                                )
                                 context.contentResolver.delete(uri, null, null)
                             }
                         }
@@ -223,24 +239,23 @@ class ProgramBuilder @Inject constructor(
         }
     }
 
-    private fun buildPlayUri(progress: WatchProgress): Uri =
-        Uri.parse(
-            Intent(context, MainActivity::class.java).apply {
-                action = Intent.ACTION_VIEW
-                putExtra("contentId", progress.contentId)
-                putExtra("contentType", progress.contentType)
-                putExtra("videoId", progress.videoId)
-                putExtra("name", progress.name)
-                putExtra("poster", progress.poster)
-                putExtra("backdrop", progress.backdrop)
-                putExtra("logo", progress.logo)
-                progress.season?.let { putExtra("season", it) }
-                progress.episode?.let { putExtra("episode", it) }
-                progress.episodeTitle?.let { putExtra("episodeTitle", it) }
-                putExtra("launchMode", "stream")
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            }.toUri(Intent.URI_INTENT_SCHEME)
-        )
+    private fun buildPlayUri(progress: WatchProgress): Uri = Uri.parse(
+        Intent(context, MainActivity::class.java).apply {
+            action = Intent.ACTION_VIEW
+            putExtra("contentId", progress.contentId)
+            putExtra("contentType", progress.contentType)
+            putExtra("videoId", progress.videoId)
+            putExtra("name", progress.name)
+            putExtra("poster", progress.poster)
+            putExtra("backdrop", progress.backdrop)
+            putExtra("logo", progress.logo)
+            progress.season?.let { putExtra("season", it) }
+            progress.episode?.let { putExtra("episode", it) }
+            progress.episodeTitle?.let { putExtra("episodeTitle", it) }
+            putExtra("launchMode", "stream")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }.toUri(Intent.URI_INTENT_SCHEME)
+    )
 }
 
 internal fun watchNextIdMatchesContentId(providerId: String?, contentId: String): Boolean {

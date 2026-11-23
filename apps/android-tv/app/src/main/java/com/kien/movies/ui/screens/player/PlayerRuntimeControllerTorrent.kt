@@ -61,13 +61,19 @@ internal fun PlayerRuntimeController.observeTorrentState() {
         torrentService.state.collectLatest { torrentState ->
             when (torrentState) {
                 is TorrentState.Idle -> Unit
+
                 is TorrentState.Connecting -> onTorrentConnecting(torrentState)
+
                 is TorrentState.Streaming -> onTorrentStreaming(torrentState)
+
                 is TorrentState.Error -> {
                     Log.e(TAG, "Torrent error: ${torrentState.message}")
                     _uiState.update {
                         it.copy(
-                            error = context.getString(R.string.player_error_torrent, torrentState.message),
+                            error = context.getString(
+                                R.string.player_error_torrent,
+                                torrentState.message
+                            ),
                             showLoadingOverlay = false,
                             torrentBufferingMessage = null
                         )
@@ -93,7 +99,11 @@ private fun PlayerRuntimeController.onTorrentConnecting(torrentState: TorrentSta
         context.getString(
             R.string.player_torrent_connecting_status,
             phaseLabel,
-            context.getString(R.string.player_torrent_peer_info, torrentState.seeds, torrentState.peers),
+            context.getString(
+                R.string.player_torrent_peer_info,
+                torrentState.seeds,
+                torrentState.peers
+            ),
             formatSpeed(context, torrentState.downloadSpeed)
         )
     }
@@ -113,7 +123,11 @@ private fun PlayerRuntimeController.onTorrentConnecting(torrentState: TorrentSta
 
 private fun PlayerRuntimeController.onTorrentStreaming(torrentState: TorrentState.Streaming) {
     val speed = formatSpeed(context, torrentState.downloadSpeed)
-    val peerInfo = context.getString(R.string.player_torrent_peer_info, torrentState.seeds, torrentState.peers)
+    val peerInfo = context.getString(
+        R.string.player_torrent_peer_info,
+        torrentState.seeds,
+        torrentState.peers
+    )
     val statsHidden = _uiState.value.hideTorrentStats
 
     if (!hasRenderedFirstFrame) {
@@ -156,7 +170,15 @@ private fun PlayerRuntimeController.onTorrentStreaming(torrentState: TorrentStat
             )
         }
     } else {
-        val message = if (statsHidden) null else context.getString(R.string.player_torrent_status, peerInfo, speed)
+        val message = if (statsHidden) {
+            null
+        } else {
+            context.getString(
+                R.string.player_torrent_status,
+                peerInfo,
+                speed
+            )
+        }
         _uiState.update {
             it.copy(
                 loadingProgress = null,
@@ -229,11 +251,24 @@ internal fun PlayerRuntimeController.launchTorrentSourceStream(
 
 private fun formatSpeed(context: android.content.Context, bytesPerSec: Long): String {
     return when {
-        bytesPerSec >= 1_048_576 -> context.getString(R.string.unit_speed_mb_s, String.format("%.1f", bytesPerSec / 1_048_576.0))
-        bytesPerSec >= 1_024 -> context.getString(R.string.unit_speed_kb_s, String.format("%.0f", bytesPerSec / 1_024.0))
+        bytesPerSec >= 1_048_576 -> context.getString(
+            R.string.unit_speed_mb_s,
+            String.format(
+                "%.1f",
+                bytesPerSec / 1_048_576.0
+            )
+        )
+
+        bytesPerSec >= 1_024 -> context.getString(
+            R.string.unit_speed_kb_s,
+            String.format(
+                "%.0f",
+                bytesPerSec / 1_024.0
+            )
+        )
+
         else -> context.getString(R.string.unit_speed_b_s, bytesPerSec)
     }
 }
 
-private fun formatMB(context: android.content.Context, bytes: Long): String =
-    context.getString(R.string.unit_size_mb, String.format("%.1f", bytes / 1_048_576.0))
+private fun formatMB(context: android.content.Context, bytes: Long): String = context.getString(R.string.unit_size_mb, String.format("%.1f", bytes / 1_048_576.0))

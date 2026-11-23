@@ -4,15 +4,15 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import com.kien.movies.core.build.BoxBuild
 import com.kien.movies.core.player.TrailerVideoPolicy
 import com.kien.movies.core.profile.ProfileManager
-import com.kien.movies.core.build.BoxBuild
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class TrailerSettingsDataStore @Inject constructor(
@@ -26,8 +26,7 @@ class TrailerSettingsDataStore @Inject constructor(
 
     private val default4kTrailers = TrailerVideoPolicy.default4kTrailers(context)
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
     private val enabledKey = booleanPreferencesKey("trailer_enabled")
     private val delaySecondsKey = intPreferencesKey("trailer_delay_seconds")

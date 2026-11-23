@@ -78,7 +78,10 @@ class WatchProgressMetadataRetryTest {
             watchProgressSyncService = mockk<WatchProgressSyncService>(relaxed = true),
             watchedItemsPreferences = mockk<WatchedItemsPreferences>(relaxed = true),
             watchedItemsSyncService = mockk<WatchedItemsSyncService>(relaxed = true),
-            authManager = mockk<AuthManager>(relaxed = true) { every { isAuthenticated } returns false },
+            authManager = mockk<AuthManager>(relaxed = true) {
+                every { isAuthenticated } returns
+                    false
+            },
             metaRepository = metaRepository,
             tmdbService = mockk<TmdbService>(relaxed = true),
             profileManager = profileManager,
@@ -161,7 +164,10 @@ class WatchProgressMetadataRetryTest {
             watchProgressSyncService = mockk<WatchProgressSyncService>(relaxed = true),
             watchedItemsPreferences = mockk<WatchedItemsPreferences>(relaxed = true),
             watchedItemsSyncService = mockk<WatchedItemsSyncService>(relaxed = true),
-            authManager = mockk<AuthManager>(relaxed = true) { every { isAuthenticated } returns false },
+            authManager = mockk<AuthManager>(relaxed = true) {
+                every { isAuthenticated } returns
+                    false
+            },
             metaRepository = metaRepository,
             tmdbService = mockk<TmdbService>(relaxed = true),
             profileManager = profileManager,
@@ -245,8 +251,7 @@ class WatchProgressMetadataRetryTest {
         override val watchedMovieIds = flowOf(emptySet<String>())
         override val watchedItems = flowOf(emptyList<WatchedItem>())
 
-        override fun episodeProgress(contentId: String): Flow<Map<Pair<Int, Int>, WatchProgress>> =
-            flowOf(emptyMap())
+        override fun episodeProgress(contentId: String): Flow<Map<Pair<Int, Int>, WatchProgress>> = flowOf(emptyMap())
 
         override fun airedEpisodeOrder(contentId: String): Flow<List<Pair<Int, Int>>> = flowOf(emptyList())
 

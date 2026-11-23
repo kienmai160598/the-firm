@@ -16,11 +16,7 @@ internal object PlayerAudioFallbackPolicy {
         DISABLE_AUDIO
     }
 
-    fun nextStep(
-        safeAudioActive: Boolean,
-        pcmForced: Boolean,
-        audioDisabled: Boolean
-    ): Step? = when {
+    fun nextStep(safeAudioActive: Boolean, pcmForced: Boolean, audioDisabled: Boolean): Step? = when {
         !safeAudioActive -> Step.SAFE_AUDIO
         !pcmForced -> Step.FORCE_PCM
         !audioDisabled -> Step.DISABLE_AUDIO

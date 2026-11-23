@@ -32,5 +32,4 @@ internal fun Modifier.onLongPressBack(
     longPress || held.value
 }
 
-internal fun KeyEvent.isUpPress(): Boolean =
-    type == KeyEventType.KeyDown && key == Key.DirectionUp
+internal fun KeyEvent.isUpPress(): Boolean = type == KeyEventType.KeyDown && key == Key.DirectionUp

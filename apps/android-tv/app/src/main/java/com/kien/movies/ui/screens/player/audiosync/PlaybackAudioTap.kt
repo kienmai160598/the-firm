@@ -25,17 +25,18 @@ internal interface PlaybackPcmListener {
  * E-AC3 or DTS decoders and HLS/DASH streams) but only in real time, without look-ahead. Nothing is
  * modified; passthrough/offloaded (still encoded) audio is ignored.
  */
-internal class PlaybackAudioTap(
-    sink: AudioSink,
-    private val listener: PlaybackPcmListener,
-) : ForwardingAudioSink(sink) {
+internal class PlaybackAudioTap(sink: AudioSink, private val listener: PlaybackPcmListener) : ForwardingAudioSink(sink) {
     private var pcmFormat: Format? = null
     private var outputStreamOffsetUs = 0L
     private var pendingBuffer: ByteBuffer? = null
     private val pcmClock = PcmTimestampTracker()
     private var mono = FloatArray(0)
 
-    override fun configure(inputFormat: Format, specifiedBufferSize: Int, outputChannels: IntArray?) {
+    override fun configure(
+        inputFormat: Format,
+        specifiedBufferSize: Int,
+        outputChannels: IntArray?
+    ) {
         pcmFormat = inputFormat.takeIf {
             it.sampleMimeType == MimeTypes.AUDIO_RAW &&
                 (it.pcmEncoding == C.ENCODING_PCM_16BIT || it.pcmEncoding == C.ENCODING_PCM_FLOAT) &&
@@ -52,7 +53,11 @@ internal class PlaybackAudioTap(
         super.setOutputStreamOffsetUs(outputStreamOffsetUs)
     }
 
-    override fun handleBuffer(buffer: ByteBuffer, presentationTimeUs: Long, encodedAccessUnitCount: Int): Boolean {
+    override fun handleBuffer(
+        buffer: ByteBuffer,
+        presentationTimeUs: Long,
+        encodedAccessUnitCount: Int
+    ): Boolean {
         val format = pcmFormat
         // Retry the same partially consumed buffer only once. Different decoded buffers can
         // legitimately share a timestamp (e.g. laced Opus), including a reused codec buffer.
@@ -99,7 +104,7 @@ internal class PlaybackAudioTap(
             channels = channels,
             isFloat = isFloat,
             centerIndex = if (channels >= 3) 2 else -1,
-            out = mono,
+            out = mono
         )
         listener.onPlaybackPcm(mono, frames, format.sampleRate, mediaTimeUs)
     }
@@ -117,7 +122,7 @@ internal object PcmDownmix {
         channels: Int,
         isFloat: Boolean,
         centerIndex: Int,
-        out: FloatArray,
+        out: FloatArray
     ) {
         val bytesPerSample = if (isFloat) 4 else 2
         for (frame in 0 until frames) {
@@ -129,12 +134,14 @@ internal object PcmDownmix {
                 out[frame] = CENTER_WEIGHT * center + SIDE_WEIGHT * (left + right)
             } else {
                 var sum = 0f
-                for (c in 0 until channels) sum += sample(buffer, base + c * bytesPerSample, isFloat)
+                for (c in 0 until channels) {
+                    sum +=
+                        sample(buffer, base + c * bytesPerSample, isFloat)
+                }
                 out[frame] = sum / channels
             }
         }
     }
 
-    private fun sample(buffer: ByteBuffer, byteIndex: Int, isFloat: Boolean): Float =
-        if (isFloat) buffer.getFloat(byteIndex) else buffer.getShort(byteIndex) / 32_768f
+    private fun sample(buffer: ByteBuffer, byteIndex: Int, isFloat: Boolean): Float = if (isFloat) buffer.getFloat(byteIndex) else buffer.getShort(byteIndex) / 32_768f
 }

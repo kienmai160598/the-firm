@@ -19,7 +19,12 @@ class HomeCatalogSyncSupportTest {
             baseUrl = "https://example.com/manifest.json",
             catalogs = listOf(
                 CatalogDescriptor(type = ContentType.MOVIE, id = "movies", name = "Movies"),
-                CatalogDescriptor(type = ContentType.SERIES, rawType = "Series", id = "series-list", name = "Series")
+                CatalogDescriptor(
+                    type = ContentType.SERIES,
+                    rawType = "Series",
+                    id = "series-list",
+                    name = "Series"
+                )
             )
         )
         val oldKey = "aio-metadata_series_series-list"
@@ -193,11 +198,7 @@ class HomeCatalogSyncSupportTest {
         assertFalse(payload.items.last().enabled)
     }
 
-    private fun testAddon(
-        id: String,
-        baseUrl: String,
-        catalogs: List<CatalogDescriptor>
-    ): Addon {
+    private fun testAddon(id: String, baseUrl: String, catalogs: List<CatalogDescriptor>): Addon {
         return Addon(
             id = id,
             name = id,
@@ -208,7 +209,9 @@ class HomeCatalogSyncSupportTest {
             baseUrl = baseUrl,
             catalogs = catalogs,
             types = listOf(ContentType.MOVIE, ContentType.SERIES),
-            resources = listOf(AddonResource(name = "catalog", types = emptyList(), idPrefixes = null))
+            resources = listOf(
+                AddonResource(name = "catalog", types = emptyList(), idPrefixes = null)
+            )
         )
     }
 }

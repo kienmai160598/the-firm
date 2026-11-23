@@ -21,10 +21,7 @@ object DataStoreHelper {
 
     val currentAccount: String = "0"
 
-    data class PosDur(
-        val position: Long,
-        val duration: Long,
-    )
+    data class PosDur(val position: Long, val duration: Long)
 
     data class ResumeWatchingResult(
         override val name: String,
@@ -40,7 +37,7 @@ object DataStoreHelper {
         val isFromDownload: Boolean,
         override var quality: SearchQuality? = null,
         override var posterHeaders: Map<String, String>? = null,
-        override var score: Score? = null,
+        override var score: Score? = null
     ) : SearchResponse
 
     fun getAllResumeStateIds(): List<Int>? = emptyList()

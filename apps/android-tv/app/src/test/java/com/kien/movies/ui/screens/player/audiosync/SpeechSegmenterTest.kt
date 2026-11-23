@@ -14,7 +14,10 @@ class SpeechSegmenterTest {
     @Test
     fun speechCutOffByTheEndOfASampledSpotIsKept() {
         val segments = ArrayList<Pair<Int, Int>>()
-        val segmenter = SpeechSegmenter { start, samples -> segments += start to samples.size / SileroVad.CHUNK_SAMPLES }
+        val segmenter = SpeechSegmenter { start, samples ->
+            segments +=
+                start to samples.size / SileroVad.CHUNK_SAMPLES
+        }
         feed(segmenter, 0, 5, 0.1f)
         feed(segmenter, 5, 40, 0.9f) // Speech still running when the spot ends...
         feed(segmenter, 10_000, 5, 0.1f) // ...and the next spot starts elsewhere.

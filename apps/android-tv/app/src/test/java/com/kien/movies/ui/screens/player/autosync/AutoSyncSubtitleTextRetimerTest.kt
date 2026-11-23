@@ -29,7 +29,7 @@ class AutoSyncSubtitleTextRetimerTest {
                 00:00:05,500 --> 00:00:06,500
                 World
             """.trimIndent(),
-            retimed,
+            retimed
         )
     }
 
@@ -51,7 +51,7 @@ class AutoSyncSubtitleTextRetimerTest {
                 01:00:01.000 --> 01:00:02.500 align:start line:10%
                 Late line
             """.trimIndent(),
-            retimed,
+            retimed
         )
     }
 
@@ -72,7 +72,7 @@ class AutoSyncSubtitleTextRetimerTest {
         """.trimIndent()
         val timeline = timeline(
             cues = listOf(AutoSyncRetimedCue(1_000L, 2_500L, 1_250L, 2_750L)),
-            interceptMs = 250.0,
+            interceptMs = 250.0
         )
 
         val retimed = AutoSyncSubtitleTextRetimer.retime(body, timeline)
@@ -80,9 +80,9 @@ class AutoSyncSubtitleTextRetimerTest {
         assertEquals(
             body.replace(
                 "Dialogue: 0,0:00:01.00,0:00:02.50,",
-                "Dialogue: 0,0:00:01.25,0:00:02.75,",
+                "Dialogue: 0,0:00:01.25,0:00:02.75,"
             ),
-            retimed,
+            retimed
         )
     }
 
@@ -94,16 +94,19 @@ class AutoSyncSubtitleTextRetimerTest {
             "Dialogue: 0,0:00:01.00,0:00:02.50,Default,,0,0,0,,Line"
         val timeline = timeline(
             cues = listOf(AutoSyncRetimedCue(1_000L, 2_500L, 1_250L, 2_750L)),
-            interceptMs = 250.0,
+            interceptMs = 250.0
         )
 
         val retimed = AutoSyncSubtitleTextRetimer.retime(body, timeline)
 
         assertEquals(
             body.replace("0:00:01.00,0:00:02.50", "0:00:01.25,0:00:02.75"),
-            retimed,
+            retimed
         )
-        assertEquals(1, AutoSyncSubtitleCueParser.parse(body, sourceUrl = "https://host/sub?id=1").size)
+        assertEquals(
+            1,
+            AutoSyncSubtitleCueParser.parse(body, sourceUrl = "https://host/sub?id=1").size
+        )
     }
 
     @Test
@@ -116,7 +119,7 @@ class AutoSyncSubtitleTextRetimerTest {
         val timeline = timeline(
             cues = listOf(AutoSyncRetimedCue(1_000L, 2_000L, 1_000L, 2_000L)),
             scale = 1.001,
-            interceptMs = -400.0,
+            interceptMs = -400.0
         )
 
         val retimed = AutoSyncSubtitleTextRetimer.retime(body, timeline)
@@ -127,7 +130,7 @@ class AutoSyncSubtitleTextRetimerTest {
                 00:10:00,200 --> 00:10:01,201
                 Only cue the matcher dropped
             """.trimIndent(),
-            retimed,
+            retimed
         )
     }
 
@@ -145,8 +148,8 @@ class AutoSyncSubtitleTextRetimerTest {
         val timeline = timeline(
             cues = listOf(
                 AutoSyncRetimedCue(1_000L, 2_000L, 1_000L, 2_600L),
-                AutoSyncRetimedCue(2_000L, 3_000L, 2_400L, 3_400L),
-            ),
+                AutoSyncRetimedCue(2_000L, 3_000L, 2_400L, 3_400L)
+            )
         )
 
         val retimed = AutoSyncSubtitleTextRetimer.retime(body, timeline)!!
@@ -164,23 +167,22 @@ class AutoSyncSubtitleTextRetimerTest {
         assertNull(AutoSyncSubtitleTextRetimer.retime("no timing here", delayOnly))
     }
 
-    private fun shifted(srtOrVtt: String, offsetMs: Long): AutoSyncTimelineRetimeResult =
-        timeline(
-            cues = AutoSyncSubtitleCueParser.parse(srtOrVtt).map { cue ->
-                AutoSyncRetimedCue(
-                    originalStartTimeMs = cue.startTimeMs,
-                    originalEndTimeMs = cue.endTimeMs,
-                    startTimeMs = cue.startTimeMs + offsetMs,
-                    endTimeMs = cue.endTimeMs + offsetMs,
-                )
-            },
-            interceptMs = offsetMs.toDouble(),
-        )
+    private fun shifted(srtOrVtt: String, offsetMs: Long): AutoSyncTimelineRetimeResult = timeline(
+        cues = AutoSyncSubtitleCueParser.parse(srtOrVtt).map { cue ->
+            AutoSyncRetimedCue(
+                originalStartTimeMs = cue.startTimeMs,
+                originalEndTimeMs = cue.endTimeMs,
+                startTimeMs = cue.startTimeMs + offsetMs,
+                endTimeMs = cue.endTimeMs + offsetMs
+            )
+        },
+        interceptMs = offsetMs.toDouble()
+    )
 
     private fun timeline(
         cues: List<AutoSyncRetimedCue>,
         scale: Double = 1.0,
-        interceptMs: Double = 0.0,
+        interceptMs: Double = 0.0
     ) = AutoSyncTimelineRetimeResult(
         cues = cues,
         groups = emptyList(),
@@ -198,6 +200,6 @@ class AutoSyncSubtitleTextRetimerTest {
         twoToTwoGroups = 0,
         confident = true,
         alignmentScale = scale,
-        alignmentInterceptMs = interceptMs,
+        alignmentInterceptMs = interceptMs
     )
 }

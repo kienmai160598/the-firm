@@ -162,15 +162,40 @@ class SimklAnimeWatchedResolutionTest {
         val projection = snapshot.toSimklWatchedProjection()
 
         // mal:11757 episodes map to TVDB S1E1-S1E14
-        assertTrue(projection.items.any { it.contentId == "tt2250192" && it.season == 1 && it.episode == 1 })
-        assertTrue(projection.items.any { it.contentId == "tt2250192" && it.season == 1 && it.episode == 14 })
+        assertTrue(
+            projection.items.any {
+                it.contentId == "tt2250192" && it.season == 1 &&
+                    it.episode == 1
+            }
+        )
+        assertTrue(
+            projection.items.any {
+                it.contentId == "tt2250192" && it.season == 1 &&
+                    it.episode == 14
+            }
+        )
 
         // mal:11759 episodes map to TVDB S1E15-S1E19 (only 5 watched)
-        assertTrue(projection.items.any { it.contentId == "tt2250192" && it.season == 1 && it.episode == 15 })
-        assertTrue(projection.items.any { it.contentId == "tt2250192" && it.season == 1 && it.episode == 19 })
+        assertTrue(
+            projection.items.any {
+                it.contentId == "tt2250192" && it.season == 1 &&
+                    it.episode == 15
+            }
+        )
+        assertTrue(
+            projection.items.any {
+                it.contentId == "tt2250192" && it.season == 1 &&
+                    it.episode == 19
+            }
+        )
 
         // Episode 20+ not watched (mal:11759 ep 6+ has no watched_at)
-        assertFalse(projection.items.any { it.contentId == "tt2250192" && it.season == 1 && it.episode == 20 })
+        assertFalse(
+            projection.items.any {
+                it.contentId == "tt2250192" && it.season == 1 &&
+                    it.episode == 20
+            }
+        )
     }
 
     @Test
@@ -181,22 +206,28 @@ class SimklAnimeWatchedResolutionTest {
         val firstHalfEntry = snapshot.entries.first { entry ->
             entry.media?.ids?.idValue("mal") == "11757"
         }
-        assertTrue(firstHalfEntry.seasons.any { s ->
-            s.episodes.any { ep -> ep.number == 14 && ep.watchedAt != null }
-        })
+        assertTrue(
+            firstHalfEntry.seasons.any { s ->
+                s.episodes.any { ep -> ep.number == 14 && ep.watchedAt != null }
+            }
+        )
 
         // "mal:11759:1" → entry with mal=11759, episode 1 (watched)
         val secondHalfEntry = snapshot.entries.first { entry ->
             entry.media?.ids?.idValue("mal") == "11759"
         }
-        assertTrue(secondHalfEntry.seasons.any { s ->
-            s.episodes.any { ep -> ep.number == 1 && ep.watchedAt != null }
-        })
+        assertTrue(
+            secondHalfEntry.seasons.any { s ->
+                s.episodes.any { ep -> ep.number == 1 && ep.watchedAt != null }
+            }
+        )
 
         // "mal:11759:6" → entry with mal=11759, episode 6 (NOT watched)
-        assertFalse(secondHalfEntry.seasons.any { s ->
-            s.episodes.any { ep -> ep.number == 6 && ep.watchedAt != null }
-        })
+        assertFalse(
+            secondHalfEntry.seasons.any { s ->
+                s.episodes.any { ep -> ep.number == 6 && ep.watchedAt != null }
+            }
+        )
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -211,12 +242,15 @@ class SimklAnimeWatchedResolutionTest {
             imdb = "tt2560140",
             mal = 16498,
             seasons = listOf(
-                SimklSeason(1, listOf(
-                    SimklEpisode(1, "2023-11-14T23:00:00Z", SimklEpisodeMapping(1, 1)),
-                    SimklEpisode(2, "2023-11-14T23:30:00Z", SimklEpisodeMapping(1, 2)),
-                    SimklEpisode(3, null, SimklEpisodeMapping(1, 3)),
-                    SimklEpisode(5, "2023-11-15T00:00:00Z", SimklEpisodeMapping(1, 5))
-                ))
+                SimklSeason(
+                    1,
+                    listOf(
+                        SimklEpisode(1, "2023-11-14T23:00:00Z", SimklEpisodeMapping(1, 1)),
+                        SimklEpisode(2, "2023-11-14T23:30:00Z", SimklEpisodeMapping(1, 2)),
+                        SimklEpisode(3, null, SimklEpisodeMapping(1, 3)),
+                        SimklEpisode(5, "2023-11-15T00:00:00Z", SimklEpisodeMapping(1, 5))
+                    )
+                )
             )
         )
         val snapshot = SimklSyncSnapshot(entries = listOf(entry))
@@ -313,7 +347,10 @@ class SimklAnimeWatchedResolutionTest {
 
         // Simulate what episodeProgress does: filter by contentId and collect (season, episode) pairs
         val episodeMap = items
-            .filter { it.contentId.equals("tt2560140", ignoreCase = true) && it.season != null && it.episode != null }
+            .filter {
+                it.contentId.equals("tt2560140", ignoreCase = true) && it.season != null &&
+                    it.episode != null
+            }
             .associate { (requireNotNull(it.season) to requireNotNull(it.episode)) to it.watchedAt }
 
         // Season 1 from mal:123
@@ -332,24 +369,48 @@ class SimklAnimeWatchedResolutionTest {
     @Test
     fun `IMDB contentId with 3 seasons from 3 different MAL entries all mapped correctly`() {
         // Attack on Titan style: 3 MAL entries, all sharing tt2560140
-        val s1 = animeEntry(simklId = 100, imdb = "tt2560140", mal = 16498, seasons = listOf(
-            SimklSeason(1, listOf(
-                SimklEpisode(1, "2023-01-01T00:00:00Z", SimklEpisodeMapping(1, 1)),
-                SimklEpisode(25, "2023-01-25T00:00:00Z", SimklEpisodeMapping(1, 25))
-            ))
-        ))
-        val s2 = animeEntry(simklId = 101, imdb = "tt2560140", mal = 25777, seasons = listOf(
-            SimklSeason(1, listOf(
-                SimklEpisode(1, "2023-04-01T00:00:00Z", SimklEpisodeMapping(2, 1)),
-                SimklEpisode(12, "2023-04-12T00:00:00Z", SimklEpisodeMapping(2, 12))
-            ))
-        ))
-        val s3 = animeEntry(simklId = 102, imdb = "tt2560140", mal = 36456, seasons = listOf(
-            SimklSeason(1, listOf(
-                SimklEpisode(1, "2023-07-01T00:00:00Z", SimklEpisodeMapping(3, 1)),
-                SimklEpisode(22, "2023-07-22T00:00:00Z", SimklEpisodeMapping(3, 22))
-            ))
-        ))
+        val s1 = animeEntry(
+            simklId = 100,
+            imdb = "tt2560140",
+            mal = 16498,
+            seasons = listOf(
+                SimklSeason(
+                    1,
+                    listOf(
+                        SimklEpisode(1, "2023-01-01T00:00:00Z", SimklEpisodeMapping(1, 1)),
+                        SimklEpisode(25, "2023-01-25T00:00:00Z", SimklEpisodeMapping(1, 25))
+                    )
+                )
+            )
+        )
+        val s2 = animeEntry(
+            simklId = 101,
+            imdb = "tt2560140",
+            mal = 25777,
+            seasons = listOf(
+                SimklSeason(
+                    1,
+                    listOf(
+                        SimklEpisode(1, "2023-04-01T00:00:00Z", SimklEpisodeMapping(2, 1)),
+                        SimklEpisode(12, "2023-04-12T00:00:00Z", SimklEpisodeMapping(2, 12))
+                    )
+                )
+            )
+        )
+        val s3 = animeEntry(
+            simklId = 102,
+            imdb = "tt2560140",
+            mal = 36456,
+            seasons = listOf(
+                SimklSeason(
+                    1,
+                    listOf(
+                        SimklEpisode(1, "2023-07-01T00:00:00Z", SimklEpisodeMapping(3, 1)),
+                        SimklEpisode(22, "2023-07-22T00:00:00Z", SimklEpisodeMapping(3, 22))
+                    )
+                )
+            )
+        )
         val snapshot = SimklSyncSnapshot(entries = listOf(s1, s2, s3))
         val items = snapshot.toSimklWatchedProjection().items
 
@@ -373,19 +434,40 @@ class SimklAnimeWatchedResolutionTest {
     @Test
     fun `IMDB contentId with partial watch across MAL entries shows correct state`() {
         // User watched all of season 1 (mal:123) but only 1 ep of season 2 (mal:4372)
-        val s1Complete = animeEntry(simklId = 39687, imdb = "tt2560140", mal = 123, seasons = listOf(
-            SimklSeason(1, (1..12).map { ep ->
-                SimklEpisode(ep, "2023-11-${ep.toString().padStart(2, '0')}T20:00:00Z", SimklEpisodeMapping(1, ep))
-            })
-        )).copy(status = SimklListStatus.COMPLETED)
+        val s1Complete = animeEntry(
+            simklId = 39687,
+            imdb = "tt2560140",
+            mal = 123,
+            seasons = listOf(
+                SimklSeason(
+                    1,
+                    (1..12).map { ep ->
+                        SimklEpisode(
+                            ep,
+                            "2023-11-${ep.toString().padStart(2, '0')}T20:00:00Z",
+                            SimklEpisodeMapping(1, ep)
+                        )
+                    }
+                )
+            )
+        ).copy(status = SimklListStatus.COMPLETED)
 
-        val s2Partial = animeEntry(simklId = 39688, imdb = "tt2560140", mal = 4372, seasons = listOf(
-            SimklSeason(1, listOf(
-                SimklEpisode(1, "2023-12-01T20:00:00Z", SimklEpisodeMapping(2, 1)),
-                SimklEpisode(2, null, SimklEpisodeMapping(2, 2)),
-                SimklEpisode(3, null, SimklEpisodeMapping(2, 3))
-            ))
-        ))
+        val s2Partial =
+            animeEntry(
+                simklId = 39688,
+                imdb = "tt2560140",
+                mal = 4372,
+                seasons = listOf(
+                    SimklSeason(
+                        1,
+                        listOf(
+                            SimklEpisode(1, "2023-12-01T20:00:00Z", SimklEpisodeMapping(2, 1)),
+                            SimklEpisode(2, null, SimklEpisodeMapping(2, 2)),
+                            SimklEpisode(3, null, SimklEpisodeMapping(2, 3))
+                        )
+                    )
+                )
+            )
 
         val snapshot = SimklSyncSnapshot(entries = listOf(s1Complete, s2Partial))
         val items = snapshot.toSimklWatchedProjection().items
@@ -408,12 +490,20 @@ class SimklAnimeWatchedResolutionTest {
 
     @Test
     fun `kitsu contentId resolves to canonical IMDB via matchesSimklContentId`() {
-        val entry = animeEntry(simklId = 60001, imdb = "tt5311514", kitsu = 12268, seasons = listOf(
-            SimklSeason(1, listOf(
-                SimklEpisode(1, "2024-01-01T10:00:00Z", SimklEpisodeMapping(1, 1)),
-                SimklEpisode(2, "2024-01-01T10:30:00Z", SimklEpisodeMapping(1, 2))
-            ))
-        ))
+        val entry = animeEntry(
+            simklId = 60001,
+            imdb = "tt5311514",
+            kitsu = 12268,
+            seasons = listOf(
+                SimklSeason(
+                    1,
+                    listOf(
+                        SimklEpisode(1, "2024-01-01T10:00:00Z", SimklEpisodeMapping(1, 1)),
+                        SimklEpisode(2, "2024-01-01T10:30:00Z", SimklEpisodeMapping(1, 2))
+                    )
+                )
+            )
+        )
         val snapshot = SimklSyncSnapshot(entries = listOf(entry))
 
         assertTrue(snapshot.entries.any { it.matchesSimklContentId("kitsu:12268") })
@@ -423,13 +513,21 @@ class SimklAnimeWatchedResolutionTest {
 
     @Test
     fun `kitsu videoId resolves watched episode in Simkl entry`() {
-        val entry = animeEntry(simklId = 60001, imdb = "tt5311514", kitsu = 12268, seasons = listOf(
-            SimklSeason(1, listOf(
-                SimklEpisode(1, "2024-01-01T10:00:00Z", SimklEpisodeMapping(1, 1)),
-                SimklEpisode(2, "2024-01-01T10:30:00Z", SimklEpisodeMapping(1, 2)),
-                SimklEpisode(3, null, SimklEpisodeMapping(1, 3))
-            ))
-        ))
+        val entry = animeEntry(
+            simklId = 60001,
+            imdb = "tt5311514",
+            kitsu = 12268,
+            seasons = listOf(
+                SimklSeason(
+                    1,
+                    listOf(
+                        SimklEpisode(1, "2024-01-01T10:00:00Z", SimklEpisodeMapping(1, 1)),
+                        SimklEpisode(2, "2024-01-01T10:30:00Z", SimklEpisodeMapping(1, 2)),
+                        SimklEpisode(3, null, SimklEpisodeMapping(1, 3))
+                    )
+                )
+            )
+        )
         val snapshot = SimklSyncSnapshot(entries = listOf(entry))
 
         // Simulate isWatchedByVideoId: parse "kitsu:12268:2" → kitsu=12268, ep=2
@@ -438,25 +536,55 @@ class SimklAnimeWatchedResolutionTest {
                 e.media?.ids?.idValue("kitsu") == "12268"
         }
         assertTrue(kitsuEntry != null)
-        assertTrue(kitsuEntry!!.seasons.any { s -> s.episodes.any { ep -> ep.number == 2 && ep.watchedAt != null } })
-        assertFalse(kitsuEntry.seasons.any { s -> s.episodes.any { ep -> ep.number == 3 && ep.watchedAt != null } })
+        assertTrue(
+            kitsuEntry!!.seasons.any { s ->
+                s.episodes.any { ep ->
+                    ep.number == 2 &&
+                        ep.watchedAt != null
+                }
+            }
+        )
+        assertFalse(
+            kitsuEntry.seasons.any { s ->
+                s.episodes.any { ep ->
+                    ep.number == 3 &&
+                        ep.watchedAt != null
+                }
+            }
+        )
     }
 
     @Test
     fun `kitsu multi-season with same IMDB merges correctly`() {
         // Two kitsu entries for the same show (different seasons)
-        val s1 = animeEntry(simklId = 60001, imdb = "tt5311514", kitsu = 12268, seasons = listOf(
-            SimklSeason(1, listOf(
-                SimklEpisode(1, "2024-01-01T10:00:00Z", SimklEpisodeMapping(1, 1)),
-                SimklEpisode(12, "2024-01-12T10:00:00Z", SimklEpisodeMapping(1, 12))
-            ))
-        ))
-        val s2 = animeEntry(simklId = 60002, imdb = "tt5311514", kitsu = 42422, seasons = listOf(
-            SimklSeason(1, listOf(
-                SimklEpisode(1, "2024-04-01T10:00:00Z", SimklEpisodeMapping(2, 1)),
-                SimklEpisode(13, "2024-04-13T10:00:00Z", SimklEpisodeMapping(2, 13))
-            ))
-        ))
+        val s1 = animeEntry(
+            simklId = 60001,
+            imdb = "tt5311514",
+            kitsu = 12268,
+            seasons = listOf(
+                SimklSeason(
+                    1,
+                    listOf(
+                        SimklEpisode(1, "2024-01-01T10:00:00Z", SimklEpisodeMapping(1, 1)),
+                        SimklEpisode(12, "2024-01-12T10:00:00Z", SimklEpisodeMapping(1, 12))
+                    )
+                )
+            )
+        )
+        val s2 = animeEntry(
+            simklId = 60002,
+            imdb = "tt5311514",
+            kitsu = 42422,
+            seasons = listOf(
+                SimklSeason(
+                    1,
+                    listOf(
+                        SimklEpisode(1, "2024-04-01T10:00:00Z", SimklEpisodeMapping(2, 1)),
+                        SimklEpisode(13, "2024-04-13T10:00:00Z", SimklEpisodeMapping(2, 13))
+                    )
+                )
+            )
+        )
         val snapshot = SimklSyncSnapshot(entries = listOf(s1, s2))
         val items = snapshot.toSimklWatchedProjection().items
 
@@ -472,18 +600,34 @@ class SimklAnimeWatchedResolutionTest {
     @Test
     fun `kitsu franchise parent resolves watched via kitsu videoId`() {
         // Franchise parent kitsu:99999 doesn't exist in Simkl
-        val s1 = animeEntry(simklId = 60001, imdb = "tt5311514", kitsu = 12268, seasons = listOf(
-            SimklSeason(1, listOf(
-                SimklEpisode(1, "2024-01-01T10:00:00Z", SimklEpisodeMapping(1, 1)),
-                SimklEpisode(5, "2024-01-05T10:00:00Z", SimklEpisodeMapping(1, 5))
-            ))
-        ))
-        val s2 = animeEntry(simklId = 60002, imdb = "tt5311514", kitsu = 42422, seasons = listOf(
-            SimklSeason(1, listOf(
-                SimklEpisode(1, "2024-04-01T10:00:00Z", SimklEpisodeMapping(2, 1)),
-                SimklEpisode(3, "2024-04-03T10:00:00Z", SimklEpisodeMapping(2, 3))
-            ))
-        ))
+        val s1 = animeEntry(
+            simklId = 60001,
+            imdb = "tt5311514",
+            kitsu = 12268,
+            seasons = listOf(
+                SimklSeason(
+                    1,
+                    listOf(
+                        SimklEpisode(1, "2024-01-01T10:00:00Z", SimklEpisodeMapping(1, 1)),
+                        SimklEpisode(5, "2024-01-05T10:00:00Z", SimklEpisodeMapping(1, 5))
+                    )
+                )
+            )
+        )
+        val s2 = animeEntry(
+            simklId = 60002,
+            imdb = "tt5311514",
+            kitsu = 42422,
+            seasons = listOf(
+                SimklSeason(
+                    1,
+                    listOf(
+                        SimklEpisode(1, "2024-04-01T10:00:00Z", SimklEpisodeMapping(2, 1)),
+                        SimklEpisode(3, "2024-04-03T10:00:00Z", SimklEpisodeMapping(2, 3))
+                    )
+                )
+            )
+        )
         val snapshot = SimklSyncSnapshot(entries = listOf(s1, s2))
 
         // kitsu:99999 doesn't exist
@@ -491,14 +635,35 @@ class SimklAnimeWatchedResolutionTest {
 
         // But we can resolve via videoId "kitsu:12268:5" → entry with kitsu=12268, ep 5
         val entry1 = snapshot.entries.first { it.media?.ids?.idValue("kitsu") == "12268" }
-        assertTrue(entry1.seasons.any { s -> s.episodes.any { ep -> ep.number == 5 && ep.watchedAt != null } })
+        assertTrue(
+            entry1.seasons.any { s ->
+                s.episodes.any { ep ->
+                    ep.number == 5 &&
+                        ep.watchedAt != null
+                }
+            }
+        )
 
         // "kitsu:42422:3" → entry with kitsu=42422, ep 3
         val entry2 = snapshot.entries.first { it.media?.ids?.idValue("kitsu") == "42422" }
-        assertTrue(entry2.seasons.any { s -> s.episodes.any { ep -> ep.number == 3 && ep.watchedAt != null } })
+        assertTrue(
+            entry2.seasons.any { s ->
+                s.episodes.any { ep ->
+                    ep.number == 3 &&
+                        ep.watchedAt != null
+                }
+            }
+        )
 
         // Unwatched: "kitsu:42422:10" → ep 10 doesn't exist
-        assertFalse(entry2.seasons.any { s -> s.episodes.any { ep -> ep.number == 10 && ep.watchedAt != null } })
+        assertFalse(
+            entry2.seasons.any { s ->
+                s.episodes.any { ep ->
+                    ep.number == 10 &&
+                        ep.watchedAt != null
+                }
+            }
+        )
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -516,11 +681,14 @@ class SimklAnimeWatchedResolutionTest {
             imdb = "tt2560140",
             mal = 123,
             seasons = listOf(
-                SimklSeason(1, listOf(
-                    SimklEpisode(1, "2023-11-14T23:00:00Z", SimklEpisodeMapping(1, 1)),
-                    SimklEpisode(2, "2023-11-14T23:10:00Z", SimklEpisodeMapping(1, 2)),
-                    SimklEpisode(3, "2023-11-14T23:20:00Z", SimklEpisodeMapping(1, 3))
-                ))
+                SimklSeason(
+                    1,
+                    listOf(
+                        SimklEpisode(1, "2023-11-14T23:00:00Z", SimklEpisodeMapping(1, 1)),
+                        SimklEpisode(2, "2023-11-14T23:10:00Z", SimklEpisodeMapping(1, 2)),
+                        SimklEpisode(3, "2023-11-14T23:20:00Z", SimklEpisodeMapping(1, 3))
+                    )
+                )
             )
         )
         val season2Entry = animeEntry(
@@ -528,10 +696,13 @@ class SimklAnimeWatchedResolutionTest {
             imdb = "tt2560140",
             mal = 4372,
             seasons = listOf(
-                SimklSeason(1, listOf(
-                    SimklEpisode(1, "2023-12-01T20:00:00Z", SimklEpisodeMapping(2, 1)),
-                    SimklEpisode(2, "2023-12-01T20:30:00Z", SimklEpisodeMapping(2, 2))
-                ))
+                SimklSeason(
+                    1,
+                    listOf(
+                        SimklEpisode(1, "2023-12-01T20:00:00Z", SimklEpisodeMapping(2, 1)),
+                        SimklEpisode(2, "2023-12-01T20:30:00Z", SimklEpisodeMapping(2, 2))
+                    )
+                )
             )
         )
         return SimklSyncSnapshot(entries = listOf(season1Entry, season2Entry))
@@ -548,9 +719,16 @@ class SimklAnimeWatchedResolutionTest {
             imdb = "tt2250192",
             mal = 11757,
             seasons = listOf(
-                SimklSeason(1, (1..14).map { ep ->
-                    SimklEpisode(ep, "2023-11-14T23:${ep.toString().padStart(2, '0')}:00Z", SimklEpisodeMapping(1, ep))
-                })
+                SimklSeason(
+                    1,
+                    (1..14).map { ep ->
+                        SimklEpisode(
+                            ep,
+                            "2023-11-14T23:${ep.toString().padStart(2, '0')}:00Z",
+                            SimklEpisodeMapping(1, ep)
+                        )
+                    }
+                )
             )
         )
         val secondHalf = animeEntry(
@@ -558,13 +736,22 @@ class SimklAnimeWatchedResolutionTest {
             imdb = "tt2250192",
             mal = 11759,
             seasons = listOf(
-                SimklSeason(1, (1..11).map { ep ->
-                    SimklEpisode(
-                        ep,
-                        if (ep <= 5) "2023-11-15T${ep.toString().padStart(2, '0')}:00:00Z" else null,
-                        SimklEpisodeMapping(1, 14 + ep)
-                    )
-                })
+                SimklSeason(
+                    1,
+                    (1..11).map { ep ->
+                        SimklEpisode(
+                            ep,
+                            if (ep <=
+                                5
+                            ) {
+                                "2023-11-15T${ep.toString().padStart(2, '0')}:00:00Z"
+                            } else {
+                                null
+                            },
+                            SimklEpisodeMapping(1, 14 + ep)
+                        )
+                    }
+                )
             )
         )
         return SimklSyncSnapshot(entries = listOf(firstHalf, secondHalf))

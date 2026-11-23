@@ -1,13 +1,13 @@
 package com.kien.movies.data.simkl
 
 import com.kien.movies.data.local.TraktSettingsDataStore
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Holds the current [SimklAnimeIdPreference] in memory so that projection functions
@@ -16,9 +16,7 @@ import javax.inject.Singleton
  * Listens to the DataStore flow and updates [current] whenever it changes.
  */
 @Singleton
-class SimklAnimeIdPreferenceHolder @Inject constructor(
-    settingsDataStore: TraktSettingsDataStore
-) {
+class SimklAnimeIdPreferenceHolder @Inject constructor(settingsDataStore: TraktSettingsDataStore) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     init {

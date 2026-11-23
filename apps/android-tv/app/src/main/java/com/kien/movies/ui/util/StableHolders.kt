@@ -38,7 +38,6 @@ fun <T> List<T>.asStable(): StableList<T> = StableList(this)
  */
 fun <T> Set<T>.asStable(): StableSet<T> = StableSet(this)
 
-
 /**
  * A @Stable wrapper around a mutable reference. Compose will treat this as stable
  * and skip recomposition of composables that receive it as a parameter, even when

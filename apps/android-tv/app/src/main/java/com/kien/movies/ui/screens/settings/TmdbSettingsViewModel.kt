@@ -2,19 +2,19 @@ package com.kien.movies.ui.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kien.movies.data.local.TmdbSettingsDataStore
 import com.kien.movies.data.local.ContinueWatchingEnrichmentCache
+import com.kien.movies.data.local.TmdbSettingsDataStore
 import com.kien.movies.data.trailer.TrailerService
 import com.kien.movies.domain.model.TmdbSettings
 import com.kien.movies.domain.repository.MetaRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class TmdbSettingsViewModel @Inject constructor(
@@ -38,12 +38,15 @@ class TmdbSettingsViewModel @Inject constructor(
     fun onEvent(event: TmdbSettingsEvent) {
         when (event) {
             is TmdbSettingsEvent.ToggleEnabled -> update { dataStore.setEnabled(event.enabled) }
+
             is TmdbSettingsEvent.ToggleModernHomeEnabled -> {
                 update { dataStore.setModernHomeEnabled(event.enabled) }
             }
+
             is TmdbSettingsEvent.ToggleEnrichContinueWatching -> {
                 update { dataStore.setEnrichContinueWatching(event.enabled) }
             }
+
             is TmdbSettingsEvent.SetLanguage -> update {
                 val newLanguage = event.language.ifBlank { "en" }
                 val currentLanguage = _uiState.value.language.ifBlank { "en" }
@@ -52,17 +55,44 @@ class TmdbSettingsViewModel @Inject constructor(
                     trailerService.clearCache()
                 }
             }
+
             is TmdbSettingsEvent.ToggleArtwork -> update { dataStore.setUseArtwork(event.enabled) }
-            is TmdbSettingsEvent.ToggleBasicInfo -> update { dataStore.setUseBasicInfo(event.enabled) }
+
+            is TmdbSettingsEvent.ToggleBasicInfo -> update {
+                dataStore.setUseBasicInfo(event.enabled)
+            }
+
             is TmdbSettingsEvent.ToggleDetails -> update { dataStore.setUseDetails(event.enabled) }
+
             is TmdbSettingsEvent.ToggleCredits -> update { dataStore.setUseCredits(event.enabled) }
-            is TmdbSettingsEvent.ToggleProductions -> update { dataStore.setUseProductions(event.enabled) }
-            is TmdbSettingsEvent.ToggleNetworks -> update { dataStore.setUseNetworks(event.enabled) }
-            is TmdbSettingsEvent.ToggleEpisodes -> update { dataStore.setUseEpisodes(event.enabled) }
-            is TmdbSettingsEvent.ToggleSeasonPosters -> update { dataStore.setUseSeasonPosters(event.enabled) }
-            is TmdbSettingsEvent.ToggleTrailers -> update { dataStore.setUseTrailers(event.enabled) }
-            is TmdbSettingsEvent.ToggleMoreLikeThis -> update { dataStore.setUseMoreLikeThis(event.enabled) }
-            is TmdbSettingsEvent.ToggleCollections -> update { dataStore.setUseCollections(event.enabled) }
+
+            is TmdbSettingsEvent.ToggleProductions -> update {
+                dataStore.setUseProductions(event.enabled)
+            }
+
+            is TmdbSettingsEvent.ToggleNetworks -> update {
+                dataStore.setUseNetworks(event.enabled)
+            }
+
+            is TmdbSettingsEvent.ToggleEpisodes -> update {
+                dataStore.setUseEpisodes(event.enabled)
+            }
+
+            is TmdbSettingsEvent.ToggleSeasonPosters -> update {
+                dataStore.setUseSeasonPosters(event.enabled)
+            }
+
+            is TmdbSettingsEvent.ToggleTrailers -> update {
+                dataStore.setUseTrailers(event.enabled)
+            }
+
+            is TmdbSettingsEvent.ToggleMoreLikeThis -> update {
+                dataStore.setUseMoreLikeThis(event.enabled)
+            }
+
+            is TmdbSettingsEvent.ToggleCollections -> update {
+                dataStore.setUseCollections(event.enabled)
+            }
         }
     }
 

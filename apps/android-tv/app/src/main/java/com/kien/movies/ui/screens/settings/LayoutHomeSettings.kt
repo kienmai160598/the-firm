@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +45,7 @@ import com.kien.movies.ui.components.GridLayoutPreview
 import com.kien.movies.ui.components.ModernLayoutPreview
 import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.components.expressive.MoviesCardFocus
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 internal fun LayoutHomeLayoutSection(
@@ -60,14 +59,25 @@ internal fun LayoutHomeLayoutSection(
             .settingsOptionRow(firstHomeLayoutFocusRequester),
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
-        listOf(HomeLayout.MODERN, HomeLayout.GRID, HomeLayout.CLASSIC).forEachIndexed { index, layout ->
+        listOf(HomeLayout.MODERN, HomeLayout.GRID, HomeLayout.CLASSIC).forEachIndexed {
+                index,
+                layout
+            ->
             LayoutCard(
                 layout = layout,
                 isSelected = uiState.selectedLayout == layout,
                 onClick = { onEvent(LayoutSettingsEvent.SelectLayout(layout)) },
                 modifier = Modifier
                     .weight(1f)
-                    .then(if (index == 0) Modifier.focusRequester(firstHomeLayoutFocusRequester) else Modifier)
+                    .then(
+                        if (index ==
+                            0
+                        ) {
+                            Modifier.focusRequester(firstHomeLayoutFocusRequester)
+                        } else {
+                            Modifier
+                        }
+                    )
             )
         }
     }
@@ -78,7 +88,11 @@ internal fun LayoutHomeLayoutSection(
             subtitle = stringResource(R.string.layout_fullscreen_hero_backdrop_sub),
             checked = uiState.modernHeroFullScreenBackdropEnabled,
             onToggle = {
-                onEvent(LayoutSettingsEvent.SetModernHeroFullScreenBackdropEnabled(!uiState.modernHeroFullScreenBackdropEnabled))
+                onEvent(
+                    LayoutSettingsEvent.SetModernHeroFullScreenBackdropEnabled(
+                        !uiState.modernHeroFullScreenBackdropEnabled
+                    )
+                )
             }
         )
     }
@@ -89,7 +103,11 @@ internal fun LayoutHomeLayoutSection(
             subtitle = stringResource(R.string.layout_classic_focus_gradient_sub),
             checked = uiState.classicFocusGradientEnabled,
             onToggle = {
-                onEvent(LayoutSettingsEvent.SetClassicFocusGradientEnabled(!uiState.classicFocusGradientEnabled))
+                onEvent(
+                    LayoutSettingsEvent.SetClassicFocusGradientEnabled(
+                        !uiState.classicFocusGradientEnabled
+                    )
+                )
             }
         )
     }
@@ -99,7 +117,9 @@ internal fun LayoutHomeLayoutSection(
             title = stringResource(R.string.layout_show_hero),
             subtitle = stringResource(R.string.layout_show_hero_sub),
             checked = uiState.heroSectionEnabled,
-            onToggle = { onEvent(LayoutSettingsEvent.SetHeroSectionEnabled(!uiState.heroSectionEnabled)) }
+            onToggle = {
+                onEvent(LayoutSettingsEvent.SetHeroSectionEnabled(!uiState.heroSectionEnabled))
+            }
         )
         if (uiState.heroSectionEnabled && uiState.availableCatalogs.isNotEmpty()) {
             Text(
@@ -150,26 +170,38 @@ internal fun LayoutHomeContentSection(
             title = stringResource(R.string.layout_poster_labels),
             subtitle = stringResource(R.string.layout_poster_labels_sub),
             checked = uiState.posterLabelsEnabled,
-            onToggle = { onEvent(LayoutSettingsEvent.SetPosterLabelsEnabled(!uiState.posterLabelsEnabled)) }
+            onToggle = {
+                onEvent(LayoutSettingsEvent.SetPosterLabelsEnabled(!uiState.posterLabelsEnabled))
+            }
         )
         SettingsToggleRow(
             title = stringResource(R.string.layout_addon_name),
             subtitle = stringResource(R.string.layout_addon_name_sub),
             checked = uiState.catalogAddonNameEnabled,
-            onToggle = { onEvent(LayoutSettingsEvent.SetCatalogAddonNameEnabled(!uiState.catalogAddonNameEnabled)) }
+            onToggle = {
+                onEvent(
+                    LayoutSettingsEvent.SetCatalogAddonNameEnabled(!uiState.catalogAddonNameEnabled)
+                )
+            }
         )
     }
     SettingsToggleRow(
         title = stringResource(R.string.layout_catalog_type),
         subtitle = stringResource(R.string.layout_catalog_type_sub),
         checked = uiState.catalogTypeSuffixEnabled,
-        onToggle = { onEvent(LayoutSettingsEvent.SetCatalogTypeSuffixEnabled(!uiState.catalogTypeSuffixEnabled)) }
+        onToggle = {
+            onEvent(
+                LayoutSettingsEvent.SetCatalogTypeSuffixEnabled(!uiState.catalogTypeSuffixEnabled)
+            )
+        }
     )
     SettingsToggleRow(
         title = stringResource(R.string.layout_hide_unreleased),
         subtitle = stringResource(R.string.layout_hide_unreleased_sub),
         checked = uiState.hideUnreleasedContent,
-        onToggle = { onEvent(LayoutSettingsEvent.SetHideUnreleasedContent(!uiState.hideUnreleasedContent)) }
+        onToggle = {
+            onEvent(LayoutSettingsEvent.SetHideUnreleasedContent(!uiState.hideUnreleasedContent))
+        }
     )
     SettingsToggleRow(
         title = stringResource(R.string.layout_overall_ratings),
@@ -197,7 +229,11 @@ internal fun LayoutHomeContentSection(
             subtitle = stringResource(R.string.layout_hero_description_auto_scroll_sub),
             checked = uiState.heroDescriptionAutoScrollEnabled,
             onToggle = {
-                onEvent(LayoutSettingsEvent.SetHeroDescriptionAutoScrollEnabled(!uiState.heroDescriptionAutoScrollEnabled))
+                onEvent(
+                    LayoutSettingsEvent.SetHeroDescriptionAutoScrollEnabled(
+                        !uiState.heroDescriptionAutoScrollEnabled
+                    )
+                )
             }
         )
     }
@@ -212,7 +248,9 @@ internal fun LayoutSidebarSection(
         title = stringResource(R.string.layout_modern_sidebar),
         subtitle = stringResource(R.string.layout_modern_sidebar_sub),
         checked = uiState.modernSidebarEnabled,
-        onToggle = { onEvent(LayoutSettingsEvent.SetModernSidebarEnabled(!uiState.modernSidebarEnabled)) }
+        onToggle = {
+            onEvent(LayoutSettingsEvent.SetModernSidebarEnabled(!uiState.modernSidebarEnabled))
+        }
     )
     if (uiState.modernSidebarEnabled) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
@@ -220,27 +258,39 @@ internal fun LayoutSidebarSection(
                 title = stringResource(R.string.layout_modern_sidebar_blur),
                 subtitle = stringResource(R.string.layout_modern_sidebar_blur_sub),
                 checked = uiState.modernSidebarBlurEnabled,
-                onToggle = { onEvent(LayoutSettingsEvent.SetModernSidebarBlurEnabled(!uiState.modernSidebarBlurEnabled)) }
+                onToggle = {
+                    onEvent(
+                        LayoutSettingsEvent.SetModernSidebarBlurEnabled(
+                            !uiState.modernSidebarBlurEnabled
+                        )
+                    )
+                }
             )
         }
         SettingsToggleRow(
             title = stringResource(R.string.layout_hide_floating_pill),
             subtitle = stringResource(R.string.layout_hide_floating_pill_sub),
             checked = uiState.sidebarCollapsedByDefault,
-            onToggle = { onEvent(LayoutSettingsEvent.SetSidebarCollapsed(!uiState.sidebarCollapsedByDefault)) }
+            onToggle = {
+                onEvent(LayoutSettingsEvent.SetSidebarCollapsed(!uiState.sidebarCollapsedByDefault))
+            }
         )
     } else {
         SettingsToggleRow(
             title = stringResource(R.string.layout_collapse_sidebar),
             subtitle = stringResource(R.string.layout_collapse_sidebar_sub),
             checked = uiState.sidebarCollapsedByDefault,
-            onToggle = { onEvent(LayoutSettingsEvent.SetSidebarCollapsed(!uiState.sidebarCollapsedByDefault)) }
+            onToggle = {
+                onEvent(LayoutSettingsEvent.SetSidebarCollapsed(!uiState.sidebarCollapsedByDefault))
+            }
         )
     }
     DiscoverLocationRow(
         selectedLocation = uiState.discoverLocation,
         rememberedLocation = uiState.lastNonOffDiscoverLocation,
-        onLocationSelected = { location -> onEvent(LayoutSettingsEvent.SetDiscoverLocation(location)) }
+        onLocationSelected = { location ->
+            onEvent(LayoutSettingsEvent.SetDiscoverLocation(location))
+        }
     )
 }
 
@@ -286,10 +336,12 @@ private fun LayoutCard(
                         modifier = Modifier.fillMaxWidth(),
                         animated = animatePreview
                     )
+
                     HomeLayout.GRID -> GridLayoutPreview(
                         modifier = Modifier.fillMaxWidth(),
                         animated = animatePreview
                     )
+
                     HomeLayout.MODERN -> ModernLayoutPreview(
                         modifier = Modifier.fillMaxWidth(),
                         animated = animatePreview
@@ -320,7 +372,13 @@ private fun LayoutCard(
                         HomeLayout.MODERN -> stringResource(R.string.layout_modern)
                     },
                     style = MaterialTheme.typography.labelLarge,
-                    color = if (isSelected || isFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary
+                    color = if (isSelected ||
+                        isFocused
+                    ) {
+                        MoviesTheme.colors.TextPrimary
+                    } else {
+                        MoviesTheme.colors.TextSecondary
+                    }
                 )
             }
         }
@@ -360,6 +418,7 @@ internal fun DiscoverLocationRow(
             onLocationSelected(
                 when (selectedLocation) {
                     DiscoverLocation.OFF -> rememberedLocation
+
                     DiscoverLocation.IN_SEARCH,
                     DiscoverLocation.IN_SIDEBAR -> DiscoverLocation.OFF
                 }
@@ -368,8 +427,14 @@ internal fun DiscoverLocationRow(
     )
     if (sectionEnabled) {
         val currentLabel = when (selectedLocation) {
-            DiscoverLocation.IN_SIDEBAR -> stringResource(R.string.layout_discover_location_in_sidebar)
-            DiscoverLocation.IN_SEARCH -> stringResource(R.string.layout_discover_location_in_search)
+            DiscoverLocation.IN_SIDEBAR -> stringResource(
+                R.string.layout_discover_location_in_sidebar
+            )
+
+            DiscoverLocation.IN_SEARCH -> stringResource(
+                R.string.layout_discover_location_in_search
+            )
+
             DiscoverLocation.OFF -> ""
         }
         SettingsActionRow(

@@ -20,9 +20,7 @@ data class ParentalGuideResult(
 )
 
 @Singleton
-class ParentalGuideRepository @Inject constructor(
-    private val api: ParentalGuideApi
-) {
+class ParentalGuideRepository @Inject constructor(private val api: ParentalGuideApi) {
     private val cache = ConcurrentHashMap<String, ParentalGuideResult>()
 
     suspend fun getParentalGuide(imdbId: String): ParentalGuideResult? {

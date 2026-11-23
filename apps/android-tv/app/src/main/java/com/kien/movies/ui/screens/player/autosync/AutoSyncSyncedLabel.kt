@@ -1,8 +1,5 @@
 package com.kien.movies.ui.screens.player.autosync
 
-import com.kien.movies.ui.screens.player.PlayerListItemStyle
-import com.kien.movies.ui.screens.player.PlayerTenFoot
-import com.kien.movies.ui.screens.player.atLeast
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -40,6 +37,9 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.ui.screens.player.PlayerListItemStyle
+import com.kien.movies.ui.screens.player.PlayerTenFoot
+import com.kien.movies.ui.screens.player.atLeast
 import com.kien.movies.ui.theme.MoviesPrimitives
 import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,8 +58,7 @@ internal object AutoSyncSyncedSubtitle {
     private val _status = MutableStateFlow<Status?>(null)
     val status: StateFlow<Status?> = _status.asStateFlow()
 
-    fun start(subtitleUrl: String): Status =
-        Status(subtitleUrl, AutoSyncState.IN_PROGRESS).also { _status.value = it }
+    fun start(subtitleUrl: String): Status = Status(subtitleUrl, AutoSyncState.IN_PROGRESS).also { _status.value = it }
 
     fun mark(subtitleUrl: String, state: AutoSyncState = AutoSyncState.SYNCED) {
         _status.value = Status(subtitleUrl, state)
@@ -91,20 +90,20 @@ internal fun AutoSyncedChip(subtitleUrl: String, selected: Boolean) {
             .background(contentColor.copy(alpha = 0.16f), RoundedCornerShape(999.dp))
             .padding(horizontal = MoviesTheme.spacing.sm, vertical = 3.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = Icons.Default.Sync,
             contentDescription = null,
             tint = contentColor,
-            modifier = Modifier.size(PlayerTenFoot.atLeast(12.dp, 16.dp)),
+            modifier = Modifier.size(PlayerTenFoot.atLeast(12.dp, 16.dp))
         )
         Text(
             text = stringResource(R.string.autosync_label_synced),
             style = MaterialTheme.typography.labelSmall,
             color = contentColor,
             maxLines = 1,
-            softWrap = false,
+            softWrap = false
         )
     }
 }
@@ -116,36 +115,53 @@ internal fun AutoSyncStatusIndicator(subtitleUrl: String?, modifier: Modifier = 
 
     val colors = MoviesTheme.colors
     val (icon, color, label) = when (state) {
-        AutoSyncState.SYNCED -> Triple(Icons.Default.Check, colors.Success, R.string.autosync_status_synced)
+        AutoSyncState.SYNCED -> Triple(
+            Icons.Default.Check,
+            colors.Success,
+            R.string.autosync_status_synced
+        )
+
         AutoSyncState.NOT_NEEDED -> Triple(
             Icons.AutoMirrored.Filled.ArrowForward,
             colors.TextSecondary,
-            R.string.autosync_status_not_needed,
+            R.string.autosync_status_not_needed
         )
-        AutoSyncState.IN_PROGRESS -> Triple(Icons.Default.Sync, colors.Warning, R.string.autosync_status_in_progress)
+
+        AutoSyncState.IN_PROGRESS -> Triple(
+            Icons.Default.Sync,
+            colors.Warning,
+            R.string.autosync_status_in_progress
+        )
+
         AutoSyncState.NO_FIT -> Triple(
             Icons.Default.PriorityHigh,
             MoviesPrimitives.violet300,
-            R.string.autosync_status_no_fit,
+            R.string.autosync_status_no_fit
         )
+
         AutoSyncState.NO_REFERENCE -> Triple(
             Icons.Default.Remove,
             colors.TextSecondary,
-            R.string.autosync_status_no_reference,
+            R.string.autosync_status_no_reference
         )
-        AutoSyncState.FAILED -> Triple(Icons.Default.Close, colors.Error, R.string.autosync_status_failed)
+
+        AutoSyncState.FAILED -> Triple(
+            Icons.Default.Close,
+            colors.Error,
+            R.string.autosync_status_failed
+        )
     }
 
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
                 .size(PlayerTenFoot.atLeast(16.dp, 22.dp))
                 .background(color.copy(alpha = 0.18f), CircleShape),
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.Center
         ) {
             if (state == AutoSyncState.IN_PROGRESS) {
                 SpinningStatusIcon(icon, color)
@@ -154,7 +170,7 @@ internal fun AutoSyncStatusIndicator(subtitleUrl: String?, modifier: Modifier = 
                     imageVector = icon,
                     contentDescription = null,
                     tint = color,
-                    modifier = Modifier.size(StatusIconSize),
+                    modifier = Modifier.size(StatusIconSize)
                 )
             }
         }
@@ -164,16 +180,16 @@ internal fun AutoSyncStatusIndicator(subtitleUrl: String?, modifier: Modifier = 
                 style = MaterialTheme.typography.labelSmall
                     .copy(fontSize = 9.sp, lineHeight = 12.sp)
                     .atLeast(PlayerTenFoot.metaText),
-                color = colors.TextTertiary,
+                color = colors.TextTertiary
             )
             Text(
                 text = stringResource(label),
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontSize = 11.sp,
                     lineHeight = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.SemiBold
                 ).atLeast(PlayerTenFoot.metaText),
-                color = color,
+                color = color
             )
         }
     }
@@ -187,7 +203,7 @@ private fun SpinningStatusIcon(icon: ImageVector, tint: Color) {
         initialValue = 0f,
         targetValue = -360f,
         animationSpec = infiniteRepeatable(tween(durationMillis = 1_200, easing = LinearEasing)),
-        label = "autosync_status_angle",
+        label = "autosync_status_angle"
     )
     Icon(
         imageVector = icon,
@@ -195,6 +211,6 @@ private fun SpinningStatusIcon(icon: ImageVector, tint: Color) {
         tint = tint,
         modifier = Modifier
             .size(StatusIconSize)
-            .graphicsLayer { rotationZ = angle },
+            .graphicsLayer { rotationZ = angle }
     )
 }

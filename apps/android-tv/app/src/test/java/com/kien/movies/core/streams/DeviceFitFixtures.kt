@@ -43,6 +43,12 @@ internal fun titleMeta(runtime: String?, episodes: List<Video> = emptyList()): M
 )
 
 internal fun episodeVideo(season: Int, episode: Int, runtime: Int?): Video = Video(
-    id = "title:$season:$episode", title = "Episode $episode", released = null,
-    thumbnail = null, season = season, episode = episode, overview = null, runtime = runtime
+    id = "title:$season:$episode",
+    title = "Episode $episode",
+    released = null,
+    thumbnail = null,
+    season = season,
+    episode = episode,
+    overview = null,
+    runtime = runtime
 )

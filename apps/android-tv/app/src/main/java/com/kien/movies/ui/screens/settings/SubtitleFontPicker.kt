@@ -104,7 +104,13 @@ internal fun SubtitleFontPickerDialog(
                     label = subtitleFontLabel(fontId, fonts),
                     selected = fontId == selectedFontId,
                     onClick = { select(fontId) },
-                    modifier = if (fontIds.indexOf(fontId) == focusedIndex) Modifier.focusRequester(focusRequester) else Modifier
+                    modifier = if (fontIds.indexOf(fontId) ==
+                        focusedIndex
+                    ) {
+                        Modifier.focusRequester(focusRequester)
+                    } else {
+                        Modifier
+                    }
                 )
             }
             items(fonts, key = { it.id }) { font ->
@@ -119,7 +125,15 @@ internal fun SubtitleFontPickerDialog(
                         onClick = { select(font.id) },
                         modifier = Modifier
                             .weight(1f)
-                            .then(if (fontIds.indexOf(font.id) == focusedIndex) Modifier.focusRequester(focusRequester) else Modifier)
+                            .then(
+                                if (fontIds.indexOf(font.id) ==
+                                    focusedIndex
+                                ) {
+                                    Modifier.focusRequester(focusRequester)
+                                } else {
+                                    Modifier
+                                }
+                            )
                     )
                     SubtitleFontActionCard(
                         icon = Icons.Outlined.Delete,

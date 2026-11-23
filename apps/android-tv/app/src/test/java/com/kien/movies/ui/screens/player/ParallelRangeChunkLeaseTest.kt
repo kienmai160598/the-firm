@@ -10,18 +10,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
-import okhttp3.OkHttpClient
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
-import okio.Buffer
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.concurrent.CompletableFuture
@@ -34,6 +22,18 @@ import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.LockSupport
 import kotlin.random.Random
+import okhttp3.OkHttpClient
+import okhttp3.mockwebserver.Dispatcher
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
+import okio.Buffer
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
 
 class ParallelRangeChunkLeaseTest {
 
@@ -43,8 +43,10 @@ class ParallelRangeChunkLeaseTest {
         val freed = AtomicInteger()
         val badFrees = AtomicInteger()
 
-        fun allocate(size: Int): Allocation =
-            Allocation(ByteBuffer.allocate(size), 0).also { allocated.incrementAndGet(); live.add(it) }
+        fun allocate(size: Int): Allocation = Allocation(ByteBuffer.allocate(size), 0).also {
+            allocated.incrementAndGet()
+            live.add(it)
+        }
 
         fun free(allocation: Allocation) {
             if (!live.remove(allocation)) {
@@ -70,7 +72,8 @@ class ParallelRangeChunkLeaseTest {
         mockkStatic(Uri::class, SystemClock::class)
         every { Uri.parse(any()) } answers { uriOf(firstArg()) }
         every { SystemClock.elapsedRealtime() } answers { System.nanoTime() / 1_000_000L }
-        every { SystemClock.uptimeMillis() } answers { System.nanoTime() / 1_000_000L + clockOffsetMs.get() }
+        every { SystemClock.uptimeMillis() } answers
+            { System.nanoTime() / 1_000_000L + clockOffsetMs.get() }
         allocateBefore = ParallelRangeDataSource.allocateChunk
         freeBefore = ParallelRangeDataSource.freeChunk
         ParallelRangeDataSource.allocateChunk = memory::allocate
@@ -117,7 +120,7 @@ class ParallelRangeChunkLeaseTest {
         parallelConnections = 2,
         chunkSize = CHUNK,
         useNativeMemory = true,
-        allowContinuationReopen = continuation,
+        allowContinuationReopen = continuation
     ).also { opened.add(it) }
 
     private fun teardownSessions() = ParallelRangeDataSource.releaseRetainedSession()
@@ -128,9 +131,10 @@ class ParallelRangeChunkLeaseTest {
 
     private fun spec(position: Long) = DataSpec.Builder().setUri(fileUri).setPosition(position).build()
 
-    private fun pooledBuffer(allocation: Allocation): Any =
-        Class.forName("com.kien.movies.ui.screens.player.ParallelRangeDataSource\$PooledBuffer")
-            .declaredConstructors.single().apply { isAccessible = true }.newInstance(allocation, allocation.buffer)
+    private fun pooledBuffer(allocation: Allocation): Any = Class.forName("com.kien.movies.ui.screens.player.ParallelRangeDataSource\$PooledBuffer")
+        .declaredConstructors.single().apply {
+            isAccessible = true
+        }.newInstance(allocation, allocation.buffer)
 
     private fun call(target: Any, name: String, vararg args: Any?): Any? = target.javaClass.declaredMethods
         .single { it.name == name && it.parameterCount == args.size }
@@ -140,13 +144,20 @@ class ParallelRangeChunkLeaseTest {
         call(ParallelRangeDataSource.Companion, "releaseSessionBuffer", buffer, CHUNK, poolCap)
     }
 
-    private fun pooled(): Int =
-        (ParallelRangeDataSource::class.java.getDeclaredField("globalBufferPool").apply { isAccessible = true }
-            .get(null) as Map<*, *>).values.sumOf { (it as Collection<*>).size }
+    private fun pooled(): Int = (
+        ParallelRangeDataSource::class.java.getDeclaredField("globalBufferPool").apply {
+            isAccessible =
+                true
+        }
+            .get(null) as Map<*, *>
+        ).values.sumOf { (it as Collection<*>).size }
 
     // Reads like the player: compares every byte with the file and reopens at the same position
     // after a failed read.
-    private inner class Reader(val source: ParallelRangeDataSource, val viaByteBuffer: Boolean = false) {
+    private inner class Reader(
+        val source: ParallelRangeDataSource,
+        val viaByteBuffer: Boolean = false
+    ) {
         var position = 0L
         var mismatches = 0
         var reopens = 0
@@ -154,7 +165,12 @@ class ParallelRangeChunkLeaseTest {
         private val scratch = ByteArray(2_000)
         private val target = ByteBuffer.allocateDirect(2_000)
 
-        fun readTo(until: Long, pace: Boolean = false, deadlineMs: Long = System.currentTimeMillis() + 60_000L) {
+        fun readTo(
+            until: Long,
+            pace: Boolean = false,
+            deadlineMs: Long = System.currentTimeMillis() +
+                60_000L
+        ) {
             while (position < until && System.currentTimeMillis() < deadlineMs) {
                 if (!isOpen) {
                     try {
@@ -170,7 +186,14 @@ class ParallelRangeChunkLeaseTest {
                 val read = try {
                     if (viaByteBuffer) {
                         target.clear()
-                        source.read(target, wanted).also { if (it > 0) { target.flip(); target.get(scratch, 0, it) } }
+                        source.read(target, wanted).also {
+                            if (it >
+                                0
+                            ) {
+                                target.flip()
+                                target.get(scratch, 0, it)
+                            }
+                        }
                     } else {
                         source.read(scratch, 0, wanted)
                     }
@@ -202,8 +225,7 @@ class ParallelRangeChunkLeaseTest {
         fun stats() = "mismatches=$mismatches reopens=$reopens allocated=${memory.allocated.get()} freed=${memory.freed.get()}"
     }
 
-    private fun field(target: Any, name: String): Any? =
-        target.javaClass.getDeclaredField(name).apply { isAccessible = true }.get(target)
+    private fun field(target: Any, name: String): Any? = target.javaClass.getDeclaredField(name).apply { isAccessible = true }.get(target)
 
     // Leaves the reader inside chunk 1 holding the finished download, not the in-flight view.
     private fun holdChunkOne(reader: Reader) {
@@ -282,7 +304,11 @@ class ParallelRangeChunkLeaseTest {
                     try {
                         start.await()
                         while (call(buffer, "lease") as Boolean) {
-                            if (bytes.get(Random.nextInt(bytes.capacity())) == POISON) sawPoison.incrementAndGet()
+                            if (bytes.get(Random.nextInt(bytes.capacity())) ==
+                                POISON
+                            ) {
+                                sawPoison.incrementAndGet()
+                            }
                             call(buffer, "endLease")
                         }
                     } catch (t: Throwable) {
@@ -340,7 +366,11 @@ class ParallelRangeChunkLeaseTest {
         }
         reader.readTo(3 * CHUNK)
         reader.close()
-        assertEquals("first reader got bytes of another chunk, ${reader.stats()}", 0, reader.mismatches)
+        assertEquals(
+            "first reader got bytes of another chunk, ${reader.stats()}",
+            0,
+            reader.mismatches
+        )
         assertEquals("second reader, ${cursor.stats()}", 0, cursor.mismatches)
         assertAllMemoryReturned()
     }
@@ -365,7 +395,11 @@ class ParallelRangeChunkLeaseTest {
             chaos.join(5_000)
             reader.close()
         }
-        assertEquals("bytes read from freed or reused chunk memory, ${reader.stats()}", 0, reader.mismatches)
+        assertEquals(
+            "bytes read from freed or reused chunk memory, ${reader.stats()}",
+            0,
+            reader.mismatches
+        )
         assertEquals(file.size.toLong(), reader.position)
         assertAllMemoryReturned()
     }

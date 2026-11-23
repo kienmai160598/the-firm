@@ -4,11 +4,11 @@ package com.lagradost.cloudstream3.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 import com.lagradost.cloudstream3.mvvm.logError
-import androidx.core.content.edit
 
 const val PREFERENCES_NAME = "cs3_plugin_preferences"
 
@@ -33,7 +33,7 @@ object DataStore {
     }
 
     fun getFolderName(folder: String, path: String): String {
-        return "${folder}/${path}"
+        return "$folder/$path"
     }
 
     fun Context.getKeys(folder: String): List<String> {

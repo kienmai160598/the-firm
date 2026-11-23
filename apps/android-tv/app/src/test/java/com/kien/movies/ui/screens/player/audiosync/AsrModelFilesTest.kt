@@ -7,14 +7,14 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.RandomAccessFile
 import java.security.MessageDigest
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 
 class AsrModelFilesTest {
     @get:Rule val temporary = TemporaryFolder()
@@ -41,7 +41,11 @@ class AsrModelFilesTest {
         val asset = asset(expected)
         File(directory, asset.name).writeBytes(expected)
         assertFailsWith<IOException> {
-            AsrModelFiles.saveVerified(ByteArrayInputStream(ByteArray(expected.size)), directory, asset)
+            AsrModelFiles.saveVerified(
+                ByteArrayInputStream(ByteArray(expected.size)),
+                directory,
+                asset
+            )
         }
         assertContentEquals(expected, File(directory, asset.name).readBytes())
         assertFalse(File(directory, asset.name + ".part").exists())
@@ -94,13 +98,15 @@ class AsrModelFilesTest {
         val directory = temporary.newFolder()
         sparseFiles(directory, AsrModelFiles.optimized)
         assertEquals(AsrModelFiles.Format.ORT, AsrModelFiles.format(directory))
-        assertEquals("cpu:${File(directory, "cpu.conf").absolutePath}",
-            AsrModelFiles.provider(directory, AsrModelFiles.Format.ORT))
+        assertEquals(
+            "cpu:${File(directory, "cpu.conf").absolutePath}",
+            AsrModelFiles.provider(directory, AsrModelFiles.Format.ORT)
+        )
         assertEquals(
             "GraphOptimizationLevel=0\n" +
                 "SessionConfig.session.use_memory_mapped_ort_model=1\n" +
                 "SessionConfig.session.use_ort_model_bytes_for_initializers=1\n",
-            File(directory, "cpu.conf").readText(),
+            File(directory, "cpu.conf").readText()
         )
     }
 
@@ -114,13 +120,15 @@ class AsrModelFilesTest {
                 "SessionConfig.session.use_memory_mapped_ort_model=1\n" +
                 "SessionConfig.session.use_ort_model_bytes_for_initializers=1\n" +
                 "EnableCpuMemArena=0\n",
-            File(ort, "cpu.conf").readText(),
+            File(ort, "cpu.conf").readText()
         )
         // The ONNX fallback keeps the runtime's graph optimization; only the pool changes.
         val onnx = temporary.newFolder()
         sparseFiles(onnx, AsrModelFiles.legacy)
-        assertEquals("cpu:${File(onnx, "cpu.conf").absolutePath}",
-            AsrModelFiles.provider(onnx, AsrModelFiles.Format.ONNX, lowMemory = true))
+        assertEquals(
+            "cpu:${File(onnx, "cpu.conf").absolutePath}",
+            AsrModelFiles.provider(onnx, AsrModelFiles.Format.ONNX, lowMemory = true)
+        )
         assertEquals("EnableCpuMemArena=0\n", File(onnx, "cpu.conf").readText())
     }
 
@@ -140,7 +148,8 @@ class AsrModelFilesTest {
     }
 
     private fun asset(bytes: ByteArray) = AsrModelFiles.Asset(
-        "model.ort", bytes.size.toLong(),
-        MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) },
+        "model.ort",
+        bytes.size.toLong(),
+        MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
     )
 }

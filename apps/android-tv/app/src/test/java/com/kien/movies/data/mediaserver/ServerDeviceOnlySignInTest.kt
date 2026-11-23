@@ -14,7 +14,12 @@ class ServerDeviceOnlySignInTest {
 
     private val synced = FakeServerProvider()
     private val local = DeviceOnlyProvider()
-    private val repository = ServerRepository(MemoryServerPersistence(), listOf(synced, local), CoroutineScope(Dispatchers.Unconfined))
+    private val repository =
+        ServerRepository(
+            MemoryServerPersistence(),
+            listOf(synced, local),
+            CoroutineScope(Dispatchers.Unconfined)
+        )
 
     private fun connection(id: String, providerId: String) = ServerConnection(
         id = id,

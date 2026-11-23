@@ -5,11 +5,11 @@ import com.kien.movies.domain.model.DebridStreamPreferences
 import com.kien.movies.domain.model.DebridStreamQuality
 import com.kien.movies.domain.model.DebridStreamResolution
 import fi.iki.elonen.NanoHTTPD
-import org.junit.Assert.assertEquals
-import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class DebridFormatterConfigServerTest {
     @Test
@@ -42,7 +42,10 @@ class DebridFormatterConfigServerTest {
         assertEquals("🔥4K UHD ☁️", saved?.nameTemplate)
         assertEquals("🍿 Loki ⚡Ready 🗣️", saved?.descriptionTemplate)
         assertEquals(10, saved?.streamPreferences?.maxResults)
-        assertEquals(listOf(DebridStreamResolution.P2160), saved?.streamPreferences?.requiredResolutions)
+        assertEquals(
+            listOf(DebridStreamResolution.P2160),
+            saved?.streamPreferences?.requiredResolutions
+        )
         assertEquals(listOf(DebridStreamQuality.CAM), saved?.streamPreferences?.excludedQualities)
     }
 
@@ -72,10 +75,7 @@ class DebridFormatterConfigServerTest {
         assertEquals("", saved?.descriptionTemplate)
     }
 
-    private class FakePostSession(
-        body: String,
-        private val uri: String = "/api/settings"
-    ) : NanoHTTPD.IHTTPSession {
+    private class FakePostSession(body: String, private val uri: String = "/api/settings") : NanoHTTPD.IHTTPSession {
         private val bytes = body.toByteArray(StandardCharsets.UTF_8)
 
         override fun execute() = Unit

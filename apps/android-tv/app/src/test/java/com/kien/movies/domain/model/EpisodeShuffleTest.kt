@@ -63,7 +63,10 @@ class EpisodeShuffleTest {
     @Test
     fun `new completion invalidates an unwatched next target`() {
         val next = select(includeWatched = false)!!
-        assertNotEquals(next, select(includeWatched = false, watched = setOf(next.season!! to next.episode!!)))
+        assertNotEquals(
+            next,
+            select(includeWatched = false, watched = setOf(next.season!! to next.episode!!))
+        )
     }
 
     @Test
@@ -72,7 +75,10 @@ class EpisodeShuffleTest {
             (1 to 1) to progress(1, 80f).copy(source = WatchProgress.SOURCE_SIMKL_PLAYBACK),
             (1 to 2) to progress(2, 80f)
         )
-        assertEquals(2, select(videos = episodes.take(2), includeWatched = false, progress = progress)?.episode)
+        assertEquals(
+            2,
+            select(videos = episodes.take(2), includeWatched = false, progress = progress)?.episode
+        )
     }
 
     @Test
@@ -137,9 +143,13 @@ class EpisodeShuffleTest {
     @Test
     fun `specials malformed future and duplicate episodes are excluded`() {
         val invalid = listOf(
-            episode(0), episode(2).copy(season = 0), episode(3).copy(available = false),
-            episode(4).copy(released = "2999-01-01"), episode(5).copy(id = " "),
-            episode(6).copy(season = null), episode(7).copy(episode = null)
+            episode(0),
+            episode(2).copy(season = 0),
+            episode(3).copy(available = false),
+            episode(4).copy(released = "2999-01-01"),
+            episode(5).copy(id = " "),
+            episode(6).copy(season = null),
+            episode(7).copy(episode = null)
         )
         val valid = episode(1)
         assertEquals(valid, select(videos = invalid + valid + valid.copy(id = "duplicate")))
@@ -167,8 +177,13 @@ class EpisodeShuffleTest {
     ) = shuffle.select(profile, show, videos, includeWatched, watched, progress, surface, current, visit)
 
     private fun episode(number: Int) = Video(
-        "show:1:$number", "Episode $number", "2020-01-01", null,
-        season = 1, episode = number, overview = null
+        "show:1:$number",
+        "Episode $number",
+        "2020-01-01",
+        null,
+        season = 1,
+        episode = number,
+        overview = null
     )
 
     private fun progress(number: Int, percent: Float) = WatchProgress(

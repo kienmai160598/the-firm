@@ -1,20 +1,20 @@
 package com.kien.movies.core.plugin.cloudstream
 
 import android.util.Log
+import com.kien.movies.core.network.IPv4FirstDns
 import com.kien.movies.domain.model.ExternalPluginEntry
 import com.kien.movies.domain.model.ExternalRepoManifest
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
-import com.kien.movies.core.network.IPv4FirstDns
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "ExternalRepoParser"
 
@@ -35,9 +35,7 @@ data class ExternalRepoParseResult(
  * 2. Direct plugins array (list of [ExternalPluginEntry])
  */
 @Singleton
-class ExternalRepoParser @Inject constructor(
-    private val moshi: Moshi
-) {
+class ExternalRepoParser @Inject constructor(private val moshi: Moshi) {
     private val httpClient = OkHttpClient.Builder()
         .dns(IPv4FirstDns())
         .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
@@ -46,7 +44,10 @@ class ExternalRepoParser @Inject constructor(
         .build()
 
     private val repoManifestAdapter = moshi.adapter(ExternalRepoManifest::class.java)
-    private val pluginListType = Types.newParameterizedType(List::class.java, ExternalPluginEntry::class.java)
+    private val pluginListType = Types.newParameterizedType(
+        List::class.java,
+        ExternalPluginEntry::class.java
+    )
     private val pluginListAdapter = moshi.adapter<List<ExternalPluginEntry>>(pluginListType)
 
     /**
@@ -62,7 +63,10 @@ class ExternalRepoParser @Inject constructor(
             try {
                 val manifest = repoManifestAdapter.fromJson(trimmed)
                 if (manifest != null && manifest.pluginLists.isNotEmpty()) {
-                    Log.d(TAG, "Parsed as repo manifest: ${manifest.name}, ${manifest.pluginLists.size} plugin lists")
+                    Log.d(
+                        TAG,
+                        "Parsed as repo manifest: ${manifest.name}, ${manifest.pluginLists.size} plugin lists"
+                    )
                     val allPlugins = coroutineScope {
                         manifest.pluginLists.map { listUrl ->
                             async {

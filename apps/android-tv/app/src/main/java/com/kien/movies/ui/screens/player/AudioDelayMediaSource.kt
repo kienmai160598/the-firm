@@ -48,7 +48,8 @@ internal class AudioDelayMediaSource(
 private class AudioDelayMediaPeriod(
     val mediaPeriod: MediaPeriod,
     private val audioDelayUsProvider: () -> Long
-) : MediaPeriod, MediaPeriod.Callback {
+) : MediaPeriod,
+    MediaPeriod.Callback {
 
     private var callback: MediaPeriod.Callback? = null
 
@@ -76,7 +77,8 @@ private class AudioDelayMediaPeriod(
     ): Long {
         val childStreams = arrayOfNulls<SampleStream>(streams.size)
         for (index in streams.indices) {
-            childStreams[index] = (streams[index] as? AudioDelaySampleStream)?.childStream ?: streams[index]
+            childStreams[index] =
+                (streams[index] as? AudioDelaySampleStream)?.childStream ?: streams[index]
         }
 
         val selectedPositionUs = mediaPeriod.selectTracks(
@@ -91,6 +93,7 @@ private class AudioDelayMediaPeriod(
             val childStream = childStreams[index]
             streams[index] = when {
                 childStream == null -> null
+
                 // Audio is the master clock in normal playback, so shifting audio timestamps
                 // tends to pull video along with it. Shift video timestamps in the opposite
                 // direction to create a real perceived audio delay.
@@ -105,6 +108,7 @@ private class AudioDelayMediaPeriod(
                         AudioDelaySampleStream(childStream, audioDelayUsProvider)
                     }
                 }
+
                 else -> childStream
             }
         }
@@ -120,10 +124,7 @@ private class AudioDelayMediaPeriod(
 
     override fun seekToUs(positionUs: Long): Long = mediaPeriod.seekToUs(positionUs)
 
-    override fun getAdjustedSeekPositionUs(
-        positionUs: Long,
-        seekParameters: SeekParameters
-    ): Long = mediaPeriod.getAdjustedSeekPositionUs(positionUs, seekParameters)
+    override fun getAdjustedSeekPositionUs(positionUs: Long, seekParameters: SeekParameters): Long = mediaPeriod.getAdjustedSeekPositionUs(positionUs, seekParameters)
 
     override fun getBufferedPositionUs(): Long = mediaPeriod.getBufferedPositionUs()
 

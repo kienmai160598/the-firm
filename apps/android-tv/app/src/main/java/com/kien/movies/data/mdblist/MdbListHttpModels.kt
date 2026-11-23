@@ -2,8 +2,8 @@ package com.kien.movies.data.mdblist
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 
 data class MdbListConfiguration(
     val clientId: String,

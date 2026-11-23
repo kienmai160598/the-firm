@@ -1,59 +1,63 @@
 package com.kien.movies.ui.navigation
 
-import com.kien.movies.ui.theme.MoviesMotion
-import com.kien.movies.ui.components.PlaybackAvailabilityProvider
-import com.kien.movies.ui.components.LocalPlaybackAvailability
-import com.kien.movies.ui.components.canStream
 import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
-import com.kien.movies.R
-import com.kien.movies.LocalRootContentInset
-import com.kien.movies.ui.navigation.toptabbar.TopTabBarRootFrame
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import com.kien.movies.core.player.LocalBackgroundTrailerController
-import com.kien.movies.ui.screens.home.HOME_HERO_TRAILER_OWNER
-import com.kien.movies.ui.components.BackgroundTrailerLayer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavGraphBuilder
-
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.kien.movies.LocalRootContentInset
+import com.kien.movies.R
 import com.kien.movies.core.build.AppFeaturePolicy
 import com.kien.movies.core.party.PartyMedia
-import com.kien.movies.domain.model.ExperienceMode
+import com.kien.movies.core.player.LocalBackgroundTrailerController
 import com.kien.movies.data.mediaserver.ServerCatalog
+import com.kien.movies.domain.model.ExperienceMode
+import com.kien.movies.ui.components.BackgroundTrailerLayer
+import com.kien.movies.ui.components.LocalPlaybackAvailability
+import com.kien.movies.ui.components.PlaybackAvailabilityProvider
+import com.kien.movies.ui.components.canStream
+import com.kien.movies.ui.navigation.toptabbar.TopTabBarRootFrame
 import com.kien.movies.ui.screens.CatalogSeeAllScreen
 import com.kien.movies.ui.screens.ExperienceModeSelectionScreen
 import com.kien.movies.ui.screens.LayoutSelectionScreen
-import com.kien.movies.ui.screens.detail.MetaDetailsScreen
-import com.kien.movies.ui.screens.home.HomeScreen
+import com.kien.movies.ui.screens.account.AuthQrSignInScreen
 import com.kien.movies.ui.screens.addon.AddonManagerScreen
 import com.kien.movies.ui.screens.addon.CatalogOrderScreen
+import com.kien.movies.ui.screens.cast.CastDetailScreen
+import com.kien.movies.ui.screens.detail.MetaDetailsScreen
+import com.kien.movies.ui.screens.home.ContinueWatchingItem
+import com.kien.movies.ui.screens.home.HOME_HERO_TRAILER_OWNER
+import com.kien.movies.ui.screens.home.HeroBackdropState
+import com.kien.movies.ui.screens.home.HomeScreen
 import com.kien.movies.ui.screens.library.LibraryScreen
+import com.kien.movies.ui.screens.party.PartyScreen
 import com.kien.movies.ui.screens.player.PlayerExitReason
 import com.kien.movies.ui.screens.player.PlayerScreen
 import com.kien.movies.ui.screens.player.PostPlayRecommendation
 import com.kien.movies.ui.screens.player.playerBackOpensCurrentEpisodeStreams
-import com.kien.movies.ui.screens.party.PartyScreen
 import com.kien.movies.ui.screens.plugin.PluginScreen
+import com.kien.movies.ui.screens.profile.ProfileSelectionMode
+import com.kien.movies.ui.screens.profile.ProfileSelectionScreen
 import com.kien.movies.ui.screens.search.DiscoverScreen
 import com.kien.movies.ui.screens.search.SearchScreen
 import com.kien.movies.ui.screens.settings.AboutScreen
@@ -63,16 +67,11 @@ import com.kien.movies.ui.screens.settings.PlaybackSettingsScreen
 import com.kien.movies.ui.screens.settings.SettingsScreen
 import com.kien.movies.ui.screens.settings.SupportersContributorsScreen
 import com.kien.movies.ui.screens.settings.ThemeSettingsScreen
-import com.kien.movies.ui.screens.settings.TrackingSettingsScreen
 import com.kien.movies.ui.screens.settings.TmdbSettingsScreen
+import com.kien.movies.ui.screens.settings.TrackingSettingsScreen
 import com.kien.movies.ui.screens.stream.StreamScreen
-import com.kien.movies.ui.screens.home.ContinueWatchingItem
-import com.kien.movies.ui.screens.account.AuthQrSignInScreen
-import com.kien.movies.ui.screens.cast.CastDetailScreen
-import com.kien.movies.ui.screens.profile.ProfileSelectionMode
-import com.kien.movies.ui.screens.profile.ProfileSelectionScreen
 import com.kien.movies.ui.screens.tmdb.TmdbEntityBrowseScreen
-import com.kien.movies.ui.screens.home.HeroBackdropState
+import com.kien.movies.ui.theme.MoviesMotion
 
 @Composable
 fun MoviesNavHost(
@@ -138,7 +137,11 @@ private fun PlaybackNavHost(
     }
 
     fun openPartyMedia(media: PartyMedia) {
-        if (navController.currentDestination?.route?.startsWith("player/") == true) navController.popBackStack()
+        if (navController.currentDestination?.route?.startsWith("player/") ==
+            true
+        ) {
+            navController.popBackStack()
+        }
         navController.navigate(
             Screen.Stream.createRoute(
                 videoId = media.videoId ?: media.metaId,
@@ -181,7 +184,10 @@ private fun PlaybackNavHost(
             if (isStreamToPlayer(from, to) && isAutoPlayNav) {
                 ExitTransition.None
             } else if (isLeavingFramedHeroTrailer()) {
-                fadeOut(animationSpec = tween(MoviesMotion.tokens.durations.medium), targetAlpha = 1f)
+                fadeOut(
+                    animationSpec = tween(MoviesMotion.tokens.durations.medium),
+                    targetAlpha = 1f
+                )
             } else {
                 fadeOut(animationSpec = tween(MoviesMotion.tokens.durations.medium))
             }
@@ -259,11 +265,15 @@ private fun PlaybackNavHost(
                         contentName = item.progress.name,
                         runtime = null,
                         manualSelection = manualSelection,
-                        returnToDetailOnBack = item.progress.contentType.equals("series", ignoreCase = true),
+                        returnToDetailOnBack = item.progress.contentType.equals(
+                            "series",
+                            ignoreCase = true
+                        ),
                         returnToHomeOnBack = true,
                         startFromBeginning = startFromBeginning,
                         contentLanguage = item.contentLanguage
                     )
+
                     is ContinueWatchingItem.NextUp -> Screen.Stream.createRoute(
                         videoId = item.info.videoId,
                         contentType = item.info.contentType,
@@ -280,7 +290,10 @@ private fun PlaybackNavHost(
                         contentName = item.info.name,
                         runtime = null,
                         manualSelection = manualSelection,
-                        returnToDetailOnBack = item.info.contentType.equals("series", ignoreCase = true),
+                        returnToDetailOnBack = item.info.contentType.equals(
+                            "series",
+                            ignoreCase = true
+                        ),
                         returnToHomeOnBack = true,
                         startFromBeginning = startFromBeginning,
                         contentLanguage = item.info.contentLanguage
@@ -302,14 +315,22 @@ private fun PlaybackNavHost(
                 },
                 onContinueWatchingClick = onContinueWatchingClick@{ item ->
                     if (!playbackAvailability.canStream(item)) {
-                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            R.string.playback_unavailable_message,
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@onContinueWatchingClick
                     }
                     navController.navigate(createContinueWatchingRoute(item))
                 },
                 onContinueWatchingStartFromBeginning = onContinueWatchingStartFromBeginning@{ item ->
                     if (!playbackAvailability.canStream(item)) {
-                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            R.string.playback_unavailable_message,
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@onContinueWatchingStartFromBeginning
                     }
                     navController.navigate(
@@ -318,7 +339,11 @@ private fun PlaybackNavHost(
                 },
                 onContinueWatchingPlayManually = onContinueWatchingPlayManually@{ item ->
                     if (!playbackAvailability.canStream(item)) {
-                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            R.string.playback_unavailable_message,
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@onContinueWatchingPlayManually
                     }
                     navController.navigate(
@@ -326,7 +351,9 @@ private fun PlaybackNavHost(
                     )
                 },
                 onNavigateToCatalogSeeAll = { catalogId, addonId, type ->
-                    navController.navigate(Screen.CatalogSeeAll.createRoute(catalogId, addonId, type))
+                    navController.navigate(
+                        Screen.CatalogSeeAll.createRoute(catalogId, addonId, type)
+                    )
                 },
                 onNavigateToFolderDetail = { collectionId, folderId ->
                     navController.navigate(Screen.FolderDetail.createRoute(collectionId, folderId))
@@ -377,7 +404,11 @@ private fun PlaybackNavHost(
             )
         ) { backStackEntry ->
             val detailArgs = backStackEntry.arguments
-            if (ServerCatalog.isCollection(detailArgs?.getString("itemId"), detailArgs?.getString("itemType"))) {
+            if (ServerCatalog.isCollection(
+                    detailArgs?.getString("itemId"),
+                    detailArgs?.getString("itemType")
+                )
+            ) {
                 ServerCatalogDestination(navController, backStackEntry)
                 return@composable
             }
@@ -386,126 +417,191 @@ private fun PlaybackNavHost(
                 ?.getString("returnToHomeOnBack")
                 ?.toBooleanStrictOrNull() == true
             val returnFocusSeason by savedState.getStateFlow(
-                "returnFocusSeason", detailArgs?.getString("returnFocusSeason")?.toIntOrNull()
+                "returnFocusSeason",
+                detailArgs?.getString("returnFocusSeason")?.toIntOrNull()
             ).collectAsState()
             val returnFocusEpisode by savedState.getStateFlow(
-                "returnFocusEpisode", detailArgs?.getString("returnFocusEpisode")?.toIntOrNull()
+                "returnFocusEpisode",
+                detailArgs?.getString("returnFocusEpisode")?.toIntOrNull()
             ).collectAsState()
             val heroRestoreToken by savedState.getStateFlow(
-                "heroRestoreToken", 0
+                "heroRestoreToken",
+                0
             ).collectAsState()
-            val heroBackdropUrl = detailArgs?.getString("heroBackdropUrl")?.takeIf { it.isNotBlank() }
+            val heroBackdropUrl = detailArgs?.getString("heroBackdropUrl")?.takeIf {
+                it.isNotBlank()
+            }
             val playOnLoad = detailArgs?.getString("playOnLoad")?.toBooleanStrictOrNull() == true
-            val manualSelection = detailArgs?.getString("manualSelection")?.toBooleanStrictOrNull() == true
+            val manualSelection =
+                detailArgs?.getString("manualSelection")?.toBooleanStrictOrNull() == true
             DetailChildHost(parentNavController = navController) { childNav ->
-            MetaDetailsScreen(
-                returnFocusSeason = returnFocusSeason,
-                returnFocusEpisode = returnFocusEpisode,
-                heroRestoreToken = heroRestoreToken,
-                heroBackdropUrl = heroBackdropUrl,
-                playOnLoad = playOnLoad,
-                playOnLoadManually = manualSelection,
-                onReturnFocusConsumed = {
-                    savedState["returnFocusSeason"] = null
-                    savedState["returnFocusEpisode"] = null
-                },
-                onBackPress = {
-                    if (returnToHomeOnBack) {
-                        val popped = navController.popBackStack(Screen.Home.route, inclusive = false)
-                        if (!popped) {
-                            navController.navigate(Screen.Home.route) {
-                                launchSingleTop = true
+                MetaDetailsScreen(
+                    returnFocusSeason = returnFocusSeason,
+                    returnFocusEpisode = returnFocusEpisode,
+                    heroRestoreToken = heroRestoreToken,
+                    heroBackdropUrl = heroBackdropUrl,
+                    playOnLoad = playOnLoad,
+                    playOnLoadManually = manualSelection,
+                    onReturnFocusConsumed = {
+                        savedState["returnFocusSeason"] = null
+                        savedState["returnFocusEpisode"] = null
+                    },
+                    onBackPress = {
+                        if (returnToHomeOnBack) {
+                            val popped = navController.popBackStack(
+                                Screen.Home.route,
+                                inclusive = false
+                            )
+                            if (!popped) {
+                                navController.navigate(Screen.Home.route) {
+                                    launchSingleTop = true
+                                }
                             }
+                        } else {
+                            navController.popBackStack()
                         }
-                    } else {
-                        navController.popBackStack()
+                    },
+                    onNavigateToCastDetail = { personId, personName, preferCrew ->
+                        childNav.navigate(
+                            Screen.CastDetail.createRoute(personId, personName, preferCrew)
+                        )
+                    },
+                    onNavigateToTmdbEntityBrowse = { entityKind, entityId, entityName, sourceType ->
+                        childNav.navigate(
+                            Screen.TmdbEntityBrowse.createRoute(
+                                entityKind = entityKind,
+                                entityId = entityId,
+                                entityName = entityName,
+                                sourceType = sourceType
+                            )
+                        )
+                    },
+                    onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
+                        childNav.navigateNestedDetail(itemId, itemType, addonBaseUrl)
+                    },
+                    onPlayClick = {
+                            videoId,
+                            contentType,
+                            contentId,
+                            title,
+                            poster,
+                            backdrop,
+                            logo,
+                            season,
+                            episode,
+                            episodeName,
+                            genres,
+                            year,
+                            runtime,
+                            contentLanguage
+                        ->
+                        navController.navigate(
+                            Screen.Stream.createRoute(
+                                videoId = videoId,
+                                contentType = contentType,
+                                title = title,
+                                poster = poster,
+                                backdrop = backdrop,
+                                logo = logo,
+                                season = season,
+                                episode = episode,
+                                episodeName = episodeName,
+                                genres = genres,
+                                year = year,
+                                contentId = contentId,
+                                contentName = title,
+                                runtime = runtime,
+                                returnToDetailOnBack = contentType.equals(
+                                    "series",
+                                    ignoreCase = true
+                                ),
+                                contentLanguage = contentLanguage
+                            )
+                        )
+                    },
+                    onPlayManuallyClick = {
+                            videoId,
+                            contentType,
+                            contentId,
+                            title,
+                            poster,
+                            backdrop,
+                            logo,
+                            season,
+                            episode,
+                            episodeName,
+                            genres,
+                            year,
+                            runtime,
+                            contentLanguage
+                        ->
+                        navController.navigate(
+                            Screen.Stream.createRoute(
+                                videoId = videoId,
+                                contentType = contentType,
+                                title = title,
+                                poster = poster,
+                                backdrop = backdrop,
+                                logo = logo,
+                                season = season,
+                                episode = episode,
+                                episodeName = episodeName,
+                                genres = genres,
+                                year = year,
+                                contentId = contentId,
+                                contentName = title,
+                                runtime = runtime,
+                                manualSelection = true,
+                                returnToDetailOnBack = contentType.equals(
+                                    "series",
+                                    ignoreCase = true
+                                ),
+                                contentLanguage = contentLanguage
+                            )
+                        )
+                    },
+                    onPlayStartFromBeginningClick = {
+                            videoId,
+                            contentType,
+                            contentId,
+                            title,
+                            poster,
+                            backdrop,
+                            logo,
+                            season,
+                            episode,
+                            episodeName,
+                            genres,
+                            year,
+                            runtime,
+                            contentLanguage
+                        ->
+                        navController.navigate(
+                            Screen.Stream.createRoute(
+                                videoId = videoId,
+                                contentType = contentType,
+                                title = title,
+                                poster = poster,
+                                backdrop = backdrop,
+                                logo = logo,
+                                season = season,
+                                episode = episode,
+                                episodeName = episodeName,
+                                genres = genres,
+                                year = year,
+                                contentId = contentId,
+                                contentName = title,
+                                runtime = runtime,
+                                startFromBeginning = true,
+                                returnToDetailOnBack = contentType.equals(
+                                    "series",
+                                    ignoreCase = true
+                                ),
+                                contentLanguage = contentLanguage
+                            )
+                        )
                     }
-                },
-                onNavigateToCastDetail = { personId, personName, preferCrew ->
-                    childNav.navigate(Screen.CastDetail.createRoute(personId, personName, preferCrew))
-                },
-                onNavigateToTmdbEntityBrowse = { entityKind, entityId, entityName, sourceType ->
-                    childNav.navigate(
-                        Screen.TmdbEntityBrowse.createRoute(
-                            entityKind = entityKind,
-                            entityId = entityId,
-                            entityName = entityName,
-                            sourceType = sourceType
-                        )
-                    )
-                },
-                onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
-                    childNav.navigateNestedDetail(itemId, itemType, addonBaseUrl)
-                },
-                onPlayClick = { videoId, contentType, contentId, title, poster, backdrop, logo, season, episode, episodeName, genres, year, runtime, contentLanguage ->
-                    navController.navigate(
-                        Screen.Stream.createRoute(
-                            videoId = videoId,
-                            contentType = contentType,
-                            title = title,
-                            poster = poster,
-                            backdrop = backdrop,
-                            logo = logo,
-                            season = season,
-                            episode = episode,
-                            episodeName = episodeName,
-                            genres = genres,
-                            year = year,
-                            contentId = contentId,
-                            contentName = title,
-                            runtime = runtime,
-                            returnToDetailOnBack = contentType.equals("series", ignoreCase = true),
-                            contentLanguage = contentLanguage
-                        )
-                    )
-                },
-                onPlayManuallyClick = { videoId, contentType, contentId, title, poster, backdrop, logo, season, episode, episodeName, genres, year, runtime, contentLanguage ->
-                    navController.navigate(
-                        Screen.Stream.createRoute(
-                            videoId = videoId,
-                            contentType = contentType,
-                            title = title,
-                            poster = poster,
-                            backdrop = backdrop,
-                            logo = logo,
-                            season = season,
-                            episode = episode,
-                            episodeName = episodeName,
-                            genres = genres,
-                            year = year,
-                            contentId = contentId,
-                            contentName = title,
-                            runtime = runtime,
-                            manualSelection = true,
-                            returnToDetailOnBack = contentType.equals("series", ignoreCase = true),
-                            contentLanguage = contentLanguage
-                        )
-                    )
-                },
-                onPlayStartFromBeginningClick = { videoId, contentType, contentId, title, poster, backdrop, logo, season, episode, episodeName, genres, year, runtime, contentLanguage ->
-                    navController.navigate(
-                        Screen.Stream.createRoute(
-                            videoId = videoId,
-                            contentType = contentType,
-                            title = title,
-                            poster = poster,
-                            backdrop = backdrop,
-                            logo = logo,
-                            season = season,
-                            episode = episode,
-                            episodeName = episodeName,
-                            genres = genres,
-                            year = year,
-                            contentId = contentId,
-                            contentName = title,
-                            runtime = runtime,
-                            startFromBeginning = true,
-                            returnToDetailOnBack = contentType.equals("series", ignoreCase = true),
-                            contentLanguage = contentLanguage
-                        )
-                    )
-                }
-            )
+                )
             }
         }
 
@@ -608,7 +704,8 @@ private fun PlaybackNavHost(
             val streamArgs = backStackEntry.arguments
             val streamSavedState = backStackEntry.savedStateHandle
             val restoreSourceSelection by streamSavedState.getStateFlow(
-                SOURCE_SELECTION_RESTORE_STATE_KEY, false
+                SOURCE_SELECTION_RESTORE_STATE_KEY,
+                false
             ).collectAsState()
             val returnToDetailOnBack = streamArgs
                 ?.getString("returnToDetailOnBack")
@@ -630,8 +727,12 @@ private fun PlaybackNavHost(
                     val streamContentId = streamArgs?.getString("contentId").orEmpty()
                     val season = streamArgs?.getString("season")?.toIntOrNull()
                     val episode = streamArgs?.getString("episode")?.toIntOrNull()
-                    if (streamContentType.equals("series", ignoreCase = true) && streamContentId.isNotBlank()) {
-                        val detailEntry = runCatching { navController.getBackStackEntry(Screen.Detail.route) }.getOrNull()
+                    if (streamContentType.equals("series", ignoreCase = true) &&
+                        streamContentId.isNotBlank()
+                    ) {
+                        val detailEntry = runCatching {
+                            navController.getBackStackEntry(Screen.Detail.route)
+                        }.getOrNull()
                         if (detailEntry != null) {
                             detailEntry.savedStateHandle["returnFocusSeason"] = season
                             detailEntry.savedStateHandle["returnFocusEpisode"] = episode
@@ -923,7 +1024,10 @@ private fun PlaybackNavHost(
                         previousRoute = previousEntry.destination.route
                     )
                 }
-                val returnedToStream = navController.popBackStack(Screen.Stream.route, inclusive = false)
+                val returnedToStream = navController.popBackStack(
+                    Screen.Stream.route,
+                    inclusive = false
+                )
                 if (returnedToStream && restoreEntry != null) {
                     restoreEntry.savedStateHandle[SOURCE_SELECTION_RESTORE_STATE_KEY] = true
                 }
@@ -957,7 +1061,13 @@ private fun PlaybackNavHost(
             }
 
             PlayerScreen(
-                onBackPress = { currentVideoId, currentSeason, currentEpisode, autoPlayEnabled, playbackCompleted ->
+                onBackPress = {
+                        currentVideoId,
+                        currentSeason,
+                        currentEpisode,
+                        autoPlayEnabled,
+                        playbackCompleted
+                    ->
                     val args = backStackEntry.arguments
                     val initialSeason = args?.getString("season")?.toIntOrNull()
                     val initialEpisode = args?.getString("episode")?.toIntOrNull()
@@ -978,7 +1088,10 @@ private fun PlaybackNavHost(
                                 val itemType = it.arguments?.getString("itemType").orEmpty()
                                 it.destination.route?.startsWith("detail/") == true &&
                                     itemId == contentId &&
-                                    (itemType.isBlank() || contentType.isBlank() || itemType.equals(contentType, ignoreCase = true))
+                                    (
+                                        itemType.isBlank() || contentType.isBlank() ||
+                                            itemType.equals(contentType, ignoreCase = true)
+                                        )
                             }
                         if (detailEntry != null) {
                             detailEntry.savedStateHandle["returnFocusSeason"] = focusSeason
@@ -1006,9 +1119,13 @@ private fun PlaybackNavHost(
                         playbackCompleted && contentId.isNotBlank() -> {
                             returnToDetail()
                         }
+
                         episodeChangedInPlace && autoPlayEnabled -> {
                             // autoplay moved to next episode — skip Stream, go to detail
-                            if (returnToDetailOnBack && contentType.equals("series", ignoreCase = true) && contentId.isNotBlank()) {
+                            if (returnToDetailOnBack &&
+                                contentType.equals("series", ignoreCase = true) &&
+                                contentId.isNotBlank()
+                            ) {
                                 returnToDetail()
                             } else if (
                                 navController.previousBackStackEntry?.destination?.route
@@ -1028,7 +1145,11 @@ private fun PlaybackNavHost(
                                 navController.popBackStack()
                             }
                         }
-                        playerBackOpensCurrentEpisodeStreams(episodeChangedInPlace, autoPlayEnabled) -> {
+
+                        playerBackOpensCurrentEpisodeStreams(
+                            episodeChangedInPlace,
+                            autoPlayEnabled
+                        ) -> {
                             // manual stream switch to next episode — go to Stream of current episode
                             val videoId = currentVideoId ?: args?.getString("videoId").orEmpty()
                             if (videoId.isNotBlank() && contentType.isNotBlank()) {
@@ -1058,10 +1179,14 @@ private fun PlaybackNavHost(
                                 navController.popBackStack()
                             }
                         }
+
                         else -> {
                             val returnedToStream = popBackToStream()
                             if (!returnedToStream) {
-                                if (returnToDetailOnBack && contentType.equals("series", ignoreCase = true) && contentId.isNotBlank()) {
+                                if (returnToDetailOnBack &&
+                                    contentType.equals("series", ignoreCase = true) &&
+                                    contentId.isNotBlank()
+                                ) {
                                     returnToDetail()
                                 } else {
                                     navController.popBackStack()
@@ -1108,7 +1233,13 @@ private fun PlaybackNavHost(
                             if (detailEntry != null) {
                                 detailEntry.savedStateHandle["returnFocusSeason"] = null
                                 detailEntry.savedStateHandle["returnFocusEpisode"] = null
-                                val token = (detailEntry.savedStateHandle.get<Int>("heroRestoreToken") ?: 0) + 1
+                                val token =
+                                    (
+                                        detailEntry.savedStateHandle.get<Int>(
+                                            "heroRestoreToken"
+                                        ) ?: 0
+                                        ) +
+                                        1
                                 detailEntry.savedStateHandle["heroRestoreToken"] = token
                                 navController.popBackStack(Screen.Detail.route, inclusive = false)
                             } else {
@@ -1130,7 +1261,10 @@ private fun PlaybackNavHost(
                                         launchSingleTop = true
                                     }
                                 } else {
-                                    val poppedToStream = navController.popBackStack(Screen.Stream.route, inclusive = true)
+                                    val poppedToStream = navController.popBackStack(
+                                        Screen.Stream.route,
+                                        inclusive = true
+                                    )
                                     if (!poppedToStream) {
                                         navController.popBackStack()
                                     }
@@ -1150,12 +1284,19 @@ private fun PlaybackNavHost(
                                         val itemType = it.arguments?.getString("itemType").orEmpty()
                                         it.destination.route?.startsWith("detail/") == true &&
                                             itemId == contentId &&
-                                            (itemType.isBlank() || contentType.isBlank() || itemType.equals(contentType, ignoreCase = true))
+                                            (
+                                                itemType.isBlank() || contentType.isBlank() ||
+                                                    itemType.equals(contentType, ignoreCase = true)
+                                                )
                                     }
                                 if (detailEntry != null) {
                                     detailEntry.savedStateHandle["returnFocusSeason"] = focusSeason
-                                    detailEntry.savedStateHandle["returnFocusEpisode"] = focusEpisode
-                                    navController.popBackStack(Screen.Detail.route, inclusive = false)
+                                    detailEntry.savedStateHandle["returnFocusEpisode"] =
+                                        focusEpisode
+                                    navController.popBackStack(
+                                        Screen.Detail.route,
+                                        inclusive = false
+                                    )
                                 } else {
                                     navController.navigate(
                                         Screen.Detail.createRoute(
@@ -1173,7 +1314,10 @@ private fun PlaybackNavHost(
                                     }
                                 }
                             } else {
-                                val poppedToStream = navController.popBackStack(Screen.Stream.route, inclusive = true)
+                                val poppedToStream = navController.popBackStack(
+                                    Screen.Stream.route,
+                                    inclusive = true
+                                )
                                 if (!poppedToStream) {
                                     navController.popBackStack()
                                 }
@@ -1257,7 +1401,12 @@ private fun PlaybackNavHost(
                 },
                 onNavigateToSeeAll = { catalogId, addonId, type ->
                     navController.navigate(
-                        Screen.CatalogSeeAll.createRoute(catalogId, addonId, type, fromSearch = true)
+                        Screen.CatalogSeeAll.createRoute(
+                            catalogId,
+                            addonId,
+                            type,
+                            fromSearch = true
+                        )
                     )
                 },
                 onOpenDiscover = { navController.navigate(Screen.Discover.route) }
@@ -1285,10 +1434,14 @@ private fun PlaybackNavHost(
             LibraryScreen(
                 showBuiltInHeader = !hideBuiltInHeaders,
                 onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
-                    navController.navigate(Screen.Detail.createRoute(itemId, itemType, addonBaseUrl))
+                    navController.navigate(
+                        Screen.Detail.createRoute(itemId, itemType, addonBaseUrl)
+                    )
                 },
                 onNavigateToCatalogSeeAll = { catalogId, addonId, type ->
-                    navController.navigate(Screen.CatalogSeeAll.createRoute(catalogId, addonId, type))
+                    navController.navigate(
+                        Screen.CatalogSeeAll.createRoute(catalogId, addonId, type)
+                    )
                 },
                 onCloudPlaybackResolved = { info ->
                     val filename = info.filename ?: info.file.name
@@ -1320,7 +1473,9 @@ private fun PlaybackNavHost(
                 onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
                 onNavigateToPlugins = { navController.navigate(Screen.Plugins.route) },
                 onNavigateToAuthQrSignIn = { navController.navigate(Screen.AuthQrSignIn.route) },
-                onNavigateToManageProfiles = { navController.navigate(Screen.ManageProfiles.route) },
+                onNavigateToManageProfiles = {
+                    navController.navigate(Screen.ManageProfiles.route)
+                },
                 onNavigateToSupportersContributors = {
                     navController.navigate(Screen.SupportersContributors.route)
                 },
@@ -1454,7 +1609,14 @@ private fun PlaybackNavHost(
             com.kien.movies.ui.screens.collection.FolderDetailScreen(
                 onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
                     val heroBackdrop = HeroBackdropState.consumeAndClear()
-                    navController.navigate(Screen.Detail.createRoute(itemId, itemType, addonBaseUrl, heroBackdropUrl = heroBackdrop))
+                    navController.navigate(
+                        Screen.Detail.createRoute(
+                            itemId,
+                            itemType,
+                            addonBaseUrl,
+                            heroBackdropUrl = heroBackdrop
+                        )
+                    )
                 },
                 onBack = { navController.popBackStack() }
             )
@@ -1517,15 +1679,33 @@ private fun PlaybackNavHost(
             // so we share the same data (existing results + pagination)
             val searchBackStackEntry = androidx.compose.runtime.remember(fromSearch) {
                 if (fromSearch) {
-                    try { navController.getBackStackEntry(Screen.Search.route) } catch (_: Exception) { null }
-                } else null
+                    try {
+                        navController.getBackStackEntry(Screen.Search.route)
+                    } catch (
+                        _: Exception
+                    ) {
+                        null
+                    }
+                } else {
+                    null
+                }
             }
             val searchViewModel: com.kien.movies.ui.screens.search.SearchViewModel? =
                 if (searchBackStackEntry != null) {
-                    androidx.hilt.navigation.compose.hiltViewModel<com.kien.movies.ui.screens.search.SearchViewModel>(searchBackStackEntry)
-                } else null
+                    androidx.hilt.navigation.compose.hiltViewModel<com.kien.movies.ui.screens.search.SearchViewModel>(
+                        searchBackStackEntry
+                    )
+                } else {
+                    null
+                }
             val homeBackStackEntry = androidx.compose.runtime.remember {
-                try { navController.getBackStackEntry(Screen.Home.route) } catch (_: Exception) { null }
+                try {
+                    navController.getBackStackEntry(Screen.Home.route)
+                } catch (
+                    _: Exception
+                ) {
+                    null
+                }
             }
             val homeViewModel: com.kien.movies.ui.screens.home.HomeViewModel =
                 if (homeBackStackEntry != null) {
@@ -1541,7 +1721,9 @@ private fun PlaybackNavHost(
                 searchViewModel = searchViewModel,
                 viewModel = homeViewModel,
                 onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
-                    navController.navigate(Screen.Detail.createRoute(itemId, itemType, addonBaseUrl))
+                    navController.navigate(
+                        Screen.Detail.createRoute(itemId, itemType, addonBaseUrl)
+                    )
                 },
                 onBackPress = { navController.popBackStack() }
             )
@@ -1561,7 +1743,9 @@ private fun PlaybackNavHost(
             CastDetailScreen(
                 onBackPress = { navController.popBackStack() },
                 onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
-                    navController.navigate(Screen.Detail.createRoute(itemId, itemType, addonBaseUrl))
+                    navController.navigate(
+                        Screen.Detail.createRoute(itemId, itemType, addonBaseUrl)
+                    )
                 }
             )
         }
@@ -1581,7 +1765,9 @@ private fun PlaybackNavHost(
             TmdbEntityBrowseScreen(
                 onBackPress = { navController.popBackStack() },
                 onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
-                    navController.navigate(Screen.Detail.createRoute(itemId, itemType, addonBaseUrl))
+                    navController.navigate(
+                        Screen.Detail.createRoute(itemId, itemType, addonBaseUrl)
+                    )
                 }
             )
         }

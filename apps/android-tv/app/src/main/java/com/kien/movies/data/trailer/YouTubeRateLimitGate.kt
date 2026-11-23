@@ -6,9 +6,7 @@ package com.kien.movies.data.trailer
  * going, so backing off is the only way out. Each strike doubles the pause, up to
  * [MAX_COOLDOWN_MS]; a successful extraction resets it.
  */
-internal class YouTubeRateLimitGate(
-    private val now: () -> Long = System::currentTimeMillis
-) {
+internal class YouTubeRateLimitGate(private val now: () -> Long = System::currentTimeMillis) {
     private var strikes = 0
     private var blockedUntil = 0L
 

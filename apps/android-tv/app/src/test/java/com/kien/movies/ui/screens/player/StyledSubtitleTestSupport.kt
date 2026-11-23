@@ -8,5 +8,4 @@ internal val StyledSubtitleCues.topText: AnnotatedString
 internal val StyledSubtitleCues.bottomText: AnnotatedString
     get() = textAt(SubtitleVerticalPosition.BOTTOM)
 
-private fun StyledSubtitleCues.textAt(vertical: SubtitleVerticalPosition): AnnotatedString =
-    blocks.filter { it.vertical == vertical }.map { it.text }.joinLines()
+private fun StyledSubtitleCues.textAt(vertical: SubtitleVerticalPosition): AnnotatedString = blocks.filter { it.vertical == vertical }.map { it.text }.joinLines()

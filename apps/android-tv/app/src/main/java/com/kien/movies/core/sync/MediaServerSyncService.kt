@@ -95,15 +95,14 @@ class MediaServerSyncService @Inject constructor(
         }
     }
 
-    private suspend fun runSync(profileId: Int, pushOnly: Boolean): Result<Boolean> =
-        try {
-            Result.success(sync(profileId, pushOnly))
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Exception) {
-            Log.e(TAG, "Media server sync failed for profile $profileId", error)
-            Result.failure(error)
-        }
+    private suspend fun runSync(profileId: Int, pushOnly: Boolean): Result<Boolean> = try {
+        Result.success(sync(profileId, pushOnly))
+    } catch (error: CancellationException) {
+        throw error
+    } catch (error: Exception) {
+        Log.e(TAG, "Media server sync failed for profile $profileId", error)
+        Result.failure(error)
+    }
 
     private suspend fun sync(profileId: Int, pushOnly: Boolean): Boolean {
         if (!canSync(profileId)) return false
@@ -151,22 +150,26 @@ class MediaServerSyncService @Inject constructor(
         }
         repository.markPushed(uploaded)
         if (uploaded.servers.size < snapshot.servers.size) {
-            Log.i(TAG, "Backend refused ${snapshot.servers.size - uploaded.servers.size} media servers; keeping them on this device")
+            Log.i(
+                TAG,
+                "Backend refused ${snapshot.servers.size - uploaded.servers.size} media servers; keeping them on this device"
+            )
         }
-        Log.d(TAG, "Pushed ${uploaded.servers.size} media servers for profile ${uploaded.profileId}")
+        Log.d(
+            TAG,
+            "Pushed ${uploaded.servers.size} media servers for profile ${uploaded.profileId}"
+        )
     }
 
-    private fun canSync(profileId: Int): Boolean =
-        authManager.authState.value is AuthState.FullAccount &&
-            profileManager.activeProfileId.value == profileId
+    private fun canSync(profileId: Int): Boolean = authManager.authState.value is AuthState.FullAccount &&
+        profileManager.activeProfileId.value == profileId
 
-    private suspend fun <T> withJwtRefreshRetry(block: suspend () -> T): T =
-        try {
-            block()
-        } catch (error: Exception) {
-            if (!authManager.refreshSessionIfJwtExpired(error)) throw error
-            block()
-        }
+    private suspend fun <T> withJwtRefreshRetry(block: suspend () -> T): T = try {
+        block()
+    } catch (error: Exception) {
+        if (!authManager.refreshSessionIfJwtExpired(error)) throw error
+        block()
+    }
 
     private companion object {
         const val TAG = "MediaServerSync"

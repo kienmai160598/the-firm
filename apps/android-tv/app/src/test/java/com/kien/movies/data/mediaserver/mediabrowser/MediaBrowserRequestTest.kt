@@ -17,12 +17,12 @@ import com.kien.movies.data.mediaserver.ServerSession
 import com.kien.movies.data.mediaserver.ServerTitleQuery
 import com.kien.movies.data.mediaserver.emby.EmbyProvider
 import com.kien.movies.data.mediaserver.jellyfin.JellyfinProvider
-import org.junit.Test
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
-import kotlinx.coroutines.test.runTest
+import org.junit.Test
 
 class MediaBrowserRequestTest {
     private fun session(providerId: String, address: String) = ServerSession(
@@ -50,7 +50,11 @@ class MediaBrowserRequestTest {
         }
         val jellyfin = JellyfinProvider(http.client, testIdentity)
         val session = session("jellyfin", "https://media.example.com/jellyfin")
-        val libraries = listOf(ServerLibrary("lib1", "Popular", ServerMediaKind.MOVIE), ServerLibrary("lib2", "Trending", ServerMediaKind.MOVIE))
+        val libraries =
+            listOf(
+                ServerLibrary("lib1", "Popular", ServerMediaKind.MOVIE),
+                ServerLibrary("lib2", "Trending", ServerMediaKind.MOVIE)
+            )
 
         val first = jellyfin.search(session, ServerMediaKind.MOVIE, libraries, "heat", 30)
         jellyfin.search(session, ServerMediaKind.MOVIE, libraries, "heat", 30)
@@ -70,9 +74,13 @@ class MediaBrowserRequestTest {
     fun opensLibrariesThatNeedAGenreOnTheirFirstOne() = runTest {
         val http = TestHttp { request ->
             when {
-                request.url.encodedPath.endsWith("/Genres") -> """{"Items": [{"Id": "g1", "Name": "Action"}]}"""
+                request.url.encodedPath.endsWith(
+                    "/Genres"
+                ) -> """{"Items": [{"Id": "g1", "Name": "Action"}]}"""
+
                 request.url.queryParameter("genreIds") == "g1" ->
                     """{"Items": [{"Id": "m1", "Name": "Heat", "Type": "Movie"}], "TotalRecordCount": 60}"""
+
                 else -> """{"Items": [], "TotalRecordCount": 0}"""
             }
         }
@@ -86,7 +94,12 @@ class MediaBrowserRequestTest {
         assertEquals(listOf("Heat"), first.items.map { it.preview.name })
         assertEquals(60, first.totalCount)
         assertEquals(1, http.requests.count { it.url.encodedPath.endsWith("/Genres") })
-        assertEquals("lib1", http.requests.single { it.url.encodedPath.endsWith("/Genres") }.url.queryParameter("parentId"))
+        assertEquals(
+            "lib1",
+            http.requests.single {
+                it.url.encodedPath.endsWith("/Genres")
+            }.url.queryParameter("parentId")
+        )
         assertEquals("g1", http.requests.last().url.queryParameter("genreIds"))
     }
 
@@ -107,7 +120,12 @@ class MediaBrowserRequestTest {
         val libraries = jellyfin.libraries(session)
         jellyfin.libraryPage(session, libraries.last(), start = 0, limit = 50)
 
-        assertEquals(listOf(ServerMediaKind.MOVIE, ServerMediaKind.MIXED), libraries.map { it.kind })
+        assertEquals(
+            listOf(ServerMediaKind.MOVIE, ServerMediaKind.MIXED),
+            libraries.map {
+                it.kind
+            }
+        )
         assertEquals("Movie,Series", http.requests.last().url.queryParameter("includeItemTypes"))
     }
 
@@ -120,14 +138,26 @@ class MediaBrowserRequestTest {
             }
         }
         val jellyfin = JellyfinProvider(http.client, testIdentity)
-        val libraries = listOf(ServerLibrary("lib1", "Movies", ServerMediaKind.MOVIE), ServerLibrary("lib2", "4K", ServerMediaKind.MOVIE))
+        val libraries =
+            listOf(
+                ServerLibrary("lib1", "Movies", ServerMediaKind.MOVIE),
+                ServerLibrary("lib2", "4K", ServerMediaKind.MOVIE)
+            )
 
-        val results = jellyfin.search(session("jellyfin", "https://media.example.com/jellyfin"), ServerMediaKind.MOVIE, libraries, "heat", 30)
+        val results = jellyfin.search(
+            session("jellyfin", "https://media.example.com/jellyfin"),
+            ServerMediaKind.MOVIE,
+            libraries,
+            "heat",
+            30
+        )
 
         assertEquals(listOf("Heat"), results.map { it.preview.name })
         assertEquals(
             setOf("lib1", "lib2"),
-            http.requests.filter { it.url.encodedPath.endsWith("/Items") }.map { it.url.queryParameter("parentId") }.toSet()
+            http.requests.filter {
+                it.url.encodedPath.endsWith("/Items")
+            }.map { it.url.queryParameter("parentId") }.toSet()
         )
     }
 
@@ -140,7 +170,10 @@ class MediaBrowserRequestTest {
                 else -> error("Unexpected ${request.url}")
             }
         }
-        val signIn = EmbyProvider(http.client, testIdentity).signIn("http://den.local:8096/emby/web/index.html", "viewer", "pw")
+        val signIn = EmbyProvider(
+            http.client,
+            testIdentity
+        ).signIn("http://den.local:8096/emby/web/index.html", "viewer", "pw")
 
         assertEquals("http://den.local:8096", signIn.address)
         assertEquals("Den", signIn.serverName)
@@ -158,7 +191,10 @@ class MediaBrowserRequestTest {
 
     @Test
     fun embyRejectsJellyfinServers() = runTest {
-        val http = TestHttp { """{"ServerName": "Den", "Version": "10.10.7", "ProductName": "Jellyfin Server", "Id": "srv"}""" }
+        val http =
+            TestHttp {
+                """{"ServerName": "Den", "Version": "10.10.7", "ProductName": "Jellyfin Server", "Id": "srv"}"""
+            }
         val error = runCatching {
             EmbyProvider(http.client, testIdentity).signIn("http://den.local:8096", "viewer", "pw")
         }.exceptionOrNull() as ServerException
@@ -172,7 +208,9 @@ class MediaBrowserRequestTest {
             when {
                 request.url.encodedPath.endsWith("/Views") ->
                     """{"Items": [{"Id": "lib1", "Name": "Movies", "CollectionType": "movies"}, {"Id": "m", "Name": "Music", "CollectionType": "music"}]}"""
+
                 request.url.encodedPath.endsWith("/Items/Resume") -> """{"Items": []}"""
+
                 else -> ""
             }
         }
@@ -195,7 +233,9 @@ class MediaBrowserRequestTest {
             http.requests.map { "${it.method} ${it.url.toString().substringBefore('?')}" }
         )
         http.requests.forEach { request ->
-            assertTrue(request.header("X-Emby-Authorization").orEmpty().endsWith("Token=\"secret\""))
+            assertTrue(
+                request.header("X-Emby-Authorization").orEmpty().endsWith("Token=\"secret\"")
+            )
             assertNull(request.url.queryParameter("userId"))
         }
     }
@@ -231,11 +271,29 @@ class MediaBrowserRequestTest {
                 "ProviderIds": {"Imdb": "tt0078788", "Tmdb": "28"}}]}"""
         }
         val emby = EmbyProvider(http.client, testIdentity)
-        val query = ServerTitleQuery(TrackingExternalIds(imdb = "tt0078788", tmdb = 28), name = "Apocalypse Now", year = 1979)
+        val query =
+            ServerTitleQuery(
+                TrackingExternalIds(imdb = "tt0078788", tmdb = 28),
+                name = "Apocalypse Now",
+                year = 1979
+            )
 
-        val found = emby.lookupTitle(session("emby", "https://media.example.com"), ServerLibrary("lib1", "Movies", ServerMediaKind.MOVIE), query)
+        val found = emby.lookupTitle(
+            session("emby", "https://media.example.com"),
+            ServerLibrary("lib1", "Movies", ServerMediaKind.MOVIE),
+            query
+        )
 
-        assertEquals(listOf(ServerIndexEntry("m1", TrackingExternalIds(imdb = "tt0078788", tmdb = 28), year = 1979)), found)
+        assertEquals(
+            listOf(
+                ServerIndexEntry(
+                    "m1",
+                    TrackingExternalIds(imdb = "tt0078788", tmdb = 28),
+                    year = 1979
+                )
+            ),
+            found
+        )
         val request = http.requests.single()
         assertEquals("/emby/Users/u1/Items", request.url.encodedPath)
         assertEquals("imdb.tt0078788,tmdb.28", request.url.queryParameter("anyProviderIdEquals"))
@@ -252,19 +310,32 @@ class MediaBrowserRequestTest {
         val emby = EmbyProvider(http.client, testIdentity)
         val query = ServerTitleQuery(TrackingExternalIds(kitsu = 1), name = "Show", year = null)
 
-        assertNull(emby.lookupTitle(session("emby", "https://media.example.com"), ServerLibrary("lib1", "Shows", ServerMediaKind.SERIES), query))
+        assertNull(
+            emby.lookupTitle(
+                session("emby", "https://media.example.com"),
+                ServerLibrary("lib1", "Shows", ServerMediaKind.SERIES),
+                query
+            )
+        )
         assertTrue(http.requests.isEmpty())
     }
 
     @Test
     fun jellyfinLooksUpATitleByName() = runTest {
-        val http = TestHttp { """{"Items": [{"Id": "m1", "ProductionYear": 1979, "ProviderIds": {"Imdb": "tt0078788"}}]}""" }
+        val http =
+            TestHttp {
+                """{"Items": [{"Id": "m1", "ProductionYear": 1979, "ProviderIds": {"Imdb": "tt0078788"}}]}"""
+            }
         val jellyfin = JellyfinProvider(http.client, testIdentity)
         val session = session("jellyfin", "https://media.example.com")
         val library = ServerLibrary("lib1", "Movies", ServerMediaKind.MOVIE)
         val ids = TrackingExternalIds(imdb = "tt0078788")
 
-        val found = jellyfin.lookupTitle(session, library, ServerTitleQuery(ids, name = "Apocalypse Now", year = 1979))
+        val found = jellyfin.lookupTitle(
+            session,
+            library,
+            ServerTitleQuery(ids, name = "Apocalypse Now", year = 1979)
+        )
 
         assertEquals(listOf(ServerIndexEntry("m1", ids, year = 1979)), found)
         val request = http.requests.single()
@@ -275,7 +346,9 @@ class MediaBrowserRequestTest {
         assertEquals("20", request.url.queryParameter("limit"))
         assertNull(request.url.queryParameter("anyProviderIdEquals"))
 
-        assertNull(jellyfin.lookupTitle(session, library, ServerTitleQuery(ids, name = null, year = null)))
+        assertNull(
+            jellyfin.lookupTitle(session, library, ServerTitleQuery(ids, name = null, year = null))
+        )
         assertEquals(1, http.requests.size)
     }
 
@@ -293,16 +366,33 @@ class MediaBrowserRequestTest {
         val library = ServerLibrary("lib1", "Movies", ServerMediaKind.MOVIE)
         val ids = TrackingExternalIds(imdb = "tt1675434")
 
-        val found = jellyfin.lookupTitle(session, library, ServerTitleQuery(ids, "The Intouchables", 2011, originalName = "Intouchables"))!!
+        val found = jellyfin.lookupTitle(
+            session,
+            library,
+            ServerTitleQuery(ids, "The Intouchables", 2011, originalName = "Intouchables")
+        )!!
 
         assertTrue(ServerIndexEntry("m1", ids, year = 2011) in found)
-        assertEquals(listOf("The Intouchables", "Intouchables"), http.requests.map { it.url.queryParameter("searchTerm") })
+        assertEquals(
+            listOf("The Intouchables", "Intouchables"),
+            http.requests.map {
+                it.url.queryParameter("searchTerm")
+            }
+        )
 
-        jellyfin.lookupTitle(session, library, ServerTitleQuery(ids, "Intouchables", 2011, originalName = "The Intouchables"))
+        jellyfin.lookupTitle(
+            session,
+            library,
+            ServerTitleQuery(ids, "Intouchables", 2011, originalName = "The Intouchables")
+        )
         assertEquals(3, http.requests.size)
         jellyfin.lookupTitle(session, library, ServerTitleQuery(ids, "The Intouchables", 2011))
         assertEquals(4, http.requests.size)
-        jellyfin.lookupTitle(session, library, ServerTitleQuery(ids, "The Intouchables", 2011, originalName = " the intouchables "))
+        jellyfin.lookupTitle(
+            session,
+            library,
+            ServerTitleQuery(ids, "The Intouchables", 2011, originalName = " the intouchables ")
+        )
         assertEquals(5, http.requests.size)
     }
 
@@ -310,9 +400,19 @@ class MediaBrowserRequestTest {
     fun embyAsksOnceWhateverTheOriginalTitle() = runTest {
         val http = TestHttp { """{"Items": []}""" }
         val emby = EmbyProvider(http.client, testIdentity)
-        val query = ServerTitleQuery(TrackingExternalIds(imdb = "tt1675434"), "The Intouchables", 2011, originalName = "Intouchables")
+        val query =
+            ServerTitleQuery(
+                TrackingExternalIds(imdb = "tt1675434"),
+                "The Intouchables",
+                2011,
+                originalName = "Intouchables"
+            )
 
-        val found = emby.lookupTitle(session("emby", "https://media.example.com"), ServerLibrary("lib1", "Movies", ServerMediaKind.MOVIE), query)
+        val found = emby.lookupTitle(
+            session("emby", "https://media.example.com"),
+            ServerLibrary("lib1", "Movies", ServerMediaKind.MOVIE),
+            query
+        )
 
         assertTrue(found!!.isEmpty())
         assertEquals(1, http.requests.size)
@@ -328,7 +428,10 @@ class MediaBrowserRequestTest {
         val target = ServerPlaybackTarget(ServerItemRef("cabc", "i1"), mediaSourceId = "ms1")
 
         jellyfin.preparePlayback(session, ServerPlaybackRequest(target, ServerPlayerCapabilities()))
-        jellyfin.preparePlayback(session, ServerPlaybackRequest(target, ServerPlayerCapabilities(allowDirectPlay = false)))
+        jellyfin.preparePlayback(
+            session,
+            ServerPlaybackRequest(target, ServerPlayerCapabilities(allowDirectPlay = false))
+        )
 
         val (direct, fallback) = http.requests
         assertEquals("1000000000", direct.url.queryParameter("maxStreamingBitrate"))
@@ -340,19 +443,30 @@ class MediaBrowserRequestTest {
 
     @Test
     fun transcodesToHevcWithDolbyAudioAndBurnsInPgs() = runTest {
-        val http = TestHttp { """{"PlaySessionId": "ps1", "MediaSources": [{"Id": "ms1", "TranscodingUrl": "/videos/i1/master.m3u8"}]}""" }
+        val http =
+            TestHttp {
+                """{"PlaySessionId": "ps1", "MediaSources": [{"Id": "ms1", "TranscodingUrl": "/videos/i1/master.m3u8"}]}"""
+            }
         val jellyfin = JellyfinProvider(http.client, testIdentity)
         val target = ServerPlaybackTarget(ServerItemRef("cabc", "i1"), mediaSourceId = "ms1")
 
         jellyfin.preparePlayback(
             session("jellyfin", "https://media.example.com/jellyfin"),
-            ServerPlaybackRequest(target, ServerPlayerCapabilities(allowDirectPlay = false), subtitleStreamIndex = 3)
+            ServerPlaybackRequest(
+                target,
+                ServerPlayerCapabilities(allowDirectPlay = false),
+                subtitleStreamIndex = 3
+            )
         )
 
         val request = http.requests.single()
         assertEquals("3", request.url.queryParameter("subtitleStreamIndex"))
         assertTrue(request.text.contains("\"SubtitleStreamIndex\":3"))
-        assertTrue(request.text.contains("\"VideoCodec\":\"hevc,h264\",\"AudioCodec\":\"ac3,eac3,aac,mp3\""))
+        assertTrue(
+            request.text.contains(
+                "\"VideoCodec\":\"hevc,h264\",\"AudioCodec\":\"ac3,eac3,aac,mp3\""
+            )
+        )
         assertTrue(request.text.contains("\"MaxAudioChannels\":\"8\""))
         assertTrue(request.text.contains("{\"Format\":\"pgssub\",\"Method\":\"Encode\"}"))
     }
@@ -376,7 +490,15 @@ class MediaBrowserRequestTest {
                 audioStreamIndex = 2
             )
         )
-        emby.report(session, playback, ServerPlaybackEvent(ServerPlaybackEventType.PROGRESS, positionMs = 1_500, isPaused = false))
+        emby.report(
+            session,
+            playback,
+            ServerPlaybackEvent(
+                ServerPlaybackEventType.PROGRESS,
+                positionMs = 1_500,
+                isPaused = false
+            )
+        )
 
         val info = http.requests[0]
         assertEquals("/emby/Items/i1/PlaybackInfo", info.url.encodedPath)
@@ -387,7 +509,9 @@ class MediaBrowserRequestTest {
         assertTrue(info.text.contains("\"IsPlayback\":true"))
         assertTrue(info.text.contains("{\"Format\":\"subrip\",\"Method\":\"Embed\"}"))
         assertTrue(info.text.contains("{\"Format\":\"subrip\",\"Method\":\"External\"}"))
-        assertTrue(playback.url.startsWith("https://media.example.com/emby/Videos/i1/stream?static=true"))
+        assertTrue(
+            playback.url.startsWith("https://media.example.com/emby/Videos/i1/stream?static=true")
+        )
         val report = http.requests[1]
         assertEquals("/emby/Sessions/Playing/Progress", report.url.encodedPath)
         assertTrue(report.text.contains("\"PositionTicks\":15000000"))

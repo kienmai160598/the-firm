@@ -13,7 +13,10 @@ class TraktTrackingListManagerTest {
     @Test
     fun `shared management preserves Trakt privacy descriptions and list ordering`() = runTest {
         val service = mockk<TraktLibraryService>(relaxed = true)
-        val manager = TraktTrackingLibraryProvider(service, mockk<TraktAuthDataStore>(relaxed = true)).listManager
+        val manager = TraktTrackingLibraryProvider(
+            service,
+            mockk<TraktAuthDataStore>(relaxed = true)
+        ).listManager
         assertTrue(manager.capabilities.supportsDescription)
         assertTrue(manager.capabilities.supportsReordering)
         assertEquals(LibraryListPrivacy.entries, manager.capabilities.privacyOptions)
@@ -31,8 +34,15 @@ class TraktTrackingListManagerTest {
     @Test
     fun `Trakt manager rejects MDBList keys before calling Trakt`() = runTest {
         val service = mockk<TraktLibraryService>(relaxed = true)
-        val manager = TraktTrackingLibraryProvider(service, mockk<TraktAuthDataStore>(relaxed = true)).listManager
-        assertTrue(runCatching { manager.deleteList("mdblist:list:7") }.exceptionOrNull() is IllegalArgumentException)
+        val manager = TraktTrackingLibraryProvider(
+            service,
+            mockk<TraktAuthDataStore>(relaxed = true)
+        ).listManager
+        assertTrue(
+            runCatching {
+                manager.deleteList("mdblist:list:7")
+            }.exceptionOrNull() is IllegalArgumentException
+        )
         coVerify(exactly = 0) { service.deletePersonalList(any()) }
     }
 }

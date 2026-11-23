@@ -3,10 +3,10 @@ package com.kien.movies.core.diagnostics
 import io.sentry.Breadcrumb
 import io.sentry.Sentry
 import io.sentry.SentryLevel
+import java.io.IOException
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.Response
-import java.io.IOException
 
 class SentryNetworkBreadcrumbInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {

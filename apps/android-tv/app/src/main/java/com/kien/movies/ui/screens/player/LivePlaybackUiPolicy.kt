@@ -39,7 +39,13 @@ object LivePlaybackUiPolicy {
         val current = if (previous.mediaKey == mediaKey) previous else DurationGrowth(mediaKey)
         if (!fromRequestedMedia || durationMs <= 0L || current.grew) return current
         if (current.firstDurationMs == 0L) return current.copy(firstDurationMs = durationMs)
-        return if (durationMs > current.firstDurationMs + LIVE_DURATION_GROWTH_MS) current.copy(grew = true) else current
+        return if (durationMs >
+            current.firstDurationMs + LIVE_DURATION_GROWTH_MS
+        ) {
+            current.copy(grew = true)
+        } else {
+            current
+        }
     }
 
     /** Growth past the first reading that marks a live stream (a VOD's duration only settles by a little). */
@@ -66,11 +72,7 @@ class LivePlaybackWatchClock {
         segmentStartedAtElapsedMs = null
     }
 
-    fun watchedDurationMs(
-        isLive: Boolean,
-        isPlaying: Boolean,
-        nowElapsedMs: Long
-    ): Long {
+    fun watchedDurationMs(isLive: Boolean, isPlaying: Boolean, nowElapsedMs: Long): Long {
         if (!isLive) {
             if (accumulatedMs != 0L || segmentStartedAtElapsedMs != null) {
                 reset()

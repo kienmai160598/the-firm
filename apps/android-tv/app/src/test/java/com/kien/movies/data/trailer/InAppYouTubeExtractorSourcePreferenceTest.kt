@@ -11,7 +11,11 @@ class InAppYouTubeExtractorSourcePreferenceTest {
     @Test
     fun `trailers try separate video and audio first, then HLS, then progressive`() {
         assertEquals(
-            listOf(PlaybackSourceKind.ADAPTIVE, PlaybackSourceKind.HLS_MANIFEST, PlaybackSourceKind.PROGRESSIVE),
+            listOf(
+                PlaybackSourceKind.ADAPTIVE,
+                PlaybackSourceKind.HLS_MANIFEST,
+                PlaybackSourceKind.PROGRESSIVE
+            ),
             extractor.sourcePreference(singleUrl = false)
         )
     }

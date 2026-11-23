@@ -33,7 +33,13 @@ class CachedSourceRefreshCandidateTest {
         fileIdx = null,
         externalUrl = null,
         behaviorHints = filename?.let {
-            StreamBehaviorHints(notWebReady = null, bingeGroup = null, countryWhitelist = null, proxyHeaders = null, filename = it)
+            StreamBehaviorHints(
+                notWebReady = null,
+                bingeGroup = null,
+                countryWhitelist = null,
+                proxyHeaders = null,
+                filename = it
+            )
         },
         addonName = addonName,
         addonLogo = null,
@@ -44,14 +50,20 @@ class CachedSourceRefreshCandidateTest {
     fun torrentThatNeedsDebridResolveIsACandidate() {
         val torrent = stream(infoHash = "abc")
 
-        assertEquals(torrent, findCachedSourceRefreshCandidate(listOf(torrent), failedUrl, expected))
+        assertEquals(
+            torrent,
+            findCachedSourceRefreshCandidate(listOf(torrent), failedUrl, expected)
+        )
     }
 
     @Test
     fun preparedDebridStreamWithTheFailedUrlIsStillACandidate() {
         val prepared = stream(url = failedUrl, infoHash = "abc", debridResolved = true)
 
-        assertEquals(prepared, findCachedSourceRefreshCandidate(listOf(prepared), failedUrl, expected))
+        assertEquals(
+            prepared,
+            findCachedSourceRefreshCandidate(listOf(prepared), failedUrl, expected)
+        )
     }
 
     @Test

@@ -1,12 +1,12 @@
 package com.kien.movies.ui.screens.player.audiosync
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import java.util.ArrayDeque
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 import java.util.concurrent.RejectedExecutionException
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class ReferenceFetcherTest {
     /** Runs queued work only when asked, like a pool whose threads are all busy. */
@@ -24,7 +24,7 @@ class ReferenceFetcherTest {
         normal: Executor,
         urgent: Executor,
         parsed: ConcurrentHashMap<String, List<String>> = ConcurrentHashMap(),
-        download: (String) -> List<String>,
+        download: (String) -> List<String>
     ) = ReferenceFetcher(normal, urgent, parsed, download)
 
     @Test
@@ -46,7 +46,10 @@ class ReferenceFetcherTest {
     fun aFileIsDownloadedOnceForEveryoneWaiting() {
         val executor = ManualExecutor()
         var downloads = 0
-        val fetcher = fetcher(executor, executor) { downloads++; listOf("cue") }
+        val fetcher = fetcher(executor, executor) {
+            downloads++
+            listOf("cue")
+        }
         val received = mutableListOf<String>()
         fetcher.fetch("a", onReady = { received += "first" })
         fetcher.fetch("a", onReady = { received += "second" })
@@ -82,7 +85,15 @@ class ReferenceFetcherTest {
         val urgent = ManualExecutor()
         val parsed = ConcurrentHashMap<String, List<String>>()
         var attempt = 0
-        val fetcher = fetcher(busy, urgent, parsed) { if (attempt++ == 0) emptyList() else listOf("cue") }
+        val fetcher = fetcher(busy, urgent, parsed) {
+            if (attempt++ ==
+                0
+            ) {
+                emptyList()
+            } else {
+                listOf("cue")
+            }
+        }
         val received = mutableListOf<List<String>>()
         fetcher.fetch("english", onReady = { received += it })
         fetcher.fetch("english", urgent = true) { received += it }

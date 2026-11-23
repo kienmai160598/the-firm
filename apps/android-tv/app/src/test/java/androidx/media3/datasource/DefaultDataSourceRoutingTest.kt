@@ -9,13 +9,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
-import org.junit.After
-import org.junit.Before
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import java.net.ServerSocket
 import kotlin.concurrent.thread
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
 
 class DefaultDataSourceRoutingTest {
 
@@ -48,9 +48,9 @@ class DefaultDataSourceRoutingTest {
 
         val expectedDataLength = 12345L
         val responseHeaders = "HTTP/1.1 200 OK\r\n" +
-                "Content-Length: $expectedDataLength\r\n" +
-                "Connection: close\r\n" +
-                "\r\n"
+            "Content-Length: $expectedDataLength\r\n" +
+            "Connection: close\r\n" +
+            "\r\n"
 
         var connectionAccepted = false
         val serverThread = thread {
@@ -86,7 +86,7 @@ class DefaultDataSourceRoutingTest {
         try {
             val openedLength = defaultDataSource.open(dataSpec)
             serverThread.join(3000)
-            
+
             // If it routed to LocalhostZeroCopyDataSource, it connected to the socket
             // and parsed Content-Length from headers.
             assertEquals(expectedDataLength, openedLength)

@@ -16,7 +16,9 @@ class StaleRevalidationTest {
     @Test
     fun `etag or last-modified allows a conditional revalidation`() {
         assertTrue(cachedResponseCanRevalidate(etag = "\"abc\"", lastModified = null))
-        assertTrue(cachedResponseCanRevalidate(etag = null, lastModified = "Wed, 07 Oct 2026 04:55:13 GMT"))
+        assertTrue(
+            cachedResponseCanRevalidate(etag = null, lastModified = "Wed, 07 Oct 2026 04:55:13 GMT")
+        )
     }
 
     @Test
@@ -28,7 +30,7 @@ class StaleRevalidationTest {
                 cachedLastModified = null,
                 responseCode = 304,
                 responseEtag = null,
-                responseLastModified = null,
+                responseLastModified = null
             )
         )
         assertEquals(
@@ -38,7 +40,7 @@ class StaleRevalidationTest {
                 cachedLastModified = "Wed, 07 Oct 2026 04:55:13 GMT",
                 responseCode = 200,
                 responseEtag = "\"abc\"",
-                responseLastModified = "Thu, 08 Oct 2026 12:00:00 GMT",
+                responseLastModified = "Thu, 08 Oct 2026 12:00:00 GMT"
             )
         )
         assertEquals(
@@ -48,7 +50,7 @@ class StaleRevalidationTest {
                 cachedLastModified = "Wed, 07 Oct 2026 04:55:13 GMT",
                 responseCode = 200,
                 responseEtag = null,
-                responseLastModified = "Wed, 07 Oct 2026 04:55:13 GMT",
+                responseLastModified = "Wed, 07 Oct 2026 04:55:13 GMT"
             )
         )
     }
@@ -62,7 +64,7 @@ class StaleRevalidationTest {
                 cachedLastModified = null,
                 responseCode = 200,
                 responseEtag = null,
-                responseLastModified = null,
+                responseLastModified = null
             )
         )
         assertEquals(
@@ -72,7 +74,7 @@ class StaleRevalidationTest {
                 cachedLastModified = null,
                 responseCode = 200,
                 responseEtag = null,
-                responseLastModified = null,
+                responseLastModified = null
             )
         )
         assertEquals(
@@ -82,7 +84,7 @@ class StaleRevalidationTest {
                 cachedLastModified = null,
                 responseCode = 404,
                 responseEtag = "\"other\"",
-                responseLastModified = null,
+                responseLastModified = null
             )
         )
     }
@@ -96,7 +98,7 @@ class StaleRevalidationTest {
                 cachedLastModified = null,
                 responseCode = 200,
                 responseEtag = "\"def\"",
-                responseLastModified = null,
+                responseLastModified = null
             )
         )
         assertEquals(
@@ -106,7 +108,7 @@ class StaleRevalidationTest {
                 cachedLastModified = "Wed, 07 Oct 2026 04:55:13 GMT",
                 responseCode = 200,
                 responseEtag = null,
-                responseLastModified = "Thu, 08 Oct 2026 12:00:00 GMT",
+                responseLastModified = "Thu, 08 Oct 2026 12:00:00 GMT"
             )
         )
     }

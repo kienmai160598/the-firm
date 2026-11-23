@@ -36,7 +36,13 @@ class WatchedAsOneItemTest {
         assertFalse(meta(ContentType.SERIES).isWatchedAsOneItem())
         assertFalse(meta(ContentType.TV).isWatchedAsOneItem())
         assertFalse(meta(ContentType.UNKNOWN, rawType = "anime").isWatchedAsOneItem())
-        assertFalse(meta(ContentType.UNKNOWN, rawType = "other", videos = listOf(video())).isWatchedAsOneItem())
+        assertFalse(
+            meta(
+                ContentType.UNKNOWN,
+                rawType = "other",
+                videos = listOf(video())
+            ).isWatchedAsOneItem()
+        )
     }
 
     private fun meta(

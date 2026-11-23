@@ -64,7 +64,8 @@ class WatchStateSyncServiceTest {
         val mutationStore = mockk<WatchStateMutationStore>(relaxed = true)
         val calls = mutableListOf<Pair<String, JsonObject>>()
         coEvery { mutationStore.pendingProgressDeletes(3) } returns setOf("removed")
-        coEvery { mutationStore.pendingProgressUpserts(3) } returns mapOf("saved" to progress("saved"))
+        coEvery { mutationStore.pendingProgressUpserts(3) } returns
+            mapOf("saved" to progress("saved"))
         coEvery { postgrest.rpc(any(), any<JsonObject>()) } coAnswers {
             calls += firstArg<String>() to secondArg<JsonObject>()
             mockk<PostgrestResult>(relaxed = true)
@@ -111,7 +112,8 @@ class WatchStateSyncServiceTest {
         val calls = mutableListOf<Pair<String, JsonObject>>()
         val pending = watched("pending")
         coEvery { mutationStore.pendingWatchedDeletes(2) } returns emptySet()
-        coEvery { mutationStore.pendingWatchedUpserts(2) } returns mapOf(pending.mutationKey() to pending)
+        coEvery { mutationStore.pendingWatchedUpserts(2) } returns
+            mapOf(pending.mutationKey() to pending)
         coEvery { postgrest.rpc(any(), any<JsonObject>()) } coAnswers {
             calls += firstArg<String>() to secondArg<JsonObject>()
             mockk<PostgrestResult>(relaxed = true)

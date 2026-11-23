@@ -3,10 +3,10 @@ package com.kien.movies.core.torrent
 import android.content.Context
 import android.os.SystemClock
 import android.util.Log
+import com.kien.movies.R
 import com.nuvio.engine.NuvioEngine
 import com.nuvio.engine.NuvioEventType
 import com.nuvio.engine.NuvioStream
-import com.kien.movies.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.util.concurrent.atomic.AtomicReference
@@ -50,10 +50,7 @@ class TorrentService @Inject constructor(
         val diskCacheCapacityBytes: Long
     )
 
-    private data class DetachedStream(
-        val engine: NuvioEngine?,
-        val streamId: String?
-    )
+    private data class DetachedStream(val engine: NuvioEngine?, val streamId: String?)
 
     private val _state = MutableStateFlow<TorrentState>(TorrentState.Idle)
     val state: StateFlow<TorrentState> = _state.asStateFlow()
@@ -67,10 +64,13 @@ class TorrentService @Inject constructor(
     private var cleanupJob: Job? = null
     private var engineEventsJob: Job? = null
     private var streamGeneration = 0L
+
     @Volatile
     private var currentTorrentId: String? = null
+
     @Volatile
     private var currentStreamId: String? = null
+
     @Volatile
     private var engine: NuvioEngine? = null
     private var engineConfigurationKey: EngineConfigurationKey? = null
@@ -88,7 +88,9 @@ class TorrentService @Inject constructor(
 
     suspend fun clearCache(): TorrentCacheClearResult = withContext(Dispatchers.IO) {
         startMutex.withLock {
-            check(_state.value !is TorrentState.Streaming && _state.value !is TorrentState.Connecting) {
+            check(
+                _state.value !is TorrentState.Streaming && _state.value !is TorrentState.Connecting
+            ) {
                 "Torrent cache cannot be cleared during active playback"
             }
             _cacheState.value = _cacheState.value.copy(isClearing = true)
@@ -160,7 +162,11 @@ class TorrentService @Inject constructor(
                 resolvedEngine.addMagnet(magnetUri).also { knownTorrentIds += it }
             }
             ensureCurrentGeneration(generation)
-            logPhase(startedAtMs, phase.get(), "torrent=${diagnosticId(torrentId)} cached=$reusedTorrent")
+            logPhase(
+                startedAtMs,
+                phase.get(),
+                "torrent=${diagnosticId(torrentId)} cached=$reusedTorrent"
+            )
 
             phase.set("prepare_stream")
             val stream = resolvedEngine.prepareStream(
@@ -172,7 +178,9 @@ class TorrentService @Inject constructor(
             logPhase(
                 startedAtMs,
                 phase.get(),
-                "stream=${diagnosticId(stream.id)} selectedFile=${stream.fileIndex} fileBytes=${stream.fileSize}"
+                "stream=${diagnosticId(
+                    stream.id
+                )} selectedFile=${stream.fileIndex} fileBytes=${stream.fileSize}"
             )
             currentCoroutineContext().ensureActive()
 
@@ -210,9 +218,18 @@ class TorrentService @Inject constructor(
             logPhase(startedAtMs, "route_ready", "generation=$generation")
             stream.url
         } catch (cancellation: CancellationException) {
-            Log.w(TorrentDiagnosticTag, "start phase=${phase.get()} cancelled elapsedMs=${elapsedSince(startedAtMs)}")
+            Log.w(
+                TorrentDiagnosticTag,
+                "start phase=${phase.get()} cancelled elapsedMs=${elapsedSince(startedAtMs)}"
+            )
             withContext(NonCancellable) {
-                cleanupFailedStart(generation, activeEngine, preparedStream, attached, TorrentState.Idle)
+                cleanupFailedStart(
+                    generation,
+                    activeEngine,
+                    preparedStream,
+                    attached,
+                    TorrentState.Idle
+                )
             }
             throw cancellation
         } catch (error: Exception) {
@@ -224,7 +241,13 @@ class TorrentService @Inject constructor(
             )
             val terminalState = TorrentState.Error(error.message ?: unknownErrorMessage())
             withContext(NonCancellable) {
-                cleanupFailedStart(generation, activeEngine, preparedStream, attached, terminalState)
+                cleanupFailedStart(
+                    generation,
+                    activeEngine,
+                    preparedStream,
+                    attached,
+                    terminalState
+                )
             }
             throw error
         } finally {
@@ -348,7 +371,10 @@ class TorrentService @Inject constructor(
             engineConfigurationKey = configurationKey
             engineCacheCapacityBytes = capacityBytes
             observeEngineEvents(created)
-            Log.i(TAG, "Using Movies Engine ${NuvioEngine.version} (${NuvioEngine.protocolBackendVersion})")
+            Log.i(
+                TAG,
+                "Using Movies Engine ${NuvioEngine.version} (${NuvioEngine.protocolBackendVersion})"
+            )
         }
     }
 
@@ -390,7 +416,10 @@ class TorrentService @Inject constructor(
         }
         knownTorrentIds.retainAll(setOf(torrentId))
 
-        Log.i(TorrentDiagnosticTag, "cacheBudget makeRoom torrent=${diagnosticId(torrentId)} $outcome")
+        Log.i(
+            TorrentDiagnosticTag,
+            "cacheBudget makeRoom torrent=${diagnosticId(torrentId)} $outcome"
+        )
     }
 
     private fun reclaimTargetBytes(torrentId: String): Long {
@@ -445,8 +474,12 @@ class TorrentService @Inject constructor(
             activeEngine.events.collect { event ->
                 Log.i(
                     TorrentDiagnosticTag,
-                    "event type=${event.type} requestId=${event.requestId} torrent=${diagnosticId(event.torrentId)} " +
-                        "stream=${diagnosticId(event.streamId)} message=${diagnosticMessage(event.message)}"
+                    "event type=${event.type} requestId=${event.requestId} torrent=${diagnosticId(
+                        event.torrentId
+                    )} " +
+                        "stream=${diagnosticId(
+                            event.streamId
+                        )} message=${diagnosticMessage(event.message)}"
                 )
                 if (engine !== activeEngine) return@collect
                 when (event.type) {
@@ -463,6 +496,7 @@ class TorrentService @Inject constructor(
                         statsJob = null
                         _state.value = error
                     }
+
                     NuvioEventType.StreamStopped -> synchronized(lifecycleLock) {
                         if (engine !== activeEngine) return@synchronized
                         val error = unexpectedStreamStopError(
@@ -479,6 +513,7 @@ class TorrentService @Inject constructor(
                         statsJob = null
                         _state.value = error
                     }
+
                     else -> Unit
                 }
             }
@@ -511,7 +546,9 @@ class TorrentService @Inject constructor(
                         nextSampleAtMs = nowMs + SAMPLE_INTERVAL_MS
                         Log.i(
                             TorrentDiagnosticTag,
-                            "sample stream=${diagnosticId(stream.id)} ${aggregate.diagnosticSummary()} " +
+                            "sample stream=${diagnosticId(
+                                stream.id
+                            )} ${aggregate.diagnosticSummary()} " +
                                 route.diagnosticSummary()
                         )
                     }
@@ -523,7 +560,10 @@ class TorrentService @Inject constructor(
                             seeds = aggregate.connectedSeeds,
                             bufferProgress = route?.bufferProgress ?: latest.bufferProgress,
                             totalProgress = route?.fileProgress ?: latest.totalProgress,
-                            downloadedBytes = (aggregate.totalPayloadDownloadBytes - payloadDownloadBaseline)
+                            downloadedBytes = (
+                                aggregate.totalPayloadDownloadBytes -
+                                    payloadDownloadBaseline
+                                )
                                 .coerceAtLeast(0L),
                             verifiedBytes = route?.verifiedFileBytes ?: latest.verifiedBytes,
                             deliveredBytes = route?.deliveredBytes ?: latest.deliveredBytes
@@ -552,7 +592,10 @@ class TorrentService @Inject constructor(
                     seeds = aggregate.connectedSeeds
                 )
             )
-            Log.i(TorrentDiagnosticTag, "startupSample phase=${phase.get()} ${aggregate.diagnosticSummary()}")
+            Log.i(
+                TorrentDiagnosticTag,
+                "startupSample phase=${phase.get()} ${aggregate.diagnosticSummary()}"
+            )
             delay(SAMPLE_INTERVAL_MS)
         }
     }
@@ -571,12 +614,11 @@ class TorrentService @Inject constructor(
         streamGeneration
     }
 
-    private fun updateConnectingIfCurrent(generation: Long, state: TorrentState.Connecting) =
-        synchronized(lifecycleLock) {
-            if (streamGeneration == generation && _state.value is TorrentState.Connecting) {
-                _state.value = state
-            }
+    private fun updateConnectingIfCurrent(generation: Long, state: TorrentState.Connecting) = synchronized(lifecycleLock) {
+        if (streamGeneration == generation && _state.value is TorrentState.Connecting) {
+            _state.value = state
         }
+    }
 
     private fun attachStreamIfCurrent(
         generation: Long,
@@ -607,8 +649,7 @@ class TorrentService @Inject constructor(
         _state.value = update(current)
     }
 
-    private fun isCurrentGeneration(generation: Long): Boolean =
-        synchronized(lifecycleLock) { streamGeneration == generation }
+    private fun isCurrentGeneration(generation: Long): Boolean = synchronized(lifecycleLock) { streamGeneration == generation }
 
     private fun ensureCurrentGeneration(generation: Long) {
         if (!isCurrentGeneration(generation)) {
@@ -619,9 +660,11 @@ class TorrentService @Inject constructor(
     private fun unknownErrorMessage(): String = context.getString(R.string.error_unknown)
 
     private fun logPhase(startedAtMs: Long, phase: String, detail: String) {
-        Log.i(TorrentDiagnosticTag, "start phase=$phase complete elapsedMs=${elapsedSince(startedAtMs)} $detail")
+        Log.i(
+            TorrentDiagnosticTag,
+            "start phase=$phase complete elapsedMs=${elapsedSince(startedAtMs)} $detail"
+        )
     }
 
-    private fun elapsedSince(startedAtMs: Long): Long =
-        (SystemClock.elapsedRealtime() - startedAtMs).coerceAtLeast(0L)
+    private fun elapsedSince(startedAtMs: Long): Long = (SystemClock.elapsedRealtime() - startedAtMs).coerceAtLeast(0L)
 }

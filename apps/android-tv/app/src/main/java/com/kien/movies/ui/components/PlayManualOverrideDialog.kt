@@ -52,8 +52,11 @@ fun PlayManualOverrideDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .then(
-                        if (!showPlayManually) Modifier.focusRequester(primaryFocusRequester)
-                        else Modifier
+                        if (!showPlayManually) {
+                            Modifier.focusRequester(primaryFocusRequester)
+                        } else {
+                            Modifier
+                        }
                     )
             ) {
                 Text(

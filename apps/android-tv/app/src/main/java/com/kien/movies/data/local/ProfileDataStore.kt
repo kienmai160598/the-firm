@@ -2,28 +2,31 @@ package com.kien.movies.data.local
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.kien.movies.R
 import com.kien.movies.domain.model.UserProfile
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 private val Context.profileDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "profile_settings",
     corruptionHandler = ReplaceFileCorruptionHandler { ex ->
-        android.util.Log.e("ProfileDataStore", "DataStore corrupted: ${ex.message} — resetting to empty")
+        android.util.Log.e(
+            "ProfileDataStore",
+            "DataStore corrupted: ${ex.message} — resetting to empty"
+        )
         emptyPreferences()
     }
 )
@@ -38,11 +41,15 @@ class ProfileDataStore @Inject constructor(
     private val profilesJsonKey = stringPreferencesKey("profiles_json")
     private val activeProfileIdKey = intPreferencesKey("active_profile_id")
     private val hasEverSelectedProfileKey = booleanPreferencesKey("profile_has_ever_selected")
-    private val rememberLastProfileEnabledKey = booleanPreferencesKey("remember_last_profile_enabled")
+    private val rememberLastProfileEnabledKey =
+        booleanPreferencesKey("remember_last_profile_enabled")
     private val confirmExitEnabledKey = booleanPreferencesKey("confirm_exit_enabled")
     private val startupSplashEnabledKey = booleanPreferencesKey("startup_splash_enabled")
 
-    private val profileListType = Types.newParameterizedType(List::class.java, ProfileJson::class.java)
+    private val profileListType = Types.newParameterizedType(
+        List::class.java,
+        ProfileJson::class.java
+    )
 
     val profilesList: Flow<List<UserProfile>> = dataStore.data.map { prefs ->
         val json = prefs[profilesJsonKey]

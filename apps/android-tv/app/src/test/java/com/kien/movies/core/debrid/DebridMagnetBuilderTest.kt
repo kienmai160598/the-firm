@@ -11,19 +11,30 @@ class DebridMagnetBuilderTest {
     fun `fromStream builds magnet link using infoHash when present`() {
         val stream = stream(infoHash = "1234567890123456789012345678901234567890")
         val magnet = DebridMagnetBuilder.fromStream(stream)
-        assertEquals("magnet:?xt=urn:btih:1234567890123456789012345678901234567890&dn=Torrent.mkv", magnet)
+        assertEquals(
+            "magnet:?xt=urn:btih:1234567890123456789012345678901234567890&dn=Torrent.mkv",
+            magnet
+        )
     }
 
     @Test
     fun `fromStream extracts infoHash from torrent url when infoHash is null`() {
-        val stream = stream(url = "torrent://1234567890123456789012345678901234567890/0", infoHash = null)
+        val stream =
+            stream(url = "torrent://1234567890123456789012345678901234567890/0", infoHash = null)
         val magnet = DebridMagnetBuilder.fromStream(stream)
-        assertEquals("magnet:?xt=urn:btih:1234567890123456789012345678901234567890&dn=Torrent.mkv", magnet)
+        assertEquals(
+            "magnet:?xt=urn:btih:1234567890123456789012345678901234567890&dn=Torrent.mkv",
+            magnet
+        )
     }
 
     @Test
     fun `fromStream extracts infoHash from magnet url when infoHash is null`() {
-        val stream = stream(url = "magnet:?xt=urn:btih:1234567890123456789012345678901234567890&dn=Test", infoHash = null)
+        val stream =
+            stream(
+                url = "magnet:?xt=urn:btih:1234567890123456789012345678901234567890&dn=Test",
+                infoHash = null
+            )
         val magnet = DebridMagnetBuilder.fromStream(stream)
         assertEquals("magnet:?xt=urn:btih:1234567890123456789012345678901234567890&dn=Test", magnet)
     }
@@ -39,24 +50,23 @@ class DebridMagnetBuilderTest {
         name: String = "Torrent",
         url: String? = null,
         infoHash: String? = null
-    ): Stream =
-        Stream(
-            name = name,
-            title = name,
-            description = null,
-            url = url,
-            ytId = null,
-            infoHash = infoHash,
-            fileIdx = null,
-            externalUrl = null,
-            behaviorHints = StreamBehaviorHints(
-                notWebReady = null,
-                bingeGroup = null,
-                countryWhitelist = null,
-                proxyHeaders = null,
-                filename = "$name.mkv"
-            ),
-            addonName = "Addon",
-            addonLogo = null
-        )
+    ): Stream = Stream(
+        name = name,
+        title = name,
+        description = null,
+        url = url,
+        ytId = null,
+        infoHash = infoHash,
+        fileIdx = null,
+        externalUrl = null,
+        behaviorHints = StreamBehaviorHints(
+            notWebReady = null,
+            bingeGroup = null,
+            countryWhitelist = null,
+            proxyHeaders = null,
+            filename = "$name.mkv"
+        ),
+        addonName = "Addon",
+        addonLogo = null
+    )
 }

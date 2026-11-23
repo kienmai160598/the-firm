@@ -62,7 +62,11 @@ class LibraryServersViewModel @Inject constructor(
     private suspend fun shelf(ref: ServerLibraryRef): LibraryServerShelf {
         val key = "${ref.connection.id}:${ref.library.id}"
         return try {
-            LibraryServerShelf(key, ref.title, row = serverCatalog.row(ref.connection.id, ref.library.id))
+            LibraryServerShelf(
+                key,
+                ref.title,
+                row = serverCatalog.row(ref.connection.id, ref.library.id)
+            )
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {

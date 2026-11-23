@@ -13,11 +13,15 @@ class MdbListHistoryService @Inject constructor(
     private val api: MdbListApiClient,
     private val sync: MdbListSyncRepository
 ) {
-    suspend fun add(scope: MdbListAuthScope, items: Collection<TrackingHistoryItem>): TrackingMutationResult =
-        change(scope, items.toList(), remove = false)
+    suspend fun add(
+        scope: MdbListAuthScope,
+        items: Collection<TrackingHistoryItem>
+    ): TrackingMutationResult = change(scope, items.toList(), remove = false)
 
-    suspend fun remove(scope: MdbListAuthScope, items: Collection<TrackingMediaReference>): TrackingMutationResult =
-        change(scope, items.map { TrackingHistoryItem(it) }, remove = true)
+    suspend fun remove(
+        scope: MdbListAuthScope,
+        items: Collection<TrackingMediaReference>
+    ): TrackingMutationResult = change(scope, items.map { TrackingHistoryItem(it) }, remove = true)
 
     private suspend fun change(
         scope: MdbListAuthScope,
@@ -29,34 +33,62 @@ class MdbListHistoryService @Inject constructor(
         failed += items.size - resolvable.size
         for (batch in resolvable.chunked(100)) {
             val result = sync.write(scope, setOf(MdbListSyncBucket.WATCHED)) { snapshot ->
-                val projection = sync.currentProjection().takeIf { it !== MdbListProgressProjection.Empty }
+                val projection = sync.currentProjection().takeIf {
+                    it !==
+                        MdbListProgressProjection.Empty
+                }
                 val index = projection?.mediaIndex ?: MdbListMediaIndex(snapshot)
                 val mapped = batch.mapNotNull { item ->
                     snapshot.mutationTarget(item.media, projection, index)?.let { target ->
-                        MdbListHistoryChange(target, if (remove) null else Instant.ofEpochMilli(
-                            item.watchedAtEpochMs ?: System.currentTimeMillis()
-                        ).toString())
+                        MdbListHistoryChange(
+                            target,
+                            if (remove) {
+                                null
+                            } else {
+                                Instant.ofEpochMilli(
+                                    item.watchedAtEpochMs ?: System.currentTimeMillis()
+                                ).toString()
+                            }
+                        )
                     }
                 }
                 val changes = mapped.distinctBy { it.target.key }
-                if (changes.isEmpty()) return@write snapshot to TrackingMutationResult(batch.size, batch.size)
+                if (changes.isEmpty()) {
+                    return@write snapshot to
+                        TrackingMutationResult(batch.size, batch.size)
+                }
                 val response = api.post(
                     if (remove) "/sync/watched/remove" else "/sync/watched",
-                    mdbListHistoryPayload(changes), scope,
+                    mdbListHistoryPayload(changes),
+                    scope,
                     query = if (remove) emptyMap() else mapOf("report_added" to "true")
                 )
                 val receipt = decodeMdbListHistoryReceipt(response.body, changes, remove)
                 val watched = if (remove && receipt.complete) {
-                    snapshot.watched.filterNot { record -> changes.any { change ->
-                        change.target.matches(record) || change.target.type == MdbListItemType.SHOW &&
-                            record.type != MdbListItemType.MOVIE && change.target.media.ids.matches(record.media.ids)
-                    } }
+                    snapshot.watched.filterNot { record ->
+                        changes.any { change ->
+                            change.target.matches(record) ||
+                                change.target.type == MdbListItemType.SHOW &&
+                                record.type != MdbListItemType.MOVIE &&
+                                change.target.media.ids.matches(record.media.ids)
+                        }
+                    }
                 } else {
                     val confirmedTargets = receipt.confirmed.map { record ->
-                        MdbListMutationTarget(record.type, record.media, record.season, record.episode,
-                            record.episodeTitle, record.episodeTmdbId, record.episodeTvdbId)
+                        MdbListMutationTarget(
+                            record.type,
+                            record.media,
+                            record.season,
+                            record.episode,
+                            record.episodeTitle,
+                            record.episodeTmdbId,
+                            record.episodeTvdbId
+                        )
                     }
-                    snapshot.watched.filterNot { record -> confirmedTargets.any { it.matches(record) } } + receipt.confirmed
+                    snapshot.watched.filterNot { record ->
+                        confirmedTargets.any { it.matches(record) }
+                    } +
+                        receipt.confirmed
                 }
                 val next = snapshot.copy(
                     watched = watched,
@@ -65,12 +97,18 @@ class MdbListHistoryService @Inject constructor(
                 ).normalizeMedia()
                 next to TrackingMutationResult(
                     attemptedCount = batch.size,
-                    notFoundCount = (batch.size - mapped.size + receipt.notFoundCount).coerceAtMost(batch.size)
+                    notFoundCount = (batch.size - mapped.size + receipt.notFoundCount).coerceAtMost(
+                        batch.size
+                    )
                 )
             }
             failed += result.notFoundCount
         }
-        if (sync.currentSnapshot()?.invalidatedBuckets?.isNotEmpty() == true) sync.refreshAsync(TrackingRefreshIntent.INVALIDATED)
+        if (sync.currentSnapshot()?.invalidatedBuckets?.isNotEmpty() ==
+            true
+        ) {
+            sync.refreshAsync(TrackingRefreshIntent.INVALIDATED)
+        }
         return TrackingMutationResult(items.size, failed)
     }
 }

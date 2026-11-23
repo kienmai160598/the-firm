@@ -20,7 +20,7 @@ internal fun imageNetworkIsOnline(
     activeNetworkPresent: Boolean,
     capabilitiesPresent: Boolean,
     hasInternet: Boolean,
-    isVpn: Boolean,
+    isVpn: Boolean
 ): Boolean {
     if (!activeNetworkPresent || !capabilitiesPresent) return false
     return hasInternet || isVpn
@@ -38,11 +38,11 @@ internal fun imageConnectivityChecker(context: Context): ConnectivityChecker {
 @OptIn(ExperimentalCoilApi::class)
 internal fun imageNetworkFetcherFactory(
     callFactory: () -> Call.Factory = ::OkHttpClient,
-    cacheStrategy: () -> CacheStrategy = { CacheStrategy.DEFAULT },
+    cacheStrategy: () -> CacheStrategy = { CacheStrategy.DEFAULT }
 ) = OkHttpNetworkFetcherFactory(
     callFactory = callFactory,
     cacheStrategy = cacheStrategy,
-    connectivityChecker = ::imageConnectivityChecker,
+    connectivityChecker = ::imageConnectivityChecker
 )
 
 private fun ConnectivityManager.imageNetworkIsOnline(): Boolean {
@@ -51,7 +51,8 @@ private fun ConnectivityManager.imageNetworkIsOnline(): Boolean {
     return imageNetworkIsOnline(
         activeNetworkPresent = network != null,
         capabilitiesPresent = capabilities != null,
-        hasInternet = capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true,
-        isVpn = capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_VPN) == true,
+        hasInternet =
+            capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true,
+        isVpn = capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_VPN) == true
     )
 }

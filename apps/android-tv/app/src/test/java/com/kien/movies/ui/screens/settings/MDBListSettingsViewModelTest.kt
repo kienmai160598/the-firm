@@ -99,7 +99,8 @@ class MDBListSettingsViewModelTest {
         vm.enterRatingMoveMode("imdb")
         assertNull(vm.uiState.value.movingRatingKey)
 
-        preferences.value = MDBListSettings(enabled = true, ratingOrder = listOf("imdb", "trakt"))
+        preferences.value =
+            MDBListSettings(enabled = true, ratingOrder = listOf("imdb", "trakt"))
         runCurrent()
         vm.enterRatingMoveMode("unknown")
         assertNull(vm.uiState.value.movingRatingKey)
@@ -163,7 +164,8 @@ class MDBListSettingsViewModelTest {
         assertTrue(vm.uiState.value.showOnHero)
 
         writeGate.complete(Unit)
-        preferences.value = preferences.value.copy(ratingOrder = listOf("trakt", "imdb", "tmdb"))
+        preferences.value =
+            preferences.value.copy(ratingOrder = listOf("trakt", "imdb", "tmdb"))
         runCurrent()
 
         assertEquals(listOf("trakt", "imdb", "tmdb"), vm.uiState.value.ratingOrder)
@@ -183,10 +185,13 @@ class MDBListSettingsViewModelTest {
         }
         val (vm, _, _) = createViewModel(preferences, store = store)
         val vmStore = ViewModelStore()
-        ViewModelProvider(vmStore, object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T = vm as T
-        })[MDBListSettingsViewModel::class.java]
+        ViewModelProvider(
+            vmStore,
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T = vm as T
+            }
+        )[MDBListSettingsViewModel::class.java]
         runCurrent()
 
         vm.enterRatingMoveMode("imdb")

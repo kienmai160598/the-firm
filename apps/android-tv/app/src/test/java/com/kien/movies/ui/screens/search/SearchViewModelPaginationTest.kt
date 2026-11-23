@@ -106,7 +106,9 @@ class SearchViewModelPaginationTest {
         advanceUntilIdle()
 
         assertEquals("alpha", viewModel.uiState.value.submittedQuery)
-        val titles = viewModel.uiState.value.catalogRows.flatMap { row -> row.items.map { it.name } }
+        val titles = viewModel.uiState.value.catalogRows.flatMap { row ->
+            row.items.map { it.name }
+        }
         assertFalse(
             "a page from the previous query merged into the current rows: $titles",
             titles.any { it.startsWith("wolf page") }
@@ -114,9 +116,7 @@ class SearchViewModelPaginationTest {
     }
 
     /** Answers every query, recording what it was asked for and paging indefinitely. */
-    private class RecordingCatalogRepository(
-        private val pageDelayMs: Long = 0L
-    ) : CatalogRepository {
+    private class RecordingCatalogRepository(private val pageDelayMs: Long = 0L) : CatalogRepository {
         val queries = mutableListOf<String>()
 
         override fun getCatalog(
@@ -199,7 +199,8 @@ class SearchViewModelPaginationTest {
         )
 
         val layoutPreferences = mockk<LayoutPreferenceDataStore>()
-        every { layoutPreferences.discoverLocation } returns flowOf(com.kien.movies.domain.model.DiscoverLocation.OFF)
+        every { layoutPreferences.discoverLocation } returns
+            flowOf(com.kien.movies.domain.model.DiscoverLocation.OFF)
         every { layoutPreferences.posterCardWidthDp } returns flowOf(126)
         every { layoutPreferences.posterLabelsEnabled } returns flowOf(true)
         every { layoutPreferences.catalogAddonNameEnabled } returns flowOf(true)

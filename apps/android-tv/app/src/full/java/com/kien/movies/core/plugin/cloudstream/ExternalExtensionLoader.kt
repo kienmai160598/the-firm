@@ -3,29 +3,29 @@ package com.kien.movies.core.plugin.cloudstream
 import android.content.Context
 import android.os.Build
 import android.util.Log
-import com.lagradost.cloudstream3.AcraApplication
+import com.kien.movies.core.network.IPv4FirstDns
+import com.kien.movies.core.plugin.TestDiagnostics
 import com.lagradost.cloudstream3.APIHolder
+import com.lagradost.cloudstream3.AcraApplication
 import com.lagradost.cloudstream3.MainAPI
 import com.lagradost.cloudstream3.plugins.BasePlugin
-import com.lagradost.cloudstream3.plugins.Plugin
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
+import com.lagradost.cloudstream3.plugins.Plugin
 import com.lagradost.cloudstream3.utils.ExtractorApi
 import com.lagradost.cloudstream3.utils.extractorApis
-import com.kien.movies.core.plugin.TestDiagnostics
-import dalvik.system.DexClassLoader
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import com.kien.movies.core.network.IPv4FirstDns
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.json.JSONObject
+import dalvik.system.DexClassLoader
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
 
 private const val TAG = "ExtExtensionLoader"
 
@@ -94,7 +94,10 @@ private class ReflectivePluginWrapper(private val foreignInstance: Any) : Plugin
         } catch (e: java.lang.reflect.InvocationTargetException) {
             val cause = e.cause
             if (cause is ClassCastException) {
-                Log.d(TAG, "ReflectivePluginWrapper: load(Context) got ClassCastException, retrying with null Activity")
+                Log.d(
+                    TAG,
+                    "ReflectivePluginWrapper: load(Context) got ClassCastException, retrying with null Activity"
+                )
                 try {
                     val m = clazz.getMethod("load", android.app.Activity::class.java)
                     m.invoke(foreignInstance, null)
@@ -103,7 +106,10 @@ private class ReflectivePluginWrapper(private val foreignInstance: Any) : Plugin
                     Log.w(TAG, "ReflectivePluginWrapper: load(Activity) also failed: ${e2.message}")
                 }
             } else {
-                Log.w(TAG, "ReflectivePluginWrapper: load(Context) threw: ${cause?.message ?: e.message}")
+                Log.w(
+                    TAG,
+                    "ReflectivePluginWrapper: load(Context) threw: ${cause?.message ?: e.message}"
+                )
             }
         } catch (_: NoSuchMethodException) {
             // Try load(Activity?) next
@@ -131,6 +137,7 @@ private class ReflectivePluginWrapper(private val foreignInstance: Any) : Plugin
         // First try reading local registration lists (our Plugin pattern)
         try {
             val getter = clazz.getMethod("getRegisteredMainAPIs")
+
             @Suppress("UNCHECKED_CAST")
             val apis = getter.invoke(foreignInstance) as? List<MainAPI> ?: emptyList()
             apis.forEach { registerMainAPI(it) }
@@ -141,13 +148,17 @@ private class ReflectivePluginWrapper(private val foreignInstance: Any) : Plugin
                 APIHolder.allProviders.toList()
             } - providersBefore.toSet()
             if (newProviders.isNotEmpty()) {
-                Log.d(TAG, "ReflectivePluginWrapper: found ${newProviders.size} providers via APIHolder")
+                Log.d(
+                    TAG,
+                    "ReflectivePluginWrapper: found ${newProviders.size} providers via APIHolder"
+                )
                 newProviders.forEach { registerMainAPI(it) }
             }
         }
 
         try {
             val getter = clazz.getMethod("getRegisteredExtractorAPIs")
+
             @Suppress("UNCHECKED_CAST")
             val extractors = getter.invoke(foreignInstance) as? List<ExtractorApi> ?: emptyList()
             extractors.forEach { registerExtractorAPI(it) }
@@ -155,7 +166,10 @@ private class ReflectivePluginWrapper(private val foreignInstance: Any) : Plugin
             // Check global extractorApis for newly registered extractors
             val newExtractors = extractorApis.toList() - extractorsBefore.toSet()
             if (newExtractors.isNotEmpty()) {
-                Log.d(TAG, "ReflectivePluginWrapper: found ${newExtractors.size} extractors via extractorApis")
+                Log.d(
+                    TAG,
+                    "ReflectivePluginWrapper: found ${newExtractors.size} extractors via extractorApis"
+                )
                 newExtractors.forEach { registerExtractorAPI(it) }
             }
         }
@@ -186,7 +200,9 @@ class ExternalExtensionLoader @Inject constructor(
     private val classLoaderCache = ConcurrentHashMap<String, DexClassLoader>()
 
     /** Tracks which scraper IDs have already been scanned for extractors */
-    private val extractorPreloadedIds = java.util.Collections.synchronizedSet(mutableSetOf<String>())
+    private val extractorPreloadedIds = java.util.Collections.synchronizedSet(
+        mutableSetOf<String>()
+    )
 
     private val extensionsDir: File
         get() = File(context.filesDir, "cs_extensions").also { it.mkdirs() }
@@ -195,8 +211,7 @@ class ExternalExtensionLoader @Inject constructor(
         get() = File(context.codeCacheDir, "cs_dex_cache").also { it.mkdirs() }
 
     /** Sanitize scraper ID for use as a filename (colons are not safe on all filesystems). */
-    private fun safeFileName(scraperId: String): String =
-        scraperId.replace(':', '_').replace('/', '_')
+    private fun safeFileName(scraperId: String): String = scraperId.replace(':', '_').replace('/', '_')
 
     /**
      * Download a .cs3 DEX file for the given scraper.
@@ -246,7 +261,10 @@ class ExternalExtensionLoader @Inject constructor(
                     Log.d(TAG, "Set DEX file read-only for API ${Build.VERSION.SDK_INT}")
                 }
 
-                Log.d(TAG, "Downloaded extension $scraperId: ${bytes.size} bytes -> ${targetFile.absolutePath}")
+                Log.d(
+                    TAG,
+                    "Downloaded extension $scraperId: ${bytes.size} bytes -> ${targetFile.absolutePath}"
+                )
                 targetFile
             }
         } catch (e: Exception) {
@@ -289,9 +307,9 @@ class ExternalExtensionLoader @Inject constructor(
                 inspectDex.close()
                 val criticalShadows = allEntries.filter { className ->
                     className == "com.lagradost.cloudstream3.MainActivityKt" ||
-                    className == "com.lagradost.cloudstream3.MainAPIKt" ||
-                    className == "com.lagradost.cloudstream3.utils.ExtractorApiKt" ||
-                    className == "com.lagradost.cloudstream3.utils.AppUtilsKt"
+                        className == "com.lagradost.cloudstream3.MainAPIKt" ||
+                        className == "com.lagradost.cloudstream3.utils.ExtractorApiKt" ||
+                        className == "com.lagradost.cloudstream3.utils.AppUtilsKt"
                 }
                 if (criticalShadows.isNotEmpty()) {
                     Log.w(TAG, "Extension $scraperId shadows critical classes: $criticalShadows")
@@ -318,13 +336,25 @@ class ExternalExtensionLoader @Inject constructor(
             try {
                 plugin.load((activity as Context?) ?: context)
             } catch (e: Exception) {
-                Log.w(TAG, "plugin.load() threw (partial load, ${plugin.registeredMainAPIs.size} APIs so far): ${e.message}", e)
+                Log.w(
+                    TAG,
+                    "plugin.load() threw (partial load, ${plugin.registeredMainAPIs.size} APIs so far): ${e.message}",
+                    e
+                )
             } catch (e: Error) {
                 val missingClass = extractMissingClassName(e)
                 if (missingClass != null) {
-                    Log.w(TAG, "plugin.load() MISSING CLASS: $missingClass (${plugin.registeredMainAPIs.size} APIs so far)", e)
+                    Log.w(
+                        TAG,
+                        "plugin.load() MISSING CLASS: $missingClass (${plugin.registeredMainAPIs.size} APIs so far)",
+                        e
+                    )
                 } else {
-                    Log.w(TAG, "plugin.load() linkage error (partial load, ${plugin.registeredMainAPIs.size} APIs so far): ${e.message}", e)
+                    Log.w(
+                        TAG,
+                        "plugin.load() linkage error (partial load, ${plugin.registeredMainAPIs.size} APIs so far): ${e.message}",
+                        e
+                    )
                 }
             }
 
@@ -332,11 +362,17 @@ class ExternalExtensionLoader @Inject constructor(
             extractorRegistry.registerAll(plugin.registeredExtractorAPIs)
 
             var apis = plugin.registeredMainAPIs
-            Log.d(TAG, "After load(): ${apis.size} MainAPIs, ${plugin.registeredExtractorAPIs.size} extractors")
+            Log.d(
+                TAG,
+                "After load(): ${apis.size} MainAPIs, ${plugin.registeredExtractorAPIs.size} extractors"
+            )
 
             // FALLBACK: If load() registered 0 APIs or 0 extractors, scan DEX directly.
             if (apis.isEmpty() || plugin.registeredExtractorAPIs.isEmpty()) {
-                Log.d(TAG, "Fallback: scanning DEX for MainAPI/ExtractorApi subclasses in $scraperId")
+                Log.d(
+                    TAG,
+                    "Fallback: scanning DEX for MainAPI/ExtractorApi subclasses in $scraperId"
+                )
                 val fallbackApis = mutableListOf<MainAPI>()
                 val fallbackExtractors = mutableListOf<ExtractorApi>()
                 try {
@@ -347,26 +383,31 @@ class ExternalExtensionLoader @Inject constructor(
 
                     val candidates = allClasses.filter { className ->
                         !className.contains('$') &&
-                        !className.contains("Plugin") &&
-                        !className.contains("Fragment") &&
-                        className.startsWith("com.")
+                            !className.contains("Plugin") &&
+                            !className.contains("Fragment") &&
+                            className.startsWith("com.")
                     }
 
                     for (className in candidates) {
                         try {
                             val clazz = classLoader.loadClass(className)
-                            if (apis.isEmpty()
-                                && MainAPI::class.java.isAssignableFrom(clazz)
-                                && !java.lang.reflect.Modifier.isAbstract(clazz.modifiers)
-                                && !clazz.isInterface) {
+                            if (apis.isEmpty() &&
+                                MainAPI::class.java.isAssignableFrom(clazz) &&
+                                !java.lang.reflect.Modifier.isAbstract(clazz.modifiers) &&
+                                !clazz.isInterface
+                            ) {
                                 val instance = clazz.getDeclaredConstructor().newInstance() as MainAPI
                                 fallbackApis.add(instance)
                                 Log.d(TAG, "Fallback found MainAPI: ${instance.name} ($className)")
-                            } else if (ExtractorApi::class.java.isAssignableFrom(clazz)
-                                && !java.lang.reflect.Modifier.isAbstract(clazz.modifiers)) {
+                            } else if (ExtractorApi::class.java.isAssignableFrom(clazz) &&
+                                !java.lang.reflect.Modifier.isAbstract(clazz.modifiers)
+                            ) {
                                 val instance = clazz.getDeclaredConstructor().newInstance() as ExtractorApi
                                 fallbackExtractors.add(instance)
-                                Log.d(TAG, "Fallback found ExtractorApi: ${instance.name} (${instance.mainUrl})")
+                                Log.d(
+                                    TAG,
+                                    "Fallback found ExtractorApi: ${instance.name} (${instance.mainUrl})"
+                                )
                             }
                         } catch (e: Error) {
                             val missing = extractMissingClassName(e)
@@ -400,7 +441,12 @@ class ExternalExtensionLoader @Inject constructor(
                 apiCache[scraperId] = apis.first()
             }
 
-            Log.d(TAG, "Loaded extension $scraperId: ${apis.size} providers (${apis.joinToString { it.name }})")
+            Log.d(
+                TAG,
+                "Loaded extension $scraperId: ${apis.size} providers (${apis.joinToString {
+                    it.name
+                }})"
+            )
             apis
         } catch (e: Exception) {
             Log.e(TAG, "Failed to load extension $scraperId: ${e.message}", e)
@@ -408,7 +454,11 @@ class ExternalExtensionLoader @Inject constructor(
         } catch (e: Error) {
             val missingClass = extractMissingClassName(e)
             if (missingClass != null) {
-                Log.e(TAG, "Failed to load extension $scraperId: MISSING CLASS: $missingClass (${e.javaClass.simpleName})", e)
+                Log.e(
+                    TAG,
+                    "Failed to load extension $scraperId: MISSING CLASS: $missingClass (${e.javaClass.simpleName})",
+                    e
+                )
             } else {
                 Log.e(TAG, "Failed to load extension $scraperId (linkage error): ${e.message}", e)
             }
@@ -429,7 +479,10 @@ class ExternalExtensionLoader @Inject constructor(
     /**
      * Load extension with diagnostic output.
      */
-    fun loadExtensionWithDiagnostics(scraperId: String, diagnostics: TestDiagnostics): List<MainAPI> {
+    fun loadExtensionWithDiagnostics(
+        scraperId: String,
+        diagnostics: TestDiagnostics
+    ): List<MainAPI> {
         apiCache[scraperId]?.let {
             diagnostics.addStep("MainAPI cached: ${it.name}")
             return listOf(it)
@@ -478,7 +531,9 @@ class ExternalExtensionLoader @Inject constructor(
             }
 
             val sameClass = plugin.javaClass.superclass == Plugin::class.java
-            diagnostics.addStep("Plugin: ${plugin.javaClass.simpleName}, sameBaseClass=$sameClass, isWrapper=${plugin is ReflectivePluginWrapper}")
+            diagnostics.addStep(
+                "Plugin: ${plugin.javaClass.simpleName}, sameBaseClass=$sameClass, isWrapper=${plugin is ReflectivePluginWrapper}"
+            )
 
             AcraApplication.context = context
             extractorRegistry.installGlobal()
@@ -488,7 +543,9 @@ class ExternalExtensionLoader @Inject constructor(
                 plugin.load((activity as Context?) ?: context)
                 diagnostics.addStep("load(Context): OK, ${plugin.registeredMainAPIs.size} APIs")
             } catch (e: Exception) {
-                diagnostics.addStep("load() FAILED: ${e.javaClass.simpleName}: ${e.message?.take(120)}")
+                diagnostics.addStep(
+                    "load() FAILED: ${e.javaClass.simpleName}: ${e.message?.take(120)}"
+                )
             } catch (e: Error) {
                 val missing = extractMissingClassName(e)
                 diagnostics.addStep("load() ERROR: ${missing ?: e.message?.take(120)}")
@@ -499,43 +556,53 @@ class ExternalExtensionLoader @Inject constructor(
             var apis = plugin.registeredMainAPIs
 
             if (apis.isEmpty() || plugin.registeredExtractorAPIs.isEmpty()) {
-                diagnostics.addStep("Fallback: scanning DEX for MainAPI + ExtractorApi subclasses...")
+                diagnostics.addStep(
+                    "Fallback: scanning DEX for MainAPI + ExtractorApi subclasses..."
+                )
                 val fallbackApis = mutableListOf<MainAPI>()
                 val fallbackExtractors = mutableListOf<ExtractorApi>()
                 val candidates = allClasses.filter { className ->
                     !className.contains('$') &&
-                    !className.contains("Plugin") &&
-                    !className.contains("Fragment") &&
-                    className.startsWith("com.")
+                        !className.contains("Plugin") &&
+                        !className.contains("Fragment") &&
+                        className.startsWith("com.")
                 }
 
                 for (className in candidates) {
                     try {
                         val clazz = classLoader.loadClass(className)
-                        if (apis.isEmpty()
-                            && MainAPI::class.java.isAssignableFrom(clazz)
-                            && !java.lang.reflect.Modifier.isAbstract(clazz.modifiers)
-                            && !clazz.isInterface) {
+                        if (apis.isEmpty() &&
+                            MainAPI::class.java.isAssignableFrom(clazz) &&
+                            !java.lang.reflect.Modifier.isAbstract(clazz.modifiers) &&
+                            !clazz.isInterface
+                        ) {
                             val instance = clazz.getDeclaredConstructor().newInstance() as MainAPI
                             fallbackApis.add(instance)
                             diagnostics.addStep("Found API: ${instance.name} (${clazz.simpleName})")
-                        } else if (ExtractorApi::class.java.isAssignableFrom(clazz)
-                            && !java.lang.reflect.Modifier.isAbstract(clazz.modifiers)) {
+                        } else if (ExtractorApi::class.java.isAssignableFrom(clazz) &&
+                            !java.lang.reflect.Modifier.isAbstract(clazz.modifiers)
+                        ) {
                             val instance = clazz.getDeclaredConstructor().newInstance() as ExtractorApi
                             fallbackExtractors.add(instance)
-                            diagnostics.addStep("Found Extractor: ${instance.name} (${instance.mainUrl})")
+                            diagnostics.addStep(
+                                "Found Extractor: ${instance.name} (${instance.mainUrl})"
+                            )
                         }
                     } catch (e: Error) {
                         val missing = extractMissingClassName(e)
                         if (missing != null) {
-                            diagnostics.addStep("${className.substringAfterLast('.')}: MISSING $missing")
+                            diagnostics.addStep(
+                                "${className.substringAfterLast('.')}: MISSING $missing"
+                            )
                         }
                     } catch (e: Exception) {
                         val cause = e.cause ?: e
                         if (cause is Error) {
                             val missing = extractMissingClassName(cause as Error)
                             if (missing != null) {
-                                diagnostics.addStep("${className.substringAfterLast('.')}: MISSING $missing")
+                                diagnostics.addStep(
+                                    "${className.substringAfterLast('.')}: MISSING $missing"
+                                )
                             }
                         }
                     }
@@ -630,8 +697,8 @@ class ExternalExtensionLoader @Inject constructor(
                     if (className.contains('$')) continue
                     try {
                         val clazz = classLoader.loadClass(className)
-                        if (ExtractorApi::class.java.isAssignableFrom(clazz)
-                            && !java.lang.reflect.Modifier.isAbstract(clazz.modifiers)
+                        if (ExtractorApi::class.java.isAssignableFrom(clazz) &&
+                            !java.lang.reflect.Modifier.isAbstract(clazz.modifiers)
                         ) {
                             val instance = clazz.getDeclaredConstructor().newInstance() as ExtractorApi
                             extractorRegistry.registerExtractor(instance)
@@ -648,7 +715,10 @@ class ExternalExtensionLoader @Inject constructor(
             }
         }
 
-        Log.d(TAG, "ensureExtractorsLoaded: scanned $totalScanned .cs3 files, registered $totalExtractors extractors")
+        Log.d(
+            TAG,
+            "ensureExtractorsLoaded: scanned $totalScanned .cs3 files, registered $totalExtractors extractors"
+        )
         diagnostics?.addStep("Preloaded $totalExtractors extractors from $totalScanned .cs3 files")
     }
 
@@ -694,7 +764,10 @@ class ExternalExtensionLoader @Inject constructor(
                     return instance
                 }
                 if (looksLikePlugin(instance)) {
-                    Log.d(TAG, "Using reflective wrapper for $pluginClassName (non-standard base class)")
+                    Log.d(
+                        TAG,
+                        "Using reflective wrapper for $pluginClassName (non-standard base class)"
+                    )
                     return ReflectivePluginWrapper(instance)
                 }
                 Log.w(TAG, "Class $pluginClassName is not a Plugin and has no plugin methods")
@@ -740,7 +813,10 @@ class ExternalExtensionLoader @Inject constructor(
                             return instance
                         }
                         if (looksLikePlugin(instance)) {
-                            Log.d(TAG, "Using reflective wrapper for $className (non-standard base class)")
+                            Log.d(
+                                TAG,
+                                "Using reflective wrapper for $className (non-standard base class)"
+                            )
                             dex.close()
                             return ReflectivePluginWrapper(instance)
                         }

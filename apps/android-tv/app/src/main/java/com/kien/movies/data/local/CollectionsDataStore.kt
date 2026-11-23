@@ -23,13 +23,13 @@ import com.kien.movies.domain.model.TraktCollectionSource
 import com.kien.movies.domain.model.TraktListSort
 import com.kien.movies.domain.model.TraktSortHow
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 
 data class ValidationResult(
     val valid: Boolean,
@@ -48,8 +48,7 @@ class CollectionsDataStore @Inject constructor(
         private const val FEATURE = "collections"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
     private val gson = Gson()
     private val collectionsKey = stringPreferencesKey("collections_json")
@@ -124,52 +123,165 @@ class CollectionsDataStore @Inject constructor(
     }
 
     fun validateCollectionsJson(json: String): ValidationResult {
-        if (json.isBlank()) return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_empty_input))
+        if (json.isBlank()) {
+            return ValidationResult(
+                false,
+                appContext.getString(com.kien.movies.R.string.collections_import_error_empty_input)
+            )
+        }
         return try {
             val type = object : TypeToken<List<Map<String, Any?>>>() {}.type
             val parsed = gson.fromJson<List<Map<String, Any?>>>(json, type)
-                ?: return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_expected_array))
-            if (parsed.isEmpty()) return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_empty_array))
+                ?: return ValidationResult(
+                    false,
+                    appContext.getString(
+                        com.kien.movies.R.string.collections_import_error_expected_array
+                    )
+                )
+            if (parsed.isEmpty()) {
+                return ValidationResult(
+                    false,
+                    appContext.getString(
+                        com.kien.movies.R.string.collections_import_error_empty_array
+                    )
+                )
+            }
 
             var folderCount = 0
             val validShapes = setOf("POSTER", "LANDSCAPE", "SQUARE", "poster", "wide", "square")
 
             for ((i, item) in parsed.withIndex()) {
                 val id = item["id"] as? String
-                if (id.isNullOrBlank()) return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_missing_id, i + 1))
+                if (id.isNullOrBlank()) {
+                    return ValidationResult(
+                        false,
+                        appContext.getString(
+                            com.kien.movies.R.string.collections_import_error_missing_id,
+                            i + 1
+                        )
+                    )
+                }
                 val title = item["title"] as? String
-                    ?: return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_missing_title, id))
+                    ?: return ValidationResult(
+                        false,
+                        appContext.getString(
+                            com.kien.movies.R.string.collections_import_error_missing_title,
+                            id
+                        )
+                    )
                 val folders = item["folders"] as? List<*>
-                    ?: return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_folders_array, title))
+                    ?: return ValidationResult(
+                        false,
+                        appContext.getString(
+                            com.kien.movies.R.string.collections_import_error_folders_array,
+                            title
+                        )
+                    )
 
                 for ((j, f) in folders.withIndex()) {
                     val folder = f as? Map<*, *>
-                        ?: return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_folder_invalid, title, j + 1))
+                        ?: return ValidationResult(
+                            false,
+                            appContext.getString(
+                                com.kien.movies.R.string.collections_import_error_folder_invalid,
+                                title,
+                                j + 1
+                            )
+                        )
                     val folderId = folder["id"] as? String
-                    if (folderId.isNullOrBlank()) return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_folder_missing_id, title, j + 1))
+                    if (folderId.isNullOrBlank()) {
+                        return ValidationResult(
+                            false,
+                            appContext.getString(
+                                com.kien.movies.R.string.collections_import_error_folder_missing_id,
+                                title,
+                                j + 1
+                            )
+                        )
+                    }
                     val folderTitle = folder["title"] as? String
-                        ?: return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_folder_missing_title, title, folderId))
-                    val sources = (folder["sources"] as? List<*>) ?: (folder["catalogSources"] as? List<*>)
-                        ?: return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_sources_array, title, folderTitle))
+                        ?: return ValidationResult(
+                            false,
+                            appContext.getString(
+                                com.kien.movies.R.string.collections_import_error_folder_missing_title,
+                                title,
+                                folderId
+                            )
+                        )
+                    val sources =
+                        (folder["sources"] as? List<*>) ?: (folder["catalogSources"] as? List<*>)
+                            ?: return ValidationResult(
+                                false,
+                                appContext.getString(
+                                    com.kien.movies.R.string.collections_import_error_sources_array,
+                                    title,
+                                    folderTitle
+                                )
+                            )
                     val shape = folder["tileShape"] as? String
                     if (shape != null && shape !in validShapes) {
-                        return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_invalid_tile_shape, title, folderTitle, shape))
+                        return ValidationResult(
+                            false,
+                            appContext.getString(
+                                com.kien.movies.R.string.collections_import_error_invalid_tile_shape,
+                                title,
+                                folderTitle,
+                                shape
+                            )
+                        )
                     }
                     for ((k, s) in sources.withIndex()) {
                         val source = s as? Map<*, *>
-                            ?: return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_source_invalid, title, folderTitle, k + 1))
+                            ?: return ValidationResult(
+                                false,
+                                appContext.getString(
+                                    com.kien.movies.R.string.collections_import_error_source_invalid,
+                                    title,
+                                    folderTitle,
+                                    k + 1
+                                )
+                            )
                         val provider = (source["provider"] as? String)?.lowercase()
                         val isAddonSource = provider == null || provider == "addon"
                         val isTmdbSource = provider == "tmdb"
                         val isTraktSource = provider == "trakt"
-                        if (isAddonSource && (source["addonId"] !is String || source["type"] !is String || source["catalogId"] !is String)) {
-                            return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_source_required_fields, title, folderTitle, k + 1))
+                        if (isAddonSource &&
+                            (
+                                source["addonId"] !is String || source["type"] !is String ||
+                                    source["catalogId"] !is String
+                                )
+                        ) {
+                            return ValidationResult(
+                                false,
+                                appContext.getString(
+                                    com.kien.movies.R.string.collections_import_error_source_required_fields,
+                                    title,
+                                    folderTitle,
+                                    k + 1
+                                )
+                            )
                         }
                         if (isTmdbSource && source["tmdbSourceType"] !is String) {
-                            return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_missing_tmdb_type, title, folderTitle, k + 1))
+                            return ValidationResult(
+                                false,
+                                appContext.getString(
+                                    com.kien.movies.R.string.collections_import_error_missing_tmdb_type,
+                                    title,
+                                    folderTitle,
+                                    k + 1
+                                )
+                            )
                         }
                         if (isTraktSource && (source["traktListId"] as? Number)?.toLong() == null) {
-                            return ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_missing_trakt_list_id, title, folderTitle, k + 1))
+                            return ValidationResult(
+                                false,
+                                appContext.getString(
+                                    com.kien.movies.R.string.collections_import_error_missing_trakt_list_id,
+                                    title,
+                                    folderTitle,
+                                    k + 1
+                                )
+                            )
                         }
                     }
                     folderCount++
@@ -177,7 +289,13 @@ class CollectionsDataStore @Inject constructor(
             }
             ValidationResult(true, collectionCount = parsed.size, folderCount = folderCount)
         } catch (e: Exception) {
-            ValidationResult(false, appContext.getString(com.kien.movies.R.string.collections_import_error_json_parse, e.message.orEmpty()))
+            ValidationResult(
+                false,
+                appContext.getString(
+                    com.kien.movies.R.string.collections_import_error_json_parse,
+                    e.message.orEmpty()
+                )
+            )
         }
     }
 
@@ -315,6 +433,7 @@ class CollectionsDataStore @Inject constructor(
                 catalogId = catalogId,
                 genre = genre
             )
+
             is TmdbCollectionSource -> SerializableSource(
                 provider = "tmdb",
                 tmdbSourceType = sourceType.name,
@@ -324,6 +443,7 @@ class CollectionsDataStore @Inject constructor(
                 sortBy = sortBy,
                 filters = filters.toSerializable()
             )
+
             is TraktCollectionSource -> SerializableSource(
                 provider = "trakt",
                 title = title,
@@ -396,9 +516,11 @@ class CollectionsDataStore @Inject constructor(
                 val type = tmdbSourceType?.let { raw ->
                     runCatching { TmdbCollectionSourceType.valueOf(raw.uppercase()) }.getOrNull()
                 } ?: return null
-                val sourceSortBy = sortBy?.takeIf { it.isNotBlank() } ?: TmdbCollectionSort.POPULAR_DESC.value
+                val sourceSortBy =
+                    sortBy?.takeIf { it.isNotBlank() } ?: TmdbCollectionSort.POPULAR_DESC.value
                 val normalizedSortBy = if (
-                    type in setOf(TmdbCollectionSourceType.LIST, TmdbCollectionSourceType.COLLECTION) &&
+                    type in
+                    setOf(TmdbCollectionSourceType.LIST, TmdbCollectionSourceType.COLLECTION) &&
                     sourceSortBy == TmdbCollectionSort.POPULAR_DESC.value
                 ) {
                     TmdbCollectionSort.ORIGINAL.value
@@ -407,7 +529,9 @@ class CollectionsDataStore @Inject constructor(
                 }
                 TmdbCollectionSource(
                     sourceType = type,
-                    title = title?.takeIf { it.isNotBlank() } ?: type.name.lowercase().replaceFirstChar { it.uppercase() },
+                    title =
+                        title?.takeIf { it.isNotBlank() }
+                            ?: type.name.lowercase().replaceFirstChar { it.uppercase() },
                     tmdbId = tmdbId,
                     mediaType = mediaType?.let { raw ->
                         runCatching { TmdbCollectionMediaType.valueOf(raw.uppercase()) }.getOrNull()
@@ -416,6 +540,7 @@ class CollectionsDataStore @Inject constructor(
                     filters = filters?.toDomain() ?: TmdbCollectionFilters()
                 )
             }
+
             "trakt" -> {
                 val id = traktListId?.takeIf { it > 0L } ?: return null
                 TraktCollectionSource(
@@ -429,6 +554,7 @@ class CollectionsDataStore @Inject constructor(
                     sortHow = TraktSortHow.normalize(sortHow)
                 )
             }
+
             else -> {
                 val sourceAddonId = addonId?.takeIf { it.isNotBlank() } ?: return null
                 val sourceType = type?.takeIf { it.isNotBlank() } ?: return null

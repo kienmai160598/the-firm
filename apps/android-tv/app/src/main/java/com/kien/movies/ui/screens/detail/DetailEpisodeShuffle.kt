@@ -21,7 +21,11 @@ internal fun applyDetailShuffle(
 ): MetaDetailsUiState {
     val meta = state.meta ?: return state
     val settings = profile.settings(meta.id, meta.apiType)
-    val result = state.copy(randomEpisodeEnabled = profile.available, episodeShuffle = settings, shufflePoolEmpty = false)
+    val result = state.copy(
+        randomEpisodeEnabled = profile.available,
+        episodeShuffle = settings,
+        shufflePoolEmpty = false
+    )
     if (!settings.enabled) {
         shuffle.clearSelection(profile.profileId, meta.id, ShuffleSurface.DETAIL)
         return result
@@ -33,23 +37,48 @@ internal fun applyDetailShuffle(
             !it.isCompleted() && (it.position > 0 || it.progressPercentage > 0)
     }.maxByOrNull { it.lastWatched }
     if (resume != null) {
-        return result.copy(nextToWatch = NextToWatch(
-            watchProgress = resume, isResume = true, nextVideoId = resume.videoId,
-            nextSeason = resume.season, nextEpisode = resume.episode,
-            displayText = context.getString(R.string.detail_btn_resume_episode, resume.season, resume.episode)
-        ))
+        return result.copy(
+            nextToWatch = NextToWatch(
+                watchProgress = resume,
+                isResume = true,
+                nextVideoId = resume.videoId,
+                nextSeason = resume.season,
+                nextEpisode = resume.episode,
+                displayText = context.getString(
+                    R.string.detail_btn_resume_episode,
+                    resume.season,
+                    resume.episode
+                )
+            )
+        )
     }
     val selected = shuffle.select(
-        profile.profileId, meta.id, meta.videos, settings.includeWatched,
-        state.watchedEpisodes, state.episodeProgressMap, ShuffleSurface.DETAIL, visit = visit
+        profile.profileId,
+        meta.id,
+        meta.videos,
+        settings.includeWatched,
+        state.watchedEpisodes,
+        state.episodeProgressMap,
+        ShuffleSurface.DETAIL,
+        visit = visit
     )
     return result.copy(
         shufflePoolEmpty = selected == null,
         nextToWatch = NextToWatch(
-            watchProgress = null, isResume = false, nextVideoId = selected?.id,
-            nextSeason = selected?.season, nextEpisode = selected?.episode,
-            displayText = if (selected == null) context.getString(R.string.shuffle_change_selection)
-                else context.getString(R.string.detail_btn_play_episode, selected.season, selected.episode)
+            watchProgress = null,
+            isResume = false,
+            nextVideoId = selected?.id,
+            nextSeason = selected?.season,
+            nextEpisode = selected?.episode,
+            displayText = if (selected == null) {
+                context.getString(R.string.shuffle_change_selection)
+            } else {
+                context.getString(
+                    R.string.detail_btn_play_episode,
+                    selected.season,
+                    selected.episode
+                )
+            }
         )
     )
 }
@@ -60,11 +89,18 @@ internal fun resolveHeroPlaybackVideo(
     episodesForSeason: List<Video>
 ): Video? {
     if (meta.type != ContentType.SERIES && meta.videos.isEmpty()) return null
-    nextToWatch?.nextVideoId?.let { id -> meta.videos.firstOrNull { it.id == id }?.let { return it } }
+    nextToWatch?.nextVideoId?.let { id ->
+        meta.videos.firstOrNull { it.id == id }?.let { return it }
+    }
     nextToWatch?.takeIf { it.isResume }?.watchProgress?.let { progress ->
         return Video(
-            id = progress.videoId, title = progress.episodeTitle.orEmpty(), released = null,
-            thumbnail = null, season = progress.season, episode = progress.episode, overview = null
+            id = progress.videoId,
+            title = progress.episodeTitle.orEmpty(),
+            released = null,
+            thumbnail = null,
+            season = progress.season,
+            episode = progress.episode,
+            overview = null
         )
     }
     if (nextToWatch?.nextSeason != null && nextToWatch.nextEpisode != null) {

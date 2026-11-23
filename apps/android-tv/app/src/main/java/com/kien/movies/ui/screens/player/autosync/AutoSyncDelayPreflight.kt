@@ -13,10 +13,7 @@ internal object AutoSyncDelayPreflight {
     // Scheduling threshold only. It never authorizes a subtitle by itself; authoritative V2
     // still has to pass its existing strong/exceptional gates before an early return.
 
-    internal data class Match(
-        val referenceKey: String,
-        val alignment: AutoSyncDelayOnlyAlignment,
-    ) {
+    internal data class Match(val referenceKey: String, val alignment: AutoSyncDelayOnlyAlignment) {
         val offsetMs: Double get() = alignment.offsetMs
         val score: Double get() = alignment.score
         val margin: Double get() = alignment.margin
@@ -25,20 +22,17 @@ internal object AutoSyncDelayPreflight {
 
     internal data class Evidence(
         val search: AutoSyncTimelineRetimer.DelayOnlySearchEvidence,
-        val validatedAlignment: AutoSyncDelayOnlyAlignment?,
+        val validatedAlignment: AutoSyncDelayOnlyAlignment?
     )
 
-    internal data class Result(
-        val best: Match?,
-        val evidenceByReferenceKey: Map<String, Evidence>,
-    )
+    internal data class Result(val best: Match?, val evidenceByReferenceKey: Map<String, Evidence>)
 
     internal fun evaluate(
         referenceTracks: List<ReferenceTrack>,
         target: List<SubtitleSyncCue>,
         referenceActivityCache: MutableMap<String, AutoSyncTimelineRetimer.PreparedActivity?>,
         preparedTargetActivity: AutoSyncTimelineRetimer.PreparedActivity? = null,
-        cancellationCheck: (() -> Unit)? = null,
+        cancellationCheck: (() -> Unit)? = null
     ): Result {
         val targetActivity =
             preparedTargetActivity
@@ -52,21 +46,21 @@ internal object AutoSyncDelayPreflight {
             cancellationCheck?.invoke()
             val preparedReference = AutomaticSubtitleSync.preparedReferenceActivity(
                 track = track,
-                cache = referenceActivityCache,
+                cache = referenceActivityCache
             ) ?: continue
 
             val searchEvidence =
                 AutoSyncTimelineRetimer.prepareDelayOnlySearchEvidence(
                     referenceActivity = preparedReference,
                     targetActivity = targetActivity,
-                    cancellationCheck = cancellationCheck,
+                    cancellationCheck = cancellationCheck
                 ) ?: continue
 
             // Match the exact delay-margin relaxation used by authoritative V2.
             val relaxDelayMargin = AutoSyncTimelineRetimer.shouldRelaxDelayOnlyMargin(
                 sdhReference = AutomaticSubtitleSync.isSdhReferenceTrack(track),
                 referenceSize = track.cues.size,
-                targetSize = target.size,
+                targetSize = target.size
             )
 
             val alignment =
@@ -76,18 +70,18 @@ internal object AutoSyncDelayPreflight {
                     targetSize = target.size,
                     allowAmbiguousMargin = relaxDelayMargin,
                     precomputedEvidence = searchEvidence,
-                    cancellationCheck = cancellationCheck,
+                    cancellationCheck = cancellationCheck
                 )
 
             evidenceByReferenceKey[track.key] = Evidence(
                 search = searchEvidence,
-                validatedAlignment = alignment,
+                validatedAlignment = alignment
             )
             if (alignment == null) continue
 
             val candidate = Match(
                 referenceKey = track.key,
-                alignment = alignment,
+                alignment = alignment
             )
 
             val currentBest = best
@@ -110,7 +104,7 @@ internal object AutoSyncDelayPreflight {
 
         return Result(
             best = best,
-            evidenceByReferenceKey = evidenceByReferenceKey,
+            evidenceByReferenceKey = evidenceByReferenceKey
         )
     }
 
@@ -119,14 +113,12 @@ internal object AutoSyncDelayPreflight {
         target: List<SubtitleSyncCue>,
         referenceActivityCache: MutableMap<String, AutoSyncTimelineRetimer.PreparedActivity?>,
         preparedTargetActivity: AutoSyncTimelineRetimer.PreparedActivity? = null,
-        cancellationCheck: (() -> Unit)? = null,
-    ): Match? =
-        evaluate(
-            referenceTracks = referenceTracks,
-            target = target,
-            referenceActivityCache = referenceActivityCache,
-            preparedTargetActivity = preparedTargetActivity,
-            cancellationCheck = cancellationCheck,
-        ).best
-
+        cancellationCheck: (() -> Unit)? = null
+    ): Match? = evaluate(
+        referenceTracks = referenceTracks,
+        target = target,
+        referenceActivityCache = referenceActivityCache,
+        preparedTargetActivity = preparedTargetActivity,
+        cancellationCheck = cancellationCheck
+    ).best
 }

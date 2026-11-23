@@ -52,7 +52,10 @@ class StyledSubtitlePlacementTest {
     fun `picking a background color keeps its opacity or makes it visible`() {
         val translucentBlack = Color.Black.copy(alpha = 0.5f).toArgb()
 
-        assertEquals(Color.White.copy(alpha = 0.5f).toArgb(), subtitleBackgroundColorFor(Color.White, translucentBlack))
+        assertEquals(
+            Color.White.copy(alpha = 0.5f).toArgb(),
+            subtitleBackgroundColorFor(Color.White, translucentBlack)
+        )
         assertEquals(
             Color.White.copy(alpha = SUBTITLE_BACKGROUND_DEFAULT_OPACITY).toArgb(),
             subtitleBackgroundColorFor(Color.White, Color.Transparent.toArgb())

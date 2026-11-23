@@ -1,36 +1,38 @@
 package com.kien.movies.core.di
 
-import com.kien.movies.data.repository.TraktClientCredentials
 import android.content.Context
 import android.util.Log
 import com.kien.movies.BuildConfig
+import com.kien.movies.LocaleCache
+import com.kien.movies.core.diagnostics.SentryNetworkBreadcrumbInterceptor
+import com.kien.movies.core.network.IPv4FirstDns
 import com.kien.movies.core.network.NoDelaySocketFactory
 import com.kien.movies.data.remote.api.AddonApi
 import com.kien.movies.data.remote.api.AniSkipApi
 import com.kien.movies.data.remote.api.AnimeSkipApi
 import com.kien.movies.data.remote.api.AuthDiagnosticReportApi
 import com.kien.movies.data.remote.api.GitHubReleaseApi
-import com.kien.movies.data.remote.api.SupportersApi
-import com.kien.movies.data.remote.api.TraktApi
-import com.kien.movies.data.remote.api.TrailerApi
-import com.kien.movies.data.remote.api.IntroDbApi
 import com.kien.movies.data.remote.api.ImdbTapframeApi
+import com.kien.movies.data.remote.api.IntroDbApi
 import com.kien.movies.data.remote.api.MDBListApi
 import com.kien.movies.data.remote.api.ParentalGuideApi
 import com.kien.movies.data.remote.api.PlaybackIssueReportApi
 import com.kien.movies.data.remote.api.PremiumizeApi
 import com.kien.movies.data.remote.api.RealDebridApi
 import com.kien.movies.data.remote.api.SeriesGraphApi
+import com.kien.movies.data.remote.api.SupportersApi
 import com.kien.movies.data.remote.api.TmdbApi
 import com.kien.movies.data.remote.api.TorboxApi
+import com.kien.movies.data.remote.api.TrailerApi
+import com.kien.movies.data.remote.api.TraktApi
 import com.kien.movies.data.remote.api.UniqueContributionsApi
+import com.kien.movies.data.repository.TraktClientCredentials
 import com.kien.movies.data.simkl.OkHttpSimklEngine
 import com.kien.movies.data.simkl.SimklApiClient
 import com.kien.movies.data.simkl.SimklApiConfiguration
 import com.kien.movies.data.simkl.SimklAuthError
 import com.kien.movies.data.simkl.SimklAuthStorage
 import com.kien.movies.data.simkl.defaultSimklApiConfiguration
-import com.kien.movies.LocaleCache
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -38,13 +40,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import okhttp3.Cache
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
-import com.kien.movies.core.network.IPv4FirstDns
-import com.kien.movies.core.diagnostics.SentryNetworkBreadcrumbInterceptor
 import java.io.File
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
@@ -55,6 +50,11 @@ import javax.inject.Singleton
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
+import okhttp3.Cache
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
 
 private object TraktHttpTrace {
     private val requestCounter = AtomicLong(0L)
@@ -130,10 +130,15 @@ object NetworkModule {
                     response
                 }
             }
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC
-                        else HttpLoggingInterceptor.Level.NONE
-            })
+            .addInterceptor(
+                HttpLoggingInterceptor().apply {
+                    level = if (BuildConfig.DEBUG) {
+                        HttpLoggingInterceptor.Level.BASIC
+                    } else {
+                        HttpLoggingInterceptor.Level.NONE
+                    }
+                }
+            )
             .build()
     }
 
@@ -181,31 +186,35 @@ object NetworkModule {
                 .build()
             chain.proceed(request)
         }
-        .addInterceptor(HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC
-            else HttpLoggingInterceptor.Level.NONE
-        })
+        .addInterceptor(
+            HttpLoggingInterceptor().apply {
+                level = if (BuildConfig.DEBUG) {
+                    HttpLoggingInterceptor.Level.BASIC
+                } else {
+                    HttpLoggingInterceptor.Level.NONE
+                }
+            }
+        )
         .build()
 
     @Provides
     @Singleton
     @Named("directDebrid")
-    fun provideDirectDebridOkHttpClient(): OkHttpClient =
-        OkHttpClient.Builder()
-            .dns(IPv4FirstDns())
-            .socketFactory(NoDelaySocketFactory)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor { chain ->
-                val version = BuildConfig.VERSION_NAME.ifBlank { "dev" }
-                val request = chain.request().newBuilder()
-                    .header("User-Agent", "Movies/$version")
-                    .header("Accept-Language", buildAcceptLanguageHeader())
-                    .build()
-                chain.proceed(request)
-            }
-            .addInterceptor(SentryNetworkBreadcrumbInterceptor())
-            .build()
+    fun provideDirectDebridOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+        .dns(IPv4FirstDns())
+        .socketFactory(NoDelaySocketFactory)
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .addInterceptor { chain ->
+            val version = BuildConfig.VERSION_NAME.ifBlank { "dev" }
+            val request = chain.request().newBuilder()
+                .header("User-Agent", "Movies/$version")
+                .header("Accept-Language", buildAcceptLanguageHeader())
+                .build()
+            chain.proceed(request)
+        }
+        .addInterceptor(SentryNetworkBreadcrumbInterceptor())
+        .build()
 
     @Provides
     @Singleton
@@ -250,9 +259,7 @@ object NetworkModule {
     @Provides
     @Singleton
     @Named("trakt")
-    fun provideTraktOkHttpClient(
-        okHttpClient: OkHttpClient
-    ): OkHttpClient = okHttpClient.newBuilder()
+    fun provideTraktOkHttpClient(okHttpClient: OkHttpClient): OkHttpClient = okHttpClient.newBuilder()
         .addInterceptor { chain ->
             val request = chain.request()
             val version = BuildConfig.VERSION_NAME.ifBlank { "dev" }
@@ -313,40 +320,33 @@ object NetworkModule {
     fun provideRetrofit(
         @Named("addonPermissive") okHttpClient: OkHttpClient,
         moshi: Moshi
-    ): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://placeholder.nuvio.tv/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl("https://placeholder.nuvio.tv/")
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
     @Named("tmdb")
-    fun provideTmdbRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://api.themoviedb.org/3/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    fun provideTmdbRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
+        .baseUrl("https://api.themoviedb.org/3/")
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
     @Named("trakt")
-    fun provideTraktRetrofit(
-        @Named("trakt") okHttpClient: OkHttpClient,
-        moshi: Moshi
-    ): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(BuildConfig.TRAKT_API_URL.ifBlank { "https://api.trakt.tv/" })
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    fun provideTraktRetrofit(@Named("trakt") okHttpClient: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
+        .baseUrl(BuildConfig.TRAKT_API_URL.ifBlank { "https://api.trakt.tv/" })
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun provideAddonApi(retrofit: Retrofit): AddonApi =
-        retrofit.create(AddonApi::class.java)
+    fun provideAddonApi(retrofit: Retrofit): AddonApi = retrofit.create(AddonApi::class.java)
 
     @Provides
     @Singleton
@@ -354,17 +354,15 @@ object NetworkModule {
     fun provideTorboxRetrofit(
         @Named("directDebrid") okHttpClient: OkHttpClient,
         moshi: Moshi
-    ): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://api.torbox.app/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl("https://api.torbox.app/")
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun provideTorboxApi(@Named("torbox") retrofit: Retrofit): TorboxApi =
-        retrofit.create(TorboxApi::class.java)
+    fun provideTorboxApi(@Named("torbox") retrofit: Retrofit): TorboxApi = retrofit.create(TorboxApi::class.java)
 
     @Provides
     @Singleton
@@ -372,17 +370,15 @@ object NetworkModule {
     fun provideRealDebridRetrofit(
         @Named("directDebrid") okHttpClient: OkHttpClient,
         moshi: Moshi
-    ): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://api.real-debrid.com/rest/1.0/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl("https://api.real-debrid.com/rest/1.0/")
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun provideRealDebridApi(@Named("realdebrid") retrofit: Retrofit): RealDebridApi =
-        retrofit.create(RealDebridApi::class.java)
+    fun provideRealDebridApi(@Named("realdebrid") retrofit: Retrofit): RealDebridApi = retrofit.create(RealDebridApi::class.java)
 
     @Provides
     @Singleton
@@ -390,196 +386,178 @@ object NetworkModule {
     fun providePremiumizeRetrofit(
         @Named("directDebrid") okHttpClient: OkHttpClient,
         moshi: Moshi
-    ): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://www.premiumize.me/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl("https://www.premiumize.me/")
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun providePremiumizeApi(@Named("premiumize") retrofit: Retrofit): PremiumizeApi =
-        retrofit.create(PremiumizeApi::class.java)
+    fun providePremiumizeApi(@Named("premiumize") retrofit: Retrofit): PremiumizeApi = retrofit.create(PremiumizeApi::class.java)
 
     @Provides
     @Singleton
-    fun provideTmdbApi(@Named("tmdb") retrofit: Retrofit): TmdbApi =
-        retrofit.create(TmdbApi::class.java)
+    fun provideTmdbApi(@Named("tmdb") retrofit: Retrofit): TmdbApi = retrofit.create(TmdbApi::class.java)
 
     @Provides
     @Singleton
-    fun provideTraktApi(@Named("trakt") retrofit: Retrofit): TraktApi =
-        retrofit.create(TraktApi::class.java)
+    fun provideTraktApi(@Named("trakt") retrofit: Retrofit): TraktApi = retrofit.create(TraktApi::class.java)
 
     @Provides
     @Singleton
     @Named("parentalGuide")
-    fun provideParentalGuideRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://api.tiffara.com/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    fun provideParentalGuideRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
+        .baseUrl("https://api.tiffara.com/")
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun provideParentalGuideApi(@Named("parentalGuide") retrofit: Retrofit): ParentalGuideApi =
-        retrofit.create(ParentalGuideApi::class.java)
+    fun provideParentalGuideApi(@Named("parentalGuide") retrofit: Retrofit): ParentalGuideApi = retrofit.create(ParentalGuideApi::class.java)
 
     // --- Skip Intro APIs ---
 
     @Provides
     @Singleton
     @Named("introDb")
-    fun provideIntroDbRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(BuildConfig.INTRODB_API_URL.ifEmpty { "https://localhost/" })
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    fun provideIntroDbRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
+        .baseUrl(BuildConfig.INTRODB_API_URL.ifEmpty { "https://localhost/" })
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun provideIntroDbApi(@Named("introDb") retrofit: Retrofit): IntroDbApi =
-        retrofit.create(IntroDbApi::class.java)
+    fun provideIntroDbApi(@Named("introDb") retrofit: Retrofit): IntroDbApi = retrofit.create(IntroDbApi::class.java)
 
     @Provides
     @Singleton
     @Named("aniSkip")
-    fun provideAniSkipRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://api.aniskip.com/v2/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    fun provideAniSkipRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
+        .baseUrl("https://api.aniskip.com/v2/")
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun provideAniSkipApi(@Named("aniSkip") retrofit: Retrofit): AniSkipApi =
-        retrofit.create(AniSkipApi::class.java)
+    fun provideAniSkipApi(@Named("aniSkip") retrofit: Retrofit): AniSkipApi = retrofit.create(AniSkipApi::class.java)
 
     @Provides
     @Singleton
     @Named("animeSkipGql")
-    fun provideAnimeSkipGqlRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://api.anime-skip.com/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    fun provideAnimeSkipGqlRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
+        .baseUrl("https://api.anime-skip.com/")
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun provideAnimeSkipApi(@Named("animeSkipGql") retrofit: Retrofit): AnimeSkipApi =
-        retrofit.create(AnimeSkipApi::class.java)
+    fun provideAnimeSkipApi(@Named("animeSkipGql") retrofit: Retrofit): AnimeSkipApi = retrofit.create(AnimeSkipApi::class.java)
 
     // --- GitHub Releases API (in-app updates) ---
 
     @Provides
     @Singleton
     @Named("github")
-    fun provideGitHubRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://api.github.com/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    fun provideGitHubRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
+        .baseUrl("https://api.github.com/")
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun provideGitHubReleaseApi(@Named("github") retrofit: Retrofit): GitHubReleaseApi =
-        retrofit.create(GitHubReleaseApi::class.java)
+    fun provideGitHubReleaseApi(@Named("github") retrofit: Retrofit): GitHubReleaseApi = retrofit.create(GitHubReleaseApi::class.java)
 
     @Provides
     @Singleton
     @Named("uniqueContributionsBaseUrl")
-    fun provideUniqueContributionsBaseUrl(): String =
-        BuildConfig.UNIQUE_CONTRIBUTIONS_BASE_URL
+    fun provideUniqueContributionsBaseUrl(): String = BuildConfig.UNIQUE_CONTRIBUTIONS_BASE_URL
 
     @Provides
     @Singleton
     @Named("uniqueContributions")
-    fun provideUniqueContributionsRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(normalizedBaseUrl(BuildConfig.UNIQUE_CONTRIBUTIONS_BASE_URL, "https://localhost/"))
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    fun provideUniqueContributionsRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
+        .baseUrl(
+            normalizedBaseUrl(BuildConfig.UNIQUE_CONTRIBUTIONS_BASE_URL, "https://localhost/")
+        )
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun provideUniqueContributionsApi(@Named("uniqueContributions") retrofit: Retrofit): UniqueContributionsApi =
-        retrofit.create(UniqueContributionsApi::class.java)
+    fun provideUniqueContributionsApi(
+        @Named("uniqueContributions") retrofit: Retrofit
+    ): UniqueContributionsApi = retrofit.create(UniqueContributionsApi::class.java)
 
     @Provides
     @Singleton
     @Named("supporters")
-    fun provideSupportersRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(normalizedBaseUrl(BuildConfig.SUPPORTERS_API_BASE_URL, "http://localhost/"))
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    fun provideSupportersRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
+        .baseUrl(normalizedBaseUrl(BuildConfig.SUPPORTERS_API_BASE_URL, "http://localhost/"))
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun provideSupportersApi(@Named("supporters") retrofit: Retrofit): SupportersApi =
-        retrofit.create(SupportersApi::class.java)
+    fun provideSupportersApi(@Named("supporters") retrofit: Retrofit): SupportersApi = retrofit.create(SupportersApi::class.java)
 
     @Provides
     @Singleton
     @Named("playbackReports")
-    fun providePlaybackReportsRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(normalizedBaseUrl(BuildConfig.PLAYBACK_REPORTS_BASE_URL, "https://localhost/"))
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    fun providePlaybackReportsRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
+        .baseUrl(normalizedBaseUrl(BuildConfig.PLAYBACK_REPORTS_BASE_URL, "https://localhost/"))
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun providePlaybackIssueReportApi(@Named("playbackReports") retrofit: Retrofit): PlaybackIssueReportApi =
-        retrofit.create(PlaybackIssueReportApi::class.java)
+    fun providePlaybackIssueReportApi(
+        @Named("playbackReports") retrofit: Retrofit
+    ): PlaybackIssueReportApi = retrofit.create(PlaybackIssueReportApi::class.java)
 
     @Provides
     @Singleton
-    fun provideAuthDiagnosticReportApi(@Named("playbackReports") retrofit: Retrofit): AuthDiagnosticReportApi =
-        retrofit.create(AuthDiagnosticReportApi::class.java)
+    fun provideAuthDiagnosticReportApi(
+        @Named("playbackReports") retrofit: Retrofit
+    ): AuthDiagnosticReportApi = retrofit.create(AuthDiagnosticReportApi::class.java)
 
     // --- Trailer API ---
 
     @Provides
     @Singleton
     @Named("trailer")
-    fun provideTrailerRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(BuildConfig.TRAILER_API_URL.ifEmpty { "https://localhost/" })
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    fun provideTrailerRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
+        .baseUrl(BuildConfig.TRAILER_API_URL.ifEmpty { "https://localhost/" })
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun provideTrailerApi(@Named("trailer") retrofit: Retrofit): TrailerApi =
-        retrofit.create(TrailerApi::class.java)
+    fun provideTrailerApi(@Named("trailer") retrofit: Retrofit): TrailerApi = retrofit.create(TrailerApi::class.java)
 
     // --- MDBList API ---
 
     @Provides
     @Singleton
     @Named("mdblist")
-    fun provideMDBListRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://api.mdblist.com/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
+    fun provideMDBListRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
+        .baseUrl("https://api.mdblist.com/")
+        .client(okHttpClient)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
 
     @Provides
     @Singleton
-    fun provideMDBListApi(@Named("mdblist") retrofit: Retrofit): MDBListApi =
-        retrofit.create(MDBListApi::class.java)
+    fun provideMDBListApi(@Named("mdblist") retrofit: Retrofit): MDBListApi = retrofit.create(MDBListApi::class.java)
 
     // --- SeriesGraph API ---
 
@@ -602,8 +580,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideSeriesGraphApi(@Named("seriesGraph") retrofit: Retrofit): SeriesGraphApi =
-        retrofit.create(SeriesGraphApi::class.java)
+    fun provideSeriesGraphApi(@Named("seriesGraph") retrofit: Retrofit): SeriesGraphApi = retrofit.create(SeriesGraphApi::class.java)
 
     @Provides
     @Singleton
@@ -624,6 +601,5 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideImdbTapframeApi(@Named("imdbTapframe") retrofit: Retrofit): ImdbTapframeApi =
-        retrofit.create(ImdbTapframeApi::class.java)
+    fun provideImdbTapframeApi(@Named("imdbTapframe") retrofit: Retrofit): ImdbTapframeApi = retrofit.create(ImdbTapframeApi::class.java)
 }

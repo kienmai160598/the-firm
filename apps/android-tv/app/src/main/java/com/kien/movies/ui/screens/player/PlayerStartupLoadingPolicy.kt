@@ -8,7 +8,7 @@ internal object PlayerStartupLoadingPolicy {
     fun loadingStallReportReason(
         showLoadingOverlay: Boolean,
         hasRenderedFirstFrame: Boolean,
-        error: String?,
+        error: String?
     ): String {
         return if (isLoadingStallReportable(showLoadingOverlay, hasRenderedFirstFrame, error)) {
             "loading_stall"
@@ -20,7 +20,7 @@ internal object PlayerStartupLoadingPolicy {
     fun isLoadingStallReportable(
         showLoadingOverlay: Boolean,
         hasRenderedFirstFrame: Boolean,
-        error: String?,
+        error: String?
     ): Boolean {
         return error == null && showLoadingOverlay && !hasRenderedFirstFrame
     }
@@ -29,7 +29,7 @@ internal object PlayerStartupLoadingPolicy {
         loadingOverlayEnabled: Boolean,
         showLoadingOverlay: Boolean,
         hasRenderedFirstFrame: Boolean,
-        isBuffering: Boolean,
+        isBuffering: Boolean
     ): Boolean {
         return isBuffering &&
             !hasRenderedFirstFrame &&
@@ -39,7 +39,7 @@ internal object PlayerStartupLoadingPolicy {
 
     fun shouldUpdateBufferingMessageBeforeFirstFrame(
         hasRenderedFirstFrame: Boolean,
-        isBuffering: Boolean,
+        isBuffering: Boolean
     ): Boolean {
         return isBuffering && !hasRenderedFirstFrame
     }

@@ -14,7 +14,7 @@ class MemoryBudgetTest {
         // totalUsageMb(bufferMb, connectionCount, chunkSizeMb, parallelEnabled)
         // case 1: parallel disabled
         assertEquals(50, MemoryBudget.totalUsageMb(50, 4, 32, false))
-        
+
         // case 2: parallel enabled
         // bufferCount(4) = 4 + 2 = 6
         // overhead = 6 * 32 = 192
@@ -39,12 +39,12 @@ class MemoryBudgetTest {
         // 1. totalUsageMb <= safeLimitMb should be SAFE
         assertEquals(MemoryUsageStatus.SAFE, MemoryBudget.getUsageStatus(500, 1000, 1250))
         assertEquals(MemoryUsageStatus.SAFE, MemoryBudget.getUsageStatus(1000, 1000, 1250))
-        
+
         // 2. totalUsageMb > safeLimitMb && totalUsageMb <= warningLimitMb should be WARNING
         assertEquals(MemoryUsageStatus.WARNING, MemoryBudget.getUsageStatus(1050, 1000, 1250))
         assertEquals(MemoryUsageStatus.WARNING, MemoryBudget.getUsageStatus(1200, 1000, 1250))
         assertEquals(MemoryUsageStatus.WARNING, MemoryBudget.getUsageStatus(1250, 1000, 1250))
-        
+
         // 3. totalUsageMb > warningLimitMb should be DANGER
         assertEquals(MemoryUsageStatus.DANGER, MemoryBudget.getUsageStatus(1260, 1000, 1250))
         assertEquals(MemoryUsageStatus.DANGER, MemoryBudget.getUsageStatus(1500, 1000, 1250))
@@ -56,12 +56,12 @@ class MemoryBudgetTest {
         // 1. totalUsageMb <= safeLimitMb should be SAFE
         assertEquals(MemoryUsageStatus.SAFE, MemoryBudget.getUsageStatus(500, 1000, 1250))
         assertEquals(MemoryUsageStatus.SAFE, MemoryBudget.getUsageStatus(1000, 1000, 1250))
-        
+
         // 2. totalUsageMb > safeLimitMb && totalUsageMb <= warningLimitMb should be WARNING
         assertEquals(MemoryUsageStatus.WARNING, MemoryBudget.getUsageStatus(1050, 1000, 1250))
         assertEquals(MemoryUsageStatus.WARNING, MemoryBudget.getUsageStatus(1200, 1000, 1250))
         assertEquals(MemoryUsageStatus.WARNING, MemoryBudget.getUsageStatus(1250, 1000, 1250))
-        
+
         // 3. totalUsageMb > warningLimitMb should be DANGER
         assertEquals(MemoryUsageStatus.DANGER, MemoryBudget.getUsageStatus(1260, 1000, 1250))
         assertEquals(MemoryUsageStatus.DANGER, MemoryBudget.getUsageStatus(1500, 1000, 1250))

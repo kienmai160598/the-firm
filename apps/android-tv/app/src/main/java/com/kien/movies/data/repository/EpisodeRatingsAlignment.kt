@@ -2,11 +2,7 @@ package com.kien.movies.data.repository
 
 import java.time.LocalDate
 
-internal data class AddonEpisodeAirDate(
-    val season: Int?,
-    val episode: Int?,
-    val released: String?
-)
+internal data class AddonEpisodeAirDate(val season: Int?, val episode: Int?, val released: String?)
 
 internal data class ExternalEpisodeRating(
     val season: Int,
@@ -46,7 +42,11 @@ internal fun alignEpisodeRatings(
         .map { DatedEpisode(it.season, it.episode, parseAirDay(it.airDate), it.rating) }
 
     if (addonRegular.isEmpty() || externalRegular.isEmpty()) return byNumber
-    if (addonRegular.map { it.season }.toSet() == externalRegular.map { it.season }.toSet()) return byNumber
+    if (addonRegular.map { it.season }.toSet() ==
+        externalRegular.map { it.season }.toSet()
+    ) {
+        return byNumber
+    }
 
     val addonAired = addonRegular.filter { it.day == null || it.day <= today }
     val externalAired = externalRegular.filter { it.day == null || it.day <= today }
@@ -59,9 +59,10 @@ internal fun alignEpisodeRatings(
     if (addonByDay.isEmpty() || externalByDay.isEmpty()) return byNumber
 
     val matches = addonByDay.flatMap { (day, sameDayAddon) ->
-        val sameDayExternal = (externalByDay[day] ?: externalByDay[day - 1] ?: externalByDay[day + 1])
-            ?.takeIf { it.size == sameDayAddon.size }
-            ?: return@flatMap emptyList()
+        val sameDayExternal =
+            (externalByDay[day] ?: externalByDay[day - 1] ?: externalByDay[day + 1])
+                ?.takeIf { it.size == sameDayAddon.size }
+                ?: return@flatMap emptyList()
         sameDayAddon.zip(sameDayExternal)
     }
     return buildAlignedRatings(byNumber, matches)

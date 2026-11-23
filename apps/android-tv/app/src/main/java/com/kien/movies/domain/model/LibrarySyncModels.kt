@@ -1,15 +1,8 @@
 package com.kien.movies.domain.model
 
-data class LibrarySyncKey(
-    val contentId: String,
-    val contentType: String
-)
+data class LibrarySyncKey(val contentId: String, val contentType: String)
 
-data class LibraryDeltaEvent(
-    val eventId: Long,
-    val operation: String,
-    val item: SavedLibraryItem
-)
+data class LibraryDeltaEvent(val eventId: Long, val operation: String, val item: SavedLibraryItem)
 
 data class LibrarySyncState(
     val items: List<SavedLibraryItem> = emptyList(),
@@ -23,10 +16,7 @@ data class LibrarySyncState(
         get() = pendingUpsertKeys.isNotEmpty() || pendingDeleteKeys.isNotEmpty()
 }
 
-data class LibrarySnapshotApplyResult(
-    val state: LibrarySyncState,
-    val preservedLocalItems: Boolean
-)
+data class LibrarySnapshotApplyResult(val state: LibrarySyncState, val preservedLocalItems: Boolean)
 
 data class LibraryDeltaApplyResult(
     val state: LibrarySyncState,

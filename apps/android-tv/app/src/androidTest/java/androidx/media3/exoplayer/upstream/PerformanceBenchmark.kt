@@ -5,28 +5,28 @@ import androidx.media3.common.NuvioEngineConfig
 import androidx.media3.datasource.AesCipherDataSource
 import androidx.media3.datasource.AesFlushingCipher
 import androidx.media3.datasource.ByteArrayDataSource
-import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.TransferListener
 import androidx.media3.exoplayer.source.SampleDataQueueNative
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.net.InetSocketAddress
+import java.net.ServerSocket
+import java.net.Socket
+import java.nio.ByteBuffer
+import java.nio.channels.ServerSocketChannel
+import java.nio.channels.SocketChannel
+import java.nio.charset.StandardCharsets
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.locks.ReentrantLock
+import javax.crypto.Cipher
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.nio.ByteBuffer
-import javax.crypto.Cipher
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.locks.ReentrantLock
-import java.net.ServerSocket
-import java.net.Socket
-import java.net.InetSocketAddress
-import java.nio.channels.ServerSocketChannel
-import java.nio.channels.SocketChannel
-import java.nio.charset.StandardCharsets
 
 @RunWith(AndroidJUnit4::class)
 class PerformanceBenchmark {
@@ -61,7 +61,7 @@ class PerformanceBenchmark {
         runGcChurnBenchmark(results)
 
         results.append("==================================================\n")
-        
+
         // Output benchmark results to instrumentation stdout stream
         println(results.toString())
     }
@@ -105,8 +105,20 @@ class PerformanceBenchmark {
         val heapOpsSec = (iterations / (heapDurationMs / 1000.0)).toInt()
         val nativeOpsSec = (iterations / (nativeDurationMs / 1000.0)).toInt()
 
-        sb.append(String.format("  - JVM Heap Allocation   : %6.2f ms (%d ops/sec)\n", heapDurationMs, heapOpsSec))
-        sb.append(String.format("  - JNI Native Allocation : %6.2f ms (%d ops/sec)\n", nativeDurationMs, nativeOpsSec))
+        sb.append(
+            String.format(
+                "  - JVM Heap Allocation   : %6.2f ms (%d ops/sec)\n",
+                heapDurationMs,
+                heapOpsSec
+            )
+        )
+        sb.append(
+            String.format(
+                "  - JNI Native Allocation : %6.2f ms (%d ops/sec)\n",
+                nativeDurationMs,
+                nativeOpsSec
+            )
+        )
         val ratio = heapDurationMs / nativeDurationMs
         sb.append(String.format("  - Native Speedup Factor : %.2fx\n\n", ratio))
     }
@@ -133,14 +145,20 @@ class PerformanceBenchmark {
             directSource.clear()
             directTarget.clear()
             directTarget.put(directSource)
-            SampleDataQueueNative.copyBetweenDirectBuffers(directSource, 0, directTarget, 0, chunkSize)
+            SampleDataQueueNative.copyBetweenDirectBuffers(
+                directSource,
+                0,
+                directTarget,
+                0,
+                chunkSize
+            )
             SampleDataQueueNative.copyBetweenAddresses(directSource, 0, directTarget, 0, chunkSize)
             SampleDataQueueNative.nativeCopyAddresses(sourceAddr, 0, targetAddr, 0, chunkSize)
-            
+
             directTarget.clear()
             directTarget.put(sourceBytes, 0, chunkSize)
             SampleDataQueueNative.copyFromArray(sourceBytes, 0, directTarget, 0, chunkSize)
-            
+
             directSource.clear()
             directSource.get(targetBytes, 0, chunkSize)
             SampleDataQueueNative.copyToArray(directSource, 0, targetBytes, 0, chunkSize)
@@ -168,7 +186,13 @@ class PerformanceBenchmark {
 
         val jniStart = System.nanoTime()
         for (i in 0 until totalChunks) {
-            SampleDataQueueNative.copyBetweenDirectBuffers(directSource, 0, directTarget, 0, chunkSize)
+            SampleDataQueueNative.copyBetweenDirectBuffers(
+                directSource,
+                0,
+                directTarget,
+                0,
+                chunkSize
+            )
         }
         val jniEnd = System.nanoTime()
         val jniDurationSec = (jniEnd - jniStart) / 1_000_000_000.0
@@ -187,7 +211,8 @@ class PerformanceBenchmark {
             SampleDataQueueNative.nativeCopyAddresses(sourceAddr, 0, targetAddr, 0, chunkSize)
         }
         val jniCriticalCachedEnd = System.nanoTime()
-        val jniCriticalCachedDurationSec = (jniCriticalCachedEnd - jniCriticalCachedStart) / 1_000_000_000.0
+        val jniCriticalCachedDurationSec =
+            (jniCriticalCachedEnd - jniCriticalCachedStart) / 1_000_000_000.0
         val jniCriticalCachedThroughput = sizeMb / jniCriticalCachedDurationSec
 
         // 3. Array-to-Direct Copies
@@ -197,7 +222,8 @@ class PerformanceBenchmark {
             directTarget.put(sourceBytes, 0, chunkSize)
         }
         val javaArrayToDirectEnd = System.nanoTime()
-        val javaArrayToDirectDurationSec = (javaArrayToDirectEnd - javaArrayToDirectStart) / 1_000_000_000.0
+        val javaArrayToDirectDurationSec =
+            (javaArrayToDirectEnd - javaArrayToDirectStart) / 1_000_000_000.0
         val javaArrayToDirectThroughput = sizeMb / javaArrayToDirectDurationSec
 
         val jniArrayToDirectStart = System.nanoTime()
@@ -205,7 +231,8 @@ class PerformanceBenchmark {
             SampleDataQueueNative.copyFromArray(sourceBytes, 0, directTarget, 0, chunkSize)
         }
         val jniArrayToDirectEnd = System.nanoTime()
-        val jniArrayToDirectDurationSec = (jniArrayToDirectEnd - jniArrayToDirectStart) / 1_000_000_000.0
+        val jniArrayToDirectDurationSec =
+            (jniArrayToDirectEnd - jniArrayToDirectStart) / 1_000_000_000.0
         val jniArrayToDirectThroughput = sizeMb / jniArrayToDirectDurationSec
 
         // 4. Direct-to-Array Copies
@@ -215,7 +242,8 @@ class PerformanceBenchmark {
             directSource.get(targetBytes, 0, chunkSize)
         }
         val javaDirectToArrayEnd = System.nanoTime()
-        val javaDirectToArrayDurationSec = (javaDirectToArrayEnd - javaDirectToArrayStart) / 1_000_000_000.0
+        val javaDirectToArrayDurationSec =
+            (javaDirectToArrayEnd - javaDirectToArrayStart) / 1_000_000_000.0
         val javaDirectToArrayThroughput = sizeMb / javaDirectToArrayDurationSec
 
         val jniDirectToArrayStart = System.nanoTime()
@@ -223,34 +251,120 @@ class PerformanceBenchmark {
             SampleDataQueueNative.copyToArray(directSource, 0, targetBytes, 0, chunkSize)
         }
         val jniDirectToArrayEnd = System.nanoTime()
-        val jniDirectToArrayDurationSec = (jniDirectToArrayEnd - jniDirectToArrayStart) / 1_000_000_000.0
+        val jniDirectToArrayDurationSec =
+            (jniDirectToArrayEnd - jniDirectToArrayStart) / 1_000_000_000.0
         val jniDirectToArrayThroughput = sizeMb / jniDirectToArrayDurationSec
 
-        sb.append(String.format("  - JVM System.arraycopy     : %6.2f ms (%6.1f MB/s)\n", javaDurationSec * 1000.0, javaThroughput))
-        sb.append(String.format("  - Java Direct-to-Direct    : %6.2f ms (%6.1f MB/s)\n", javaDirectDurationSec * 1000.0, javaDirectThroughput))
-        sb.append(String.format("  - JNI Direct-to-Direct     : %6.2f ms (%6.1f MB/s)\n", jniDurationSec * 1000.0, jniThroughput))
-        sb.append(String.format("  - CritNative D-to-D (Refl) : %6.2f ms (%6.1f MB/s)\n", jniCriticalDurationSec * 1000.0, jniCriticalThroughput))
-        sb.append(String.format("  - CritNative D-to-D (Cache): %6.2f ms (%6.1f MB/s)\n", jniCriticalCachedDurationSec * 1000.0, jniCriticalCachedThroughput))
-        sb.append(String.format("  - Java Array-to-Direct     : %6.2f ms (%6.1f MB/s)\n", javaArrayToDirectDurationSec * 1000.0, javaArrayToDirectThroughput))
-        sb.append(String.format("  - JNI Array-to-Direct      : %6.2f ms (%6.1f MB/s)\n", jniArrayToDirectDurationSec * 1000.0, jniArrayToDirectThroughput))
-        sb.append(String.format("  - Java Direct-to-Array     : %6.2f ms (%6.1f MB/s)\n", javaDirectToArrayDurationSec * 1000.0, javaDirectToArrayThroughput))
-        sb.append(String.format("  - JNI Direct-to-Array      : %6.2f ms (%6.1f MB/s)\n", jniDirectToArrayDurationSec * 1000.0, jniDirectToArrayThroughput))
-        
-        sb.append(String.format("  - Direct-to-Direct Ratio (JNI vs Java)   : %.2fx\n", javaDirectDurationSec / jniDurationSec))
-        sb.append(String.format("  - Direct-to-Direct Ratio (CritR vs Java) : %.2fx\n", javaDirectDurationSec / jniCriticalDurationSec))
-        sb.append(String.format("  - Direct-to-Direct Ratio (CritC vs Java) : %.2fx\n", javaDirectDurationSec / jniCriticalCachedDurationSec))
-        sb.append(String.format("  - Direct-to-Direct Ratio (CritC vs JNI)  : %.2fx\n", jniDurationSec / jniCriticalCachedDurationSec))
-        sb.append(String.format("  - Array-to-Direct Ratio (JNI vs Java)    : %.2fx\n", javaArrayToDirectDurationSec / jniArrayToDirectDurationSec))
-        sb.append(String.format("  - Direct-to-Array Ratio (JNI vs Java)    : %.2fx\n\n", javaDirectToArrayDurationSec / jniDirectToArrayDurationSec))
-    }
+        sb.append(
+            String.format(
+                "  - JVM System.arraycopy     : %6.2f ms (%6.1f MB/s)\n",
+                javaDurationSec * 1000.0,
+                javaThroughput
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Java Direct-to-Direct    : %6.2f ms (%6.1f MB/s)\n",
+                javaDirectDurationSec * 1000.0,
+                javaDirectThroughput
+            )
+        )
+        sb.append(
+            String.format(
+                "  - JNI Direct-to-Direct     : %6.2f ms (%6.1f MB/s)\n",
+                jniDurationSec * 1000.0,
+                jniThroughput
+            )
+        )
+        sb.append(
+            String.format(
+                "  - CritNative D-to-D (Refl) : %6.2f ms (%6.1f MB/s)\n",
+                jniCriticalDurationSec * 1000.0,
+                jniCriticalThroughput
+            )
+        )
+        sb.append(
+            String.format(
+                "  - CritNative D-to-D (Cache): %6.2f ms (%6.1f MB/s)\n",
+                jniCriticalCachedDurationSec * 1000.0,
+                jniCriticalCachedThroughput
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Java Array-to-Direct     : %6.2f ms (%6.1f MB/s)\n",
+                javaArrayToDirectDurationSec * 1000.0,
+                javaArrayToDirectThroughput
+            )
+        )
+        sb.append(
+            String.format(
+                "  - JNI Array-to-Direct      : %6.2f ms (%6.1f MB/s)\n",
+                jniArrayToDirectDurationSec * 1000.0,
+                jniArrayToDirectThroughput
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Java Direct-to-Array     : %6.2f ms (%6.1f MB/s)\n",
+                javaDirectToArrayDurationSec * 1000.0,
+                javaDirectToArrayThroughput
+            )
+        )
+        sb.append(
+            String.format(
+                "  - JNI Direct-to-Array      : %6.2f ms (%6.1f MB/s)\n",
+                jniDirectToArrayDurationSec * 1000.0,
+                jniDirectToArrayThroughput
+            )
+        )
 
+        sb.append(
+            String.format(
+                "  - Direct-to-Direct Ratio (JNI vs Java)   : %.2fx\n",
+                javaDirectDurationSec / jniDurationSec
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Direct-to-Direct Ratio (CritR vs Java) : %.2fx\n",
+                javaDirectDurationSec / jniCriticalDurationSec
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Direct-to-Direct Ratio (CritC vs Java) : %.2fx\n",
+                javaDirectDurationSec / jniCriticalCachedDurationSec
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Direct-to-Direct Ratio (CritC vs JNI)  : %.2fx\n",
+                jniDurationSec / jniCriticalCachedDurationSec
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Array-to-Direct Ratio (JNI vs Java)    : %.2fx\n",
+                javaArrayToDirectDurationSec / jniArrayToDirectDurationSec
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Direct-to-Array Ratio (JNI vs Java)    : %.2fx\n\n",
+                javaDirectToArrayDurationSec / jniDirectToArrayDurationSec
+            )
+        )
+    }
 
     private fun runAesBenchmark(sb: StringBuilder) {
         val sizeMb = 10
         val chunkSize = 65536 // 64 KB
         val totalChunks = (sizeMb * 1024 * 1024) / chunkSize
 
-        sb.append("3. AES DECRYPTION PATH BENCHMARK (total data = $sizeMb MB, chunk size = 64 KB)\n")
+        sb.append(
+            "3. AES DECRYPTION PATH BENCHMARK (total data = $sizeMb MB, chunk size = 64 KB)\n"
+        )
 
         val secretKey = ByteArray(16) { i -> (i + 1).toByte() }
         val plaintext = ByteArray(chunkSize) { i -> (i % 256).toByte() }
@@ -266,7 +380,7 @@ class PerformanceBenchmark {
         // 1. Heap-based AES path
         val heapDataSource = ByteArrayDataSource(ciphertext)
         val heapAesDataSource = AesCipherDataSource(secretKey, heapDataSource)
-        
+
         val heapTarget = ByteArray(chunkSize)
         val heapStart = System.nanoTime()
         for (i in 0 until totalChunks) {
@@ -300,8 +414,20 @@ class PerformanceBenchmark {
         val directDurationSec = (directEnd - directStart) / 1_000_000_000.0
         val directThroughput = sizeMb / directDurationSec
 
-        sb.append(String.format("  - Heap AesCipherDataSource : %6.2f ms (%6.1f MB/s)\n", heapDurationSec * 1000.0, heapThroughput))
-        sb.append(String.format("  - Direct Zero-Copy AES Path : %6.2f ms (%6.1f MB/s)\n", directDurationSec * 1000.0, directThroughput))
+        sb.append(
+            String.format(
+                "  - Heap AesCipherDataSource : %6.2f ms (%6.1f MB/s)\n",
+                heapDurationSec * 1000.0,
+                heapThroughput
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Direct Zero-Copy AES Path : %6.2f ms (%6.1f MB/s)\n",
+                directDurationSec * 1000.0,
+                directThroughput
+            )
+        )
         val ratio = heapDurationSec / directDurationSec
         sb.append(String.format("  - Direct Speedup Factor     : %.2fx\n\n", ratio))
     }
@@ -311,7 +437,9 @@ class PerformanceBenchmark {
         val totalBytes = sizeMb * 1024 * 1024
         val chunkSize = 65536 // 64 KB
 
-        sb.append("4. LOCALHOST TCP SOCKET NETWORK BENCHMARK (total data = $sizeMb MB, chunk size = 64 KB)\n")
+        sb.append(
+            "4. LOCALHOST TCP SOCKET NETWORK BENCHMARK (total data = $sizeMb MB, chunk size = 64 KB)\n"
+        )
 
         // 1. Setup ServerSocketChannel for standard Java socket test
         val serverChannel = java.nio.channels.ServerSocketChannel.open()
@@ -408,8 +536,20 @@ class PerformanceBenchmark {
         val directThroughput = sizeMb / directDurationSec
         serverChannel2.close()
 
-        sb.append(String.format("  - Java Socket InputStream : %6.2f ms (%6.1f MB/s)\n", javaDurationSec * 1000.0, javaThroughput))
-        sb.append(String.format("  - Direct SocketChannel    : %6.2f ms (%6.1f MB/s)\n", directDurationSec * 1000.0, directThroughput))
+        sb.append(
+            String.format(
+                "  - Java Socket InputStream : %6.2f ms (%6.1f MB/s)\n",
+                javaDurationSec * 1000.0,
+                javaThroughput
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Direct SocketChannel    : %6.2f ms (%6.1f MB/s)\n",
+                directDurationSec * 1000.0,
+                directThroughput
+            )
+        )
     }
 
     private fun runJniCrossoverBenchmark(sb: StringBuilder) {
@@ -418,20 +558,21 @@ class PerformanceBenchmark {
         for (size in sizes) {
             val totalBytes = 5 * 1024 * 1024
             val iterations = totalBytes / size
-            
+
             val srcArr = ByteArray(size) { i -> (i % 256).toByte() }
             val dstArr = ByteArray(size)
             val srcDirect = ByteBuffer.allocateDirect(size)
             srcDirect.put(srcArr)
             val dstDirect = ByteBuffer.allocateDirect(size)
-            
+
             val srcAddr = SampleDataQueueNative.getDirectBufferAddress(srcDirect)
             val dstAddr = SampleDataQueueNative.getDirectBufferAddress(dstDirect)
 
             // Warm up
             for (i in 0 until 50) {
                 System.arraycopy(srcArr, 0, dstArr, 0, size)
-                srcDirect.clear(); dstDirect.clear()
+                srcDirect.clear()
+                dstDirect.clear()
                 SampleDataQueueNative.copyBetweenDirectBuffers(srcDirect, 0, dstDirect, 0, size)
                 SampleDataQueueNative.nativeCopyAddresses(srcAddr, 0, dstAddr, 0, size)
             }
@@ -457,12 +598,19 @@ class PerformanceBenchmark {
             }
             val critDurationMs = (System.nanoTime() - startCrit) / 1_000_000.0
 
-            val sizeStr = if (size < 1024) "${size} B" else "${size / 1024} KB"
-            sb.append(String.format("  - Size %7s: Java=%6.2fms (%5.1f MB/s) | JNI=%6.2fms (%5.1f MB/s) | Crit=%6.2fms (%5.1f MB/s)\n",
-                sizeStr,
-                javaDurationMs, 5.0 / (javaDurationMs / 1000.0),
-                jniDurationMs, 5.0 / (jniDurationMs / 1000.0),
-                critDurationMs, 5.0 / (critDurationMs / 1000.0)))
+            val sizeStr = if (size < 1024) "$size B" else "${size / 1024} KB"
+            sb.append(
+                String.format(
+                    "  - Size %7s: Java=%6.2fms (%5.1f MB/s) | JNI=%6.2fms (%5.1f MB/s) | Crit=%6.2fms (%5.1f MB/s)\n",
+                    sizeStr,
+                    javaDurationMs,
+                    5.0 / (javaDurationMs / 1000.0),
+                    jniDurationMs,
+                    5.0 / (jniDurationMs / 1000.0),
+                    critDurationMs,
+                    5.0 / (critDurationMs / 1000.0)
+                )
+            )
         }
         sb.append("\n")
     }
@@ -521,7 +669,7 @@ class PerformanceBenchmark {
             channel.configureBlocking(true)
             val chunkBuffer = ByteBuffer.allocate(2048)
             val headerBuilder = StringBuilder()
-            
+
             // Read in chunks
             while (true) {
                 val read = channel.read(chunkBuffer)
@@ -542,8 +690,20 @@ class PerformanceBenchmark {
         server.close()
         serverThread.interrupt()
 
-        sb.append(String.format("  - Byte-by-Byte (allocate(1)): %6.2f ms (%.3f ms/conn)\n", durationByteByByteMs, durationByteByByteMs / iterations))
-        sb.append(String.format("  - Chunk-Buffered (2KB)      : %6.2f ms (%.3f ms/conn)\n", durationBufferedMs, durationBufferedMs / iterations))
+        sb.append(
+            String.format(
+                "  - Byte-by-Byte (allocate(1)): %6.2f ms (%.3f ms/conn)\n",
+                durationByteByByteMs,
+                durationByteByByteMs / iterations
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Chunk-Buffered (2KB)      : %6.2f ms (%.3f ms/conn)\n",
+                durationBufferedMs,
+                durationBufferedMs / iterations
+            )
+        )
         val ratio = durationByteByByteMs / durationBufferedMs
         sb.append(String.format("  - Speedup Factor            : %.2fx\n\n", ratio))
     }
@@ -614,10 +774,33 @@ class PerformanceBenchmark {
         }
         val durationByteMs = (System.nanoTime() - startByte) / 1_000_000.0
 
-        sb.append(String.format("  - Stock (split & lowercase) : %6.2f ms (value = %d)\n", durationStockMs, clStock))
-        sb.append(String.format("  - String Index-Scanning     : %6.2f ms (value = %d)\n", durationScanMs, clScan))
-        sb.append(String.format("  - Zero-Alloc Byte-Scanning  : %6.2f ms (value = %d)\n", durationByteMs, clByte))
-        sb.append(String.format("  - Byte Scan Speedup Factor  : %.2fx (vs Stock)\n\n", durationStockMs / durationByteMs))
+        sb.append(
+            String.format(
+                "  - Stock (split & lowercase) : %6.2f ms (value = %d)\n",
+                durationStockMs,
+                clStock
+            )
+        )
+        sb.append(
+            String.format(
+                "  - String Index-Scanning     : %6.2f ms (value = %d)\n",
+                durationScanMs,
+                clScan
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Zero-Alloc Byte-Scanning  : %6.2f ms (value = %d)\n",
+                durationByteMs,
+                clByte
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Byte Scan Speedup Factor  : %.2fx (vs Stock)\n\n",
+                durationStockMs / durationByteMs
+            )
+        )
     }
 
     private fun parseContentLengthZeroAlloc(bytes: ByteArray, length: Int): Long {
@@ -639,7 +822,9 @@ class PerformanceBenchmark {
             }
             if (match) {
                 var start = i + targetLower.size
-                while (start < length && (bytes[start] == ' '.toByte() || bytes[start] == '\t'.toByte())) {
+                while (start < length &&
+                    (bytes[start] == ' '.toByte() || bytes[start] == '\t'.toByte())
+                ) {
                     start++
                 }
                 var num = 0L
@@ -693,13 +878,32 @@ class PerformanceBenchmark {
         }
         val durationFastMs = (System.nanoTime() - startFast) / 1_000_000.0
 
-        sb.append(String.format("  - Stock (String -> toLong)  : %6.2f ms (value = %d)\n", durationStockMs, valStock))
-        sb.append(String.format("  - Fast Byte Accumulator     : %6.2f ms (value = %d)\n", durationFastMs, valFast))
-        sb.append(String.format("  - Speedup Factor            : %.2fx\n\n", durationStockMs / durationFastMs))
+        sb.append(
+            String.format(
+                "  - Stock (String -> toLong)  : %6.2f ms (value = %d)\n",
+                durationStockMs,
+                valStock
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Fast Byte Accumulator     : %6.2f ms (value = %d)\n",
+                durationFastMs,
+                valFast
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Speedup Factor            : %.2fx\n\n",
+                durationStockMs / durationFastMs
+            )
+        )
     }
 
     private fun runSynchronizationBenchmark(sb: StringBuilder) {
-        sb.append("9. LOCK CONTENTION & SYNCHRONIZATION OVERHEAD BENCHMARK (iterations = 5000000)\n")
+        sb.append(
+            "9. LOCK CONTENTION & SYNCHRONIZATION OVERHEAD BENCHMARK (iterations = 5000000)\n"
+        )
         val iterations = 5000000
 
         val lock = Object()
@@ -710,7 +914,12 @@ class PerformanceBenchmark {
         // Warm up
         for (i in 0..10000) {
             synchronized(lock) { volatileVal.value++ }
-            reentrant.lock(); try { volatileVal.value++ } finally { reentrant.unlock() }
+            reentrant.lock()
+            try {
+                volatileVal.value++
+            } finally {
+                reentrant.unlock()
+            }
             atomic.incrementAndGet()
             volatileVal.value++
         }
@@ -752,11 +961,40 @@ class PerformanceBenchmark {
         }
         val durationVolatileMs = (System.nanoTime() - startVolatile) / 1_000_000.0
 
-        sb.append(String.format("  - Synchronized Block        : %6.2f ms (val = %d)\n", durationSyncMs, v1))
-        sb.append(String.format("  - ReentrantLock             : %6.2f ms (val = %d)\n", durationReentrantMs, v2))
-        sb.append(String.format("  - AtomicLong                : %6.2f ms (val = %d)\n", durationAtomicMs, atomic.get()))
-        sb.append(String.format("  - Volatile Access           : %6.2f ms (val = %d)\n", durationVolatileMs, volatileVal.value))
-        sb.append(String.format("  - Volatile Speedup vs Sync  : %.2fx\n\n", durationSyncMs / durationVolatileMs))
+        sb.append(
+            String.format(
+                "  - Synchronized Block        : %6.2f ms (val = %d)\n",
+                durationSyncMs,
+                v1
+            )
+        )
+        sb.append(
+            String.format(
+                "  - ReentrantLock             : %6.2f ms (val = %d)\n",
+                durationReentrantMs,
+                v2
+            )
+        )
+        sb.append(
+            String.format(
+                "  - AtomicLong                : %6.2f ms (val = %d)\n",
+                durationAtomicMs,
+                atomic.get()
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Volatile Access           : %6.2f ms (val = %d)\n",
+                durationVolatileMs,
+                volatileVal.value
+            )
+        )
+        sb.append(
+            String.format(
+                "  - Volatile Speedup vs Sync  : %.2fx\n\n",
+                durationSyncMs / durationVolatileMs
+            )
+        )
     }
 
     private fun runThreadQueueBenchmark(sb: StringBuilder) {
@@ -848,7 +1086,12 @@ class PerformanceBenchmark {
         sb.append(String.format("  - ArrayBlockingQueue        : %6.2f ms\n", durationAqMs))
         sb.append(String.format("  - ConcurrentLinkedQueue     : %6.2f ms\n", durationCqMs))
         sb.append(String.format("  - Custom Ring Buffer (Yield): %6.2f ms\n", durationRbMs))
-        sb.append(String.format("  - Ring Buffer Speedup vs LQ : %.2fx\n\n", durationLqMs / durationRbMs))
+        sb.append(
+            String.format(
+                "  - Ring Buffer Speedup vs LQ : %.2fx\n\n",
+                durationLqMs / durationRbMs
+            )
+        )
     }
 
     private fun runGcChurnBenchmark(sb: StringBuilder) {
@@ -877,7 +1120,9 @@ class PerformanceBenchmark {
 
         // Zero Allocation Churn Mode (reusing structures/buffers, bypassing parsing string conversions)
         val startZero = System.nanoTime()
-        val mockHeadersBytes = "HTTP/1.1 200 OK\r\nContent-Length: 65536\r\nConnection: close\r\n\r\n".toByteArray(StandardCharsets.US_ASCII)
+        val mockHeadersBytes = "HTTP/1.1 200 OK\r\nContent-Length: 65536\r\nConnection: close\r\n\r\n".toByteArray(
+            StandardCharsets.US_ASCII
+        )
         val reusedBuffer = ByteArray(65536)
         for (i in 0 until segments) {
             // Avoid Uri parsing by string scanning or caching
@@ -891,10 +1136,17 @@ class PerformanceBenchmark {
 
         sb.append(String.format("  - Stock Allocation Churn   : %6.2f ms\n", durationStockMs))
         sb.append(String.format("  - Zero-Allocation Pipeline : %6.2f ms\n", durationZeroMs))
-        sb.append(String.format("  - Speedup Factor           : %.2fx\n\n", durationStockMs / durationZeroMs))
+        sb.append(
+            String.format(
+                "  - Speedup Factor           : %.2fx\n\n",
+                durationStockMs / durationZeroMs
+            )
+        )
     }
 
-    private class FakeByteBufferDataSource(private val data: ByteArray) : DataSource, androidx.media3.common.ByteBufferDataReader {
+    private class FakeByteBufferDataSource(private val data: ByteArray) :
+        DataSource,
+        androidx.media3.common.ByteBufferDataReader {
         private var position = 0
 
         fun resetPosition() {

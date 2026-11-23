@@ -14,7 +14,9 @@ object DebridFormatterWebPage {
                 val config = Configuration(base.resources.configuration)
                 config.setLocale(Locale.forLanguageTag(tag))
                 base.createConfigurationContext(config)
-            } else base
+            } else {
+                base
+            }
         }
         fun s(id: Int, fallback: String): String = context?.getString(id) ?: fallback
         val appName = context?.getString(R.string.app_name) ?: "Movies"
@@ -282,17 +284,32 @@ object DebridFormatterWebPage {
   </div>
 
   <div class="intro">
-    <div class="intro-title">${s(R.string.web_debrid_intro_title, "Customize Debrid streams").html()}</div>
-    <div class="intro-copy">${s(R.string.web_debrid_intro_copy, "Adjust stream labels, filters, and sorting used for Direct Debrid results.").html()}</div>
+    <div class="intro-title">${s(
+            R.string.web_debrid_intro_title,
+            "Customize Debrid streams"
+        ).html()}</div>
+    <div class="intro-copy">${s(
+            R.string.web_debrid_intro_copy,
+            "Adjust stream labels, filters, and sorting used for Direct Debrid results."
+        ).html()}</div>
   </div>
 
   <div class="tabs">
-    <button class="tab active" type="button" data-tab="formatter">${s(R.string.web_debrid_tab_formatter, "Formatter").html()}</button>
-    <button class="tab" type="button" data-tab="rules">${s(R.string.web_debrid_tab_rules, "Filters & Sort").html()}</button>
+    <button class="tab active" type="button" data-tab="formatter">${s(
+            R.string.web_debrid_tab_formatter,
+            "Formatter"
+        ).html()}</button>
+    <button class="tab" type="button" data-tab="rules">${s(
+            R.string.web_debrid_tab_rules,
+            "Filters & Sort"
+        ).html()}</button>
   </div>
 
   <div class="panel active" id="panel-formatter">
-    <div class="section-label">${s(R.string.web_debrid_template_fields, "Template fields").html()}</div>
+    <div class="section-label">${s(
+            R.string.web_debrid_template_fields,
+            "Template fields"
+        ).html()}</div>
     <div class="chips">
       <span class="chip">{stream.resolution}</span>
       <span class="chip">{stream.quality}</span>
@@ -304,12 +321,18 @@ object DebridFormatterWebPage {
     </div>
 
     <div class="field">
-      <label for="nameTemplate">${s(R.string.web_debrid_name_template, "Name Template").html()}</label>
+      <label for="nameTemplate">${s(
+            R.string.web_debrid_name_template,
+            "Name Template"
+        ).html()}</label>
       <textarea id="nameTemplate" spellcheck="false"></textarea>
     </div>
 
     <div class="field">
-      <label for="descriptionTemplate">${s(R.string.web_debrid_description_template, "Description Template").html()}</label>
+      <label for="descriptionTemplate">${s(
+            R.string.web_debrid_description_template,
+            "Description Template"
+        ).html()}</label>
       <textarea id="descriptionTemplate" spellcheck="false"></textarea>
     </div>
   </div>
@@ -318,15 +341,24 @@ object DebridFormatterWebPage {
     <div class="section-label">${s(R.string.web_debrid_stream_rules, "Stream rules").html()}</div>
     <div class="grid">
       <div class="field">
-        <label for="maxResults">${s(R.string.debrid_stream_max_results_title, "Max results").html()}</label>
+        <label for="maxResults">${s(
+            R.string.debrid_stream_max_results_title,
+            "Max results"
+        ).html()}</label>
         <input id="maxResults" type="number" min="0" max="100" inputmode="numeric">
       </div>
       <div class="field">
-        <label for="maxPerResolution">${s(R.string.web_debrid_per_resolution, "Per Resolution").html()}</label>
+        <label for="maxPerResolution">${s(
+            R.string.web_debrid_per_resolution,
+            "Per Resolution"
+        ).html()}</label>
         <input id="maxPerResolution" type="number" min="0" max="100" inputmode="numeric">
       </div>
       <div class="field">
-        <label for="maxPerQuality">${s(R.string.web_debrid_per_quality, "Per Quality").html()}</label>
+        <label for="maxPerQuality">${s(
+            R.string.web_debrid_per_quality,
+            "Per Quality"
+        ).html()}</label>
         <input id="maxPerQuality" type="number" min="0" max="100" inputmode="numeric">
       </div>
       <div class="field">
@@ -340,12 +372,30 @@ object DebridFormatterWebPage {
       <div class="field">
         <label for="sortPreset">${s(R.string.library_filter_sort, "Sort").html()}</label>
         <select id="sortPreset">
-          <option value="original">${s(R.string.debrid_stream_sort_original, "Original order").html()}</option>
-          <option value="bestQuality">${s(R.string.debrid_stream_sort_best_quality, "Best quality first").html()}</option>
-          <option value="largest">${s(R.string.debrid_stream_sort_largest, "Largest first").html()}</option>
-          <option value="smallest">${s(R.string.debrid_stream_sort_smallest, "Smallest first").html()}</option>
-          <option value="audio">${s(R.string.debrid_stream_sort_best_audio, "Best audio first").html()}</option>
-          <option value="language">${s(R.string.debrid_stream_sort_language, "Language first").html()}</option>
+          <option value="original">${s(
+            R.string.debrid_stream_sort_original,
+            "Original order"
+        ).html()}</option>
+          <option value="bestQuality">${s(
+            R.string.debrid_stream_sort_best_quality,
+            "Best quality first"
+        ).html()}</option>
+          <option value="largest">${s(
+            R.string.debrid_stream_sort_largest,
+            "Largest first"
+        ).html()}</option>
+          <option value="smallest">${s(
+            R.string.debrid_stream_sort_smallest,
+            "Smallest first"
+        ).html()}</option>
+          <option value="audio">${s(
+            R.string.debrid_stream_sort_best_audio,
+            "Best audio first"
+        ).html()}</option>
+          <option value="language">${s(
+            R.string.debrid_stream_sort_language,
+            "Language first"
+        ).html()}</option>
         </select>
       </div>
     </div>
@@ -354,19 +404,31 @@ object DebridFormatterWebPage {
 
     <div class="grid">
       <div class="field">
-        <label for="requiredReleaseGroups">${s(R.string.debrid_stream_release_groups_required, "Required release groups").html()}</label>
+        <label for="requiredReleaseGroups">${s(
+            R.string.debrid_stream_release_groups_required,
+            "Required release groups"
+        ).html()}</label>
         <textarea id="requiredReleaseGroups" spellcheck="false"></textarea>
       </div>
       <div class="field">
-        <label for="excludedReleaseGroups">${s(R.string.debrid_stream_release_groups_excluded, "Excluded release groups").html()}</label>
+        <label for="excludedReleaseGroups">${s(
+            R.string.debrid_stream_release_groups_excluded,
+            "Excluded release groups"
+        ).html()}</label>
         <textarea id="excludedReleaseGroups" spellcheck="false"></textarea>
       </div>
     </div>
   </div>
 
   <div class="actions">
-    <button class="btn" id="defaults">${s(R.string.web_debrid_restore_default, "Restore Default").html()}</button>
-    <button class="btn" id="save">${s(R.string.web_debrid_save_settings, "Save Settings").html()}</button>
+    <button class="btn" id="defaults">${s(
+            R.string.web_debrid_restore_default,
+            "Restore Default"
+        ).html()}</button>
+    <button class="btn" id="save">${s(
+            R.string.web_debrid_save_settings,
+            "Save Settings"
+        ).html()}</button>
   </div>
   <div class="status" id="status"></div>
 </div>
@@ -393,27 +455,90 @@ const options = {
   languages: [['EN','English'],['HI','Hindi'],['IT','Italian'],['ES','Spanish'],['FR','French'],['DE','German'],['PT','Portuguese'],['JA','Japanese'],['KO','Korean'],['ZH','Chinese'],['HE','Hebrew'],['MULTI','Multi'],['UNKNOWN','Unknown']]
 };
 const groups = [
-  ['preferredResolutions','${s(R.string.debrid_stream_resolutions_preferred, "Preferred resolutions").js()}','resolutions'],
-  ['requiredResolutions','${s(R.string.debrid_stream_resolutions_required, "Required resolutions").js()}','resolutions'],
-  ['excludedResolutions','${s(R.string.debrid_stream_resolutions_excluded, "Excluded resolutions").js()}','resolutions'],
-  ['preferredQualities','${s(R.string.debrid_stream_qualities_preferred, "Preferred qualities").js()}','qualities'],
-  ['requiredQualities','${s(R.string.debrid_stream_qualities_required, "Required qualities").js()}','qualities'],
-  ['excludedQualities','${s(R.string.debrid_stream_qualities_excluded, "Excluded qualities").js()}','qualities'],
-  ['preferredVisualTags','${s(R.string.debrid_stream_visual_tags_preferred, "Preferred visual tags").js()}','visualTags'],
-  ['requiredVisualTags','${s(R.string.debrid_stream_visual_tags_required, "Required visual tags").js()}','visualTags'],
-  ['excludedVisualTags','${s(R.string.debrid_stream_visual_tags_excluded, "Excluded visual tags").js()}','visualTags'],
-  ['preferredAudioTags','${s(R.string.debrid_stream_audio_tags_preferred, "Preferred audio tags").js()}','audioTags'],
-  ['requiredAudioTags','${s(R.string.debrid_stream_audio_tags_required, "Required audio tags").js()}','audioTags'],
-  ['excludedAudioTags','${s(R.string.debrid_stream_audio_tags_excluded, "Excluded audio tags").js()}','audioTags'],
-  ['preferredAudioChannels','${s(R.string.debrid_stream_channels_preferred, "Preferred channels").js()}','audioChannels'],
-  ['requiredAudioChannels','${s(R.string.debrid_stream_channels_required, "Required channels").js()}','audioChannels'],
-  ['excludedAudioChannels','${s(R.string.debrid_stream_channels_excluded, "Excluded channels").js()}','audioChannels'],
-  ['preferredEncodes','${s(R.string.debrid_stream_encodes_preferred, "Preferred encodes").js()}','encodes'],
-  ['requiredEncodes','${s(R.string.debrid_stream_encodes_required, "Required encodes").js()}','encodes'],
-  ['excludedEncodes','${s(R.string.debrid_stream_encodes_excluded, "Excluded encodes").js()}','encodes'],
-  ['preferredLanguages','${s(R.string.debrid_stream_languages_preferred, "Preferred languages").js()}','languages'],
-  ['requiredLanguages','${s(R.string.debrid_stream_languages_required, "Required languages").js()}','languages'],
-  ['excludedLanguages','${s(R.string.debrid_stream_languages_excluded, "Excluded languages").js()}','languages']
+  ['preferredResolutions','${s(
+            R.string.debrid_stream_resolutions_preferred,
+            "Preferred resolutions"
+        ).js()}','resolutions'],
+  ['requiredResolutions','${s(
+            R.string.debrid_stream_resolutions_required,
+            "Required resolutions"
+        ).js()}','resolutions'],
+  ['excludedResolutions','${s(
+            R.string.debrid_stream_resolutions_excluded,
+            "Excluded resolutions"
+        ).js()}','resolutions'],
+  ['preferredQualities','${s(
+            R.string.debrid_stream_qualities_preferred,
+            "Preferred qualities"
+        ).js()}','qualities'],
+  ['requiredQualities','${s(
+            R.string.debrid_stream_qualities_required,
+            "Required qualities"
+        ).js()}','qualities'],
+  ['excludedQualities','${s(
+            R.string.debrid_stream_qualities_excluded,
+            "Excluded qualities"
+        ).js()}','qualities'],
+  ['preferredVisualTags','${s(
+            R.string.debrid_stream_visual_tags_preferred,
+            "Preferred visual tags"
+        ).js()}','visualTags'],
+  ['requiredVisualTags','${s(
+            R.string.debrid_stream_visual_tags_required,
+            "Required visual tags"
+        ).js()}','visualTags'],
+  ['excludedVisualTags','${s(
+            R.string.debrid_stream_visual_tags_excluded,
+            "Excluded visual tags"
+        ).js()}','visualTags'],
+  ['preferredAudioTags','${s(
+            R.string.debrid_stream_audio_tags_preferred,
+            "Preferred audio tags"
+        ).js()}','audioTags'],
+  ['requiredAudioTags','${s(
+            R.string.debrid_stream_audio_tags_required,
+            "Required audio tags"
+        ).js()}','audioTags'],
+  ['excludedAudioTags','${s(
+            R.string.debrid_stream_audio_tags_excluded,
+            "Excluded audio tags"
+        ).js()}','audioTags'],
+  ['preferredAudioChannels','${s(
+            R.string.debrid_stream_channels_preferred,
+            "Preferred channels"
+        ).js()}','audioChannels'],
+  ['requiredAudioChannels','${s(
+            R.string.debrid_stream_channels_required,
+            "Required channels"
+        ).js()}','audioChannels'],
+  ['excludedAudioChannels','${s(
+            R.string.debrid_stream_channels_excluded,
+            "Excluded channels"
+        ).js()}','audioChannels'],
+  ['preferredEncodes','${s(
+            R.string.debrid_stream_encodes_preferred,
+            "Preferred encodes"
+        ).js()}','encodes'],
+  ['requiredEncodes','${s(
+            R.string.debrid_stream_encodes_required,
+            "Required encodes"
+        ).js()}','encodes'],
+  ['excludedEncodes','${s(
+            R.string.debrid_stream_encodes_excluded,
+            "Excluded encodes"
+        ).js()}','encodes'],
+  ['preferredLanguages','${s(
+            R.string.debrid_stream_languages_preferred,
+            "Preferred languages"
+        ).js()}','languages'],
+  ['requiredLanguages','${s(
+            R.string.debrid_stream_languages_required,
+            "Required languages"
+        ).js()}','languages'],
+  ['excludedLanguages','${s(
+            R.string.debrid_stream_languages_excluded,
+            "Excluded languages"
+        ).js()}','languages']
 ];
 function sortCriteriaForPreset(value){
   if(value==='bestQuality')return[{key:'RESOLUTION',direction:'DESC'},{key:'QUALITY',direction:'DESC'},{key:'VISUAL_TAG',direction:'DESC'},{key:'AUDIO_TAG',direction:'DESC'},{key:'AUDIO_CHANNEL',direction:'DESC'},{key:'ENCODE',direction:'DESC'},{key:'SIZE',direction:'DESC'}];
@@ -491,10 +616,19 @@ async function save(){
     body:JSON.stringify({nameTemplate:nameBox.value,descriptionTemplate:descBox.value,streamPreferences:collectPreferences()})
   });
   if(res.ok){
-    statusBox.textContent = '${s(R.string.web_status_saved_streams, "Saved. New streams will use these settings.").js()}';
+    statusBox.textContent = '${s(
+            R.string.web_status_saved_streams,
+            "Saved. New streams will use these settings."
+        ).js()}';
   }else{
-    const body = await res.json().catch(()=>({error:'${s(R.string.web_status_could_not_save, "Could not save").js()}'}));
-    statusBox.textContent = body.error || '${s(R.string.web_status_could_not_save, "Could not save").js()}';
+    const body = await res.json().catch(()=>({error:'${s(
+            R.string.web_status_could_not_save,
+            "Could not save"
+        ).js()}'}));
+    statusBox.textContent = body.error || '${s(
+            R.string.web_status_could_not_save,
+            "Could not save"
+        ).js()}';
     statusBox.className = 'status error';
   }
 }
@@ -506,22 +640,23 @@ document.getElementById('defaults').addEventListener('click',()=>{
   applyPreferences(defaults.streamPreferences);
 });
 renderRules();
-load().catch(()=>{statusBox.textContent='${s(R.string.web_debrid_status_load_error, "Could not load Debrid settings").js()}';statusBox.className='status error';});
+load().catch(()=>{statusBox.textContent='${s(
+            R.string.web_debrid_status_load_error,
+            "Could not load Debrid settings"
+        ).js()}';statusBox.className='status error';});
 </script>
 </body>
 </html>
-""".trimIndent()
+        """.trimIndent()
     }
 
-    private fun String.html(): String =
-        replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace("\"", "&quot;")
-            .replace("'", "&#39;")
+    private fun String.html(): String = replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\"", "&quot;")
+        .replace("'", "&#39;")
 
-    private fun String.js(): String =
-        replace("\\", "\\\\")
-            .replace("'", "\\'")
-            .replace("\n", "\\n")
+    private fun String.js(): String = replace("\\", "\\\\")
+        .replace("'", "\\'")
+        .replace("\n", "\\n")
 }

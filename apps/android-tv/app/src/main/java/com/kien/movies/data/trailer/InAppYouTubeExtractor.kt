@@ -4,6 +4,11 @@ import android.net.Uri
 import android.util.Log
 import com.google.gson.Gson
 import com.kien.movies.BuildConfig
+import java.net.URL
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,17 +17,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.net.URL
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "InAppYouTubeExtractor"
 private const val EXTRACTOR_TIMEOUT_MS = 30_000L
@@ -55,10 +55,7 @@ private data class YouTubeClient(
     val priority: Int
 )
 
-private data class WatchConfig(
-    val apiKey: String?,
-    val visitorData: String?
-)
+private data class WatchConfig(val apiKey: String?, val visitorData: String?)
 
 internal data class StreamCandidate(
     val client: String,
@@ -113,16 +110,19 @@ private class ClientStreams {
     val manifestUrls = mutableListOf<Triple<String, Int, String>>()
     var captionTracks = emptyList<TrailerSubtitleTrack>()
 
-    fun isEmpty(): Boolean =
-        manifestUrls.isEmpty() && progressive.isEmpty() && adaptiveVideo.isEmpty() && adaptiveAudio.isEmpty()
+    fun isEmpty(): Boolean = manifestUrls.isEmpty() && progressive.isEmpty() && adaptiveVideo.isEmpty() &&
+        adaptiveAudio.isEmpty()
 
     /** [playableVideo] drops the adaptive video streams this device can't show. */
     fun covers(
         kind: PlaybackSourceKind,
         playableVideo: (List<StreamCandidate>) -> List<StreamCandidate>
     ): Boolean = when (kind) {
-        PlaybackSourceKind.ADAPTIVE -> playableVideo(adaptiveVideo).isNotEmpty() && adaptiveAudio.isNotEmpty()
+        PlaybackSourceKind.ADAPTIVE -> playableVideo(adaptiveVideo).isNotEmpty() &&
+            adaptiveAudio.isNotEmpty()
+
         PlaybackSourceKind.HLS_MANIFEST -> manifestUrls.isNotEmpty()
+
         PlaybackSourceKind.PROGRESSIVE -> progressive.isNotEmpty()
     }
 }
@@ -317,8 +317,7 @@ class InAppYouTubeExtractor internal constructor(
         return System.currentTimeMillis() - config.fetchedAt > config.ttlMs
     }
 
-    fun captionTracks(streamUrl: String): List<TrailerSubtitleTrack> =
-        captionTracksByStreamUrl[streamUrl].orEmpty()
+    fun captionTracks(streamUrl: String): List<TrailerSubtitleTrack> = captionTracksByStreamUrl[streamUrl].orEmpty()
 
     /** Invalidate cached config so next extraction re-fetches watch page. */
     fun invalidateConfig() {
@@ -333,16 +332,14 @@ class InAppYouTubeExtractor internal constructor(
     suspend fun extractPlaybackSource(
         youtubeUrl: String,
         maxVideoHeight: Int = Int.MAX_VALUE
-    ): TrailerPlaybackSource? =
-        extract(youtubeUrl, singleUrl = false, maxVideoHeight = maxVideoHeight)
+    ): TrailerPlaybackSource? = extract(youtubeUrl, singleUrl = false, maxVideoHeight = maxVideoHeight)
 
     /**
      * Returns one URL that carries both video and audio, for players that take a single URL
      * (the main player and external players). Prefers the HLS master playlist, which covers
      * every quality and lists the audio as its own rendition, then a progressive file.
      */
-    suspend fun extractSingleUrl(youtubeUrl: String): String? =
-        extract(youtubeUrl, singleUrl = true)?.videoUrl
+    suspend fun extractSingleUrl(youtubeUrl: String): String? = extract(youtubeUrl, singleUrl = true)?.videoUrl
 
     private suspend fun extract(
         youtubeUrl: String,
@@ -377,21 +374,32 @@ class InAppYouTubeExtractor internal constructor(
             throw e
         } catch (e: RateLimitedException) {
             val cooldownMs = rateLimitGate.onRateLimited()
-            Log.w(TAG, "YouTube is rate limiting (${e.message}), pausing extraction for ${cooldownMs / 1000}s")
+            Log.w(
+                TAG,
+                "YouTube is rate limiting (${e.message}), pausing extraction for ${cooldownMs / 1000}s"
+            )
         } catch (e: StaleConfigException) {
-            Log.w(TAG, "Every client still asks to sign in with a fresh watch config for $youtubeUrl")
+            Log.w(
+                TAG,
+                "Every client still asks to sign in with a fresh watch config for $youtubeUrl"
+            )
         } catch (error: Exception) {
             Log.w(TAG, "Kotlin extractor failed for $youtubeUrl: ${error.message}")
         }
 
         if (source == null) {
-            Log.w(TAG, "Kotlin extraction returned no playable source for ${summarizeUrl(youtubeUrl)}")
+            Log.w(
+                TAG,
+                "Kotlin extraction returned no playable source for ${summarizeUrl(youtubeUrl)}"
+            )
         } else {
             rateLimitGate.onSuccess()
             Log.d(
                 TAG,
                 "Kotlin extraction success for ${summarizeUrl(youtubeUrl)} " +
-                    "(video=${summarizeUrl(source.videoUrl)}, audioPresent=${!source.audioUrl.isNullOrBlank()})"
+                    "(video=${summarizeUrl(
+                        source.videoUrl
+                    )}, audioPresent=${!source.audioUrl.isNullOrBlank()})"
             )
         }
 
@@ -417,7 +425,12 @@ class InAppYouTubeExtractor internal constructor(
 
         // Use cached config instead of fetching watch page every time
         val config = ensureWatchConfig(forceRefresh = forceRefreshConfig)
-        Log.d(TAG, "Using config: apiKey=${config.apiKey.take(10)}... visitor=${!config.visitorData.isNullOrBlank()}")
+        Log.d(
+            TAG,
+            "Using config: apiKey=${config.apiKey.take(
+                10
+            )}... visitor=${!config.visitorData.isNullOrBlank()}"
+        )
 
         val streams = ClientStreams()
         val pendingClients = CLIENTS.iterator()
@@ -446,12 +459,17 @@ class InAppYouTubeExtractor internal constructor(
                             botCheckCount++
                             Log.w(TAG, "Client ${client.key}: bot check ($reason)")
                         }
+
                         // Age-restricted: a property of the video, a fresh config won't help.
                         AGE_CHECK_REGEX.containsMatchIn(reason) ->
                             Log.d(TAG, "Client ${client.key}: age restricted")
+
                         else -> {
                             loginRequiredCount++
-                            Log.w(TAG, "Client ${client.key}: LOGIN_REQUIRED (visitor may be stale)")
+                            Log.w(
+                                TAG,
+                                "Client ${client.key}: LOGIN_REQUIRED (visitor may be stale)"
+                            )
                         }
                     }
                     return
@@ -483,10 +501,15 @@ class InAppYouTubeExtractor internal constructor(
         if (streams.isEmpty()) {
             // Every client was asked and none returned anything.
             if (botCheckCount > 0) {
-                throw RateLimitedException("$botCheckCount of ${CLIENTS.size} clients hit the bot check")
+                throw RateLimitedException(
+                    "$botCheckCount of ${CLIENTS.size} clients hit the bot check"
+                )
             }
             if (loginRequiredCount == CLIENTS.size) {
-                Log.w(TAG, "All ${CLIENTS.size} clients returned LOGIN_REQUIRED, invalidating config")
+                Log.w(
+                    TAG,
+                    "All ${CLIENTS.size} clients returned LOGIN_REQUIRED, invalidating config"
+                )
                 invalidateConfig()
                 throw StaleConfigException()
             }
@@ -503,20 +526,23 @@ class InAppYouTubeExtractor internal constructor(
         return pickPlaybackSource(streams, singleUrl, maxVideoHeight)
     }
 
-    private fun parseCaptionTracks(playerResponse: Map<*, *>): List<TrailerSubtitleTrack> =
-        playerResponse.mapValue("captions")
-            ?.mapValue("playerCaptionsTracklistRenderer")
-            ?.listMapValue("captionTracks")
-            ?.mapNotNull { track ->
-                TrailerSubtitleTrack(
-                    languageCode = track.stringValue("languageCode") ?: return@mapNotNull null,
-                    url = captionUrlAsVtt(track.stringValue("baseUrl") ?: return@mapNotNull null),
-                    isAutoGenerated = track.stringValue("kind") == "asr"
-                )
-            }
-            .orEmpty()
+    private fun parseCaptionTracks(playerResponse: Map<*, *>): List<TrailerSubtitleTrack> = playerResponse.mapValue("captions")
+        ?.mapValue("playerCaptionsTracklistRenderer")
+        ?.listMapValue("captionTracks")
+        ?.mapNotNull { track ->
+            TrailerSubtitleTrack(
+                languageCode = track.stringValue("languageCode") ?: return@mapNotNull null,
+                url = captionUrlAsVtt(track.stringValue("baseUrl") ?: return@mapNotNull null),
+                isAutoGenerated = track.stringValue("kind") == "asr"
+            )
+        }
+        .orEmpty()
 
-    private fun addClientStreams(client: YouTubeClient, streamingData: Map<*, *>, streams: ClientStreams) {
+    private fun addClientStreams(
+        client: YouTubeClient,
+        streamingData: Map<*, *>,
+        streams: ClientStreams
+    ) {
         val hlsManifestUrl = streamingData.stringValue("hlsManifestUrl")
         if (!hlsManifestUrl.isNullOrBlank()) {
             streams.manifestUrls += Triple(client.key, client.priority, hlsManifestUrl)
@@ -527,9 +553,11 @@ class InAppYouTubeExtractor internal constructor(
             val mimeType = format.stringValue("mimeType").orEmpty()
             if (!mimeType.contains("video/") && mimeType.isNotBlank()) continue
 
-            val height = (format.numberValue("height")
-                ?: parseQualityLabel(format.stringValue("qualityLabel"))?.toDouble()
-                ?: 0.0).toInt()
+            val height = (
+                format.numberValue("height")
+                    ?: parseQualityLabel(format.stringValue("qualityLabel"))?.toDouble()
+                    ?: 0.0
+                ).toInt()
             val fps = (format.numberValue("fps") ?: 0.0).toInt()
             val bitrate = format.numberValue("bitrate")
                 ?: format.numberValue("averageBitrate")
@@ -555,9 +583,11 @@ class InAppYouTubeExtractor internal constructor(
             val hasAudio = mimeType.contains("audio/") || mimeType.startsWith("audio/")
 
             if (hasVideo) {
-                val height = (format.numberValue("height")
-                    ?: parseQualityLabel(format.stringValue("qualityLabel"))?.toDouble()
-                    ?: 0.0).toInt()
+                val height = (
+                    format.numberValue("height")
+                        ?: parseQualityLabel(format.stringValue("qualityLabel"))?.toDouble()
+                        ?: 0.0
+                    ).toInt()
                 val fps = (format.numberValue("fps") ?: 0.0).toInt()
                 val bitrate = format.numberValue("bitrate")
                     ?: format.numberValue("averageBitrate")
@@ -620,21 +650,37 @@ class InAppYouTubeExtractor internal constructor(
                         PREFERRED_SEPARATE_CLIENT
                     )
                     if (bestVideo != null) {
-                        Log.d(TAG, "Adaptive video: ${bestVideo.width}x${bestVideo.height} itag=${bestVideo.itag} codecs=${bestVideo.codecs} (maxHeight=$maxVideoHeight)")
+                        Log.d(
+                            TAG,
+                            "Adaptive video: ${bestVideo.width}x${bestVideo.height} itag=${bestVideo.itag} codecs=${bestVideo.codecs} (maxHeight=$maxVideoHeight)"
+                        )
                     }
-                    val bestAudio = pickBestForClient(streams.adaptiveAudio, PREFERRED_SEPARATE_CLIENT)
+                    val bestAudio =
+                        pickBestForClient(streams.adaptiveAudio, PREFERRED_SEPARATE_CLIENT)
                     val resolvedVideo = bestVideo?.url?.let { resolveReachableUrl(it) }
-                    val resolvedAudio = if (resolvedVideo != null) bestAudio?.url?.let { resolveReachableUrl(it) } else null
-                    resolvedVideo?.let { TrailerPlaybackSource(videoUrl = it, audioUrl = resolvedAudio) }
+                    val resolvedAudio = if (resolvedVideo !=
+                        null
+                    ) {
+                        bestAudio?.url?.let { resolveReachableUrl(it) }
+                    } else {
+                        null
+                    }
+                    resolvedVideo?.let {
+                        TrailerPlaybackSource(videoUrl = it, audioUrl = resolvedAudio)
+                    }
                 }
+
                 // HLS manifest (1080p, always works for COPPA/kids content). The manifests are
                 // only downloaded here, once the adaptive streams have failed.
                 PlaybackSourceKind.HLS_MANIFEST ->
                     pickBestManifest(streams.manifestUrls)
                         ?.let { TrailerPlaybackSource(videoUrl = it.manifestUrl, audioUrl = null) }
+
                 // Progressive (combined video+audio, usually low quality)
                 PlaybackSourceKind.PROGRESSIVE ->
-                    sortCandidates(streams.progressive).firstOrNull()?.url?.let { resolveReachableUrl(it) }
+                    sortCandidates(streams.progressive).firstOrNull()?.url?.let {
+                        resolveReachableUrl(it)
+                    }
                         ?.let { TrailerPlaybackSource(videoUrl = it, audioUrl = null) }
             }
             if (source != null) {
@@ -647,7 +693,9 @@ class InAppYouTubeExtractor internal constructor(
         return null
     }
 
-    private fun pickBestManifest(manifestUrls: List<Triple<String, Int, String>>): ManifestCandidate? {
+    private fun pickBestManifest(
+        manifestUrls: List<Triple<String, Int, String>>
+    ): ManifestCandidate? {
         var bestManifest: ManifestCandidate? = null
         for ((clientKey, priority, manifestUrl) in manifestUrls) {
             try {
@@ -663,7 +711,10 @@ class InAppYouTubeExtractor internal constructor(
                 if (
                     bestManifest == null ||
                     candidate.height > bestManifest.height ||
-                    (candidate.height == bestManifest.height && candidate.bandwidth > bestManifest.bandwidth)
+                    (
+                        candidate.height == bestManifest.height &&
+                            candidate.bandwidth > bestManifest.bandwidth
+                        )
                 ) {
                     bestManifest = candidate
                 }
@@ -705,7 +756,9 @@ class InAppYouTubeExtractor internal constructor(
             if (segments.size >= 2) {
                 val first = segments[0]
                 val second = segments[1]
-                if ((first == "embed" || first == "shorts" || first == "live") && VIDEO_ID_REGEX.matches(second)) {
+                if ((first == "embed" || first == "shorts" || first == "live") &&
+                    VIDEO_ID_REGEX.matches(second)
+                ) {
                     return second
                 }
             }
@@ -745,9 +798,12 @@ class InAppYouTubeExtractor internal constructor(
             put("contentCheckOk", true)
             put("racyCheckOk", true)
             put("context", mapOf("client" to client.context))
-            put("playbackContext", mapOf(
-                "contentPlaybackContext" to mapOf("html5Preference" to "HTML5_PREF_WANTS")
-            ))
+            put(
+                "playbackContext",
+                mapOf(
+                    "contentPlaybackContext" to mapOf("html5Preference" to "HTML5_PREF_WANTS")
+                )
+            )
         }
 
         val response = performRequest(
@@ -807,7 +863,10 @@ class InAppYouTubeExtractor internal constructor(
             if (
                 bestVariant == null ||
                 candidate.height > bestVariant.height ||
-                (candidate.height == bestVariant.height && candidate.bandwidth > bestVariant.bandwidth) ||
+                (
+                    candidate.height == bestVariant.height &&
+                        candidate.bandwidth > bestVariant.bandwidth
+                    ) ||
                 (
                     candidate.height == bestVariant.height &&
                         candidate.bandwidth == bestVariant.bandwidth &&
@@ -901,12 +960,15 @@ class InAppYouTubeExtractor internal constructor(
      * The order in which source kinds are tried. A single-URL source can't use the adaptive
      * formats, because their video and audio are separate files.
      */
-    internal fun sourcePreference(singleUrl: Boolean): List<PlaybackSourceKind> =
-        if (singleUrl) {
-            listOf(PlaybackSourceKind.HLS_MANIFEST, PlaybackSourceKind.PROGRESSIVE)
-        } else {
-            listOf(PlaybackSourceKind.ADAPTIVE, PlaybackSourceKind.HLS_MANIFEST, PlaybackSourceKind.PROGRESSIVE)
-        }
+    internal fun sourcePreference(singleUrl: Boolean): List<PlaybackSourceKind> = if (singleUrl) {
+        listOf(PlaybackSourceKind.HLS_MANIFEST, PlaybackSourceKind.PROGRESSIVE)
+    } else {
+        listOf(
+            PlaybackSourceKind.ADAPTIVE,
+            PlaybackSourceKind.HLS_MANIFEST,
+            PlaybackSourceKind.PROGRESSIVE
+        )
+    }
 
     internal fun sortCandidates(items: List<StreamCandidate>): List<StreamCandidate> {
         return items.sortedWith(
@@ -936,29 +998,36 @@ class InAppYouTubeExtractor internal constructor(
      * When none is left, the adaptive source is skipped and the HLS manifest or a progressive file
      * is used instead.
      */
-    internal fun playableVideo(items: List<StreamCandidate>): List<StreamCandidate> =
-        items.filter { candidate ->
-            if (candidate.isHdr) return@filter false
-            val codecs = candidate.codecs ?: return@filter true
-            canDecodeVideo(codecs, candidate.width, candidate.height, candidate.fps)
-        }
+    internal fun playableVideo(items: List<StreamCandidate>): List<StreamCandidate> = items.filter { candidate ->
+        if (candidate.isHdr) return@filter false
+        val codecs = candidate.codecs ?: return@filter true
+        canDecodeVideo(codecs, candidate.width, candidate.height, candidate.fps)
+    }
 
     /** HDR by its transfer function (PQ or HLG), or by YouTube's "HDR" quality label. */
     private fun isHdrFormat(format: Map<*, *>): Boolean {
-        val transfer = format.mapValue("colorInfo")?.stringValue("transferCharacteristics").orEmpty()
+        val transfer = format.mapValue(
+            "colorInfo"
+        )?.stringValue("transferCharacteristics").orEmpty()
         return transfer.contains("SMPTEST2084") ||
             transfer.contains("ARIB_STD_B67") ||
             format.stringValue("qualityLabel").orEmpty().contains("HDR", ignoreCase = true)
     }
 
     /** Streams within the 16:9 box of [maxHeight], or all of them when none fits. */
-    internal fun capVideoHeight(items: List<StreamCandidate>, maxHeight: Int): List<StreamCandidate> {
+    internal fun capVideoHeight(
+        items: List<StreamCandidate>,
+        maxHeight: Int
+    ): List<StreamCandidate> {
         if (maxHeight == Int.MAX_VALUE) return items
         val maxWidth = maxHeight * 16 / 9
         return items.filter { it.height <= maxHeight && it.width <= maxWidth }.ifEmpty { items }
     }
 
-    private fun pickBestForClient(items: List<StreamCandidate>, clientKey: String): StreamCandidate? {
+    private fun pickBestForClient(
+        items: List<StreamCandidate>,
+        clientKey: String
+    ): StreamCandidate? {
         val sameClient = items.filter { it.client == clientKey }
         if (sameClient.isNotEmpty()) {
             return sortCandidates(sameClient).firstOrNull()

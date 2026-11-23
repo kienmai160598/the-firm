@@ -1,7 +1,5 @@
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kien.movies.R
 import com.kien.movies.ui.screens.addon.QrCodeOverlay
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 fun LayoutSettingsScreen(
@@ -112,7 +111,13 @@ fun LayoutSettingsContent(
                                         expandedSections + section.name
                                     }
                                 },
-                                focusRequester = if (section == sections.first()) initialFocusRequester else null,
+                                focusRequester = if (section ==
+                                    sections.first()
+                                ) {
+                                    initialFocusRequester
+                                } else {
+                                    null
+                                },
                                 modifier = Modifier.testTag(LayoutSettingsTestTags.section(section))
                             ) {
                                 LayoutSectionContent(
@@ -130,33 +135,33 @@ fun LayoutSettingsContent(
                 }
             }
 
-        if (streamBadgeUiState.isQrModeActive) {
-            QrCodeOverlay(
-                qrBitmap = streamBadgeUiState.qrCodeBitmap,
-                serverUrl = streamBadgeUiState.serverUrl,
-                instruction = stringResource(R.string.stream_badge_qr_instruction),
-                onClose = {
-                    streamBadgeQrFocusRequester.requestFocus()
-                    viewModel.stopStreamBadgeQrMode()
-                },
-                qrSize = 168.dp,
-                modifier = Modifier.clip(settingsGroupShape())
-            )
-        }
+            if (streamBadgeUiState.isQrModeActive) {
+                QrCodeOverlay(
+                    qrBitmap = streamBadgeUiState.qrCodeBitmap,
+                    serverUrl = streamBadgeUiState.serverUrl,
+                    instruction = stringResource(R.string.stream_badge_qr_instruction),
+                    onClose = {
+                        streamBadgeQrFocusRequester.requestFocus()
+                        viewModel.stopStreamBadgeQrMode()
+                    },
+                    qrSize = 168.dp,
+                    modifier = Modifier.clip(settingsGroupShape())
+                )
+            }
 
-        if (customPosterQrState.isActive) {
-            QrCodeOverlay(
-                qrBitmap = customPosterQrState.qrCodeBitmap,
-                serverUrl = customPosterQrState.serverUrl,
-                instruction = stringResource(R.string.custom_poster_qr_instruction),
-                onClose = {
-                    customPosterQrFocusRequester.requestFocus()
-                    viewModel.stopCustomPosterQrMode()
-                },
-                qrSize = 168.dp,
-                modifier = Modifier.clip(settingsGroupShape())
-            )
-        }
+            if (customPosterQrState.isActive) {
+                QrCodeOverlay(
+                    qrBitmap = customPosterQrState.qrCodeBitmap,
+                    serverUrl = customPosterQrState.serverUrl,
+                    instruction = stringResource(R.string.custom_poster_qr_instruction),
+                    onClose = {
+                        customPosterQrFocusRequester.requestFocus()
+                        viewModel.stopCustomPosterQrMode()
+                    },
+                    qrSize = 168.dp,
+                    modifier = Modifier.clip(settingsGroupShape())
+                )
+            }
         }
     }
 }
@@ -173,19 +178,32 @@ private fun LayoutSectionContent(
     val onEvent: (LayoutSettingsEvent) -> Unit = viewModel::onEvent
     when (section) {
         LayoutSection.HOME_LAYOUT -> LayoutHomeLayoutSection(uiState, onEvent)
-        LayoutSection.HOME_CONTENT -> LayoutHomeContentSection(uiState, onEvent, discoverLocationInHomeContent)
+
+        LayoutSection.HOME_CONTENT -> LayoutHomeContentSection(
+            uiState,
+            onEvent,
+            discoverLocationInHomeContent
+        )
+
         LayoutSection.SIDEBAR -> LayoutSidebarSection(uiState, onEvent)
+
         LayoutSection.CONTINUE_WATCHING -> LayoutContinueWatchingSection(uiState, onEvent)
+
         LayoutSection.FOCUSED_POSTER -> LayoutFocusedPosterSection(uiState, onEvent)
+
         LayoutSection.POSTER_CARD -> LayoutPosterCardSection(uiState, onEvent)
+
         LayoutSection.CARD_DEPTH -> LayoutCardDepthSection(uiState, onEvent)
+
         LayoutSection.CUSTOM_POSTERS -> LayoutCustomPosterSection(
             uiState = uiState,
             onEvent = onEvent,
             onConfigureViaPhone = viewModel::startCustomPosterQrMode,
             focusRequester = customPosterQrFocusRequester
         )
+
         LayoutSection.DETAIL_PAGE -> LayoutDetailPageSection(uiState, onEvent)
+
         LayoutSection.STREAMS -> LayoutStreamsSection(
             streamBadgeUiState = streamBadgeUiState,
             onShowFileSizeBadgesChange = viewModel::setShowFileSizeBadges,

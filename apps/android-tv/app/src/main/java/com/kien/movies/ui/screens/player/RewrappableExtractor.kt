@@ -16,9 +16,8 @@ internal interface RewrappableExtractor : Extractor {
 }
 
 /** This extractor's wrappers rebuilt around [replacement] in place of the innermost extractor. */
-internal fun Extractor.replaceInnermostExtractor(replacement: Extractor): Extractor =
-    if (this is RewrappableExtractor) {
-        rewrap(wrappedExtractor.replaceInnermostExtractor(replacement))
-    } else {
-        replacement
-    }
+internal fun Extractor.replaceInnermostExtractor(replacement: Extractor): Extractor = if (this is RewrappableExtractor) {
+    rewrap(wrappedExtractor.replaceInnermostExtractor(replacement))
+} else {
+    replacement
+}

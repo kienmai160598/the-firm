@@ -44,8 +44,7 @@ class TrackingLibraryProviderRegistry @Inject constructor(
         require(providersById.size == providers.size)
     }
 
-    fun providers(): List<TrackingLibraryProvider> =
-        providersById.values.sortedBy { it.providerId.ordinal }
+    fun providers(): List<TrackingLibraryProvider> = providersById.values.sortedBy { it.providerId.ordinal }
 
     fun provider(id: TrackingProviderId): TrackingLibraryProvider? = providersById[id]
 }

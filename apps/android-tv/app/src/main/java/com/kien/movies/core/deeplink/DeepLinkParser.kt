@@ -28,18 +28,27 @@ object DeepLinkParser {
 
         return when (host) {
             "meta" -> parseMetaFromParameters(parsedUrl) ?: parseMetaFromPath(pathSegments)
+
             "detail", "details", "open", "watch" -> parseMetaFromPath(pathSegments)
+
             "movie", "movies", "series", "show", "shows", "tv" -> {
                 val type = normalizeMediaType(host)
                 val id = pathSegments.firstOrNull()?.let(::normalizeId).orEmpty()
                 if (type.isBlank() || id.isBlank()) null else AppDeepLink.Meta(type = type, id = id)
             }
+
             "imdb", "tmdb" -> parseProviderMetaDeepLink(host, pathSegments, parsedUrl)
-            "party" -> (pathSegments.firstOrNull() ?: firstParameter(queryParameters(parsedUrl), "code"))
+
+            "party" -> (
+                pathSegments.firstOrNull()
+                    ?: firstParameter(queryParameters(parsedUrl), "code")
+                )
                 ?.let(::normalizePartyCode)
                 ?.takeIf { it.length == PARTY_CODE_LENGTH }
                 ?.let(AppDeepLink::Party)
+
             "auth" -> null
+
             else -> {
                 if (looksLikeAddonHost(host)) {
                     customSchemeToHttpsUrl(url, scheme)?.let(AppDeepLink::AddonInstall)
@@ -78,13 +87,21 @@ object DeepLinkParser {
         val first = pathSegments.firstOrNull().orEmpty()
         val second = pathSegments.getOrNull(1).orEmpty()
         val firstAsType = normalizeMediaType(first)
-        val queryType = firstParameter(queryParameters(parsedUrl), "type", "mediaType", "media_type")
+        val queryType = firstParameter(
+            queryParameters(parsedUrl),
+            "type",
+            "mediaType",
+            "media_type"
+        )
             ?.let(::normalizeMediaType)
             .orEmpty()
         val type = firstAsType.ifBlank { queryType }
         val rawId = if (firstAsType.isNotBlank()) second else first
         val id = when (provider) {
-            "tmdb" -> rawId.removePrefix("tmdb:").trim().takeIf(String::isNotBlank)?.let { "tmdb:$it" }
+            "tmdb" -> rawId.removePrefix("tmdb:").trim().takeIf(String::isNotBlank)?.let {
+                "tmdb:$it"
+            }
+
             else -> normalizeId(rawId).takeIf(String::isNotBlank)
         }.orEmpty()
         return if (type.isBlank() || id.isBlank()) null else AppDeepLink.Meta(type = type, id = id)

@@ -79,22 +79,29 @@ class CollectionEditorViewModelDirtyStateTest {
         }
         val sync = mockk<CollectionSyncService>(relaxed = true)
         val viewModelStore = ViewModelStore()
-        val vm = ViewModelProvider(viewModelStore, object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return CollectionEditorViewModel(
-                    appContext = context,
-                    savedStateHandle = SavedStateHandle(
-                        mapOf("collectionId" to (existing?.id ?: ""))
-                    ),
-                    collectionsDataStore = store,
-                    addonRepository = addonRepository,
-                    tmdbCollectionSourceResolver = mockk<TmdbCollectionSourceResolver>(relaxed = true),
-                    traktPublicListSourceResolver = mockk<TraktPublicListSourceResolver>(relaxed = true),
-                    collectionSyncService = sync
-                ) as T
+        val vm = ViewModelProvider(
+            viewModelStore,
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return CollectionEditorViewModel(
+                        appContext = context,
+                        savedStateHandle = SavedStateHandle(
+                            mapOf("collectionId" to (existing?.id ?: ""))
+                        ),
+                        collectionsDataStore = store,
+                        addonRepository = addonRepository,
+                        tmdbCollectionSourceResolver = mockk<TmdbCollectionSourceResolver>(
+                            relaxed = true
+                        ),
+                        traktPublicListSourceResolver = mockk<TraktPublicListSourceResolver>(
+                            relaxed = true
+                        ),
+                        collectionSyncService = sync
+                    ) as T
+                }
             }
-        })[CollectionEditorViewModel::class.java]
+        )[CollectionEditorViewModel::class.java]
         return Harness(vm, store, sync, viewModelStore)
     }
 
@@ -166,7 +173,11 @@ class CollectionEditorViewModelDirtyStateTest {
     @Test
     fun `folder editor tracks dirty state and propagates to collection only when saved`() = runTest {
         val harness = createHarness(
-            Collection(id = "c1", title = "Marvel", folders = listOf(folder("f1", title = "Movies")))
+            Collection(
+                id = "c1",
+                title = "Marvel",
+                folders = listOf(folder("f1", title = "Movies"))
+            )
         )
         runCurrent()
 

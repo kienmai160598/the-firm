@@ -11,7 +11,10 @@ class ContinueWatchingNoNextUpSeedsTest {
 
     @Test
     fun `a series with nothing announced is looked up again after a day`() {
-        assertEquals(now + NO_NEXT_UP_RECHECK_MS, noNextUpRecheckAt(nextReleaseMs = null, nowMs = now))
+        assertEquals(
+            now + NO_NEXT_UP_RECHECK_MS,
+            noNextUpRecheckAt(nextReleaseMs = null, nowMs = now)
+        )
     }
 
     @Test
@@ -21,7 +24,14 @@ class ContinueWatchingNoNextUpSeedsTest {
 
     @Test
     fun `a release far ahead still gets looked up after a day`() {
-        assertEquals(now + NO_NEXT_UP_RECHECK_MS, noNextUpRecheckAt(nextReleaseMs = now + 90 * 24 * hour, nowMs = now))
+        assertEquals(
+            now + NO_NEXT_UP_RECHECK_MS,
+            noNextUpRecheckAt(
+                nextReleaseMs =
+                    now + 90 * 24 * hour,
+                nowMs = now
+            )
+        )
     }
 
     @Test

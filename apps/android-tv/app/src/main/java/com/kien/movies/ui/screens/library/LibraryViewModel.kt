@@ -1,26 +1,28 @@
 package com.kien.movies.ui.screens.library
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kien.movies.R
 import com.kien.movies.core.auth.AuthManager
 import com.kien.movies.core.cloud.CloudLibraryFile
 import com.kien.movies.core.cloud.CloudLibraryItem
 import com.kien.movies.core.cloud.CloudLibraryItemType
-import com.kien.movies.core.cloud.CloudLibraryPlaybackInfo
 import com.kien.movies.core.cloud.CloudLibraryPlaybackContext
+import com.kien.movies.core.cloud.CloudLibraryPlaybackInfo
 import com.kien.movies.core.cloud.CloudLibraryPlaybackResult
 import com.kien.movies.core.cloud.CloudLibraryPlaybackSessionStore
 import com.kien.movies.core.cloud.CloudLibraryRepository
 import com.kien.movies.core.cloud.CloudLibraryUiState
-import com.kien.movies.core.player.ExternalPlaybackMetadata
-import com.kien.movies.core.player.ExternalPlaybackTracker
 import com.kien.movies.core.debrid.DebridProviderCapability
 import com.kien.movies.core.debrid.DebridProviders
 import com.kien.movies.core.debrid.supports
-import com.kien.movies.core.tracking.TrackingListManagementCapabilities
-import com.kien.movies.core.tracking.TrackingLibraryProviderRegistry
-import com.kien.movies.core.tracking.providerId
+import com.kien.movies.core.player.ExternalPlaybackMetadata
+import com.kien.movies.core.player.ExternalPlaybackTracker
 import com.kien.movies.core.poster.withCustomPosterUrls
+import com.kien.movies.core.tracking.TrackingLibraryProviderRegistry
+import com.kien.movies.core.tracking.TrackingListManagementCapabilities
+import com.kien.movies.core.tracking.providerId
 import com.kien.movies.data.local.DebridSettingsDataStore
 import com.kien.movies.data.local.LayoutPreferenceDataStore
 import com.kien.movies.data.local.LibraryPreferences
@@ -28,13 +30,14 @@ import com.kien.movies.data.local.PlayerPreference
 import com.kien.movies.data.local.PlayerSettingsDataStore
 import com.kien.movies.domain.model.AuthState
 import com.kien.movies.domain.model.LibraryEntry
+import com.kien.movies.domain.model.LibraryListPrivacy
 import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.LibrarySourceMode
-import com.kien.movies.domain.model.LibraryListPrivacy
 import com.kien.movies.domain.repository.LibraryRepository
-import android.content.Context
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.Locale
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -50,26 +53,17 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.kien.movies.R
-import java.util.Locale
-import javax.inject.Inject
 
 private val YEAR_REGEX = Regex("""\b(19|20)\d{2}\b""")
 
-data class LibraryTypeTab(
-    val key: String,
-    val label: String
-) {
+data class LibraryTypeTab(val key: String, val label: String) {
     companion object {
         const val ALL_KEY = "__all__"
         val All = LibraryTypeTab(key = ALL_KEY, label = "")
     }
 }
 
-enum class LibrarySortOption(
-    val key: String,
-    val labelResId: Int
-) {
+enum class LibrarySortOption(val key: String, val labelResId: Int) {
     DEFAULT("default", R.string.library_sort_provider_order),
     ADDED_DESC("added_desc", R.string.library_sort_added_desc),
     ADDED_ASC("added_asc", R.string.library_sort_added_asc),
@@ -80,7 +74,16 @@ enum class LibrarySortOption(
 
     companion object {
         val TrackingOptions = listOf(DEFAULT, ADDED_DESC, ADDED_ASC, TITLE_ASC, TITLE_DESC)
-        val MdbListOptions = listOf(DEFAULT, ADDED_DESC, ADDED_ASC, RELEASED_DESC, RELEASED_ASC, TITLE_ASC, TITLE_DESC)
+        val MdbListOptions =
+            listOf(
+                DEFAULT,
+                ADDED_DESC,
+                ADDED_ASC,
+                RELEASED_DESC,
+                RELEASED_ASC,
+                TITLE_ASC,
+                TITLE_DESC
+            )
         val LocalOptions = listOf(ADDED_DESC, ADDED_ASC, TITLE_ASC, TITLE_DESC)
     }
 }
@@ -88,14 +91,10 @@ enum class LibrarySortOption(
 enum class LibraryWatchedFilter(val key: String, val labelResId: Int) {
     ALL("all", R.string.library_watched_filter_all),
     WATCHED("watched", R.string.library_watched_filter_watched),
-    UNWATCHED("unwatched", R.string.library_watched_filter_unwatched);
+    UNWATCHED("unwatched", R.string.library_watched_filter_unwatched)
 }
 
-data class FilterOption(
-    val key: String,
-    val label: String,
-    val count: Int
-)
+data class FilterOption(val key: String, val label: String, val count: Int)
 
 data class LibraryListEditorState(
     val mode: Mode,
@@ -303,25 +302,42 @@ class LibraryViewModel @Inject constructor(
             updated.withVisibleItems()
         }
         viewModelScope.launch {
-            if (profileManager.activeProfileId.value == profileId) libraryPreferences.setSortOption(option.key)
+            if (profileManager.activeProfileId.value ==
+                profileId
+            ) {
+                libraryPreferences.setSortOption(option.key)
+            }
         }
     }
 
     private fun observeProviderSortOrder() {
         viewModelScope.launch {
             combine(profileManager.activeProfileId, uiState) { profileId, state ->
-                profileId to Triple(state.sourceMode.takeIf { state.isTrackingAuthenticated },
-                    state.selectedListKey, state.selectedSortOption)
+                profileId to Triple(
+                    state.sourceMode.takeIf { state.isTrackingAuthenticated },
+                    state.selectedListKey,
+                    state.selectedSortOption
+                )
             }.distinctUntilChanged().collectLatest { (profileId, selection) ->
                 _uiState.update { it.copy(providerSortOrder = null).withVisibleItems() }
                 val (source, listKey, sortOption) = selection
                 if (source == null || listKey == null) return@collectLatest
-                val sorter = source.providerId?.let(trackingProviderRegistry::provider)?.listSorter ?: return@collectLatest
+                val sorter =
+                    source.providerId?.let(trackingProviderRegistry::provider)?.listSorter
+                        ?: return@collectLatest
                 val order = when (sortOption) {
                     LibrarySortOption.ADDED_DESC, LibrarySortOption.ADDED_ASC ->
-                        sorter.observeAddedOrder(listKey, sortOption == LibrarySortOption.ADDED_DESC)
+                        sorter.observeAddedOrder(
+                            listKey,
+                            sortOption == LibrarySortOption.ADDED_DESC
+                        )
+
                     LibrarySortOption.RELEASED_DESC, LibrarySortOption.RELEASED_ASC ->
-                        sorter.observeReleaseOrder(listKey, sortOption == LibrarySortOption.RELEASED_DESC)
+                        sorter.observeReleaseOrder(
+                            listKey,
+                            sortOption == LibrarySortOption.RELEASED_DESC
+                        )
+
                     else -> return@collectLatest
                 }
                 try {
@@ -329,18 +345,34 @@ class LibraryViewModel @Inject constructor(
                         if (profileManager.activeProfileId.value != profileId) return@collect
                         _uiState.update { current ->
                             if (current.sourceMode != source || current.selectedListKey != listKey ||
-                                current.selectedSortOption != sortOption) current else current.copy(
-                                providerSortOrder = keys?.let { LibraryProviderOrder(source, listKey, sortOption,
-                                    it.withIndex().associate { (index, key) -> key to index }) }
-                            ).withVisibleItems()
+                                current.selectedSortOption != sortOption
+                            ) {
+                                current
+                            } else {
+                                current.copy(
+                                    providerSortOrder = keys?.let {
+                                        LibraryProviderOrder(
+                                            source,
+                                            listKey,
+                                            sortOption,
+                                            it.withIndex().associate { (index, key) ->
+                                                key to index
+                                            }
+                                        )
+                                    }
+                                ).withVisibleItems()
+                            }
                         }
                     }
                 } catch (error: CancellationException) {
                     throw error
                 } catch (_: Exception) {
                     val current = _uiState.value
-                    if (profileManager.activeProfileId.value == profileId && current.sourceMode == source &&
-                        current.selectedListKey == listKey && current.selectedSortOption == sortOption) {
+                    if (profileManager.activeProfileId.value == profileId &&
+                        current.sourceMode == source &&
+                        current.selectedListKey == listKey &&
+                        current.selectedSortOption == sortOption
+                    ) {
                         onSelectSortOption(LibrarySortOption.DEFAULT)
                         setError(context.getString(R.string.library_error_sort_failed))
                     }
@@ -363,7 +395,9 @@ class LibraryViewModel @Inject constructor(
                 state.copy(
                     cloudLibrary = state.cloudLibrary.copy(
                         isRefreshing = true,
-                        providers = state.cloudLibrary.providers.map { provider -> provider.copy(isLoading = true, errorMessage = null) }
+                        providers = state.cloudLibrary.providers.map { provider ->
+                            provider.copy(isLoading = true, errorMessage = null)
+                        }
                     )
                 )
             }
@@ -377,7 +411,12 @@ class LibraryViewModel @Inject constructor(
                 if (error is CancellationException) return@launch
                 setError(error.message ?: context.getString(R.string.cloud_library_play_failed))
                 _uiState.update { state ->
-                    state.copy(cloudLibrary = state.cloudLibrary.copy(isLoaded = true, isRefreshing = false)).withVisibleCloudItems()
+                    state.copy(
+                        cloudLibrary = state.cloudLibrary.copy(
+                            isLoaded = true,
+                            isRefreshing = false
+                        )
+                    ).withVisibleCloudItems()
                 }
             }
         }
@@ -436,14 +475,19 @@ class LibraryViewModel @Inject constructor(
                         )
                     )
                 }
+
                 CloudLibraryPlaybackResult.MissingCredentials -> {
                     setError(context.getString(R.string.cloud_library_connect_message))
                 }
+
                 CloudLibraryPlaybackResult.NotPlayable -> {
                     setError(context.getString(R.string.cloud_library_no_playable_files))
                 }
+
                 is CloudLibraryPlaybackResult.Failed -> {
-                    setError(result.message ?: context.getString(R.string.cloud_library_play_failed))
+                    setError(
+                        result.message ?: context.getString(R.string.cloud_library_play_failed)
+                    )
                 }
             }
         }
@@ -482,8 +526,7 @@ class LibraryViewModel @Inject constructor(
         return launched
     }
 
-    suspend fun getPlayerPreference(): PlayerPreference =
-        playerSettingsDataStore.playerSettings.first().playerPreference
+    suspend fun getPlayerPreference(): PlayerPreference = playerSettingsDataStore.playerSettings.first().playerPreference
 
     fun onRefresh() {
         if (_uiState.value.isSyncing) return
@@ -501,19 +544,29 @@ class LibraryViewModel @Inject constructor(
     fun onOpenManageLists() {
         val current = _uiState.value
         if (current.listManagement == null || !current.isTrackingAuthenticated) return
-        listManagementContext = ListManagementContext(profileManager.activeProfileId.value, current.sourceMode)
+        listManagementContext =
+            ListManagementContext(profileManager.activeProfileId.value, current.sourceMode)
         _uiState.update {
             it.copy(
                 showManageDialog = true,
                 manageSelectedListKey = it.manageSelectedListKey
-                    ?: it.listTabs.firstOrNull { tab -> tab.type == LibraryListTab.Type.PERSONAL }?.key
+                    ?: it.listTabs.firstOrNull { tab ->
+                        tab.type == LibraryListTab.Type.PERSONAL
+                    }?.key
             )
         }
     }
 
     fun onCloseManageLists() {
         listManagementContext = null
-        _uiState.update { it.copy(showManageDialog = false, listEditorState = null, pendingOperation = false, errorMessage = null) }
+        _uiState.update {
+            it.copy(
+                showManageDialog = false,
+                listEditorState = null,
+                pendingOperation = false,
+                errorMessage = null
+            )
+        }
     }
 
     fun onSelectManageList(listKey: String) {
@@ -524,7 +577,10 @@ class LibraryViewModel @Inject constructor(
     fun onStartCreateList() {
         if (!isListManagementCurrent()) return
         _uiState.update {
-            it.copy(listEditorState = LibraryListEditorState(mode = LibraryListEditorState.Mode.CREATE), errorMessage = null)
+            it.copy(
+                listEditorState = LibraryListEditorState(mode = LibraryListEditorState.Mode.CREATE),
+                errorMessage = null
+            )
         }
     }
 
@@ -548,16 +604,26 @@ class LibraryViewModel @Inject constructor(
     fun onUpdateEditorName(value: String) = updateListEditor { copy(name = value) }
 
     fun onUpdateEditorDescription(value: String) {
-        if (_uiState.value.listManagement?.supportsDescription == true) updateListEditor { copy(description = value) }
+        if (_uiState.value.listManagement?.supportsDescription ==
+            true
+        ) {
+            updateListEditor { copy(description = value) }
+        }
     }
 
     fun onUpdateEditorPrivacy(value: LibraryListPrivacy) {
-        if (value in _uiState.value.listManagement?.privacyOptions.orEmpty()) updateListEditor { copy(privacy = value) }
+        if (value in
+            _uiState.value.listManagement?.privacyOptions.orEmpty()
+        ) {
+            updateListEditor { copy(privacy = value) }
+        }
     }
 
     private fun updateListEditor(update: LibraryListEditorState.() -> LibraryListEditorState) {
         if (!isListManagementCurrent() || _uiState.value.pendingOperation) return
-        _uiState.update { current -> current.copy(listEditorState = current.listEditorState?.update()) }
+        _uiState.update { current ->
+            current.copy(listEditorState = current.listEditorState?.update())
+        }
     }
 
     fun onCancelEditor() {
@@ -571,13 +637,33 @@ class LibraryViewModel @Inject constructor(
             setError(context.getString(R.string.library_error_list_name_required))
             return
         }
-        val message = if (editor.mode == LibraryListEditorState.Mode.CREATE) R.string.library_list_created else R.string.library_list_updated
+        val message = if (editor.mode ==
+            LibraryListEditorState.Mode.CREATE
+        ) {
+            R.string.library_list_created
+        } else {
+            R.string.library_list_updated
+        }
         runListOperation(message, R.string.library_error_save_list_failed) { source ->
-            val description = editor.description.trim().takeIf { _uiState.value.listManagement?.supportsDescription == true && it.isNotBlank() }
+            val description = editor.description.trim().takeIf {
+                _uiState.value.listManagement?.supportsDescription ==
+                    true &&
+                    it.isNotBlank()
+            }
             when (editor.mode) {
-                LibraryListEditorState.Mode.CREATE -> libraryRepository.createPersonalList(name, description, editor.privacy, source)
+                LibraryListEditorState.Mode.CREATE -> libraryRepository.createPersonalList(
+                    name,
+                    description,
+                    editor.privacy,
+                    source
+                )
+
                 LibraryListEditorState.Mode.EDIT -> libraryRepository.updatePersonalList(
-                    requireNotNull(editor.listId), name, description, editor.privacy, source
+                    requireNotNull(editor.listId),
+                    name,
+                    description,
+                    editor.privacy,
+                    source
                 )
             }
         }
@@ -585,7 +671,10 @@ class LibraryViewModel @Inject constructor(
 
     fun onDeleteSelectedList() {
         val key = selectedManagePersonalList()?.key ?: return
-        runListOperation(R.string.library_list_deleted, R.string.library_error_delete_list_failed) { source ->
+        runListOperation(
+            R.string.library_list_deleted,
+            R.string.library_error_delete_list_failed
+        ) { source ->
             libraryRepository.deletePersonalList(key, source)
         }
     }
@@ -598,12 +687,18 @@ class LibraryViewModel @Inject constructor(
         _uiState.update { it.copy(transientMessage = null) }
     }
 
-    private fun isListManagementCurrent(expected: ListManagementContext? = listManagementContext): Boolean =
-        expected != null && expected == listManagementContext && expected.profileId == profileManager.activeProfileId.value &&
-            expected.source == _uiState.value.sourceMode && _uiState.value.showManageDialog &&
-            _uiState.value.isTrackingAuthenticated && _uiState.value.listManagement != null
+    private fun isListManagementCurrent(
+        expected: ListManagementContext? = listManagementContext
+    ): Boolean = expected != null && expected == listManagementContext &&
+        expected.profileId == profileManager.activeProfileId.value &&
+        expected.source == _uiState.value.sourceMode && _uiState.value.showManageDialog &&
+        _uiState.value.isTrackingAuthenticated && _uiState.value.listManagement != null
 
-    private fun runListOperation(successMessage: Int, errorMessage: Int, action: suspend (LibrarySourceMode) -> Unit) {
+    private fun runListOperation(
+        successMessage: Int,
+        errorMessage: Int,
+        action: suspend (LibrarySourceMode) -> Unit
+    ) {
         if (!isListManagementCurrent() || _uiState.value.pendingOperation) return
         val operationContext = requireNotNull(listManagementContext)
         _uiState.update { it.copy(pendingOperation = true, errorMessage = null) }
@@ -618,17 +713,27 @@ class LibraryViewModel @Inject constructor(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                if (isListManagementCurrent(operationContext)) setError(error.message ?: context.getString(errorMessage))
+                if (isListManagementCurrent(operationContext)) {
+                    setError(error.message ?: context.getString(errorMessage))
+                }
             } finally {
-                if (operationContext == listManagementContext) _uiState.update { it.copy(pendingOperation = false) }
+                if (operationContext ==
+                    listManagementContext
+                ) {
+                    _uiState.update { it.copy(pendingOperation = false) }
+                }
             }
         }
     }
 
     private fun observeLibraryData() {
-        val selectedProviderAuthenticated = libraryRepository.sourceMode.flatMapLatest { sourceMode ->
+        val selectedProviderAuthenticated = libraryRepository.sourceMode.flatMapLatest {
+                sourceMode
+            ->
             sourceMode.providerId
-                ?.let { providerId -> trackingProviderRegistry.provider(providerId)?.isAuthenticated }
+                ?.let { providerId ->
+                    trackingProviderRegistry.provider(providerId)?.isAuthenticated
+                }
                 ?: flowOf(true)
         }
         viewModelScope.launch {
@@ -645,8 +750,10 @@ class LibraryViewModel @Inject constructor(
             ) { args ->
                 val sourceMode = args[0] as LibrarySourceMode
                 val isSyncing = args[1] as Boolean
+
                 @Suppress("UNCHECKED_CAST")
                 val items = args[2] as List<LibraryEntry>
+
                 @Suppress("UNCHECKED_CAST")
                 val listTabs = args[3] as List<LibraryListTab>
                 val persistedSortKey = args[4] as String?
@@ -667,15 +774,22 @@ class LibraryViewModel @Inject constructor(
                 )
             }.collectLatest { bundle ->
                 val (sourceMode, isSyncing, items, listTabs, persistedSortKey, authState, isTrackingAuthenticated, persistedListKey, persistedTypeKey) = bundle
-                if (_uiState.value.sourceMode != sourceMode || !isTrackingAuthenticated) onCloseManageLists()
+                if (_uiState.value.sourceMode != sourceMode ||
+                    !isTrackingAuthenticated
+                ) {
+                    onCloseManageLists()
+                }
                 _uiState.update { current ->
                     val nextSelectedList = when {
                         sourceMode.providerId != null && isTrackingAuthenticated -> {
                             current.selectedListKey
                                 ?.takeIf { key -> listTabs.any { it.key == key } }
-                                ?: persistedListKey?.takeIf { key -> listTabs.any { it.key == key } }
+                                ?: persistedListKey?.takeIf { key ->
+                                    listTabs.any { it.key == key }
+                                }
                                 ?: listTabs.firstOrNull()?.key
                         }
+
                         else -> null
                     }
 
@@ -689,28 +803,45 @@ class LibraryViewModel @Inject constructor(
 
                     val nextSelectedType = current.selectedTypeTab
                         ?: persistedTypeKey?.let { key -> LibraryTypeTab(key = key, label = "") }
-                        ?: LibraryTypeTab.All.copy(label = context.getString(R.string.library_type_all))
-                    val sortOptions = if (sourceMode == LibrarySourceMode.MDBLIST && isTrackingAuthenticated) {
+                        ?: LibraryTypeTab.All.copy(
+                            label = context.getString(R.string.library_type_all)
+                        )
+                    val sortOptions = if (sourceMode == LibrarySourceMode.MDBLIST &&
+                        isTrackingAuthenticated
+                    ) {
                         LibrarySortOption.MdbListOptions
                     } else if (sourceMode.providerId != null && isTrackingAuthenticated) {
                         LibrarySortOption.TrackingOptions
                     } else {
                         LibrarySortOption.LocalOptions
                     }
-                    val modeDefault = if (sourceMode.providerId != null && isTrackingAuthenticated) LibrarySortOption.DEFAULT else LibrarySortOption.ADDED_DESC
+                    val modeDefault = if (sourceMode.providerId != null &&
+                        isTrackingAuthenticated
+                    ) {
+                        LibrarySortOption.DEFAULT
+                    } else {
+                        LibrarySortOption.ADDED_DESC
+                    }
                     val persistedSort = persistedSortKey?.let { key ->
                         LibrarySortOption.entries.find { it.key == key }
                     }
-                    val sessionSort = selectedSortOverride?.takeIf { it.first == profileManager.activeProfileId.value }?.second
-                    val nextSelectedSort = (sessionSort ?: persistedSort ?: current.selectedSortOption)
-                        .takeIf { it in sortOptions }
-                        ?: modeDefault
+                    val sessionSort = selectedSortOverride?.takeIf {
+                        it.first ==
+                            profileManager.activeProfileId.value
+                    }?.second
+                    val nextSelectedSort =
+                        (sessionSort ?: persistedSort ?: current.selectedSortOption)
+                            .takeIf { it in sortOptions }
+                            ?: modeDefault
 
-                    val isMoviesAccount = sourceMode == LibrarySourceMode.LOCAL && authState is AuthState.FullAccount
+                    val isMoviesAccount =
+                        sourceMode == LibrarySourceMode.LOCAL && authState is AuthState.FullAccount
 
                     val updated = current.copy(
                         sourceMode = sourceMode,
-                        listManagement = sourceMode.providerId?.let(trackingProviderRegistry::provider)?.listManager?.capabilities,
+                        listManagement = sourceMode.providerId?.let(
+                            trackingProviderRegistry::provider
+                        )?.listManager?.capabilities,
                         allItems = items,
                         listTabs = listTabs,
                         availableSortOptions = sortOptions,
@@ -756,8 +887,11 @@ class LibraryViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .collectLatest { pattern ->
                     _uiState.update { current ->
-                        if (current.customPosterUrlPattern == pattern) current
-                        else current.copy(customPosterUrlPattern = pattern).withVisibleItems()
+                        if (current.customPosterUrlPattern == pattern) {
+                            current
+                        } else {
+                            current.copy(customPosterUrlPattern = pattern).withVisibleItems()
+                        }
                     }
                 }
         }
@@ -766,8 +900,11 @@ class LibraryViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .collectLatest { screens ->
                     _uiState.update { current ->
-                        if (current.customPosterEnabledScreens == screens) current
-                        else current.copy(customPosterEnabledScreens = screens).withVisibleItems()
+                        if (current.customPosterEnabledScreens == screens) {
+                            current
+                        } else {
+                            current.copy(customPosterEnabledScreens = screens).withVisibleItems()
+                        }
                     }
                 }
         }
@@ -780,7 +917,9 @@ class LibraryViewModel @Inject constructor(
                     CloudLibrarySettingsSnapshot(
                         enabled = settings.cloudLibraryEnabled,
                         connectionKeys = DebridProviders.configuredServices(settings)
-                            .filter { credential -> credential.provider.supports(DebridProviderCapability.CloudLibrary) }
+                            .filter { credential ->
+                                credential.provider.supports(DebridProviderCapability.CloudLibrary)
+                            }
                             .map { credential -> "${credential.provider.id}:${credential.apiKey}" }
                     )
                 }
@@ -790,7 +929,10 @@ class LibraryViewModel @Inject constructor(
                         cloudRefreshJob?.cancel()
                         _uiState.update { state ->
                             state.copy(
-                                cloudLibrary = CloudLibraryUiState(isLoaded = true, isEnabled = false),
+                                cloudLibrary = CloudLibraryUiState(
+                                    isLoaded = true,
+                                    isEnabled = false
+                                ),
                                 visibleCloudItems = emptyList(),
                                 availableCloudProviders = emptyList(),
                                 availableCloudTypes = emptyList(),
@@ -804,7 +946,10 @@ class LibraryViewModel @Inject constructor(
                         cloudRefreshJob?.cancel()
                         _uiState.update { state ->
                             state.copy(
-                                cloudLibrary = CloudLibraryUiState(isLoaded = true, isEnabled = true),
+                                cloudLibrary = CloudLibraryUiState(
+                                    isLoaded = true,
+                                    isEnabled = true
+                                ),
                                 visibleCloudItems = emptyList(),
                                 availableCloudProviders = emptyList(),
                                 availableCloudTypes = emptyList(),
@@ -818,7 +963,10 @@ class LibraryViewModel @Inject constructor(
                         cloudRefreshJob?.cancel()
                         _uiState.update { state ->
                             state.copy(
-                                cloudLibrary = CloudLibraryUiState(isLoaded = false, isEnabled = true),
+                                cloudLibrary = CloudLibraryUiState(
+                                    isLoaded = false,
+                                    isEnabled = true
+                                ),
                                 visibleCloudItems = emptyList(),
                                 availableCloudProviders = emptyList(),
                                 availableCloudTypes = emptyList(),
@@ -858,8 +1006,13 @@ class LibraryViewModel @Inject constructor(
         if (selectedIndex < 0) return
         val targetIndex = if (moveUp) selectedIndex - 1 else selectedIndex + 1
         if (targetIndex !in personalTabs.indices) return
-        val reordered = personalTabs.toMutableList().apply { add(targetIndex, removeAt(selectedIndex)) }
-        runListOperation(R.string.library_list_order_updated, R.string.library_error_reorder_lists_failed) { source ->
+        val reordered = personalTabs.toMutableList().apply {
+            add(targetIndex, removeAt(selectedIndex))
+        }
+        runListOperation(
+            R.string.library_list_order_updated,
+            R.string.library_error_reorder_lists_failed
+        ) { source ->
             libraryRepository.reorderPersonalLists(reordered.map { it.key }, source)
         }
     }
@@ -867,7 +1020,10 @@ class LibraryViewModel @Inject constructor(
     private fun selectedManagePersonalList(): LibraryListTab? {
         val state = _uiState.value
         val selectedKey = state.manageSelectedListKey ?: return null
-        return state.listTabs.firstOrNull { it.key == selectedKey && it.type == LibraryListTab.Type.PERSONAL }
+        return state.listTabs.firstOrNull {
+            it.key == selectedKey &&
+                it.type == LibraryListTab.Type.PERSONAL
+        }
     }
 
     private fun setError(message: String) {
@@ -902,8 +1058,7 @@ class LibraryViewModel @Inject constructor(
             .ifBlank { context.getString(R.string.type_unknown) }
     }
 
-    private fun LibraryEntry.extractYear(): String? =
-        releaseInfo?.let { YEAR_REGEX.find(it)?.value }
+    private fun LibraryEntry.extractYear(): String? = releaseInfo?.let { YEAR_REGEX.find(it)?.value }
 
     private fun LibraryUiState.withVisibleItems(): LibraryUiState {
         val listFiltered = if (sourceMode.providerId != null) {
@@ -940,15 +1095,23 @@ class LibraryViewModel @Inject constructor(
         // Step 5: Watched status filter
         val watchedFiltered = when (selectedWatchedFilter) {
             LibraryWatchedFilter.ALL -> yearFiltered
+
             LibraryWatchedFilter.WATCHED -> yearFiltered.filter { entry ->
                 val isMovie = entry.type.equals("movie", ignoreCase = true)
-                if (isMovie) watchedMovieIds.contains(entry.id)
-                else watchedSeriesIds.contains(entry.id)
+                if (isMovie) {
+                    watchedMovieIds.contains(entry.id)
+                } else {
+                    watchedSeriesIds.contains(entry.id)
+                }
             }
+
             LibraryWatchedFilter.UNWATCHED -> yearFiltered.filter { entry ->
                 val isMovie = entry.type.equals("movie", ignoreCase = true)
-                if (isMovie) !watchedMovieIds.contains(entry.id)
-                else !watchedSeriesIds.contains(entry.id)
+                if (isMovie) {
+                    !watchedMovieIds.contains(entry.id)
+                } else {
+                    !watchedSeriesIds.contains(entry.id)
+                }
             }
         }
 
@@ -992,49 +1155,62 @@ class LibraryViewModel @Inject constructor(
 
         // Type tab counts: from listFiltered, applying genre+year filters
         val itemsForTypeCounts = listFiltered.filter { entry ->
-            val genreMatch = selectedGenre == null || entry.genres.any { it.equals(selectedGenre, ignoreCase = true) }
+            val genreMatch =
+                selectedGenre == null ||
+                    entry.genres.any { it.equals(selectedGenre, ignoreCase = true) }
             val yearMatch = selectedYear == null || entry.extractYear() == selectedYear
             genreMatch && yearMatch
         }
 
         // Step 6: Sort
         val providerOrder = providerSortOrder?.takeIf {
-            it.source == sourceMode && it.listKey == selectedListKey && it.sortOption == selectedSortOption
+            it.source == sourceMode && it.listKey == selectedListKey &&
+                it.sortOption == selectedSortOption
         }?.comparator()
         val sorted = when (selectedSortOption) {
             LibrarySortOption.DEFAULT -> when {
                 sourceMode.providerId != null -> watchedFiltered.sortedWith(
-                    compareBy<LibraryEntry> { it.listRanks[selectedListKey] ?: it.traktRank ?: Int.MAX_VALUE }
+                    compareBy<LibraryEntry> {
+                        it.listRanks[selectedListKey] ?: it.traktRank
+                            ?: Int.MAX_VALUE
+                    }
                         .thenByDescending { it.listedAt }
                         .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name.ifBlank { it.id } }
                         .thenBy { it.id }
                 )
+
                 else -> watchedFiltered
             }
+
             LibrarySortOption.ADDED_DESC -> watchedFiltered.sortedWith(
                 providerOrder ?: compareByDescending<LibraryEntry> { it.listedAt }
                     .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name.ifBlank { it.id } }
                     .thenBy { it.id }
             )
+
             LibrarySortOption.ADDED_ASC -> watchedFiltered.sortedWith(
                 providerOrder ?: compareBy<LibraryEntry> { it.listedAt }
                     .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name.ifBlank { it.id } }
                     .thenBy { it.id }
             )
+
             LibrarySortOption.RELEASED_DESC -> watchedFiltered.sortedWith(
                 providerOrder ?: compareByDescending<LibraryEntry> { it.extractYear() }
                     .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name.ifBlank { it.id } }
                     .thenBy { it.id }
             )
+
             LibrarySortOption.RELEASED_ASC -> watchedFiltered.sortedWith(
                 providerOrder ?: compareBy<LibraryEntry, String?>(nullsLast()) { it.extractYear() }
                     .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name.ifBlank { it.id } }
                     .thenBy { it.id }
             )
+
             LibrarySortOption.TITLE_ASC -> watchedFiltered.sortedWith(
                 compareBy<LibraryEntry> { titleSortKey(it.name.ifBlank { it.id }) }
                     .thenBy { it.id }
             )
+
             LibrarySortOption.TITLE_DESC -> watchedFiltered.sortedWith(
                 compareByDescending<LibraryEntry> { titleSortKey(it.name.ifBlank { it.id }) }
                     .thenBy { it.id }
@@ -1045,12 +1221,18 @@ class LibraryViewModel @Inject constructor(
         val typeTabsWithCounts = buildTypeTabsWithCounts(listFiltered, itemsForTypeCounts)
 
         // Validate selections — clear if no longer valid
-        val validGenre = selectedGenre?.takeIf { g -> genreOptions.any { it.key.equals(g, ignoreCase = true) } }
+        val validGenre = selectedGenre?.takeIf { g ->
+            genreOptions.any { it.key.equals(g, ignoreCase = true) }
+        }
         val validYear = selectedYear?.takeIf { y -> yearOptions.any { it.key == y } }
 
         return copy(
             visibleItems = sorted.withCustomPosterUrls(
-                com.kien.movies.core.poster.patternForScreen(customPosterUrlPattern, com.kien.movies.core.poster.CustomPosterScreen.LIBRARY, customPosterEnabledScreens)
+                com.kien.movies.core.poster.patternForScreen(
+                    customPosterUrlPattern,
+                    com.kien.movies.core.poster.CustomPosterScreen.LIBRARY,
+                    customPosterEnabledScreens
+                )
             ),
             availableTypeTabs = typeTabsWithCounts,
             availableGenres = genreOptions,
@@ -1084,13 +1266,22 @@ class LibraryViewModel @Inject constructor(
         }
         val providerCounts = allCloudItems
             .groupBy { it.providerId to it.providerName }
-            .map { (provider, items) -> FilterOption(key = provider.first, label = provider.second, count = items.size) }
+            .map { (provider, items) ->
+                FilterOption(key = provider.first, label = provider.second, count = items.size)
+            }
             .sortedBy { it.label.lowercase(Locale.ROOT) }
         val typeCounts = providerFiltered
             .groupBy { it.type }
-            .map { (type, items) -> FilterOption(key = type.name, label = cloudTypeLabel(type), count = items.size) }
+            .map { (type, items) ->
+                FilterOption(key = type.name, label = cloudTypeLabel(type), count = items.size)
+            }
             .sortedBy { option -> CloudLibraryItemType.valueOf(option.key).ordinal }
-        val validProvider = selectedCloudProviderId?.takeIf { providerId -> providerCounts.any { it.key == providerId } }
+        val validProvider = selectedCloudProviderId?.takeIf { providerId ->
+            providerCounts.any {
+                it.key ==
+                    providerId
+            }
+        }
         val validType = selectedCloudType?.takeIf { type -> typeCounts.any { it.key == type.name } }
         return copy(
             visibleCloudItems = visible,
@@ -1101,13 +1292,12 @@ class LibraryViewModel @Inject constructor(
         )
     }
 
-    private fun cloudTypeLabel(type: CloudLibraryItemType): String =
-        when (type) {
-            CloudLibraryItemType.Torrent -> context.getString(R.string.cloud_library_type_torrents)
-            CloudLibraryItemType.Usenet -> context.getString(R.string.cloud_library_type_usenet)
-            CloudLibraryItemType.WebDownload -> context.getString(R.string.cloud_library_type_web)
-            CloudLibraryItemType.File -> context.getString(R.string.cloud_library_type_files)
-        }
+    private fun cloudTypeLabel(type: CloudLibraryItemType): String = when (type) {
+        CloudLibraryItemType.Torrent -> context.getString(R.string.cloud_library_type_torrents)
+        CloudLibraryItemType.Usenet -> context.getString(R.string.cloud_library_type_usenet)
+        CloudLibraryItemType.WebDownload -> context.getString(R.string.cloud_library_type_web)
+        CloudLibraryItemType.File -> context.getString(R.string.cloud_library_type_files)
+    }
 
     private fun buildTypeTabsWithCounts(
         allTypeItems: List<LibraryEntry>,
@@ -1117,24 +1307,34 @@ class LibraryViewModel @Inject constructor(
         allTypeItems.forEach { entry ->
             // Use mediaCategory (e.g. "anime") as the display type when present,
             // so anime shows as a separate filter from movies/series.
-            val key = (entry.mediaCategory ?: entry.type).trim().ifBlank { "unknown" }.lowercase(Locale.ROOT)
+            val key = (entry.mediaCategory ?: entry.type).trim().ifBlank {
+                "unknown"
+            }.lowercase(Locale.ROOT)
             if (!byKey.containsKey(key)) {
                 byKey[key] = prettifyTypeLabel(key)
             }
         }
         val countByType = mutableMapOf<String, Int>()
         filteredItems.forEach { entry ->
-            val key = (entry.mediaCategory ?: entry.type).trim().ifBlank { "unknown" }.lowercase(Locale.ROOT)
+            val key = (entry.mediaCategory ?: entry.type).trim().ifBlank {
+                "unknown"
+            }.lowercase(Locale.ROOT)
             countByType[key] = (countByType[key] ?: 0) + 1
         }
         val allCount = filteredItems.size
-        val allTab = LibraryTypeTab(key = LibraryTypeTab.ALL_KEY, label = "${context.getString(R.string.library_type_all)} ($allCount)")
+        val allTab =
+            LibraryTypeTab(
+                key = LibraryTypeTab.ALL_KEY,
+                label = "${context.getString(R.string.library_type_all)} ($allCount)"
+            )
         // Stable order: movies, series/tv/show, anime, then anything else alphabetically.
         val typeOrder = listOf("movie", "series", "tv", "show", "anime")
-        val sortedKeys = byKey.keys.sortedWith(compareBy { key ->
-            val idx = typeOrder.indexOf(key)
-            if (idx >= 0) idx else typeOrder.size
-        })
+        val sortedKeys = byKey.keys.sortedWith(
+            compareBy { key ->
+                val idx = typeOrder.indexOf(key)
+                if (idx >= 0) idx else typeOrder.size
+            }
+        )
         return listOf(allTab) + sortedKeys.map { key ->
             LibraryTypeTab(key = key, label = "${byKey[key]} (${countByType[key] ?: 0})")
         }
@@ -1146,5 +1346,4 @@ class LibraryViewModel @Inject constructor(
 // and most media libraries order titles alphabetically.
 private val LEADING_ARTICLE_REGEX = Regex("^(the|an|a)\\s+", RegexOption.IGNORE_CASE)
 
-private fun titleSortKey(title: String): String =
-    title.trim().replace(LEADING_ARTICLE_REGEX, "").lowercase(Locale.ROOT)
+private fun titleSortKey(title: String): String = title.trim().replace(LEADING_ARTICLE_REGEX, "").lowercase(Locale.ROOT)

@@ -1,19 +1,11 @@
 package com.kien.movies.ui.screens.collection
 
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.tv.material3.LocalContentColor
-import com.kien.movies.ui.components.expressive.MoviesSwitch
-import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.components.buttonLabelStyle
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,20 +40,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,14 +66,14 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
+import com.kien.movies.R
 import com.kien.movies.domain.model.AddonCatalogCollectionSource
-import com.kien.movies.domain.model.catalogTypesMatch
-import com.kien.movies.domain.model.collectionCatalogKey
 import com.kien.movies.domain.model.CollectionFolder
 import com.kien.movies.domain.model.CollectionSource
 import com.kien.movies.domain.model.FolderViewMode
@@ -88,23 +83,24 @@ import com.kien.movies.domain.model.TmdbCollectionMediaType
 import com.kien.movies.domain.model.TmdbCollectionSort
 import com.kien.movies.domain.model.TmdbCollectionSource
 import com.kien.movies.domain.model.TraktCollectionSource
+import com.kien.movies.domain.model.catalogTypesMatch
+import com.kien.movies.domain.model.collectionCatalogKey
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.TvReorderList
+import com.kien.movies.ui.components.buttonLabelStyle
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesSwitch
 import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
-import com.kien.movies.R
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.TextStyle
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.metaFloor
 import com.kien.movies.ui.theme.screenTitleFloor
 import com.kien.movies.ui.theme.tvControlHeight
 
 @OptIn(ExperimentalTvMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
-fun FolderEditorContent(
-    viewModel: CollectionEditorViewModel,
-    uiState: CollectionEditorUiState
-) {
+fun FolderEditorContent(viewModel: CollectionEditorViewModel, uiState: CollectionEditorUiState) {
     val folder = uiState.editingFolder ?: return
 
     val sourcesScrollState = key(folder.id) { rememberScrollState() }
@@ -133,10 +129,13 @@ fun FolderEditorContent(
     }
 
     val genrePickerIndex = uiState.genrePickerSourceIndex
-    val genrePickerSource = genrePickerIndex?.let { folder.sources.getOrNull(it) as? AddonCatalogCollectionSource }
+    val genrePickerSource = genrePickerIndex?.let {
+        folder.sources.getOrNull(it) as? AddonCatalogCollectionSource
+    }
     val genrePickerCatalog = genrePickerSource?.let { source ->
         uiState.availableCatalogs.find {
-            it.addonId == source.addonId && catalogTypesMatch(it.type, source.type) && it.catalogId == source.catalogId
+            it.addonId == source.addonId && catalogTypesMatch(it.type, source.type) &&
+                it.catalogId == source.catalogId
         }
     }
     val showGenrePicker = genrePickerIndex != null &&
@@ -151,9 +150,12 @@ fun FolderEditorContent(
 
     val ensureComposedSourceKey = when (val target = pendingFocusTarget) {
         is FolderFocusTarget.SourceGenre -> sourceKeys.getOrNull(target.sourceIndex)
+
         is FolderFocusTarget.SourceEdit -> sourceKeys.getOrNull(target.sourceIndex)
+
         is FolderFocusTarget.SourceRemove -> sourceKeys.takeIf { it.isNotEmpty() }
             ?.let { it[target.sourceIndex.coerceIn(0, it.lastIndex)] }
+
         else -> null
     }
 
@@ -162,20 +164,27 @@ fun FolderEditorContent(
         val target = pendingFocusTarget ?: return@LaunchedEffect
         val requester = when (target) {
             FolderFocusTarget.Title -> titleFocusRequester
+
             FolderFocusTarget.EmojiCover -> emojiCoverFocusRequester
+
             FolderFocusTarget.AddCatalog -> addCatalogFocusRequester
+
             FolderFocusTarget.AddTmdb -> addTmdbFocusRequester
+
             FolderFocusTarget.AddTrakt -> addTraktFocusRequester
+
             is FolderFocusTarget.SourceGenre -> {
                 sourceKeys.getOrNull(target.sourceIndex)
                     ?.let { sourceGenreFocusRequesters.getOrPut(it) { FocusRequester() } }
                     ?: addCatalogFocusRequester
             }
+
             is FolderFocusTarget.SourceEdit -> {
                 sourceKeys.getOrNull(target.sourceIndex)
                     ?.let { sourceEditFocusRequesters.getOrPut(it) { FocusRequester() } }
                     ?: addCatalogFocusRequester
             }
+
             is FolderFocusTarget.SourceRemove -> {
                 if (sourceKeys.isEmpty()) {
                     addCatalogFocusRequester
@@ -187,7 +196,8 @@ fun FolderEditorContent(
         }
         val focused = requestFocusWhenReady(requester)
         if (!focused && requester !== titleFocusRequester) {
-            requestFocusWhenReady(addCatalogFocusRequester) || requestFocusWhenReady(titleFocusRequester)
+            requestFocusWhenReady(addCatalogFocusRequester) ||
+                requestFocusWhenReady(titleFocusRequester)
         }
         if (pendingFocusTarget == target) {
             pendingFocusTarget = null
@@ -319,162 +329,294 @@ fun FolderEditorContent(
             ),
             header = {
                 Column {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.collections_editor_edit_folder),
-                        style = MaterialTheme.typography.headlineMedium
-                            .screenTitleFloor()
-                            .copy(textDirection = TextDirection.Content),
-                        color = MoviesTheme.colors.TextPrimary,
-                    )
-                    val cancelButtonFocusRequester = remember(folder.id) { FocusRequester() }
-                    val saveButtonFocusRequester = remember(folder.id) { FocusRequester() }
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
-                        modifier = Modifier.focusEntryTarget(
-                            if (uiState.canSaveFolder) saveButtonFocusRequester else cancelButtonFocusRequester
-                        )
-                    ) {
-                        MoviesButton(
-                            onClick = {
-                                if (uiState.hasUnsavedFolderChanges) {
-                                    showUnsavedFolderDialog = true
-                                } else {
-                                    viewModel.cancelFolderEdit()
-                                }
-                            },
-                            modifier = Modifier.focusRequester(cancelButtonFocusRequester),
-                            enabled = uiState.movingSourceKey == null
-                        ) {
-                            Text(stringResource(R.string.collections_cancel))
-                        }
-                        MoviesButton(
-                            onClick = { viewModel.saveFolderEdit() },
-                            modifier = Modifier.focusRequester(saveButtonFocusRequester),
-                            enabled = uiState.canSaveFolder
-                        ) {
-                            Text(stringResource(R.string.collections_editor_save))
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
-
-                Text(stringResource(R.string.collections_editor_folder_title), style = MaterialTheme.typography.labelLarge, color = MoviesTheme.colors.TextSecondary)
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                MoviesTextField(
-                    value = folder.title,
-                    onValueChange = { viewModel.updateFolderTitle(it) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .blockHorizontalFocus(),
-                    placeholder = stringResource(R.string.collections_editor_placeholder_folder),
-                    focusRequester = titleFocusRequester
-                )
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
-
-                val hasEmoji = !folder.coverEmoji.isNullOrBlank()
-                val coverMode = when {
-                    folder.coverImageUrl != null -> "image"
-                    hasEmoji -> "emoji"
-                    else -> "none"
-                }
-                val selectedCoverFocusRequester = when (coverMode) {
-                    "emoji" -> emojiCoverFocusRequester
-                    "image" -> imageCoverFocusRequester
-                    else -> noneCoverFocusRequester
-                }
-
-                Text(stringResource(R.string.collections_editor_cover), style = MaterialTheme.typography.labelLarge, color = MoviesTheme.colors.TextSecondary)
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
-                    modifier = Modifier.focusEntryTarget(selectedCoverFocusRequester)
-                ) {
-                    MoviesButton(
-                        onClick = { viewModel.clearFolderCover() },
-                        modifier = Modifier
-                            .focusRequester(noneCoverFocusRequester)
-                            .semantics {
-                                role = Role.RadioButton
-                                selected = coverMode == "none"
-                            }.tvControlHeight(),
-                        style = if (coverMode == "none") MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            stringResource(R.string.collections_editor_cover_none),
-                            style = buttonLabelStyle()
+                            text = stringResource(R.string.collections_editor_edit_folder),
+                            style = MaterialTheme.typography.headlineMedium
+                                .screenTitleFloor()
+                                .copy(textDirection = TextDirection.Content),
+                            color = MoviesTheme.colors.TextPrimary
                         )
+                        val cancelButtonFocusRequester = remember(folder.id) { FocusRequester() }
+                        val saveButtonFocusRequester = remember(folder.id) { FocusRequester() }
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+                            modifier = Modifier.focusEntryTarget(
+                                if (uiState.canSaveFolder) saveButtonFocusRequester else cancelButtonFocusRequester
+                            )
+                        ) {
+                            MoviesButton(
+                                onClick = {
+                                    if (uiState.hasUnsavedFolderChanges) {
+                                        showUnsavedFolderDialog = true
+                                    } else {
+                                        viewModel.cancelFolderEdit()
+                                    }
+                                },
+                                modifier = Modifier.focusRequester(cancelButtonFocusRequester),
+                                enabled = uiState.movingSourceKey == null
+                            ) {
+                                Text(stringResource(R.string.collections_cancel))
+                            }
+                            MoviesButton(
+                                onClick = { viewModel.saveFolderEdit() },
+                                modifier = Modifier.focusRequester(saveButtonFocusRequester),
+                                enabled = uiState.canSaveFolder
+                            ) {
+                                Text(stringResource(R.string.collections_editor_save))
+                            }
+                        }
                     }
 
-                    MoviesButton(
-                        onClick = {
-                            pendingFocusTarget = FolderFocusTarget.EmojiCover
-                            viewModel.showEmojiPicker()
-                        },
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
+
+                    Text(
+                        stringResource(R.string.collections_editor_folder_title),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MoviesTheme.colors.TextSecondary
+                    )
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                    MoviesTextField(
+                        value = folder.title,
+                        onValueChange = { viewModel.updateFolderTitle(it) },
                         modifier = Modifier
-                            .focusRequester(emojiCoverFocusRequester)
-                            .semantics {
-                                role = Role.RadioButton
-                                selected = coverMode == "emoji"
-                            }.tvControlHeight(),
-                        style = if (coverMode == "emoji") MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
+                            .fillMaxWidth()
+                            .blockHorizontalFocus(),
+                        placeholder = stringResource(
+                            R.string.collections_editor_placeholder_folder
+                        ),
+                        focusRequester = titleFocusRequester
+                    )
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
+
+                    val hasEmoji = !folder.coverEmoji.isNullOrBlank()
+                    val coverMode = when {
+                        folder.coverImageUrl != null -> "image"
+                        hasEmoji -> "emoji"
+                        else -> "none"
+                    }
+                    val selectedCoverFocusRequester = when (coverMode) {
+                        "emoji" -> emojiCoverFocusRequester
+                        "image" -> imageCoverFocusRequester
+                        else -> noneCoverFocusRequester
+                    }
+
+                    Text(
+                        stringResource(R.string.collections_editor_cover),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MoviesTheme.colors.TextSecondary
+                    )
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+                        modifier = Modifier.focusEntryTarget(selectedCoverFocusRequester)
                     ) {
-                        if (hasEmoji) {
-                            Text("${folder.coverEmoji}  ${stringResource(R.string.collections_editor_cover_emoji)}")
-                        } else {
+                        MoviesButton(
+                            onClick = { viewModel.clearFolderCover() },
+                            modifier = Modifier
+                                .focusRequester(noneCoverFocusRequester)
+                                .semantics {
+                                    role = Role.RadioButton
+                                    selected = coverMode == "none"
+                                }.tvControlHeight(),
+                            style = if (coverMode ==
+                                "none"
+                            ) {
+                                MoviesButtonStyle.Selected
+                            } else {
+                                MoviesButtonStyle.Secondary
+                            }
+                        ) {
                             Text(
-                                stringResource(R.string.collections_editor_cover_emoji),
+                                stringResource(R.string.collections_editor_cover_none),
+                                style = buttonLabelStyle()
+                            )
+                        }
+
+                        MoviesButton(
+                            onClick = {
+                                pendingFocusTarget = FolderFocusTarget.EmojiCover
+                                viewModel.showEmojiPicker()
+                            },
+                            modifier = Modifier
+                                .focusRequester(emojiCoverFocusRequester)
+                                .semantics {
+                                    role = Role.RadioButton
+                                    selected = coverMode == "emoji"
+                                }.tvControlHeight(),
+                            style = if (coverMode ==
+                                "emoji"
+                            ) {
+                                MoviesButtonStyle.Selected
+                            } else {
+                                MoviesButtonStyle.Secondary
+                            }
+                        ) {
+                            if (hasEmoji) {
+                                Text(
+                                    "${folder.coverEmoji}  ${stringResource(
+                                        R.string.collections_editor_cover_emoji
+                                    )}"
+                                )
+                            } else {
+                                Text(
+                                    stringResource(R.string.collections_editor_cover_emoji),
+                                    style = buttonLabelStyle()
+                                )
+                            }
+                        }
+
+                        MoviesButton(
+                            onClick = { viewModel.switchToImageMode() },
+                            modifier = Modifier
+                                .focusRequester(imageCoverFocusRequester)
+                                .semantics {
+                                    role = Role.RadioButton
+                                    selected = coverMode == "image"
+                                }.tvControlHeight(),
+                            style = if (coverMode ==
+                                "image"
+                            ) {
+                                MoviesButtonStyle.Selected
+                            } else {
+                                MoviesButtonStyle.Secondary
+                            }
+                        ) {
+                            Text(
+                                stringResource(R.string.collections_editor_cover_image_url),
                                 style = buttonLabelStyle()
                             )
                         }
                     }
 
-                    MoviesButton(
-                        onClick = { viewModel.switchToImageMode() },
-                        modifier = Modifier
-                            .focusRequester(imageCoverFocusRequester)
-                            .semantics {
-                                role = Role.RadioButton
-                                selected = coverMode == "image"
-                            }.tvControlHeight(),
-                        style = if (coverMode == "image") MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
-                    ) {
-                        Text(
-                            stringResource(R.string.collections_editor_cover_image_url),
-                            style = buttonLabelStyle()
-                        )
+                    if (coverMode == "image") {
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
+                        ) {
+                            MoviesTextField(
+                                value = folder.coverImageUrl ?: "",
+                                onValueChange = { viewModel.updateFolderCoverImage(it) },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .blockHorizontalFocus(),
+                                placeholder = stringResource(
+                                    R.string.collections_editor_url_short_placeholder
+                                )
+                            )
+                            if (!folder.coverImageUrl.isNullOrBlank()) {
+                                Surface(
+                                    modifier = Modifier
+                                        .width(MoviesTheme.spacing.huge)
+                                        .height(MoviesTheme.spacing.huge),
+                                    shape = RoundedCornerShape(MoviesTheme.radii.md),
+                                    colors = SurfaceDefaults.colors(
+                                        containerColor = MoviesTheme.colors.BackgroundCard
+                                    )
+                                ) {
+                                    AsyncImage(
+                                        model = folder.coverImageUrl,
+                                        contentDescription = stringResource(R.string.cd_preview),
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clip(RoundedCornerShape(MoviesTheme.radii.md)),
+                                        contentScale = ContentScale.FillBounds
+                                    )
+                                }
+                            }
+                        }
                     }
-                }
 
-                if (coverMode == "image") {
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
+                    Text(
+                        stringResource(R.string.collections_editor_focus_gif),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MoviesTheme.colors.TextSecondary
+                    )
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                    MoviesTextField(
+                        value = folder.focusGifUrl.orEmpty(),
+                        onValueChange = { viewModel.updateFolderFocusGifUrl(it) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .blockHorizontalFocus(),
+                        placeholder = stringResource(R.string.collections_editor_placeholder_gif)
+                    )
+
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
+                    val focusGifEnabledRowInteraction = remember { MutableInteractionSource() }
+                    val focusGifEnabledRowFocused by focusGifEnabledRowInteraction.collectIsFocusedAsState()
+                    MoviesCard(
+                        onClick = {
+                            viewModel.updateFolderFocusGifEnabled(!folder.focusGifEnabled)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .blockHorizontalFocus()
+                            .semantics {
+                                role = Role.Switch
+                                toggleableState =
+                                    if (folder.focusGifEnabled) ToggleableState.On else ToggleableState.Off
+                            },
+                        interactionSource = focusGifEnabledRowInteraction
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                stringResource(R.string.collections_editor_play_gif),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            MoviesSwitch(
+                                checked = folder.focusGifEnabled,
+                                enabled = true,
+                                focused = focusGifEnabledRowFocused
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
+                    Text(
+                        stringResource(R.string.collections_editor_hero_backdrop),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MoviesTheme.colors.TextSecondary
+                    )
                     Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                     ) {
                         MoviesTextField(
-                            value = folder.coverImageUrl ?: "",
-                            onValueChange = { viewModel.updateFolderCoverImage(it) },
+                            value = folder.heroBackdropUrl.orEmpty(),
+                            onValueChange = { viewModel.updateFolderHeroBackdropUrl(it) },
                             modifier = Modifier
                                 .weight(1f)
                                 .blockHorizontalFocus(),
-                            placeholder = stringResource(R.string.collections_editor_url_short_placeholder)
+                            placeholder = stringResource(
+                                R.string.collections_editor_placeholder_hero_backdrop
+                            )
                         )
-                        if (!folder.coverImageUrl.isNullOrBlank()) {
+                        if (!folder.heroBackdropUrl.isNullOrBlank()) {
                             Surface(
                                 modifier = Modifier
                                     .width(MoviesTheme.spacing.huge)
                                     .height(MoviesTheme.spacing.huge),
                                 shape = RoundedCornerShape(MoviesTheme.radii.md),
-                                colors = SurfaceDefaults.colors(containerColor = MoviesTheme.colors.BackgroundCard)
+                                colors = SurfaceDefaults.colors(
+                                    containerColor = MoviesTheme.colors.BackgroundCard
+                                )
                             ) {
                                 AsyncImage(
-                                    model = folder.coverImageUrl,
+                                    model = folder.heroBackdropUrl,
                                     contentDescription = stringResource(R.string.cd_preview),
                                     modifier = Modifier
                                         .fillMaxSize()
@@ -484,446 +626,462 @@ fun FolderEditorContent(
                             }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
-                Text(stringResource(R.string.collections_editor_focus_gif), style = MaterialTheme.typography.labelLarge, color = MoviesTheme.colors.TextSecondary)
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                MoviesTextField(
-                    value = folder.focusGifUrl.orEmpty(),
-                    onValueChange = { viewModel.updateFolderFocusGifUrl(it) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .blockHorizontalFocus(),
-                    placeholder = stringResource(R.string.collections_editor_placeholder_gif)
-                )
-
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
-                val focusGifEnabledRowInteraction = remember { MutableInteractionSource() }
-                val focusGifEnabledRowFocused by focusGifEnabledRowInteraction.collectIsFocusedAsState()
-                MoviesCard(
-                    onClick = { viewModel.updateFolderFocusGifEnabled(!folder.focusGifEnabled) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .blockHorizontalFocus()
-                        .semantics {
-                            role = Role.Switch
-                            toggleableState = if (folder.focusGifEnabled) ToggleableState.On else ToggleableState.Off
-                        },
-                    interactionSource = focusGifEnabledRowInteraction
-                ) {
-                    Row(
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
+                    Text(
+                        stringResource(R.string.collections_editor_hero_video),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MoviesTheme.colors.TextSecondary
+                    )
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                    MoviesTextField(
+                        value = folder.heroVideoUrl.orEmpty(),
+                        onValueChange = { viewModel.updateFolderHeroVideoUrl(it) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp),
+                            .blockHorizontalFocus(),
+                        placeholder = stringResource(
+                            R.string.collections_editor_placeholder_hero_video
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
+                    Text(
+                        stringResource(R.string.collections_editor_title_logo),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MoviesTheme.colors.TextSecondary
+                    )
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                    Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                     ) {
-                        Text(stringResource(R.string.collections_editor_play_gif), style = MaterialTheme.typography.bodyLarge)
-                        MoviesSwitch(checked = folder.focusGifEnabled, enabled = true, focused = focusGifEnabledRowFocused)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
-                Text(stringResource(R.string.collections_editor_hero_backdrop), style = MaterialTheme.typography.labelLarge, color = MoviesTheme.colors.TextSecondary)
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
-                ) {
-                    MoviesTextField(
-                        value = folder.heroBackdropUrl.orEmpty(),
-                        onValueChange = { viewModel.updateFolderHeroBackdropUrl(it) },
-                        modifier = Modifier
-                            .weight(1f)
-                            .blockHorizontalFocus(),
-                        placeholder = stringResource(R.string.collections_editor_placeholder_hero_backdrop)
-                    )
-                    if (!folder.heroBackdropUrl.isNullOrBlank()) {
-                        Surface(
+                        MoviesTextField(
+                            value = folder.titleLogoUrl.orEmpty(),
+                            onValueChange = { viewModel.updateFolderTitleLogoUrl(it) },
                             modifier = Modifier
-                                .width(MoviesTheme.spacing.huge)
-                                .height(MoviesTheme.spacing.huge),
-                            shape = RoundedCornerShape(MoviesTheme.radii.md),
-                            colors = SurfaceDefaults.colors(containerColor = MoviesTheme.colors.BackgroundCard)
-                        ) {
-                            AsyncImage(
-                                model = folder.heroBackdropUrl,
-                                contentDescription = stringResource(R.string.cd_preview),
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(MoviesTheme.radii.md)),
-                                contentScale = ContentScale.FillBounds
+                                .weight(1f)
+                                .blockHorizontalFocus(),
+                            placeholder = stringResource(
+                                R.string.collections_editor_placeholder_title_logo
                             )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
-                Text(stringResource(R.string.collections_editor_hero_video), style = MaterialTheme.typography.labelLarge, color = MoviesTheme.colors.TextSecondary)
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                MoviesTextField(
-                    value = folder.heroVideoUrl.orEmpty(),
-                    onValueChange = { viewModel.updateFolderHeroVideoUrl(it) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .blockHorizontalFocus(),
-                    placeholder = stringResource(R.string.collections_editor_placeholder_hero_video)
-                )
-
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
-                Text(stringResource(R.string.collections_editor_title_logo), style = MaterialTheme.typography.labelLarge, color = MoviesTheme.colors.TextSecondary)
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
-                ) {
-                    MoviesTextField(
-                        value = folder.titleLogoUrl.orEmpty(),
-                        onValueChange = { viewModel.updateFolderTitleLogoUrl(it) },
-                        modifier = Modifier
-                            .weight(1f)
-                            .blockHorizontalFocus(),
-                        placeholder = stringResource(R.string.collections_editor_placeholder_title_logo)
-                    )
-                    if (!folder.titleLogoUrl.isNullOrBlank()) {
-                        Surface(
-                            modifier = Modifier
-                                .width(100.dp)
-                                .height(MoviesTheme.spacing.huge),
-                            shape = RoundedCornerShape(MoviesTheme.radii.md),
-                            colors = SurfaceDefaults.colors(containerColor = MoviesTheme.colors.BackgroundCard)
-                        ) {
-                            AsyncImage(
-                                model = folder.titleLogoUrl,
-                                contentDescription = stringResource(R.string.cd_preview),
+                        )
+                        if (!folder.titleLogoUrl.isNullOrBlank()) {
+                            Surface(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(MoviesTheme.radii.md)),
-                                contentScale = ContentScale.Fit
-                            )
+                                    .width(100.dp)
+                                    .height(MoviesTheme.spacing.huge),
+                                shape = RoundedCornerShape(MoviesTheme.radii.md),
+                                colors = SurfaceDefaults.colors(
+                                    containerColor = MoviesTheme.colors.BackgroundCard
+                                )
+                            ) {
+                                AsyncImage(
+                                    model = folder.titleLogoUrl,
+                                    contentDescription = stringResource(R.string.cd_preview),
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(MoviesTheme.radii.md)),
+                                    contentScale = ContentScale.Fit
+                                )
+                            }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
-                Text(stringResource(R.string.collections_editor_tile_shape), style = MaterialTheme.typography.labelLarge, color = MoviesTheme.colors.TextSecondary)
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                val shapeFocusRequesters = remember { PosterShape.entries.associateWith { FocusRequester() } }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
-                    modifier = Modifier.focusEntryTarget(
-                        shapeFocusRequesters[folder.tileShape] ?: FocusRequester.Default
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
+                    Text(
+                        stringResource(R.string.collections_editor_tile_shape),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MoviesTheme.colors.TextSecondary
                     )
-                ) {
-                    PosterShape.entries.forEach { shape ->
-                        val label = when (shape) {
-                            PosterShape.POSTER -> stringResource(R.string.collections_editor_shape_poster)
-                            PosterShape.LANDSCAPE -> stringResource(R.string.collections_editor_shape_wide)
-                            PosterShape.SQUARE -> stringResource(R.string.collections_editor_shape_square)
-                        }
-                        val isSelected = folder.tileShape == shape
-                        MoviesButton(
-                            onClick = { viewModel.updateFolderTileShape(shape) },
-                            modifier = Modifier
-                                .focusRequester(shapeFocusRequesters[shape]!!)
-                                .semantics {
-                                    role = Role.RadioButton
-                                    selected = isSelected
-                                }.tvControlHeight(),
-                            style = if (isSelected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
-                        ) {
-                            Text(label)
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
-                val hideTitleRowInteraction = remember { MutableInteractionSource() }
-                val hideTitleRowFocused by hideTitleRowInteraction.collectIsFocusedAsState()
-                MoviesCard(
-                    onClick = { viewModel.updateFolderHideTitle(!folder.hideTitle) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .blockHorizontalFocus()
-                        .semantics {
-                            role = Role.Switch
-                            toggleableState = if (folder.hideTitle) ToggleableState.On else ToggleableState.Off
-                        },
-                    interactionSource = hideTitleRowInteraction
-                ) {
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                    val shapeFocusRequesters =
+                        remember { PosterShape.entries.associateWith { FocusRequester() } }
                     Row(
+                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+                        modifier = Modifier.focusEntryTarget(
+                            shapeFocusRequesters[folder.tileShape] ?: FocusRequester.Default
+                        )
+                    ) {
+                        PosterShape.entries.forEach { shape ->
+                            val label = when (shape) {
+                                PosterShape.POSTER -> stringResource(
+                                    R.string.collections_editor_shape_poster
+                                )
+
+                                PosterShape.LANDSCAPE -> stringResource(
+                                    R.string.collections_editor_shape_wide
+                                )
+
+                                PosterShape.SQUARE -> stringResource(
+                                    R.string.collections_editor_shape_square
+                                )
+                            }
+                            val isSelected = folder.tileShape == shape
+                            MoviesButton(
+                                onClick = { viewModel.updateFolderTileShape(shape) },
+                                modifier = Modifier
+                                    .focusRequester(shapeFocusRequesters[shape]!!)
+                                    .semantics {
+                                        role = Role.RadioButton
+                                        selected = isSelected
+                                    }.tvControlHeight(),
+                                style = if (isSelected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
+                            ) {
+                                Text(label)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
+                    val hideTitleRowInteraction = remember { MutableInteractionSource() }
+                    val hideTitleRowFocused by hideTitleRowInteraction.collectIsFocusedAsState()
+                    MoviesCard(
+                        onClick = { viewModel.updateFolderHideTitle(!folder.hideTitle) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(20.dp),
+                            .blockHorizontalFocus()
+                            .semantics {
+                                role = Role.Switch
+                                toggleableState =
+                                    if (folder.hideTitle) ToggleableState.On else ToggleableState.Off
+                            },
+                        interactionSource = hideTitleRowInteraction
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = stringResource(R.string.collections_editor_hide_title),
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        textDirection = TextDirection.Content
+                                    )
+                                )
+                                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
+                                Text(
+                                    text = stringResource(
+                                        R.string.collections_editor_hide_title_desc
+                                    ),
+                                    style = MaterialTheme.typography.bodySmall.metaFloor(),
+                                    color = LocalContentColor.current.copy(
+                                        alpha = SECONDARY_CONTENT_ALPHA
+                                    )
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
+                            MoviesSwitch(
+                                checked = folder.hideTitle,
+                                enabled = true,
+                                focused = hideTitleRowFocused
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.collections_editor_hide_title),
-                                style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content)
-                            )
-                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
-                            Text(
-                                text = stringResource(R.string.collections_editor_hide_title_desc),
-                                style = MaterialTheme.typography.bodySmall.metaFloor(),
-                                color = LocalContentColor.current.copy(alpha = SECONDARY_CONTENT_ALPHA)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
-                        MoviesSwitch(checked = folder.hideTitle, enabled = true, focused = hideTitleRowFocused)
+                        Text(
+                            stringResource(R.string.collections_editor_catalogs),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MoviesTheme.colors.TextSecondary
+                        )
+                        Text(
+                            "${folder.sources.size} ${stringResource(
+                                R.string.collections_editor_sources
+                            ).lowercase()}",
+                            style = MaterialTheme.typography.bodySmall.metaFloor(),
+                            color = MoviesTheme.colors.TextTertiary
+                        )
                     }
-                }
-
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(stringResource(R.string.collections_editor_catalogs), style = MaterialTheme.typography.labelLarge, color = MoviesTheme.colors.TextSecondary)
-                    Text(
-                        "${folder.sources.size} ${stringResource(R.string.collections_editor_sources).lowercase()}",
-                        style = MaterialTheme.typography.bodySmall.metaFloor(),
-                        color = MoviesTheme.colors.TextTertiary
-                    )
-                }
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
                 }
             },
             footer = {
-            Row(
-                modifier = Modifier
-                    .padding(top = if (sourceItems.isEmpty()) 0.dp else MoviesTheme.spacing.lg)
-                    .focusEntryTarget(addCatalogFocusRequester),
-                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
-            ) {
-                MoviesButton(
-                    onClick = {
-                        pendingFocusTarget = FolderFocusTarget.AddCatalog
-                        viewModel.showCatalogPicker()
-                    },
-                    modifier = Modifier.focusRequester(addCatalogFocusRequester),
-                    enabled = uiState.movingSourceKey == null
-                ) {
-                    Icon(Icons.Default.Add, null)
-                    Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
-                    Text(stringResource(R.string.collections_editor_add_catalog))
-                }
-                MoviesButton(
-                    onClick = {
-                        pendingFocusTarget = FolderFocusTarget.AddTmdb
-                        viewModel.showTmdbSourcePicker()
-                    },
-                    modifier = Modifier.focusRequester(addTmdbFocusRequester),
-                    enabled = uiState.movingSourceKey == null
-                ) {
-                    Icon(Icons.Default.Add, null)
-                    Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
-                    Text(stringResource(R.string.collections_editor_add_tmdb_source))
-                }
-                MoviesButton(
-                    onClick = {
-                        pendingFocusTarget = FolderFocusTarget.AddTrakt
-                        viewModel.showTraktSourcePicker()
-                    },
-                    modifier = Modifier.focusRequester(addTraktFocusRequester),
-                    enabled = uiState.movingSourceKey == null
-                ) {
-                    Icon(Icons.Default.Add, null)
-                    Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
-                    Text(stringResource(R.string.collections_editor_add_trakt_source))
-                }
-            }
-            },
-        ) { item, isMoving, onStartMove, onConfirmMove ->
-        val source = item.source
-        val index = item.index
-        val reorderActive = uiState.movingSourceKey != null
-        val addonSource = source as? AddonCatalogCollectionSource
-        val tmdbSource = source as? TmdbCollectionSource
-        val traktSource = source as? TraktCollectionSource
-        val catalog = addonSource?.let { addon ->
-            uiState.availableCatalogs.find {
-                it.addonId == addon.addonId && catalogTypesMatch(it.type, addon.type) && it.catalogId == addon.catalogId
-            }
-        }
-        val addonCatalogInfo = addonSource?.let { src ->
-            val exactKey = collectionCatalogKey(src.addonId, src.type, src.catalogId)
-            uiState.addonCatalogInfoByKey[exactKey]
-                ?: uiState.addonCatalogInfoByKey[collectionCatalogKey(src.addonId, src.type, src.catalogId.substringBefore(","))]
-        }
-        val isMissing = addonSource != null && catalog == null && addonCatalogInfo == null
-        val sourceKey = item.key
-        val genreFocusRequester = sourceGenreFocusRequesters.getOrPut(sourceKey) { FocusRequester() }
-        val editFocusRequester = sourceEditFocusRequesters.getOrPut(sourceKey) { FocusRequester() }
-        val removeFocusRequester = sourceRemoveFocusRequesters.getOrPut(sourceKey) { FocusRequester() }
-        val genreLabel = addonSource?.genre ?: if (catalog?.genreRequired == true) {
-            stringResource(R.string.collections_editor_select_genre)
-        } else {
-            stringResource(R.string.collections_editor_all_genres)
-        }
-        val addonTypeLabel = when (addonSource?.type?.lowercase()) {
-            "movie" -> stringResource(R.string.type_movie)
-            "series", "tv" -> stringResource(R.string.type_series)
-            else -> addonSource?.type.orEmpty()
-        }
-        val hasGenreOptions = addonSource != null && catalog?.genreOptions?.isNotEmpty() == true
-        val cardColor by animateColorAsState(
-            targetValue = if (isMoving) {
-                MoviesTheme.colors.FocusBackground
-            } else {
-                MoviesTheme.colors.BackgroundCard
-            },
-            animationSpec = com.kien.movies.ui.theme.MoviesMotion.focusTween(),
-            label = "sourceCardColor",
-        )
-        Surface(
-            shape = RoundedCornerShape(MoviesTheme.radii.md),
-            colors = SurfaceDefaults.colors(containerColor = cardColor),
-            border = if (isMoving) {
-                Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                    shape = RoundedCornerShape(MoviesTheme.radii.md)
-                )
-            } else if (isMissing) Border(
-                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Error.copy(alpha = 0.5f)),
-                shape = RoundedCornerShape(MoviesTheme.radii.md)
-            ) else Border.None,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(MoviesTheme.spacing.md),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = catalog?.catalogName?.replaceFirstChar { it.uppercase() }
-                            ?: tmdbSource?.title
-                            ?: traktSource?.title
-                            ?: addonCatalogInfo?.catalogName?.replaceFirstChar { it.uppercase() }
-                            ?: addonSource?.catalogId
-                            ?: stringResource(R.string.collections_editor_source),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = if (isMissing) MoviesTheme.colors.Error else MoviesTheme.colors.TextPrimary
-                    )
-                    Text(
-                        text = when {
-                            isMissing && addonSource.addonId in uiState.installedAddonIds -> stringResource(R.string.collections_editor_catalog_missing)
-                            isMissing -> stringResource(R.string.collections_editor_addon_missing, addonSource.addonId)
-                            addonSource != null && catalog != null -> "$addonTypeLabel - ${catalog.addonName}"
-                            addonSource != null && addonCatalogInfo != null -> "$addonTypeLabel - ${addonCatalogInfo.addonName}"
-                            tmdbSource != null -> tmdbSourceSubtitle(tmdbSource)
-                            traktSource != null -> traktSourceSubtitle(traktSource)
-                            else -> stringResource(R.string.collections_editor_source)
-                        },
-                        style = MaterialTheme.typography.bodySmall.metaFloor(),
-                        color = if (isMissing) MoviesTheme.colors.Error.copy(alpha = 0.7f) else MoviesTheme.colors.TextTertiary
-                    )
-                    if (hasGenreOptions) {
-                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(MoviesTheme.colors.BackgroundElevated)
-                                    .padding(horizontal = 10.dp, vertical = MoviesTheme.spacing.xs)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.collections_editor_genre_filter),
-                                    style = MaterialTheme.typography.labelSmall.metaFloor(),
-                                    color = MoviesTheme.colors.TextSecondary
-                                )
-                            }
-                            Text(
-                                text = genreLabel,
-                                style = MaterialTheme.typography.bodySmall.metaFloor(),
-                                color = MoviesTheme.colors.TextSecondary,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
-                }
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.trapHorizontalFocus()
+                    modifier = Modifier
+                        .padding(top = if (sourceItems.isEmpty()) 0.dp else MoviesTheme.spacing.lg)
+                        .focusEntryTarget(addCatalogFocusRequester),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
-                    if (hasGenreOptions) {
-                        MoviesButton(
-                            onClick = {
-                                pendingFocusTarget = FolderFocusTarget.SourceGenre(index)
-                                viewModel.showGenrePicker(index)
-                            },
-                            enabled = !reorderActive,
-                            modifier = Modifier.focusRequester(genreFocusRequester)
-                                .tvControlHeight()
-                        ) {
-                            Text(
-                                stringResource(R.string.collections_editor_choose_genre),
-                                style = buttonLabelStyle()
-                            )
-                        }
-                    }
                     MoviesButton(
-                        modifier = Modifier.tvControlHeight(),
-                        onClick = if (isMoving) onConfirmMove else onStartMove,
-                        enabled = isMoving || (sourceItems.size > 1 && !reorderActive),
-                        style = if (isMoving) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
+                        onClick = {
+                            pendingFocusTarget = FolderFocusTarget.AddCatalog
+                            viewModel.showCatalogPicker()
+                        },
+                        modifier = Modifier.focusRequester(addCatalogFocusRequester),
+                        enabled = uiState.movingSourceKey == null
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Reorder,
-                            contentDescription = stringResource(R.string.cd_reorder)
-                        )
-                    }
-                    if (tmdbSource != null) {
-                        MoviesButton(
-                            onClick = {
-                                pendingFocusTarget = FolderFocusTarget.SourceEdit(index)
-                                viewModel.editTmdbSource(index)
-                            },
-                            enabled = !reorderActive,
-                            modifier = Modifier.focusRequester(editFocusRequester)
-                                .tvControlHeight()
-                        ) {
-                            Icon(Icons.Default.Edit, stringResource(R.string.cd_edit))
-                        }
-                    }
-                    if (traktSource != null) {
-                        MoviesButton(
-                            onClick = {
-                                pendingFocusTarget = FolderFocusTarget.SourceEdit(index)
-                                viewModel.editTraktSource(index)
-                            },
-                            enabled = !reorderActive,
-                            modifier = Modifier.focusRequester(editFocusRequester)
-                                .tvControlHeight()
-                        ) {
-                            Icon(Icons.Default.Edit, stringResource(R.string.cd_edit))
-                        }
+                        Icon(Icons.Default.Add, null)
+                        Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
+                        Text(stringResource(R.string.collections_editor_add_catalog))
                     }
                     MoviesButton(
                         onClick = {
-                            pendingFocusTarget = FolderFocusTarget.SourceRemove(index)
-                            viewModel.removeCatalogSource(index)
+                            pendingFocusTarget = FolderFocusTarget.AddTmdb
+                            viewModel.showTmdbSourcePicker()
                         },
-                        enabled = !reorderActive,
-                        modifier = Modifier.focusRequester(removeFocusRequester).tvControlHeight(),
-                        style = MoviesButtonStyle.Destructive
+                        modifier = Modifier.focusRequester(addTmdbFocusRequester),
+                        enabled = uiState.movingSourceKey == null
                     ) {
-                        Icon(Icons.Default.Close, stringResource(R.string.cd_remove))
+                        Icon(Icons.Default.Add, null)
+                        Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
+                        Text(stringResource(R.string.collections_editor_add_tmdb_source))
+                    }
+                    MoviesButton(
+                        onClick = {
+                            pendingFocusTarget = FolderFocusTarget.AddTrakt
+                            viewModel.showTraktSourcePicker()
+                        },
+                        modifier = Modifier.focusRequester(addTraktFocusRequester),
+                        enabled = uiState.movingSourceKey == null
+                    ) {
+                        Icon(Icons.Default.Add, null)
+                        Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
+                        Text(stringResource(R.string.collections_editor_add_trakt_source))
                     }
                 }
             }
-        }
+        ) { item, isMoving, onStartMove, onConfirmMove ->
+            val source = item.source
+            val index = item.index
+            val reorderActive = uiState.movingSourceKey != null
+            val addonSource = source as? AddonCatalogCollectionSource
+            val tmdbSource = source as? TmdbCollectionSource
+            val traktSource = source as? TraktCollectionSource
+            val catalog = addonSource?.let { addon ->
+                uiState.availableCatalogs.find {
+                    it.addonId == addon.addonId && catalogTypesMatch(it.type, addon.type) &&
+                        it.catalogId == addon.catalogId
+                }
+            }
+            val addonCatalogInfo = addonSource?.let { src ->
+                val exactKey = collectionCatalogKey(src.addonId, src.type, src.catalogId)
+                uiState.addonCatalogInfoByKey[exactKey]
+                    ?: uiState.addonCatalogInfoByKey[
+                        collectionCatalogKey(
+                            src.addonId,
+                            src.type,
+                            src.catalogId.substringBefore(",")
+                        )
+                    ]
+            }
+            val isMissing = addonSource != null && catalog == null && addonCatalogInfo == null
+            val sourceKey = item.key
+            val genreFocusRequester = sourceGenreFocusRequesters.getOrPut(sourceKey) {
+                FocusRequester()
+            }
+            val editFocusRequester = sourceEditFocusRequesters.getOrPut(sourceKey) {
+                FocusRequester()
+            }
+            val removeFocusRequester = sourceRemoveFocusRequesters.getOrPut(sourceKey) {
+                FocusRequester()
+            }
+            val genreLabel = addonSource?.genre ?: if (catalog?.genreRequired == true) {
+                stringResource(R.string.collections_editor_select_genre)
+            } else {
+                stringResource(R.string.collections_editor_all_genres)
+            }
+            val addonTypeLabel = when (addonSource?.type?.lowercase()) {
+                "movie" -> stringResource(R.string.type_movie)
+                "series", "tv" -> stringResource(R.string.type_series)
+                else -> addonSource?.type.orEmpty()
+            }
+            val hasGenreOptions = addonSource != null && catalog?.genreOptions?.isNotEmpty() == true
+            val cardColor by animateColorAsState(
+                targetValue = if (isMoving) {
+                    MoviesTheme.colors.FocusBackground
+                } else {
+                    MoviesTheme.colors.BackgroundCard
+                },
+                animationSpec = com.kien.movies.ui.theme.MoviesMotion.focusTween(),
+                label = "sourceCardColor"
+            )
+            Surface(
+                shape = RoundedCornerShape(MoviesTheme.radii.md),
+                colors = SurfaceDefaults.colors(containerColor = cardColor),
+                border = if (isMoving) {
+                    Border(
+                        border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                        shape = RoundedCornerShape(MoviesTheme.radii.md)
+                    )
+                } else if (isMissing) {
+                    Border(
+                        border = BorderStroke(
+                            MoviesTheme.spacing.hairline,
+                            MoviesTheme.colors.Error.copy(alpha = 0.5f)
+                        ),
+                        shape = RoundedCornerShape(MoviesTheme.radii.md)
+                    )
+                } else {
+                    Border.None
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(MoviesTheme.spacing.md),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = catalog?.catalogName?.replaceFirstChar { it.uppercase() }
+                                ?: tmdbSource?.title
+                                ?: traktSource?.title
+                                ?: addonCatalogInfo?.catalogName?.replaceFirstChar {
+                                    it.uppercase()
+                                }
+                                ?: addonSource?.catalogId
+                                ?: stringResource(R.string.collections_editor_source),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (isMissing) MoviesTheme.colors.Error else MoviesTheme.colors.TextPrimary
+                        )
+                        Text(
+                            text = when {
+                                isMissing && addonSource.addonId in uiState.installedAddonIds -> stringResource(
+                                    R.string.collections_editor_catalog_missing
+                                )
+
+                                isMissing -> stringResource(
+                                    R.string.collections_editor_addon_missing,
+                                    addonSource.addonId
+                                )
+
+                                addonSource != null && catalog != null -> "$addonTypeLabel - ${catalog.addonName}"
+
+                                addonSource != null && addonCatalogInfo != null -> "$addonTypeLabel - ${addonCatalogInfo.addonName}"
+
+                                tmdbSource != null -> tmdbSourceSubtitle(tmdbSource)
+
+                                traktSource != null -> traktSourceSubtitle(traktSource)
+
+                                else -> stringResource(R.string.collections_editor_source)
+                            },
+                            style = MaterialTheme.typography.bodySmall.metaFloor(),
+                            color = if (isMissing) {
+                                MoviesTheme.colors.Error.copy(
+                                    alpha = 0.7f
+                                )
+                            } else {
+                                MoviesTheme.colors.TextTertiary
+                            }
+                        )
+                        if (hasGenreOptions) {
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .background(MoviesTheme.colors.BackgroundElevated)
+                                        .padding(
+                                            horizontal = 10.dp,
+                                            vertical = MoviesTheme.spacing.xs
+                                        )
+                                ) {
+                                    Text(
+                                        text = stringResource(
+                                            R.string.collections_editor_genre_filter
+                                        ),
+                                        style = MaterialTheme.typography.labelSmall.metaFloor(),
+                                        color = MoviesTheme.colors.TextSecondary
+                                    )
+                                }
+                                Text(
+                                    text = genreLabel,
+                                    style = MaterialTheme.typography.bodySmall.metaFloor(),
+                                    color = MoviesTheme.colors.TextSecondary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.trapHorizontalFocus()
+                    ) {
+                        if (hasGenreOptions) {
+                            MoviesButton(
+                                onClick = {
+                                    pendingFocusTarget = FolderFocusTarget.SourceGenre(index)
+                                    viewModel.showGenrePicker(index)
+                                },
+                                enabled = !reorderActive,
+                                modifier = Modifier.focusRequester(genreFocusRequester)
+                                    .tvControlHeight()
+                            ) {
+                                Text(
+                                    stringResource(R.string.collections_editor_choose_genre),
+                                    style = buttonLabelStyle()
+                                )
+                            }
+                        }
+                        MoviesButton(
+                            modifier = Modifier.tvControlHeight(),
+                            onClick = if (isMoving) onConfirmMove else onStartMove,
+                            enabled = isMoving || (sourceItems.size > 1 && !reorderActive),
+                            style = if (isMoving) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Reorder,
+                                contentDescription = stringResource(R.string.cd_reorder)
+                            )
+                        }
+                        if (tmdbSource != null) {
+                            MoviesButton(
+                                onClick = {
+                                    pendingFocusTarget = FolderFocusTarget.SourceEdit(index)
+                                    viewModel.editTmdbSource(index)
+                                },
+                                enabled = !reorderActive,
+                                modifier = Modifier.focusRequester(editFocusRequester)
+                                    .tvControlHeight()
+                            ) {
+                                Icon(Icons.Default.Edit, stringResource(R.string.cd_edit))
+                            }
+                        }
+                        if (traktSource != null) {
+                            MoviesButton(
+                                onClick = {
+                                    pendingFocusTarget = FolderFocusTarget.SourceEdit(index)
+                                    viewModel.editTraktSource(index)
+                                },
+                                enabled = !reorderActive,
+                                modifier = Modifier.focusRequester(editFocusRequester)
+                                    .tvControlHeight()
+                            ) {
+                                Icon(Icons.Default.Edit, stringResource(R.string.cd_edit))
+                            }
+                        }
+                        MoviesButton(
+                            onClick = {
+                                pendingFocusTarget = FolderFocusTarget.SourceRemove(index)
+                                viewModel.removeCatalogSource(index)
+                            },
+                            enabled = !reorderActive,
+                            modifier = Modifier.focusRequester(
+                                removeFocusRequester
+                            ).tvControlHeight(),
+                            style = MoviesButtonStyle.Destructive
+                        ) {
+                            Icon(Icons.Default.Close, stringResource(R.string.cd_remove))
+                        }
+                    }
+                }
+            }
         }
         SettingsVerticalScrollIndicators(
             state = sourcesScrollState,
@@ -939,12 +1097,18 @@ fun FolderEditorContent(
         val canSave = uiState.canSaveFolder
         UnsavedChangesDialog(
             title = stringResource(
-                if (canSave) R.string.collections_editor_folder_unsaved_title
-                else R.string.collections_editor_folder_unsaved_incomplete_title
+                if (canSave) {
+                    R.string.collections_editor_folder_unsaved_title
+                } else {
+                    R.string.collections_editor_folder_unsaved_incomplete_title
+                }
             ),
             subtitle = stringResource(
-                if (canSave) R.string.collections_editor_folder_unsaved_subtitle
-                else R.string.collections_editor_folder_unsaved_missing_source
+                if (canSave) {
+                    R.string.collections_editor_folder_unsaved_subtitle
+                } else {
+                    R.string.collections_editor_folder_unsaved_missing_source
+                }
             ),
             canSave = canSave,
             onSave = {
@@ -971,8 +1135,4 @@ private sealed interface FolderFocusTarget {
     data class SourceRemove(val sourceIndex: Int) : FolderFocusTarget
 }
 
-private data class FolderSourceItem(
-    val key: String,
-    val index: Int,
-    val source: CollectionSource
-)
+private data class FolderSourceItem(val key: String, val index: Int, val source: CollectionSource)

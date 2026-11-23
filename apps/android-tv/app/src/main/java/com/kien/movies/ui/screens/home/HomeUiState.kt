@@ -4,12 +4,12 @@ import androidx.compose.runtime.Immutable
 import com.kien.movies.core.tracking.TrackingMembershipRemovalConfirmation
 import com.kien.movies.data.local.StartupAuthNotice
 import com.kien.movies.domain.model.CatalogRow
+import com.kien.movies.domain.model.Collection
 import com.kien.movies.domain.model.ContinueWatchingCardStyle
 import com.kien.movies.domain.model.ContinueWatchingClickAction
-import com.kien.movies.domain.model.Collection
+import com.kien.movies.domain.model.DetailImdbRatingsVisibility
 import com.kien.movies.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.kien.movies.domain.model.HomeImdbRatingsVisibility
-import com.kien.movies.domain.model.DetailImdbRatingsVisibility
 import com.kien.movies.domain.model.HomeLayout
 import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.LibrarySourceMode
@@ -62,7 +62,8 @@ data class HomeUiState(
     val posterListPickerMembership: Map<String, Boolean> = emptyMap(),
     val posterListPickerPending: Boolean = false,
     val posterListPickerError: String? = null,
-    val posterListPickerRemovalConfirmations: List<TrackingMembershipRemovalConfirmation> = emptyList(),
+    val posterListPickerRemovalConfirmations: List<TrackingMembershipRemovalConfirmation> =
+        emptyList(),
     val gridItems: List<GridItem> = emptyList(),
     val hideUnreleasedContent: Boolean = false,
     val showFullReleaseDate: Boolean = true,
@@ -84,6 +85,7 @@ data class HomeUiState(
 @Immutable
 sealed class ContinueWatchingItem {
     abstract val shufflePlayback: Boolean
+
     @Immutable
     data class InProgress(
         val progress: WatchProgress,
@@ -109,15 +111,23 @@ sealed class ContinueWatchingItem {
 }
 
 val ContinueWatchingItem.shuffleFocusKey: String?
-    get() = if (!shufflePlayback) null else when (this) {
-        is ContinueWatchingItem.InProgress -> "cw_shuffle_${progress.contentId}"
-        is ContinueWatchingItem.NextUp -> "cw_shuffle_${info.contentId}"
+    get() = if (!shufflePlayback) {
+        null
+    } else {
+        when (this) {
+            is ContinueWatchingItem.InProgress -> "cw_shuffle_${progress.contentId}"
+            is ContinueWatchingItem.NextUp -> "cw_shuffle_${info.contentId}"
+        }
     }
 
 fun ContinueWatchingClickAction.opensDetails(item: ContinueWatchingItem): Boolean = when (this) {
     ContinueWatchingClickAction.STREAM -> false
+
     ContinueWatchingClickAction.DETAILS -> true
-    ContinueWatchingClickAction.DETAILS_FOR_UPCOMING -> item is ContinueWatchingItem.NextUp && !item.info.hasAired
+
+    ContinueWatchingClickAction.DETAILS_FOR_UPCOMING ->
+        item is ContinueWatchingItem.NextUp &&
+            !item.info.hasAired
 }
 
 @Immutable
@@ -182,6 +192,7 @@ sealed class HomeRow {
 sealed class GridItem {
     @Immutable
     data class Hero(val items: List<MetaPreview>) : GridItem()
+
     @Immutable
     data class SectionDivider(
         val catalogName: String,
@@ -190,6 +201,7 @@ sealed class GridItem {
         val addonId: String,
         val type: String
     ) : GridItem()
+
     @Immutable
     data class Content(
         val item: MetaPreview,
@@ -199,6 +211,7 @@ sealed class GridItem {
         /** Row this card belongs to, so the grid can report which row holds focus. */
         val addonId: String = ""
     ) : GridItem()
+
     @Immutable
     data class SeeAll(
         val catalogId: String,
@@ -206,11 +219,10 @@ sealed class GridItem {
         val addonBaseUrl: String,
         val type: String
     ) : GridItem()
+
     @Immutable
-    data class CollectionHeader(
-        val collectionId: String,
-        val title: String
-    ) : GridItem()
+    data class CollectionHeader(val collectionId: String, val title: String) : GridItem()
+
     @Immutable
     data class CollectionFolder(
         val collectionId: String,
@@ -262,6 +274,7 @@ internal fun ContinueWatchingItem.toCompletedProgress(
             progressPercent = 100f
         )
     }
+
     is ContinueWatchingItem.NextUp -> WatchProgress(
         contentId = info.contentId,
         contentType = info.contentType,

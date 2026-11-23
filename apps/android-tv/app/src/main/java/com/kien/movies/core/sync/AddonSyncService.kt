@@ -6,15 +6,15 @@ import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.data.local.AddonPreferences
 import com.kien.movies.data.remote.supabase.SupabaseAddon
 import io.github.jan.supabase.postgrest.Postgrest
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.addJsonObject
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "AddonSyncService"
 
@@ -43,9 +43,14 @@ class AddonSyncService @Inject constructor(
         try {
             val activeProfile = profileManager.activeProfile
             val profileId = profileManager.activeProfileId.value
-            Log.d(TAG, "pushToRemote: activeProfile=${activeProfile?.id} isPrimary=${activeProfile?.isPrimary} usesPrimaryAddons=${activeProfile?.usesPrimaryAddons} profileId=$profileId")
+            Log.d(
+                TAG,
+                "pushToRemote: activeProfile=${activeProfile?.id} isPrimary=${activeProfile?.isPrimary} usesPrimaryAddons=${activeProfile?.usesPrimaryAddons} profileId=$profileId"
+            )
 
-            if (activeProfile != null && !activeProfile.isPrimary && activeProfile.usesPrimaryAddons) {
+            if (activeProfile != null && !activeProfile.isPrimary &&
+                activeProfile.usesPrimaryAddons
+            ) {
                 Log.d(TAG, "Profile ${activeProfile.id} uses primary addons, skipping push")
                 return@withContext Result.success(Unit)
             }
@@ -56,20 +61,23 @@ class AddonSyncService @Inject constructor(
             Log.d(TAG, "pushToRemote: localUrls count=${localUrls.size} for profile $profileId")
 
             val params = buildJsonObject {
-                put("p_addons", buildJsonArray {
-                    localUrls.forEachIndexed { index, url ->
-                        val canonicalUrl = canonicalizeUrl(url)
-                        addJsonObject {
-                            put("url", url)
-                            put("sort_order", index)
-                            put("enabled", enabledStates[canonicalUrl] ?: true)
-                            val name = userSetNames[canonicalUrl] ?: userSetNames[url]
-                            if (!name.isNullOrBlank()) {
-                                put("name", name)
+                put(
+                    "p_addons",
+                    buildJsonArray {
+                        localUrls.forEachIndexed { index, url ->
+                            val canonicalUrl = canonicalizeUrl(url)
+                            addJsonObject {
+                                put("url", url)
+                                put("sort_order", index)
+                                put("enabled", enabledStates[canonicalUrl] ?: true)
+                                val name = userSetNames[canonicalUrl] ?: userSetNames[url]
+                                if (!name.isNullOrBlank()) {
+                                    put("name", name)
+                                }
                             }
                         }
                     }
-                })
+                )
                 put("p_profile_id", profileId)
                 putSyncOriginClientId(syncClientIdentity)
             }
@@ -94,15 +102,22 @@ class AddonSyncService @Inject constructor(
                 )
 
             val activeProfile = profileManager.activeProfile
-            val profileId = if (activeProfile != null && !activeProfile.isPrimary && activeProfile.usesPrimaryAddons) 1
-                            else profileManager.activeProfileId.value
+            val profileId = if (activeProfile != null && !activeProfile.isPrimary &&
+                activeProfile.usesPrimaryAddons
+            ) {
+                1
+            } else {
+                profileManager.activeProfileId.value
+            }
 
             val remoteAddons = withJwtRefreshRetry {
                 postgrest.from("addons")
-                    .select { filter {
-                        eq("user_id", effectiveUserId)
-                        eq("profile_id", profileId)
-                    } }
+                    .select {
+                        filter {
+                            eq("user_id", effectiveUserId)
+                            eq("profile_id", profileId)
+                        }
+                    }
                     .decodeList<SupabaseAddon>()
             }
 
@@ -122,8 +137,8 @@ class AddonSyncService @Inject constructor(
 
             Result.success(
                 remoteAddons
-                .sortedBy { it.sortOrder }
-                .map { it.url }
+                    .sortedBy { it.sortOrder }
+                    .map { it.url }
             )
         } catch (e: Exception) {
             Log.e(TAG, "Failed to get remote addon URLs", e)

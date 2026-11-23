@@ -1,26 +1,33 @@
 package com.kien.movies.data.simkl
 
 import android.util.Log
+import com.kien.movies.data.repository.SimklIdResolver
 import com.kien.movies.domain.model.ContentType
+import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.PosterShape
-import com.kien.movies.data.repository.SimklIdResolver
+import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import com.kien.movies.domain.model.Meta
-import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "SimklRelatedService"
 private const val RELATED_LIMIT = 20
 private const val RELATED_CACHE_TTL_MS = 10 * 60_000L
 
 private val SIMKL_REDIRECT_SOURCES = setOf(
-    "tmdb", "tvdb", "mal", "anidb", "anilist", "kitsu", "simkl", "imdb"
+    "tmdb",
+    "tvdb",
+    "mal",
+    "anidb",
+    "anilist",
+    "kitsu",
+    "simkl",
+    "imdb"
 )
 
 @Serializable
@@ -192,12 +199,17 @@ class SimklRelatedService @Inject constructor(
                     ids.kitsu?.takeIf(String::isNotBlank)?.let { return "kitsu:$it" }
                     ids.anidb?.takeIf(String::isNotBlank)?.let { return "anidb:$it" }
                 }
+
                 SimklAnimeIdPreference.KITSU -> {
                     ids.kitsu?.takeIf(String::isNotBlank)?.let { return "kitsu:$it" }
                     ids.mal?.takeIf(String::isNotBlank)?.let { return "mal:$it" }
                     ids.anidb?.takeIf(String::isNotBlank)?.let { return "anidb:$it" }
                 }
-                SimklAnimeIdPreference.TVDB -> ids.tvdb?.takeIf(String::isNotBlank)?.let { return "tvdb:$it" }
+
+                SimklAnimeIdPreference.TVDB -> ids.tvdb?.takeIf(String::isNotBlank)?.let {
+                    return "tvdb:$it"
+                }
+
                 SimklAnimeIdPreference.IMDB -> Unit
             }
         }

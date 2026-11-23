@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.account
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -11,11 +9,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,9 +20,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -51,6 +44,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -65,14 +63,15 @@ import com.kien.movies.BuildConfig
 import com.kien.movies.R
 import com.kien.movies.domain.model.AuthState
 import com.kien.movies.ui.components.BrandWordmark
+import com.kien.movies.ui.components.SkeletonBar
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.screens.settings.TenFootTypography
-import com.kien.movies.ui.theme.metaFloor
-import com.kien.movies.ui.components.SkeletonBar
 import com.kien.movies.ui.components.rememberShimmerBrush
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
+import com.kien.movies.ui.screens.settings.TenFootTypography
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.metaFloor
 import kotlinx.coroutines.delay
 
 @Composable
@@ -124,7 +123,14 @@ fun AuthQrSignInScreen(
         }
     }
 
-    LaunchedEffect(uiState.authState, isSignedIn, uiState.qrLoginCode, uiState.isLoading, uiState.error, exitRequested) {
+    LaunchedEffect(
+        uiState.authState,
+        isSignedIn,
+        uiState.qrLoginCode,
+        uiState.isLoading,
+        uiState.error,
+        exitRequested
+    ) {
         if (
             useQrLogin &&
             !exitRequested &&
@@ -165,85 +171,85 @@ fun AuthQrSignInScreen(
     val gradientAccent = accountGradientAccent()
 
     TenFootTypography {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(screenBase)
-            .accountGradientBackground(gradientAccent, screenBase)
-    ) {
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .background(screenBase)
+                .accountGradientBackground(gradientAccent, screenBase)
         ) {
-            AuthQrBrandPanel(
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .padding(start = 56.dp, end = 56.dp),
-                isSignedIn = isSignedIn,
-                fullAccount = fullAccount,
-                useEmailLogin = useEmailLogin
-            )
+                    .fillMaxSize()
+            ) {
+                AuthQrBrandPanel(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .padding(start = 56.dp, end = 56.dp),
+                    isSignedIn = isSignedIn,
+                    fullAccount = fullAccount,
+                    useEmailLogin = useEmailLogin
+                )
 
-            AuthQrLoginPane(
-                modifier = Modifier
-                    .width(460.dp)
-                    .fillMaxHeight()
-                    .background(accountPaneColor())
-                    .drawBehind {
-                        drawLine(
-                            color = paneBorder,
-                            start = Offset(0f, 0f),
-                            end = Offset(0f, size.height),
-                            strokeWidth = 1.dp.toPx()
-                        )
+                AuthQrLoginPane(
+                    modifier = Modifier
+                        .width(460.dp)
+                        .fillMaxHeight()
+                        .background(accountPaneColor())
+                        .drawBehind {
+                            drawLine(
+                                color = paneBorder,
+                                start = Offset(0f, 0f),
+                                end = Offset(0f, size.height),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                        },
+                    uiState = uiState,
+                    isSignedIn = isSignedIn,
+                    isOnboardingMode = isOnboardingMode,
+                    useEmailLogin = useEmailLogin,
+                    onSignIn = viewModel::signIn,
+                    onRefreshOrSignOut = {
+                        if (isSignedIn) {
+                            showSignOutConfirmation = true
+                        } else {
+                            viewModel.startQrLogin()
+                        }
                     },
-                uiState = uiState,
-                isSignedIn = isSignedIn,
-                isOnboardingMode = isOnboardingMode,
-                useEmailLogin = useEmailLogin,
-                onSignIn = viewModel::signIn,
-                onRefreshOrSignOut = {
-                    if (isSignedIn) {
-                        showSignOutConfirmation = true
-                    } else {
-                        viewModel.startQrLogin()
-                    }
-                },
-                onBackOrContinue = {
-                    if (isOnboardingMode) {
-                        continueFromAuthScreen()
-                    } else {
-                        leaveAuthScreen()
-                    }
-                },
-                initialFocusRequester = loginFocusRequester
-            )
+                    onBackOrContinue = {
+                        if (isOnboardingMode) {
+                            continueFromAuthScreen()
+                        } else {
+                            leaveAuthScreen()
+                        }
+                    },
+                    initialFocusRequester = loginFocusRequester
+                )
+            }
+
+            if (BuildConfig.FEATURE_CUSTOM_SERVER_CONNECTIONS_ENABLED) {
+                ServerOptionsMenuHost(
+                    viewModel = hiltViewModel(),
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(28.dp)
+                )
+            }
         }
 
-        if (BuildConfig.FEATURE_CUSTOM_SERVER_CONNECTIONS_ENABLED) {
-            ServerOptionsMenuHost(
-                viewModel = hiltViewModel(),
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(28.dp)
+        LaunchedEffect(Unit) {
+            loginFocusRequester.requestFocusAfterFrames(frames = 3)
+        }
+
+        if (showSignOutConfirmation) {
+            AccountSignOutConfirmationDialog(
+                onConfirm = {
+                    viewModel.signOut()
+                    showSignOutConfirmation = false
+                },
+                onDismiss = { showSignOutConfirmation = false }
             )
         }
-    }
-
-    LaunchedEffect(Unit) {
-        loginFocusRequester.requestFocusAfterFrames(frames = 3)
-    }
-
-    if (showSignOutConfirmation) {
-        AccountSignOutConfirmationDialog(
-            onConfirm = {
-                viewModel.signOut()
-                showSignOutConfirmation = false
-            },
-            onDismiss = { showSignOutConfirmation = false }
-        )
-    }
     }
 }
 
@@ -411,7 +417,13 @@ private fun AuthQrLoginPane(
             ) {
                 Text(
                     if (isOnboardingMode) {
-                        if (isSignedIn) stringResource(R.string.auth_qr_continue) else stringResource(R.string.auth_qr_continue_without_account)
+                        if (isSignedIn) {
+                            stringResource(
+                                R.string.auth_qr_continue
+                            )
+                        } else {
+                            stringResource(R.string.auth_qr_continue_without_account)
+                        }
                     } else {
                         stringResource(R.string.auth_qr_back)
                     }
@@ -491,9 +503,7 @@ private fun AuthEmailLoginForm(
 }
 
 @Composable
-private fun AuthQrCodeBlock(
-    uiState: AccountUiState
-) {
+private fun AuthQrCodeBlock(uiState: AccountUiState) {
     val qrBitmap = remember(uiState.qrLoginBitmap) { uiState.qrLoginBitmap?.asImageBitmap() }
     if (qrBitmap != null) {
         Image(
@@ -521,7 +531,13 @@ private fun AuthQrCodeBlock(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = if (uiState.isLoading) stringResource(R.string.auth_qr_generating) else stringResource(R.string.auth_qr_unavailable),
+                text = if (uiState.isLoading) {
+                    stringResource(
+                        R.string.auth_qr_generating
+                    )
+                } else {
+                    stringResource(R.string.auth_qr_unavailable)
+                },
                 color = accountTextSecondary(),
                 textAlign = TextAlign.Center
             )
@@ -534,7 +550,6 @@ private fun AuthQrCodeBlock(
         expiresAtMillis = uiState.qrLoginExpiresAtMillis,
         isLoading = uiState.isLoading
     )
-
 
     val statusText = uiState.error ?: uiState.qrLoginStatus
     if (!statusText.isNullOrBlank()) {
@@ -574,7 +589,10 @@ private fun AuthQrManualCodeDetails(
         if (displayUri != null && displayCode != null) {
             Spacer(modifier = Modifier.height(18.dp))
             Text(
-                text = stringResource(R.string.auth_qr_manual_instruction, displayVerificationUri(displayUri)),
+                text = stringResource(
+                    R.string.auth_qr_manual_instruction,
+                    displayVerificationUri(displayUri)
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = accountTextSecondary(),
                 textAlign = TextAlign.Center
@@ -603,7 +621,12 @@ private fun AuthQrManualCodeDetails(
                     .height(20.dp),
                 contentAlignment = Alignment.Center
             ) {
-                SkeletonBar(width = 238.dp, height = 12.dp, brush = shimmerBrush, cornerRadius = 6.dp)
+                SkeletonBar(
+                    width = 238.dp,
+                    height = 12.dp,
+                    brush = shimmerBrush,
+                    cornerRadius = 6.dp
+                )
             }
             Spacer(modifier = Modifier.height(10.dp))
             Box(
@@ -612,7 +635,12 @@ private fun AuthQrManualCodeDetails(
                     .height(32.dp),
                 contentAlignment = Alignment.Center
             ) {
-                SkeletonBar(width = 116.dp, height = 22.dp, brush = shimmerBrush, cornerRadius = 8.dp)
+                SkeletonBar(
+                    width = 116.dp,
+                    height = 22.dp,
+                    brush = shimmerBrush,
+                    cornerRadius = 8.dp
+                )
             }
             Spacer(modifier = Modifier.height(6.dp))
             Box(
@@ -630,7 +658,10 @@ private fun AuthQrManualCodeDetails(
 // Owns the 1 s ticker so only this line recomposes while the code counts down.
 @Composable
 private fun AuthQrExpiresText(expiresAtMillis: Long) {
-    val nowMillis by produceState(initialValue = System.currentTimeMillis(), key1 = expiresAtMillis) {
+    val nowMillis by produceState(
+        initialValue = System.currentTimeMillis(),
+        key1 = expiresAtMillis
+    ) {
         while (true) {
             value = System.currentTimeMillis()
             delay(1_000)
@@ -644,8 +675,7 @@ private fun AuthQrExpiresText(expiresAtMillis: Long) {
     )
 }
 
-private fun formatDeviceLoginCode(value: String): String =
-    if (value.length == 6) "${value.take(3)}-${value.drop(3)}" else value
+private fun formatDeviceLoginCode(value: String): String = if (value.length == 6) "${value.take(3)}-${value.drop(3)}" else value
 
 private fun displayVerificationUri(value: String): String = value
     .removePrefix("https://")
@@ -653,11 +683,7 @@ private fun displayVerificationUri(value: String): String = value
     .trimEnd('/')
 
 @Composable
-private fun StatusPill(
-    text: String,
-    containerColor: Color,
-    contentColor: Color
-) {
+private fun StatusPill(text: String, containerColor: Color, contentColor: Color) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -677,10 +703,7 @@ private fun StatusPill(
 }
 
 @Composable
-private fun AccountConnectedStatsStrip(
-    stats: AccountConnectedStats?,
-    isLoading: Boolean
-) {
+private fun AccountConnectedStatsStrip(stats: AccountConnectedStats?, isLoading: Boolean) {
     val values = if (isLoading) {
         listOf("...", "...", "...", "...")
     } else {
@@ -738,11 +761,7 @@ private fun AccountConnectedStatsStrip(
 }
 
 @Composable
-private fun AccountStatItem(
-    value: String,
-    label: String,
-    modifier: Modifier = Modifier
-) {
+private fun AccountStatItem(value: String, label: String, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally

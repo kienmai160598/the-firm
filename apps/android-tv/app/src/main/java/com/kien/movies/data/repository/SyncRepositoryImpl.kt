@@ -7,10 +7,10 @@ import com.kien.movies.data.remote.supabase.SupabaseLinkedDevice
 import com.kien.movies.data.remote.supabase.SyncCodeResult
 import com.kien.movies.domain.repository.SyncRepository
 import io.github.jan.supabase.postgrest.Postgrest
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 private const val TAG = "SyncRepositoryImpl"
 

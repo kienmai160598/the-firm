@@ -1,10 +1,5 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.components.expressive.MoviesTextButton
-
-import com.kien.movies.ui.theme.MoviesPrimitives
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,14 +19,13 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.MoviesTextButton
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun ErrorState(
-    message: String,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun ErrorState(message: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
     val displayMessage = buildErrorStatePresentation(
         message = message,
         strings = rememberErrorStateStrings()
@@ -67,10 +61,7 @@ internal fun buildErrorStateAnnotatedMessage(message: String): AnnotatedString {
     ).annotated
 }
 
-private data class ErrorStatePresentation(
-    val text: String,
-    val boldRanges: List<IntRange>
-) {
+private data class ErrorStatePresentation(val text: String, val boldRanges: List<IntRange>) {
     val annotated: AnnotatedString
         get() = buildAnnotatedString {
             append(text)
@@ -121,23 +112,33 @@ private fun rememberErrorStateStrings(): ErrorStateStrings {
         retrySoonFix = stringResource(R.string.error_state_fix_retry_soon),
         noMetadataAnyAddonIssue = stringResource(R.string.error_state_issue_no_metadata_any_addon),
         noMetadataAnyAddonFix = stringResource(R.string.error_state_fix_no_metadata_any_addon),
-        noSupportedMetadataPrefix = stringResource(R.string.error_state_prefix_no_supported_metadata),
+        noSupportedMetadataPrefix = stringResource(
+            R.string.error_state_prefix_no_supported_metadata
+        ),
         noAddonForIdPrefix = stringResource(R.string.error_state_prefix_no_addon_for_id),
         noSupportedMetadataFix = stringResource(R.string.error_state_fix_no_supported_metadata),
         triedMetaAddonsPrefix = stringResource(R.string.error_state_prefix_tried_meta_addons),
         triedMetaAddonsFix = stringResource(R.string.error_state_fix_tried_meta_addons),
-        missingMetadataForIdIssue = stringResource(R.string.error_state_issue_missing_metadata_for_id),
+        missingMetadataForIdIssue = stringResource(
+            R.string.error_state_issue_missing_metadata_for_id
+        ),
         missingMetadataForIdFix = stringResource(R.string.error_state_fix_missing_metadata_for_id),
         addonUnreachableIssue = stringResource(R.string.error_state_issue_addon_unreachable),
         addonUnreachableFix = stringResource(R.string.error_state_fix_addon_unreachable),
-        addonConnectionFailedIssue = stringResource(R.string.error_state_issue_addon_connection_failed),
+        addonConnectionFailedIssue = stringResource(
+            R.string.error_state_issue_addon_connection_failed
+        ),
         addonConnectionFailedFix = stringResource(R.string.error_state_fix_addon_connection_failed),
         addonTimeoutIssue = stringResource(R.string.error_state_issue_addon_timeout),
         addonTimeoutFix = stringResource(R.string.error_state_fix_addon_timeout),
         addonCleartextIssue = stringResource(R.string.error_state_issue_addon_cleartext),
         addonCleartextFix = stringResource(R.string.error_state_fix_addon_cleartext),
         addonGenericFix = stringResource(R.string.error_state_fix_addon_generic),
-        addonIssueTemplate = stringResource(R.string.error_state_addon_issue_template, "%1\$s", "%2\$s"),
+        addonIssueTemplate = stringResource(
+            R.string.error_state_addon_issue_template,
+            "%1\$s",
+            "%2\$s"
+        ),
         metaNotFound = stringResource(R.string.error_meta_not_found)
     )
 }

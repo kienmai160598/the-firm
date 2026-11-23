@@ -5,10 +5,7 @@ import coil3.size.Size
 import coil3.transform.Transformation
 import kotlin.math.roundToInt
 
-class SmoothDownscaleTransformation(
-    private val targetWidth: Int,
-    private val targetHeight: Int
-) : Transformation() {
+class SmoothDownscaleTransformation(private val targetWidth: Int, private val targetHeight: Int) : Transformation() {
 
     override val cacheKey: String = "smooth_downscale_${targetWidth}x$targetHeight"
 

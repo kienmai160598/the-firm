@@ -85,7 +85,10 @@ class PosterOptionsControllerWatchedTest {
         val repository = watchProgressRepository(isWatched = false)
         val controller = controller(repository)
         controller.bind(backgroundScope)
-        controller.show(youtubeVideo().copy(id = "tt0944947", type = ContentType.SERIES, rawType = "series"), null)
+        controller.show(
+            youtubeVideo().copy(id = "tt0944947", type = ContentType.SERIES, rawType = "series"),
+            null
+        )
         runCurrent()
 
         controller.toggleMovieWatched()
@@ -99,7 +102,9 @@ class PosterOptionsControllerWatchedTest {
         every { isWatched(any(), any(), any(), any()) } returns flowOf(isWatched)
     }
 
-    private fun controller(watchProgressRepository: WatchProgressRepository): PosterOptionsController {
+    private fun controller(
+        watchProgressRepository: WatchProgressRepository
+    ): PosterOptionsController {
         val libraryRepository = mockk<LibraryRepository>(relaxed = true) {
             every { sourceMode } returns flowOf(LibrarySourceMode.LOCAL)
             every { listTabs } returns flowOf(emptyList())

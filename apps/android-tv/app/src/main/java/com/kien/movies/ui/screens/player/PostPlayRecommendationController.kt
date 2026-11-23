@@ -196,7 +196,14 @@ internal class PostPlayRecommendationController(
         _uiState.value = returnedState
         returnToPlayerAnimationJob = scope.launch {
             delay(POST_PLAY_RECOMMENDATION_TRANSITION_MS.toLong())
-            _uiState.update { it.copy(isVisible = false, hasReturnedToPlayer = true, countdownSeconds = null, isTrailerPlaying = false) }
+            _uiState.update {
+                it.copy(
+                    isVisible = false,
+                    hasReturnedToPlayer = true,
+                    countdownSeconds = null,
+                    isTrailerPlaying = false
+                )
+            }
             returnToPlayerAnimationJob = null
         }
     }
@@ -321,7 +328,10 @@ internal class PostPlayRecommendationController(
                     countdownSeconds = if (needsPostEndCountdown) {
                         POST_PLAY_RECOMMENDATION_TRAILER_COUNTDOWN_SECONDS
                     } else {
-                        postPlayRecommendationCountdownSeconds(snapshot.positionMs, effectiveDuration)
+                        postPlayRecommendationCountdownSeconds(
+                            snapshot.positionMs,
+                            effectiveDuration
+                        )
                     }
                 )
             }
@@ -332,7 +342,11 @@ internal class PostPlayRecommendationController(
             }
         }
 
-        if (state.isTrailerPlaying || state.hasAutoPlayedTrailer || !recommendation.hasTrailer) return
+        if (state.isTrailerPlaying || state.hasAutoPlayedTrailer ||
+            !recommendation.hasTrailer
+        ) {
+            return
+        }
         if (!autoPlayTrailerEnabled) {
             if (state.countdownSeconds != null) {
                 _uiState.update { it.copy(countdownSeconds = null) }
@@ -349,7 +363,8 @@ internal class PostPlayRecommendationController(
             return
         }
 
-        val countdown = postPlayRecommendationCountdownSeconds(snapshot.positionMs, effectiveDuration)
+        val countdown =
+            postPlayRecommendationCountdownSeconds(snapshot.positionMs, effectiveDuration)
         if (countdown != state.countdownSeconds) {
             _uiState.update { it.copy(countdownSeconds = countdown) }
         }
@@ -419,7 +434,11 @@ internal class PostPlayRecommendationController(
     }
 
     private fun startCandidateResolution(index: Int) {
-        if (index !in recommendationCandidates.indices || candidateResolutionJobs.containsKey(index)) return
+        if (index !in recommendationCandidates.indices ||
+            candidateResolutionJobs.containsKey(index)
+        ) {
+            return
+        }
         val candidate = recommendationCandidates[index]
         candidateResolutionJobs[index] = scope.async {
             try {
@@ -477,7 +496,8 @@ internal class PostPlayRecommendationController(
                     _uiState.update { it.copy(isChangingRecommendation = false) }
                     return@launch
                 }
-                val recommendation = cacheRecommendation(targetIndex, resolvedCandidate, preferences)
+                val recommendation =
+                    cacheRecommendation(targetIndex, resolvedCandidate, preferences)
                 _uiState.update {
                     it.copy(
                         recommendation = recommendation,
@@ -499,7 +519,11 @@ internal class PostPlayRecommendationController(
         resolvedCandidate: ResolvedCandidate,
         preferences: RatingPreferences
     ) {
-        if (index !in recommendationCandidates.indices || recommendationDetailJobs.containsKey(index)) return
+        if (index !in recommendationCandidates.indices ||
+            recommendationDetailJobs.containsKey(index)
+        ) {
+            return
+        }
         val candidate = recommendationCandidates[index]
         recommendationDetailJobs[index] = scope.launch {
             _uiState.update { state ->
@@ -545,7 +569,13 @@ internal class PostPlayRecommendationController(
                     )
                 }
                 _uiState.update { state ->
-                    if (state.recommendationIndex == index) state.copy(isLoadingTrailer = false) else state
+                    if (state.recommendationIndex ==
+                        index
+                    ) {
+                        state.copy(isLoadingTrailer = false)
+                    } else {
+                        state
+                    }
                 }
                 if (_uiState.value.recommendationIndex == index) {
                     lastSnapshot?.let(::evaluate)
@@ -555,7 +585,13 @@ internal class PostPlayRecommendationController(
             ratingsJob.join()
             trailerJob.join()
             _uiState.update { state ->
-                if (state.recommendationIndex == index) state.copy(isLoadingTrailer = false) else state
+                if (state.recommendationIndex ==
+                    index
+                ) {
+                    state.copy(isLoadingTrailer = false)
+                } else {
+                    state
+                }
             }
         }
     }
@@ -585,11 +621,7 @@ internal class PostPlayRecommendationController(
         )
     }
 
-    private suspend fun loadRatings(
-        candidate: MetaPreview,
-        meta: Meta?,
-        enabled: Boolean
-    ) = if (!enabled || meta == null) {
+    private suspend fun loadRatings(candidate: MetaPreview, meta: Meta?, enabled: Boolean) = if (!enabled || meta == null) {
         null
     } else {
         try {
@@ -628,7 +660,9 @@ internal class PostPlayRecommendationController(
         val candidates = withTimeoutOrNull(10_000L) {
             val sourcePreference = traktSettingsDataStore.moreLikeThisSource.first()
             val traktAuthenticated = traktAuthDataStore.isAuthenticated.first()
-            if (sourcePreference == MoreLikeThisSourcePreference.SIMKL && simklAuthRepository.state.value.isAuthenticated) {
+            if (sourcePreference == MoreLikeThisSourcePreference.SIMKL &&
+                simklAuthRepository.state.value.isAuthenticated
+            ) {
                 runCatching {
                     simklRelatedService.getRelated(
                         meta = meta,
@@ -636,7 +670,9 @@ internal class PostPlayRecommendationController(
                         fallbackItemType = playbackController.contentType
                     )
                 }.getOrDefault(emptyList())
-            } else if (sourcePreference == MoreLikeThisSourcePreference.TRAKT && traktAuthenticated) {
+            } else if (sourcePreference == MoreLikeThisSourcePreference.TRAKT &&
+                traktAuthenticated
+            ) {
                 runCatching {
                     traktRelatedService.getRelated(
                         meta = meta,
@@ -646,11 +682,18 @@ internal class PostPlayRecommendationController(
                 }.getOrDefault(emptyList())
             } else {
                 val settings = tmdbSettingsDataStore.settings.first()
-                if (!settings.enabled || !settings.useMoreLikeThis) return@withTimeoutOrNull emptyList()
+                if (!settings.enabled ||
+                    !settings.useMoreLikeThis
+                ) {
+                    return@withTimeoutOrNull emptyList()
+                }
                 val lookupType = tmdbContentType.toApiString(playbackController.contentType)
-                val tmdbId = tmdbService.ensureTmdbId(meta.id, lookupType, fallbackImdbId = meta.imdbId)
-                    ?: playbackController.contentId?.let { tmdbService.ensureTmdbId(it, lookupType, fallbackImdbId = meta.imdbId) }
-                    ?: return@withTimeoutOrNull emptyList()
+                val tmdbId =
+                    tmdbService.ensureTmdbId(meta.id, lookupType, fallbackImdbId = meta.imdbId)
+                        ?: playbackController.contentId?.let {
+                            tmdbService.ensureTmdbId(it, lookupType, fallbackImdbId = meta.imdbId)
+                        }
+                        ?: return@withTimeoutOrNull emptyList()
                 runCatching {
                     tmdbMetadataService.fetchMoreLikeThis(
                         tmdbId = tmdbId,
@@ -666,7 +709,8 @@ internal class PostPlayRecommendationController(
             watchProgressRepository.observeWatchedMovieIds(),
             watchedSeriesStateHolder.fullyWatchedSeriesIds
         ) { movieIds, seriesIds -> movieIds to seriesIds }.first()
-        val currentIds = setOfNotNull(meta.id.normalizedId(), playbackController.contentId?.normalizedId())
+        val currentIds =
+            setOfNotNull(meta.id.normalizedId(), playbackController.contentId?.normalizedId())
         val filtered = candidates
             .asSequence()
             .filterNot { it.id.normalizedId() in currentIds }
@@ -712,7 +756,11 @@ internal class PostPlayRecommendationController(
                 mediaType = meta?.apiType ?: candidate.apiType,
                 fallbackImdbId = candidateImdbId
             ) ?: if (meta?.id != candidate.id) {
-                tmdbService.ensureTmdbId(candidate.id, candidate.apiType, fallbackImdbId = candidateImdbId)
+                tmdbService.ensureTmdbId(
+                    candidate.id,
+                    candidate.apiType,
+                    fallbackImdbId = candidateImdbId
+                )
             } else {
                 null
             }

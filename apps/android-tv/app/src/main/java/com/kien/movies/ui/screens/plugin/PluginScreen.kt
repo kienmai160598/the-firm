@@ -2,24 +2,16 @@
 
 package com.kien.movies.ui.screens.plugin
 
-import com.kien.movies.ui.theme.MoviesPrimitives
-import com.kien.movies.ui.theme.MoviesTheme
-
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -29,11 +21,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -43,6 +41,8 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -57,7 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -66,6 +66,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -76,14 +77,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.ui.focus.focusRestorer
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -91,6 +88,7 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import com.kien.movies.R
 import com.kien.movies.domain.model.LocalScraperResult
 import com.kien.movies.domain.model.PluginRepository
 import com.kien.movies.domain.model.ScraperInfo
@@ -102,24 +100,21 @@ import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import com.kien.movies.ui.components.expressive.MoviesSurface
 import com.kien.movies.ui.components.expressive.MoviesSwitch
-import kotlinx.coroutines.delay
+import com.kien.movies.ui.screens.settings.TenFootTypography
+import com.kien.movies.ui.theme.ExpressiveColors
+import com.kien.movies.ui.theme.ExpressiveMotion
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.TvSizeFloors
+import com.kien.movies.ui.theme.bodyFloor
+import com.kien.movies.ui.theme.tvControlHeight
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.compose.ui.res.stringResource
-import com.kien.movies.R
-import com.kien.movies.ui.screens.settings.TenFootTypography
-import com.kien.movies.ui.theme.tvControlHeight
-import com.kien.movies.ui.theme.bodyFloor
-import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.theme.TvSizeFloors
-import com.kien.movies.ui.theme.ExpressiveMotion
+import kotlinx.coroutines.delay
 
 @Composable
-fun PluginScreen(
-    viewModel: PluginViewModel = hiltViewModel(),
-    onBackPress: () -> Unit
-) {
+fun PluginScreen(viewModel: PluginViewModel = hiltViewModel(), onBackPress: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
 
     BackHandler { onBackPress() }
@@ -215,206 +210,235 @@ fun PluginScreenContent(
                     .fillMaxSize()
                     .focusRestorer(manageFromPhoneFocusRequester)
             ) {
-            if (viewModel.isReadOnly) {
-                item {
-                    androidx.compose.material3.Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = androidx.compose.material3.CardDefaults.cardColors(
-                            containerColor = MoviesTheme.colors.FocusBackground
-                        ),
-                        shape = M3eShapes.card
-                    ) {
-                        androidx.tv.material3.Text(
-                            text = stringResource(R.string.plugin_readonly_notice),
-                            style = androidx.tv.material3.MaterialTheme.typography.bodyMedium,
-                            color = com.kien.movies.ui.theme.MoviesTheme.colors.TextSecondary,
-                            modifier = Modifier.padding(MoviesTheme.spacing.lg)
+                if (viewModel.isReadOnly) {
+                    item {
+                        androidx.compose.material3.Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = androidx.compose.material3.CardDefaults.cardColors(
+                                containerColor = MoviesTheme.colors.FocusBackground
+                            ),
+                            shape = M3eShapes.card
+                        ) {
+                            androidx.tv.material3.Text(
+                                text = stringResource(R.string.plugin_readonly_notice),
+                                style = androidx.tv.material3.MaterialTheme.typography.bodyMedium,
+                                color = com.kien.movies.ui.theme.MoviesTheme.colors.TextSecondary,
+                                modifier = Modifier.padding(MoviesTheme.spacing.lg)
+                            )
+                        }
+                    }
+                }
+
+                if (!viewModel.isReadOnly) {
+                    item {
+                        AddRepositoryInline(
+                            url = repoUrl,
+                            onUrlChange = { repoUrl = it },
+                            onConfirm = {
+                                if (repoUrl.isNotBlank()) {
+                                    viewModel.onEvent(PluginUiEvent.AddRepository(repoUrl))
+                                    repoUrl = ""
+                                }
+                            },
+                            isLoading = uiState.isAddingRepo
+                        )
+                    }
+
+                    // Manage from phone card
+                    item {
+                        ManageFromPhoneCard(
+                            onClick = { viewModel.onEvent(PluginUiEvent.StartQrMode) },
+                            focusRequester = manageFromPhoneFocusRequester
                         )
                     }
                 }
-            }
 
-            if (!viewModel.isReadOnly) {
                 item {
-                    AddRepositoryInline(
-                        url = repoUrl,
-                        onUrlChange = { repoUrl = it },
-                        onConfirm = {
-                            if (repoUrl.isNotBlank()) {
-                                viewModel.onEvent(PluginUiEvent.AddRepository(repoUrl))
-                                repoUrl = ""
-                            }
-                        },
-                        isLoading = uiState.isAddingRepo
+                    PluginsEnabledCard(
+                        pluginsEnabled = uiState.pluginsEnabled,
+                        isReadOnly = viewModel.isReadOnly,
+                        onPluginsEnabledChange = {
+                            viewModel.onEvent(PluginUiEvent.SetPluginsEnabled(it))
+                        }
                     )
                 }
 
-                // Manage from phone card
                 item {
-                    ManageFromPhoneCard(
-                        onClick = { viewModel.onEvent(PluginUiEvent.StartQrMode) },
-                        focusRequester = manageFromPhoneFocusRequester
+                    PluginStreamGroupingCard(
+                        groupStreamsByRepository = uiState.groupStreamsByRepository,
+                        isReadOnly = viewModel.isReadOnly,
+                        focusRequester = pluginGroupingFocusRequester,
+                        onGroupStreamsByRepositoryChange = {
+                            viewModel.onEvent(PluginUiEvent.SetGroupStreamsByRepository(it))
+                        }
                     )
                 }
-            }
 
-            item {
-                PluginsEnabledCard(
-                    pluginsEnabled = uiState.pluginsEnabled,
-                    isReadOnly = viewModel.isReadOnly,
-                    onPluginsEnabledChange = { viewModel.onEvent(PluginUiEvent.SetPluginsEnabled(it)) }
-                )
-            }
-
-            item {
-                PluginStreamGroupingCard(
-                    groupStreamsByRepository = uiState.groupStreamsByRepository,
-                    isReadOnly = viewModel.isReadOnly,
-                    focusRequester = pluginGroupingFocusRequester,
-                    onGroupStreamsByRepositoryChange = {
-                        viewModel.onEvent(PluginUiEvent.SetGroupStreamsByRepository(it))
-                    }
-                )
-            }
-
-            // Repositories section
-            item {
-                Text(
-                    text = stringResource(R.string.plugin_repositories_section, uiState.repositories.size),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MoviesTheme.colors.TextPrimary
-                )
-            }
-
-            if (uiState.repositories.isEmpty()) {
+                // Repositories section
                 item {
-                    EmptyState(
-                        message = stringResource(R.string.plugin_no_repos),
-                        modifier = Modifier.padding(vertical = MoviesTheme.spacing.xl)
-                    )
-                }
-            }
-
-            items(uiState.repositories, key = { it.id }) { repo ->
-                val repoScrapers = uiState.scrapers.filter { it.repositoryId == repo.id }
-                RepositoryCard(
-                    repository = repo,
-                    repoScrapers = repoScrapers,
-                    onRefresh = { viewModel.onEvent(PluginUiEvent.RefreshRepository(repo.id)) },
-                    onRemove = { repoPendingDeletion = repo },
-                    onToggleAll = { enabled ->
-                        viewModel.onEvent(PluginUiEvent.ToggleAllScrapersForRepo(repo.id, enabled))
-                    },
-                    removeFocusRequester = repoDeleteFocusRequesters.getOrPut(repo.id) { FocusRequester() },
-                    isLoading = uiState.isLoading,
-                    isReadOnly = viewModel.isReadOnly
-                )
-            }
-
-            // Scrapers section
-            if (uiState.scrapers.isNotEmpty()) {
-                item {
-                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
                     Text(
-                        text = stringResource(R.string.plugin_providers_section, uiState.scrapers.size),
+                        text = stringResource(
+                            R.string.plugin_repositories_section,
+                            uiState.repositories.size
+                        ),
                         style = MaterialTheme.typography.titleLarge,
                         color = MoviesTheme.colors.TextPrimary
                     )
                 }
 
-                items(uiState.scrapers, key = { it.id }) { scraper ->
-                    ScraperCard(
-                        scraper = scraper,
-                        onToggle = { enabled ->
-                            viewModel.onEvent(PluginUiEvent.ToggleScraper(scraper.id, enabled))
+                if (uiState.repositories.isEmpty()) {
+                    item {
+                        EmptyState(
+                            message = stringResource(R.string.plugin_no_repos),
+                            modifier = Modifier.padding(vertical = MoviesTheme.spacing.xl)
+                        )
+                    }
+                }
+
+                items(uiState.repositories, key = { it.id }) { repo ->
+                    val repoScrapers = uiState.scrapers.filter { it.repositoryId == repo.id }
+                    RepositoryCard(
+                        repository = repo,
+                        repoScrapers = repoScrapers,
+                        onRefresh = { viewModel.onEvent(PluginUiEvent.RefreshRepository(repo.id)) },
+                        onRemove = { repoPendingDeletion = repo },
+                        onToggleAll = { enabled ->
+                            viewModel.onEvent(
+                                PluginUiEvent.ToggleAllScrapersForRepo(repo.id, enabled)
+                            )
                         },
-                        onTest = { viewModel.onEvent(PluginUiEvent.TestScraper(scraper.id)) },
-                        isTesting = uiState.isTesting && uiState.testScraperId == scraper.id,
-                        testResults = if (uiState.testScraperId == scraper.id) uiState.testResults else null,
-                        testDiagnostics = if (uiState.testScraperId == scraper.id) uiState.testDiagnostics else null,
+                        removeFocusRequester = repoDeleteFocusRequesters.getOrPut(repo.id) {
+                            FocusRequester()
+                        },
+                        isLoading = uiState.isLoading,
                         isReadOnly = viewModel.isReadOnly
                     )
                 }
+
+                // Scrapers section
+                if (uiState.scrapers.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
+                        Text(
+                            text = stringResource(
+                                R.string.plugin_providers_section,
+                                uiState.scrapers.size
+                            ),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MoviesTheme.colors.TextPrimary
+                        )
+                    }
+
+                    items(uiState.scrapers, key = { it.id }) { scraper ->
+                        ScraperCard(
+                            scraper = scraper,
+                            onToggle = { enabled ->
+                                viewModel.onEvent(PluginUiEvent.ToggleScraper(scraper.id, enabled))
+                            },
+                            onTest = { viewModel.onEvent(PluginUiEvent.TestScraper(scraper.id)) },
+                            isTesting = uiState.isTesting && uiState.testScraperId == scraper.id,
+                            testResults = if (uiState.testScraperId ==
+                                scraper.id
+                            ) {
+                                uiState.testResults
+                            } else {
+                                null
+                            },
+                            testDiagnostics = if (uiState.testScraperId ==
+                                scraper.id
+                            ) {
+                                uiState.testDiagnostics
+                            } else {
+                                null
+                            },
+                            isReadOnly = viewModel.isReadOnly
+                        )
+                    }
+                }
             }
-            }
         }
 
-    // Success/Error Messages
-    MessageOverlay(
-        successMessage = uiState.successMessage,
-        errorMessage = uiState.errorMessage
-    )
+        // Success/Error Messages
+        MessageOverlay(
+            successMessage = uiState.successMessage,
+            errorMessage = uiState.errorMessage
+        )
 
-    if (uiState.isQrModeActive || uiState.pendingRepoChange != null || uiState.pendingScraperEnable != null) {
-        if (uiState.isQrModeActive) {
-            QrCodeOverlay(
-                qrBitmap = uiState.qrCodeBitmap,
-                serverUrl = uiState.serverUrl,
-                onClose = { viewModel.onEvent(PluginUiEvent.StopQrMode) },
-                hasPendingChange = uiState.pendingRepoChange != null
-            )
-        }
-
-        uiState.pendingRepoChange?.let { pending ->
-            ConfirmRepoChangesDialog(
-                pendingChange = pending,
-                onConfirm = { viewModel.onEvent(PluginUiEvent.ConfirmPendingRepoChange) },
-                onReject = { viewModel.onEvent(PluginUiEvent.RejectPendingRepoChange) }
-            )
-        }
-
-        uiState.pendingScraperEnable?.let { pending ->
-            ConfirmScraperEnableDialog(
-                scraperName = pending.scraperName,
-                onConfirm = { viewModel.onEvent(PluginUiEvent.ConfirmPendingScraperEnable) },
-                onDismiss = { viewModel.onEvent(PluginUiEvent.DismissPendingScraperEnable) }
-            )
-        }
-    }
-
-    repoPendingDeletion?.let { repo ->
-        MoviesDialog(
-            onDismiss = {
-                repoRefocusRequester = repoDeleteFocusRequesters[repo.id]
-                repoPendingDeletion = null
-            },
-            title = stringResource(R.string.plugin_repo_delete_confirm_title),
-            subtitle = stringResource(R.string.plugin_repo_delete_confirm_message),
-            suppressFirstKeyUp = false
+        if (uiState.isQrModeActive || uiState.pendingRepoChange != null ||
+            uiState.pendingScraperEnable != null
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.End)
+            if (uiState.isQrModeActive) {
+                QrCodeOverlay(
+                    qrBitmap = uiState.qrCodeBitmap,
+                    serverUrl = uiState.serverUrl,
+                    onClose = { viewModel.onEvent(PluginUiEvent.StopQrMode) },
+                    hasPendingChange = uiState.pendingRepoChange != null
+                )
+            }
+
+            uiState.pendingRepoChange?.let { pending ->
+                ConfirmRepoChangesDialog(
+                    pendingChange = pending,
+                    onConfirm = { viewModel.onEvent(PluginUiEvent.ConfirmPendingRepoChange) },
+                    onReject = { viewModel.onEvent(PluginUiEvent.RejectPendingRepoChange) }
+                )
+            }
+
+            uiState.pendingScraperEnable?.let { pending ->
+                ConfirmScraperEnableDialog(
+                    scraperName = pending.scraperName,
+                    onConfirm = { viewModel.onEvent(PluginUiEvent.ConfirmPendingScraperEnable) },
+                    onDismiss = { viewModel.onEvent(PluginUiEvent.DismissPendingScraperEnable) }
+                )
+            }
+        }
+
+        repoPendingDeletion?.let { repo ->
+            MoviesDialog(
+                onDismiss = {
+                    repoRefocusRequester = repoDeleteFocusRequesters[repo.id]
+                    repoPendingDeletion = null
+                },
+                title = stringResource(R.string.plugin_repo_delete_confirm_title),
+                subtitle = stringResource(R.string.plugin_repo_delete_confirm_message),
+                suppressFirstKeyUp = false
             ) {
-                MoviesButton(
-                    onClick = {
-                        repoRefocusRequester = repoDeleteFocusRequesters[repo.id]
-                        repoPendingDeletion = null
-                    },
-                    modifier = Modifier
-                        .focusRequester(deleteDialogFocusRequester)
-                        .semantics { role = Role.Button }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        MoviesTheme.spacing.md,
+                        Alignment.End
+                    )
                 ) {
-                    Text(stringResource(R.string.plugin_repo_delete_no))
-                }
-                MoviesButton(
-                    onClick = {
-                        val index = uiState.repositories.indexOfFirst { it.id == repo.id }
-                        val neighborId = uiState.repositories.getOrNull(index + 1)?.id
-                            ?: uiState.repositories.getOrNull(index - 1)?.id
-                        repoRefocusRequester = neighborId?.let { repoDeleteFocusRequesters[it] }
-                            ?: pluginGroupingFocusRequester
-                        viewModel.onEvent(PluginUiEvent.RemoveRepository(repo.id))
-                        repoPendingDeletion = null
-                    },
-                    modifier = Modifier.semantics { role = Role.Button },
-                    style = MoviesButtonStyle.Destructive
-                ) {
-                    Text(stringResource(R.string.plugin_repo_delete_yes))
+                    MoviesButton(
+                        onClick = {
+                            repoRefocusRequester = repoDeleteFocusRequesters[repo.id]
+                            repoPendingDeletion = null
+                        },
+                        modifier = Modifier
+                            .focusRequester(deleteDialogFocusRequester)
+                            .semantics { role = Role.Button }
+                    ) {
+                        Text(stringResource(R.string.plugin_repo_delete_no))
+                    }
+                    MoviesButton(
+                        onClick = {
+                            val index = uiState.repositories.indexOfFirst { it.id == repo.id }
+                            val neighborId = uiState.repositories.getOrNull(index + 1)?.id
+                                ?: uiState.repositories.getOrNull(index - 1)?.id
+                            repoRefocusRequester = neighborId?.let { repoDeleteFocusRequesters[it] }
+                                ?: pluginGroupingFocusRequester
+                            viewModel.onEvent(PluginUiEvent.RemoveRepository(repo.id))
+                            repoPendingDeletion = null
+                        },
+                        modifier = Modifier.semantics { role = Role.Button },
+                        style = MoviesButtonStyle.Destructive
+                    ) {
+                        Text(stringResource(R.string.plugin_repo_delete_yes))
+                    }
                 }
             }
         }
-    }
     }
 }
 
@@ -438,7 +462,8 @@ private fun PluginStreamGroupingCard(
             .focusRequester(focusRequester)
             .semantics {
                 role = Role.Switch
-                toggleableState = if (groupStreamsByRepository) ToggleableState.On else ToggleableState.Off
+                toggleableState =
+                    if (groupStreamsByRepository) ToggleableState.On else ToggleableState.Off
             }
             .onFocusChanged { isFocused = it.isFocused }
     ) {
@@ -592,11 +617,15 @@ private fun AddRepositoryInline(
                                 color = MoviesTheme.colors.TextPrimary,
                                 textDirection = TextDirection.Content
                             ),
-                            cursorBrush = SolidColor(if (isEditing) MoviesTheme.colors.Primary else Color.Transparent),
+                            cursorBrush = SolidColor(
+                                if (isEditing) MoviesTheme.colors.Primary else Color.Transparent
+                            ),
                             decorationBox = { innerTextField ->
                                 if (url.isEmpty()) {
                                     Text(
-                                        text = stringResource(R.string.plugin_url_or_short_code_placeholder),
+                                        text = stringResource(
+                                            R.string.plugin_url_or_short_code_placeholder
+                                        ),
                                         style = MaterialTheme.typography.bodyMedium.bodyFloor(),
                                         color = MoviesTheme.colors.TextTertiary
                                     )
@@ -639,10 +668,7 @@ private fun AddRepositoryInline(
 }
 
 @Composable
-private fun ManageFromPhoneCard(
-    onClick: () -> Unit,
-    focusRequester: FocusRequester
-) {
+private fun ManageFromPhoneCard(onClick: () -> Unit, focusRequester: FocusRequester) {
     var isFocused by remember { mutableStateOf(false) }
 
     MoviesSurface(
@@ -670,7 +696,9 @@ private fun ManageFromPhoneCard(
                 Column {
                     Text(
                         text = stringResource(R.string.plugin_manage_from_phone_title),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        )
                     )
                     Text(
                         text = stringResource(R.string.plugin_manage_from_phone_subtitle),
@@ -754,7 +782,10 @@ private fun QrCodeOverlay(
                 shape = M3eShapes.capsule
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
+                    modifier = Modifier.padding(
+                        horizontal = MoviesTheme.spacing.xl,
+                        vertical = MoviesTheme.spacing.md
+                    ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -854,7 +885,10 @@ private fun ConfirmRepoChangesDialog(
                                     color = MoviesTheme.colors.Success,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
+                                        .padding(
+                                            start = MoviesTheme.spacing.sm,
+                                            bottom = MoviesTheme.spacing.xxs
+                                        )
                                 )
                             }
                             Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
@@ -876,13 +910,18 @@ private fun ConfirmRepoChangesDialog(
                                     color = MoviesTheme.colors.Error,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
+                                        .padding(
+                                            start = MoviesTheme.spacing.sm,
+                                            bottom = MoviesTheme.spacing.xxs
+                                        )
                                 )
                             }
                             Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                         }
 
-                        if (pendingChange.addedUrls.isEmpty() && pendingChange.removedUrls.isEmpty()) {
+                        if (pendingChange.addedUrls.isEmpty() &&
+                            pendingChange.removedUrls.isEmpty()
+                        ) {
                             Text(
                                 text = stringResource(R.string.plugin_confirm_no_changes),
                                 style = MaterialTheme.typography.bodyMedium,
@@ -893,7 +932,10 @@ private fun ConfirmRepoChangesDialog(
                 }
 
                 Text(
-                    text = stringResource(R.string.plugin_confirm_total, pendingChange.proposedUrls.size),
+                    text = stringResource(
+                        R.string.plugin_confirm_total,
+                        pendingChange.proposedUrls.size
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MoviesTheme.colors.TextTertiary,
                     modifier = Modifier.fillMaxWidth()
@@ -913,7 +955,10 @@ private fun ConfirmRepoChangesDialog(
                             shape = M3eShapes.capsule
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
+                                modifier = Modifier.padding(
+                                    horizontal = MoviesTheme.spacing.xl,
+                                    vertical = MoviesTheme.spacing.md
+                                ),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
@@ -938,7 +983,10 @@ private fun ConfirmRepoChangesDialog(
                         ) {
                             Text(
                                 text = stringResource(R.string.plugin_confirm_confirm),
-                                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md)
+                                modifier = Modifier.padding(
+                                    horizontal = MoviesTheme.spacing.xl,
+                                    vertical = MoviesTheme.spacing.md
+                                )
                             )
                         }
                     }
@@ -1004,7 +1052,10 @@ private fun ConfirmScraperEnableDialog(
                         shape = M3eShapes.capsule
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
+                            modifier = Modifier.padding(
+                                horizontal = MoviesTheme.spacing.xl,
+                                vertical = MoviesTheme.spacing.md
+                            ),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
@@ -1028,7 +1079,10 @@ private fun ConfirmScraperEnableDialog(
                         resting = ExpressiveColors.frostedStrong
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
+                            modifier = Modifier.padding(
+                                horizontal = MoviesTheme.spacing.xl,
+                                vertical = MoviesTheme.spacing.md
+                            ),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
@@ -1104,69 +1158,82 @@ private fun RepositoryCard(
                     color = MoviesTheme.colors.TextSecondary
                 )
                 Text(
-                    text = stringResource(R.string.plugin_updated_format, formatDate(repository.lastUpdated)),
+                    text = stringResource(
+                        R.string.plugin_updated_format,
+                        formatDate(repository.lastUpdated)
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MoviesTheme.colors.TextSecondary
                 )
             }
 
-            if (!isReadOnly) Row(
-                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (repoScrapers.isNotEmpty()) {
-                    MoviesSurface(
-                        onClick = { onToggleAll(!anyEnabled) },
-                        modifier = Modifier
-                            .onFocusChanged { isToggleFocused = it.isFocused }
-                            .semantics {
-                                role = Role.Switch
-                                toggleableState = if (anyEnabled) ToggleableState.On else ToggleableState.Off
-                            },
-                        shape = M3eShapes.capsule
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.sm),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            if (!isReadOnly) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (repoScrapers.isNotEmpty()) {
+                        MoviesSurface(
+                            onClick = { onToggleAll(!anyEnabled) },
+                            modifier = Modifier
+                                .onFocusChanged { isToggleFocused = it.isFocused }
+                                .semantics {
+                                    role = Role.Switch
+                                    toggleableState =
+                                        if (anyEnabled) ToggleableState.On else ToggleableState.Off
+                                },
+                            shape = M3eShapes.capsule
                         ) {
-                            Text(
-                                text = "$enabledCount/${repoScrapers.size}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            MoviesSwitch(checked = anyEnabled, enabled = true, focused = isToggleFocused)
+                            Row(
+                                modifier = Modifier.padding(
+                                    horizontal = MoviesTheme.spacing.md,
+                                    vertical = MoviesTheme.spacing.sm
+                                ),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Text(
+                                    text = "$enabledCount/${repoScrapers.size}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                MoviesSwitch(
+                                    checked = anyEnabled,
+                                    enabled = true,
+                                    focused = isToggleFocused
+                                )
+                            }
                         }
                     }
-                }
 
-                MoviesButton(
-                    onClick = onRefresh,
-                    enabled = !isLoading,
-                    modifier = Modifier
-                        .onFocusChanged { isRefreshFocused = it.isFocused }
-                        .semantics { role = Role.Button }
-                        .tvControlHeight()
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = stringResource(R.string.cd_refresh)
-                    )
-                }
+                    MoviesButton(
+                        onClick = onRefresh,
+                        enabled = !isLoading,
+                        modifier = Modifier
+                            .onFocusChanged { isRefreshFocused = it.isFocused }
+                            .semantics { role = Role.Button }
+                            .tvControlHeight()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = stringResource(R.string.cd_refresh)
+                        )
+                    }
 
-                MoviesButton(
-                    onClick = onRemove,
-                    enabled = !isLoading,
-                    modifier = Modifier
-                        .focusRequester(removeFocusRequester)
-                        .onFocusChanged { isRemoveFocused = it.isFocused }
-                        .semantics { role = Role.Button }
-                        .tvControlHeight(),
-                    style = MoviesButtonStyle.Destructive
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = stringResource(R.string.cd_remove)
-                    )
+                    MoviesButton(
+                        onClick = onRemove,
+                        enabled = !isLoading,
+                        modifier = Modifier
+                            .focusRequester(removeFocusRequester)
+                            .onFocusChanged { isRemoveFocused = it.isFocused }
+                            .semantics { role = Role.Button }
+                            .tvControlHeight(),
+                        style = MoviesButtonStyle.Destructive
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.cd_remove)
+                        )
+                    }
                 }
             }
         }
@@ -1262,13 +1329,23 @@ private fun ScraperCard(
                     ) {
                         if (isTesting) {
                             LoadingIndicator(
-                                modifier = Modifier.size(TvSizeFloors.atLeast(MoviesTheme.spacing.lg, TvSizeFloors.controlIcon))
+                                modifier = Modifier.size(
+                                    TvSizeFloors.atLeast(
+                                        MoviesTheme.spacing.lg,
+                                        TvSizeFloors.controlIcon
+                                    )
+                                )
                             )
                         } else {
                             Icon(
                                 imageVector = Icons.Default.PlayArrow,
                                 contentDescription = stringResource(R.string.cd_test),
-                                modifier = Modifier.size(TvSizeFloors.atLeast(MoviesTheme.spacing.lg, TvSizeFloors.controlIcon))
+                                modifier = Modifier.size(
+                                    TvSizeFloors.atLeast(
+                                        MoviesTheme.spacing.lg,
+                                        TvSizeFloors.controlIcon
+                                    )
+                                )
                             )
                         }
                         Spacer(modifier = Modifier.width(MoviesTheme.spacing.xs))
@@ -1287,7 +1364,8 @@ private fun ScraperCard(
                                 .semantics {
                                     role = Role.Switch
                                     contentDescription = toggleLabel
-                                    toggleableState = if (scraper.enabled) ToggleableState.On else ToggleableState.Off
+                                    toggleableState =
+                                        if (scraper.enabled) ToggleableState.On else ToggleableState.Off
                                 },
                             shape = M3eShapes.capsule
                         ) {
@@ -1307,7 +1385,10 @@ private fun ScraperCard(
             }
 
             // Test results with diagnostics
-            AnimatedVisibility(visible = showResults && (testResults != null || testDiagnostics != null)) {
+            AnimatedVisibility(
+                visible =
+                    showResults && (testResults != null || testDiagnostics != null)
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1324,11 +1405,19 @@ private fun ScraperCard(
                         ) {
                             Column(modifier = Modifier.padding(MoviesTheme.spacing.sm)) {
                                 Text(
-                                    text = if (diagnosticsExpanded) stringResource(R.string.plugin_diagnostics_collapse) else stringResource(R.string.plugin_diagnostics_expand),
+                                    text = if (diagnosticsExpanded) {
+                                        stringResource(
+                                            R.string.plugin_diagnostics_collapse
+                                        )
+                                    } else {
+                                        stringResource(R.string.plugin_diagnostics_expand)
+                                    },
                                     style = MaterialTheme.typography.labelSmall,
                                     color = LocalContentColor.current.copy(alpha = 0.64f)
                                 )
-                                androidx.compose.animation.AnimatedVisibility(visible = diagnosticsExpanded) {
+                                androidx.compose.animation.AnimatedVisibility(
+                                    visible = diagnosticsExpanded
+                                ) {
                                     Text(
                                         text = testDiagnostics.steps.joinToString("\n"),
                                         style = MaterialTheme.typography.labelSmall,
@@ -1432,12 +1521,8 @@ private fun TestResultItem(result: LocalScraperResult) {
     }
 }
 
-
 @Composable
-private fun EmptyState(
-    message: String,
-    modifier: Modifier = Modifier
-) {
+private fun EmptyState(message: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
@@ -1452,10 +1537,7 @@ private fun EmptyState(
 }
 
 @Composable
-private fun MessageOverlay(
-    successMessage: String?,
-    errorMessage: String?
-) {
+private fun MessageOverlay(successMessage: String?, errorMessage: String?) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -1473,15 +1555,19 @@ private fun MessageOverlay(
             Surface(
                 onClick = { },
                 colors = ClickableSurfaceDefaults.colors(
-                    containerColor = if (isSuccess)
+                    containerColor = if (isSuccess) {
                         MoviesPrimitives.green700.copy(alpha = 0.9f)
-                    else
+                    } else {
                         MoviesPrimitives.red600.copy(alpha = 0.9f)
+                    }
                 ),
                 shape = ClickableSurfaceDefaults.shape(M3eShapes.card)
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = MoviesTheme.spacing.md),
+                    modifier = Modifier.padding(
+                        horizontal = 20.dp,
+                        vertical = MoviesTheme.spacing.md
+                    ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
@@ -1503,7 +1589,10 @@ private fun MessageOverlay(
 
 private fun formatDate(timestamp: Long): String {
     val locale = Locale.getDefault()
-    return SimpleDateFormat(android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMMy"), locale).format(Date(timestamp))
+    return SimpleDateFormat(
+        android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMMy"),
+        locale
+    ).format(Date(timestamp))
 }
 
 private val BadgeShape = RoundedCornerShape(percent = 50)

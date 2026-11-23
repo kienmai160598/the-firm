@@ -22,10 +22,7 @@ fun availableAppThemes(entitlements: CosmeticEntitlements): List<AppTheme> {
     return unlockedSupporterThemes + AppTheme.CUSTOM + standardThemes
 }
 
-fun resolveAppTheme(
-    selectedTheme: AppTheme?,
-    entitlements: CosmeticEntitlements
-): AppTheme {
+fun resolveAppTheme(selectedTheme: AppTheme?, entitlements: CosmeticEntitlements): AppTheme {
     if (selectedTheme == null) {
         return supporterThemes
             .filterValues(entitlements::includes)
@@ -40,5 +37,7 @@ fun resolveAppTheme(
     }
 }
 
-fun resolveCustomThemeColors(colors: CustomThemeColors, memberTier: MemberTier?): CustomThemeColors =
-    if (memberTier == null) CustomThemeColors.solid(colors.second) else colors
+fun resolveCustomThemeColors(
+    colors: CustomThemeColors,
+    memberTier: MemberTier?
+): CustomThemeColors = if (memberTier == null) CustomThemeColors.solid(colors.second) else colors

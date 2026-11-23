@@ -15,16 +15,28 @@ class MediaBrowserConnectionTest {
     @Test
     fun normalizesAddresses() {
         assertEquals("http://192.168.1.10:8096", normalizeServerAddress("192.168.1.10:8096"))
-        assertEquals("https://media.example.com/jellyfin", normalizeServerAddress(" https://media.example.com/jellyfin/ "))
-        assertEquals("https://media.example.com/jellyfin", normalizeServerAddress("https://media.example.com/jellyfin/web/index.html"))
+        assertEquals(
+            "https://media.example.com/jellyfin",
+            normalizeServerAddress(" https://media.example.com/jellyfin/ ")
+        )
+        assertEquals(
+            "https://media.example.com/jellyfin",
+            normalizeServerAddress("https://media.example.com/jellyfin/web/index.html")
+        )
         assertEquals("http://host:8096", normalizeServerAddress("http://host:8096/web/?x=1#/home"))
     }
 
     @Test
     fun stripsApiPathFromAddresses() {
-        assertEquals("https://media.example.com", normalizeServerAddress("https://media.example.com/emby/web/index.html", "/emby"))
+        assertEquals(
+            "https://media.example.com",
+            normalizeServerAddress("https://media.example.com/emby/web/index.html", "/emby")
+        )
         assertEquals("http://host:8096", normalizeServerAddress("http://host:8096/EMBY/", "/emby"))
-        assertEquals("https://media.example.com/emby", normalizeServerAddress("https://media.example.com/emby"))
+        assertEquals(
+            "https://media.example.com/emby",
+            normalizeServerAddress("https://media.example.com/emby")
+        )
     }
 
     @Test
@@ -38,7 +50,11 @@ class MediaBrowserConnectionTest {
     fun preservesReverseProxyBasePathInRequests() {
         assertEquals(
             "https://media.example.com/jellyfin/Items/abc?userId=u1",
-            buildUrl("https://media.example.com/jellyfin", "/Items/${pathSegment("abc")}", mapOf("userId" to "u1", "skip" to null))
+            buildUrl(
+                "https://media.example.com/jellyfin",
+                "/Items/${pathSegment("abc")}",
+                mapOf("userId" to "u1", "skip" to null)
+            )
         )
         assertEquals("a%2Fb", pathSegment("a/b"))
     }
@@ -60,7 +76,9 @@ class MediaBrowserConnectionTest {
         assertTrue(emby.isSupported(PublicInfo(version = "4.8.10.0")))
         assertTrue(emby.isSupported(PublicInfo(version = "4.9.1.2")))
         assertFalse(emby.isSupported(PublicInfo(version = "4.6.7.0")))
-        assertFalse(emby.isSupported(PublicInfo(version = "10.10.7", productName = "Jellyfin Server")))
+        assertFalse(
+            emby.isSupported(PublicInfo(version = "10.10.7", productName = "Jellyfin Server"))
+        )
         assertFalse(emby.isSupported(PublicInfo(version = null)))
     }
 }

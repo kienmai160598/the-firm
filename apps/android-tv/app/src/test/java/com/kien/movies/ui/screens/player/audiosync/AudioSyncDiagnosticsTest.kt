@@ -49,7 +49,10 @@ class AudioSyncDiagnosticsTest {
             val tracker = AudioSyncTracker(track())
             val timeline = SpeechTimeline()
             repeat(800) { timeline.record(it, probability) }
-            assertEquals(AudioSyncTracker.Outcome.NotEnoughEvidence, tracker.update(timeline, 25_000))
+            assertEquals(
+                AudioSyncTracker.Outcome.NotEnoughEvidence,
+                tracker.update(timeline, 25_000)
+            )
             assertTrue(tracker.waitingReason.startsWith("Speech activity is too constant"))
             assertNull(tracker.lastEstimate)
         }
@@ -68,6 +71,6 @@ class AudioSyncDiagnosticsTest {
         List(30) { index ->
             val start = startMs + index * 3_000L
             Triple(start, start + 1_500L, "A line of spoken dialogue")
-        },
+        }
     )
 }

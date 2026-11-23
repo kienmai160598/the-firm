@@ -86,7 +86,8 @@ private fun remapEpisodeBetweenLists(
     // Cache normalized titles so each unique title is computed once, not once per
     // reverseRemap call. For large shows (One Piece: 1181 episodes × 100+ history
     // entries), this avoids ~236,000 redundant regex operations.
-    val normalizedTitle = normalizeEpisodeTitle(requestedTitle ?: currentSourceEpisode.title, normalizedTitleCache)
+    val normalizedTitle =
+        normalizeEpisodeTitle(requestedTitle ?: currentSourceEpisode.title, normalizedTitleCache)
     if (isUsefulEpisodeTitle(normalizedTitle)) {
         val titleMatches = orderedTargetEpisodes.filter {
             normalizeEpisodeTitle(it.title, normalizedTitleCache) == normalizedTitle
@@ -114,7 +115,10 @@ private val NON_ALPHANUMERIC = Regex("[^a-z0-9]+")
 private val COLLAPSED_SPACES = Regex("\\s+")
 private val normalizedTitleCache = java.util.concurrent.ConcurrentHashMap<String, String>()
 
-private fun normalizeEpisodeTitle(title: String?, cache: java.util.concurrent.ConcurrentHashMap<String, String>): String {
+private fun normalizeEpisodeTitle(
+    title: String?,
+    cache: java.util.concurrent.ConcurrentHashMap<String, String>
+): String {
     if (title == null) return ""
     return cache.getOrPut(title) {
         title.lowercase()

@@ -7,14 +7,16 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 private val Context.profileLockStateDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "profile_lock_state",
-    corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler { androidx.datastore.preferences.core.emptyPreferences() }
+    corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler {
+        androidx.datastore.preferences.core.emptyPreferences()
+    }
 )
 
 @Singleton
@@ -48,8 +50,7 @@ class ProfileLockStateDataStore @Inject constructor(
         }
     }
 
-    private fun encode(map: Map<Int, Boolean>): String =
-        map.entries.joinToString(separator = ",") { "${it.key}:${it.value}" }
+    private fun encode(map: Map<Int, Boolean>): String = map.entries.joinToString(separator = ",") { "${it.key}:${it.value}" }
 
     private fun decode(raw: String?): Map<Int, Boolean> {
         if (raw.isNullOrBlank()) return emptyMap()

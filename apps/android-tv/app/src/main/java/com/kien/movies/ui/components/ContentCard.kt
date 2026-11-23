@@ -1,88 +1,88 @@
 package com.kien.movies.ui.components
 
 import android.view.KeyEvent as AndroidKeyEvent
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.background
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
-import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.rememberMetaFloor
-import com.kien.movies.ui.util.contentTextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.kien.movies.R
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.kien.movies.domain.model.ContentType
-import com.kien.movies.domain.model.CardDepthSurface
-import com.kien.movies.domain.model.MetaPreview
-import com.kien.movies.domain.model.PosterShape
-import com.kien.movies.ui.theme.MoviesTheme
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
 import coil3.request.CachePolicy
+import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.kien.movies.R
+import com.kien.movies.domain.model.CardDepthSurface
+import com.kien.movies.domain.model.ContentType
+import com.kien.movies.domain.model.MetaPreview
+import com.kien.movies.domain.model.PLACEHOLDER_IMAGE_URL
+import com.kien.movies.domain.model.PosterShape
+import com.kien.movies.ui.theme.ExpressiveMotion
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.rememberMetaFloor
+import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.localizedGenreLabel
 import com.kien.movies.ui.util.recompositionHighlighter
-import com.kien.movies.domain.model.PLACEHOLDER_IMAGE_URL
 import com.kien.movies.ui.util.rememberLongPressKeyTracker
 import kotlinx.coroutines.delay
 
@@ -116,7 +116,8 @@ fun ContentCard(
     onLongPress: (() -> Unit)? = null,
     onClick: () -> Unit = {}
 ) {
-    val cardShape = remember(posterCardStyle.cornerRadius) { RoundedCornerShape(posterCardStyle.cornerRadius) }
+    val cardShape =
+        remember(posterCardStyle.cornerRadius) { RoundedCornerShape(posterCardStyle.cornerRadius) }
     val cardDepthStyle = LocalCardDepthStyle.current
     val globalLandscape = LocalLandscapePosterMode.current
     val effectivePosterShape = if (globalLandscape) PosterShape.LANDSCAPE else item.posterShape
@@ -131,7 +132,12 @@ fun ContentCard(
         PosterShape.SQUARE -> 170.dp
     }
     // Landscape cards are already 16:9 — expanded width equals base width (no size change).
-    val expandedCardWidth = if (globalLandscape) baseCardWidth else baseCardHeight * BACKDROP_ASPECT_RATIO
+    val expandedCardWidth = if (globalLandscape) {
+        baseCardWidth
+    } else {
+        baseCardHeight *
+            BACKDROP_ASPECT_RATIO
+    }
     val effectiveExpandEnabled = focusedPosterBackdropExpandEnabled
 
     var isFocused by remember { mutableStateOf(false) }
@@ -188,7 +194,9 @@ fun ContentCard(
     // Unfocused cards snap directly to baseCardWidth — no animation state overhead.
     val animatedCardWidth = when {
         !effectiveExpandEnabled -> baseCardWidth
+
         !isFocused && !isBackdropExpanded -> baseCardWidth
+
         else -> {
             val targetCardWidth = if (isBackdropExpanded) expandedCardWidth else baseCardWidth
             val width by animateDpAsState(targetValue = targetCardWidth, label = "contentCardWidth")
@@ -197,14 +205,26 @@ fun ContentCard(
     }
     val metaTokensContext = LocalContext.current
     val metaTokens = if (isBackdropExpanded) {
-        remember(metaTokensContext, item.type, item.rawType, item.genres, item.releaseInfo, item.imdbRating, item.seasonCount, showImdbRatings) {
+        remember(
+            metaTokensContext,
+            item.type,
+            item.rawType,
+            item.genres,
+            item.releaseInfo,
+            item.imdbRating,
+            item.seasonCount,
+            showImdbRatings
+        ) {
             buildList {
                 add(
                     item.apiType
                         .replaceFirstChar { ch -> ch.uppercase() }
                 )
                 item.genres.firstOrNull()?.let { add(localizedGenreLabel(metaTokensContext, it)) }
-                if ((item.type == ContentType.SERIES || item.apiType.equals("series", ignoreCase = true)) &&
+                if ((
+                        item.type == ContentType.SERIES ||
+                            item.apiType.equals("series", ignoreCase = true)
+                        ) &&
                     item.seasonCount != null
                 ) {
                     add("${item.seasonCount} ${if (item.seasonCount == 1) "season" else "seasons"}")
@@ -261,7 +281,13 @@ fun ContentCard(
         }
 
         val alwaysBackdropWithLogo = LocalAlwaysBackdropWithLogo.current
-        val effectiveLandscapePoster = if (globalLandscape && alwaysBackdropWithLogo) null else item.landscapePoster
+        val effectiveLandscapePoster = if (globalLandscape &&
+            alwaysBackdropWithLogo
+        ) {
+            null
+        } else {
+            item.landscapePoster
+        }
 
         val useLandscapeAsExpanded = effectiveExpandEnabled && isBackdropExpanded &&
             !alwaysBackdropWithLogo &&
@@ -281,15 +307,22 @@ fun ContentCard(
             val builder = ImageRequest.Builder(context)
                 .data(imageUrl)
                 .crossfade(true)
-                .memoryCacheKey("${imageUrl}_${requestWidthPx}x${requestHeightPx}_v$revalidationKey")
+                .memoryCacheKey(
+                    "${imageUrl}_${requestWidthPx}x${requestHeightPx}_v$revalidationKey"
+                )
                 .size(width = requestWidthPx, height = requestHeightPx)
             if (revalidationKey > 0) {
-                builder.placeholderMemoryCacheKey("${imageUrl}_${requestWidthPx}x${requestHeightPx}_v${revalidationKey - 1}")
+                builder.placeholderMemoryCacheKey(
+                    "${imageUrl}_${requestWidthPx}x${requestHeightPx}_v${revalidationKey - 1}"
+                )
             }
             val fallbackUrl = item.rawPosterUrl
             if (!fallbackUrl.isNullOrBlank() && fallbackUrl != imageUrl) {
                 builder.memoryCacheKeyExtras(
-                    mapOf(com.kien.movies.core.image.CustomPosterFallbackInterceptor.FALLBACK_URL_KEY to fallbackUrl)
+                    mapOf(
+                        com.kien.movies.core.image.CustomPosterFallbackInterceptor.FALLBACK_URL_KEY to
+                            fallbackUrl
+                    )
                 )
             }
             builder.build()
@@ -302,7 +335,7 @@ fun ContentCard(
                 ImageRequest.Builder(context)
                     .data(logoUrl)
                     .crossfade(false)
-                    .memoryCacheKey("${logoUrl}_${logoRequestWidthPx}x${logoRequestHeightPx}")
+                    .memoryCacheKey("${logoUrl}_${logoRequestWidthPx}x$logoRequestHeightPx")
                     .size(width = logoRequestWidthPx, height = logoRequestHeightPx)
                     .build()
             }
@@ -311,7 +344,8 @@ fun ContentCard(
         val showExpandedLogo = !item.logo.isNullOrBlank() && !logoLoadFailed
 
         val bgCardColor = MoviesTheme.colors.BackgroundCard
-        val backgroundPainter = remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }
+        val backgroundPainter =
+            remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }
 
         Card(
             onClick = {
@@ -346,7 +380,9 @@ fun ContentCard(
                 .onPreviewKeyEvent { keyEvent ->
                     val native = keyEvent.nativeKeyEvent
                     if (native.action == AndroidKeyEvent.ACTION_DOWN) {
-                        if (effectiveExpandEnabled && isFocused && shouldResetBackdropTimer(native)) {
+                        if (effectiveExpandEnabled && isFocused &&
+                            shouldResetBackdropTimer(native)
+                        ) {
                             interactionNonce++
                         }
                         if (onLongPress != null) {
@@ -370,7 +406,10 @@ fun ContentCard(
                     }
                     if (native.action == AndroidKeyEvent.ACTION_UP &&
                         longPressTriggered &&
-                        (isSelectKey(native.keyCode) || native.keyCode == AndroidKeyEvent.KEYCODE_MENU)
+                        (
+                            isSelectKey(native.keyCode) ||
+                                native.keyCode == AndroidKeyEvent.KEYCODE_MENU
+                            )
                     ) {
                         longPressTriggered = false
                         return@onPreviewKeyEvent true
@@ -378,15 +417,29 @@ fun ContentCard(
                     false
                 }
                 .then(
-                    if (isBackdropExpanded && (expandedDownFocusRequester != null || expandedUpFocusRequester != null)) {
+                    if (isBackdropExpanded &&
+                        (expandedDownFocusRequester != null || expandedUpFocusRequester != null)
+                    ) {
                         Modifier.focusProperties {
-                            if (expandedDownFocusRequester != null) down = expandedDownFocusRequester
+                            if (expandedDownFocusRequester !=
+                                null
+                            ) {
+                                down = expandedDownFocusRequester
+                            }
                             if (expandedUpFocusRequester != null) up = expandedUpFocusRequester
                         }
-                    } else Modifier
+                    } else {
+                        Modifier
+                    }
                 )
                 .then(
-                    if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier
+                    if (focusRequester !=
+                        null
+                    ) {
+                        Modifier.focusRequester(focusRequester)
+                    } else {
+                        Modifier
+                    }
                 ),
             shape = CardDefaults.shape(shape = cardShape),
             colors = CardDefaults.colors(
@@ -502,7 +555,9 @@ fun ContentCard(
                     )
                 }
 
-                if (isBackdropExpanded && !globalLandscape && !(useLandscapeAsExpanded && !trailerFirstFrameRendered)) {
+                if (isBackdropExpanded && !globalLandscape &&
+                    !(useLandscapeAsExpanded && !trailerFirstFrameRendered)
+                ) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
@@ -527,7 +582,11 @@ fun ContentCard(
                     Column(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
-                            .padding(start = MoviesTheme.spacing.md, end = MoviesTheme.spacing.md, bottom = MoviesTheme.spacing.md)
+                            .padding(
+                                start = MoviesTheme.spacing.md,
+                                end = MoviesTheme.spacing.md,
+                                bottom = MoviesTheme.spacing.md
+                            )
                             .fillMaxWidth(0.75f)
                     ) {
                         if (showExpandedLogo) {
@@ -546,7 +605,7 @@ fun ContentCard(
                                 text = item.name,
                                 focused = isFocused,
                                 style = MaterialTheme.typography.titleMedium,
-                                color = Color.White,
+                                color = Color.White
                             )
                         }
                     }
@@ -555,8 +614,9 @@ fun ContentCard(
                 // Landscape overlay — rendered AFTER trailer so it stays on top.
                 // Show on backdrop cards always; also show on any landscape card when expanded
                 // (trailer playing) so the logo stays visible over the video.
-                val showLandscapeOverlay = globalLandscape && (isLandscapeBackdropCard || isBackdropExpanded) &&
-                    !(useLandscapeAsExpanded && !trailerFirstFrameRendered)
+                val showLandscapeOverlay =
+                    globalLandscape && (isLandscapeBackdropCard || isBackdropExpanded) &&
+                        !(useLandscapeAsExpanded && !trailerFirstFrameRendered)
                 val showLandscapeLogoOverlay = showLandscapeOverlay &&
                     !item.logo.isNullOrBlank() && !logoLoadFailed
                 if (showLandscapeLogoOverlay && logoModel != null) {
@@ -636,112 +696,126 @@ fun ContentCard(
         // so the row never shifts vertically during the expand transition.
         if (showLabels) {
             Box(modifier = Modifier.fillMaxWidth().clipToBounds().graphicsLayer {}) {
-            Column(
-                modifier = Modifier
-                    .then(if (isBackdropExpanded && !globalLandscape) Modifier.requiredWidth(expandedCardWidth) else Modifier.fillMaxWidth())
-                    .padding(top = MoviesTheme.spacing.sm)
-                    .then(
-                        if (effectiveExpandEnabled) {
-                            Modifier.defaultMinSize(minHeight = 60.dp)
-                        } else Modifier
-                    )
-            ) {
-                // Landscape cards don't change width on expand, so crossfade between
-                // the normal label and the expanded description instead of relying on
-                // the width animation to reveal content.
-                androidx.compose.animation.Crossfade(
-                    targetState = isBackdropExpanded,
-                    animationSpec = tween(durationMillis = if (globalLandscape) 250 else 0),
-                    label = "expandedLabelCrossfade"
-                ) { expanded ->
-                if (expanded) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                    val ageRating = item.ageRating?.trim()?.takeIf { it.isNotBlank() }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (metaTokens.isNotEmpty()) {
-                            Text(
-                                text = metaTokens.joinToString("  •  "),
-                                style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
-                                color = MoviesTheme.extendedColors.textSecondary,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f, fill = false)
-                            )
-                        }
-                        if (ageRating != null) {
-                            if (metaTokens.isNotEmpty()) {
-                                Text(
-                                    text = "  •  ",
-                                    style = MaterialTheme.typography.labelMedium
-                                        .rememberMetaFloor(),
-                                    color = MoviesTheme.extendedColors.textSecondary
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    
-                                    .border(
-                                        border = BorderStroke(
-                                            MoviesTheme.spacing.hairline,
-                                            MoviesTheme.extendedColors.textSecondary.copy(alpha = 0.55f)
-                                        ),
-                                        shape = RoundedCornerShape(4.dp)
-                                    )
-                                    .padding(horizontal = MoviesTheme.spacing.sm, vertical = 2.dp),
-                                contentAlignment = Alignment.Center
+                Column(
+                    modifier = Modifier
+                        .then(
+                            if (isBackdropExpanded &&
+                                !globalLandscape
                             ) {
-                                Text(
-                                    text = ageRating,
-                                    style = MaterialTheme.typography.labelSmall
-                                        .rememberMetaFloor()
-                                        .copy(fontWeight = FontWeight.SemiBold),
-                                    color = MoviesTheme.extendedColors.textSecondary,
-                                    maxLines = 1
-                                )
+                                Modifier.requiredWidth(expandedCardWidth)
+                            } else {
+                                Modifier.fillMaxWidth()
                             }
+                        )
+                        .padding(top = MoviesTheme.spacing.sm)
+                        .then(
+                            if (effectiveExpandEnabled) {
+                                Modifier.defaultMinSize(minHeight = 60.dp)
+                            } else {
+                                Modifier
+                            }
+                        )
+                ) {
+                    // Landscape cards don't change width on expand, so crossfade between
+                    // the normal label and the expanded description instead of relying on
+                    // the width animation to reveal content.
+                    androidx.compose.animation.Crossfade(
+                        targetState = isBackdropExpanded,
+                        animationSpec = tween(durationMillis = if (globalLandscape) 250 else 0),
+                        label = "expandedLabelCrossfade"
+                    ) { expanded ->
+                        if (expanded) {
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                val ageRating = item.ageRating?.trim()?.takeIf { it.isNotBlank() }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (metaTokens.isNotEmpty()) {
+                                        Text(
+                                            text = metaTokens.joinToString("  •  "),
+                                            style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
+                                            color = MoviesTheme.extendedColors.textSecondary,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            modifier = Modifier.weight(1f, fill = false)
+                                        )
+                                    }
+                                    if (ageRating != null) {
+                                        if (metaTokens.isNotEmpty()) {
+                                            Text(
+                                                text = "  •  ",
+                                                style = MaterialTheme.typography.labelMedium
+                                                    .rememberMetaFloor(),
+                                                color = MoviesTheme.extendedColors.textSecondary
+                                            )
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .border(
+                                                    border = BorderStroke(
+                                                        MoviesTheme.spacing.hairline,
+                                                        MoviesTheme.extendedColors.textSecondary.copy(
+                                                            alpha = 0.55f
+                                                        )
+                                                    ),
+                                                    shape = RoundedCornerShape(4.dp)
+                                                )
+                                                .padding(
+                                                    horizontal = MoviesTheme.spacing.sm,
+                                                    vertical = 2.dp
+                                                ),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = ageRating,
+                                                style = MaterialTheme.typography.labelSmall
+                                                    .rememberMetaFloor()
+                                                    .copy(fontWeight = FontWeight.SemiBold),
+                                                color = MoviesTheme.extendedColors.textSecondary,
+                                                maxLines = 1
+                                            )
+                                        }
+                                    }
+                                }
+                                item.description?.takeIf { it.isNotBlank() }?.let { description ->
+                                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
+                                    Text(
+                                        text = description,
+                                        style = MaterialTheme.typography.bodySmall.rememberMetaFloor().copy(
+                                            textDirection = description.contentTextDirection()
+                                        ),
+                                        color = MoviesTheme.colors.TextPrimary,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            } // Column (expanded)
+                        } else {
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                FocusMarqueeText(
+                                    text = item.name,
+                                    focused = isFocused,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MoviesTheme.colors.TextPrimary
+                                )
+                                item.releaseInfo?.let { info ->
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    FocusMarqueeText(
+                                        text = info,
+                                        focused = isFocused,
+                                        style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
+                                        color = MoviesTheme.extendedColors.textSecondary
+                                    )
+                                }
+                                if (effectiveExpandEnabled) {
+                                    Spacer(modifier = Modifier.height(15.dp))
+                                }
+                            } // Column (collapsed)
                         }
-                    }
-                    item.description?.takeIf { it.isNotBlank() }?.let { description ->
-                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
-                        Text(
-                            text = description,
-                            style = MaterialTheme.typography.bodySmall.rememberMetaFloor().copy(
-                                textDirection = description.contentTextDirection()
-                            ),
-                            color = MoviesTheme.colors.TextPrimary,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    } // Column (expanded)
-                } else {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                    FocusMarqueeText(
-                        text = item.name,
-                        focused = isFocused,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MoviesTheme.colors.TextPrimary,
-                    )
-                    item.releaseInfo?.let { info ->
-                        Spacer(modifier = Modifier.height(2.dp))
-                        FocusMarqueeText(
-                            text = info,
-                            focused = isFocused,
-                            style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
-                            color = MoviesTheme.extendedColors.textSecondary,
-                        )
-                    }
-                    if (effectiveExpandEnabled) {
-                        Spacer(modifier = Modifier.height(15.dp))
-                    }
-                    } // Column (collapsed)
+                    } // Crossfade
                 }
-                } // Crossfade
-            }
             } // Box clipToBounds
         }
         if (!showLabels && effectiveExpandEnabled) {
@@ -765,6 +839,7 @@ private fun shouldResetBackdropTimer(nativeEvent: AndroidKeyEvent): Boolean {
         AndroidKeyEvent.KEYCODE_DPAD_LEFT,
         AndroidKeyEvent.KEYCODE_DPAD_RIGHT,
         AndroidKeyEvent.KEYCODE_BACK -> true
+
         else -> false
     }
 }

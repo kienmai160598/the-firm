@@ -3,9 +3,6 @@
 package com.kien.movies.ui.screens.account
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +20,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,12 +34,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -76,7 +76,8 @@ internal fun ServerOptionsMenuHost(
             var attempt = 0
             while (!focused && attempt < 3) {
                 delay(32)
-                focused = runCatching { firstMenuItemFocusRequester.requestFocus() }.getOrDefault(false)
+                focused =
+                    runCatching { firstMenuItemFocusRequester.requestFocus() }.getOrDefault(false)
                 attempt++
             }
             if (focused) {
@@ -167,11 +168,7 @@ internal fun ServerOptionsMenuHost(
 }
 
 @Composable
-private fun ServerMenuItem(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun ServerMenuItem(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     var isFocused by remember { mutableStateOf(false) }
     val itemColor = if (isFocused) ExpressiveColors.onFocus else ExpressiveColors.textPrimary
 
@@ -218,7 +215,9 @@ private fun ServerConnectionDialog(
     }
 
     var serverUrl by rememberSaveable {
-        mutableStateOf(uiState.activeServer.discoveryUrl?.substringBefore("/.well-known/nuvio").orEmpty())
+        mutableStateOf(
+            uiState.activeServer.discoveryUrl?.substringBefore("/.well-known/nuvio").orEmpty()
+        )
     }
     val urlFocusRequester = remember { FocusRequester() }
     val canDiscover = serverUrl.isNotBlank() && !uiState.isDiscovering
@@ -354,9 +353,14 @@ private fun ServerTrustConfirmationDialog(
 @Composable
 private fun ServerWarning(server: ServerConfiguration) {
     val warning = when {
-        !server.isSecure && server.isPublicHost -> stringResource(R.string.custom_server_warning_public_http)
+        !server.isSecure && server.isPublicHost -> stringResource(
+            R.string.custom_server_warning_public_http
+        )
+
         !server.isSecure -> stringResource(R.string.custom_server_warning_http)
+
         server.isPublicHost -> stringResource(R.string.custom_server_warning_public)
+
         else -> stringResource(R.string.custom_server_warning_private)
     }
     Column(
@@ -473,11 +477,7 @@ private fun ServerDetailRow(
 }
 
 @Composable
-private fun ServerMessage(
-    text: String,
-    containerColor: Color,
-    contentColor: Color
-) {
+private fun ServerMessage(text: String, containerColor: Color, contentColor: Color) {
     Box(
         modifier = Modifier
             .fillMaxWidth()

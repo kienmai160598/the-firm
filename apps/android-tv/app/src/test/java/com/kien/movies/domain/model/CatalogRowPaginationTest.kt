@@ -22,7 +22,8 @@ class CatalogRowPaginationTest {
 
     @Test
     fun `mergeCatalogPage advances duplicate pages instead of ending immediately`() {
-        val current = row(ids = (0 until 45).map { "m$it" }, skipStep = 50, nextSkip = 45, currentPage = 3)
+        val current =
+            row(ids = (0 until 45).map { "m$it" }, skipStep = 50, nextSkip = 45, currentPage = 3)
         val duplicate = row(ids = (27 until 45).map { "m$it" }, skipStep = 50, nextSkip = 63)
 
         val merged = current.mergeCatalogPage(duplicate)

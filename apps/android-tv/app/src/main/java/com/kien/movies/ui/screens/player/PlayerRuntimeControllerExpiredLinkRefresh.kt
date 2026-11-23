@@ -29,7 +29,9 @@ internal data class CachedSourceIdentity(
  *
  * Returns `true` when a refresh was started and the error must not be shown yet.
  */
-internal fun PlayerRuntimeController.tryRefreshExpiredLinkAfterError(errorMessage: String): Boolean {
+internal fun PlayerRuntimeController.tryRefreshExpiredLinkAfterError(
+    errorMessage: String
+): Boolean {
     val failedUrl = currentStreamUrl
     if (failedUrl.isBlank() || failedUrl.startsWith("torrent://")) return false
     val fromLinkCache = failedUrl == linkCacheSourceUrl
@@ -48,7 +50,10 @@ internal fun PlayerRuntimeController.tryRefreshExpiredLinkAfterError(errorMessag
     )
     val season = currentSeason
     val episode = currentEpisode
-    Log.i(PlayerRuntimeController.TAG, "Link likely expired, fetching the source again from ${expected.addonName}")
+    Log.i(
+        PlayerRuntimeController.TAG,
+        "Link likely expired, fetching the source again from ${expected.addonName}"
+    )
 
     errorRetryJob?.cancel()
     errorRetryJob = scope.launch {
@@ -60,8 +65,13 @@ internal fun PlayerRuntimeController.tryRefreshExpiredLinkAfterError(errorMessag
         var polls = 0
         while (polls < CACHED_LINK_REFRESH_POLL_COUNT) {
             val sources = _uiState.value
-            candidate = findCachedSourceRefreshCandidate(sources.sourceAllStreams, failedUrl, expected)
-            if (candidate != null || (!sources.isLoadingSourceStreams && sources.sourceAllStreams.isNotEmpty())) break
+            candidate =
+                findCachedSourceRefreshCandidate(sources.sourceAllStreams, failedUrl, expected)
+            if (candidate != null ||
+                (!sources.isLoadingSourceStreams && sources.sourceAllStreams.isNotEmpty())
+            ) {
+                break
+            }
             delay(CACHED_LINK_REFRESH_POLL_INTERVAL_MS)
             polls++
         }
@@ -111,7 +121,10 @@ internal fun findCachedSourceRefreshCandidate(
             val url = stream.getStreamUrl()
             val hasFreshUrl = !url.isNullOrBlank() && url != failedUrl
             val canResolve = stream.debridResolved ||
-                (url.isNullOrBlank() && (stream.isDirectDebrid() || stream.needsLocalDebridResolve()))
+                (
+                    url.isNullOrBlank() &&
+                        (stream.isDirectDebrid() || stream.needsLocalDebridResolve())
+                    )
             if (!hasFreshUrl && !canResolve) return@mapNotNull null
 
             var score = 100
@@ -122,8 +135,14 @@ internal fun findCachedSourceRefreshCandidate(
             }
             val name = stream.name?.takeIf { it.isNotBlank() } ?: stream.addonName
             if (!expected.streamName.isNullOrBlank() && name == expected.streamName) score += 40
-            if (!expected.filename.isNullOrBlank() && stream.behaviorHints?.filename == expected.filename) score += 30
-            if (!expected.bingeGroup.isNullOrBlank() && stream.behaviorHints?.bingeGroup == expected.bingeGroup) {
+            if (!expected.filename.isNullOrBlank() &&
+                stream.behaviorHints?.filename == expected.filename
+            ) {
+                score += 30
+            }
+            if (!expected.bingeGroup.isNullOrBlank() &&
+                stream.behaviorHints?.bingeGroup == expected.bingeGroup
+            ) {
                 score += 20
             }
             if (url?.hasLikelyExpiringPlaybackCredentials() == true) score += 5

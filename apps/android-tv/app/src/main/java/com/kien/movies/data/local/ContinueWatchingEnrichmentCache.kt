@@ -6,13 +6,13 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.kien.movies.core.profile.ProfileManager
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 data class CachedNextUpItem(
     val contentId: String,
@@ -80,9 +80,13 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
 
     private val gson = Gson()
     private val mutex = Mutex()
+
     @Volatile private var lastNextUpWriteMs = 0L
+
     @Volatile private var lastInProgressWriteMs = 0L
+
     @Volatile private var lastNextUpHash = 0
+
     @Volatile private var lastInProgressHash = 0
 
     /** Incremented when cache is cleared; observers can collect to trigger refresh. */
@@ -99,7 +103,7 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         val profileId = profileManager.activeProfileId.value
         val dir = File(context.filesDir, "cw_enrichment")
         dir.mkdirs()
-        return File(dir, "nextup_${profileId}.json")
+        return File(dir, "nextup_$profileId.json")
     }
 
     suspend fun getNextUpSnapshot(): List<CachedNextUpItem> = withContext(Dispatchers.IO) {
@@ -145,7 +149,7 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         val profileId = profileManager.activeProfileId.value
         val dir = File(context.filesDir, "cw_enrichment")
         dir.mkdirs()
-        return File(dir, "inprogress_${profileId}.json")
+        return File(dir, "inprogress_$profileId.json")
     }
 
     suspend fun getInProgressSnapshot(): List<CachedInProgressItem> = withContext(Dispatchers.IO) {
@@ -153,7 +157,10 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
             try {
                 val file = inProgressFile()
                 if (!file.exists()) return@withContext emptyList()
-                gson.fromJson(file.readText(), object : TypeToken<List<CachedInProgressItem>>() {}.type)
+                gson.fromJson(
+                    file.readText(),
+                    object : TypeToken<List<CachedInProgressItem>>() {}.type
+                )
                     ?: emptyList()
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to read in-progress cache: ${e.message}")
@@ -191,7 +198,7 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         val profileId = profileManager.activeProfileId.value
         val dir = File(context.filesDir, "cw_enrichment")
         dir.mkdirs()
-        return File(dir, "nonextup_${profileId}.json")
+        return File(dir, "nonextup_$profileId.json")
     }
 
     /** Next-up seed keys confirmed to have no next episode, with the time to look them up again. */
@@ -232,7 +239,10 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
                 noNextUpFile().delete()
                 lastNextUpHash = 0
                 lastInProgressHash = 0
-                Log.d(TAG, "Cleared CW enrichment cache for profile ${profileManager.activeProfileId.value}")
+                Log.d(
+                    TAG,
+                    "Cleared CW enrichment cache for profile ${profileManager.activeProfileId.value}"
+                )
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to clear CW enrichment cache: ${e.message}")
             }
@@ -249,5 +259,4 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
             tmp.delete()
         }
     }
-
 }

@@ -11,11 +11,23 @@ import com.kien.movies.domain.model.LocalScraperResult
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.domain.model.toStreamAudioDelayLanguage
 import com.kien.movies.domain.model.toStreamAudioDelayMs
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
+import java.net.URL
+import java.util.Base64
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
+import java.util.zip.GZIPInputStream
+import java.util.zip.InflaterInputStream
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.coroutineContext
+import kotlin.text.Charsets
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withTimeout
-import kotlin.coroutines.ContinuationInterceptor
-import kotlin.coroutines.coroutineContext
 import okhttp3.Call
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
@@ -26,23 +38,12 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
-import java.net.URL
-import java.util.Base64
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
-import java.util.zip.GZIPInputStream
-import java.util.zip.InflaterInputStream
-import kotlin.text.Charsets
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "PluginRuntime"
 private const val PLUGIN_TIMEOUT_MS = 60_000L
 private const val MAX_FETCH_RESPONSE_BYTES = 1024 * 1024
 private const val MAX_FETCH_BODY_CHARS = 1024 * 1024
+
 @Singleton
 class PluginRuntime @Inject constructor() {
 
@@ -56,16 +57,20 @@ class PluginRuntime @Inject constructor() {
         .followRedirects(true)
         .followSslRedirects(true)
         .proxy(java.net.Proxy.NO_PROXY)
-        .dispatcher(okhttp3.Dispatcher(
-            java.util.concurrent.Executors.newCachedThreadPool { runnable ->
-                Thread({
-                    android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND)
-                    runnable.run()
-                }, "okhttp-plugin-worker").apply {
-                    isDaemon = true
+        .dispatcher(
+            okhttp3.Dispatcher(
+                java.util.concurrent.Executors.newCachedThreadPool { runnable ->
+                    Thread({
+                        android.os.Process.setThreadPriority(
+                            android.os.Process.THREAD_PRIORITY_BACKGROUND
+                        )
+                        runnable.run()
+                    }, "okhttp-plugin-worker").apply {
+                        isDaemon = true
+                    }
                 }
-            }
-        ))
+            )
+        )
         .build()
 
     // Pre-compiled regex for :contains() selector conversion
@@ -161,7 +166,7 @@ class PluginRuntime @Inject constructor() {
             "META-INF/resources/webjars/crypto-js/4.2.0/crypto-js.min.js",
             "META-INF/resources/webjars/crypto-js/4.2.0/crypto-js.js",
             "META-INF/resources/webjars/crypto-js/4.2.0/crypto-js/crypto-js.min.js",
-            "META-INF/resources/webjars/crypto-js/4.2.0/crypto-js/crypto-js.js",
+            "META-INF/resources/webjars/crypto-js/4.2.0/crypto-js/crypto-js.js"
         )
 
         for (path in candidatePaths) {
@@ -243,7 +248,10 @@ class PluginRuntime @Inject constructor() {
         val job = coroutineContext[kotlinx.coroutines.Job]
         val cancellationRegistration = job?.invokeOnCompletion { cause ->
             if (cause is kotlinx.coroutines.CancellationException) {
-                Log.d(TAG, "Scraper $scraperId coroutine cancelled! Cancelling ${inFlightCalls.size} in-flight HTTP calls.")
+                Log.d(
+                    TAG,
+                    "Scraper $scraperId coroutine cancelled! Cancelling ${inFlightCalls.size} in-flight HTTP calls."
+                )
                 inFlightCalls.forEach { call -> call.cancel() }
             }
         }
@@ -264,107 +272,153 @@ class PluginRuntime @Inject constructor() {
                 qjsInstance = this
                 // Define console object - must return null to avoid quickjs conversion issues
                 define("console") {
-                        function("log") { args ->
-                            Log.d("Plugin:$scraperId", args.joinToString(" ") { it?.toString() ?: "null" })
-                            null
-                        }
-                        function("error") { args ->
-                            Log.e("Plugin:$scraperId", args.joinToString(" ") { it?.toString() ?: "null" })
-                            null
-                        }
-                        function("warn") { args ->
-                            Log.w("Plugin:$scraperId", args.joinToString(" ") { it?.toString() ?: "null" })
-                            null
-                        }
-                        function("info") { args ->
-                            Log.i("Plugin:$scraperId", args.joinToString(" ") { it?.toString() ?: "null" })
-                            null
-                        }
-                        function("debug") { args ->
-                            Log.d("Plugin:$scraperId", args.joinToString(" ") { it?.toString() ?: "null" })
-                            null
-                        }
+                    function("log") { args ->
+                        Log.d(
+                            "Plugin:$scraperId",
+                            args.joinToString(" ") {
+                                it?.toString()
+                                    ?: "null"
+                            }
+                        )
+                        null
                     }
+                    function("error") { args ->
+                        Log.e(
+                            "Plugin:$scraperId",
+                            args.joinToString(" ") {
+                                it?.toString()
+                                    ?: "null"
+                            }
+                        )
+                        null
+                    }
+                    function("warn") { args ->
+                        Log.w(
+                            "Plugin:$scraperId",
+                            args.joinToString(" ") {
+                                it?.toString()
+                                    ?: "null"
+                            }
+                        )
+                        null
+                    }
+                    function("info") { args ->
+                        Log.i(
+                            "Plugin:$scraperId",
+                            args.joinToString(" ") {
+                                it?.toString()
+                                    ?: "null"
+                            }
+                        )
+                        null
+                    }
+                    function("debug") { args ->
+                        Log.d(
+                            "Plugin:$scraperId",
+                            args.joinToString(" ") {
+                                it?.toString()
+                                    ?: "null"
+                            }
+                        )
+                        null
+                    }
+                }
 
-                    function("__native_fetch") { args ->
-                        val url = args.getOrNull(0)?.toString() ?: ""
-                        val method = args.getOrNull(1)?.toString() ?: "GET"
-                        val headersJson = args.getOrNull(2)?.toString() ?: "{}"
-                        val bodyKind = args.getOrNull(3)?.toString() ?: "none"
-                        val body = args.getOrNull(4)?.toString() ?: ""
-                        val followRedirects = args.getOrNull(5)?.toString()?.let {
-                            !it.equals("false", ignoreCase = true)
-                        } ?: true
-                        try {
-                            performNativeFetch(url, method, headersJson, bodyKind, body, followRedirects, inFlightCalls)
-                        } catch (t: Throwable) {
-                            Log.e(TAG, "Async fetch bridge error for $method $url: ${t.message}")
-                            gson.toJson(
-                                mapOf(
-                                    "ok" to false,
-                                    "status" to 0,
-                                    "statusText" to (t.message ?: "Fetch failed"),
-                                    "url" to url,
-                                    "body" to "",
-                                    "bodyBase64" to "",
-                                    "headers" to emptyMap<String, String>()
-                                )
+                function("__native_fetch") { args ->
+                    val url = args.getOrNull(0)?.toString() ?: ""
+                    val method = args.getOrNull(1)?.toString() ?: "GET"
+                    val headersJson = args.getOrNull(2)?.toString() ?: "{}"
+                    val bodyKind = args.getOrNull(3)?.toString() ?: "none"
+                    val body = args.getOrNull(4)?.toString() ?: ""
+                    val followRedirects = args.getOrNull(5)?.toString()?.let {
+                        !it.equals("false", ignoreCase = true)
+                    } ?: true
+                    try {
+                        performNativeFetch(
+                            url,
+                            method,
+                            headersJson,
+                            bodyKind,
+                            body,
+                            followRedirects,
+                            inFlightCalls
+                        )
+                    } catch (t: Throwable) {
+                        Log.e(TAG, "Async fetch bridge error for $method $url: ${t.message}")
+                        gson.toJson(
+                            mapOf(
+                                "ok" to false,
+                                "status" to 0,
+                                "statusText" to (t.message ?: "Fetch failed"),
+                                "url" to url,
+                                "body" to "",
+                                "bodyBase64" to "",
+                                "headers" to emptyMap<String, String>()
                             )
+                        )
+                    }
+                }
+
+                // Define URL parser
+                function("__parse_url") { args ->
+                    val urlString = args.getOrNull(0)?.toString() ?: ""
+                    parseUrl(urlString)
+                }
+
+                // Define cheerio load function
+                function("__cheerio_load") { args ->
+                    val html = args.getOrNull(0)?.toString() ?: ""
+                    val docId = UUID.randomUUID().toString()
+                    val doc = Jsoup.parse(html)
+                    documentCache[docId] = doc
+                    loadedDocIds.add(docId)
+
+                    // Limit size to 8 active documents to reduce memory footprint while safely supporting parallel scraper requests
+                    if (loadedDocIds.size > 8) {
+                        val evictedId = try {
+                            loadedDocIds.removeAt(0)
+                        } catch (
+                            _: Exception
+                        ) {
+                            null
                         }
-                    }
-
-                    // Define URL parser
-                    function("__parse_url") { args ->
-                        val urlString = args.getOrNull(0)?.toString() ?: ""
-                        parseUrl(urlString)
-                    }
-
-                    // Define cheerio load function
-                    function("__cheerio_load") { args ->
-                        val html = args.getOrNull(0)?.toString() ?: ""
-                        val docId = UUID.randomUUID().toString()
-                        val doc = Jsoup.parse(html)
-                        documentCache[docId] = doc
-                        loadedDocIds.add(docId)
-                        
-                        // Limit size to 8 active documents to reduce memory footprint while safely supporting parallel scraper requests
-                        if (loadedDocIds.size > 8) {
-                            val evictedId = try { loadedDocIds.removeAt(0) } catch (_: Exception) { null }
-                            if (evictedId != null) {
-                                documentCache.remove(evictedId)
-                                // Evict associated elements
-                                elementCache.keys.filter { it.startsWith("$evictedId:") }.forEach { key ->
-                                    elementCache.remove(key)
-                                }
+                        if (evictedId != null) {
+                            documentCache.remove(evictedId)
+                            // Evict associated elements
+                            elementCache.keys.filter {
+                                it.startsWith("$evictedId:")
+                            }.forEach { key ->
+                                elementCache.remove(key)
                             }
                         }
-                        docId
                     }
+                    docId
+                }
 
-                    // Define cheerio select function
-                    function("__cheerio_select") { args ->
-                        val docId = args.getOrNull(0)?.toString() ?: ""
-                        var selector = args.getOrNull(1)?.toString() ?: ""
-                        val doc = documentCache[docId] ?: return@function "[]"
-                        try {
-                            // Convert cheerio :contains("text") to jsoup :contains(text)
-                            selector = selector.replace(containsRegex, ":contains($1)")
-                            val elements = if (selector.isEmpty()) {
-                                Elements()
-                            } else {
-                                doc.select(selector)
-                            }
-                            val ids = elements.mapIndexed { index, el ->
-                                val elId = "$docId:$index:${el.hashCode()}"
-                                elementCache[elId] = el
-                                elId
-                            }
-                            // Use simple JSON array construction to avoid Gson issues
-                            "[" + ids.joinToString(",") { "\"${it.replace("\"", "\\\"")}\"" } + "]"
-                        } catch (e: Exception) {
-                            "[]"
+                // Define cheerio select function
+                function("__cheerio_select") { args ->
+                    val docId = args.getOrNull(0)?.toString() ?: ""
+                    var selector = args.getOrNull(1)?.toString() ?: ""
+                    val doc = documentCache[docId] ?: return@function "[]"
+                    try {
+                        // Convert cheerio :contains("text") to jsoup :contains(text)
+                        selector = selector.replace(containsRegex, ":contains($1)")
+                        val elements = if (selector.isEmpty()) {
+                            Elements()
+                        } else {
+                            doc.select(selector)
                         }
+                        val ids = elements.mapIndexed { index, el ->
+                            val elId = "$docId:$index:${el.hashCode()}"
+                            elementCache[elId] = el
+                            elId
+                        }
+                        // Use simple JSON array construction to avoid Gson issues
+                        "[" + ids.joinToString(",") { "\"${it.replace("\"", "\\\"")}\"" } + "]"
+                    } catch (e: Exception) {
+                        "[]"
                     }
+                }
 
                 // Define cheerio find function
                 function("__cheerio_find") { args ->
@@ -495,7 +549,6 @@ class PluginRuntime @Inject constructor() {
             }
 
             return parseJsonResults(resultJson)
-
         } catch (e: Exception) {
             Log.e(TAG, "Plugin execution failed: ${e.message}", e)
             throw e
@@ -547,12 +600,19 @@ class PluginRuntime @Inject constructor() {
 
             // Default User-Agent
             if (!headers.containsKey("User-Agent")) {
-                headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                headers["User-Agent"] =
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
             }
 
             val requestBuilder = Request.Builder()
                 .url(url)
-                .headers(Headers.headersOf(*headers.flatMap { listOf(it.key, it.value) }.toTypedArray()))
+                .headers(
+                    Headers.headersOf(
+                        *headers.flatMap {
+                            listOf(it.key, it.value)
+                        }.toTypedArray()
+                    )
+                )
 
             when (method.uppercase()) {
                 "POST" -> {
@@ -562,16 +622,30 @@ class PluginRuntime @Inject constructor() {
                     // that include Content-Type in their canonical string (e.g. MovieBox).
                     requestBuilder.post(requestBytes.toRequestBody(contentType.toMediaType()))
                 }
+
                 "PUT" -> {
                     val contentType = headers["Content-Type"] ?: "application/json"
                     requestBuilder.put(requestBytes.toRequestBody(contentType.toMediaType()))
                 }
+
                 "PATCH" -> {
                     val contentType = headers["Content-Type"] ?: "application/json"
                     requestBuilder.patch(requestBytes.toRequestBody(contentType.toMediaType()))
                 }
-                "DELETE" -> if (bodyKind == "none") requestBuilder.delete()
-                    else requestBuilder.delete(requestBytes.toRequestBody((headers["Content-Type"] ?: "application/json").toMediaType()))
+
+                "DELETE" -> if (bodyKind == "none") {
+                    requestBuilder.delete()
+                } else {
+                    requestBuilder.delete(
+                        requestBytes.toRequestBody(
+                            (
+                                headers["Content-Type"]
+                                    ?: "application/json"
+                                ).toMediaType()
+                        )
+                    )
+                }
+
                 else -> requestBuilder.get()
             }
 
@@ -592,7 +666,9 @@ class PluginRuntime @Inject constructor() {
 
                 response.use { httpResponse ->
                     val bodyContentType = httpResponse.body?.contentType()
-                    val contentEncoding = httpResponse.header("Content-Encoding")?.lowercase()?.trim()
+                    val contentEncoding = httpResponse.header(
+                        "Content-Encoding"
+                    )?.lowercase()?.trim()
                     val decodedRead = try {
                         val stream = httpResponse.body?.byteStream()
                         if (stream == null) {
@@ -627,7 +703,12 @@ class PluginRuntime @Inject constructor() {
                         "truncated" to decodedRead.truncated
                     )
 
-                    Log.d(TAG, "Fetch result: ${httpResponse.code} ${httpResponse.message} url=$url bodyLen=${responseBody.length} bodyPreview=${responseBody.take(300)}")
+                    Log.d(
+                        TAG,
+                        "Fetch result: ${httpResponse.code} ${httpResponse.message} url=$url bodyLen=${responseBody.length} bodyPreview=${responseBody.take(
+                            300
+                        )}"
+                    )
                     gson.toJson(result)
                 }
             } finally {
@@ -635,24 +716,26 @@ class PluginRuntime @Inject constructor() {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Fetch error: ${e.message}")
-            gson.toJson(mapOf(
-                "ok" to false,
-                "status" to 0,
-                "statusText" to (e.message ?: "Fetch failed"),
-                "url" to url,
-                "body" to "",
-                "bodyBase64" to "",
-                "headers" to emptyMap<String, String>()
-            ))
+            gson.toJson(
+                mapOf(
+                    "ok" to false,
+                    "status" to 0,
+                    "statusText" to (e.message ?: "Fetch failed"),
+                    "url" to url,
+                    "body" to "",
+                    "bodyBase64" to "",
+                    "headers" to emptyMap<String, String>()
+                )
+            )
         }
     }
 
-    private data class BoundedReadResult(
-        val bytes: ByteArray,
-        val truncated: Boolean
-    )
+    private data class BoundedReadResult(val bytes: ByteArray, val truncated: Boolean)
 
-    private fun decodeBodyToSafeString(bytes: ByteArray, charset: java.nio.charset.Charset): String {
+    private fun decodeBodyToSafeString(
+        bytes: ByteArray,
+        charset: java.nio.charset.Charset
+    ): String {
         val decoded = try {
             String(bytes, charset)
         } catch (e: Exception) {
@@ -682,25 +765,29 @@ class PluginRuntime @Inject constructor() {
     private fun parseUrl(urlString: String): String {
         return try {
             val url = URL(urlString)
-            gson.toJson(mapOf(
-                "protocol" to "${url.protocol}:",
-                "host" to if (url.port > 0) "${url.host}:${url.port}" else url.host,
-                "hostname" to url.host,
-                "port" to if (url.port > 0) url.port.toString() else "",
-                "pathname" to (url.path ?: "/"),
-                "search" to if (url.query != null) "?${url.query}" else "",
-                "hash" to if (url.ref != null) "#${url.ref}" else ""
-            ))
+            gson.toJson(
+                mapOf(
+                    "protocol" to "${url.protocol}:",
+                    "host" to if (url.port > 0) "${url.host}:${url.port}" else url.host,
+                    "hostname" to url.host,
+                    "port" to if (url.port > 0) url.port.toString() else "",
+                    "pathname" to (url.path ?: "/"),
+                    "search" to if (url.query != null) "?${url.query}" else "",
+                    "hash" to if (url.ref != null) "#${url.ref}" else ""
+                )
+            )
         } catch (e: Exception) {
-            gson.toJson(mapOf(
-                "protocol" to "",
-                "host" to "",
-                "hostname" to "",
-                "port" to "",
-                "pathname" to "/",
-                "search" to "",
-                "hash" to ""
-            ))
+            gson.toJson(
+                mapOf(
+                    "protocol" to "",
+                    "host" to "",
+                    "hostname" to "",
+                    "port" to "",
+                    "pathname" to "/",
+                    "search" to "",
+                    "hash" to ""
+                )
+            )
         }
     }
 
@@ -1419,20 +1506,22 @@ class PluginRuntime @Inject constructor() {
                     is Map<*, *> -> (urlValue["url"] as? String)?.takeIf { it.isNotBlank() }
                     else -> null
                 } ?: return@mapNotNull null
-                
+
                 // Parse headers if present
                 val headersValue = item["headers"]
                 val headers: Map<String, String>? = when (headersValue) {
-                    is Map<*, *> -> headersValue.entries
-                        .filter { it.key is String && it.value is String }
-                        .associate { (it.key as String) to (it.value as String) }
-                        .takeIf { it.isNotEmpty() }
+                    is Map<*, *> ->
+                        headersValue.entries
+                            .filter { it.key is String && it.value is String }
+                            .associate { (it.key as String) to (it.value as String) }
+                            .takeIf { it.isNotEmpty() }
+
                     else -> null
                 }
-                
+
                 LocalScraperResult(
-                    title = item["title"]?.toString()?.takeIf { !it.contains("[object") } 
-                        ?: item["name"]?.toString()?.takeIf { !it.contains("[object") } 
+                    title = item["title"]?.toString()?.takeIf { !it.contains("[object") }
+                        ?: item["name"]?.toString()?.takeIf { !it.contains("[object") }
                         ?: "Unknown",
                     name = item["name"]?.toString()?.takeIf { !it.contains("[object") },
                     url = url,
@@ -1446,9 +1535,17 @@ class PluginRuntime @Inject constructor() {
                     infoHash = item["infoHash"]?.toString()?.takeIf { !it.contains("[object") },
                     headers = headers,
                     subtitles = parseSubtitles(item["subtitles"]),
-                    audioDelayMs = ((item["behaviorHints"] as? Map<*, *>)?.get("audioDelayMs") as? Number)
+                    audioDelayMs = (
+                        (item["behaviorHints"] as? Map<*, *>)?.get(
+                            "audioDelayMs"
+                        ) as? Number
+                        )
                         .toStreamAudioDelayMs(),
-                    audioDelayLanguage = ((item["behaviorHints"] as? Map<*, *>)?.get("audioDelayLanguage") as? String)
+                    audioDelayLanguage = (
+                        (item["behaviorHints"] as? Map<*, *>)?.get(
+                            "audioDelayLanguage"
+                        ) as? String
+                        )
                         .toStreamAudioDelayLanguage()
                 )
             }?.filter { it.url.isNotBlank() } ?: emptyList()
@@ -1462,8 +1559,7 @@ class PluginRuntime @Inject constructor() {
         val list = raw as? List<*> ?: return emptyList()
         return list.mapNotNull { entry ->
             val obj = entry as? Map<*, *> ?: return@mapNotNull null
-            fun clean(value: Any?): String? =
-                value?.toString()?.takeIf { it.isNotBlank() && !it.contains("[object") }
+            fun clean(value: Any?): String? = value?.toString()?.takeIf { it.isNotBlank() && !it.contains("[object") }
             val url = clean(obj["url"]) ?: return@mapNotNull null
             val rawHeaders = obj["headers"] as? Map<*, *>
             val headers = rawHeaders?.mapNotNull { (k, v) ->

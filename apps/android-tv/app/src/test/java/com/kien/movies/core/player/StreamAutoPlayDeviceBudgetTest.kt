@@ -32,19 +32,17 @@ class StreamAutoPlayDeviceBudgetTest {
         assertNull(selectEarlyBingeGroupMatch(listOf(tooHeavy)))
     }
 
-    private fun selectEarlyBingeGroupMatch(streams: List<Stream>): Stream? =
-        StreamAutoPlaySelector.selectEarlyBingeGroupMatch(streams, BINGE_GROUP)
+    private fun selectEarlyBingeGroupMatch(streams: List<Stream>): Stream? = StreamAutoPlaySelector.selectEarlyBingeGroupMatch(streams, BINGE_GROUP)
 
-    private fun selectFirstStream(streams: List<Stream>): Stream? =
-        StreamAutoPlaySelector.selectAutoPlayStream(
-            streams = streams,
-            mode = StreamAutoPlayMode.FIRST_STREAM,
-            regexPattern = "",
-            source = StreamAutoPlaySource.ALL_SOURCES,
-            installedAddonNames = setOf("AddonA", "AddonB"),
-            selectedAddons = emptySet(),
-            selectedPlugins = emptySet()
-        )
+    private fun selectFirstStream(streams: List<Stream>): Stream? = StreamAutoPlaySelector.selectAutoPlayStream(
+        streams = streams,
+        mode = StreamAutoPlayMode.FIRST_STREAM,
+        regexPattern = "",
+        source = StreamAutoPlaySource.ALL_SOURCES,
+        installedAddonNames = setOf("AddonA", "AddonB"),
+        selectedAddons = emptySet(),
+        selectedPlugins = emptySet()
+    )
 
     private fun torrent(addonName: String, name: String, infoHash: String): Stream = Stream(
         name = name,

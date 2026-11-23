@@ -14,7 +14,9 @@ import org.junit.Test
 
 class StreamAudioDelayTest {
 
-    private val streamResponseAdapter = Moshi.Builder().build().adapter(StreamResponseDto::class.java)
+    private val streamResponseAdapter = Moshi.Builder().build().adapter(
+        StreamResponseDto::class.java
+    )
 
     // --- AudioDelayParts: total ---
 
@@ -27,8 +29,14 @@ class StreamAudioDelayTest {
 
     @Test
     fun `total delay is clamped to the player range`() {
-        assertEquals(AUDIO_DELAY_MAX_MS, AudioDelayParts(deviceMs = 50_000).withStream(20_000).totalMs)
-        assertEquals(AUDIO_DELAY_MIN_MS, AudioDelayParts(deviceMs = -50_000).withStream(-20_000).totalMs)
+        assertEquals(
+            AUDIO_DELAY_MAX_MS,
+            AudioDelayParts(deviceMs = 50_000).withStream(20_000).totalMs
+        )
+        assertEquals(
+            AUDIO_DELAY_MIN_MS,
+            AudioDelayParts(deviceMs = -50_000).withStream(-20_000).totalMs
+        )
     }
 
     @Test
@@ -96,7 +104,9 @@ class StreamAudioDelayTest {
 
     @Test
     fun `switching between streams with delay keeps the device delay and drops the tweak`() {
-        val parts = AudioDelayParts(deviceMs = 150).withStream(5_000).withManualTotal(5_400).withStream(-2_000)
+        val parts = AudioDelayParts(
+            deviceMs = 150
+        ).withStream(5_000).withManualTotal(5_400).withStream(-2_000)
 
         assertEquals(150, parts.deviceMs)
         assertEquals(0, parts.sessionAdjustMs)
@@ -137,7 +147,10 @@ class StreamAudioDelayTest {
     @Test
     fun `addon behaviorHints audioDelayMs reaches the domain model`() {
         assertEquals(1_240, BehaviorHintsDto(audioDelayMs = 1_240.0).toDomain().audioDelayMs)
-        assertEquals(AUDIO_DELAY_MAX_MS, BehaviorHintsDto(audioDelayMs = 100_000.0).toDomain().audioDelayMs)
+        assertEquals(
+            AUDIO_DELAY_MAX_MS,
+            BehaviorHintsDto(audioDelayMs = 100_000.0).toDomain().audioDelayMs
+        )
         assertNull(BehaviorHintsDto(audioDelayMs = Double.NaN).toDomain().audioDelayMs)
         assertNull(BehaviorHintsDto().toDomain().audioDelayMs)
     }
@@ -199,7 +212,9 @@ class StreamAudioDelayTest {
 
     @Test
     fun `audio panel on the original track changes the device delay only`() {
-        val original = AudioDelayParts(deviceMs = 100).withStream(2_000, "es").withStreamAudioActive(false)
+        val original = AudioDelayParts(
+            deviceMs = 100
+        ).withStream(2_000, "es").withStreamAudioActive(false)
         val tweaked = original.withManualTotal(250)
 
         assertEquals(250, tweaked.totalMs)
@@ -210,7 +225,10 @@ class StreamAudioDelayTest {
 
     @Test
     fun `new stream resets the language scope`() {
-        val parts = AudioDelayParts().withStream(2_000, "es").withStreamAudioActive(false).withStream(1_000)
+        val parts = AudioDelayParts().withStream(
+            2_000,
+            "es"
+        ).withStreamAudioActive(false).withStream(1_000)
         assertNull(parts.streamLanguage)
         assertTrue(parts.streamAudioActive)
         assertEquals(1_000, parts.totalMs)
@@ -227,13 +245,23 @@ class StreamAudioDelayTest {
 
     @Test
     fun `only embedded subtitles in the stream language are shifted`() {
-        assertTrue(StreamDelayScope.appliesToSubtitle("es", "es", true, addonSubtitleActive = false))
-        assertFalse(StreamDelayScope.appliesToSubtitle("es", "en", true, addonSubtitleActive = false))
+        assertTrue(
+            StreamDelayScope.appliesToSubtitle("es", "es", true, addonSubtitleActive = false)
+        )
+        assertFalse(
+            StreamDelayScope.appliesToSubtitle("es", "en", true, addonSubtitleActive = false)
+        )
         // Addon (external) subtitles follow the video.
-        assertFalse(StreamDelayScope.appliesToSubtitle("es", "es", true, addonSubtitleActive = true))
-        assertFalse(StreamDelayScope.appliesToSubtitle("es", null, false, addonSubtitleActive = false))
+        assertFalse(
+            StreamDelayScope.appliesToSubtitle("es", "es", true, addonSubtitleActive = true)
+        )
+        assertFalse(
+            StreamDelayScope.appliesToSubtitle("es", null, false, addonSubtitleActive = false)
+        )
         // Without a language nothing tells us which subtitles come from the audio source.
-        assertFalse(StreamDelayScope.appliesToSubtitle(null, "es", true, addonSubtitleActive = false))
+        assertFalse(
+            StreamDelayScope.appliesToSubtitle(null, "es", true, addonSubtitleActive = false)
+        )
     }
 
     @Test

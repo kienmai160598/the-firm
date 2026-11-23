@@ -36,7 +36,7 @@ internal class AudioSpotSampler(
     private val maxBytes: Long,
     private val minSpotMs: Long,
     /** An extra connection was refused by the host; sampling carries on over the others. */
-    private val onRefused: (String) -> Unit = {},
+    private val onRefused: (String) -> Unit = {}
 ) {
     class Result(val sampled: Int, val bytes: Long, val failure: String?, val connections: Int)
 
@@ -45,7 +45,9 @@ internal class AudioSpotSampler(
 
     /** Counts into [bytes] and into [connectionBytes], the bytes of one connection. */
     private fun countingFactory(connectionBytes: AtomicLong) = DataSource.Factory {
-        dataSourceFactory.createDataSource().apply { addTransferListener(ByteCounter(bytes, connectionBytes)) }
+        dataSourceFactory.createDataSource().apply {
+            addTransferListener(ByteCounter(bytes, connectionBytes))
+        }
     }
 
     /**
@@ -66,7 +68,7 @@ internal class AudioSpotSampler(
         newWorker: () -> ExtractorsFactory,
         mayAddConnection: () -> Boolean,
         isCancelled: () -> Boolean,
-        onSpot: (sampled: Int, bytes: Long) -> Unit,
+        onSpot: (sampled: Int, bytes: Long) -> Unit
     ): Result {
         val queue = ConcurrentLinkedQueue(spotsMs.indices.toList())
         val sampled = AtomicInteger(0)
@@ -85,14 +87,17 @@ internal class AudioSpotSampler(
         fun work(extractorsFactory: ExtractorsFactory, extra: Boolean) {
             // A spot's cost is what its own connection read: the others read other spots meanwhile.
             val connectionBytes = AtomicLong()
-            val extractor = MediaExtractorCompat(extractorsFactory, countingFactory(connectionBytes))
+            val extractor =
+                MediaExtractorCompat(extractorsFactory, countingFactory(connectionBytes))
             var taken: Int? = null
             var reading = false
             try {
                 extractor.setDataSource(uri, 0L)
                 var audioTracks = 0
                 for (index in 0 until extractor.trackCount) {
-                    val mime = extractor.getTrackFormat(index).getString(MediaFormat.KEY_MIME).orEmpty()
+                    val mime = extractor.getTrackFormat(
+                        index
+                    ).getString(MediaFormat.KEY_MIME).orEmpty()
                     if (mime.startsWith("audio/")) {
                         extractor.selectTrack(index)
                         audioTracks++
@@ -108,7 +113,10 @@ internal class AudioSpotSampler(
                     val spotStartMs = spotsMs[index]
                     val share = (targetBytes - bytes.get()).coerceAtLeast(0L) / (queue.size + 1)
                     val spotStartBytes = connectionBytes.get()
-                    extractor.seekTo(spotStartMs * 1_000L, MediaExtractorCompat.SEEK_TO_PREVIOUS_SYNC)
+                    extractor.seekTo(
+                        spotStartMs * 1_000L,
+                        MediaExtractorCompat.SEEK_TO_PREVIOUS_SYNC
+                    )
                     val firstUs = extractor.sampleTime
                     if (firstUs < 0 || abs(firstUs / 1_000L - spotStartMs) > MAX_SEEK_MISS_MS) {
                         failure.compareAndSet(null, "stream cannot seek")
@@ -125,13 +133,21 @@ internal class AudioSpotSampler(
                         val timeUs = extractor.sampleTime
                         if (timeUs < 0 || timeUs >= endUs) break
                         val spotBytes = connectionBytes.get() - spotStartBytes
-                        if (spotBytes >= share && !wantsMore(spotBytes, timeUs - firstUs, startedNs)) break
+                        if (spotBytes >= share &&
+                            !wantsMore(spotBytes, timeUs - firstUs, startedNs)
+                        ) {
+                            break
+                        }
                         if (!extractor.advance()) break
                         // Conditions are checked every second, not only between spots, so a
                         // connection that playback now allows opens without waiting out a spot.
                         val now = System.nanoTime()
                         val due = nextCheckNs.get()
-                        if (now >= due && nextCheckNs.compareAndSet(due, now + CONNECTION_CHECK_NS)) addConnection()
+                        if (now >= due &&
+                            nextCheckNs.compareAndSet(due, now + CONNECTION_CHECK_NS)
+                        ) {
+                            addConnection()
+                        }
                     }
                     taken = null
                     onSpot(sampled.incrementAndGet(), bytes.get())
@@ -156,7 +172,11 @@ internal class AudioSpotSampler(
         addConnection = add@{
             if (refused.get() || opening.get() || queue.isEmpty() || stop()) return@add
             val count = connections.get()
-            if (count >= maxWorkers || !runCatching(mayAddConnection).getOrDefault(false)) return@add
+            if (count >= maxWorkers ||
+                !runCatching(mayAddConnection).getOrDefault(false)
+            ) {
+                return@add
+            }
             if (!opening.compareAndSet(false, true)) return@add
             if (!connections.compareAndSet(count, count + 1)) {
                 opening.set(false)
@@ -184,7 +204,12 @@ internal class AudioSpotSampler(
         }
         // Spots put back by a refused connection after the others finished are read here.
         if (!queue.isEmpty() && !stop()) work(newWorker(), extra = false)
-        return Result(sampled.get(), bytes.get(), failure.get(), connections.get() - if (refused.get()) 1 else 0)
+        return Result(
+            sampled.get(),
+            bytes.get(),
+            failure.get(),
+            connections.get() - if (refused.get()) 1 else 0
+        )
     }
 
     /**
@@ -200,12 +225,24 @@ internal class AudioSpotSampler(
         return downloadBytesPerSec >= MIN_SPEED_RATIO * streamBytesPerSec
     }
 
-    private class ByteCounter(private val bytes: AtomicLong, private val connectionBytes: AtomicLong) : TransferListener {
-        override fun onTransferInitializing(source: DataSource, dataSpec: DataSpec, isNetwork: Boolean) = Unit
+    private class ByteCounter(
+        private val bytes: AtomicLong,
+        private val connectionBytes: AtomicLong
+    ) : TransferListener {
+        override fun onTransferInitializing(
+            source: DataSource,
+            dataSpec: DataSpec,
+            isNetwork: Boolean
+        ) = Unit
 
         override fun onTransferStart(source: DataSource, dataSpec: DataSpec, isNetwork: Boolean) = Unit
 
-        override fun onBytesTransferred(source: DataSource, dataSpec: DataSpec, isNetwork: Boolean, bytesTransferred: Int) {
+        override fun onBytesTransferred(
+            source: DataSource,
+            dataSpec: DataSpec,
+            isNetwork: Boolean,
+            bytesTransferred: Int
+        ) {
             bytes.addAndGet(bytesTransferred.toLong())
             connectionBytes.addAndGet(bytesTransferred.toLong())
         }

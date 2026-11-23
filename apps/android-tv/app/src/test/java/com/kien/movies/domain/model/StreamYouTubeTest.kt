@@ -40,8 +40,18 @@ class StreamYouTubeTest {
 
     @Test
     fun `a torrent takes precedence over the ytId`() {
-        assertNull(stream(ytId = "dQw4w9WgXcQ", infoHash = "0123456789abcdef0123456789abcdef01234567").youTubeIdToResolve())
-        assertNull(stream(ytId = "dQw4w9WgXcQ", url = "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567").youTubeIdToResolve())
+        assertNull(
+            stream(
+                ytId = "dQw4w9WgXcQ",
+                infoHash = "0123456789abcdef0123456789abcdef01234567"
+            ).youTubeIdToResolve()
+        )
+        assertNull(
+            stream(
+                ytId = "dQw4w9WgXcQ",
+                url = "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567"
+            ).youTubeIdToResolve()
+        )
     }
 
     @Test
@@ -53,7 +63,9 @@ class StreamYouTubeTest {
 
     @Test
     fun `a resolved stream is no longer treated as needing resolution`() {
-        val resolved = stream(ytId = "dQw4w9WgXcQ").copy(url = "https://manifest.googlevideo.com/master.m3u8")
+        val resolved = stream(
+            ytId = "dQw4w9WgXcQ"
+        ).copy(url = "https://manifest.googlevideo.com/master.m3u8")
 
         assertNull(resolved.youTubeIdToResolve())
         assertEquals("https://manifest.googlevideo.com/master.m3u8", resolved.getStreamUrl())

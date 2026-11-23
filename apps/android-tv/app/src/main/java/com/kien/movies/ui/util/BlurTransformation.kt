@@ -11,9 +11,7 @@ import kotlin.math.min
  *
  * @param radius Blur radius in pixels. Higher = more blur. Clamped to 1..250.
  */
-class BlurTransformation(
-    private val radius: Int = 25
-) : Transformation() {
+class BlurTransformation(private val radius: Int = 25) : Transformation() {
 
     override val cacheKey: String = "stack_blur_$radius"
 
@@ -70,9 +68,15 @@ class BlurTransformation(
 
         // Horizontal pass
         for (y in 0 until h) {
-            rSum = 0; gSum = 0; bSum = 0
-            rInSum = 0; gInSum = 0; bInSum = 0
-            rOutSum = 0; gOutSum = 0; bOutSum = 0
+            rSum = 0
+            gSum = 0
+            bSum = 0
+            rInSum = 0
+            gInSum = 0
+            bInSum = 0
+            rOutSum = 0
+            gOutSum = 0
+            bOutSum = 0
 
             val yOffset = y * w
             val srcPx = pixels[yOffset]
@@ -162,9 +166,15 @@ class BlurTransformation(
 
         // Vertical pass
         for (x in 0 until w) {
-            rSum = 0; gSum = 0; bSum = 0
-            rInSum = 0; gInSum = 0; bInSum = 0
-            rOutSum = 0; gOutSum = 0; bOutSum = 0
+            rSum = 0
+            gSum = 0
+            bSum = 0
+            rInSum = 0
+            gInSum = 0
+            bInSum = 0
+            rOutSum = 0
+            gOutSum = 0
+            bOutSum = 0
 
             val sr = r[x]
             val sg = g[x]

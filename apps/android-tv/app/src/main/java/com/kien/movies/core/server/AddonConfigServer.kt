@@ -12,10 +12,24 @@ class AddonConfigServer(
     private val webConfigMode: AddonWebConfigMode,
     private val currentPageStateProvider: () -> PageState,
     private val onChangeProposed: (PendingAddonChange) -> Unit,
-    private val tmdbMetadataProvider: ((TmdbSourceMetadataRequest) -> TmdbSourceMetadataInfo?)? = null,
-    private val tmdbSearchProvider: ((TmdbSourceSearchRequest) -> List<TmdbSourceSearchResultInfo>)? = null,
-    private val traktMetadataProvider: ((TraktSourceMetadataRequest) -> TraktSourceMetadataInfo?)? = null,
-    private val traktSearchProvider: ((TraktSourceSearchRequest) -> List<TraktSourceSearchResultInfo>)? = null,
+    private val tmdbMetadataProvider: (
+        (
+            TmdbSourceMetadataRequest
+        ) -> TmdbSourceMetadataInfo?
+    )? = null,
+    private val tmdbSearchProvider: (
+        (
+            TmdbSourceSearchRequest
+        ) -> List<TmdbSourceSearchResultInfo>
+    )? = null,
+    private val traktMetadataProvider: (
+        (
+            TraktSourceMetadataRequest
+        ) -> TraktSourceMetadataInfo?
+    )? = null,
+    private val traktSearchProvider: (
+        (TraktSourceSearchRequest) -> List<TraktSourceSearchResultInfo>
+    )? = null,
     private val logoProvider: (() -> ByteArray?)? = null,
     port: Int = 8080
 ) : NanoHTTPD(port) {
@@ -93,64 +107,120 @@ class AddonConfigServer(
 
     private fun serveTmdbMetadata(session: IHTTPSession): Response {
         val provider = tmdbMetadataProvider
-            ?: return newFixedLengthResponse(Response.Status.NOT_FOUND, "application/json; charset=utf-8", gson.toJson(mapOf("error" to "TMDB metadata unavailable")))
+            ?: return newFixedLengthResponse(
+                Response.Status.NOT_FOUND,
+                "application/json; charset=utf-8",
+                gson.toJson(mapOf("error" to "TMDB metadata unavailable"))
+            )
         val sourceType = session.parameters["sourceType"]?.firstOrNull()?.trim().orEmpty()
         val tmdbId = session.parameters["id"]?.firstOrNull()?.trim()?.toIntOrNull()
         if (sourceType.isBlank() || tmdbId == null) {
-            return newFixedLengthResponse(Response.Status.BAD_REQUEST, "application/json; charset=utf-8", gson.toJson(mapOf("error" to "Invalid TMDB metadata request")))
+            return newFixedLengthResponse(
+                Response.Status.BAD_REQUEST,
+                "application/json; charset=utf-8",
+                gson.toJson(mapOf("error" to "Invalid TMDB metadata request"))
+            )
         }
         val metadata = runCatching {
             provider(TmdbSourceMetadataRequest(sourceType = sourceType, tmdbId = tmdbId))
         }.getOrNull()
         return if (metadata != null) {
-            newFixedLengthResponse(Response.Status.OK, "application/json; charset=utf-8", gson.toJson(metadata))
+            newFixedLengthResponse(
+                Response.Status.OK,
+                "application/json; charset=utf-8",
+                gson.toJson(metadata)
+            )
         } else {
-            newFixedLengthResponse(Response.Status.NOT_FOUND, "application/json; charset=utf-8", gson.toJson(mapOf("error" to "TMDB source not found")))
+            newFixedLengthResponse(
+                Response.Status.NOT_FOUND,
+                "application/json; charset=utf-8",
+                gson.toJson(mapOf("error" to "TMDB source not found"))
+            )
         }
     }
 
     private fun serveTmdbSearch(session: IHTTPSession): Response {
         val provider = tmdbSearchProvider
-            ?: return newFixedLengthResponse(Response.Status.NOT_FOUND, "application/json; charset=utf-8", gson.toJson(mapOf("error" to "TMDB search unavailable")))
+            ?: return newFixedLengthResponse(
+                Response.Status.NOT_FOUND,
+                "application/json; charset=utf-8",
+                gson.toJson(mapOf("error" to "TMDB search unavailable"))
+            )
         val sourceType = session.parameters["sourceType"]?.firstOrNull()?.trim().orEmpty()
         val query = session.parameters["query"]?.firstOrNull()?.trim().orEmpty()
         if (sourceType.isBlank() || query.isBlank()) {
-            return newFixedLengthResponse(Response.Status.BAD_REQUEST, "application/json; charset=utf-8", gson.toJson(mapOf("error" to "Invalid TMDB search request")))
+            return newFixedLengthResponse(
+                Response.Status.BAD_REQUEST,
+                "application/json; charset=utf-8",
+                gson.toJson(mapOf("error" to "Invalid TMDB search request"))
+            )
         }
         val results = runCatching {
             provider(TmdbSourceSearchRequest(sourceType = sourceType, query = query))
         }.getOrElse { emptyList() }
-        return newFixedLengthResponse(Response.Status.OK, "application/json; charset=utf-8", gson.toJson(results))
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "application/json; charset=utf-8",
+            gson.toJson(results)
+        )
     }
 
     private fun serveTraktMetadata(session: IHTTPSession): Response {
         val provider = traktMetadataProvider
-            ?: return newFixedLengthResponse(Response.Status.NOT_FOUND, "application/json; charset=utf-8", gson.toJson(mapOf("error" to "Trakt metadata unavailable")))
+            ?: return newFixedLengthResponse(
+                Response.Status.NOT_FOUND,
+                "application/json; charset=utf-8",
+                gson.toJson(mapOf("error" to "Trakt metadata unavailable"))
+            )
         val input = session.parameters["input"]?.firstOrNull()?.trim().orEmpty()
         if (input.isBlank()) {
-            return newFixedLengthResponse(Response.Status.BAD_REQUEST, "application/json; charset=utf-8", gson.toJson(mapOf("error" to "Invalid Trakt metadata request")))
+            return newFixedLengthResponse(
+                Response.Status.BAD_REQUEST,
+                "application/json; charset=utf-8",
+                gson.toJson(mapOf("error" to "Invalid Trakt metadata request"))
+            )
         }
         val metadata = runCatching {
             provider(TraktSourceMetadataRequest(input = input))
         }.getOrNull()
         return if (metadata?.traktListId != null) {
-            newFixedLengthResponse(Response.Status.OK, "application/json; charset=utf-8", gson.toJson(metadata))
+            newFixedLengthResponse(
+                Response.Status.OK,
+                "application/json; charset=utf-8",
+                gson.toJson(metadata)
+            )
         } else {
-            newFixedLengthResponse(Response.Status.NOT_FOUND, "application/json; charset=utf-8", gson.toJson(mapOf("error" to "Trakt list not found")))
+            newFixedLengthResponse(
+                Response.Status.NOT_FOUND,
+                "application/json; charset=utf-8",
+                gson.toJson(mapOf("error" to "Trakt list not found"))
+            )
         }
     }
 
     private fun serveTraktSearch(session: IHTTPSession): Response {
         val provider = traktSearchProvider
-            ?: return newFixedLengthResponse(Response.Status.NOT_FOUND, "application/json; charset=utf-8", gson.toJson(mapOf("error" to "Trakt search unavailable")))
+            ?: return newFixedLengthResponse(
+                Response.Status.NOT_FOUND,
+                "application/json; charset=utf-8",
+                gson.toJson(mapOf("error" to "Trakt search unavailable"))
+            )
         val query = session.parameters["query"]?.firstOrNull()?.trim().orEmpty()
         if (query.isBlank()) {
-            return newFixedLengthResponse(Response.Status.BAD_REQUEST, "application/json; charset=utf-8", gson.toJson(mapOf("error" to "Invalid Trakt search request")))
+            return newFixedLengthResponse(
+                Response.Status.BAD_REQUEST,
+                "application/json; charset=utf-8",
+                gson.toJson(mapOf("error" to "Invalid Trakt search request"))
+            )
         }
         val results = runCatching {
             provider(TraktSourceSearchRequest(query = query))
         }.getOrElse { emptyList() }
-        return newFixedLengthResponse(Response.Status.OK, "application/json; charset=utf-8", gson.toJson(results))
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "application/json; charset=utf-8",
+            gson.toJson(results)
+        )
     }
 
     private fun handleAddonUpdate(session: IHTTPSession): Response {
@@ -165,7 +235,10 @@ class AddonConfigServer(
         val body = bodyMap["postData"] ?: ""
 
         val change: PendingAddonChange = try {
-            val parsed = gson.fromJson<Map<String, Any>>(body, object : TypeToken<Map<String, Any>>() {}.type)
+            val parsed = gson.fromJson<Map<String, Any>>(
+                body,
+                object : TypeToken<Map<String, Any>>() {}.type
+            )
             val urls = parseStringList(parsed["urls"])
             val catalogOrderKeys = parseStringList(parsed["catalogOrderKeys"])
             val disabledCatalogKeys = parseStringList(parsed["disabledCatalogKeys"])
@@ -188,7 +261,10 @@ class AddonConfigServer(
                 currentState = currentPageStateProvider()
             )
         } catch (e: Exception) {
-            val error = mapOf("error" to context.getString(com.kien.movies.R.string.web_error_invalid_request_body))
+            val error = mapOf(
+                "error" to
+                    context.getString(com.kien.movies.R.string.web_error_invalid_request_body)
+            )
             return newFixedLengthResponse(
                 Response.Status.BAD_REQUEST,
                 "application/json; charset=utf-8",
@@ -200,7 +276,11 @@ class AddonConfigServer(
         onChangeProposed(change)
 
         val response = mapOf("status" to "pending_confirmation", "id" to change.id)
-        return newFixedLengthResponse(Response.Status.OK, "application/json; charset=utf-8", gson.toJson(response))
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "application/json; charset=utf-8",
+            gson.toJson(response)
+        )
     }
 
     private fun serveChangeStatus(uri: String): Response {
@@ -208,7 +288,11 @@ class AddonConfigServer(
         val change = pendingChanges[id]
         val status = change?.status?.name?.lowercase() ?: "not_found"
         val response = mapOf("status" to status)
-        return newFixedLengthResponse(Response.Status.OK, "application/json; charset=utf-8", gson.toJson(response))
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "application/json; charset=utf-8",
+            gson.toJson(response)
+        )
     }
 
     private fun parseStringList(rawValue: Any?): List<String> {
@@ -227,9 +311,21 @@ class AddonConfigServer(
             currentPageStateProvider: () -> PageState,
             onChangeProposed: (PendingAddonChange) -> Unit,
             tmdbMetadataProvider: ((TmdbSourceMetadataRequest) -> TmdbSourceMetadataInfo?)? = null,
-            tmdbSearchProvider: ((TmdbSourceSearchRequest) -> List<TmdbSourceSearchResultInfo>)? = null,
-            traktMetadataProvider: ((TraktSourceMetadataRequest) -> TraktSourceMetadataInfo?)? = null,
-            traktSearchProvider: ((TraktSourceSearchRequest) -> List<TraktSourceSearchResultInfo>)? = null,
+            tmdbSearchProvider: (
+                (
+                    TmdbSourceSearchRequest
+                ) -> List<TmdbSourceSearchResultInfo>
+            )? = null,
+            traktMetadataProvider: (
+                (
+                    TraktSourceMetadataRequest
+                ) -> TraktSourceMetadataInfo?
+            )? = null,
+            traktSearchProvider: (
+                (
+                    TraktSourceSearchRequest
+                ) -> List<TraktSourceSearchResultInfo>
+            )? = null,
             logoProvider: (() -> ByteArray?)? = null,
             startPort: Int = 8080,
             maxAttempts: Int = 10

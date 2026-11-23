@@ -52,7 +52,9 @@ import com.kien.movies.ui.screens.player.subtitleFontLabel
 import com.kien.movies.ui.theme.MoviesTheme
 import kotlin.math.roundToInt
 
-private val PreviewBackdrop = Brush.linearGradient(listOf(Color(0xFF182A35), Color(0xFF53646B), Color(0xFF1C2934)))
+private val PreviewBackdrop = Brush.linearGradient(
+    listOf(Color(0xFF182A35), Color(0xFF53646B), Color(0xFF1C2934))
+)
 
 @Composable
 internal fun SubtitleAppearanceDialog(
@@ -162,7 +164,9 @@ private fun SubtitleAppearanceControls(
                     colors = SubtitleSettingsTextColors,
                     selectedColor = style.textColor or 0xFF000000.toInt(),
                     onColorSelected = { color ->
-                        onUpdate { setSubtitleTextColor(color.copy(alpha = textColor.alpha).toArgb()) }
+                        onUpdate {
+                            setSubtitleTextColor(color.copy(alpha = textColor.alpha).toArgb())
+                        }
                     }
                 )
             }
@@ -175,7 +179,9 @@ private fun SubtitleAppearanceControls(
                     maxValue = 100,
                     step = 5,
                     onValueChange = { opacity ->
-                        onUpdate { setSubtitleTextColor(textColor.copy(alpha = opacity / 100f).toArgb()) }
+                        onUpdate {
+                            setSubtitleTextColor(textColor.copy(alpha = opacity / 100f).toArgb())
+                        }
                     }
                 )
             }
@@ -185,7 +191,11 @@ private fun SubtitleAppearanceControls(
                     colors = SubtitleBackgroundColorPresets,
                     selectedColor = selectedSubtitleBackgroundPreset(style.backgroundColor),
                     onColorSelected = { color ->
-                        onUpdate { setSubtitleBackgroundColor(subtitleBackgroundColorFor(color, style.backgroundColor)) }
+                        onUpdate {
+                            setSubtitleBackgroundColor(
+                                subtitleBackgroundColorFor(color, style.backgroundColor)
+                            )
+                        }
                     }
                 )
             }
@@ -198,7 +208,14 @@ private fun SubtitleAppearanceControls(
                     maxValue = 100,
                     step = 5,
                     onValueChange = { opacity ->
-                        onUpdate { setSubtitleBackgroundColor(backgroundColor.copy(alpha = opacity / 100f).toArgb()) }
+                        onUpdate {
+                            setSubtitleBackgroundColor(
+                                backgroundColor.copy(
+                                    alpha =
+                                        opacity / 100f
+                                ).toArgb()
+                            )
+                        }
                     }
                 )
             }
@@ -228,7 +245,9 @@ private fun SubtitleAppearanceControls(
                         title = stringResource(R.string.sub_outline_color),
                         colors = SubtitleSettingsOutlineColors,
                         selectedColor = style.outlineColor,
-                        onColorSelected = { color -> onUpdate { setSubtitleOutlineColor(color.toArgb()) } }
+                        onColorSelected = { color ->
+                            onUpdate { setSubtitleOutlineColor(color.toArgb()) }
+                        }
                     )
                 }
                 item(key = "outline_width") {
@@ -260,7 +279,9 @@ private fun SubtitleAppearanceControls(
                         minValue = 0,
                         maxValue = 100,
                         step = 5,
-                        onValueChange = { opacity -> onUpdate { setSubtitleShadowOpacity(opacity) } }
+                        onValueChange = { opacity ->
+                            onUpdate { setSubtitleShadowOpacity(opacity) }
+                        }
                     )
                 }
                 item(key = "shadow_size") {
@@ -323,14 +344,23 @@ private fun SubtitleColorSwatchRow(
                 .fillMaxWidth()
                 .focusRestorer(firstSwatchFocusRequester),
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
-            contentPadding = PaddingValues(horizontal = SettingsRowContentInset, vertical = MoviesTheme.spacing.sm)
+            contentPadding = PaddingValues(
+                horizontal = SettingsRowContentInset,
+                vertical = MoviesTheme.spacing.sm
+            )
         ) {
             itemsIndexed(colors, key = { _, color -> color.toArgb() }) { index, color ->
                 ColorOption(
                     color = color,
                     isSelected = color.toArgb() == selectedColor,
                     onClick = { onColorSelected(color) },
-                    modifier = if (index == 0) Modifier.focusRequester(firstSwatchFocusRequester) else Modifier
+                    modifier = if (index ==
+                        0
+                    ) {
+                        Modifier.focusRequester(firstSwatchFocusRequester)
+                    } else {
+                        Modifier
+                    }
                 )
             }
         }
@@ -338,11 +368,9 @@ private fun SubtitleColorSwatchRow(
 }
 
 @Composable
-private fun SubtitleAppearancePreview(
-    style: SubtitleStyleSettings,
-    modifier: Modifier = Modifier
-) {
-    val textSizePx = with(LocalDensity.current) { (SUBTITLE_BASE_TEXT_SP * style.size / 100f).sp.toPx() }
+private fun SubtitleAppearancePreview(style: SubtitleStyleSettings, modifier: Modifier = Modifier) {
+    val textSizePx =
+        with(LocalDensity.current) { (SUBTITLE_BASE_TEXT_SP * style.size / 100f).sp.toPx() }
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(MoviesTheme.radii.lg))

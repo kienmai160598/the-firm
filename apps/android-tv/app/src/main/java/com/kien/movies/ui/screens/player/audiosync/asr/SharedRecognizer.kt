@@ -23,8 +23,7 @@ internal object SharedRecognizer {
         get() = cache.isLoaded
 
     /** Returns the loaded recogniser, loading it first when needed (blocking: call off the main thread). */
-    fun acquire(modelDir: File, threads: Int, lowMemory: Boolean = false): SherpaSpeechToText =
-        cache.acquire { SherpaSpeechToText(modelDir, threads, lowMemory) }
+    fun acquire(modelDir: File, threads: Int, lowMemory: Boolean = false): SherpaSpeechToText = cache.acquire { SherpaSpeechToText(modelDir, threads, lowMemory) }
 
     /** Gives back an acquired recogniser; it is closed once nobody has used it for a while. */
     fun release() = cache.release()

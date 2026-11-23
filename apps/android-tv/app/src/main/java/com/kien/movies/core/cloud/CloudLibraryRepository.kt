@@ -28,7 +28,9 @@ class CloudLibraryRepository @Inject constructor(
         }
 
         val credentials = DebridProviders.configuredServices(settings)
-            .filter { credential -> credential.provider.supports(DebridProviderCapability.CloudLibrary) }
+            .filter { credential ->
+                credential.provider.supports(DebridProviderCapability.CloudLibrary)
+            }
 
         val providerStates = credentials.map { credential ->
             val api = providerApis.firstOrNull { it.provider.id == credential.provider.id }
@@ -96,6 +98,8 @@ class CloudLibraryRepository @Inject constructor(
             .takeIf { it.cloudLibraryEnabled }
             ?.let(DebridProviders::configuredServices)
             .orEmpty()
-            .filter { credential -> credential.provider.supports(DebridProviderCapability.CloudLibrary) }
+            .filter { credential ->
+                credential.provider.supports(DebridProviderCapability.CloudLibrary)
+            }
     }
 }

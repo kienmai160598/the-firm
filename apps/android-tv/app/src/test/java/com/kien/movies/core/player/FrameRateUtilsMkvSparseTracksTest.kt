@@ -3,13 +3,13 @@ package com.kien.movies.core.player
 import android.content.Context
 import io.mockk.every
 import io.mockk.mockk
+import java.io.File
+import java.net.ServerSocket
+import java.net.Socket
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
-import java.io.File
-import java.net.ServerSocket
-import java.net.Socket
 
 // Reproduces the MKV Pass 2 gap: after the sparse Tracks fetch the probe file must be
 // terminated with a stub Cluster (and a patched Segment size), exactly like Pass 1 does,

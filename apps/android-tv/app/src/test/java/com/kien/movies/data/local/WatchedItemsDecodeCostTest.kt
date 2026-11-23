@@ -60,7 +60,11 @@ class WatchedItemsDecodeCostTest {
     }
 
     private suspend fun withObservedHistory(
-        block: suspend (WatchedItemsPreferences, List<Collector>, Map<Triple<String, Int?, Int?>, WatchedItem>) -> Unit
+        block: suspend (
+            WatchedItemsPreferences,
+            List<Collector>,
+            Map<Triple<String, Int?, Int?>, WatchedItem>
+        ) -> Unit
     ) {
         val store = TestPreferencesStore()
         val factory = mockk<ProfileDataStoreFactory>()
@@ -75,7 +79,8 @@ class WatchedItemsDecodeCostTest {
 
         val scope = CoroutineScope(Dispatchers.Default)
         try {
-            val collectors = List(COLLECTORS) { Collector(scope, preferences.observeAllItems(PROFILE_ID)) }
+            val collectors =
+                List(COLLECTORS) { Collector(scope, preferences.observeAllItems(PROFILE_ID)) }
             collectors.forEach { assertEquals(HISTORY_SIZE, it.awaitEmission(1).size) }
             block(preferences, collectors, decoded)
         } finally {
@@ -120,6 +125,7 @@ class WatchedItemsDecodeCostTest {
         const val PROFILE_ID = 1
         const val HISTORY_SIZE = 10_000
         const val EPISODES_PER_SHOW = 20
+
         // Roughly the number of live watched-list collectors while the player is open.
         const val COLLECTORS = 10
         const val QUIET_WINDOW_MS = 1_000L

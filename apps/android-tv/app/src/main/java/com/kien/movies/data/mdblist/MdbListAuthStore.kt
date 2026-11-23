@@ -14,12 +14,12 @@ interface MdbListAuthPersistence {
     fun clear()
 }
 
-class MdbListAuthStore(
-    private val persistence: MdbListAuthPersistence,
-    initialProfileId: Int = 1
-) : ProfileScopedCredentialStore {
+class MdbListAuthStore(private val persistence: MdbListAuthPersistence, initialProfileId: Int = 1) : ProfileScopedCredentialStore {
     private val lock = Any()
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
     private var currentScope = MdbListAuthScope(initialProfileId, 0)
     private var stored = load(initialProfileId)
     private val mutableState = MutableStateFlow(stateFor())
@@ -50,29 +50,28 @@ class MdbListAuthStore(
         publish()
     }
 
-    fun saveSession(session: MdbListDeviceSession, deviceCode: String, scope: MdbListAuthScope): Boolean =
-        mutate(scope, advanceGeneration = true) {
-            it.copy(session = session, deviceCode = deviceCode)
-        }
+    fun saveSession(
+        session: MdbListDeviceSession,
+        deviceCode: String,
+        scope: MdbListAuthScope
+    ): Boolean = mutate(scope, advanceGeneration = true) {
+        it.copy(session = session, deviceCode = deviceCode)
+    }
 
-    fun updateSession(session: MdbListDeviceSession, scope: MdbListAuthScope): Boolean =
-        mutate(scope) { it.copy(session = session) }
+    fun updateSession(session: MdbListDeviceSession, scope: MdbListAuthScope): Boolean = mutate(scope) { it.copy(session = session) }
 
-    fun cancelSession(error: MdbListAuthError? = null, scope: MdbListAuthScope = scope()): Boolean =
-        mutate(scope, advanceGeneration = true, error = error) {
-            it.copy(session = null, deviceCode = null)
-        }
+    fun cancelSession(error: MdbListAuthError? = null, scope: MdbListAuthScope = scope()): Boolean = mutate(scope, advanceGeneration = true, error = error) {
+        it.copy(session = null, deviceCode = null)
+    }
 
-    fun authorize(tokens: MdbListTokens, scope: MdbListAuthScope): Boolean =
-        mutate(scope, advanceGeneration = true) { MdbListStoredAuth(tokens = tokens) }
+    fun authorize(tokens: MdbListTokens, scope: MdbListAuthScope): Boolean = mutate(scope, advanceGeneration = true) { MdbListStoredAuth(tokens = tokens) }
 
     fun refreshTokens(tokens: MdbListTokens, expected: MdbListAuthorization): Boolean = synchronized(lock) {
         if (stored.tokens?.accessToken != expected.tokens.accessToken) return@synchronized false
         mutate(expected.scope) { it.copy(tokens = tokens) }
     }
 
-    fun saveUser(user: MdbListUser, scope: MdbListAuthScope): Boolean =
-        mutate(scope) { it.copy(user = user) }
+    fun saveUser(user: MdbListUser, scope: MdbListAuthScope): Boolean = mutate(scope) { it.copy(user = user) }
 
     fun clearAuth(
         scope: MdbListAuthScope = scope(),
@@ -111,7 +110,10 @@ class MdbListAuthStore(
         val value = transform(stored)
         persistence.write(scope.profileId, json.encodeToString(value))
         stored = value
-        if (advanceGeneration) currentScope = currentScope.copy(generation = currentScope.generation + 1)
+        if (advanceGeneration) {
+            currentScope =
+                currentScope.copy(generation = currentScope.generation + 1)
+        }
         publish(error)
         true
     }
@@ -119,7 +121,8 @@ class MdbListAuthStore(
     private fun load(profileId: Int): MdbListStoredAuth = persistence.read(profileId)?.let { value ->
         runCatching { json.decodeFromString<MdbListStoredAuth>(value) }.getOrNull()
     }?.takeIf { value ->
-        value.tokens == null || (value.tokens.accessToken.isNotBlank() && value.tokens.refreshToken.isNotBlank())
+        value.tokens == null ||
+            (value.tokens.accessToken.isNotBlank() && value.tokens.refreshToken.isNotBlank())
     } ?: MdbListStoredAuth()
 
     private fun publish(error: MdbListAuthError? = null) {

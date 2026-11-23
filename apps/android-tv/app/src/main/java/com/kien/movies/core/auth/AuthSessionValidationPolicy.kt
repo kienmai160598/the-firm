@@ -1,9 +1,6 @@
 package com.kien.movies.core.auth
 
-internal fun isInvalidRemoteSessionResponse(
-    statusCode: Int?,
-    message: String
-): Boolean {
+internal fun isInvalidRemoteSessionResponse(statusCode: Int?, message: String): Boolean {
     if (statusCode == 401) return true
     val normalizedMessage = message.lowercase()
     return INVALID_REMOTE_SESSION_MARKERS.any(normalizedMessage::contains)

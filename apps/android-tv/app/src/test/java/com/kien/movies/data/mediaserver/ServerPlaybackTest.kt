@@ -54,7 +54,10 @@ class ServerPlaybackTest {
         assertEquals("Fake · Box", source.name)
         assertTrue(source.preferred)
         assertEquals("Fake · Box", stream.addonName)
-        assertEquals(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "42"), "src-42"), stream.serverTarget)
+        assertEquals(
+            ServerPlaybackTarget(ServerItemRef(harness.connection.id, "42"), "src-42"),
+            stream.serverTarget
+        )
         assertNull(stream.getStreamUrl())
         assertFalse(stream.isTorrent())
         assertEquals("item-42.mkv", stream.behaviorHints?.filename)
@@ -85,7 +88,10 @@ class ServerPlaybackTest {
         assertEquals(setOf("Fake · Box"), preferred)
 
         val ordered = StreamAutoPlaySelector.orderAddonStreams(
-            streams = listOf(AddonStreams("Addon", null, emptyList()), AddonStreams("Fake · Box", null, emptyList())),
+            streams = listOf(
+                AddonStreams("Addon", null, emptyList()),
+                AddonStreams("Fake · Box", null, emptyList())
+            ),
             installedOrder = listOf("Addon"),
             preferredNames = preferred
         )
@@ -113,19 +119,51 @@ class ServerPlaybackTest {
     fun reportsLifecycleInOrderAndStopsOnce() = runBlocking {
         val harness = harness()
         val playback = harness.playback
-        val session = playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "42"), "src-42"))
+        val session = playback.prepare(
+            ServerPlaybackTarget(ServerItemRef(harness.connection.id, "42"), "src-42")
+        )
         val url = session.url
         assertTrue(playback.isServerSource(url))
 
         playback.onPlaybackSnapshot(url, 0L, isPlaying = false, isLoading = true, isEnded = false)
         playback.onPlaybackSnapshot(url, 0L, isPlaying = true, isLoading = false, isEnded = false)
         now += 1_000L
-        playback.onPlaybackSnapshot(url, 1_000L, isPlaying = true, isLoading = false, isEnded = false)
+        playback.onPlaybackSnapshot(
+            url,
+            1_000L,
+            isPlaying = true,
+            isLoading = false,
+            isEnded = false
+        )
         now += 11_000L
-        playback.onPlaybackSnapshot(url, 12_000L, isPlaying = true, isLoading = false, isEnded = false)
-        playback.onPlaybackSnapshot(url, 12_000L, isPlaying = false, isLoading = false, isEnded = false)
-        playback.onPlaybackSnapshot(url, 12_000L, isPlaying = true, isLoading = false, isEnded = false)
-        playback.onPlaybackSnapshot(url, 13_000L, isPlaying = false, isLoading = false, isEnded = true)
+        playback.onPlaybackSnapshot(
+            url,
+            12_000L,
+            isPlaying = true,
+            isLoading = false,
+            isEnded = false
+        )
+        playback.onPlaybackSnapshot(
+            url,
+            12_000L,
+            isPlaying = false,
+            isLoading = false,
+            isEnded = false
+        )
+        playback.onPlaybackSnapshot(
+            url,
+            12_000L,
+            isPlaying = true,
+            isLoading = false,
+            isEnded = false
+        )
+        playback.onPlaybackSnapshot(
+            url,
+            13_000L,
+            isPlaying = false,
+            isLoading = false,
+            isEnded = true
+        )
         playback.stop(url)
 
         assertEquals(
@@ -144,8 +182,12 @@ class ServerPlaybackTest {
     @Test
     fun preparingAnotherSourceDropsUnstartedSessions() = runBlocking {
         val harness = harness()
-        val first = harness.playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "1"), "src-1"))
-        val second = harness.playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "2"), "src-2"))
+        val first = harness.playback.prepare(
+            ServerPlaybackTarget(ServerItemRef(harness.connection.id, "1"), "src-1")
+        )
+        val second = harness.playback.prepare(
+            ServerPlaybackTarget(ServerItemRef(harness.connection.id, "2"), "src-2")
+        )
 
         assertFalse(harness.playback.isServerSource(first.url))
         assertTrue(harness.playback.isServerSource(second.url))
@@ -155,7 +197,9 @@ class ServerPlaybackTest {
     fun directPlayFailureFallsBackOnlyOnce() = runBlocking {
         val provider = FakeServerProvider()
         val harness = harness(provider)
-        val session = harness.playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "7"), "src-7"))
+        val session = harness.playback.prepare(
+            ServerPlaybackTarget(ServerItemRef(harness.connection.id, "7"), "src-7")
+        )
 
         assertTrue(harness.playback.canFallback(session.url))
         assertNull(harness.playback.fallback(session.url))
@@ -168,7 +212,9 @@ class ServerPlaybackTest {
         val provider = FakeServerProvider()
         val harness = harness(provider)
 
-        harness.playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "7"), "src-7"))
+        harness.playback.prepare(
+            ServerPlaybackTarget(ServerItemRef(harness.connection.id, "7"), "src-7")
+        )
 
         assertTrue(provider.playbackRequests.single().capabilities.allowDirectPlay)
     }
@@ -178,9 +224,17 @@ class ServerPlaybackTest {
         val provider = FakeServerProvider(transcodes = true)
         val harness = harness(provider)
         val playback = harness.playback
-        val session = playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "42"), "src-42"))
+        val session = playback.prepare(
+            ServerPlaybackTarget(ServerItemRef(harness.connection.id, "42"), "src-42")
+        )
         assertFalse(playback.canFallback(session.url))
-        assertEquals(listOf(1 to true, 2 to false), playback.audioTracks(session.url).map { it.index to it.selected })
+        assertEquals(
+            listOf(1 to true, 2 to false),
+            playback.audioTracks(session.url).map {
+                it.index to
+                    it.selected
+            }
+        )
 
         val switched = playback.switchAudio(session.url, 2)!!
 
@@ -189,7 +243,13 @@ class ServerPlaybackTest {
         assertFalse(request.capabilities.allowDirectPlay)
         assertFalse(playback.isServerSource(session.url))
         assertTrue(playback.isServerSource(switched.url))
-        assertEquals(listOf(1 to false, 2 to true), playback.audioTracks(switched.url).map { it.index to it.selected })
+        assertEquals(
+            listOf(1 to false, 2 to true),
+            playback.audioTracks(switched.url).map {
+                it.index to
+                    it.selected
+            }
+        )
         assertTrue(ServerPlaybackEventType.STOP in provider.reported)
     }
 
@@ -198,7 +258,9 @@ class ServerPlaybackTest {
         val provider = FakeServerProvider(transcodes = true)
         val harness = harness(provider)
         val playback = harness.playback
-        val session = playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "42"), "src-42"))
+        val session = playback.prepare(
+            ServerPlaybackTarget(ServerItemRef(harness.connection.id, "42"), "src-42")
+        )
         val japanese = playback.switchAudio(session.url, 2)!!
 
         val burnedIn = playback.switchSubtitle(japanese.url, 3)!!
@@ -207,7 +269,12 @@ class ServerPlaybackTest {
         assertEquals(3, request.subtitleStreamIndex)
         assertEquals(2, request.audioStreamIndex)
         assertFalse(request.capabilities.allowDirectPlay)
-        assertEquals(listOf(3), playback.burnInSubtitles(burnedIn.url).filter { it.selected }.map { it.index })
+        assertEquals(
+            listOf(3),
+            playback.burnInSubtitles(burnedIn.url).filter {
+                it.selected
+            }.map { it.index }
+        )
 
         val english = playback.switchAudio(burnedIn.url, 1)!!
         assertEquals(3, provider.playbackRequests.last().subtitleStreamIndex)
@@ -220,10 +287,21 @@ class ServerPlaybackTest {
     @Test
     fun readsTheServerResumePointForThePlayingItem() = runBlocking {
         val provider = FakeServerProvider().apply {
-            userStates["7"] = listOf(ServerUserState("v7", positionMs = 30_000L, durationMs = 60_000L, played = false, lastPlayedEpochMs = 5_000L))
+            userStates["7"] =
+                listOf(
+                    ServerUserState(
+                        "v7",
+                        positionMs = 30_000L,
+                        durationMs = 60_000L,
+                        played = false,
+                        lastPlayedEpochMs = 5_000L
+                    )
+                )
         }
         val harness = harness(provider)
-        val url = harness.playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "7"), "src-7")).url
+        val url = harness.playback.prepare(
+            ServerPlaybackTarget(ServerItemRef(harness.connection.id, "7"), "src-7")
+        ).url
 
         assertEquals(30_000L, harness.playback.resumeState(url)?.positionMs)
         assertNull(harness.playback.resumeState("https://other.example/7"))
@@ -232,7 +310,9 @@ class ServerPlaybackTest {
     @Test
     fun directPlayLeavesTracksToThePlayer() = runBlocking {
         val harness = harness()
-        val url = harness.playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "7"), "src-7")).url
+        val url = harness.playback.prepare(
+            ServerPlaybackTarget(ServerItemRef(harness.connection.id, "7"), "src-7")
+        ).url
 
         assertTrue(harness.playback.audioTracks(url).isEmpty())
         assertTrue(harness.playback.burnInSubtitles(url).isEmpty())

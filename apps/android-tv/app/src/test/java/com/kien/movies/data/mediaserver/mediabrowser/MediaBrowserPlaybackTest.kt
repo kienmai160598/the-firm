@@ -1,8 +1,6 @@
 package com.kien.movies.data.mediaserver.mediabrowser
 
 import com.kien.movies.data.mediaserver.ServerConnection
-import com.kien.movies.data.mediaserver.emby.EmbyProvider
-import com.kien.movies.data.mediaserver.jellyfin.JellyfinProvider
 import com.kien.movies.data.mediaserver.ServerException
 import com.kien.movies.data.mediaserver.ServerFailure
 import com.kien.movies.data.mediaserver.ServerItemRef
@@ -11,12 +9,14 @@ import com.kien.movies.data.mediaserver.ServerPlaybackRequest
 import com.kien.movies.data.mediaserver.ServerPlaybackTarget
 import com.kien.movies.data.mediaserver.ServerPlayerCapabilities
 import com.kien.movies.data.mediaserver.ServerSession
+import com.kien.movies.data.mediaserver.emby.EmbyProvider
+import com.kien.movies.data.mediaserver.jellyfin.JellyfinProvider
 import com.kien.movies.data.mediaserver.readableTranscodeReason
 import kotlinx.serialization.json.Json
-import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class MediaBrowserPlaybackTest {
     private val jellyfin = JellyfinProvider(TestHttp().client, testIdentity)
@@ -58,9 +58,16 @@ class MediaBrowserPlaybackTest {
             deviceId = "d1"
         )
         assertEquals(ServerPlayMethod.DIRECT_PLAY, playback.playMethod)
-        assertTrue(playback.url.startsWith("https://media.example.com/jellyfin/Videos/item1/stream?static=true&mediaSourceId=ms1&playSessionId=ps1"))
+        assertTrue(
+            playback.url.startsWith(
+                "https://media.example.com/jellyfin/Videos/item1/stream?static=true&mediaSourceId=ms1&playSessionId=ps1"
+            )
+        )
         assertEquals("ps1", playback.playSessionId)
-        assertEquals("https://media.example.com/jellyfin/Videos/item1/ms1/Subtitles/3/0/Stream.srt?api_key=secret", playback.subtitles.single().url)
+        assertEquals(
+            "https://media.example.com/jellyfin/Videos/item1/ms1/Subtitles/3/0/Stream.srt?api_key=secret",
+            playback.subtitles.single().url
+        )
         assertEquals("eng", playback.subtitles.single().lang)
     }
 
@@ -69,11 +76,16 @@ class MediaBrowserPlaybackTest {
         val playback = jellyfin.playbackSession(
             session,
             request.copy(capabilities = ServerPlayerCapabilities(allowDirectPlay = false)),
-            info("""{"Id": "ms1", "SupportsDirectPlay": true, "TranscodingUrl": "/videos/item1/master.m3u8?MediaSourceId=ms1&ApiKey=secret"}"""),
+            info(
+                """{"Id": "ms1", "SupportsDirectPlay": true, "TranscodingUrl": "/videos/item1/master.m3u8?MediaSourceId=ms1&ApiKey=secret"}"""
+            ),
             deviceId = "d1"
         )
         assertEquals(ServerPlayMethod.TRANSCODE, playback.playMethod)
-        assertEquals("https://media.example.com/jellyfin/videos/item1/master.m3u8?MediaSourceId=ms1&ApiKey=secret", playback.url)
+        assertEquals(
+            "https://media.example.com/jellyfin/videos/item1/master.m3u8?MediaSourceId=ms1&ApiKey=secret",
+            playback.url
+        )
     }
 
     @Test
@@ -81,7 +93,9 @@ class MediaBrowserPlaybackTest {
         val playback = jellyfin.playbackSession(
             session,
             request,
-            info("""{"Id": "ms1", "SupportsDirectStream": true, "TranscodingUrl": "/videos/item1/master.m3u8?MediaSourceId=ms1"}"""),
+            info(
+                """{"Id": "ms1", "SupportsDirectStream": true, "TranscodingUrl": "/videos/item1/master.m3u8?MediaSourceId=ms1"}"""
+            ),
             deviceId = "d1"
         )
         assertEquals(ServerPlayMethod.DIRECT_STREAM, playback.playMethod)
@@ -91,7 +105,15 @@ class MediaBrowserPlaybackTest {
     @Test
     fun reportsPermissionAndCompatibilityFailures() {
         val denied = assertThrows(ServerException::class.java) {
-            jellyfin.playbackSession(session, request, json.decodeFromString(PlaybackInfoResult.serializer(), """{"ErrorCode": "NotAllowed"}"""), "d1")
+            jellyfin.playbackSession(
+                session,
+                request,
+                json.decodeFromString(
+                    PlaybackInfoResult.serializer(),
+                    """{"ErrorCode": "NotAllowed"}"""
+                ),
+                "d1"
+            )
         }
         assertEquals(ServerFailure.FORBIDDEN, denied.failure)
         val unsupported = assertThrows(ServerException::class.java) {
@@ -101,7 +123,10 @@ class MediaBrowserPlaybackTest {
     }
 
     private val embySession = ServerSession(
-        connection = session.connection.copy(providerId = "emby", address = "https://media.example.com"),
+        connection = session.connection.copy(
+            providerId = "emby",
+            address = "https://media.example.com"
+        ),
         token = "secret"
     )
 
@@ -117,28 +142,47 @@ class MediaBrowserPlaybackTest {
             ),
             deviceId = "d1"
         )
-        assertTrue(playback.url.startsWith("https://media.example.com/emby/Videos/item1/stream?static=true&mediaSourceId=ms1&playSessionId=ps1"))
+        assertTrue(
+            playback.url.startsWith(
+                "https://media.example.com/emby/Videos/item1/stream?static=true&mediaSourceId=ms1&playSessionId=ps1"
+            )
+        )
         assertTrue(playback.url.endsWith("&api_key=secret"))
-        assertEquals("https://media.example.com/emby/Videos/item1/ms1/Subtitles/3/Stream.srt?api_key=secret", playback.subtitles.single().url)
+        assertEquals(
+            "https://media.example.com/emby/Videos/item1/ms1/Subtitles/3/Stream.srt?api_key=secret",
+            playback.subtitles.single().url
+        )
     }
 
     @Test
     fun embyResolvesRelativeTranscodeUrlsOnce() {
-        val transcode = request.copy(capabilities = ServerPlayerCapabilities(allowDirectPlay = false))
+        val transcode = request.copy(
+            capabilities = ServerPlayerCapabilities(allowDirectPlay = false)
+        )
         val relative = emby.playbackSession(
             embySession,
             transcode,
-            info("""{"Id": "ms1", "TranscodingUrl": "/videos/item1/master.m3u8?MediaSourceId=ms1&api_key=secret"}"""),
+            info(
+                """{"Id": "ms1", "TranscodingUrl": "/videos/item1/master.m3u8?MediaSourceId=ms1&api_key=secret"}"""
+            ),
             deviceId = "d1"
         )
-        assertEquals("https://media.example.com/emby/videos/item1/master.m3u8?MediaSourceId=ms1&api_key=secret", relative.url)
+        assertEquals(
+            "https://media.example.com/emby/videos/item1/master.m3u8?MediaSourceId=ms1&api_key=secret",
+            relative.url
+        )
         val prefixed = emby.playbackSession(
             embySession,
             transcode,
-            info("""{"Id": "ms1", "TranscodingUrl": "/emby/videos/item1/master.m3u8?MediaSourceId=ms1"}"""),
+            info(
+                """{"Id": "ms1", "TranscodingUrl": "/emby/videos/item1/master.m3u8?MediaSourceId=ms1"}"""
+            ),
             deviceId = "d1"
         )
-        assertEquals("https://media.example.com/emby/videos/item1/master.m3u8?MediaSourceId=ms1&api_key=secret", prefixed.url)
+        assertEquals(
+            "https://media.example.com/emby/videos/item1/master.m3u8?MediaSourceId=ms1&api_key=secret",
+            prefixed.url
+        )
     }
 
     @Test
@@ -146,12 +190,16 @@ class MediaBrowserPlaybackTest {
         val streams = """[{"Type": "Video", "Index": 0},
             {"Type": "Audio", "Index": 1, "Language": "eng", "DisplayTitle": "English - AC3 - 5.1 - Default"},
             {"Type": "Audio", "Index": 2, "Language": "jpn", "DisplayTitle": "Japanese - AAC - Stereo"}]"""
-        val transcode = request.copy(capabilities = ServerPlayerCapabilities(allowDirectPlay = false))
+        val transcode = request.copy(
+            capabilities = ServerPlayerCapabilities(allowDirectPlay = false)
+        )
         val chosen = jellyfin.playbackSession(
             session,
             transcode,
-            info("""{"Id": "ms1", "DefaultAudioStreamIndex": 1, "MediaStreams": $streams,
-                     "TranscodingUrl": "/videos/item1/master.m3u8?MediaSourceId=ms1&AudioStreamIndex=2"}"""),
+            info(
+                """{"Id": "ms1", "DefaultAudioStreamIndex": 1, "MediaStreams": $streams,
+                     "TranscodingUrl": "/videos/item1/master.m3u8?MediaSourceId=ms1&AudioStreamIndex=2"}"""
+            ),
             deviceId = "d1"
         )
         assertEquals(
@@ -162,7 +210,9 @@ class MediaBrowserPlaybackTest {
         val default = jellyfin.playbackSession(
             session,
             transcode,
-            info("""{"Id": "ms1", "DefaultAudioStreamIndex": 1, "MediaStreams": $streams, "TranscodingUrl": "/videos/item1/master.m3u8"}"""),
+            info(
+                """{"Id": "ms1", "DefaultAudioStreamIndex": 1, "MediaStreams": $streams, "TranscodingUrl": "/videos/item1/master.m3u8"}"""
+            ),
             deviceId = "d1"
         )
         assertEquals(1, default.audioTracks.single { it.selected }.index)
@@ -183,10 +233,21 @@ class MediaBrowserPlaybackTest {
             ),
             deviceId = "d1"
         )
-        assertEquals(listOf(Triple(3, "English - PGSSUB", true)), playback.burnInSubtitles.map { Triple(it.index, it.label, it.selected) })
+        assertEquals(
+            listOf(Triple(3, "English - PGSSUB", true)),
+            playback.burnInSubtitles.map {
+                Triple(it.index, it.label, it.selected)
+            }
+        )
         assertEquals(listOf("spa"), playback.subtitles.map { it.lang })
-        assertEquals(listOf("AudioCodecNotSupported", "SubtitleCodecNotSupported"), playback.transcodeReasons)
-        assertEquals("Audio codec not supported", readableTranscodeReason(playback.transcodeReasons.first()))
+        assertEquals(
+            listOf("AudioCodecNotSupported", "SubtitleCodecNotSupported"),
+            playback.transcodeReasons
+        )
+        assertEquals(
+            "Audio codec not supported",
+            readableTranscodeReason(playback.transcodeReasons.first())
+        )
     }
 
     @Test

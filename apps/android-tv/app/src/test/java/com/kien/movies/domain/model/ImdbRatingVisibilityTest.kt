@@ -1,7 +1,7 @@
 package com.kien.movies.domain.model
 
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -55,8 +55,12 @@ class ImdbRatingVisibilityTest {
         assertTrue(DetailImdbRatingsVisibility.SHOW_ALL.showEpisodeRating(isWatched = false))
         assertTrue(DetailImdbRatingsVisibility.SHOW_ALL.showEpisodeRating(isWatched = true))
 
-        assertFalse(DetailImdbRatingsVisibility.HIDE_UNWATCHED_EPISODES.showEpisodeRating(isWatched = false))
-        assertTrue(DetailImdbRatingsVisibility.HIDE_UNWATCHED_EPISODES.showEpisodeRating(isWatched = true))
+        assertFalse(
+            DetailImdbRatingsVisibility.HIDE_UNWATCHED_EPISODES.showEpisodeRating(isWatched = false)
+        )
+        assertTrue(
+            DetailImdbRatingsVisibility.HIDE_UNWATCHED_EPISODES.showEpisodeRating(isWatched = true)
+        )
 
         assertFalse(DetailImdbRatingsVisibility.HIDE_EPISODES.showEpisodeRating(isWatched = false))
         assertFalse(DetailImdbRatingsVisibility.HIDE_EPISODES.showEpisodeRating(isWatched = true))

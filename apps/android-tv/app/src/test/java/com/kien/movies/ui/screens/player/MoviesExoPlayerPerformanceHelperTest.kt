@@ -140,18 +140,20 @@ class MoviesExoPlayerPerformanceHelperTest {
     fun `benchmark getDevicePhysicalRamBytes caching speedup`() {
         val context = mockk<Context>()
         val activityManager = mockk<android.app.ActivityManager>()
-        
+
         every { context.getSystemService(Context.ACTIVITY_SERVICE) } returns activityManager
         every { activityManager.getMemoryInfo(any()) } answers {
             val memInfo = firstArg<android.app.ActivityManager.MemoryInfo>()
             memInfo.totalMem = 4 * gb
         }
 
-        val field = MoviesExoPlayerPerformanceHelper::class.java.getDeclaredField("cachedDevicePhysicalRamBytes")
+        val field = MoviesExoPlayerPerformanceHelper::class.java.getDeclaredField(
+            "cachedDevicePhysicalRamBytes"
+        )
         field.isAccessible = true
-        
+
         val iterations = 50_000
-        
+
         // 1. Uncached Benchmark (force bypass cache)
         val startTimeUncached = System.nanoTime()
         for (i in 0 until iterations) {
@@ -163,7 +165,7 @@ class MoviesExoPlayerPerformanceHelperTest {
         // 2. Cached Benchmark (cache active)
         field.set(MoviesExoPlayerPerformanceHelper, 0L)
         MoviesExoPlayerPerformanceHelper.getDevicePhysicalRamBytes(context) // Populate cache
-        
+
         val startTimeCached = System.nanoTime()
         for (i in 0 until iterations) {
             MoviesExoPlayerPerformanceHelper.getDevicePhysicalRamBytes(context)
@@ -171,7 +173,7 @@ class MoviesExoPlayerPerformanceHelperTest {
         val durationCached = System.nanoTime() - startTimeCached
 
         val speedup = durationUncached.toDouble() / durationCached.toDouble()
-        
+
         println("=== BENCHMARK RESULTS ===")
         println("Iterations: $iterations")
         println("Uncached Total Time: ${durationUncached / 1_000_000.0} ms")
@@ -189,7 +191,9 @@ class MoviesExoPlayerPerformanceHelperTest {
 
         // Overhead = 96 MB -> target should be 250 - 96 = 154 MB
         val loadControl = MoviesExoPlayerPerformanceHelper.buildLoadControl(chunkOverheadMb = 96)
-        val targetBufferBytesField = androidx.media3.exoplayer.DefaultLoadControl::class.java.getDeclaredField("targetBufferBytesOverwrite")
+        val targetBufferBytesField = androidx.media3.exoplayer.DefaultLoadControl::class.java.getDeclaredField(
+            "targetBufferBytesOverwrite"
+        )
         targetBufferBytesField.isAccessible = true
         val targetBytes = targetBufferBytesField.getInt(loadControl)
 
@@ -205,10 +209,15 @@ class MoviesExoPlayerPerformanceHelperTest {
 
         // Overhead = 100 MB -> 50 - 100 = -50 -> coerceAtLeast MIN_BUFFER_MB (25 MB)
         val loadControl = MoviesExoPlayerPerformanceHelper.buildLoadControl(chunkOverheadMb = 100)
-        val targetBufferBytesField = androidx.media3.exoplayer.DefaultLoadControl::class.java.getDeclaredField("targetBufferBytesOverwrite")
+        val targetBufferBytesField = androidx.media3.exoplayer.DefaultLoadControl::class.java.getDeclaredField(
+            "targetBufferBytesOverwrite"
+        )
         targetBufferBytesField.isAccessible = true
         val targetBytes = targetBufferBytesField.getInt(loadControl)
 
-        assertEquals(com.kien.movies.ui.screens.settings.MemoryBudget.MIN_BUFFER_MB * 1024 * 1024, targetBytes)
+        assertEquals(
+            com.kien.movies.ui.screens.settings.MemoryBudget.MIN_BUFFER_MB * 1024 * 1024,
+            targetBytes
+        )
     }
 }

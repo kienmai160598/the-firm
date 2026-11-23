@@ -1,8 +1,7 @@
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.foundation.focusGroup
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,6 +34,7 @@ import androidx.tv.material3.Text
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.ui.components.GridContentCard
 import com.kien.movies.ui.components.PosterCardStyle
+import com.kien.movies.ui.theme.MoviesTheme
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -119,7 +118,10 @@ fun CollectionSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = if (title.isNullOrBlank()) MoviesTheme.spacing.sm else 20.dp, bottom = MoviesTheme.spacing.sm)
+            .padding(
+                top = if (title.isNullOrBlank()) MoviesTheme.spacing.sm else 20.dp,
+                bottom = MoviesTheme.spacing.sm
+            )
     ) {
         if (!title.isNullOrBlank()) {
             Text(
@@ -127,14 +129,26 @@ fun CollectionSection(
                 style = MaterialTheme.typography.titleLarge,
                 color = MoviesTheme.colors.TextPrimary,
                 modifier = Modifier
-                    .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.sm)
+                    .padding(
+                        start = MoviesTheme.spacing.xxxl,
+                        end = MoviesTheme.spacing.xxxl,
+                        bottom = MoviesTheme.spacing.sm
+                    )
             )
         }
         LazyRow(
             state = listState,
             modifier = Modifier
                 .fillMaxWidth()
-                .then(if (sectionFocusRequester != null) Modifier.focusRequester(sectionFocusRequester) else Modifier)
+                .then(
+                    if (sectionFocusRequester !=
+                        null
+                    ) {
+                        Modifier.focusRequester(sectionFocusRequester)
+                    } else {
+                        Modifier
+                    }
+                )
                 .focusRestorer {
                     when {
                         restorePending -> restoreFocusRequester
@@ -154,8 +168,12 @@ fun CollectionSection(
                 val isFirstItem = index == 0
                 val focusRequester = when {
                     isRestoreTarget -> restoreFocusRequester
+
                     isFirstItem -> firstItemFocusRequester
-                    else -> remember(item.id) { itemFocusRequesters.getOrPut(item.id) { FocusRequester() } }
+
+                    else -> remember(item.id) {
+                        itemFocusRequesters.getOrPut(item.id) { FocusRequester() }
+                    }
                 }
 
                 Column(
@@ -202,7 +220,11 @@ fun CollectionSection(
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
                                 .width(landscapeStyle.width)
-                                .padding(start = MoviesTheme.spacing.xxs, end = MoviesTheme.spacing.xxs, top = MoviesTheme.spacing.xxs)
+                                .padding(
+                                    start = MoviesTheme.spacing.xxs,
+                                    end = MoviesTheme.spacing.xxs,
+                                    top = MoviesTheme.spacing.xxs
+                                )
                         )
                     }
                 }

@@ -50,10 +50,18 @@ fun PlaybackSettingsContent(
     viewModel: PlaybackSettingsViewModel = hiltViewModel(),
     initialFocusRequester: FocusRequester? = null
 ) {
-    val playerSettings by viewModel.playerSettings.collectAsStateWithLifecycle(initialValue = PlayerSettings())
-    val transparentLetterbox by viewModel.transparentLetterbox.collectAsStateWithLifecycle(initialValue = false)
-    val releaseDecoderOnBackground by viewModel.releaseDecoderOnBackground.collectAsStateWithLifecycle(initialValue = false)
-    val torrentSettings by viewModel.torrentSettingsFlow.collectAsStateWithLifecycle(initialValue = TorrentSettingsData())
+    val playerSettings by viewModel.playerSettings.collectAsStateWithLifecycle(
+        initialValue = PlayerSettings()
+    )
+    val transparentLetterbox by viewModel.transparentLetterbox.collectAsStateWithLifecycle(
+        initialValue = false
+    )
+    val releaseDecoderOnBackground by viewModel.releaseDecoderOnBackground.collectAsStateWithLifecycle(
+        initialValue = false
+    )
+    val torrentSettings by viewModel.torrentSettingsFlow.collectAsStateWithLifecycle(
+        initialValue = TorrentSettingsData()
+    )
     val torrentCacheState by viewModel.torrentCacheState.collectAsStateWithLifecycle()
     val torrentState by viewModel.torrentState.collectAsStateWithLifecycle()
     var torrentCacheClearResult by remember { mutableStateOf<TorrentCacheClearResult?>(null) }
@@ -74,8 +82,12 @@ fun PlaybackSettingsContent(
         ),
         cacheClearEnabled = torrentCacheClearAvailable
     )
-    val installedAddonNames by viewModel.installedAddonNames.collectAsStateWithLifecycle(initialValue = emptyList())
-    val enabledPluginNames by viewModel.enabledPluginNames.collectAsStateWithLifecycle(initialValue = emptyList())
+    val installedAddonNames by viewModel.installedAddonNames.collectAsStateWithLifecycle(
+        initialValue = emptyList()
+    )
+    val enabledPluginNames by viewModel.enabledPluginNames.collectAsStateWithLifecycle(
+        initialValue = emptyList()
+    )
     val coroutineScope = rememberCoroutineScope()
     var openDialog by remember { mutableStateOf<PlaybackDialog?>(null) }
     var memoryUsageTrigger by remember { mutableIntStateOf(0) }

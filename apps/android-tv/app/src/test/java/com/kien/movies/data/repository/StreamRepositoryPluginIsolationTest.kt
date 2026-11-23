@@ -16,19 +16,19 @@ import com.kien.movies.domain.model.AddonResource
 import com.kien.movies.domain.model.AddonStreams
 import com.kien.movies.domain.model.DebridSettings
 import com.kien.movies.domain.model.LocalScraperResult
-import com.kien.movies.domain.model.pluginBingeGroup
 import com.kien.movies.domain.model.PluginRepository
 import com.kien.movies.domain.model.RepositoryType
 import com.kien.movies.domain.model.ScraperInfo
+import com.kien.movies.domain.model.pluginBingeGroup
 import com.kien.movies.domain.repository.AddonRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -101,7 +101,9 @@ class StreamRepositoryPluginIsolationTest {
         assertEquals(listOf("Fast Addon"), success.data.map { it.addonName })
         // Pins the URL too: the regression is not merely "one call happened", it is that the
         // stream request is the only request, built from the addon's own baseUrl.
-        coVerify(exactly = 1) { harness.api.getStreams("https://addon.example/stream/movie/tt1341338.json") }
+        coVerify(exactly = 1) {
+            harness.api.getStreams("https://addon.example/stream/movie/tt1341338.json")
+        }
         coVerify(exactly = 0) { harness.addonRepository.fetchAddon(any()) }
     }
 
@@ -168,7 +170,10 @@ class StreamRepositoryPluginIsolationTest {
         val harness = newHarness(emptyList())
 
         harness.repository.getStreamsFromAllAddons(
-            type = "movie", videoId = "tt1341338", season = null, episode = null
+            type = "movie",
+            videoId = "tt1341338",
+            season = null,
+            episode = null
         ).toList()
         val results = harness.repository.getStreamsFromAllAddons(
             type = "movie",
@@ -189,7 +194,14 @@ class StreamRepositoryPluginIsolationTest {
         val harness = newHarness(listOf(scraper))
         coEvery { harness.tmdbService.ensureTmdbId("tt1341338", "movie") } returns "123"
         every {
-            harness.pluginManager.executeScrapersStreaming("123", "movie", null, null, "local-plugin-plugin", any())
+            harness.pluginManager.executeScrapersStreaming(
+                "123",
+                "movie",
+                null,
+                null,
+                "local-plugin-plugin",
+                any()
+            )
         } returns flowOf(
             scraper to listOf(
                 LocalScraperResult(
@@ -245,15 +257,22 @@ class StreamRepositoryPluginIsolationTest {
         every {
             harness.pluginManager.executeScrapersStreaming("123", "movie", null, null, null, false)
         } returns
-            flowOf(*scrapers.map { scraper ->
-                scraper to listOf(LocalScraperResult(
-                    title = "Shared title",
-                    url = "https://stream.example/${scraper.id}.m3u8"
-                ))
-            }.toTypedArray())
+            flowOf(
+                *scrapers.map { scraper ->
+                    scraper to listOf(
+                        LocalScraperResult(
+                            title = "Shared title",
+                            url = "https://stream.example/${scraper.id}.m3u8"
+                        )
+                    )
+                }.toTypedArray()
+            )
 
         val results = harness.repository.getStreamsFromAllAddons(
-            type = "movie", videoId = "tt1341338", season = null, episode = null
+            type = "movie",
+            videoId = "tt1341338",
+            season = null,
+            episode = null
         ).toList()
         val groups = (results.last() as NetworkResult.Success).data
         val pluginGroups = groups.filter { it.addonName != "Fast Addon" }
@@ -263,12 +282,29 @@ class StreamRepositoryPluginIsolationTest {
         )
         val streams = pluginGroups.flatMap { it.streams }
         assertEquals(scrapers.map { it.name }, streams.map { it.pluginSourceName })
-        assertEquals(scrapers.map { pluginBingeGroup(scraperId = it.id, url = "https://stream.example/" + it.id + ".m3u8", title = "Shared title") }, streams.map { it.behaviorHints?.bingeGroup })
+        assertEquals(
+            scrapers.map {
+                pluginBingeGroup(
+                    scraperId = it.id,
+                    url =
+                        "https://stream.example/" + it.id + ".m3u8",
+                    title = "Shared title"
+                )
+            },
+            streams.map { it.behaviorHints?.bingeGroup }
+        )
         assertEquals(listOf("Shared title", "Shared title"), streams.map { it.title })
-        assertTrue(streams.all { stream ->
-            stream.addonName == if (groupByRepository) "Repository" else stream.pluginSourceName
-        })
-        assertTrue(groups.single { it.addonName == "Fast Addon" }.streams.all { it.pluginSourceName == null })
+        assertTrue(
+            streams.all { stream ->
+                stream.addonName == if (groupByRepository) "Repository" else stream.pluginSourceName
+            }
+        )
+        assertTrue(
+            groups.single { it.addonName == "Fast Addon" }.streams.all {
+                it.pluginSourceName ==
+                    null
+            }
+        )
     }
 
     private fun newHarness(enabledScrapers: List<ScraperInfo>): Harness {

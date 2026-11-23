@@ -5,7 +5,10 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class SourceFallbackHandoffTest {
-    private val tried = SourceFallbackHandoff.TriedSources(keys = setOf("url:https://a", "url:https://b"), attempts = 1)
+    private val tried = SourceFallbackHandoff.TriedSources(
+        keys = setOf("url:https://a", "url:https://b"),
+        attempts = 1
+    )
 
     @Test
     fun `the playback the sources were tried for picks them up once`() {

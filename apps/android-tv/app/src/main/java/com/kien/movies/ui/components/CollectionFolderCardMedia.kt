@@ -2,10 +2,7 @@ package com.kien.movies.ui.components
 
 import com.kien.movies.domain.model.CollectionFolder
 
-fun collectionFolderCardImageUrl(
-    folder: CollectionFolder,
-    isFocused: Boolean
-): String? {
+fun collectionFolderCardImageUrl(folder: CollectionFolder, isFocused: Boolean): String? {
     // GIF URL is only used as an animated overlay on focus (when focusGifEnabled is true).
     // When focusGifEnabled is off, fall back to cover image only — don't use the GIF
     // as a static poster since it would still animate via Coil's GIF decoder.

@@ -1,19 +1,15 @@
 package com.kien.movies.ui.screens.collection
 
-import androidx.compose.ui.semantics.clearAndSetSemantics
-
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,27 +19,29 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
@@ -55,18 +53,12 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import com.kien.movies.ui.theme.metaFloor
-import com.kien.movies.ui.theme.screenTitleFloor
-import com.kien.movies.ui.util.contentTextDirection
-import com.kien.movies.ui.util.dpadRepeatThrottle
-import com.kien.movies.ui.util.dpadVerticalFastScroll
-import com.kien.movies.ui.util.localizedContentType
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.withFrameNanos
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Card
@@ -77,32 +69,37 @@ import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
+import com.kien.movies.R
+import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.domain.model.FolderViewMode
 import com.kien.movies.domain.model.HomeLayout
+import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.ui.components.CatalogRowSection
 import com.kien.movies.ui.components.ContentCard
 import com.kien.movies.ui.components.GridContentCard
 import com.kien.movies.ui.components.LoadingIndicator
-import com.kien.movies.R
-import androidx.compose.ui.res.stringResource
-import com.kien.movies.ui.components.PosterCardDefaults
-import com.kien.movies.ui.components.PosterCardStyle
 import com.kien.movies.ui.components.LocalCardDepthStyle
 import com.kien.movies.ui.components.LocalLandscapePosterMode
+import com.kien.movies.ui.components.PosterCardDefaults
+import com.kien.movies.ui.components.PosterCardStyle
 import com.kien.movies.ui.components.moviesCardDepth
-import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.ui.screens.home.ClassicFocusArtwork
 import com.kien.movies.ui.screens.home.ClassicFocusGradientBackdrop
 import com.kien.movies.ui.screens.home.ClassicHomeContent
-import com.kien.movies.ui.screens.home.toClassicFocusArtwork
 import com.kien.movies.ui.screens.home.ContinueWatchingItem
 import com.kien.movies.ui.screens.home.GridHomeContent
 import com.kien.movies.ui.screens.home.HeroBackdropState
 import com.kien.movies.ui.screens.home.HomeScreenFocusState
-import com.kien.movies.ui.screens.home.key
-import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.ui.screens.home.ModernHomeContent
-import androidx.compose.runtime.snapshotFlow
+import com.kien.movies.ui.screens.home.key
+import com.kien.movies.ui.screens.home.toClassicFocusArtwork
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.metaFloor
+import com.kien.movies.ui.theme.screenTitleFloor
+import com.kien.movies.ui.util.contentTextDirection
+import com.kien.movies.ui.util.dpadRepeatThrottle
+import com.kien.movies.ui.util.dpadVerticalFastScroll
+import com.kien.movies.ui.util.localizedContentType
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -128,13 +125,24 @@ fun FolderDetailScreen(
 
     if (folder == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(stringResource(R.string.folder_detail_not_found), color = MoviesTheme.colors.TextSecondary)
+            Text(
+                stringResource(R.string.folder_detail_not_found),
+                color = MoviesTheme.colors.TextSecondary
+            )
         }
         return
     }
 
     val isItemWatched: (MetaPreview) -> Boolean = remember(uiState.movieWatchedStatus) {
-        { item -> uiState.movieWatchedStatus[com.kien.movies.ui.screens.home.homeItemStatusKey(item.id, item.apiType)] == true }
+        { item ->
+            uiState.movieWatchedStatus[
+                com.kien.movies.ui.screens.home.homeItemStatusKey(
+                    item.id,
+                    item.apiType
+                )
+            ] ==
+                true
+        }
     }
 
     // Kept as State down to ModernHomeContent, like ModernHomeRoute: reading the values here would
@@ -163,7 +171,9 @@ fun FolderDetailScreen(
             onNavigateToDetail = onNavigateToDetailWithTrailer,
             onLoadMoreCatalog = viewModel::loadMoreForCatalog,
             onSelectTab = viewModel::selectTab,
-            onLoadMoreForSelectedTab = { viewModel.loadMoreItems(viewModel.uiState.value.selectedTabIndex) },
+            onLoadMoreForSelectedTab = {
+                viewModel.loadMoreItems(viewModel.uiState.value.selectedTabIndex)
+            },
             onSaveFocusState = { vi, vo, rk, ikm, m, ma, ri, ii ->
                 viewModel.saveFollowLayoutFocusState(vi, vo, rk, ikm, m, ma, ri, ii)
             },
@@ -196,7 +206,8 @@ fun FolderDetailScreen(
                 FolderViewMode.TABBED_GRID -> TabbedGridContent(
                     uiState = uiState,
                     folder = folder,
-                    tabFocusState = tabFocusStates[uiState.selectedTabIndex] ?: FolderDetailGridFocusState(),
+                    tabFocusState =
+                        tabFocusStates[uiState.selectedTabIndex] ?: FolderDetailGridFocusState(),
                     onSelectTab = viewModel::selectTab,
                     onNavigateToDetail = onNavigateToDetail,
                     isItemWatched = isItemWatched,
@@ -213,6 +224,7 @@ fun FolderDetailScreen(
                         viewModel.posterOptions.show(item, addonBaseUrl)
                     }
                 )
+
                 FolderViewMode.ROWS -> {
                     FolderHeader(folder = folder)
                     RowsContent(
@@ -230,6 +242,7 @@ fun FolderDetailScreen(
                         }
                     )
                 }
+
                 FolderViewMode.FOLLOW_LAYOUT -> {} // handled above
             }
         }
@@ -258,9 +271,23 @@ private fun FolderHeader(folder: com.kien.movies.domain.model.CollectionFolder) 
             val iconWidth: androidx.compose.ui.unit.Dp
             val iconHeight: androidx.compose.ui.unit.Dp
             when (folder.tileShape) {
-                com.kien.movies.domain.model.PosterShape.POSTER -> { iconWidth = MoviesTheme.spacing.xxl; iconHeight = MoviesTheme.spacing.xxxl }
-                com.kien.movies.domain.model.PosterShape.LANDSCAPE -> { iconWidth = 64.dp; iconHeight = 36.dp }
-                com.kien.movies.domain.model.PosterShape.SQUARE -> { iconWidth = MoviesTheme.spacing.xxxl; iconHeight = MoviesTheme.spacing.xxxl }
+                com.kien.movies.domain.model.PosterShape.POSTER -> {
+                    iconWidth =
+                        MoviesTheme.spacing.xxl
+                    iconHeight = MoviesTheme.spacing.xxxl
+                }
+
+                com.kien.movies.domain.model.PosterShape.LANDSCAPE -> {
+                    iconWidth = 64.dp
+                    iconHeight =
+                        36.dp
+                }
+
+                com.kien.movies.domain.model.PosterShape.SQUARE -> {
+                    iconWidth =
+                        MoviesTheme.spacing.xxxl
+                    iconHeight = MoviesTheme.spacing.xxxl
+                }
             }
             AsyncImage(
                 model = folder.coverImageUrl,
@@ -302,19 +329,27 @@ private fun TabbedGridContent(
     isItemWatched: (MetaPreview) -> Boolean = { false },
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> }
 ) {
-    val tabFocusRequesters = remember(uiState.tabs.size) { uiState.tabs.indices.map { FocusRequester() } }
+    val tabFocusRequesters =
+        remember(uiState.tabs.size) { uiState.tabs.indices.map { FocusRequester() } }
     var gridHasFocus by remember { mutableStateOf(false) }
     var gridScrollToTopTrigger by remember { mutableIntStateOf(0) }
 
     // Grid Back: focus on grid -> move focus to active tab (grid stays scrolled).
     BackHandler(enabled = gridHasFocus && uiState.tabs.size > 1) {
-        tabFocusRequesters.getOrNull(uiState.selectedTabIndex)?.let { runCatching { it.requestFocus() } }
+        tabFocusRequesters.getOrNull(uiState.selectedTabIndex)?.let {
+            runCatching { it.requestFocus() }
+        }
     }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.sm),
+            .padding(
+                start = MoviesTheme.spacing.xxxl,
+                end = MoviesTheme.spacing.xxxl,
+                top = MoviesTheme.spacing.sm,
+                bottom = MoviesTheme.spacing.sm
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
@@ -322,9 +357,23 @@ private fun TabbedGridContent(
             val iconWidth: androidx.compose.ui.unit.Dp
             val iconHeight: androidx.compose.ui.unit.Dp
             when (folder.tileShape) {
-                com.kien.movies.domain.model.PosterShape.POSTER -> { iconWidth = MoviesTheme.spacing.xxl; iconHeight = MoviesTheme.spacing.xxxl }
-                com.kien.movies.domain.model.PosterShape.LANDSCAPE -> { iconWidth = 64.dp; iconHeight = 36.dp }
-                com.kien.movies.domain.model.PosterShape.SQUARE -> { iconWidth = MoviesTheme.spacing.xxxl; iconHeight = MoviesTheme.spacing.xxxl }
+                com.kien.movies.domain.model.PosterShape.POSTER -> {
+                    iconWidth =
+                        MoviesTheme.spacing.xxl
+                    iconHeight = MoviesTheme.spacing.xxxl
+                }
+
+                com.kien.movies.domain.model.PosterShape.LANDSCAPE -> {
+                    iconWidth = 64.dp
+                    iconHeight =
+                        36.dp
+                }
+
+                com.kien.movies.domain.model.PosterShape.SQUARE -> {
+                    iconWidth =
+                        MoviesTheme.spacing.xxxl
+                    iconHeight = MoviesTheme.spacing.xxxl
+                }
             }
             AsyncImage(
                 model = folder.coverImageUrl,
@@ -357,7 +406,8 @@ private fun TabbedGridContent(
                 selectedTabIndex = uiState.selectedTabIndex,
                 modifier = Modifier
                     .focusRestorer {
-                        tabFocusRequesters.getOrNull(uiState.selectedTabIndex) ?: FocusRequester.Default
+                        tabFocusRequesters.getOrNull(uiState.selectedTabIndex)
+                            ?: FocusRequester.Default
                     }
             ) {
                 uiState.tabs.forEachIndexed { index, tab ->
@@ -370,21 +420,41 @@ private fun TabbedGridContent(
                         },
                         modifier = if (index < tabFocusRequesters.size) {
                             Modifier.focusRequester(tabFocusRequesters[index])
-                        } else Modifier
+                        } else {
+                            Modifier
+                        }
                     ) {
                         Column(
-                            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = MoviesTheme.spacing.sm),
+                            modifier = Modifier.padding(
+                                horizontal = MoviesTheme.spacing.lg,
+                                vertical = MoviesTheme.spacing.sm
+                            ),
                             horizontalAlignment = Alignment.Start
                         ) {
                             Text(
-                                text = if (tab.isAllTab) stringResource(R.string.collections_tab_all) else tab.label,
+                                text = if (tab.isAllTab) {
+                                    stringResource(
+                                        R.string.collections_tab_all
+                                    )
+                                } else {
+                                    tab.label
+                                },
                                 style = MaterialTheme.typography.labelLarge
                             )
                             if (uiState.catalogTypeSuffixEnabled && tab.typeLabel.isNotBlank()) {
                                 val localizedType = when {
-                                    tab.isAllTab -> stringResource(R.string.collections_tab_combined)
-                                    tab.rawType.lowercase() == "movie" -> stringResource(R.string.type_movie)
-                                    tab.rawType.lowercase() == "series" -> stringResource(R.string.type_series)
+                                    tab.isAllTab -> stringResource(
+                                        R.string.collections_tab_combined
+                                    )
+
+                                    tab.rawType.lowercase() == "movie" -> stringResource(
+                                        R.string.type_movie
+                                    )
+
+                                    tab.rawType.lowercase() == "series" -> stringResource(
+                                        R.string.type_series
+                                    )
+
                                     else -> tab.typeLabel
                                 }
                                 Text(
@@ -409,6 +479,7 @@ private fun TabbedGridContent(
                 LoadingIndicator()
             }
         }
+
         currentTab.error != null -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
@@ -417,6 +488,7 @@ private fun TabbedGridContent(
                 )
             }
         }
+
         currentTab.catalogRow != null -> {
             val items = currentTab.catalogRow.items
             val posterCardStyle = PosterCardStyle(
@@ -424,7 +496,8 @@ private fun TabbedGridContent(
                 height = (uiState.posterCardWidthDp * 1.5f).dp,
                 cornerRadius = uiState.posterCardCornerRadiusDp.dp
             )
-            val itemFocusRequesters = remember(uiState.selectedTabIndex) { mutableMapOf<String, FocusRequester>() }
+            val itemFocusRequesters =
+                remember(uiState.selectedTabIndex) { mutableMapOf<String, FocusRequester>() }
             var lastFocusedItemKey by remember(
                 uiState.selectedTabIndex,
                 tabFocusState.focusedItemKey
@@ -446,7 +519,9 @@ private fun TabbedGridContent(
                 lastHandledTabIndex = uiState.selectedTabIndex
                 if (!triggerChanged && !tabChanged) return@LaunchedEffect
                 if (triggerChanged) {
-                    if (gridState.firstVisibleItemIndex > 0 || gridState.firstVisibleItemScrollOffset > 0) {
+                    if (gridState.firstVisibleItemIndex > 0 ||
+                        gridState.firstVisibleItemScrollOffset > 0
+                    ) {
                         gridState.scrollToItem(0, 0)
                     }
                 } else if (tabChanged) {
@@ -488,7 +563,9 @@ private fun TabbedGridContent(
                 if (!tabFocusState.hasSavedFocus) return@LaunchedEffect
                 repeat(8) {
                     val requester = itemFocusRequesters[targetKey]
-                    if (requester != null && runCatching { requester.requestFocus() }.getOrDefault(false)) {
+                    if (requester != null &&
+                        runCatching { requester.requestFocus() }.getOrDefault(false)
+                    ) {
                         lastFocusedItemKey = targetKey
                         return@LaunchedEffect
                     }
@@ -516,12 +593,15 @@ private fun TabbedGridContent(
             val globalLandscape = LocalLandscapePosterMode.current
             LazyVerticalGrid(
                 state = gridState,
-                columns = GridCells.Adaptive(minSize = if (globalLandscape) posterCardStyle.height else posterCardStyle.width),
+                columns = GridCells.Adaptive(
+                    minSize = if (globalLandscape) posterCardStyle.height else posterCardStyle.width
+                ),
                 modifier = Modifier
                     .fillMaxSize()
                     .onFocusChanged { gridHasFocus = it.hasFocus }
                     .focusRestorer {
-                        lastFocusedItemKey?.let { itemFocusRequesters[it] } ?: FocusRequester.Default
+                        lastFocusedItemKey?.let { itemFocusRequesters[it] }
+                            ?: FocusRequester.Default
                     }
                     .dpadRepeatThrottle(),
                 contentPadding = PaddingValues(
@@ -568,7 +648,8 @@ private fun TabbedGridContent(
                         val cardDepthStyle = LocalCardDepthStyle.current
                         val globalLandscape = LocalLandscapePosterMode.current
                         val loadingCardHeight = if (globalLandscape) {
-                            posterCardStyle.width / com.kien.movies.domain.model.PosterShape.LANDSCAPE.aspectRatio()
+                            posterCardStyle.width /
+                                com.kien.movies.domain.model.PosterShape.LANDSCAPE.aspectRatio()
                         } else {
                             posterCardStyle.width * 1.5f
                         }
@@ -580,8 +661,8 @@ private fun TabbedGridContent(
                                 modifier = Modifier
                                     .width(posterCardStyle.width)
                                     .height(loadingCardHeight)
-                              .clearAndSetSemantics {}
-                              .focusProperties { canFocus = false },
+                                    .clearAndSetSemantics {}
+                                    .focusProperties { canFocus = false },
                                 shape = CardDefaults.shape(shape = cardShape),
                                 colors = CardDefaults.colors(
                                     containerColor = MoviesTheme.colors.BackgroundCard,
@@ -628,7 +709,16 @@ private fun RowsContent(
     focusState: HomeScreenFocusState,
     onNavigateToDetail: (String, String, String) -> Unit,
     onLoadMoreCatalog: (String, String, String) -> Unit = { _, _, _ -> },
-    onSaveFocusState: (Int, Int, String?, Map<String, String>, Map<String, Int>, Map<String, String>, Int, Int) -> Unit,
+    onSaveFocusState: (
+        Int,
+        Int,
+        String?,
+        Map<String, String>,
+        Map<String, Int>,
+        Map<String, String>,
+        Int,
+        Int
+    ) -> Unit,
     isItemWatched: (MetaPreview) -> Boolean = { false },
     onItemFocus: (MetaPreview) -> Unit = {},
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
@@ -645,13 +735,15 @@ private fun RowsContent(
         // Hide sources that returned zero results after loading completed
         if (!tab.isLoading && tab.error == null &&
             tab.catalogRow != null && tab.catalogRow.items.isEmpty()
-        ) return@filter false
+        ) {
+            return@filter false
+        }
         true
     }
-    
+
     // Nested prefetch: pre-compose cards in nested LazyRows to prevent frame spikes
     val nestedPrefetchStrategy = remember { LazyListPrefetchStrategy(nestedPrefetchItemCount = 2) }
-    
+
     val columnListState = rememberLazyListState(
         initialFirstVisibleItemIndex = focusState.verticalScrollIndex,
         initialFirstVisibleItemScrollOffset = focusState.verticalScrollOffset,
@@ -666,11 +758,13 @@ private fun RowsContent(
     val folderScope = rememberCoroutineScope()
 
     // Improved Back: scroll to first item in row before exiting collection
-    BackHandler(enabled = run {
-        val rowKey = currentFocusedRowKey.value ?: return@run false
-        val itemIndex = focusedItemByRow[rowKey] ?: rowFocusedItemIndex[rowKey] ?: 0
-        itemIndex > 0
-    }) {
+    BackHandler(
+        enabled = run {
+            val rowKey = currentFocusedRowKey.value ?: return@run false
+            val itemIndex = focusedItemByRow[rowKey] ?: rowFocusedItemIndex[rowKey] ?: 0
+            itemIndex > 0
+        }
+    ) {
         val rowKey = currentFocusedRowKey.value ?: return@BackHandler
         val listState = rowStates[rowKey]
         rowFocusedItemIndex[rowKey] = 0
@@ -724,7 +818,9 @@ private fun RowsContent(
                         if (rowKey == savedRowKey) {
                             val itemIdx = if (savedItemKey != null) {
                                 row.items.indexOfFirst { it.id == savedItemKey }.coerceAtLeast(0)
-                            } else 0
+                            } else {
+                                0
+                            }
                             focusedItemByRow[savedRowKey] = itemIdx
                             rowFocusedItemIndex[savedRowKey] = itemIdx
                         }
@@ -770,30 +866,44 @@ private fun RowsContent(
                         visibleItems.firstOrNull()?.takeIf {
                             it.offset > -it.size / 2
                         }
-                    } else null
+                    } else {
+                        null
+                    }
                     val target = when {
                         lastItemAtBottom -> visibleItems.lastOrNull { it.index == lastIdx }
+
                         upwardTopItem != null -> upwardTopItem
+
                         else ->
                             visibleItems.firstOrNull { it.offset >= 0 }
                                 ?: visibleItems.firstOrNull()
                     }
                     fun requesterForKey(k: String?): FocusRequester? = when {
                         k == null -> null
+
                         rowEntryFocusRequesters.containsKey(k) -> rowEntryFocusRequesters[k]
+
                         else -> {
                             val baseKey = k.substringBeforeLast('_')
                             rowEntryFocusRequesters[baseKey]
                         }
                     }
-                    val requester = if (target == null) null
-                    else requesterForKey(target.key as? String)
-                        ?: visibleItems.firstNotNullOfOrNull { requesterForKey(it.key as? String) }
+                    val requester = if (target == null) {
+                        null
+                    } else {
+                        requesterForKey(target.key as? String)
+                            ?: visibleItems.firstNotNullOfOrNull {
+                                requesterForKey(it.key as? String)
+                            }
+                    }
 
                     requester?.let { req ->
                         folderScope.launch {
                             repeat(6) {
-                                val ok = runCatching { req.requestFocus(); true }
+                                val ok = runCatching {
+                                    req.requestFocus()
+                                    true
+                                }
                                     .getOrDefault(false)
                                 if (ok) return@launch
                                 withFrameNanos { }
@@ -801,9 +911,12 @@ private fun RowsContent(
                         }
                     }
                     null
-                },
+                }
             ),
-        contentPadding = PaddingValues(top = MoviesTheme.spacing.lg, bottom = MoviesTheme.spacing.xxxl),
+        contentPadding = PaddingValues(
+            top = MoviesTheme.spacing.lg,
+            bottom = MoviesTheme.spacing.xxxl
+        ),
         verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxl)
     ) {
         sourceTabs.forEachIndexed { index, tab ->
@@ -819,16 +932,20 @@ private fun RowsContent(
                 val localizedTypeLabel = remember(tab.rawType, folderContext) {
                     localizedContentType(folderContext, tab.rawType)
                 }
-                val rowTitle = remember(tab.label, localizedTypeLabel, uiState.catalogTypeSuffixEnabled) {
-                    if (uiState.catalogTypeSuffixEnabled && tab.label != tab.typeLabel && localizedTypeLabel.isNotEmpty()) {
-                        "${tab.label} - $localizedTypeLabel"
-                    } else {
-                        tab.label
+                val rowTitle =
+                    remember(tab.label, localizedTypeLabel, uiState.catalogTypeSuffixEnabled) {
+                        if (uiState.catalogTypeSuffixEnabled && tab.label != tab.typeLabel &&
+                            localizedTypeLabel.isNotEmpty()
+                        ) {
+                            "${tab.label} - $localizedTypeLabel"
+                        } else {
+                            tab.label
+                        }
                     }
-                }
                 val globalLandscape = LocalLandscapePosterMode.current
                 val containerHeight = if (globalLandscape) {
-                    posterCardStyle.width / com.kien.movies.domain.model.PosterShape.LANDSCAPE.aspectRatio()
+                    posterCardStyle.width /
+                        com.kien.movies.domain.model.PosterShape.LANDSCAPE.aspectRatio()
                 } else {
                     posterCardStyle.height
                 }
@@ -839,7 +956,11 @@ private fun RowsContent(
                                 text = rowTitle,
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MoviesTheme.colors.TextPrimary,
-                                modifier = Modifier.padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.md)
+                                modifier = Modifier.padding(
+                                    start = MoviesTheme.spacing.xxxl,
+                                    end = MoviesTheme.spacing.xxxl,
+                                    bottom = MoviesTheme.spacing.md
+                                )
                             )
                             Box(
                                 modifier = Modifier
@@ -851,13 +972,18 @@ private fun RowsContent(
                             }
                         }
                     }
+
                     tab.error != null -> {
                         Column(modifier = Modifier.fillMaxWidth()) {
                             Text(
                                 text = rowTitle,
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MoviesTheme.colors.TextPrimary,
-                                modifier = Modifier.padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.md)
+                                modifier = Modifier.padding(
+                                    start = MoviesTheme.spacing.xxxl,
+                                    end = MoviesTheme.spacing.xxxl,
+                                    bottom = MoviesTheme.spacing.md
+                                )
                             )
                             Box(
                                 modifier = Modifier
@@ -869,13 +995,17 @@ private fun RowsContent(
                             }
                         }
                     }
+
                     catalogRow != null -> {
                         val listState = rowStates.getOrPut(rowKey) {
                             LazyListState(
-                                firstVisibleItemIndex = focusState.catalogRowScrollStates[rowKey] ?: 0
+                                firstVisibleItemIndex =
+                                    focusState.catalogRowScrollStates[rowKey] ?: 0
                             )
                         }
-                        val rowFocusRequester = rowFocusRequesters.getOrPut(rowKey) { FocusRequester() }
+                        val rowFocusRequester = rowFocusRequesters.getOrPut(rowKey) {
+                            FocusRequester()
+                        }
                         CatalogRowSection(
                             catalogRow = catalogRow,
                             onItemClick = onNavigateToDetail,
@@ -903,16 +1033,26 @@ private fun RowsContent(
                             onItemFocus = onItemFocus,
                             listState = listState,
                             rowFocusRequester = rowFocusRequester,
-                            entryFocusRequester = rowEntryFocusRequesters.getOrPut(rowKey) { FocusRequester() },
+                            entryFocusRequester = rowEntryFocusRequesters.getOrPut(rowKey) {
+                                FocusRequester()
+                            },
                             enableRowFocusRestorer = true,
                             focusedItemIndex = when {
                                 focusState.hasSavedFocus && focusState.focusedRowKey == rowKey ->
                                     focusState.focusedItemIndex
+
                                 !focusState.hasSavedFocus && index == 0 -> 0
+
                                 else -> -1
                             },
                             restorerFocusedIndex = rowFocusedItemIndex[rowKey]
-                                ?: if (focusState.hasSavedFocus && focusState.focusedRowKey == rowKey) focusState.focusedItemIndex else -1,
+                                ?: if (focusState.hasSavedFocus &&
+                                    focusState.focusedRowKey == rowKey
+                                ) {
+                                    focusState.focusedItemIndex
+                                } else {
+                                    -1
+                                },
                             onItemFocused = { itemIndex ->
                                 currentFocusedRowKey.value = rowKey
                                 rowFocusedItemIndex[rowKey] = itemIndex
@@ -937,7 +1077,16 @@ private fun FollowLayoutContent(
     onLoadMoreCatalog: (String, String, String) -> Unit = { _, _, _ -> },
     onSelectTab: (Int) -> Unit = {},
     onLoadMoreForSelectedTab: () -> Unit = {},
-    onSaveFocusState: (Int, Int, String?, Map<String, String>, Map<String, Int>, Map<String, String>, Int, Int) -> Unit,
+    onSaveFocusState: (
+        Int,
+        Int,
+        String?,
+        Map<String, String>,
+        Map<String, Int>,
+        Map<String, String>,
+        Int,
+        Int
+    ) -> Unit,
     onSaveTabFocusState: (Int, Int, String?) -> Unit = { _, _, _ -> },
     onItemFocus: (MetaPreview) -> Unit = {},
     onPreloadAdjacentItem: (MetaPreview) -> Unit = {},
@@ -968,7 +1117,15 @@ private fun FollowLayoutContent(
     val noOpRemoveCw: (String, Int?, Int?, Boolean) -> Unit = remember { { _, _, _, _ -> } }
     val noOpFolderDetail: (String, String) -> Unit = remember { { _, _ -> } }
     val isItemWatched: (MetaPreview) -> Boolean = remember(homeState.movieWatchedStatus) {
-        { item -> homeState.movieWatchedStatus[com.kien.movies.ui.screens.home.homeItemStatusKey(item.id, item.apiType)] == true }
+        { item ->
+            homeState.movieWatchedStatus[
+                com.kien.movies.ui.screens.home.homeItemStatusKey(
+                    item.id,
+                    item.apiType
+                )
+            ] ==
+                true
+        }
     }
     val loadMoreLabel = stringResource(R.string.action_load_more)
 
@@ -991,14 +1148,16 @@ private fun FollowLayoutContent(
                 }
             }
 
-            val handleItemFocus: (MetaPreview) -> Unit = remember(classicFocusGradientEnabled, focusedPosterBackdropExpandEnabled) {
-                { item ->
-                    if (classicFocusGradientEnabled) {
-                        focusedArtwork = item.toClassicFocusArtwork(focusedPosterBackdropExpandEnabled)
+            val handleItemFocus: (MetaPreview) -> Unit =
+                remember(classicFocusGradientEnabled, focusedPosterBackdropExpandEnabled) {
+                    { item ->
+                        if (classicFocusGradientEnabled) {
+                            focusedArtwork =
+                                item.toClassicFocusArtwork(focusedPosterBackdropExpandEnabled)
+                        }
+                        onItemFocus(item)
                     }
-                    onItemFocus(item)
                 }
-            }
 
             Box(modifier = Modifier.fillMaxSize()) {
                 ClassicFocusGradientBackdrop(
@@ -1025,6 +1184,7 @@ private fun FollowLayoutContent(
                 )
             }
         }
+
         HomeLayout.GRID -> {
             Column(modifier = Modifier.fillMaxSize()) {
                 TabbedGridContent(
@@ -1040,6 +1200,7 @@ private fun FollowLayoutContent(
                 )
             }
         }
+
         HomeLayout.MODERN -> ModernHomeContent(
             uiState = homeState,
             modernPresentation = homeState.modernHomePresentation,

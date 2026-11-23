@@ -51,7 +51,4 @@ sealed class StreamScreenEvent {
     data object OnResume : StreamScreenEvent()
 }
 
-data class SharedStream(
-    val hostName: String,
-    val stream: Stream
-)
+data class SharedStream(val hostName: String, val stream: Stream)

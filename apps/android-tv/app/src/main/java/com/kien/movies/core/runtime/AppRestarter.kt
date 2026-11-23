@@ -11,9 +11,7 @@ import javax.inject.Singleton
 import kotlin.system.exitProcess
 
 @Singleton
-class AppRestarter @Inject constructor(
-    @param:ApplicationContext private val context: Context
-) {
+class AppRestarter @Inject constructor(@param:ApplicationContext private val context: Context) {
     fun restart(): Boolean {
         val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
             ?: return false

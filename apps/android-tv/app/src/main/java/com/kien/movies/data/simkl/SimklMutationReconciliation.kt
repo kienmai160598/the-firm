@@ -10,12 +10,18 @@ internal fun SimklSyncSnapshot.applyMutationReceipt(
 ): SimklSyncSnapshot {
     val committedAt = committedAtEpochMs.epochMsToUtcIso() ?: return this
     return when (val mutation = receipt.mutation) {
-        is SimklCommittedMutation.MoveToList -> withListMutations(mutation.items, committedAt, entryIndex)
+        is SimklCommittedMutation.MoveToList -> withListMutations(
+            mutation.items,
+            committedAt,
+            entryIndex
+        )
+
         is SimklCommittedMutation.AddToHistory -> withHistoryMutations(
             mutation.items,
             committedAtEpochMs,
             entryIndex
         )
+
         is SimklCommittedMutation.RemoveFromHistory -> withoutHistory(mutation.items)
     }.reconcileWatchedPlayback()
 }
@@ -126,7 +132,9 @@ private fun SimklSyncSnapshot.withoutHistory(
         } else {
             updated = updated.map { entry ->
                 val media = entry.media
-                if (media != null && media.matchesTargetWithIds(media.toTrackingExternalIds(), target, targetIds)) {
+                if (media != null &&
+                    media.matchesTargetWithIds(media.toTrackingExternalIds(), target, targetIds)
+                ) {
                     entry.withoutWatchedEpisode(
                         season = mutation.episode.season,
                         number = mutation.episode.number
@@ -140,15 +148,13 @@ private fun SimklSyncSnapshot.withoutHistory(
     return copy(entries = updated)
 }
 
-private fun SimklLibraryEntry.withoutWatchedEpisode(
-    season: Int?,
-    number: Int
-): SimklLibraryEntry {
+private fun SimklLibraryEntry.withoutWatchedEpisode(season: Int?, number: Int): SimklLibraryEntry {
     val targetSeason = season ?: 1
     val updatedSeasons = seasons.map { candidateSeason ->
         candidateSeason.copy(
             episodes = candidateSeason.episodes.map { episode ->
-                val matchesCanonical = candidateSeason.number == targetSeason && episode.number == number
+                val matchesCanonical =
+                    candidateSeason.number == targetSeason && episode.number == number
                 val matchesTvdb = episode.tvdb?.season == targetSeason &&
                     episode.tvdb.episode == number
                 if (matchesCanonical || matchesTvdb) episode.copy(watchedAt = null) else episode
@@ -158,7 +164,9 @@ private fun SimklLibraryEntry.withoutWatchedEpisode(
     val watchedEpisodes = updatedSeasons.flatMap(SimklSeason::episodes)
         .filter { episode -> episode.watchedAt != null }
     return copy(
-        lastWatchedAt = watchedEpisodes.maxOfOrNull { episode -> requireNotNull(episode.watchedAt) },
+        lastWatchedAt = watchedEpisodes.maxOfOrNull { episode ->
+            requireNotNull(episode.watchedAt)
+        },
         watchedEpisodesCount = watchedEpisodes.size,
         seasons = updatedSeasons
     )

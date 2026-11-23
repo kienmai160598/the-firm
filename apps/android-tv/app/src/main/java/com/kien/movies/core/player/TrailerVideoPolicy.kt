@@ -22,6 +22,5 @@ object TrailerVideoPolicy {
     }
 
     /** Tallest trailer video to play; [Int.MAX_VALUE] means no cap. */
-    fun maxTrailerVideoHeight(allow4k: Boolean): Int =
-        if (allow4k) Int.MAX_VALUE else MAX_TRAILER_HEIGHT_WITHOUT_4K
+    fun maxTrailerVideoHeight(allow4k: Boolean): Int = if (allow4k) Int.MAX_VALUE else MAX_TRAILER_HEIGHT_WITHOUT_4K
 }

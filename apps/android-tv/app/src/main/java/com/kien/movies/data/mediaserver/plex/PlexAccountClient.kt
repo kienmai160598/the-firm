@@ -27,7 +27,11 @@ internal class PlexAccountClient(
         val startedAt = now()
         val reply = send("POST", accountBase, PINS_PATH, PinWire.serializer())
         if (reply.id <= 0 || reply.code.isBlank()) throw ServerException(ServerFailure.FAILED)
-        return PlexPin(reply.id, reply.code, startedAt + reply.expiresIn.coerceAtLeast(MIN_PIN_SECONDS) * 1_000L)
+        return PlexPin(
+            reply.id,
+            reply.code,
+            startedAt + reply.expiresIn.coerceAtLeast(MIN_PIN_SECONDS) * 1_000L
+        )
     }
 
     /** plex.tv can answer a fresh code with 404 for a moment; that counts as waiting until the code runs out. */
@@ -49,31 +53,42 @@ internal class PlexAccountClient(
     suspend fun account(token: String): PlexAccount {
         val reply = send("GET", accountBase, USER_PATH, AccountWire.serializer(), token)
         if (reply.id <= 0) throw ServerException(ServerFailure.FAILED)
-        return PlexAccount(token, reply.id.toString(), reply.uuid, reply.title.ifBlank { reply.username })
+        return PlexAccount(
+            token,
+            reply.id.toString(),
+            reply.uuid,
+            reply.title.ifBlank {
+                reply.username
+            }
+        )
     }
 
     /** The Plex Media Servers [token] can use, each with the token it takes. */
-    suspend fun servers(token: String): List<PlexServer> =
-        send(
-            "GET",
-            clientsBase,
-            RESOURCES_PATH,
-            ListSerializer(ResourceWire.serializer()),
-            token,
-            mapOf("includeHttps" to "1", "includeRelay" to "1", "includeIPv6" to "1")
-        )
-            .filter { resource -> "server" in resource.provides.split(',').map(String::trim) && resource.clientIdentifier.isNotBlank() }
-            .mapNotNull { resource ->
-                val serverToken = resource.accessToken?.takeIf { it.isNotBlank() } ?: token.takeIf { resource.owned }
+    suspend fun servers(token: String): List<PlexServer> = send(
+        "GET",
+        clientsBase,
+        RESOURCES_PATH,
+        ListSerializer(ResourceWire.serializer()),
+        token,
+        mapOf("includeHttps" to "1", "includeRelay" to "1", "includeIPv6" to "1")
+    )
+        .filter { resource ->
+            "server" in resource.provides.split(',').map(String::trim) &&
+                resource.clientIdentifier.isNotBlank()
+        }
+        .mapNotNull { resource ->
+            val serverToken =
+                resource.accessToken?.takeIf { it.isNotBlank() }
+                    ?: token.takeIf { resource.owned }
                     ?: return@mapNotNull null
-                PlexServer(
-                    machineId = resource.clientIdentifier,
-                    name = resource.name.ifBlank { resource.clientIdentifier.take(8) },
-                    owned = resource.owned,
-                    accessToken = serverToken,
-                    addresses = resource.connections.flatMap(::addresses).distinctBy { it.uri }
-                )
-            }
+            PlexServer(
+                machineId = resource.clientIdentifier,
+                name = resource.name.ifBlank { resource.clientIdentifier.take(8) },
+                owned = resource.owned,
+                accessToken = serverToken,
+                addresses = resource.connections.flatMap(::addresses).distinctBy { it.uri }
+            )
+        }
 
     /**
      * A connection as plex.tv lists it, plus the plain IP address for a home one: many routers refuse to resolve the
@@ -82,9 +97,19 @@ internal class PlexAccountClient(
     private fun addresses(connection: ConnectionWire): List<PlexAddress> {
         val listed = connection.uri.trimEnd('/').takeIf { it.toHttpUrlOrNull() != null }
             ?.let { PlexAddress(it, local = connection.local, relay = connection.relay) }
-        val plain = if (connection.local && !connection.relay && connection.address.isNotBlank() && connection.port > 0) {
-            val host = if (connection.ipv6 || ':' in connection.address) "[${connection.address}]" else connection.address
-            "http://$host:${connection.port}".takeIf { it.toHttpUrlOrNull() != null }?.let { PlexAddress(it, local = true, relay = false) }
+        val plain = if (connection.local && !connection.relay && connection.address.isNotBlank() &&
+            connection.port > 0
+        ) {
+            val host = if (connection.ipv6 ||
+                ':' in connection.address
+            ) {
+                "[${connection.address}]"
+            } else {
+                connection.address
+            }
+            "http://$host:${connection.port}".takeIf {
+                it.toHttpUrlOrNull() != null
+            }?.let { PlexAddress(it, local = true, relay = false) }
         } else {
             null
         }
@@ -93,7 +118,14 @@ internal class PlexAccountClient(
 
     /** The account's Plex Home users; just the account itself when it has no Plex Home. */
     suspend fun homeUsers(account: PlexAccount): List<PlexHomeUser> {
-        val users = sendOrNull("GET", clientsBase, HOME_USERS_PATH, HomeUsersWire.serializer(), account.token, accepted = NO_HOME)
+        val users = sendOrNull(
+            "GET",
+            clientsBase,
+            HOME_USERS_PATH,
+            HomeUsersWire.serializer(),
+            account.token,
+            accepted = NO_HOME
+        )
             ?.users.orEmpty()
         val home = users.filter { it.uuid.isNotBlank() }.map { user ->
             PlexHomeUser(
@@ -105,7 +137,18 @@ internal class PlexAccountClient(
                 restricted = user.restricted
             )
         }
-        return home.ifEmpty { listOf(PlexHomeUser(account.id, account.uuid, account.name, hasPin = false, admin = true, restricted = false)) }
+        return home.ifEmpty {
+            listOf(
+                PlexHomeUser(
+                    account.id,
+                    account.uuid,
+                    account.name,
+                    hasPin = false,
+                    admin = true,
+                    restricted = false
+                )
+            )
+        }
     }
 
     /** [user]'s own account, or null when the PIN is wrong. */
@@ -120,7 +163,9 @@ internal class PlexAccountClient(
             mapOf("pin" to pin?.trim()?.takeIf { it.isNotEmpty() }),
             accepted = WRONG_PIN
         ) ?: return null
-        val token = reply.authToken?.takeIf { it.isNotBlank() } ?: throw ServerException(ServerFailure.FAILED)
+        val token =
+            reply.authToken?.takeIf { it.isNotBlank() }
+                ?: throw ServerException(ServerFailure.FAILED)
         return PlexAccount(token, user.id, user.uuid, user.name)
     }
 
@@ -129,12 +174,17 @@ internal class PlexAccountClient(
      * first, then the internet, then Plex Relay. Unencrypted addresses are only used on the home network.
      */
     suspend fun reach(server: PlexServer, machineId: suspend (String) -> String?): PlexServer {
-        val candidates = server.addresses.filter { it.uri.startsWith("https://", ignoreCase = true) || it.local }
+        val candidates = server.addresses.filter {
+            it.uri.startsWith("https://", ignoreCase = true) ||
+                it.local
+        }
         val answered = coroutineScope {
             candidates.map { address ->
                 async {
                     val answer = try {
-                        probes.withPermit { withTimeoutOrNull(REACH_TIMEOUT_MS) { machineId(address.uri) } }
+                        probes.withPermit {
+                            withTimeoutOrNull(REACH_TIMEOUT_MS) { machineId(address.uri) }
+                        }
                     } catch (_: ServerException) {
                         null
                     }
@@ -142,8 +192,13 @@ internal class PlexAccountClient(
                 }
             }.awaitAll().filterNotNull()
         }
-        val best = answered.minWithOrNull(compareBy({ rank(it) }, { !it.uri.startsWith("https://", ignoreCase = true) }))
-            ?: return server.reached(PlexReach.OFFLINE, null)
+        val best =
+            answered.minWithOrNull(
+                compareBy({
+                    rank(it)
+                }, { !it.uri.startsWith("https://", ignoreCase = true) })
+            )
+                ?: return server.reached(PlexReach.OFFLINE, null)
         val reach = when {
             best.relay -> PlexReach.RELAY
             best.local -> PlexReach.LOCAL
@@ -165,7 +220,8 @@ internal class PlexAccountClient(
         reply: DeserializationStrategy<T>,
         token: String? = null,
         query: Map<String, String?> = emptyMap()
-    ): T = sendOrNull(method, base, path, reply, token, query, emptySet()) ?: throw ServerException(ServerFailure.FAILED)
+    ): T = sendOrNull(method, base, path, reply, token, query, emptySet())
+        ?: throw ServerException(ServerFailure.FAILED)
 
     /** Null when plex.tv answered with one of the [accepted] error statuses. */
     private suspend fun <T> sendOrNull(

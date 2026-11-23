@@ -17,7 +17,10 @@ class ExternalAutoNextPolicyTest {
     fun `manual launch always resets the chain abort, even inside the window`() {
         assertTrue(
             ExternalAutoNextPolicy.shouldResetChainAbort(
-                autoLaunch = false, nowMs = 5_000L, lastAutoNextEmitMs = 0L, continuationWindowMs = window
+                autoLaunch = false,
+                nowMs = 5_000L,
+                lastAutoNextEmitMs = 0L,
+                continuationWindowMs = window
             )
         )
     }
@@ -26,7 +29,10 @@ class ExternalAutoNextPolicyTest {
     fun `auto-launch inside the window is a continuation and keeps the abort`() {
         assertFalse(
             ExternalAutoNextPolicy.shouldResetChainAbort(
-                autoLaunch = true, nowMs = 5_000L, lastAutoNextEmitMs = 0L, continuationWindowMs = window
+                autoLaunch = true,
+                nowMs = 5_000L,
+                lastAutoNextEmitMs = 0L,
+                continuationWindowMs = window
             )
         )
     }
@@ -35,7 +41,10 @@ class ExternalAutoNextPolicyTest {
     fun `auto-launch after the window is fresh and resets the abort`() {
         assertTrue(
             ExternalAutoNextPolicy.shouldResetChainAbort(
-                autoLaunch = true, nowMs = 20_000L, lastAutoNextEmitMs = 0L, continuationWindowMs = window
+                autoLaunch = true,
+                nowMs = 20_000L,
+                lastAutoNextEmitMs = 0L,
+                continuationWindowMs = window
             )
         )
     }
@@ -46,12 +55,18 @@ class ExternalAutoNextPolicyTest {
     fun `abort skips the auto-launch only inside the window`() {
         assertTrue(
             ExternalAutoNextPolicy.isAbortedContinuation(
-                chainAborted = true, nowMs = 5_000L, lastAutoNextEmitMs = 0L, continuationWindowMs = window
+                chainAborted = true,
+                nowMs = 5_000L,
+                lastAutoNextEmitMs = 0L,
+                continuationWindowMs = window
             )
         )
         assertFalse(
             ExternalAutoNextPolicy.isAbortedContinuation(
-                chainAborted = true, nowMs = 20_000L, lastAutoNextEmitMs = 0L, continuationWindowMs = window
+                chainAborted = true,
+                nowMs = 20_000L,
+                lastAutoNextEmitMs = 0L,
+                continuationWindowMs = window
             )
         )
     }
@@ -60,7 +75,10 @@ class ExternalAutoNextPolicyTest {
     fun `no abort means no continuation skip`() {
         assertFalse(
             ExternalAutoNextPolicy.isAbortedContinuation(
-                chainAborted = false, nowMs = 1_000L, lastAutoNextEmitMs = 0L, continuationWindowMs = window
+                chainAborted = false,
+                nowMs = 1_000L,
+                lastAutoNextEmitMs = 0L,
+                continuationWindowMs = window
             )
         )
     }
@@ -132,7 +150,10 @@ class ExternalAutoNextPolicyTest {
     fun `advance attempted for a season-less series episode`() {
         assertTrue(
             ExternalAutoNextPolicy.shouldAttemptAdvance(
-                episode = 7, contentType = "series", cancelled = false, chainAborted = false
+                episode = 7,
+                contentType = "series",
+                cancelled = false,
+                chainAborted = false
             )
         )
     }
@@ -141,12 +162,18 @@ class ExternalAutoNextPolicyTest {
     fun `advance not attempted when aborted or for a movie`() {
         assertFalse(
             ExternalAutoNextPolicy.shouldAttemptAdvance(
-                episode = 7, contentType = "series", cancelled = false, chainAborted = true
+                episode = 7,
+                contentType = "series",
+                cancelled = false,
+                chainAborted = true
             )
         )
         assertFalse(
             ExternalAutoNextPolicy.shouldAttemptAdvance(
-                episode = null, contentType = "movie", cancelled = false, chainAborted = false
+                episode = null,
+                contentType = "movie",
+                cancelled = false,
+                chainAborted = false
             )
         )
     }
@@ -155,8 +182,12 @@ class ExternalAutoNextPolicyTest {
     fun `next episode must be available and aired`() {
         assertTrue(ExternalAutoNextPolicy.isPlayableNextEpisode(available = true, hasAired = true))
         assertTrue(ExternalAutoNextPolicy.isPlayableNextEpisode(available = null, hasAired = true))
-        assertFalse(ExternalAutoNextPolicy.isPlayableNextEpisode(available = false, hasAired = true))
-        assertFalse(ExternalAutoNextPolicy.isPlayableNextEpisode(available = true, hasAired = false))
+        assertFalse(
+            ExternalAutoNextPolicy.isPlayableNextEpisode(available = false, hasAired = true)
+        )
+        assertFalse(
+            ExternalAutoNextPolicy.isPlayableNextEpisode(available = true, hasAired = false)
+        )
     }
 
     @Test
@@ -249,7 +280,9 @@ class ExternalAutoNextPolicyTest {
     @Test
     fun `settle release is ignored while external playback is active`() {
         assertTrue(ExternalAutoNextPolicy.shouldIgnoreLoaderRelease(externalPlaybackActive = true))
-        assertFalse(ExternalAutoNextPolicy.shouldIgnoreLoaderRelease(externalPlaybackActive = false))
+        assertFalse(
+            ExternalAutoNextPolicy.shouldIgnoreLoaderRelease(externalPlaybackActive = false)
+        )
     }
 
     @Test

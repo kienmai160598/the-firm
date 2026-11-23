@@ -66,7 +66,9 @@ internal fun MediaServersSettingsContent(
                     contentPadding = PaddingValues(bottom = MoviesTheme.spacing.sm),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    item(key = "servers_label") { ServerSectionLabel(stringResource(R.string.servers_section_connected)) }
+                    item(key = "servers_label") {
+                        ServerSectionLabel(stringResource(R.string.servers_section_connected))
+                    }
                     if (connections.isEmpty()) {
                         item(key = "servers_empty") {
                             Text(
@@ -81,26 +83,47 @@ internal fun MediaServersSettingsContent(
                         SettingsActionRow(
                             title = connection.name,
                             subtitle = connection.statusText(
-                                providerName = viewModel.provider(connection)?.displayName ?: connection.providerId,
+                                providerName =
+                                    viewModel.provider(connection)?.displayName
+                                        ?: connection.providerId,
                                 failure = uiState.failures[connection.id]
                             ),
                             onClick = { onOpenServer(connection.id) },
                             leadingIcon = Icons.Default.Dns,
-                            modifier = if (connection == connections.first()) focusModifier else Modifier
+                            modifier = if (connection ==
+                                connections.first()
+                            ) {
+                                focusModifier
+                            } else {
+                                Modifier
+                            }
                         )
                     }
-                    item(key = "servers_add_label") { ServerSectionLabel(stringResource(R.string.servers_section_add)) }
+                    item(key = "servers_add_label") {
+                        ServerSectionLabel(stringResource(R.string.servers_section_add))
+                    }
                     items(viewModel.providers, key = { "provider_${it.id}" }) { provider ->
                         SettingsActionRow(
                             title = provider.displayName,
                             subtitle = when (provider.id) {
                                 PlexProvider.ID -> stringResource(R.string.plex_add_description)
+
                                 SiloProvider.ID -> stringResource(R.string.silo_add_description)
-                                else -> stringResource(R.string.servers_add_description, provider.displayName)
+
+                                else -> stringResource(
+                                    R.string.servers_add_description,
+                                    provider.displayName
+                                )
                             },
                             onClick = { signIn = ServerSignInRequest(provider) },
                             leadingRawIconRes = serverLogoRes(provider.id),
-                            modifier = if (connections.isEmpty() && provider == viewModel.providers.first()) focusModifier else Modifier
+                            modifier = if (connections.isEmpty() &&
+                                provider == viewModel.providers.first()
+                            ) {
+                                focusModifier
+                            } else {
+                                Modifier
+                            }
                         )
                     }
                 }
@@ -131,9 +154,25 @@ internal fun ServerSignInRoute(
     onDismiss: () -> Unit
 ) {
     when (request.provider.id) {
-        PlexProvider.ID -> PlexSignInDialog(viewModel = viewModel, onConnected = onConnected, onDismiss = onDismiss)
-        SiloProvider.ID -> SiloSignInDialog(request = request, viewModel = viewModel, onConnected = onConnected, onDismiss = onDismiss)
-        else -> ServerSignInDialog(request = request, viewModel = viewModel, onConnected = onConnected, onDismiss = onDismiss)
+        PlexProvider.ID -> PlexSignInDialog(
+            viewModel = viewModel,
+            onConnected = onConnected,
+            onDismiss = onDismiss
+        )
+
+        SiloProvider.ID -> SiloSignInDialog(
+            request = request,
+            viewModel = viewModel,
+            onConnected = onConnected,
+            onDismiss = onDismiss
+        )
+
+        else -> ServerSignInDialog(
+            request = request,
+            viewModel = viewModel,
+            onConnected = onConnected,
+            onDismiss = onDismiss
+        )
     }
 }
 

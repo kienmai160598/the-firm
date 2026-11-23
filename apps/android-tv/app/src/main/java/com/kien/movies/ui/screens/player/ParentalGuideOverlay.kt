@@ -2,9 +2,6 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.accentBrush
-
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -26,13 +23,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Text
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.accentBrush
 import kotlinx.coroutines.delay
 
 private val ROW_HEIGHT = PlayerTenFoot.atLeast(18.dp, 22.dp)
@@ -154,12 +153,12 @@ fun ParentalGuideOverlay(
                     Text(
                         text = " · ",
                         fontSize = OVERLAY_TEXT_SIZE,
-                        color = Color.White.copy(alpha = 0.4f),
+                        color = Color.White.copy(alpha = 0.4f)
                     )
                     Text(
                         text = warning.severity,
                         fontSize = OVERLAY_TEXT_SIZE,
-                        color = Color.White.copy(alpha = 0.5f),
+                        color = Color.White.copy(alpha = 0.5f)
                     )
                 }
             }

@@ -11,19 +11,22 @@ import kotlinx.coroutines.CancellationException
 import retrofit2.Response
 
 @Singleton
-class TorboxCloudLibraryProviderApi @Inject constructor(
-    private val api: TorboxApi
-) : CloudLibraryProviderApi {
+class TorboxCloudLibraryProviderApi @Inject constructor(private val api: TorboxApi) : CloudLibraryProviderApi {
     override val provider = DebridProviders.Torbox
 
-    override suspend fun listItems(apiKey: String): Result<List<CloudLibraryItem>> =
-        runCatching {
-            val authorization = "Bearer $apiKey"
-            val torrents = api.listCloudTorrents(authorization).itemsOrThrow(CloudLibraryItemType.Torrent)
-            val usenet = api.listCloudUsenet(authorization).itemsOrThrow(CloudLibraryItemType.Usenet)
-            val web = api.listCloudWebDownloads(authorization).itemsOrThrow(CloudLibraryItemType.WebDownload)
-            torrents + usenet + web
-        }
+    override suspend fun listItems(apiKey: String): Result<List<CloudLibraryItem>> = runCatching {
+        val authorization = "Bearer $apiKey"
+        val torrents = api.listCloudTorrents(
+            authorization
+        ).itemsOrThrow(CloudLibraryItemType.Torrent)
+        val usenet = api.listCloudUsenet(
+            authorization
+        ).itemsOrThrow(CloudLibraryItemType.Usenet)
+        val web = api.listCloudWebDownloads(
+            authorization
+        ).itemsOrThrow(CloudLibraryItemType.WebDownload)
+        torrents + usenet + web
+    }
 
     override suspend fun resolvePlayback(
         apiKey: String,
@@ -41,22 +44,27 @@ class TorboxCloudLibraryProviderApi @Inject constructor(
                     torrentId = item.id,
                     fileId = file.id
                 )
+
                 CloudLibraryItemType.Usenet -> api.requestCloudUsenetDownloadLink(
                     authorization = authorization,
                     token = apiKey,
                     usenetId = item.id,
                     fileId = file.id
                 )
+
                 CloudLibraryItemType.WebDownload -> api.requestCloudWebDownloadLink(
                     authorization = authorization,
                     token = apiKey,
                     webId = item.id,
                     fileId = file.id
                 )
+
                 CloudLibraryItemType.File -> return CloudLibraryPlaybackResult.Failed()
             }
             if (!response.isSuccessful || response.body()?.success == false) {
-                return CloudLibraryPlaybackResult.Failed(response.body()?.detail ?: response.body()?.error)
+                return CloudLibraryPlaybackResult.Failed(
+                    response.body()?.detail ?: response.body()?.error
+                )
             }
             val url = response.body()?.data?.takeIf { it.isNotBlank() }
                 ?: return CloudLibraryPlaybackResult.Failed()
@@ -75,7 +83,11 @@ class TorboxCloudLibraryProviderApi @Inject constructor(
         type: CloudLibraryItemType
     ): List<CloudLibraryItem> {
         if (!isSuccessful || body()?.success == false) {
-            throw IllegalStateException(body()?.detail ?: body()?.error ?: errorBody()?.string().orEmpty().ifBlank { null })
+            throw IllegalStateException(
+                body()?.detail ?: body()?.error ?: errorBody()?.string().orEmpty().ifBlank {
+                    null
+                }
+            )
         }
         return body()?.data.orEmpty().mapNotNull { dto ->
             dto.toCloudLibraryItem(
@@ -111,7 +123,10 @@ fun TorboxCloudItemDto.toCloudLibraryItem(
         name = itemName,
         status = listOf(status, downloadState, state).firstNonBlank(),
         sizeBytes = size ?: totalSize ?: filesSize,
-        progressFraction = listOfNotNull(progress, downloadProgress).firstOrNull()?.toProgressFraction(),
+        progressFraction = listOfNotNull(
+            progress,
+            downloadProgress
+        ).firstOrNull()?.toProgressFraction(),
         files = mappedFiles
     )
 }
@@ -155,16 +170,14 @@ private fun TorboxCloudFileDto.bestCloudFileName(parentName: String?): String? {
     } ?: candidates.firstNonBlank()
 }
 
-fun torboxRequestIdParameterName(type: CloudLibraryItemType): String =
-    when (type) {
-        CloudLibraryItemType.Torrent -> "torrent_id"
-        CloudLibraryItemType.Usenet -> "usenet_id"
-        CloudLibraryItemType.WebDownload -> "web_id"
-        CloudLibraryItemType.File -> "file_id"
-    }
+fun torboxRequestIdParameterName(type: CloudLibraryItemType): String = when (type) {
+    CloudLibraryItemType.Torrent -> "torrent_id"
+    CloudLibraryItemType.Usenet -> "usenet_id"
+    CloudLibraryItemType.WebDownload -> "web_id"
+    CloudLibraryItemType.File -> "file_id"
+}
 
-private fun List<String?>.firstNonBlank(): String? =
-    firstOrNull { !it.isNullOrBlank() }?.trim()
+private fun List<String?>.firstNonBlank(): String? = firstOrNull { !it.isNullOrBlank() }?.trim()
 
 private fun String.sameDisplayName(other: String?): Boolean {
     val normalized = normalizeDisplayName()
@@ -178,32 +191,28 @@ private fun String.isUsableCloudFileName(parentName: String?, pathName: String?)
     return true
 }
 
-private fun String.isPathLike(): Boolean =
-    contains('/') || contains('\\')
+private fun String.isPathLike(): Boolean = contains('/') || contains('\\')
 
-private fun String.pathBasename(): String =
-    substringAfterLast('/').substringAfterLast('\\')
+private fun String.pathBasename(): String = substringAfterLast('/').substringAfterLast('\\')
 
-private fun String.normalizeDisplayName(): String =
-    trim()
-        .substringAfterLast('/')
-        .substringAfterLast('\\')
-        .substringBeforeLast('.', this)
-        .lowercase()
-        .replace(Regex("[^a-z0-9]+"), " ")
-        .trim()
+private fun String.normalizeDisplayName(): String = trim()
+    .substringAfterLast('/')
+    .substringAfterLast('\\')
+    .substringBeforeLast('.', this)
+    .lowercase()
+    .replace(Regex("[^a-z0-9]+"), " ")
+    .trim()
 
-private fun Any?.scalarString(): String? =
-    when (this) {
-        is String -> trim().takeIf { it.isNotBlank() }
-        is Int -> toString()
-        is Long -> toString()
-        is Float -> toLong().takeIf { toDouble() == it.toDouble() }?.toString() ?: toString()
-        is Double -> toLong().takeIf { this == it.toDouble() }?.toString() ?: toString()
-        is Number -> toString()
-        is Boolean -> toString()
-        else -> null
-    }
+private fun Any?.scalarString(): String? = when (this) {
+    is String -> trim().takeIf { it.isNotBlank() }
+    is Int -> toString()
+    is Long -> toString()
+    is Float -> toLong().takeIf { toDouble() == it.toDouble() }?.toString() ?: toString()
+    is Double -> toLong().takeIf { this == it.toDouble() }?.toString() ?: toString()
+    is Number -> toString()
+    is Boolean -> toString()
+    else -> null
+}
 
 private fun Double.toProgressFraction(): Float {
     val normalized = if (this > 1.0) this / 100.0 else this

@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -29,25 +27,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kien.movies.ui.components.expressive.M3eShapes
-import com.kien.movies.ui.components.expressive.MoviesSurface
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
-import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
 import com.kien.movies.data.repository.SkipInterval
 import com.kien.movies.data.repository.segmentCategory
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesSurface
+import com.kien.movies.ui.theme.MoviesTheme
 
 /**
  * Skip Intro/Outro/Recap button for the player.
@@ -73,7 +72,6 @@ fun SkipIntroButton(
     rightFocusRequester: FocusRequester? = null,
     modifier: Modifier = Modifier
 ) {
-
     var lastType by remember { mutableStateOf(interval?.type) }
     if (interval != null) lastType = interval.type
     val hasActiveInterval = interval != null
@@ -108,10 +106,13 @@ fun SkipIntroButton(
     // Auto-hide after 10 seconds — pause countdown while controls are visible
     LaunchedEffect(shouldShow, autoHidden, controlsVisible) {
         if (shouldShow && !autoHidden && !controlsVisible) {
-            progress.animateTo(1f, animationSpec = tween(
-                durationMillis = skipIntroAutoHideRemainingMs(progress.value),
-                easing = LinearEasing
-            ))
+            progress.animateTo(
+                1f,
+                animationSpec = tween(
+                    durationMillis = skipIntroAutoHideRemainingMs(progress.value),
+                    easing = LinearEasing
+                )
+            )
             autoHidden = true
         }
     }
@@ -128,7 +129,7 @@ fun SkipIntroButton(
         hasActiveInterval = hasActiveInterval,
         dismissed = dismissed,
         controlsVisible = controlsVisible,
-        autoHidden = autoHidden,
+        autoHidden = autoHidden
     )
 
     LaunchedEffect(isVisible) { onVisibilityChanged(isVisible) }
@@ -138,7 +139,9 @@ fun SkipIntroButton(
     // reserved for an overlay (e.g. subtitle selection — #2874).
     LaunchedEffect(isVisible, controlsVisible, suppressFocus, canFocus) {
         if (isVisible && !controlsVisible && !suppressFocus && canFocus) {
-            try { activeFocusRequester.requestFocus() } catch (_: Exception) {}
+            try {
+                activeFocusRequester.requestFocus()
+            } catch (_: Exception) {}
         }
     }
 
@@ -168,16 +171,23 @@ fun SkipIntroButton(
                         when (keyEvent.nativeKeyEvent.keyCode) {
                             android.view.KeyEvent.KEYCODE_DPAD_DOWN -> {
                                 if (downFocusRequester != null) {
-                                    try { downFocusRequester.requestFocus() } catch (_: Exception) {}
+                                    try {
+                                        downFocusRequester.requestFocus()
+                                    } catch (
+                                        _: Exception
+                                    ) {}
                                     true
                                 } else {
                                     false
                                 }
                             }
+
                             android.view.KeyEvent.KEYCODE_DPAD_UP -> {
                                 // Pressing UP from Skip Intro button navigates to upFocusRequester or hides controls
                                 if (upFocusRequester != null) {
-                                    try { upFocusRequester.requestFocus() } catch (_: Exception) {}
+                                    try {
+                                        upFocusRequester.requestFocus()
+                                    } catch (_: Exception) {}
                                     true
                                 } else if (onHideControls != null) {
                                     onHideControls()
@@ -186,6 +196,7 @@ fun SkipIntroButton(
                                     false
                                 }
                             }
+
                             else -> false
                         }
                     } else {
@@ -229,10 +240,18 @@ fun SkipIntroButton(
 @Composable
 private fun getSkipLabel(type: String?, targetsPostCredits: Boolean): String = when (type?.trim()?.lowercase()) {
     "op", "opening", "mixed-op", "intro" -> stringResource(R.string.skip_intro)
+
     "ed", "ending", "mixed-ed", "outro", "credits" ->
-        stringResource(if (targetsPostCredits) R.string.skip_to_post_credits else R.string.skip_ending)
-    "movie-credits" -> stringResource(if (targetsPostCredits) R.string.skip_to_post_credits else R.string.skip_movie_credits)
+        stringResource(
+            if (targetsPostCredits) R.string.skip_to_post_credits else R.string.skip_ending
+        )
+
+    "movie-credits" -> stringResource(
+        if (targetsPostCredits) R.string.skip_to_post_credits else R.string.skip_movie_credits
+    )
+
     "recap" -> stringResource(R.string.skip_recap)
+
     else -> stringResource(R.string.skip_generic)
 }
 
@@ -244,13 +263,12 @@ private val CountdownRemainingColor = Color.White.copy(alpha = 0.12f)
  * The time left before the button hides, as a faint fill inside the pill that shrinks toward
  * its end. The countdown is read only while drawing, so its ten second run recomposes nothing.
  */
-private fun Modifier.skipCountdownFill(running: Boolean, progress: () -> Float): Modifier =
-    drawBehind {
-        if (!running) return@drawBehind
-        val start = size.width * progress().coerceIn(0f, 1f)
-        drawRect(
-            color = CountdownRemainingColor,
-            topLeft = Offset(start, 0f),
-            size = Size(size.width - start, size.height)
-        )
-    }
+private fun Modifier.skipCountdownFill(running: Boolean, progress: () -> Float): Modifier = drawBehind {
+    if (!running) return@drawBehind
+    val start = size.width * progress().coerceIn(0f, 1f)
+    drawRect(
+        color = CountdownRemainingColor,
+        topLeft = Offset(start, 0f),
+        size = Size(size.width - start, size.height)
+    )
+}

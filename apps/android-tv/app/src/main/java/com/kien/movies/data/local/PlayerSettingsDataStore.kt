@@ -1,5 +1,6 @@
 package com.kien.movies.data.local
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -9,35 +10,31 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
-import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.core.player.LastPlaybackDiagnostics
 import com.kien.movies.core.player.SubtitleFonts
+import com.kien.movies.core.profile.ProfileManager
+import com.kien.movies.ui.screens.player.MoviesExoPlayerPerformanceHelper
+import com.kien.movies.ui.screens.settings.MemoryBudget
+import com.kien.movies.ui.util.languageCodeToName
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
-import javax.inject.Inject
-import javax.inject.Singleton
-import com.kien.movies.ui.util.languageCodeToName
-import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
-import com.kien.movies.ui.screens.player.MoviesExoPlayerPerformanceHelper
-import com.kien.movies.ui.screens.settings.MemoryBudget
 
 /**
  * Available subtitle languages
  */
-data class SubtitleLanguage(
-    val code: String,
-    val name: String
-)
+data class SubtitleLanguage(val code: String, val name: String)
 
 val SubtitleLanguage.displayName: String
     get() = languageCodeToName(code)
@@ -132,7 +129,7 @@ val AVAILABLE_SUBTITLE_LANGUAGES = listOf(
 val AVAILABLE_TMDB_LANGUAGES = AVAILABLE_SUBTITLE_LANGUAGES + listOf(
     SubtitleLanguage("en-AU", "English (Australia)"),
     SubtitleLanguage("en-CA", "English (Canada)"),
-    SubtitleLanguage("en-GB", "English (United Kingdom)"),
+    SubtitleLanguage("en-GB", "English (United Kingdom)")
 )
 
 /**
@@ -208,8 +205,7 @@ data class SubtitleStyleSettings(
         const val SHADOW_SIZE_DEFAULT = 2
 
         /** Maps the 0-100 setting onto 30%-100% of full brightness, so 0 still leaves readable text. */
-        private fun hdrBrightnessFactor(brightness: Int): Float =
-            (0.7f * brightness.coerceIn(HDR_BRIGHTNESS_MIN, HDR_BRIGHTNESS_MAX) + 30f) / 100f
+        private fun hdrBrightnessFactor(brightness: Int): Float = (0.7f * brightness.coerceIn(HDR_BRIGHTNESS_MIN, HDR_BRIGHTNESS_MAX) + 30f) / 100f
 
         private fun scaleColorBrightness(color: Int, factor: Float): Int {
             val alpha = (color ushr 24) and 0xFF
@@ -247,9 +243,9 @@ data class BufferSettings(
  * Available audio language options
  */
 object AudioLanguageOption {
-    const val DEFAULT = "default"  // Use media file default
-    const val DEVICE = "device"    // Use device locale
-    const val ORIGINAL = "original"  // Use content's original language (from TMDB)
+    const val DEFAULT = "default" // Use media file default
+    const val DEVICE = "device" // Use device locale
+    const val ORIGINAL = "original" // Use content's original language (from TMDB)
 }
 
 enum class AudioOutputChannels(
@@ -449,6 +445,7 @@ data class PlayerSettings(
         const val DEFAULT_SOURCE_FALLBACK_MAX_SOURCES = 3
         const val MIN_SOURCE_FALLBACK_MAX_SOURCES = 1
         const val MAX_SOURCE_FALLBACK_MAX_SOURCES = 10
+
         /** How long a source may take to start before falling back treats it as failed, in seconds. */
         const val DEFAULT_SOURCE_STARTUP_TIMEOUT_SECONDS = 15
         const val MIN_SOURCE_STARTUP_TIMEOUT_SECONDS = 5
@@ -475,8 +472,7 @@ data class PlayerSettings(
                 .minBy { kotlin.math.abs(it.toLong() - raw.toLong()) }
         }
 
-        fun isBoundedTimeout(timeoutSeconds: Int): Boolean =
-            timeoutSeconds > 0 && timeoutSeconds != STREAM_AUTOPLAY_TIMEOUT_UNLIMITED
+        fun isBoundedTimeout(timeoutSeconds: Int): Boolean = timeoutSeconds > 0 && timeoutSeconds != STREAM_AUTOPLAY_TIMEOUT_UNLIMITED
 
         const val DEFAULT_BUFFER_BUDGET_MANAGED = false
         const val DEFAULT_ALLOW_LARGE_TARGET_BUFFER = false
@@ -499,32 +495,45 @@ data class PlayerSettings(
 }
 
 enum class StreamAutoPlayMode {
-    MANUAL, FIRST_STREAM, REGEX_MATCH
+    MANUAL,
+    FIRST_STREAM,
+    REGEX_MATCH
 }
 
 enum class StreamAutoPlaySource {
-    ALL_SOURCES, INSTALLED_ADDONS_ONLY, ENABLED_PLUGINS_ONLY
+    ALL_SOURCES,
+    INSTALLED_ADDONS_ONLY,
+    ENABLED_PLUGINS_ONLY
 }
 
 enum class VodCacheSizeMode {
-    AUTO, MANUAL
+    AUTO,
+    MANUAL
 }
 
 enum class FrameRateMatchingMode {
-    OFF, START, START_STOP
+    OFF,
+    START,
+    START_STOP
 }
 
 enum class NextEpisodeThresholdMode {
-    PERCENTAGE, MINUTES_BEFORE_END
+    PERCENTAGE,
+    MINUTES_BEFORE_END
 }
 
 enum class SubtitleOrganizationMode {
-    NONE, BY_LANGUAGE, BY_ADDON
+    NONE,
+    BY_LANGUAGE,
+    BY_ADDON
 }
 
-
 enum class MpvHardwareDecodeMode {
-    LEGACY_DIRECT_COPY, AUTO_SAFE, HARDWARE_COPY, HARDWARE_DIRECT, DISABLED
+    LEGACY_DIRECT_COPY,
+    AUTO_SAFE,
+    HARDWARE_COPY,
+    HARDWARE_DIRECT,
+    DISABLED
 }
 
 enum class AutoSkipSegmentType(val storedValue: String) {
@@ -534,8 +543,7 @@ enum class AutoSkipSegmentType(val storedValue: String) {
     MOVIE_CREDITS("movie-credits");
 
     companion object {
-        fun fromStoredValue(value: String): AutoSkipSegmentType? =
-            values().firstOrNull { it.storedValue == value }
+        fun fromStoredValue(value: String): AutoSkipSegmentType? = values().firstOrNull { it.storedValue == value }
 
         fun fromSkipIntervalType(type: String): AutoSkipSegmentType? = when (type.trim().lowercase()) {
             "op", "opening", "mixed-op", "intro" -> INTRO
@@ -548,7 +556,9 @@ enum class AutoSkipSegmentType(val storedValue: String) {
 }
 
 enum class PlayerPreference {
-    INTERNAL, EXTERNAL, ASK_EVERY_TIME
+    INTERNAL,
+    EXTERNAL,
+    ASK_EVERY_TIME
 }
 
 enum class InternalPlayerEngine {
@@ -560,7 +570,11 @@ enum class InternalPlayerEngine {
 enum class LibassRenderType {
     // Legacy values kept for backward compatibility with persisted preferences.
     // The new libass module always uses the SurfaceView atlas pipeline.
-    CUES, EFFECTS_CANVAS, EFFECTS_OPEN_GL, OVERLAY_CANVAS, OVERLAY_OPEN_GL;
+    CUES,
+    EFFECTS_CANVAS,
+    EFFECTS_OPEN_GL,
+    OVERLAY_CANVAS,
+    OVERLAY_OPEN_GL;
 
     companion object {
         val DEFAULT = OVERLAY_OPEN_GL
@@ -597,6 +611,7 @@ enum class LibassRenderScale(val scale: Float, val label: String) {
 enum class LibassRenderMode {
     /** Preserves HDR output; subtitles may have a timing offset on TV hardware. */
     OVERLAY,
+
     /** Frame-accurate subtitles; HDR tone-mapped to SDR. */
     VIDEO_EFFECT;
 
@@ -610,6 +625,7 @@ enum class LibassRenderMode {
         }
     }
 }
+
 /**
  * How DV7 streams should be handled at playback time.
  *
@@ -641,6 +657,7 @@ enum class Dv7HandlingMode {
         }
     }
 }
+
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class PlayerSettingsDataStore @Inject constructor(
@@ -656,15 +673,15 @@ class PlayerSettingsDataStore @Inject constructor(
         private const val CENTER_MIX_LEVEL_DB_MAX = 30
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, FEATURE)
+    private fun store(profileId: Int = profileManager.activeProfileId.value) = factory.get(profileId, FEATURE)
 
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     // Keys
     private val playerPreferenceKey = stringPreferencesKey("player_preference")
     private val internalPlayerEngineKey = stringPreferencesKey("internal_player_engine")
-    private val autoSwitchInternalPlayerOnErrorKey = booleanPreferencesKey("auto_switch_internal_player_on_error")
+    private val autoSwitchInternalPlayerOnErrorKey =
+        booleanPreferencesKey("auto_switch_internal_player_on_error")
     private val useLibassKey = booleanPreferencesKey("use_libass")
     private val libassRenderTypeKey = stringPreferencesKey("libass_render_type")
     private val libassRenderScaleKey = stringPreferencesKey("libass_render_scale")
@@ -684,12 +701,15 @@ class PlayerSettingsDataStore @Inject constructor(
     private val audioAmplificationDbKey = intPreferencesKey("audio_amplification_db")
     private val centerMixLevelDbKey = intPreferencesKey("center_mix_level_db")
     private val persistAudioAmplificationKey = booleanPreferencesKey("persist_audio_amplification")
-    private val rememberAudioDelayPerDeviceKey = booleanPreferencesKey("remember_audio_delay_per_device")
+    private val rememberAudioDelayPerDeviceKey =
+        booleanPreferencesKey("remember_audio_delay_per_device")
     private val preferredAudioLanguageKey = stringPreferencesKey("preferred_audio_language")
-    private val secondaryPreferredAudioLanguageKey = stringPreferencesKey("secondary_preferred_audio_language")
+    private val secondaryPreferredAudioLanguageKey =
+        stringPreferencesKey("secondary_preferred_audio_language")
     private val loadingOverlayEnabledKey = booleanPreferencesKey("loading_overlay_enabled")
     private val showPlayerLoadingStatusKey = booleanPreferencesKey("show_player_loading_status")
-    private val playbackIssueReportsEnabledKey = booleanPreferencesKey("playback_issue_reports_enabled")
+    private val playbackIssueReportsEnabledKey =
+        booleanPreferencesKey("playback_issue_reports_enabled")
     private val pauseOverlayEnabledKey = booleanPreferencesKey("pause_overlay_enabled")
     private val osdClockEnabledKey = booleanPreferencesKey("osd_clock_enabled")
     private val skipIntroEnabledKey = booleanPreferencesKey("skip_intro_enabled")
@@ -701,8 +721,10 @@ class PlayerSettingsDataStore @Inject constructor(
     // from older versions don't lose their saved DV5/preserve-mapping toggle state. Only
     // the Kotlin var names here and the PlayerSettings field names were de-experimentalized.
     private val dv5ToDv81EnabledKey = booleanPreferencesKey("experimental_dv5_to_dv81_enabled")
-    private val dv7ToDv81PreserveMappingEnabledKey = booleanPreferencesKey("experimental_dv7_to_dv81_preserve_mapping_enabled")
+    private val dv7ToDv81PreserveMappingEnabledKey =
+        booleanPreferencesKey("experimental_dv7_to_dv81_preserve_mapping_enabled")
     private val dv7HandlingModeKey = stringPreferencesKey("dv7_handling_mode")
+
     // Legacy "DV7 - HEVC" boolean, read only to migrate existing users to HDR10_BASE_LAYER.
     private val legacyMapDv7ToHevcKey = booleanPreferencesKey("map_dv7_to_hevc")
     private val dv7LibdoviModeOverrideKey = intPreferencesKey("dv7_libdovi_mode_override")
@@ -717,32 +739,52 @@ class PlayerSettingsDataStore @Inject constructor(
     private val resolutionMatchingEnabledKey = booleanPreferencesKey("resolution_matching_enabled")
     private val streamAutoPlayModeKey = stringPreferencesKey("stream_auto_play_mode")
     private val streamAutoPlaySourceKey = stringPreferencesKey("stream_auto_play_source")
-    private val streamAutoPlaySelectedAddonsKey = stringSetPreferencesKey("stream_auto_play_selected_addons")
-    private val streamAutoPlaySelectedPluginsKey = stringSetPreferencesKey("stream_auto_play_selected_plugins")
+    private val streamAutoPlaySelectedAddonsKey =
+        stringSetPreferencesKey("stream_auto_play_selected_addons")
+    private val streamAutoPlaySelectedPluginsKey =
+        stringSetPreferencesKey("stream_auto_play_selected_plugins")
     private val streamAutoPlayRegexKey = stringPreferencesKey("stream_auto_play_regex")
-    private val postPlayRecommendationsEnabledKey = booleanPreferencesKey("post_play_recommendations_enabled")
-    private val postPlayMovieThresholdPercentKey = intPreferencesKey("post_play_movie_threshold_percent")
-    private val streamAutoPlayNextEpisodeEnabledKey = booleanPreferencesKey("stream_auto_play_next_episode_enabled")
-    private val streamAutoPlayNextEpisodeFallbackEnabledKey = booleanPreferencesKey("stream_auto_play_next_episode_fallback_enabled")
-    private val streamAutoPlayFallbackOnFailureKey = booleanPreferencesKey("stream_auto_play_fallback_on_failure")
-    private val streamAutoPlayFallbackMaxSourcesKey = intPreferencesKey("stream_auto_play_fallback_max_sources")
+    private val postPlayRecommendationsEnabledKey =
+        booleanPreferencesKey("post_play_recommendations_enabled")
+    private val postPlayMovieThresholdPercentKey =
+        intPreferencesKey("post_play_movie_threshold_percent")
+    private val streamAutoPlayNextEpisodeEnabledKey =
+        booleanPreferencesKey("stream_auto_play_next_episode_enabled")
+    private val streamAutoPlayNextEpisodeFallbackEnabledKey =
+        booleanPreferencesKey("stream_auto_play_next_episode_fallback_enabled")
+    private val streamAutoPlayFallbackOnFailureKey =
+        booleanPreferencesKey("stream_auto_play_fallback_on_failure")
+    private val streamAutoPlayFallbackMaxSourcesKey =
+        intPreferencesKey("stream_auto_play_fallback_max_sources")
     private val streamAutoPlayFallbackStartupTimeoutSecondsKey =
         intPreferencesKey("stream_auto_play_fallback_startup_timeout_seconds")
-    private val streamAutoPlayPreferBingeGroupForNextEpisodeKey = booleanPreferencesKey("stream_auto_play_prefer_bingegroup_next_episode")
-    private val streamAutoPlayReuseBingeGroupKey = booleanPreferencesKey("stream_auto_play_reuse_binge_group")
-    private val streamAutoPlayTimeoutSecondsKey = intPreferencesKey("stream_auto_play_timeout_seconds")
+    private val streamAutoPlayPreferBingeGroupForNextEpisodeKey =
+        booleanPreferencesKey("stream_auto_play_prefer_bingegroup_next_episode")
+    private val streamAutoPlayReuseBingeGroupKey =
+        booleanPreferencesKey("stream_auto_play_reuse_binge_group")
+    private val streamAutoPlayTimeoutSecondsKey =
+        intPreferencesKey("stream_auto_play_timeout_seconds")
     private val preloadNextEpisodeSourcesKey = booleanPreferencesKey("preload_next_episode_sources")
     private val stillWatchingEnabledKey = booleanPreferencesKey("still_watching_enabled")
-    private val stillWatchingEpisodeThresholdKey = intPreferencesKey("still_watching_episode_threshold")
+    private val stillWatchingEpisodeThresholdKey =
+        intPreferencesKey("still_watching_episode_threshold")
     private val nextEpisodeThresholdModeKey = stringPreferencesKey("next_episode_threshold_mode")
-    private val nextEpisodeThresholdPercentLegacyKey = intPreferencesKey("next_episode_threshold_percent")
-    private val nextEpisodeThresholdMinutesBeforeEndLegacyKey = intPreferencesKey("next_episode_threshold_minutes_before_end")
-    private val nextEpisodeThresholdPercentKey = floatPreferencesKey("next_episode_threshold_percent_v2")
-    private val nextEpisodeThresholdMinutesBeforeEndKey = floatPreferencesKey("next_episode_threshold_minutes_before_end_v2")
-    private val streamReuseLastLinkEnabledKey = booleanPreferencesKey("stream_reuse_last_link_enabled")
-    private val streamReuseLastLinkCacheHoursKey = intPreferencesKey("stream_reuse_last_link_cache_hours")
-    private val externalPlayerForwardSubtitlesKey = booleanPreferencesKey("external_player_forward_subtitles")
-    private val externalPlayerSendSkipSegmentsKey = booleanPreferencesKey("external_player_send_skip_segments")
+    private val nextEpisodeThresholdPercentLegacyKey =
+        intPreferencesKey("next_episode_threshold_percent")
+    private val nextEpisodeThresholdMinutesBeforeEndLegacyKey =
+        intPreferencesKey("next_episode_threshold_minutes_before_end")
+    private val nextEpisodeThresholdPercentKey =
+        floatPreferencesKey("next_episode_threshold_percent_v2")
+    private val nextEpisodeThresholdMinutesBeforeEndKey =
+        floatPreferencesKey("next_episode_threshold_minutes_before_end_v2")
+    private val streamReuseLastLinkEnabledKey =
+        booleanPreferencesKey("stream_reuse_last_link_enabled")
+    private val streamReuseLastLinkCacheHoursKey =
+        intPreferencesKey("stream_reuse_last_link_cache_hours")
+    private val externalPlayerForwardSubtitlesKey =
+        booleanPreferencesKey("external_player_forward_subtitles")
+    private val externalPlayerSendSkipSegmentsKey =
+        booleanPreferencesKey("external_player_send_skip_segments")
     private val subtitleOrganizationModeKey = stringPreferencesKey("subtitle_organization_mode")
 
     // Network Keys
@@ -766,8 +808,10 @@ class PlayerSettingsDataStore @Inject constructor(
     // Subtitle style keys
     private val subtitlePreferredLanguageKey = stringPreferencesKey("subtitle_preferred_language")
     private val subtitleSecondaryLanguageKey = stringPreferencesKey("subtitle_secondary_language")
-    private val subtitleUseForcedSubtitlesKey = booleanPreferencesKey("subtitle_use_forced_subtitles")
-    private val subtitleShowOnlyPreferredLanguagesKey = booleanPreferencesKey("subtitle_show_only_preferred_languages")
+    private val subtitleUseForcedSubtitlesKey =
+        booleanPreferencesKey("subtitle_use_forced_subtitles")
+    private val subtitleShowOnlyPreferredLanguagesKey =
+        booleanPreferencesKey("subtitle_show_only_preferred_languages")
     private val subtitleStripSdhKey = booleanPreferencesKey("subtitle_strip_sdh")
     private val subtitleSizeKey = intPreferencesKey("subtitle_size")
     private val subtitleVerticalOffsetKey = intPreferencesKey("subtitle_vertical_offset")
@@ -780,7 +824,8 @@ class PlayerSettingsDataStore @Inject constructor(
     private val subtitleHdrStyleEnabledKey = booleanPreferencesKey("subtitle_hdr_style_enabled")
     private val subtitleHdrTextColorKey = intPreferencesKey("subtitle_hdr_text_color")
     private val subtitleHdrBrightnessKey = intPreferencesKey("subtitle_hdr_brightness")
-    private val subtitleHdrDimPlayerControlsKey = booleanPreferencesKey("subtitle_hdr_dim_player_controls")
+    private val subtitleHdrDimPlayerControlsKey =
+        booleanPreferencesKey("subtitle_hdr_dim_player_controls")
     private val subtitleFontIdKey = stringPreferencesKey("subtitle_font_id")
     private val subtitleBackgroundRadiusKey = intPreferencesKey("subtitle_background_radius")
     private val subtitleShadowEnabledKey = booleanPreferencesKey("subtitle_shadow_enabled")
@@ -791,25 +836,41 @@ class PlayerSettingsDataStore @Inject constructor(
     private val minBufferMsKey = intPreferencesKey("min_buffer_ms")
     private val maxBufferMsKey = intPreferencesKey("max_buffer_ms")
     private val bufferForPlaybackMsKey = intPreferencesKey("buffer_for_playback_ms")
-    private val bufferForPlaybackAfterRebufferMsKey = intPreferencesKey("buffer_for_playback_after_rebuffer_ms")
+    private val bufferForPlaybackAfterRebufferMsKey =
+        intPreferencesKey("buffer_for_playback_after_rebuffer_ms")
     private val targetBufferSizeMbKey = intPreferencesKey("target_buffer_size_mb")
     private val backBufferDurationMsKey = intPreferencesKey("back_buffer_duration_ms")
-    private val retainBackBufferFromKeyframeKey = booleanPreferencesKey("retain_back_buffer_from_keyframe")
-    private val moviesPerformanceModeEnabledKey = booleanPreferencesKey("nuvio_performance_mode_enabled")
+    private val retainBackBufferFromKeyframeKey =
+        booleanPreferencesKey("retain_back_buffer_from_keyframe")
+    private val moviesPerformanceModeEnabledKey =
+        booleanPreferencesKey("nuvio_performance_mode_enabled")
 
-    private val migrationLoadControlDefaultsAlignedDoneKey = booleanPreferencesKey("migration_load_control_defaults_aligned_done")
-    private val migrationLoadControlDefaultsRetunedDoneKey = booleanPreferencesKey("migration_load_control_defaults_retuned_done")
-    private val migrationLoadControlMinBufferRetunedDoneKey = booleanPreferencesKey("migration_load_control_min_buffer_retuned_done")
-    private val migrationVodCacheSplitDoneKey = booleanPreferencesKey("migration_vod_cache_split_done")
-    private val migrationBackBufferDurationBumpedDoneKey = booleanPreferencesKey("migration_back_buffer_duration_bumped_done")
-    private val migrationMaxBufferBumpedDoneKey = booleanPreferencesKey("migration_max_buffer_bumped_done")
-    private val migrationTargetBufferSizeBumpedDoneKey = booleanPreferencesKey("migration_target_buffer_size_bumped_done")
-    private val migrationAfterRebufferLoweredDoneKey = booleanPreferencesKey("migration_after_rebuffer_lowered_done")
-    private val migrationBackBufferDurationReducedDoneKey = booleanPreferencesKey("migration_back_buffer_duration_reduced_done")
-    private val migrationTargetBufferSizeReducedDoneKey = booleanPreferencesKey("migration_target_buffer_size_reduced_done")
-    private val migrationAllowLargeTargetBufferOffDoneKey = booleanPreferencesKey("migration_allow_large_target_buffer_off_done")
-    private val migrationBufferBudgetManagedExoDoneKey = booleanPreferencesKey("migration_buffer_budget_managed_exo_done")
-    private val migrationVodCacheBackBufferZeroedDoneKey = booleanPreferencesKey("migration_vod_cache_back_buffer_zeroed_done")
+    private val migrationLoadControlDefaultsAlignedDoneKey =
+        booleanPreferencesKey("migration_load_control_defaults_aligned_done")
+    private val migrationLoadControlDefaultsRetunedDoneKey =
+        booleanPreferencesKey("migration_load_control_defaults_retuned_done")
+    private val migrationLoadControlMinBufferRetunedDoneKey =
+        booleanPreferencesKey("migration_load_control_min_buffer_retuned_done")
+    private val migrationVodCacheSplitDoneKey =
+        booleanPreferencesKey("migration_vod_cache_split_done")
+    private val migrationBackBufferDurationBumpedDoneKey =
+        booleanPreferencesKey("migration_back_buffer_duration_bumped_done")
+    private val migrationMaxBufferBumpedDoneKey =
+        booleanPreferencesKey("migration_max_buffer_bumped_done")
+    private val migrationTargetBufferSizeBumpedDoneKey =
+        booleanPreferencesKey("migration_target_buffer_size_bumped_done")
+    private val migrationAfterRebufferLoweredDoneKey =
+        booleanPreferencesKey("migration_after_rebuffer_lowered_done")
+    private val migrationBackBufferDurationReducedDoneKey =
+        booleanPreferencesKey("migration_back_buffer_duration_reduced_done")
+    private val migrationTargetBufferSizeReducedDoneKey =
+        booleanPreferencesKey("migration_target_buffer_size_reduced_done")
+    private val migrationAllowLargeTargetBufferOffDoneKey =
+        booleanPreferencesKey("migration_allow_large_target_buffer_off_done")
+    private val migrationBufferBudgetManagedExoDoneKey =
+        booleanPreferencesKey("migration_buffer_budget_managed_exo_done")
+    private val migrationVodCacheBackBufferZeroedDoneKey =
+        booleanPreferencesKey("migration_vod_cache_back_buffer_zeroed_done")
     init {
         ioScope.launch {
             profileManager.activeProfileId.collect { pid ->
@@ -820,181 +881,219 @@ class PlayerSettingsDataStore @Inject constructor(
 
     private suspend fun migrateProfile(profileId: Int) {
         factory.get(profileId, FEATURE).edit { prefs ->
-                val loadControlMigrated = prefs[migrationLoadControlDefaultsAlignedDoneKey] ?: false
-                if (!loadControlMigrated) {
-                    val currentMin = prefs[minBufferMsKey]
-                    val currentMax = prefs[maxBufferMsKey]
-                    val legacyDefaultsDetected = (currentMin == null && currentMax == null) || (currentMin == 15_000 && currentMax == 25_000)
-                    if (legacyDefaultsDetected) {
-                        prefs[minBufferMsKey] = BufferSettings.DEFAULT_MIN_BUFFER_MS
-                        prefs[maxBufferMsKey] = BufferSettings.DEFAULT_MAX_BUFFER_MS
-                    }
-                    prefs[migrationLoadControlDefaultsAlignedDoneKey] = true
+            val loadControlMigrated = prefs[migrationLoadControlDefaultsAlignedDoneKey] ?: false
+            if (!loadControlMigrated) {
+                val currentMin = prefs[minBufferMsKey]
+                val currentMax = prefs[maxBufferMsKey]
+                val legacyDefaultsDetected =
+                    (currentMin == null && currentMax == null) ||
+                        (currentMin == 15_000 && currentMax == 25_000)
+                if (legacyDefaultsDetected) {
+                    prefs[minBufferMsKey] = BufferSettings.DEFAULT_MIN_BUFFER_MS
+                    prefs[maxBufferMsKey] = BufferSettings.DEFAULT_MAX_BUFFER_MS
                 }
+                prefs[migrationLoadControlDefaultsAlignedDoneKey] = true
+            }
 
-                val loadControlRetuned = prefs[migrationLoadControlDefaultsRetunedDoneKey] ?: false
-                if (!loadControlRetuned) {
-                    val currentMin = prefs[minBufferMsKey]
-                    val currentMax = prefs[maxBufferMsKey]
-                    val currentPlayback = prefs[bufferForPlaybackMsKey]
-                    val currentPlaybackAfterRebuffer = prefs[bufferForPlaybackAfterRebufferMsKey]
-                    val currentTargetBuffer = prefs[targetBufferSizeMbKey]
+            val loadControlRetuned = prefs[migrationLoadControlDefaultsRetunedDoneKey] ?: false
+            if (!loadControlRetuned) {
+                val currentMin = prefs[minBufferMsKey]
+                val currentMax = prefs[maxBufferMsKey]
+                val currentPlayback = prefs[bufferForPlaybackMsKey]
+                val currentPlaybackAfterRebuffer = prefs[bufferForPlaybackAfterRebufferMsKey]
+                val currentTargetBuffer = prefs[targetBufferSizeMbKey]
 
-                    val previousDefaultsDetected = currentMin == 50_000 && currentMax == 50_000 && currentPlayback == 2_500 && currentPlaybackAfterRebuffer == 5_000 && currentTargetBuffer == 0
-                    val olderDefaultsDetected = currentMin == 15_000 && currentMax == 25_000
+                val previousDefaultsDetected =
+                    currentMin == 50_000 && currentMax == 50_000 && currentPlayback == 2_500 &&
+                        currentPlaybackAfterRebuffer == 5_000 &&
+                        currentTargetBuffer == 0
+                val olderDefaultsDetected = currentMin == 15_000 && currentMax == 25_000
 
-                    if (previousDefaultsDetected || olderDefaultsDetected) {
-                        prefs[minBufferMsKey] = BufferSettings.DEFAULT_MIN_BUFFER_MS
-                        prefs[maxBufferMsKey] = BufferSettings.DEFAULT_MAX_BUFFER_MS
-                        prefs[bufferForPlaybackMsKey] = BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS
-                        prefs[bufferForPlaybackAfterRebufferMsKey] = BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
-                        prefs[targetBufferSizeMbKey] = BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB
-                    }
-                    prefs[migrationLoadControlDefaultsRetunedDoneKey] = true
+                if (previousDefaultsDetected || olderDefaultsDetected) {
+                    prefs[minBufferMsKey] = BufferSettings.DEFAULT_MIN_BUFFER_MS
+                    prefs[maxBufferMsKey] = BufferSettings.DEFAULT_MAX_BUFFER_MS
+                    prefs[bufferForPlaybackMsKey] =
+                        BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS
+                    prefs[bufferForPlaybackAfterRebufferMsKey] =
+                        BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
+                    prefs[targetBufferSizeMbKey] = BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB
                 }
+                prefs[migrationLoadControlDefaultsRetunedDoneKey] = true
+            }
 
-                val minBufferRetuned = prefs[migrationLoadControlMinBufferRetunedDoneKey] ?: false
-                if (!minBufferRetuned) {
-                    val currentMin = prefs[minBufferMsKey]
-                    val currentMax = prefs[maxBufferMsKey]
-                    val currentPlayback = prefs[bufferForPlaybackMsKey]
-                    val currentPlaybackAfterRebuffer = prefs[bufferForPlaybackAfterRebufferMsKey]
-                    val currentTargetBuffer = prefs[targetBufferSizeMbKey]
-                    val currentBackBuffer = prefs[backBufferDurationMsKey]
-                    val currentRetainBackBuffer = prefs[retainBackBufferFromKeyframeKey]
+            val minBufferRetuned = prefs[migrationLoadControlMinBufferRetunedDoneKey] ?: false
+            if (!minBufferRetuned) {
+                val currentMin = prefs[minBufferMsKey]
+                val currentMax = prefs[maxBufferMsKey]
+                val currentPlayback = prefs[bufferForPlaybackMsKey]
+                val currentPlaybackAfterRebuffer = prefs[bufferForPlaybackAfterRebufferMsKey]
+                val currentTargetBuffer = prefs[targetBufferSizeMbKey]
+                val currentBackBuffer = prefs[backBufferDurationMsKey]
+                val currentRetainBackBuffer = prefs[retainBackBufferFromKeyframeKey]
 
-                    val previousRetunedDefaultsDetected = currentMin == 50_000 && currentMax == 50_000 && currentPlayback == BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS && currentPlaybackAfterRebuffer == BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS && currentTargetBuffer == BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB && (currentBackBuffer == null || currentBackBuffer == BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS) && (currentRetainBackBuffer == null || !currentRetainBackBuffer)
+                val previousRetunedDefaultsDetected =
+                    currentMin == 50_000 && currentMax == 50_000 &&
+                        currentPlayback == BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS &&
+                        currentPlaybackAfterRebuffer ==
+                        BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS &&
+                        currentTargetBuffer == BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB &&
+                        (
+                            currentBackBuffer == null ||
+                                currentBackBuffer == BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS
+                            ) &&
+                        (currentRetainBackBuffer == null || !currentRetainBackBuffer)
 
-                    if (previousRetunedDefaultsDetected) prefs[minBufferMsKey] = BufferSettings.DEFAULT_MIN_BUFFER_MS
-                    prefs[migrationLoadControlMinBufferRetunedDoneKey] = true
+                if (previousRetunedDefaultsDetected) {
+                    prefs[minBufferMsKey] =
+                        BufferSettings.DEFAULT_MIN_BUFFER_MS
                 }
+                prefs[migrationLoadControlMinBufferRetunedDoneKey] = true
+            }
 
-                // VOD cache split: previously the disk cache was implicitly on with the
-                // parallel-network section. Now it has its own toggle, defaulting to on.
-                val vodCacheSplitMigrated = prefs[migrationVodCacheSplitDoneKey] ?: false
-                if (!vodCacheSplitMigrated) {
-                    if (prefs[vodCacheEnabledKey] == null) {
-                        prefs[vodCacheEnabledKey] = PlayerSettings.DEFAULT_VOD_CACHE_ENABLED
-                    }
-                    prefs[migrationVodCacheSplitDoneKey] = true
+            // VOD cache split: previously the disk cache was implicitly on with the
+            // parallel-network section. Now it has its own toggle, defaulting to on.
+            val vodCacheSplitMigrated = prefs[migrationVodCacheSplitDoneKey] ?: false
+            if (!vodCacheSplitMigrated) {
+                if (prefs[vodCacheEnabledKey] == null) {
+                    prefs[vodCacheEnabledKey] = PlayerSettings.DEFAULT_VOD_CACHE_ENABLED
                 }
+                prefs[migrationVodCacheSplitDoneKey] = true
+            }
 
-                // Back buffer bump from prior 10s default.
-                val backBufferBumped = prefs[migrationBackBufferDurationBumpedDoneKey] ?: false
-                if (!backBufferBumped) {
-                    val currentBackBuffer = prefs[backBufferDurationMsKey]
-                    if (currentBackBuffer == null || currentBackBuffer == 10_000) {
-                        prefs[backBufferDurationMsKey] = BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS
-                    }
-                    prefs[migrationBackBufferDurationBumpedDoneKey] = true
+            // Back buffer bump from prior 10s default.
+            val backBufferBumped = prefs[migrationBackBufferDurationBumpedDoneKey] ?: false
+            if (!backBufferBumped) {
+                val currentBackBuffer = prefs[backBufferDurationMsKey]
+                if (currentBackBuffer == null || currentBackBuffer == 10_000) {
+                    prefs[backBufferDurationMsKey] =
+                        BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS
                 }
+                prefs[migrationBackBufferDurationBumpedDoneKey] = true
+            }
 
-                // Max buffer bump from prior 30s default.
-                val maxBufferBumped = prefs[migrationMaxBufferBumpedDoneKey] ?: false
-                if (!maxBufferBumped) {
-                    val currentMax = prefs[maxBufferMsKey]
-                    if (currentMax == null || currentMax == 30_000) {
-                        prefs[maxBufferMsKey] = BufferSettings.DEFAULT_MAX_BUFFER_MS
-                    }
-                    prefs[migrationMaxBufferBumpedDoneKey] = true
+            // Max buffer bump from prior 30s default.
+            val maxBufferBumped = prefs[migrationMaxBufferBumpedDoneKey] ?: false
+            if (!maxBufferBumped) {
+                val currentMax = prefs[maxBufferMsKey]
+                if (currentMax == null || currentMax == 30_000) {
+                    prefs[maxBufferMsKey] = BufferSettings.DEFAULT_MAX_BUFFER_MS
                 }
+                prefs[migrationMaxBufferBumpedDoneKey] = true
+            }
 
-                // Target buffer bump from prior 100MB default.
-                val targetBufferBumped = prefs[migrationTargetBufferSizeBumpedDoneKey] ?: false
-                if (!targetBufferBumped) {
-                    val currentTarget = prefs[targetBufferSizeMbKey]
-                    if (currentTarget == null || currentTarget == 100) {
-                        prefs[targetBufferSizeMbKey] = BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB
-                    }
-                    prefs[migrationTargetBufferSizeBumpedDoneKey] = true
+            // Target buffer bump from prior 100MB default.
+            val targetBufferBumped = prefs[migrationTargetBufferSizeBumpedDoneKey] ?: false
+            if (!targetBufferBumped) {
+                val currentTarget = prefs[targetBufferSizeMbKey]
+                if (currentTarget == null || currentTarget == 100) {
+                    prefs[targetBufferSizeMbKey] = BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB
                 }
+                prefs[migrationTargetBufferSizeBumpedDoneKey] = true
+            }
 
-                // After-rebuffer threshold lowered from prior 5s default for faster resume.
-                val afterRebufferLowered = prefs[migrationAfterRebufferLoweredDoneKey] ?: false
-                if (!afterRebufferLowered) {
-                    val currentAfter = prefs[bufferForPlaybackAfterRebufferMsKey]
-                    if (currentAfter == null || currentAfter == 5_000) {
-                        prefs[bufferForPlaybackAfterRebufferMsKey] = BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
-                    }
-                    prefs[migrationAfterRebufferLoweredDoneKey] = true
+            // After-rebuffer threshold lowered from prior 5s default for faster resume.
+            val afterRebufferLowered = prefs[migrationAfterRebufferLoweredDoneKey] ?: false
+            if (!afterRebufferLowered) {
+                val currentAfter = prefs[bufferForPlaybackAfterRebufferMsKey]
+                if (currentAfter == null || currentAfter == 5_000) {
+                    prefs[bufferForPlaybackAfterRebufferMsKey] =
+                        BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
                 }
+                prefs[migrationAfterRebufferLoweredDoneKey] = true
+            }
 
-                // Back buffer reduced from interim 30s due to heap pressure on high-bitrate content.
-                val backBufferReduced = prefs[migrationBackBufferDurationReducedDoneKey] ?: false
-                if (!backBufferReduced) {
-                    val currentBack = prefs[backBufferDurationMsKey]
-                    if (currentBack == null || currentBack == 30_000) {
-                        prefs[backBufferDurationMsKey] = BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS
-                    }
-                    prefs[migrationBackBufferDurationReducedDoneKey] = true
+            // Back buffer reduced from interim 30s due to heap pressure on high-bitrate content.
+            val backBufferReduced = prefs[migrationBackBufferDurationReducedDoneKey] ?: false
+            if (!backBufferReduced) {
+                val currentBack = prefs[backBufferDurationMsKey]
+                if (currentBack == null || currentBack == 30_000) {
+                    prefs[backBufferDurationMsKey] =
+                        BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS
                 }
+                prefs[migrationBackBufferDurationReducedDoneKey] = true
+            }
 
-                // Corrects users from a 125 interim build back to the 150 default.
-                val targetBufferCorrected = prefs[migrationTargetBufferSizeReducedDoneKey] ?: false
-                if (!targetBufferCorrected) {
-                    val currentTarget = prefs[targetBufferSizeMbKey]
-                    if (currentTarget == 125) {
-                        prefs[targetBufferSizeMbKey] = BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB
-                    }
-                    prefs[migrationTargetBufferSizeReducedDoneKey] = true
+            // Corrects users from a 125 interim build back to the 150 default.
+            val targetBufferCorrected = prefs[migrationTargetBufferSizeReducedDoneKey] ?: false
+            if (!targetBufferCorrected) {
+                val currentTarget = prefs[targetBufferSizeMbKey]
+                if (currentTarget == 125) {
+                    prefs[targetBufferSizeMbKey] = BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB
                 }
+                prefs[migrationTargetBufferSizeReducedDoneKey] = true
+            }
 
-                val allowLargeOff = prefs[migrationAllowLargeTargetBufferOffDoneKey] ?: false
-                if (!allowLargeOff) {
-                    if (prefs[allowLargeTargetBufferKey] == true) {
-                        val safeLimitMb =
-                            MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
-                        val storedTarget = prefs[targetBufferSizeMbKey]
-                        if (storedTarget == null || storedTarget <= safeLimitMb) {
-                            prefs[allowLargeTargetBufferKey] = false
-                        }
-                    }
-                    prefs[migrationAllowLargeTargetBufferOffDoneKey] = true
-                }
-
-                val budgetManagedExo = prefs[migrationBufferBudgetManagedExoDoneKey] ?: false
-                if (!budgetManagedExo) {
-                    if (!isNativeMemoryActive(prefs) && prefs[bufferBudgetManagedKey] != true) {
-                        prefs[bufferBudgetManagedKey] = true
-                    }
-                    prefs[migrationBufferBudgetManagedExoDoneKey] = true
-                }
-
-                val vodBackBufferZeroed = prefs[migrationVodCacheBackBufferZeroedDoneKey] ?: false
-                if (!vodBackBufferZeroed) {
-                    if (prefs[vodCacheEnabledKey] == true) prefs[backBufferDurationMsKey] = 0
-                    prefs[migrationVodCacheBackBufferZeroedDoneKey] = true
-                }
-
-                val min = prefs[minBufferMsKey]
-                val max = prefs[maxBufferMsKey]
-                if (min != null && max != null && max < min) prefs[maxBufferMsKey] = min
-
-                prefs[vodCacheSizeMbKey]?.let { current ->
-                    val normalized = current.coerceIn(PlayerSettings.MIN_VOD_CACHE_SIZE_MB, PlayerSettings.MAX_VOD_CACHE_SIZE_MB)
-                    if (normalized != current) prefs[vodCacheSizeMbKey] = normalized
-                }
-                prefs[vodCacheSizeModeKey]?.let { raw ->
-                    val normalized = runCatching { VodCacheSizeMode.valueOf(raw) }.getOrDefault(PlayerSettings.DEFAULT_VOD_CACHE_SIZE_MODE).name
-                    if (normalized != raw) prefs[vodCacheSizeModeKey] = normalized
-                }
-
-                val preferredAudioLanguage = prefs[preferredAudioLanguageKey]
-                if (preferredAudioLanguage != null) {
-                    val normalizedPreferredAudioLanguage = normalizeSelectableLanguageCode(preferredAudioLanguage)
-                    if (normalizedPreferredAudioLanguage != preferredAudioLanguage) {
-                        prefs[preferredAudioLanguageKey] = normalizedPreferredAudioLanguage
+            val allowLargeOff = prefs[migrationAllowLargeTargetBufferOffDoneKey] ?: false
+            if (!allowLargeOff) {
+                if (prefs[allowLargeTargetBufferKey] == true) {
+                    val safeLimitMb =
+                        MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+                    val storedTarget = prefs[targetBufferSizeMbKey]
+                    if (storedTarget == null || storedTarget <= safeLimitMb) {
+                        prefs[allowLargeTargetBufferKey] = false
                     }
                 }
+                prefs[migrationAllowLargeTargetBufferOffDoneKey] = true
+            }
 
-                val secondaryPreferredAudioLanguage = prefs[secondaryPreferredAudioLanguageKey]
-                if (secondaryPreferredAudioLanguage != null) {
-                    val normalizedSecondaryPreferredAudioLanguage = normalizeSecondaryAudioLanguageCode(secondaryPreferredAudioLanguage)
-                    if (normalizedSecondaryPreferredAudioLanguage != secondaryPreferredAudioLanguage) {
-                        if (normalizedSecondaryPreferredAudioLanguage != null) prefs[secondaryPreferredAudioLanguageKey] = normalizedSecondaryPreferredAudioLanguage
-                        else prefs.remove(secondaryPreferredAudioLanguageKey)
+            val budgetManagedExo = prefs[migrationBufferBudgetManagedExoDoneKey] ?: false
+            if (!budgetManagedExo) {
+                if (!isNativeMemoryActive(prefs) && prefs[bufferBudgetManagedKey] != true) {
+                    prefs[bufferBudgetManagedKey] = true
+                }
+                prefs[migrationBufferBudgetManagedExoDoneKey] = true
+            }
+
+            val vodBackBufferZeroed = prefs[migrationVodCacheBackBufferZeroedDoneKey] ?: false
+            if (!vodBackBufferZeroed) {
+                if (prefs[vodCacheEnabledKey] == true) prefs[backBufferDurationMsKey] = 0
+                prefs[migrationVodCacheBackBufferZeroedDoneKey] = true
+            }
+
+            val min = prefs[minBufferMsKey]
+            val max = prefs[maxBufferMsKey]
+            if (min != null && max != null && max < min) prefs[maxBufferMsKey] = min
+
+            prefs[vodCacheSizeMbKey]?.let { current ->
+                val normalized = current.coerceIn(
+                    PlayerSettings.MIN_VOD_CACHE_SIZE_MB,
+                    PlayerSettings.MAX_VOD_CACHE_SIZE_MB
+                )
+                if (normalized != current) prefs[vodCacheSizeMbKey] = normalized
+            }
+            prefs[vodCacheSizeModeKey]?.let { raw ->
+                val normalized = runCatching {
+                    VodCacheSizeMode.valueOf(raw)
+                }.getOrDefault(PlayerSettings.DEFAULT_VOD_CACHE_SIZE_MODE).name
+                if (normalized != raw) prefs[vodCacheSizeModeKey] = normalized
+            }
+
+            val preferredAudioLanguage = prefs[preferredAudioLanguageKey]
+            if (preferredAudioLanguage != null) {
+                val normalizedPreferredAudioLanguage =
+                    normalizeSelectableLanguageCode(preferredAudioLanguage)
+                if (normalizedPreferredAudioLanguage != preferredAudioLanguage) {
+                    prefs[preferredAudioLanguageKey] = normalizedPreferredAudioLanguage
+                }
+            }
+
+            val secondaryPreferredAudioLanguage = prefs[secondaryPreferredAudioLanguageKey]
+            if (secondaryPreferredAudioLanguage != null) {
+                val normalizedSecondaryPreferredAudioLanguage =
+                    normalizeSecondaryAudioLanguageCode(secondaryPreferredAudioLanguage)
+                if (normalizedSecondaryPreferredAudioLanguage !=
+                    secondaryPreferredAudioLanguage
+                ) {
+                    if (normalizedSecondaryPreferredAudioLanguage !=
+                        null
+                    ) {
+                        prefs[secondaryPreferredAudioLanguageKey] =
+                            normalizedSecondaryPreferredAudioLanguage
+                    } else {
+                        prefs.remove(secondaryPreferredAudioLanguageKey)
                     }
                 }
+            }
 
             val preferredSubtitleLanguage = prefs[subtitlePreferredLanguageKey]
             if (preferredSubtitleLanguage != null) {
@@ -1027,6 +1126,7 @@ class PlayerSettingsDataStore @Inject constructor(
                     prefs[subtitlePreferredLanguageKey] = migratedPreferred
                     prefs.remove(subtitleSecondaryLanguageKey)
                 }
+
                 normalizedSecondarySubtitleLanguage == SUBTITLE_LANGUAGE_FORCED -> {
                     prefs[subtitleUseForcedSubtitlesKey] = true
                     prefs.remove(subtitleSecondaryLanguageKey)
@@ -1044,18 +1144,34 @@ class PlayerSettingsDataStore @Inject constructor(
         try {
             PlayerSettings(
                 playerPreference = prefs[playerPreferenceKey]?.let {
-                    runCatching { PlayerPreference.valueOf(it) }.getOrDefault(PlayerPreference.INTERNAL)
+                    runCatching {
+                        PlayerPreference.valueOf(it)
+                    }.getOrDefault(PlayerPreference.INTERNAL)
                 } ?: PlayerPreference.INTERNAL,
                 internalPlayerEngine = prefs[internalPlayerEngineKey]?.let {
-                    runCatching { InternalPlayerEngine.valueOf(it) }.getOrDefault(InternalPlayerEngine.EXOPLAYER)
+                    runCatching {
+                        InternalPlayerEngine.valueOf(it)
+                    }.getOrDefault(InternalPlayerEngine.EXOPLAYER)
                 } ?: InternalPlayerEngine.EXOPLAYER,
                 autoSwitchInternalPlayerOnError = prefs[autoSwitchInternalPlayerOnErrorKey] ?: false,
                 useLibass = prefs[useLibassKey] ?: true,
                 libassRenderType = prefs[libassRenderTypeKey]?.let {
-                    try { LibassRenderType.valueOf(it) } catch (e: Exception) { LibassRenderType.OVERLAY_OPEN_GL }
+                    try {
+                        LibassRenderType.valueOf(it)
+                    } catch (
+                        e: Exception
+                    ) {
+                        LibassRenderType.OVERLAY_OPEN_GL
+                    }
                 } ?: LibassRenderType.OVERLAY_OPEN_GL,
                 libassRenderScale = prefs[libassRenderScaleKey]?.let {
-                    try { LibassRenderScale.valueOf(it) } catch (e: Exception) { LibassRenderScale.FULL }
+                    try {
+                        LibassRenderScale.valueOf(it)
+                    } catch (
+                        e: Exception
+                    ) {
+                        LibassRenderScale.FULL
+                    }
                 } ?: LibassRenderScale.FULL,
                 libassRenderMode = LibassRenderMode.fromStoredString(prefs[libassRenderModeKey]),
                 decoderPriority = prefs[decoderPriorityKey] ?: 1,
@@ -1108,7 +1224,9 @@ class PlayerSettingsDataStore @Inject constructor(
                 dv7HandlingMode = when {
                     prefs[dv7HandlingModeKey] != null ->
                         Dv7HandlingMode.fromStoredString(prefs[dv7HandlingModeKey])
+
                     prefs[legacyMapDv7ToHevcKey] == true -> Dv7HandlingMode.HDR10_BASE_LAYER
+
                     else -> Dv7HandlingMode.AUTO
                 },
                 dv7LibdoviModeOverride = (prefs[dv7LibdoviModeOverrideKey] ?: -1).coerceIn(-1, 4),
@@ -1120,25 +1238,41 @@ class PlayerSettingsDataStore @Inject constructor(
                 mpvHardwareDecodeMode = parseMpvHardwareDecodeMode(prefs[mpvHardwareDecodeModeKey]),
                 frameRateMatchingMode = prefs[frameRateMatchingModeKey]?.let {
                     runCatching { FrameRateMatchingMode.valueOf(it) }.getOrNull()
-                } ?: if (prefs[frameRateMatchingKey] == true) FrameRateMatchingMode.START_STOP else FrameRateMatchingMode.OFF,
+                }
+                    ?: if (prefs[frameRateMatchingKey] ==
+                        true
+                    ) {
+                        FrameRateMatchingMode.START_STOP
+                    } else {
+                        FrameRateMatchingMode.OFF
+                    },
                 resolutionMatchingEnabled = prefs[resolutionMatchingEnabledKey] ?: false,
                 streamAutoPlayMode = prefs[streamAutoPlayModeKey]?.let {
-                    runCatching { StreamAutoPlayMode.valueOf(it) }.getOrDefault(StreamAutoPlayMode.MANUAL)
+                    runCatching {
+                        StreamAutoPlayMode.valueOf(it)
+                    }.getOrDefault(StreamAutoPlayMode.MANUAL)
                 } ?: StreamAutoPlayMode.MANUAL,
                 streamAutoPlaySource = prefs[streamAutoPlaySourceKey]?.let {
-                    runCatching { StreamAutoPlaySource.valueOf(it) }.getOrDefault(StreamAutoPlaySource.ALL_SOURCES)
+                    runCatching {
+                        StreamAutoPlaySource.valueOf(it)
+                    }.getOrDefault(StreamAutoPlaySource.ALL_SOURCES)
                 } ?: StreamAutoPlaySource.ALL_SOURCES,
                 streamAutoPlaySelectedAddons = prefs[streamAutoPlaySelectedAddonsKey] ?: emptySet(),
-                streamAutoPlaySelectedPlugins = prefs[streamAutoPlaySelectedPluginsKey] ?: emptySet(),
+                streamAutoPlaySelectedPlugins =
+                    prefs[streamAutoPlaySelectedPluginsKey] ?: emptySet(),
                 streamAutoPlayRegex = prefs[streamAutoPlayRegexKey] ?: "",
                 postPlayRecommendationsEnabled = prefs[postPlayRecommendationsEnabledKey] ?: true,
-                postPlayMovieThresholdPercent = (prefs[postPlayMovieThresholdPercentKey]
-                    ?: PlayerSettings.DEFAULT_POST_PLAY_MOVIE_THRESHOLD_PERCENT).coerceIn(
+                postPlayMovieThresholdPercent = (
+                    prefs[postPlayMovieThresholdPercentKey]
+                        ?: PlayerSettings.DEFAULT_POST_PLAY_MOVIE_THRESHOLD_PERCENT
+                    ).coerceIn(
                     PlayerSettings.MIN_POST_PLAY_MOVIE_THRESHOLD_PERCENT,
                     PlayerSettings.MAX_POST_PLAY_MOVIE_THRESHOLD_PERCENT
                 ),
-                streamAutoPlayNextEpisodeEnabled = prefs[streamAutoPlayNextEpisodeEnabledKey] ?: false,
-                streamAutoPlayNextEpisodeFallbackEnabled = prefs[streamAutoPlayNextEpisodeFallbackEnabledKey] ?: true,
+                streamAutoPlayNextEpisodeEnabled =
+                    prefs[streamAutoPlayNextEpisodeEnabledKey] ?: false,
+                streamAutoPlayNextEpisodeFallbackEnabled =
+                    prefs[streamAutoPlayNextEpisodeFallbackEnabledKey] ?: true,
                 streamAutoPlayFallbackOnFailure = prefs[streamAutoPlayFallbackOnFailureKey] ?: false,
                 streamAutoPlayFallbackMaxSources = prefs[streamAutoPlayFallbackMaxSourcesKey]
                     ?.coerceIn(
@@ -1146,12 +1280,13 @@ class PlayerSettingsDataStore @Inject constructor(
                         PlayerSettings.MAX_SOURCE_FALLBACK_MAX_SOURCES
                     )
                     ?: PlayerSettings.DEFAULT_SOURCE_FALLBACK_MAX_SOURCES,
-                streamAutoPlayFallbackStartupTimeoutSeconds = prefs[streamAutoPlayFallbackStartupTimeoutSecondsKey]
-                    ?.coerceIn(
-                        PlayerSettings.MIN_SOURCE_STARTUP_TIMEOUT_SECONDS,
-                        PlayerSettings.MAX_SOURCE_STARTUP_TIMEOUT_SECONDS
-                    )
-                    ?: PlayerSettings.DEFAULT_SOURCE_STARTUP_TIMEOUT_SECONDS,
+                streamAutoPlayFallbackStartupTimeoutSeconds =
+                    prefs[streamAutoPlayFallbackStartupTimeoutSecondsKey]
+                        ?.coerceIn(
+                            PlayerSettings.MIN_SOURCE_STARTUP_TIMEOUT_SECONDS,
+                            PlayerSettings.MAX_SOURCE_STARTUP_TIMEOUT_SECONDS
+                        )
+                        ?: PlayerSettings.DEFAULT_SOURCE_STARTUP_TIMEOUT_SECONDS,
                 streamAutoPlayPreferBingeGroupForNextEpisode =
                     prefs[streamAutoPlayPreferBingeGroupForNextEpisodeKey] ?: true,
                 streamAutoPlayReuseBingeGroup =
@@ -1168,7 +1303,9 @@ class PlayerSettingsDataStore @Inject constructor(
                     )
                     ?: PlayerSettings.DEFAULT_STILL_WATCHING_EPISODE_THRESHOLD,
                 nextEpisodeThresholdMode = prefs[nextEpisodeThresholdModeKey]?.let {
-                    runCatching { NextEpisodeThresholdMode.valueOf(it) }.getOrDefault(NextEpisodeThresholdMode.PERCENTAGE)
+                    runCatching {
+                        NextEpisodeThresholdMode.valueOf(it)
+                    }.getOrDefault(NextEpisodeThresholdMode.PERCENTAGE)
                 } ?: NextEpisodeThresholdMode.PERCENTAGE,
                 nextEpisodeThresholdPercent = normalizeHalfStep(
                     value = prefs[nextEpisodeThresholdPercentKey]
@@ -1185,30 +1322,55 @@ class PlayerSettingsDataStore @Inject constructor(
                     max = 3.5f
                 ),
                 streamReuseLastLinkEnabled = prefs[streamReuseLastLinkEnabledKey] ?: false,
-                streamReuseLastLinkCacheHours = (prefs[streamReuseLastLinkCacheHoursKey] ?: 24).coerceIn(1, 168),
+                streamReuseLastLinkCacheHours = (prefs[streamReuseLastLinkCacheHoursKey] ?: 24).coerceIn(
+                    1,
+                    168
+                ),
                 externalPlayerForwardSubtitles = prefs[externalPlayerForwardSubtitlesKey] ?: false,
                 externalPlayerSendSkipSegments = prefs[externalPlayerSendSkipSegmentsKey] ?: false,
-                subtitleOrganizationMode = parseSubtitleOrganizationMode(prefs[subtitleOrganizationModeKey]),
-                vodCacheEnabled = prefs[vodCacheEnabledKey] ?: PlayerSettings.DEFAULT_VOD_CACHE_ENABLED,
+                subtitleOrganizationMode = parseSubtitleOrganizationMode(
+                    prefs[subtitleOrganizationModeKey]
+                ),
+                vodCacheEnabled =
+                    prefs[vodCacheEnabledKey] ?: PlayerSettings.DEFAULT_VOD_CACHE_ENABLED,
                 vodCacheSizeMode = prefs[vodCacheSizeModeKey]?.let {
-                    runCatching { VodCacheSizeMode.valueOf(it) }.getOrDefault(PlayerSettings.DEFAULT_VOD_CACHE_SIZE_MODE)
+                    runCatching {
+                        VodCacheSizeMode.valueOf(it)
+                    }.getOrDefault(PlayerSettings.DEFAULT_VOD_CACHE_SIZE_MODE)
                 } ?: PlayerSettings.DEFAULT_VOD_CACHE_SIZE_MODE,
-                vodCacheSizeMb = (prefs[vodCacheSizeMbKey] ?: PlayerSettings.DEFAULT_VOD_CACHE_SIZE_MB).coerceIn(PlayerSettings.MIN_VOD_CACHE_SIZE_MB, PlayerSettings.MAX_VOD_CACHE_SIZE_MB),
-                useParallelConnections = prefs[useParallelConnectionsKey] ?: PlayerSettings.DEFAULT_USE_PARALLEL_CONNECTIONS,
+                vodCacheSizeMb = (
+                    prefs[vodCacheSizeMbKey]
+                        ?: PlayerSettings.DEFAULT_VOD_CACHE_SIZE_MB
+                    ).coerceIn(
+                    PlayerSettings.MIN_VOD_CACHE_SIZE_MB,
+                    PlayerSettings.MAX_VOD_CACHE_SIZE_MB
+                ),
+                useParallelConnections =
+                    prefs[useParallelConnectionsKey]
+                        ?: PlayerSettings.DEFAULT_USE_PARALLEL_CONNECTIONS,
                 bufferEngineEnabled = prefs[bufferEngineEnabledKey] ?: false,
                 parallelNetworkEnabled = prefs[parallelNetworkEnabledKey] ?: false,
-                allowLargeTargetBuffer = prefs[allowLargeTargetBufferKey] ?: PlayerSettings.DEFAULT_ALLOW_LARGE_TARGET_BUFFER,
-                bufferBudgetManaged = prefs[bufferBudgetManagedKey] ?: PlayerSettings.DEFAULT_BUFFER_BUDGET_MANAGED,
+                allowLargeTargetBuffer =
+                    prefs[allowLargeTargetBufferKey]
+                        ?: PlayerSettings.DEFAULT_ALLOW_LARGE_TARGET_BUFFER,
+                bufferBudgetManaged =
+                    prefs[bufferBudgetManagedKey] ?: PlayerSettings.DEFAULT_BUFFER_BUDGET_MANAGED,
                 parallelConnectionCount = run {
                     val isNativeMemory = isNativeMemoryActive(prefs)
                     val defaultConnectionCount = PlayerSettings.DEFAULT_PARALLEL_CONNECTION_COUNT
                     val maxConnectionCount = if (isNativeMemory) 16 else PlayerSettings.MAX_PARALLEL_CONNECTION_COUNT
-                    (prefs[parallelConnectionCountKey] ?: defaultConnectionCount).coerceIn(PlayerSettings.MIN_PARALLEL_CONNECTION_COUNT, maxConnectionCount)
+                    (prefs[parallelConnectionCountKey] ?: defaultConnectionCount).coerceIn(
+                        PlayerSettings.MIN_PARALLEL_CONNECTION_COUNT,
+                        maxConnectionCount
+                    )
                 },
                 parallelChunkSizeKb = run {
                     val savedKb = prefs[parallelChunkSizeKbKey]
                     if (savedKb != null) {
-                        savedKb.coerceIn(PlayerSettings.MIN_PARALLEL_CHUNK_SIZE_KB, PlayerSettings.MAX_PARALLEL_CHUNK_SIZE_KB)
+                        savedKb.coerceIn(
+                            PlayerSettings.MIN_PARALLEL_CHUNK_SIZE_KB,
+                            PlayerSettings.MAX_PARALLEL_CHUNK_SIZE_KB
+                        )
                     } else {
                         val savedMb = (prefs[parallelChunkSizeMbKey] ?: 16).coerceIn(8, 128)
                         savedMb * 1024
@@ -1217,7 +1379,11 @@ class PlayerSettingsDataStore @Inject constructor(
                 enableBufferLogs = prefs[enableBufferLogsKey] ?: false,
                 resizeMode = (prefs[resizeModeKey] ?: 0).coerceIn(0, 4),
                 enableHttp2 = prefs[enableHttp2Key] ?: PlayerSettings.DEFAULT_ENABLE_HTTP2,
-                moviesPerformanceModeEnabled = (prefs[moviesPerformanceModeEnabledKey] ?: PlayerSettings.DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED) &&
+                moviesPerformanceModeEnabled =
+                    (
+                        prefs[moviesPerformanceModeEnabledKey]
+                            ?: PlayerSettings.DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED
+                        ) &&
                         android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O,
                 subtitleStyle = run {
                     val resolvedPreferredLanguage = resolveSubtitlePreferredLanguage(
@@ -1231,40 +1397,73 @@ class PlayerSettingsDataStore @Inject constructor(
                             ?.let(::normalizeSelectableLanguageCode)
                             ?.takeUnless { it == SUBTITLE_LANGUAGE_FORCED },
                         useForcedSubtitles = (prefs[subtitleUseForcedSubtitlesKey] ?: true) ||
-                            prefs[subtitlePreferredLanguageKey]?.let(::normalizeSelectableLanguageCode) == SUBTITLE_LANGUAGE_FORCED ||
-                            prefs[subtitleSecondaryLanguageKey]?.let(::normalizeSelectableLanguageCode) == SUBTITLE_LANGUAGE_FORCED,
-                        showOnlyPreferredLanguages = prefs[subtitleShowOnlyPreferredLanguagesKey] ?: false,
+                            prefs[subtitlePreferredLanguageKey]?.let(
+                                ::normalizeSelectableLanguageCode
+                            ) ==
+                            SUBTITLE_LANGUAGE_FORCED ||
+                            prefs[subtitleSecondaryLanguageKey]?.let(
+                                ::normalizeSelectableLanguageCode
+                            ) ==
+                            SUBTITLE_LANGUAGE_FORCED,
+                        showOnlyPreferredLanguages =
+                            prefs[subtitleShowOnlyPreferredLanguagesKey] ?: false,
                         stripSdh = prefs[subtitleStripSdhKey] ?: false,
                         size = prefs[subtitleSizeKey] ?: 100,
                         verticalOffset = prefs[subtitleVerticalOffsetKey] ?: 5,
                         bold = prefs[subtitleBoldKey] ?: false,
                         textColor = prefs[subtitleTextColorKey] ?: Color.White.toArgb(),
-                        backgroundColor = prefs[subtitleBackgroundColorKey] ?: Color.Transparent.toArgb(),
+                        backgroundColor =
+                            prefs[subtitleBackgroundColorKey] ?: Color.Transparent.toArgb(),
                         outlineEnabled = prefs[subtitleOutlineEnabledKey] ?: true,
                         outlineColor = prefs[subtitleOutlineColorKey] ?: Color.Black.toArgb(),
-                        outlineWidth = (prefs[subtitleOutlineWidthKey] ?: SubtitleStyleSettings.OUTLINE_WIDTH_DEFAULT)
-                            .coerceIn(SubtitleStyleSettings.OUTLINE_WIDTH_MIN, SubtitleStyleSettings.OUTLINE_WIDTH_MAX),
+                        outlineWidth = (
+                            prefs[subtitleOutlineWidthKey]
+                                ?: SubtitleStyleSettings.OUTLINE_WIDTH_DEFAULT
+                            )
+                            .coerceIn(
+                                SubtitleStyleSettings.OUTLINE_WIDTH_MIN,
+                                SubtitleStyleSettings.OUTLINE_WIDTH_MAX
+                            ),
                         hdrStyleEnabled = prefs[subtitleHdrStyleEnabledKey] ?: false,
                         hdrTextColor = prefs[subtitleHdrTextColorKey] ?: Color.White.toArgb(),
-                        hdrBrightness = prefs[subtitleHdrBrightnessKey] ?: SubtitleStyleSettings.HDR_BRIGHTNESS_DEFAULT,
+                        hdrBrightness =
+                            prefs[subtitleHdrBrightnessKey]
+                                ?: SubtitleStyleSettings.HDR_BRIGHTNESS_DEFAULT,
                         hdrDimPlayerControls = prefs[subtitleHdrDimPlayerControlsKey] ?: false,
                         fontId = prefs[subtitleFontIdKey] ?: SubtitleFonts.DEFAULT,
                         backgroundRadius = (prefs[subtitleBackgroundRadiusKey] ?: 0)
                             .coerceIn(0, SubtitleStyleSettings.BACKGROUND_RADIUS_MAX),
                         shadowEnabled = prefs[subtitleShadowEnabledKey] ?: false,
-                        shadowOpacity = (prefs[subtitleShadowOpacityKey] ?: SubtitleStyleSettings.SHADOW_OPACITY_DEFAULT)
+                        shadowOpacity = (
+                            prefs[subtitleShadowOpacityKey]
+                                ?: SubtitleStyleSettings.SHADOW_OPACITY_DEFAULT
+                            )
                             .coerceIn(0, 100),
-                        shadowSize = (prefs[subtitleShadowSizeKey] ?: SubtitleStyleSettings.SHADOW_SIZE_DEFAULT)
-                            .coerceIn(SubtitleStyleSettings.SHADOW_SIZE_MIN, SubtitleStyleSettings.SHADOW_SIZE_MAX)
+                        shadowSize = (
+                            prefs[subtitleShadowSizeKey]
+                                ?: SubtitleStyleSettings.SHADOW_SIZE_DEFAULT
+                            )
+                            .coerceIn(
+                                SubtitleStyleSettings.SHADOW_SIZE_MIN,
+                                SubtitleStyleSettings.SHADOW_SIZE_MAX
+                            )
                     )
                 },
                 bufferSettings = BufferSettings(
                     minBufferMs = prefs[minBufferMsKey] ?: BufferSettings.DEFAULT_MIN_BUFFER_MS,
                     maxBufferMs = prefs[maxBufferMsKey] ?: BufferSettings.DEFAULT_MAX_BUFFER_MS,
-                    bufferForPlaybackMs = prefs[bufferForPlaybackMsKey] ?: BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS,
-                    bufferForPlaybackAfterRebufferMs = prefs[bufferForPlaybackAfterRebufferMsKey] ?: BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS,
-                    targetBufferSizeMb = prefs[targetBufferSizeMbKey]?.coerceAtLeast(0) ?: BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB,
-                    backBufferDurationMs = prefs[backBufferDurationMsKey] ?: BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS,
+                    bufferForPlaybackMs =
+                        prefs[bufferForPlaybackMsKey]
+                            ?: BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS,
+                    bufferForPlaybackAfterRebufferMs =
+                        prefs[bufferForPlaybackAfterRebufferMsKey]
+                            ?: BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS,
+                    targetBufferSizeMb =
+                        prefs[targetBufferSizeMbKey]?.coerceAtLeast(0)
+                            ?: BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB,
+                    backBufferDurationMs =
+                        prefs[backBufferDurationMsKey]
+                            ?: BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS,
                     retainBackBufferFromKeyframe = prefs[retainBackBufferFromKeyframeKey] ?: false
                 )
             )
@@ -1272,7 +1471,7 @@ class PlayerSettingsDataStore @Inject constructor(
             Log.w("PlayerSettingsDataStore", "Corrupt preference value, using defaults", e)
             PlayerSettings()
         }
-        }
+    }
 
     val useLibass: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.onStart { migrateProfile(pid) }
@@ -1280,18 +1479,31 @@ class PlayerSettingsDataStore @Inject constructor(
         prefs[useLibassKey] ?: true
     }
 
-    val libassRenderType: Flow<LibassRenderType> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val libassRenderType: Flow<LibassRenderType> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         factory.get(pid, FEATURE).data.onStart { migrateProfile(pid) }
     }.map { prefs ->
         prefs[libassRenderTypeKey]?.let {
-            try { LibassRenderType.valueOf(it) } catch (e: Exception) { LibassRenderType.OVERLAY_OPEN_GL }
+            try {
+                LibassRenderType.valueOf(it)
+            } catch (
+                e: Exception
+            ) {
+                LibassRenderType.OVERLAY_OPEN_GL
+            }
         } ?: LibassRenderType.OVERLAY_OPEN_GL
     }
-    val lastPlaybackDiagnostics: Flow<LastPlaybackDiagnostics> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val lastPlaybackDiagnostics: Flow<LastPlaybackDiagnostics> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         factory.get(pid, FEATURE).data.map { prefs ->
             val json = prefs[lastPlaybackDiagnosticsKey]
-            if (json.isNullOrBlank()) LastPlaybackDiagnostics.EMPTY
-            else LastPlaybackDiagnostics.fromJson(json)
+            if (json.isNullOrBlank()) {
+                LastPlaybackDiagnostics.EMPTY
+            } else {
+                LastPlaybackDiagnostics.fromJson(json)
+            }
         }
     }
 
@@ -1420,14 +1632,24 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setPreferredAudioLanguage(language: String) {
-        store().edit { it[preferredAudioLanguageKey] = normalizeSelectableLanguageCode(language.ifBlank { AudioLanguageOption.DEVICE }) }
+        store().edit {
+            it[preferredAudioLanguageKey] =
+                normalizeSelectableLanguageCode(language.ifBlank { AudioLanguageOption.DEVICE })
+        }
     }
 
     suspend fun setSecondaryPreferredAudioLanguage(language: String?) {
         store().edit { prefs ->
-            val normalizedLanguage = language?.takeIf { it.isNotBlank() }?.let(::normalizeSecondaryAudioLanguageCode)
-            if (normalizedLanguage != null) prefs[secondaryPreferredAudioLanguageKey] = normalizedLanguage
-            else prefs.remove(secondaryPreferredAudioLanguageKey)
+            val normalizedLanguage = language?.takeIf {
+                it.isNotBlank()
+            }?.let(::normalizeSecondaryAudioLanguageCode)
+            if (normalizedLanguage !=
+                null
+            ) {
+                prefs[secondaryPreferredAudioLanguageKey] = normalizedLanguage
+            } else {
+                prefs.remove(secondaryPreferredAudioLanguageKey)
+            }
         }
     }
 
@@ -1604,7 +1826,8 @@ class PlayerSettingsDataStore @Inject constructor(
 
     suspend fun setStreamAutoPlayTimeoutSeconds(seconds: Int) {
         store().edit { prefs ->
-            prefs[streamAutoPlayTimeoutSecondsKey] = PlayerSettings.applyLegacyTimeoutSentinelMigration(seconds)
+            prefs[streamAutoPlayTimeoutSecondsKey] =
+                PlayerSettings.applyLegacyTimeoutSentinelMigration(seconds)
         }
     }
 
@@ -1695,10 +1918,20 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     private fun parseSubtitleOrganizationMode(value: String?): SubtitleOrganizationMode {
-        return when (value) { "BY_LANGUAGE" -> SubtitleOrganizationMode.BY_LANGUAGE; "BY_ADDON" -> SubtitleOrganizationMode.BY_ADDON; else -> SubtitleOrganizationMode.NONE }
+        return when (value) {
+            "BY_LANGUAGE" -> SubtitleOrganizationMode.BY_LANGUAGE
+            "BY_ADDON" -> SubtitleOrganizationMode.BY_ADDON
+            else -> SubtitleOrganizationMode.NONE
+        }
     }
     private fun parseMpvHardwareDecodeMode(value: String?): MpvHardwareDecodeMode {
-        return when (value) { "HARDWARE_COPY" -> MpvHardwareDecodeMode.HARDWARE_COPY; "HARDWARE_DIRECT" -> MpvHardwareDecodeMode.HARDWARE_DIRECT; "DISABLED" -> MpvHardwareDecodeMode.DISABLED; "LEGACY_DIRECT_COPY" -> MpvHardwareDecodeMode.LEGACY_DIRECT_COPY; else -> MpvHardwareDecodeMode.AUTO_SAFE }
+        return when (value) {
+            "HARDWARE_COPY" -> MpvHardwareDecodeMode.HARDWARE_COPY
+            "HARDWARE_DIRECT" -> MpvHardwareDecodeMode.HARDWARE_DIRECT
+            "DISABLED" -> MpvHardwareDecodeMode.DISABLED
+            "LEGACY_DIRECT_COPY" -> MpvHardwareDecodeMode.LEGACY_DIRECT_COPY
+            else -> MpvHardwareDecodeMode.AUTO_SAFE
+        }
     }
 
     private fun normalizeSelectableLanguageCode(language: String): String {
@@ -1723,6 +1956,7 @@ class PlayerSettingsDataStore @Inject constructor(
             AudioLanguageOption.DEFAULT,
             AudioLanguageOption.DEVICE,
             SUBTITLE_LANGUAGE_FORCED -> null
+
             else -> normalized
         }
     }
@@ -1739,7 +1973,7 @@ class PlayerSettingsDataStore @Inject constructor(
             @Suppress("DEPRECATION")
             android.content.res.Resources.getSystem().configuration.locale
         }
-        
+
         val rawLanguage = locale?.language.orEmpty()
         val legacyMapped = when (rawLanguage) {
             "iw" -> "he"
@@ -1757,7 +1991,8 @@ class PlayerSettingsDataStore @Inject constructor(
         }
 
         val candidate = normalizeSelectableLanguageCode(legacyMapped)
-        val isSupported = candidate.isNotBlank() && AVAILABLE_SUBTITLE_LANGUAGES.any { it.code == candidate }
+        val isSupported =
+            candidate.isNotBlank() && AVAILABLE_SUBTITLE_LANGUAGES.any { it.code == candidate }
         return if (isSupported) candidate else "en"
     }
 
@@ -1767,7 +2002,10 @@ class PlayerSettingsDataStore @Inject constructor(
     ): ResolvedSubtitlePreferredLanguage {
         val preferred = preferredLanguage?.let(::normalizeSelectableLanguageCode)
         if (preferred == null || preferred == SubtitleLanguageOption.DEVICE) {
-            return ResolvedSubtitlePreferredLanguage(resolveDeviceSubtitleLanguage(), isSystemDefault = true)
+            return ResolvedSubtitlePreferredLanguage(
+                resolveDeviceSubtitleLanguage(),
+                isSystemDefault = true
+            )
         }
         if (preferred != SUBTITLE_LANGUAGE_FORCED) {
             return ResolvedSubtitlePreferredLanguage(preferred, isSystemDefault = false)
@@ -1779,7 +2017,10 @@ class PlayerSettingsDataStore @Inject constructor(
         return if (migratedFromForced != null) {
             ResolvedSubtitlePreferredLanguage(migratedFromForced, isSystemDefault = false)
         } else {
-            ResolvedSubtitlePreferredLanguage(resolveDeviceSubtitleLanguage(), isSystemDefault = true)
+            ResolvedSubtitlePreferredLanguage(
+                resolveDeviceSubtitleLanguage(),
+                isSystemDefault = true
+            )
         }
     }
 
@@ -1832,30 +2073,104 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     // Dolby Vision setters (libdovi conversion)
-    suspend fun setDv5ToDv81Enabled(enabled: Boolean) { store().edit { it[dv5ToDv81EnabledKey] = enabled } }
-    suspend fun setDv7ToDv81PreserveMappingEnabled(enabled: Boolean) { store().edit { it[dv7ToDv81PreserveMappingEnabledKey] = enabled } }
-    suspend fun setDv7HandlingMode(mode: Dv7HandlingMode) { store().edit { it[dv7HandlingModeKey] = mode.name } }
-    suspend fun setDv7LibdoviModeOverride(mode: Int) { store().edit { it[dv7LibdoviModeOverrideKey] = mode.coerceIn(-1, 4) } }
-    suspend fun setStripHdr10PlusSei(enabled: Boolean) { store().edit { it[stripHdr10PlusSeiKey] = enabled } }
-    suspend fun setExoChaptersEnabled(enabled: Boolean) { store().edit { it[exoChaptersEnabledKey] = enabled } }
-    suspend fun setChapterTitleEnabled(enabled: Boolean) { store().edit { it[chapterTitleEnabledKey] = enabled } }
-
-    // Subtitle styles
-    suspend fun setSubtitlePreferredLanguage(language: String) { store().edit { it[subtitlePreferredLanguageKey] = normalizeSelectableLanguageCode(language.ifBlank { SubtitleLanguageOption.DEVICE }) } }
-    suspend fun setSubtitleSecondaryLanguage(language: String?) {
-        store().edit { prefs ->
-            val normalizedLanguage = language?.takeIf { it.isNotBlank() }?.let(::normalizeSelectableLanguageCode)
-            if (normalizedLanguage != null) prefs[subtitleSecondaryLanguageKey] = normalizedLanguage
-            else prefs.remove(subtitleSecondaryLanguageKey)
+    suspend fun setDv5ToDv81Enabled(enabled: Boolean) {
+        store().edit {
+            it[dv5ToDv81EnabledKey] =
+                enabled
         }
     }
-    suspend fun setSubtitleSize(size: Int) { store().edit { it[subtitleSizeKey] = size.coerceIn(50, 200) } }
-    suspend fun setSubtitleVerticalOffset(offset: Int) { store().edit { it[subtitleVerticalOffsetKey] = offset.coerceIn(-20, 50) } }
-    suspend fun setSubtitleBold(bold: Boolean) { store().edit { it[subtitleBoldKey] = bold } }
-    suspend fun setSubtitleTextColor(color: Int) { store().edit { it[subtitleTextColorKey] = color } }
-    suspend fun setSubtitleBackgroundColor(color: Int) { store().edit { it[subtitleBackgroundColorKey] = color } }
-    suspend fun setSubtitleOutlineEnabled(enabled: Boolean) { store().edit { it[subtitleOutlineEnabledKey] = enabled } }
-    suspend fun setSubtitleOutlineColor(color: Int) { store().edit { it[subtitleOutlineColorKey] = color } }
+    suspend fun setDv7ToDv81PreserveMappingEnabled(enabled: Boolean) {
+        store().edit {
+            it[dv7ToDv81PreserveMappingEnabledKey] =
+                enabled
+        }
+    }
+    suspend fun setDv7HandlingMode(mode: Dv7HandlingMode) {
+        store().edit {
+            it[dv7HandlingModeKey] =
+                mode.name
+        }
+    }
+    suspend fun setDv7LibdoviModeOverride(mode: Int) {
+        store().edit {
+            it[dv7LibdoviModeOverrideKey] =
+                mode.coerceIn(-1, 4)
+        }
+    }
+    suspend fun setStripHdr10PlusSei(enabled: Boolean) {
+        store().edit {
+            it[stripHdr10PlusSeiKey] =
+                enabled
+        }
+    }
+    suspend fun setExoChaptersEnabled(enabled: Boolean) {
+        store().edit {
+            it[exoChaptersEnabledKey] =
+                enabled
+        }
+    }
+    suspend fun setChapterTitleEnabled(enabled: Boolean) {
+        store().edit {
+            it[chapterTitleEnabledKey] =
+                enabled
+        }
+    }
+
+    // Subtitle styles
+    suspend fun setSubtitlePreferredLanguage(language: String) {
+        store().edit {
+            it[subtitlePreferredLanguageKey] =
+                normalizeSelectableLanguageCode(language.ifBlank { SubtitleLanguageOption.DEVICE })
+        }
+    }
+    suspend fun setSubtitleSecondaryLanguage(language: String?) {
+        store().edit { prefs ->
+            val normalizedLanguage = language?.takeIf {
+                it.isNotBlank()
+            }?.let(::normalizeSelectableLanguageCode)
+            if (normalizedLanguage != null) {
+                prefs[subtitleSecondaryLanguageKey] = normalizedLanguage
+            } else {
+                prefs.remove(subtitleSecondaryLanguageKey)
+            }
+        }
+    }
+    suspend fun setSubtitleSize(size: Int) {
+        store().edit {
+            it[subtitleSizeKey] =
+                size.coerceIn(50, 200)
+        }
+    }
+    suspend fun setSubtitleVerticalOffset(offset: Int) {
+        store().edit {
+            it[subtitleVerticalOffsetKey] =
+                offset.coerceIn(-20, 50)
+        }
+    }
+    suspend fun setSubtitleBold(bold: Boolean) {
+        store().edit { it[subtitleBoldKey] = bold }
+    }
+    suspend fun setSubtitleTextColor(color: Int) {
+        store().edit { it[subtitleTextColorKey] = color }
+    }
+    suspend fun setSubtitleBackgroundColor(color: Int) {
+        store().edit {
+            it[subtitleBackgroundColorKey] =
+                color
+        }
+    }
+    suspend fun setSubtitleOutlineEnabled(enabled: Boolean) {
+        store().edit {
+            it[subtitleOutlineEnabledKey] =
+                enabled
+        }
+    }
+    suspend fun setSubtitleOutlineColor(color: Int) {
+        store().edit {
+            it[subtitleOutlineColorKey] =
+                color
+        }
+    }
     suspend fun setSubtitleOutlineWidth(width: Int) {
         store().edit {
             it[subtitleOutlineWidthKey] = width.coerceIn(
@@ -1864,8 +2179,18 @@ class PlayerSettingsDataStore @Inject constructor(
             )
         }
     }
-    suspend fun setSubtitleHdrStyleEnabled(enabled: Boolean) { store().edit { it[subtitleHdrStyleEnabledKey] = enabled } }
-    suspend fun setSubtitleHdrTextColor(color: Int) { store().edit { it[subtitleHdrTextColorKey] = color } }
+    suspend fun setSubtitleHdrStyleEnabled(enabled: Boolean) {
+        store().edit {
+            it[subtitleHdrStyleEnabledKey] =
+                enabled
+        }
+    }
+    suspend fun setSubtitleHdrTextColor(color: Int) {
+        store().edit {
+            it[subtitleHdrTextColorKey] =
+                color
+        }
+    }
     suspend fun setSubtitleHdrDimPlayerControls(enabled: Boolean) {
         store().edit { it[subtitleHdrDimPlayerControlsKey] = enabled }
     }
@@ -1877,15 +2202,34 @@ class PlayerSettingsDataStore @Inject constructor(
             )
         }
     }
-    suspend fun setSubtitleFontId(fontId: String) { store().edit { it[subtitleFontIdKey] = fontId } }
-    suspend fun setSubtitleBackgroundRadius(radius: Int) {
-        store().edit { it[subtitleBackgroundRadiusKey] = radius.coerceIn(0, SubtitleStyleSettings.BACKGROUND_RADIUS_MAX) }
+    suspend fun setSubtitleFontId(fontId: String) {
+        store().edit { it[subtitleFontIdKey] = fontId }
     }
-    suspend fun setSubtitleShadowEnabled(enabled: Boolean) { store().edit { it[subtitleShadowEnabledKey] = enabled } }
-    suspend fun setSubtitleShadowOpacity(opacity: Int) { store().edit { it[subtitleShadowOpacityKey] = opacity.coerceIn(0, 100) } }
+    suspend fun setSubtitleBackgroundRadius(radius: Int) {
+        store().edit {
+            it[subtitleBackgroundRadiusKey] =
+                radius.coerceIn(0, SubtitleStyleSettings.BACKGROUND_RADIUS_MAX)
+        }
+    }
+    suspend fun setSubtitleShadowEnabled(enabled: Boolean) {
+        store().edit {
+            it[subtitleShadowEnabledKey] =
+                enabled
+        }
+    }
+    suspend fun setSubtitleShadowOpacity(opacity: Int) {
+        store().edit {
+            it[subtitleShadowOpacityKey] =
+                opacity.coerceIn(0, 100)
+        }
+    }
     suspend fun setSubtitleShadowSize(size: Int) {
         store().edit {
-            it[subtitleShadowSizeKey] = size.coerceIn(SubtitleStyleSettings.SHADOW_SIZE_MIN, SubtitleStyleSettings.SHADOW_SIZE_MAX)
+            it[subtitleShadowSizeKey] =
+                size.coerceIn(
+                    SubtitleStyleSettings.SHADOW_SIZE_MIN,
+                    SubtitleStyleSettings.SHADOW_SIZE_MAX
+                )
         }
     }
     suspend fun resetSubtitleAppearance(resetHdrText: Boolean = false) {
@@ -1950,9 +2294,24 @@ class PlayerSettingsDataStore @Inject constructor(
             prefs[maxBufferMsKey] = ms.coerceIn(currentMin, maxLimit)
         }
     }
-    suspend fun setBufferForPlaybackMs(ms: Int) { store().edit { it[bufferForPlaybackMsKey] = ms.coerceIn(1_000, 30_000) } }
-    suspend fun setBufferForPlaybackAfterRebufferMs(ms: Int) { store().edit { it[bufferForPlaybackAfterRebufferMsKey] = ms.coerceIn(1_000, 60_000) } }
-    suspend fun setBufferTargetSizeMb(mb: Int) { store().edit { it[targetBufferSizeMbKey] = mb.coerceAtLeast(0) } }
+    suspend fun setBufferForPlaybackMs(ms: Int) {
+        store().edit {
+            it[bufferForPlaybackMsKey] =
+                ms.coerceIn(1_000, 30_000)
+        }
+    }
+    suspend fun setBufferForPlaybackAfterRebufferMs(ms: Int) {
+        store().edit {
+            it[bufferForPlaybackAfterRebufferMsKey] =
+                ms.coerceIn(1_000, 60_000)
+        }
+    }
+    suspend fun setBufferTargetSizeMb(mb: Int) {
+        store().edit {
+            it[targetBufferSizeMbKey] =
+                mb.coerceAtLeast(0)
+        }
+    }
     suspend fun setBufferBackBufferDurationMs(ms: Int) {
         store().edit { prefs ->
             val isNativeMemory = isNativeMemoryActive(prefs)
@@ -1960,7 +2319,12 @@ class PlayerSettingsDataStore @Inject constructor(
             prefs[backBufferDurationMsKey] = ms.coerceIn(0, maxLimit)
         }
     }
-    suspend fun setBufferRetainBackBufferFromKeyframe(retain: Boolean) { store().edit { it[retainBackBufferFromKeyframeKey] = retain } }
+    suspend fun setBufferRetainBackBufferFromKeyframe(retain: Boolean) {
+        store().edit {
+            it[retainBackBufferFromKeyframeKey] =
+                retain
+        }
+    }
 
     suspend fun resetBufferSettingsToDefaults() {
         store().edit { prefs ->
@@ -1970,9 +2334,12 @@ class PlayerSettingsDataStore @Inject constructor(
             prefs[minBufferMsKey] = BufferSettings.DEFAULT_MIN_BUFFER_MS
             prefs[maxBufferMsKey] = BufferSettings.DEFAULT_MAX_BUFFER_MS
             prefs[bufferForPlaybackMsKey] = BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS
-            prefs[bufferForPlaybackAfterRebufferMsKey] = BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
+            prefs[bufferForPlaybackAfterRebufferMsKey] =
+                BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
             if (nativeEnabled) {
-                val safeLimitMb = MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+                val safeLimitMb = MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(
+                    context
+                )
                 prefs[targetBufferSizeMbKey] =
                     MoviesExoPlayerPerformanceHelper.DEFAULT_MOVIES_TARGET_BUFFER_MB
                         .coerceAtMost(safeLimitMb)
@@ -2011,9 +2378,27 @@ class PlayerSettingsDataStore @Inject constructor(
             if (enabled) prefs[backBufferDurationMsKey] = 0
         }
     }
-    suspend fun setVodCacheSizeMode(mode: VodCacheSizeMode) { store().edit { it[vodCacheSizeModeKey] = mode.name } }
-    suspend fun setVodCacheSizeMb(mb: Int) { store().edit { it[vodCacheSizeMbKey] = mb.coerceIn(PlayerSettings.MIN_VOD_CACHE_SIZE_MB, PlayerSettings.MAX_VOD_CACHE_SIZE_MB) } }
-    suspend fun setUseParallelConnections(enabled: Boolean) { store().edit { it[useParallelConnectionsKey] = enabled } }
+    suspend fun setVodCacheSizeMode(mode: VodCacheSizeMode) {
+        store().edit {
+            it[vodCacheSizeModeKey] =
+                mode.name
+        }
+    }
+    suspend fun setVodCacheSizeMb(mb: Int) {
+        store().edit {
+            it[vodCacheSizeMbKey] =
+                mb.coerceIn(
+                    PlayerSettings.MIN_VOD_CACHE_SIZE_MB,
+                    PlayerSettings.MAX_VOD_CACHE_SIZE_MB
+                )
+        }
+    }
+    suspend fun setUseParallelConnections(enabled: Boolean) {
+        store().edit {
+            it[useParallelConnectionsKey] =
+                enabled
+        }
+    }
     suspend fun setBufferEngineEnabled(enabled: Boolean) {
         store().edit { it[bufferEngineEnabledKey] = enabled }
     }
@@ -2034,7 +2419,9 @@ class PlayerSettingsDataStore @Inject constructor(
                     val parallelNetworkEnabled = prefs[parallelNetworkEnabledKey] ?: false
                     val useParallelConnections = prefs[useParallelConnectionsKey] ?: false
                     val connectionCount = prefs[parallelConnectionCountKey] ?: 2
-                    val chunkSizeKb = prefs[parallelChunkSizeKbKey] ?: ((prefs[parallelChunkSizeMbKey] ?: 16) * 1024)
+                    val chunkSizeKb =
+                        prefs[parallelChunkSizeKbKey]
+                            ?: ((prefs[parallelChunkSizeMbKey] ?: 16) * 1024)
                     val chunkSizeMb = Math.ceil(chunkSizeKb / 1024.0).toInt()
                     val parallelOverheadMb = if (parallelNetworkEnabled && useParallelConnections) {
                         MemoryBudget.parallelOverheadMb(connectionCount, chunkSizeMb)
@@ -2043,7 +2430,8 @@ class PlayerSettingsDataStore @Inject constructor(
                     }
                     MemoryBudget.maxBufferMb(parallelOverheadMb)
                 }
-                val currentSize = prefs[targetBufferSizeMbKey] ?: BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB
+                val currentSize =
+                    prefs[targetBufferSizeMbKey] ?: BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB
                 if (currentSize > safeLimitMb) {
                     prefs[targetBufferSizeMbKey] = safeLimitMb
                 }
@@ -2060,10 +2448,20 @@ class PlayerSettingsDataStore @Inject constructor(
         store().edit { prefs ->
             val isNativeMemory = isNativeMemoryActive(prefs)
             val maxCount = if (isNativeMemory) 16 else PlayerSettings.MAX_PARALLEL_CONNECTION_COUNT
-            prefs[parallelConnectionCountKey] = count.coerceIn(PlayerSettings.MIN_PARALLEL_CONNECTION_COUNT, maxCount)
+            prefs[parallelConnectionCountKey] =
+                count.coerceIn(PlayerSettings.MIN_PARALLEL_CONNECTION_COUNT, maxCount)
         }
     }
-    suspend fun setParallelChunkSizeKb(kb: Int) { store().edit { prefs -> prefs[parallelChunkSizeKbKey] = kb.coerceIn(PlayerSettings.MIN_PARALLEL_CHUNK_SIZE_KB, PlayerSettings.MAX_PARALLEL_CHUNK_SIZE_KB); prefs.remove(parallelChunkSizeMbKey) } }
+    suspend fun setParallelChunkSizeKb(kb: Int) {
+        store().edit { prefs ->
+            prefs[parallelChunkSizeKbKey] =
+                kb.coerceIn(
+                    PlayerSettings.MIN_PARALLEL_CHUNK_SIZE_KB,
+                    PlayerSettings.MAX_PARALLEL_CHUNK_SIZE_KB
+                )
+            prefs.remove(parallelChunkSizeMbKey)
+        }
+    }
 
     suspend fun updateMemorySettings(
         targetBufferSizeMb: Int? = null,
@@ -2077,10 +2475,15 @@ class PlayerSettingsDataStore @Inject constructor(
             parallelConnectionCount?.let {
                 val isNativeMemory = isNativeMemoryActive(prefs)
                 val maxCount = if (isNativeMemory) 16 else PlayerSettings.MAX_PARALLEL_CONNECTION_COUNT
-                prefs[parallelConnectionCountKey] = it.coerceIn(PlayerSettings.MIN_PARALLEL_CONNECTION_COUNT, maxCount)
+                prefs[parallelConnectionCountKey] =
+                    it.coerceIn(PlayerSettings.MIN_PARALLEL_CONNECTION_COUNT, maxCount)
             }
             parallelChunkSizeKb?.let {
-                prefs[parallelChunkSizeKbKey] = it.coerceIn(PlayerSettings.MIN_PARALLEL_CHUNK_SIZE_KB, PlayerSettings.MAX_PARALLEL_CHUNK_SIZE_KB)
+                prefs[parallelChunkSizeKbKey] =
+                    it.coerceIn(
+                        PlayerSettings.MIN_PARALLEL_CHUNK_SIZE_KB,
+                        PlayerSettings.MAX_PARALLEL_CHUNK_SIZE_KB
+                    )
                 prefs.remove(parallelChunkSizeMbKey)
             }
         }
@@ -2088,23 +2491,32 @@ class PlayerSettingsDataStore @Inject constructor(
 
     // Movies ExoPlayer Performance Mode
 
-    val moviesPerformanceModeEnabled: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val moviesPerformanceModeEnabled: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest {
+            pid
+        ->
         factory.get(pid, FEATURE).data.map { prefs ->
-            (prefs[moviesPerformanceModeEnabledKey] ?: PlayerSettings.DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED) &&
-                    android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
+            (
+                prefs[moviesPerformanceModeEnabledKey]
+                    ?: PlayerSettings.DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED
+                ) &&
+                android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
         }
     }
 
     suspend fun setMoviesPerformanceModeEnabled(enabled: Boolean) {
-        val actualEnabled = enabled && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
+        val actualEnabled =
+            enabled && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
         store().edit { prefs ->
             prefs[moviesPerformanceModeEnabledKey] = actualEnabled
             if (actualEnabled) {
-                val safeLimitMb = MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+                val safeLimitMb = MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(
+                    context
+                )
                 prefs[minBufferMsKey] = BufferSettings.DEFAULT_MIN_BUFFER_MS
                 prefs[maxBufferMsKey] = BufferSettings.DEFAULT_MAX_BUFFER_MS
                 prefs[bufferForPlaybackMsKey] = BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS
-                prefs[bufferForPlaybackAfterRebufferMsKey] = BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
+                prefs[bufferForPlaybackAfterRebufferMsKey] =
+                    BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
                 // The tier limit is the ceiling, not the value to start at, so seed the native
                 // default and let it be clamped on devices whose tier sits below it.
                 prefs[targetBufferSizeMbKey] =
@@ -2122,7 +2534,8 @@ class PlayerSettingsDataStore @Inject constructor(
                 prefs[minBufferMsKey] = BufferSettings.DEFAULT_MIN_BUFFER_MS
                 prefs[maxBufferMsKey] = BufferSettings.DEFAULT_MAX_BUFFER_MS
                 prefs[bufferForPlaybackMsKey] = BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS
-                prefs[bufferForPlaybackAfterRebufferMsKey] = BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
+                prefs[bufferForPlaybackAfterRebufferMsKey] =
+                    BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
                 prefs[targetBufferSizeMbKey] = BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB
                 prefs[backBufferDurationMsKey] = BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS
                 prefs[allowLargeTargetBufferKey] = false
@@ -2135,8 +2548,12 @@ class PlayerSettingsDataStore @Inject constructor(
         }
     }
 
-    private fun isNativeMemoryActive(prefs: androidx.datastore.preferences.core.Preferences): Boolean {
-        val isEnabled = prefs[moviesPerformanceModeEnabledKey] ?: PlayerSettings.DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED
+    private fun isNativeMemoryActive(
+        prefs: androidx.datastore.preferences.core.Preferences
+    ): Boolean {
+        val isEnabled =
+            prefs[moviesPerformanceModeEnabledKey]
+                ?: PlayerSettings.DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED
         return isEnabled && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
     }
 }

@@ -29,10 +29,7 @@ class MdbListApiClient(
         scope: MdbListAuthScope = store.scope()
     ): MdbListHttpResponse = execute(MdbListHttpMethod.PUT, path, emptyMap(), body, scope)
 
-    suspend fun delete(
-        path: String,
-        scope: MdbListAuthScope = store.scope()
-    ): MdbListHttpResponse = execute(MdbListHttpMethod.DELETE, path, emptyMap(), "", scope)
+    suspend fun delete(path: String, scope: MdbListAuthScope = store.scope()): MdbListHttpResponse = execute(MdbListHttpMethod.DELETE, path, emptyMap(), "", scope)
 
     suspend fun refreshUser(scope: MdbListAuthScope = store.scope()): MdbListUser {
         val previousLimitKey = limitKey(scope)
@@ -40,7 +37,11 @@ class MdbListApiClient(
         val user = runCatching {
             json.decodeFromString<MdbListUser>(response.body)
         }.getOrElse { throw MdbListAuthException(MdbListAuthError.INVALID_RESPONSE) }
-        if (user.id == null || user.id <= 0L) throw MdbListAuthException(MdbListAuthError.INVALID_RESPONSE)
+        if (user.id == null ||
+            user.id <= 0L
+        ) {
+            throw MdbListAuthException(MdbListAuthError.INVALID_RESPONSE)
+        }
         if (!store.saveUser(user, scope)) store.checkScope(scope)
         http.associateAccountLimit(previousLimitKey, "user:${user.id}")
         store.checkScope(scope)
@@ -70,7 +71,11 @@ class MdbListApiClient(
             )
             if (response.status == 401) {
                 if (attempt == 1) {
-                    store.clearAuth(scope, MdbListAuthError.AUTHORIZATION_REVOKED, authorization.tokens.accessToken)
+                    store.clearAuth(
+                        scope,
+                        MdbListAuthError.AUTHORIZATION_REVOKED,
+                        authorization.tokens.accessToken
+                    )
                     throw MdbListAuthException(MdbListAuthError.AUTHORIZATION_REVOKED)
                 }
                 authorization = auth.authorization(scope, authorization.tokens.accessToken)

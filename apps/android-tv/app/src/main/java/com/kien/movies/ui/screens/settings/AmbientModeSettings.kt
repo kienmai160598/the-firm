@@ -16,14 +16,14 @@ import com.kien.movies.R
 import com.kien.movies.domain.model.AmbientModeSettings
 
 @Composable
-internal fun AmbientModeSettingsCard(
-    viewModel: AmbientModeSettingsViewModel = hiltViewModel()
-) {
+internal fun AmbientModeSettingsCard(viewModel: AmbientModeSettingsViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val settings = uiState.settings
     var showTimeoutDialog by remember { mutableStateOf(false) }
     var showCatalogsDialog by remember { mutableStateOf(false) }
-    val selectedCatalogs = settings.catalogKeys.filter { key -> uiState.catalogs.any { it.key == key } }
+    val selectedCatalogs = settings.catalogKeys.filter { key ->
+        uiState.catalogs.any { it.key == key }
+    }
 
     SettingsGroupCard(
         modifier = Modifier.fillMaxWidth(),
@@ -99,5 +99,4 @@ internal fun AmbientModeSettingsCard(
 }
 
 @Composable
-private fun timeoutLabel(minutes: Int): String =
-    pluralStringResource(R.plurals.ambient_mode_timeout_minutes, minutes, minutes)
+private fun timeoutLabel(minutes: Int): String = pluralStringResource(R.plurals.ambient_mode_timeout_minutes, minutes, minutes)

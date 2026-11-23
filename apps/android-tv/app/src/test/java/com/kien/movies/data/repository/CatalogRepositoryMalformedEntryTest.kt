@@ -40,7 +40,8 @@ class CatalogRepositoryMalformedEntryTest {
         coEvery { api.getCatalog(any()) } returns Response.success(response)
         val layoutPrefs = mockk<LayoutPreferenceDataStore> {
             every { customPosterUrlPattern } returns flowOf("")
-            every { customPosterEnabledScreens } returns flowOf(com.kien.movies.core.poster.CustomPosterScreen.ALL)
+            every { customPosterEnabledScreens } returns
+                flowOf(com.kien.movies.core.poster.CustomPosterScreen.ALL)
         }
         val repository = CatalogRepositoryImpl(
             context = mockk<Context>(relaxed = true),

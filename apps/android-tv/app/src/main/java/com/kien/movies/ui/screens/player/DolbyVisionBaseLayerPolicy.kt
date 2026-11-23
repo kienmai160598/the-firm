@@ -28,14 +28,18 @@ object DolbyVisionBaseLayerPolicy {
         /** Display supports DV. Either a native DV7 decoder is present, or we have no
          *  useful intervention - pass the stream through and let the device handle it. */
         NATIVE_DV7,
+
         /** Convert DV7 RPU to DV8.1 with libdovi, then feed to a DV-aware decoder.
          *  Used on Fire TV (profile-8-only Mediatek decoder), Xiaomi boxes (hidden
          *  Amlogic DV decoder), and Samsung HDR10 (no DV display but DV81 decoder). */
         CONVERT_TO_DV81,
+
         /** Display supports HDR10/HDR10+. Strip DV, play HEVC base layer. */
         STRIP_TO_HDR10,
+
         /** Display capabilities unknown (pre-N or null caps). Strip defensively. */
         STRIP_BEST_EFFORT,
+
         /** Display known to be SDR-only or HLG-only. Strip and let renderer tonemap. */
         STRIP_AND_TONEMAP
     }
@@ -66,6 +70,7 @@ object DolbyVisionBaseLayerPolicy {
                 Decision.STRIP_TO_HDR10,
                 Decision.STRIP_BEST_EFFORT,
                 Decision.STRIP_AND_TONEMAP -> true
+
                 else -> false
             }
     }
@@ -125,7 +130,8 @@ object DolbyVisionBaseLayerPolicy {
             // available. Convert DV7 to DV81 so the decoder emits HDR10. Without this
             // branch the HEVC base layer fallback fails on some MTK SoCs.
             // Also fires for Amazon devices on HDR10-only TVs (Karat + HDR10 TV).
-            displayHdr10Family && bridgeReady && codecSupportsDvheSt && (isSamsung || isAmazonFireTv) ->
+            displayHdr10Family && bridgeReady && codecSupportsDvheSt &&
+                (isSamsung || isAmazonFireTv) ->
                 Decision.CONVERT_TO_DV81
 
             // Xiaomi box on HDR10-only TV: convert so the hidden decoder can emit HDR10.
@@ -217,9 +223,9 @@ object DolbyVisionBaseLayerPolicy {
     }
 
     private data class DvDecoderProfileSupport(
-        val dvheDtb: Boolean,   // P7
-        val dvheStn: Boolean,   // P5
-        val dvheSt: Boolean     // P8
+        val dvheDtb: Boolean, // P7
+        val dvheStn: Boolean, // P5
+        val dvheSt: Boolean // P8
     )
 
     /**

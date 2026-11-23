@@ -1,9 +1,9 @@
 package com.kien.movies.ui.screens.home
 
+import java.time.LocalDate
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class NextUpEpisodeEligibilityTest {
 

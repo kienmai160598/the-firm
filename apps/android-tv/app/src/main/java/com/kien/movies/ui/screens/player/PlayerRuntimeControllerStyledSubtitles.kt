@@ -2,8 +2,7 @@ package com.kien.movies.ui.screens.player
 
 import androidx.media3.common.text.Cue
 
-internal fun PlayerRuntimeController.presentExoCues(cues: List<Cue>): List<Cue> =
-    styledSubtitles.present(cues, canStyleExoSubtitles())
+internal fun PlayerRuntimeController.presentExoCues(cues: List<Cue>): List<Cue> = styledSubtitles.present(cues, canStyleExoSubtitles())
 
 internal fun PlayerRuntimeController.refreshStyledSubtitles() {
     if (isUsingMpvEngine()) {
@@ -16,9 +15,10 @@ internal fun PlayerRuntimeController.refreshStyledSubtitles() {
 
 internal fun PlayerRuntimeController.syncMpvStyledSubtitles() {
     val view = mpvView ?: return
-    styledSubtitles.showMpvText(view.syncStyledSubtitles(_uiState.value.subtitleStyle.usesStyledRenderer))
+    styledSubtitles.showMpvText(
+        view.syncStyledSubtitles(_uiState.value.subtitleStyle.usesStyledRenderer)
+    )
 }
 
-private fun PlayerRuntimeController.canStyleExoSubtitles(): Boolean =
-    _uiState.value.subtitleStyle.usesStyledRenderer &&
-        !PlayerSubtitleUtils.isAssOrSsaSelected(_exoPlayer?.currentTracks, activeSidecarSubtitleKey)
+private fun PlayerRuntimeController.canStyleExoSubtitles(): Boolean = _uiState.value.subtitleStyle.usesStyledRenderer &&
+    !PlayerSubtitleUtils.isAssOrSsaSelected(_exoPlayer?.currentTracks, activeSidecarSubtitleKey)

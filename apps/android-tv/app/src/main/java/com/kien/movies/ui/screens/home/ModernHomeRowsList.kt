@@ -1,9 +1,7 @@
 package com.kien.movies.ui.screens.home
 
-import com.kien.movies.domain.model.catalogRowLegacyKey
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
@@ -25,16 +23,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import kotlinx.coroutines.flow.collectLatest
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.foundation.focusGroup
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -42,26 +38,29 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.compose.ui.ExperimentalComposeUiApi
 import coil3.imageLoader
 import coil3.request.ImageRequest
 import com.kien.movies.domain.model.ContinueWatchingCardStyle
 import com.kien.movies.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.kien.movies.domain.model.MetaPreview
+import com.kien.movies.domain.model.catalogRowLegacyKey
 import com.kien.movies.domain.model.isPlaceholder
+import com.kien.movies.ui.components.rememberPlaceholderShimmerOffsetState
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.StableList
 import com.kien.movies.ui.util.StableMap
 import com.kien.movies.ui.util.StableRef
 import com.kien.movies.ui.util.dpadVerticalFastScroll
 import com.kien.movies.ui.util.recompositionHighlighter
-import com.kien.movies.ui.components.rememberPlaceholderShimmerOffsetState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.withContext
@@ -154,7 +153,8 @@ internal fun ModernHomeRowsList(
     val latestOnActiveItemIndexChange = rememberUpdatedState(onActiveItemIndexChange)
 
     val rowFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
-    val stableItemFocusRequestersByRow = remember { mutableMapOf<String, StableRef<MutableMap<Int, FocusRequester>>>() }
+    val stableItemFocusRequestersByRow =
+        remember { mutableMapOf<String, StableRef<MutableMap<Int, FocusRequester>>>() }
 
     val density = LocalDensity.current
     val context = LocalContext.current
@@ -198,10 +198,21 @@ internal fun ModernHomeRowsList(
                             val wPx = with(density) { metrics.width.roundToPx() }
                             val hPx = with(density) { metrics.height.roundToPx() }
                             if (wPx <= 0 || hPx <= 0) continue
-                            val landscapeCustomPoster = useLandscapePosters && !alwaysShowLandscapeClearlogo &&
-                                !item.metaPreview?.landscapePoster.isNullOrBlank()
-                            val cacheKey = cardImageMemoryCacheKey(url, wPx, hPx, item.cardImageFallbackUrl(landscapeCustomPoster))
-                            if (verticalPrefetchImageLoader.memoryCache?.get(cacheKey) != null) continue
+                            val landscapeCustomPoster =
+                                useLandscapePosters && !alwaysShowLandscapeClearlogo &&
+                                    !item.metaPreview?.landscapePoster.isNullOrBlank()
+                            val cacheKey =
+                                cardImageMemoryCacheKey(
+                                    url,
+                                    wPx,
+                                    hPx,
+                                    item.cardImageFallbackUrl(landscapeCustomPoster)
+                                )
+                            if (verticalPrefetchImageLoader.memoryCache?.get(cacheKey) !=
+                                null
+                            ) {
+                                continue
+                            }
                             verticalPrefetchImageLoader.enqueue(
                                 ImageRequest.Builder(context)
                                     .data(url)
@@ -298,22 +309,31 @@ internal fun ModernHomeRowsList(
                         effectiveExpandEnabled &&
                         expandedCatalogFocusKey.value != null &&
                         activeRowKey.value == firstRowKey
-                    ) return@onPreviewKeyEvent true
+                    ) {
+                        return@onPreviewKeyEvent true
+                    }
                     if (event.type == KeyEventType.KeyDown &&
                         event.key == Key.DirectionDown &&
                         effectiveExpandEnabled &&
                         expandedCatalogFocusKey.value != null &&
                         activeRowKey.value == lastRowKey
-                    ) return@onPreviewKeyEvent true
-                    val blockKey = if (layoutDirection == LayoutDirection.Rtl)
-                        Key.DirectionRight else Key.DirectionLeft
+                    ) {
+                        return@onPreviewKeyEvent true
+                    }
+                    val blockKey = if (layoutDirection == LayoutDirection.Rtl) {
+                        Key.DirectionRight
+                    } else {
+                        Key.DirectionLeft
+                    }
                     if (blockLeftOnFirstExpandedItem &&
                         event.type == KeyEventType.KeyDown &&
                         event.key == blockKey &&
                         effectiveExpandEnabled &&
                         expandedCatalogFocusKey.value != null &&
                         activeItemIndex.value == 0
-                    ) return@onPreviewKeyEvent true
+                    ) {
+                        return@onPreviewKeyEvent true
+                    }
                     false
                 }
                 .dpadVerticalFastScroll(
@@ -339,18 +359,23 @@ internal fun ModernHomeRowsList(
                             visibleItems.firstOrNull()?.takeIf {
                                 it.offset > -it.size / 2
                             }
-                        } else null
+                        } else {
+                            null
+                        }
                         val targetRowIndex = when {
                             lastRowAtBottom -> lastIdx
+
                             upwardTopRow != null -> upwardTopRow.index
+
                             else ->
                                 visibleItems.firstOrNull { it.offset >= 0 }?.index
                                     ?: visibleItems.firstOrNull()?.index
                                     ?: verticalRowListState.firstVisibleItemIndex
                         }
                         val targetRow = carouselRows.list.getOrNull(targetRowIndex)
-                        if (targetRow == null) null
-                        else {
+                        if (targetRow == null) {
+                            null
+                        } else {
                             val savedIdx = (focusedItemByRowMap[targetRow.key] ?: 0)
                                 .coerceIn(0, (targetRow.items.list.size - 1).coerceAtLeast(0))
                             latestOnActiveRowKeyChange.value(targetRow.key)
@@ -360,7 +385,7 @@ internal fun ModernHomeRowsList(
                                 ?: "${targetRow.key}_$savedIdx"
                             targetItemKey
                         }
-                    },
+                    }
                 ),
             contentPadding = PaddingValues(bottom = rowsViewportHeight),
             verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl)
@@ -377,15 +402,18 @@ internal fun ModernHomeRowsList(
                     { rowKey: String, index: Int, isContinueWatchingRow: Boolean ->
                         val rowBecameActive = activeRowKey.value != rowKey
                         val itemChanged = activeItemIndex.value != index
-                        
+
                         if (rowBecameActive || itemChanged) {
                             val now = System.currentTimeMillis()
                             val timeSinceLastHeroNav = now - lastHeroNavigationAtMs.value
                             onHeroFocusSettleDelayChange(
                                 if (lastHeroNavigationAtMs.value != 0L &&
                                     timeSinceLastHeroNav in 1 until 130L // MODERN_HERO_RAPID_NAV_THRESHOLD_MS
-                                ) 400L // MODERN_HERO_RAPID_NAV_SETTLE_MS
-                                else 450L // MODERN_HERO_FOCUS_DEBOUNCE_MS
+                                ) {
+                                    400L // MODERN_HERO_RAPID_NAV_SETTLE_MS
+                                } else {
+                                    450L // MODERN_HERO_FOCUS_DEBOUNCE_MS
+                                }
                             )
                             onLastHeroNavigationAtMsChange(now)
                             onActiveRowKeyChange(rowKey)
@@ -428,7 +456,8 @@ internal fun ModernHomeRowsList(
                     rowFocusRequester = rowFocusRequesters.getOrPut(row.key) { FocusRequester() },
                     rowTitleBottom = 14.dp, // rowTitleBottom
                     defaultBringIntoViewSpec = defaultBringIntoViewSpec,
-                    focusStateCatalogRowScrollIndex = focusState.catalogRowScrollStates[row.key] ?: 0,
+                    focusStateCatalogRowScrollIndex =
+                        focusState.catalogRowScrollStates[row.key] ?: 0,
                     focusStateCatalogRowScrollAnchor = focusState.catalogRowScrollAnchors[row.key],
                     focusedItemByRow = focusedItemByRow,
                     rowListStates = rowListStates,

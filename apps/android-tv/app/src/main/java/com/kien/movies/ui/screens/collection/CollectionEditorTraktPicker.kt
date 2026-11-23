@@ -1,8 +1,5 @@
 package com.kien.movies.ui.screens.collection
 
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,9 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -39,7 +36,9 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.core.trakt.TraktPublicListSearchResult
 import com.kien.movies.domain.model.TmdbCollectionMediaType
+import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.metaFloor
 import com.kien.movies.ui.theme.screenTitleFloor
 
@@ -92,7 +91,7 @@ fun TraktSourcePickerContent(
                             style = MaterialTheme.typography.headlineMedium
                                 .screenTitleFloor()
                                 .copy(textDirection = TextDirection.Content),
-                            color = MoviesTheme.colors.TextPrimary,
+                            color = MoviesTheme.colors.TextPrimary
                         )
                         MoviesButton(
                             onClick = onBack,
@@ -129,19 +128,27 @@ fun TraktSourcePickerContent(
                 )
             }
             if (uiState.traktSearchResults.isNotEmpty()) {
-                item { TraktSectionTitle(stringResource(R.string.collections_editor_trakt_search_results)) }
+                item {
+                    TraktSectionTitle(
+                        stringResource(R.string.collections_editor_trakt_search_results)
+                    )
+                }
                 items(uiState.traktSearchResults) { result ->
                     TraktResultCard(result = result, onClick = { onAddResult(result) })
                 }
             }
             if (uiState.traktTrendingResults.isNotEmpty()) {
-                item { TraktSectionTitle(stringResource(R.string.collections_editor_trakt_trending)) }
+                item {
+                    TraktSectionTitle(stringResource(R.string.collections_editor_trakt_trending))
+                }
                 items(uiState.traktTrendingResults) { result ->
                     TraktResultCard(result = result, onClick = { onAddResult(result) })
                 }
             }
             if (uiState.traktPopularResults.isNotEmpty()) {
-                item { TraktSectionTitle(stringResource(R.string.collections_editor_trakt_popular)) }
+                item {
+                    TraktSectionTitle(stringResource(R.string.collections_editor_trakt_popular))
+                }
                 items(uiState.traktPopularResults) { result ->
                     TraktResultCard(result = result, onClick = { onAddResult(result) })
                 }
@@ -206,7 +213,11 @@ private fun TraktSourceForm(
             TmdbActionButton(onClick = onAddFromInput, primary = true) {
                 Icon(Icons.Default.Add, contentDescription = null)
                 Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
-                Text(stringResource(if (isEditing) R.string.collections_editor_save_source else R.string.collections_editor_add_source))
+                Text(
+                    stringResource(
+                        if (isEditing) R.string.collections_editor_save_source else R.string.collections_editor_add_source
+                    )
+                )
             }
         }
     }
@@ -326,7 +337,11 @@ private fun TraktMediaSortControls(
 
 @Composable
 private fun TraktSectionTitle(title: String) {
-    Text(title, style = MaterialTheme.typography.labelLarge, color = MoviesTheme.colors.TextSecondary)
+    Text(
+        title,
+        style = MaterialTheme.typography.labelLarge,
+        color = MoviesTheme.colors.TextSecondary
+    )
 }
 
 @Composable

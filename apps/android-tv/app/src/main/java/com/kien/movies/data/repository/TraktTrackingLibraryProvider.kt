@@ -1,8 +1,8 @@
 package com.kien.movies.data.repository
 
 import com.kien.movies.core.tracking.TrackingLibraryProvider
-import com.kien.movies.core.tracking.TrackingListManager
 import com.kien.movies.core.tracking.TrackingListManagementCapabilities
+import com.kien.movies.core.tracking.TrackingListManager
 import com.kien.movies.core.tracking.TrackingProviderId
 import com.kien.movies.core.tracking.TrackingRefreshIntent
 import com.kien.movies.data.local.TraktAuthDataStore
@@ -25,11 +25,20 @@ class TraktTrackingLibraryProvider @Inject constructor(
             supportsReordering = true
         )
 
-        override suspend fun createList(name: String, description: String?, privacy: LibraryListPrivacy) {
+        override suspend fun createList(
+            name: String,
+            description: String?,
+            privacy: LibraryListPrivacy
+        ) {
             service.createPersonalList(name, description, privacy)
         }
 
-        override suspend fun updateList(key: String, name: String, description: String?, privacy: LibraryListPrivacy) {
+        override suspend fun updateList(
+            key: String,
+            name: String,
+            description: String?,
+            privacy: LibraryListPrivacy
+        ) {
             service.updatePersonalList(personalListId(key), name, description, privacy)
         }
 
@@ -39,7 +48,9 @@ class TraktTrackingLibraryProvider @Inject constructor(
 
         private fun personalListId(key: String): String {
             require(key.startsWith(TraktLibraryService.PERSONAL_KEY_PREFIX))
-            return key.removePrefix(TraktLibraryService.PERSONAL_KEY_PREFIX).also { require(it.isNotBlank()) }
+            return key.removePrefix(TraktLibraryService.PERSONAL_KEY_PREFIX).also {
+                require(it.isNotBlank())
+            }
         }
     }
     override val providerId = TrackingProviderId.TRAKT
@@ -50,11 +61,10 @@ class TraktTrackingLibraryProvider @Inject constructor(
         tabs.map { tab -> tab.copy(trackingProviderId = providerId.storageId) }
     }
 
-    override fun recognizesListKey(key: String): Boolean =
-        key == TraktLibraryService.WATCHLIST_KEY || key.startsWith(TraktLibraryService.PERSONAL_KEY_PREFIX)
+    override fun recognizesListKey(key: String): Boolean = key == TraktLibraryService.WATCHLIST_KEY ||
+        key.startsWith(TraktLibraryService.PERSONAL_KEY_PREFIX)
 
-    override fun observeMembership(itemId: String, itemType: String) =
-        service.observeMembership(itemId, itemType)
+    override fun observeMembership(itemId: String, itemType: String) = service.observeMembership(itemId, itemType)
 
     override fun toggledDefaultMembership(
         currentMembership: Map<String, Boolean>
@@ -63,8 +73,7 @@ class TraktTrackingLibraryProvider @Inject constructor(
         return currentMembership + (watchlistKey to (currentMembership[watchlistKey] != true))
     }
 
-    override suspend fun getMembershipSnapshot(item: LibraryEntryInput) =
-        service.getMembershipSnapshot(item)
+    override suspend fun getMembershipSnapshot(item: LibraryEntryInput) = service.getMembershipSnapshot(item)
 
     override suspend fun applyMembershipChanges(
         item: LibraryEntryInput,

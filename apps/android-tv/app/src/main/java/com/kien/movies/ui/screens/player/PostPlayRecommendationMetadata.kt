@@ -28,10 +28,17 @@ internal fun resolvePostPlayRecommendation(
     val useArtwork = settings.enabled && settings.useArtwork
     val useBasicInfo = settings.enabled && settings.useBasicInfo
     val useDetails = settings.enabled && settings.useDetails
-    val country = if (useDetails) enrichment?.countries?.joinToString(", ") ?: meta?.country ?: candidate.country
-    else meta?.country ?: candidate.country
-    val language = if (useDetails) enrichment?.language ?: meta?.language ?: candidate.language
-    else meta?.language ?: candidate.language
+    val country = if (useDetails) {
+        enrichment?.countries?.joinToString(", ") ?: meta?.country
+            ?: candidate.country
+    } else {
+        meta?.country ?: candidate.country
+    }
+    val language = if (useDetails) {
+        enrichment?.language ?: meta?.language ?: candidate.language
+    } else {
+        meta?.language ?: candidate.language
+    }
 
     return PostPlayRecommendation(
         id = candidate.id,
@@ -44,8 +51,12 @@ internal fun resolvePostPlayRecommendation(
         poster = basePoster,
         backdrop = if (useArtwork) enrichment?.backdrop ?: baseBackdrop else baseBackdrop,
         logo = if (useArtwork) enrichment?.logo ?: baseLogo else baseLogo,
-        description = if (useBasicInfo) enrichment?.description ?: meta?.description ?: candidate.description
-        else meta?.description ?: candidate.description,
+        description = if (useBasicInfo) {
+            enrichment?.description ?: meta?.description
+                ?: candidate.description
+        } else {
+            meta?.description ?: candidate.description
+        },
         releaseInfo = meta?.releaseInfo ?: candidate.releaseInfo,
         rating = meta?.imdbRating ?: candidate.imdbRating,
         genres = if (useBasicInfo && !enrichment?.genres.isNullOrEmpty()) {
@@ -61,10 +72,16 @@ internal fun resolvePostPlayRecommendation(
         sourceAddonBaseUrl = candidate.sourceAddonBaseUrl,
         tmdbId = tmdbId,
         tmdbRating = if (useBasicInfo) enrichment?.rating?.toFloat() else null,
-        ageRating = if (useDetails) enrichment?.ageRating ?: meta?.ageRating ?: candidate.ageRating
-        else meta?.ageRating ?: candidate.ageRating,
-        status = if (useDetails) enrichment?.status ?: meta?.status ?: candidate.status
-        else meta?.status ?: candidate.status,
+        ageRating = if (useDetails) {
+            enrichment?.ageRating ?: meta?.ageRating ?: candidate.ageRating
+        } else {
+            meta?.ageRating ?: candidate.ageRating
+        },
+        status = if (useDetails) {
+            enrichment?.status ?: meta?.status ?: candidate.status
+        } else {
+            meta?.status ?: candidate.status
+        },
         country = country,
         language = language,
         contentLanguage = normalizeLanguageCode(language) ?: countryToLanguageCode(country)

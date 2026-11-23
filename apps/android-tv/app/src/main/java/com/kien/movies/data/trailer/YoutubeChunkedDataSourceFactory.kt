@@ -18,12 +18,11 @@ import androidx.media3.datasource.TransferListener
  * Only activates for googlevideo.com URLs; all other URLs pass through untouched.
  */
 @UnstableApi
-class YoutubeChunkedDataSourceFactory(
-    private val chunkSizeBytes: Long = CHUNK_SIZE
-) : DataSource.Factory {
+class YoutubeChunkedDataSourceFactory(private val chunkSizeBytes: Long = CHUNK_SIZE) : DataSource.Factory {
 
     companion object {
         private const val TAG = "YTChunkedDS"
+
         /** 10 MB chunks – large enough to avoid too many requests, small enough to dodge throttle. */
         private const val CHUNK_SIZE = 10L * 1024 * 1024
     }
@@ -86,13 +85,19 @@ class YoutubeChunkedDataSourceFactory(
 
             val chunkedSpec = spec.buildUpon()
                 .setUri(rangedUri)
-                .setPosition(0)           // position within this chunk's response
+                .setPosition(0) // position within this chunk's response
                 .setLength(C.LENGTH_UNSET.toLong()) // let the server decide
                 .build()
 
             bytesReadInChunk = 0
             upstream.open(chunkedSpec)
-            return if (totalContentLength != C.LENGTH_UNSET.toLong()) totalContentLength else C.LENGTH_UNSET.toLong()
+            return if (totalContentLength !=
+                C.LENGTH_UNSET.toLong()
+            ) {
+                totalContentLength
+            } else {
+                C.LENGTH_UNSET.toLong()
+            }
         }
 
         override fun read(buffer: ByteArray, offset: Int, length: Int): Int {

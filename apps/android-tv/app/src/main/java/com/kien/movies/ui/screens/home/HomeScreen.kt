@@ -1,16 +1,9 @@
 package com.kien.movies.ui.screens.home
 
-import com.kien.movies.ui.components.ExpressiveErrorContainer
-import com.kien.movies.ui.components.ExpressiveOnErrorContainer
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.MoviesTheme
-
+import android.util.Log
 import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
-import android.util.Log
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
@@ -19,11 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,41 +25,46 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.kien.movies.R
+import com.kien.movies.core.tracking.LOCAL_LIBRARY_LIST_KEY
+import com.kien.movies.core.tracking.supportsMembershipFor
+import com.kien.movies.data.local.StartupAuthNotice
 import com.kien.movies.domain.model.HomeLayout
 import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.LibrarySourceMode
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.isSeriesLikeType
 import com.kien.movies.ui.components.ErrorState
+import com.kien.movies.ui.components.ExpressiveErrorContainer
+import com.kien.movies.ui.components.ExpressiveOnErrorContainer
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.LocalStartupLoadingState
 import com.kien.movies.ui.components.LocalStartupSplashEnabled
-import com.kien.movies.ui.components.shouldShowHomeStartupLoader
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.PosterCardDefaults
 import com.kien.movies.ui.components.PosterCardStyle
-import androidx.compose.ui.res.stringResource
-import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.posteroptions.PosterListPickerDialog
-import com.kien.movies.core.tracking.LOCAL_LIBRARY_LIST_KEY
-import com.kien.movies.core.tracking.supportsMembershipFor
-import com.kien.movies.data.local.StartupAuthNotice
 import com.kien.movies.ui.components.posteroptions.TrackingRemovalConfirmationDialog
+import com.kien.movies.ui.components.shouldShowHomeStartupLoader
+import com.kien.movies.ui.theme.ExpressiveMotion
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
-import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
 
-private data class HomePosterOptionsTarget(
-    val item: MetaPreview,
-    val addonBaseUrl: String
-)
+private data class HomePosterOptionsTarget(val item: MetaPreview, val addonBaseUrl: String)
 
 private const val HOME_STABLE_GATE_TIMEOUT_MS = 5_000L
 
@@ -123,7 +119,10 @@ fun HomeScreen(
     val modernPresentationReady =
         uiState.homeLayout != HomeLayout.MODERN ||
             modernPresentation.rows.list.isNotEmpty() ||
-            (uiState.heroSectionEnabled && hasHeroContent && !hasCatalogContent && !hasCollectionContent)
+            (
+                uiState.heroSectionEnabled && hasHeroContent && !hasCatalogContent &&
+                    !hasCollectionContent
+                )
     var showHomeContentWithAnimation by rememberSaveable { mutableStateOf(false) }
     var hasShownInitialHomeContent by rememberSaveable { mutableStateOf(false) }
     // Once we've shown stable home content, never go back to loading gate.
@@ -149,7 +148,10 @@ fun HomeScreen(
     // value without forcing downstream recomposition from lambda identity change.
     val latestMovieWatchedStatus = androidx.compose.runtime.rememberUpdatedState(movieWatchedStatus)
     val isCatalogItemWatched: (MetaPreview) -> Boolean = remember {
-        { item: MetaPreview -> latestMovieWatchedStatus.value[homeItemStatusKey(item.id, item.apiType)] == true }
+        { item: MetaPreview ->
+            latestMovieWatchedStatus.value[homeItemStatusKey(item.id, item.apiType)] ==
+                true
+        }
     }
     val onCatalogItemLongPress: (MetaPreview, String) -> Unit = remember {
         { item, addonBaseUrl ->
@@ -164,26 +166,43 @@ fun HomeScreen(
             onNavigateToDetail(itemId, itemType, addonBaseUrl)
         }
     }
-    val latestContinueWatchingClickAction = androidx.compose.runtime.rememberUpdatedState(uiState.continueWatchingClickAction)
+    val latestContinueWatchingClickAction = androidx.compose.runtime.rememberUpdatedState(
+        uiState.continueWatchingClickAction
+    )
     val onContinueWatchingClickStable = remember(onContinueWatchingClick, onNavigateToDetail) {
         { item: ContinueWatchingItem ->
             if (latestContinueWatchingClickAction.value.opensDetails(item)) {
                 when (item) {
-                    is ContinueWatchingItem.InProgress -> onNavigateToDetail(item.progress.contentId, item.progress.contentType, "")
-                    is ContinueWatchingItem.NextUp -> onNavigateToDetail(item.info.contentId, item.info.contentType, "")
+                    is ContinueWatchingItem.InProgress -> onNavigateToDetail(
+                        item.progress.contentId,
+                        item.progress.contentType,
+                        ""
+                    )
+
+                    is ContinueWatchingItem.NextUp -> onNavigateToDetail(
+                        item.info.contentId,
+                        item.info.contentType,
+                        ""
+                    )
                 }
             } else {
                 onContinueWatchingClick(item)
             }
         }
     }
-    val onContinueWatchingStartFromBeginningStable = remember(onContinueWatchingStartFromBeginning) { onContinueWatchingStartFromBeginning }
-    val onContinueWatchingPlayManuallyStable = remember(onContinueWatchingPlayManually) { onContinueWatchingPlayManually }
-    val onNavigateToCatalogSeeAllStable = remember(onNavigateToCatalogSeeAll) { onNavigateToCatalogSeeAll }
-    val onNavigateToFolderDetailStable = remember(onNavigateToFolderDetail) { onNavigateToFolderDetail }
+    val onContinueWatchingStartFromBeginningStable =
+        remember(onContinueWatchingStartFromBeginning) { onContinueWatchingStartFromBeginning }
+    val onContinueWatchingPlayManuallyStable =
+        remember(onContinueWatchingPlayManually) { onContinueWatchingPlayManually }
+    val onNavigateToCatalogSeeAllStable =
+        remember(onNavigateToCatalogSeeAll) { onNavigateToCatalogSeeAll }
+    val onNavigateToFolderDetailStable =
+        remember(onNavigateToFolderDetail) { onNavigateToFolderDetail }
     val onRemoveContinueWatchingStable = remember(viewModel) {
         { contentId: String, season: Int?, episode: Int?, isNextUp: Boolean ->
-            viewModel.onEvent(HomeEvent.OnRemoveContinueWatching(contentId, season, episode, isNextUp))
+            viewModel.onEvent(
+                HomeEvent.OnRemoveContinueWatching(contentId, season, episode, isNextUp)
+            )
         }
     }
 
@@ -209,7 +228,10 @@ fun HomeScreen(
             // When addons are installed, require at least one catalog row.
             (hasCatalogContent || uiState.installedAddonsCount == 0)
         ) {
-            Log.d("HomeGate", "RELEASE: catalogs=$hasCatalogContent cwResolved=$initialCwResolved cwItems=${uiState.continueWatchingItems.size} addons=${uiState.installedAddonsCount}")
+            Log.d(
+                "HomeGate",
+                "RELEASE: catalogs=$hasCatalogContent cwResolved=$initialCwResolved cwItems=${uiState.continueWatchingItems.size} addons=${uiState.installedAddonsCount}"
+            )
             homeStableGateReleased = true
         }
     }
@@ -221,7 +243,10 @@ fun HomeScreen(
         // no addons at all.
         delay(HOME_STABLE_GATE_TIMEOUT_MS)
         if (!homeStableGateReleased) {
-            Log.d("HomeGate", "RELEASE timeout: isLoading=${uiState.isLoading} cwResolved=$initialCwResolved catalogs=$hasCatalogContent cwItems=${uiState.continueWatchingItems.size}")
+            Log.d(
+                "HomeGate",
+                "RELEASE timeout: isLoading=${uiState.isLoading} cwResolved=$initialCwResolved catalogs=$hasCatalogContent cwItems=${uiState.continueWatchingItems.size}"
+            )
             homeStableGateReleased = true
         }
     }
@@ -248,11 +273,19 @@ fun HomeScreen(
         hasCollectionContent
     val showStartupLoader = when {
         !uiState.layoutPreferencesReady -> true
+
         uiState.isLoading && !hasAnyContent -> true
+
         uiState.error == noAddonsError && uiState.catalogRows.isEmpty() -> !homeStableGateReleased
-        uiState.error == noCatalogAddonsError && uiState.catalogRows.isEmpty() && !hasCollectionContent && !hasHeroContent -> !homeStableGateReleased
+
+        uiState.error == noCatalogAddonsError && uiState.catalogRows.isEmpty() &&
+            !hasCollectionContent &&
+            !hasHeroContent -> !homeStableGateReleased
+
         uiState.error != null && uiState.catalogRows.isEmpty() -> false
+
         !uiState.isLoading && !hasAnyContent -> !homeStableGateReleased
+
         else -> !homeStableGateReleased || !modernPresentationReady || !showHomeContentWithAnimation
     }
 
@@ -300,7 +333,9 @@ fun HomeScreen(
                 }
             }
 
-            uiState.error == noCatalogAddonsError && uiState.catalogRows.isEmpty() && !hasCollectionContent && !hasHeroContent -> {
+            uiState.error == noCatalogAddonsError && uiState.catalogRows.isEmpty() &&
+                !hasCollectionContent &&
+                !hasHeroContent -> {
                 if (!homeStableGateReleased) {
                     Unit
                 } else {
@@ -452,8 +487,13 @@ fun HomeScreen(
             ) {
                 Text(
                     text = when (startupAuthNotice) {
-                        StartupAuthNotice.NUVIO -> stringResource(R.string.auth_notice_nuvio_logged_out)
-                        StartupAuthNotice.TRAKT -> stringResource(R.string.auth_notice_trakt_logged_out)
+                        StartupAuthNotice.NUVIO -> stringResource(
+                            R.string.auth_notice_nuvio_logged_out
+                        )
+
+                        StartupAuthNotice.TRAKT -> stringResource(
+                            R.string.auth_notice_trakt_logged_out
+                        )
                     },
                     style = MaterialTheme.typography.bodyMedium.bodyFloor(),
                     color = ExpressiveOnErrorContainer
@@ -566,7 +606,9 @@ private fun ClassicHomeRoute(
             { item -> viewModel.onEvent(HomeEvent.OnMarkContinueWatchingWatched(item)) }
         },
         onRemoveContinueWatching = { contentId, season, episode, isNextUp ->
-            viewModel.onEvent(HomeEvent.OnRemoveContinueWatching(contentId, season, episode, isNextUp))
+            viewModel.onEvent(
+                HomeEvent.OnRemoveContinueWatching(contentId, season, episode, isNextUp)
+            )
         },
         isCatalogItemWatched = isCatalogItemWatched,
         onCatalogItemLongPress = onCatalogItemLongPress,
@@ -627,7 +669,9 @@ private fun GridHomeRoute(
         },
         onRemoveContinueWatching = remember(viewModel) {
             { contentId, season, episode, isNextUp ->
-                viewModel.onEvent(HomeEvent.OnRemoveContinueWatching(contentId, season, episode, isNextUp))
+                viewModel.onEvent(
+                    HomeEvent.OnRemoveContinueWatching(contentId, season, episode, isNextUp)
+                )
             }
         },
         isCatalogItemWatched = isCatalogItemWatched,
@@ -678,11 +722,22 @@ private fun ModernHomeRoute(
     }
     val removeContinueWatching = remember(viewModel) {
         { contentId: String, season: Int?, episode: Int?, isNextUp: Boolean ->
-            viewModel.onEvent(HomeEvent.OnRemoveContinueWatching(contentId, season, episode, isNextUp))
+            viewModel.onEvent(
+                HomeEvent.OnRemoveContinueWatching(contentId, season, episode, isNextUp)
+            )
         }
     }
     val saveModernFocusState = remember(viewModel) {
-        { vi: Int, vo: Int, rk: String?, ikm: Map<String, String>, m: Map<String, Int>, ma: Map<String, String>, ri: Int, ii: Int ->
+        {
+                vi: Int,
+                vo: Int,
+                rk: String?,
+                ikm: Map<String, String>,
+                m: Map<String, Int>,
+                ma: Map<String, String>,
+                ri: Int,
+                ii: Int
+            ->
             viewModel.saveFocusState(vi, vo, rk, ikm, m, ma, ri, ii)
             // Authoritative: this is the row that actually held focus when Home went away.
             viewModel.setLiveFocusedRowKey(rk)
@@ -804,4 +859,3 @@ private fun HomePosterOptionsDialog(
         }
     }
 }
-

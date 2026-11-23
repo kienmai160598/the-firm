@@ -227,7 +227,10 @@ class SimklMutationReconciliationTest {
         assertEquals(0, entry.watchedEpisodesCount)
         assertNull(entry.lastWatchedAt)
         assertTrue(receipt.requiresReconciliation)
-        assertEquals(1, (receipt.mutation as SimklCommittedMutation.RemoveFromHistory).deleted.episodes)
+        assertEquals(
+            1,
+            (receipt.mutation as SimklCommittedMutation.RemoveFromHistory).deleted.episodes
+        )
     }
 
     @Test

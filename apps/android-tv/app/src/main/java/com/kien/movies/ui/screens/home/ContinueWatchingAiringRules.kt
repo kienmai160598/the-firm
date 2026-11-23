@@ -18,7 +18,7 @@ enum class FullyWatchedNextUpAction {
      * Aired next episode: user is no longer caught up. Keep on CW and clear the
      * stale fully-watched badge. Pre-fix code dropped the item instead.
      */
-    KEEP_AND_CLEAR_BADGE,
+    KEEP_AND_CLEAR_BADGE
 }
 
 /**
@@ -60,7 +60,7 @@ internal fun legacyShouldDropFullyWatchedNextUp(nextUpHasAired: Boolean): Boolea
 fun mergeAiredNextEpisodeIntoBadgeCache(
     existingAiredEpisodes: Set<Pair<Int, Int>>?,
     nextSeason: Int?,
-    nextEpisode: Int?,
+    nextEpisode: Int?
 ): Set<Pair<Int, Int>>? {
     if (existingAiredEpisodes == null) return null
     if (nextSeason == null || nextEpisode == null) return existingAiredEpisodes
@@ -73,7 +73,7 @@ fun mergeAiredNextEpisodeIntoBadgeCache(
  */
 fun isFullyWatchedAgainstAiredList(
     airedEpisodes: Set<Pair<Int, Int>>,
-    watchedEpisodes: Set<Pair<Int, Int>>,
+    watchedEpisodes: Set<Pair<Int, Int>>
 ): Boolean {
     if (airedEpisodes.isEmpty()) return false
     return airedEpisodes.all { it in watchedEpisodes }

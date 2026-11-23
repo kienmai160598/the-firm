@@ -1,7 +1,5 @@
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +17,7 @@ import com.kien.movies.domain.model.ExperienceMode
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 internal fun ExperienceModeConfirmationDialog(

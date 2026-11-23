@@ -7,8 +7,8 @@ import com.kien.movies.data.mdblist.MdbListLibrarySnapshot
 import com.kien.movies.data.mdblist.decodeMdbListLibraryPage
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -25,13 +25,23 @@ class LibrarySortingTest {
     @Test
     fun `MDBList provider order follows the order MDBList returns rather than item ranks`() = runTest {
         val f = LibraryViewModelTestFixture()
-        val items = decodeMdbListLibraryPage("""[
+        val items = decodeMdbListLibraryPage(
+            """[
             {"id":1,"mediatype":"movie","title":"Zulu","rank":5},
             {"id":2,"mediatype":"movie","title":"Alpha","rank":1}
-        ]""").items
-        f.items.value = MdbListLibraryProjection(MdbListLibrarySnapshot(itemsByList = mapOf(f.tab.key to items))).entries
+        ]"""
+        ).items
+        f.items.value =
+            MdbListLibraryProjection(
+                MdbListLibrarySnapshot(itemsByList = mapOf(f.tab.key to items))
+            ).entries
         runCurrent()
-        assertEquals(listOf("Zulu", "Alpha"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Zulu", "Alpha"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
     }
 
     @Test
@@ -39,24 +49,46 @@ class LibrarySortingTest {
         val requested = mutableListOf<Pair<String, Boolean>>()
         val sorter = object : TrackingLibrarySorter {
             override fun observeAddedOrder(listKey: String, descending: Boolean) = flowOf(
-                listOf("movie:tmdb:2", "series:tmdb:1", "movie:tmdb:1").let { if (descending) it else it.reversed() }
+                listOf("movie:tmdb:2", "series:tmdb:1", "movie:tmdb:1").let {
+                    if (descending) it else it.reversed()
+                }
             ).also { requested += listKey to descending }
         }
         val f = populatedFixture(sorter)
         runCurrent()
         f.viewModel.onSelectSortOption(LibrarySortOption.ADDED_DESC)
         runCurrent()
-        assertEquals(listOf("Bravo", "Alpha", "Zulu"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Bravo", "Alpha", "Zulu"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         f.viewModel.onSelectTypeTab(LibraryTypeTab("movie", "Movies"))
         runCurrent()
-        assertEquals(listOf("Bravo", "Zulu"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Bravo", "Zulu"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         f.viewModel.onSelectSortOption(LibrarySortOption.ADDED_ASC)
         runCurrent()
-        assertEquals(listOf("Zulu", "Bravo"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Zulu", "Bravo"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         assertEquals(listOf(f.tab.key to true, f.tab.key to false), requested)
         f.viewModel.onSelectSortOption(LibrarySortOption.TITLE_ASC)
         runCurrent()
-        assertEquals(listOf("Bravo", "Zulu"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Bravo", "Zulu"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         assertEquals(2, requested.size)
     }
 
@@ -66,17 +98,29 @@ class LibrarySortingTest {
         val sorter = object : TrackingLibrarySorter {
             override fun observeAddedOrder(listKey: String, descending: Boolean) = flowOf<List<String>?>(null)
             override fun observeReleaseOrder(listKey: String, descending: Boolean) = flowOf(
-                listOf("series:tmdb:1", "movie:tmdb:1", "movie:tmdb:2").let { if (descending) it.reversed() else it }
+                listOf("series:tmdb:1", "movie:tmdb:1", "movie:tmdb:2").let {
+                    if (descending) it.reversed() else it
+                }
             ).also { requested += descending }
         }
         val f = populatedFixture(sorter)
         runCurrent()
         f.viewModel.onSelectSortOption(LibrarySortOption.RELEASED_DESC)
         runCurrent()
-        assertEquals(listOf("Bravo", "Zulu", "Alpha"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Bravo", "Zulu", "Alpha"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         f.viewModel.onSelectSortOption(LibrarySortOption.RELEASED_ASC)
         runCurrent()
-        assertEquals(listOf("Alpha", "Zulu", "Bravo"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Alpha", "Zulu", "Bravo"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         assertEquals(listOf(true, false), requested)
     }
 
@@ -94,14 +138,20 @@ class LibrarySortingTest {
         runCurrent()
         order.value = listOf("movie:tmdb:1", "movie:tmdb:2", "series:tmdb:1")
         runCurrent()
-        assertEquals(listOf("Alpha", "Bravo", "Zulu"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Alpha", "Bravo", "Zulu"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         assertNull(f.viewModel.uiState.value.providerSortOrder)
     }
 
     @Test
     fun `switching lists subscribes to that list added order`() = runTest {
         val first = MutableStateFlow<List<String>?>(null)
-        val second = MutableStateFlow<List<String>?>(listOf("movie:tmdb:2", "series:tmdb:1", "movie:tmdb:1"))
+        val second =
+            MutableStateFlow<List<String>?>(listOf("movie:tmdb:2", "series:tmdb:1", "movie:tmdb:1"))
         val sorter = object : TrackingLibrarySorter {
             override fun observeAddedOrder(listKey: String, descending: Boolean) = if (listKey.endsWith(":8")) second else first
         }
@@ -116,7 +166,12 @@ class LibrarySortingTest {
         runCurrent()
         first.value = listOf("movie:tmdb:1", "movie:tmdb:2", "series:tmdb:1")
         runCurrent()
-        assertEquals(listOf("Bravo", "Alpha", "Zulu"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Bravo", "Alpha", "Zulu"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         assertEquals(other.key, f.viewModel.uiState.value.providerSortOrder!!.listKey)
     }
 
@@ -134,16 +189,29 @@ class LibrarySortingTest {
         f.viewModel.onSelectSortOption(LibrarySortOption.ADDED_DESC)
         runCurrent()
         assertEquals(LibrarySortOption.DEFAULT, f.viewModel.uiState.value.selectedSortOption)
-        assertEquals(listOf("Zulu", "Alpha", "Bravo"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Zulu", "Alpha", "Bravo"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         f.viewModel.onSelectSortOption(LibrarySortOption.ADDED_DESC)
         runCurrent()
-        assertEquals(listOf("Bravo", "Alpha", "Zulu"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Bravo", "Alpha", "Zulu"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         assertEquals(2, attempts)
     }
 
     @Test
     fun `persisted added sort restores provider ordering and observes refreshed orders`() = runTest {
-        val order = MutableStateFlow<List<String>?>(listOf("movie:tmdb:2", "series:tmdb:1", "movie:tmdb:1"))
+        val order =
+            MutableStateFlow<List<String>?>(
+                listOf("movie:tmdb:2", "series:tmdb:1", "movie:tmdb:1")
+            )
         val sorter = object : TrackingLibrarySorter {
             override fun observeAddedOrder(listKey: String, descending: Boolean) = order
         }
@@ -151,35 +219,54 @@ class LibrarySortingTest {
         f.persistedSort.value = LibrarySortOption.ADDED_DESC.key
         runCurrent()
         assertEquals(LibrarySortOption.ADDED_DESC, f.viewModel.uiState.value.selectedSortOption)
-        assertEquals(listOf("Bravo", "Alpha", "Zulu"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Bravo", "Alpha", "Zulu"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         order.value = order.value!!.reversed()
         runCurrent()
-        assertEquals(listOf("Zulu", "Alpha", "Bravo"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Zulu", "Alpha", "Bravo"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
         assertEquals(LibrarySortOption.ADDED_DESC, f.viewModel.uiState.value.selectedSortOption)
     }
 
     private fun populatedFixture(sorter: TrackingLibrarySorter): LibraryViewModelTestFixture {
         val f = LibraryViewModelTestFixture(sorter)
-        val items = decodeMdbListLibraryPage("""[
+        val items = decodeMdbListLibraryPage(
+            """[
             {"id":1,"mediatype":"movie","title":"Zulu","rank":0},
             {"id":1,"mediatype":"show","title":"Alpha","rank":1},
             {"id":2,"mediatype":"movie","title":"Bravo","rank":2}
-        ]""").items
-        f.items.value = MdbListLibraryProjection(MdbListLibrarySnapshot(itemsByList = mapOf(f.tab.key to items))).entries
+        ]"""
+        ).items
+        f.items.value =
+            MdbListLibraryProjection(
+                MdbListLibrarySnapshot(itemsByList = mapOf(f.tab.key to items))
+            ).entries
         return f
     }
 
     @Test
     fun `all MDBList sort options reorder decoded entries when rank and added dates exist`() = runTest {
         val f = LibraryViewModelTestFixture()
-        val items = decodeMdbListLibraryPage("""{"items":[
+        val items = decodeMdbListLibraryPage(
+            """{"items":[
             {"id":1,"mediatype":"movie","title":"Zulu","rank":2,"added_at":"2026-09-01T00:00:00Z","release_year":1999},
             {"id":2,"mediatype":"show","title":"The Alpha","rank":3,"added_at":"2026-09-03T00:00:00Z","release_year":2024},
             {"id":3,"mediatype":"movie","title":"Bravo","rank":1,"added_at":"2026-09-02T00:00:00Z","release_year":2010}
-        ]}""").items
-        f.items.value = MdbListLibraryProjection(MdbListLibrarySnapshot(
-            itemsByList = mapOf(f.tab.key to items)
-        )).entries
+        ]}"""
+        ).items
+        f.items.value = MdbListLibraryProjection(
+            MdbListLibrarySnapshot(
+                itemsByList = mapOf(f.tab.key to items)
+            )
+        ).entries
         runCurrent()
         val expected = mapOf(
             LibrarySortOption.DEFAULT to listOf("Zulu", "The Alpha", "Bravo"),
@@ -194,7 +281,13 @@ class LibrarySortingTest {
         for ((option, names) in expected) {
             f.viewModel.onSelectSortOption(option)
             runCurrent()
-            assertEquals(option.name, names, f.viewModel.uiState.value.visibleItems.map { it.name })
+            assertEquals(
+                option.name,
+                names,
+                f.viewModel.uiState.value.visibleItems.map {
+                    it.name
+                }
+            )
             assertEquals(option, f.viewModel.uiState.value.selectedSortOption)
         }
     }
@@ -202,13 +295,17 @@ class LibrarySortingTest {
     @Test
     fun `MDBList response without added dates makes both added sorts identical while title and rank work`() = runTest {
         val f = LibraryViewModelTestFixture()
-        val items = decodeMdbListLibraryPage("""{
+        val items = decodeMdbListLibraryPage(
+            """{
             "movies":[{"id":278,"mediatype":"movie","title":"The Shawshank Redemption","rank":1}],
             "shows":[{"id":1396,"mediatype":"show","title":"Breaking Bad","rank":2}]
-        }""").items
-        f.items.value = MdbListLibraryProjection(MdbListLibrarySnapshot(
-            itemsByList = mapOf(f.tab.key to items)
-        )).entries
+        }"""
+        ).items
+        f.items.value = MdbListLibraryProjection(
+            MdbListLibrarySnapshot(
+                itemsByList = mapOf(f.tab.key to items)
+            )
+        ).entries
         runCurrent()
         assertTrue(f.items.value.all { it.listedAt == 0L })
         val providerOrder = listOf("The Shawshank Redemption", "Breaking Bad")
@@ -222,24 +319,38 @@ class LibrarySortingTest {
         )) {
             f.viewModel.onSelectSortOption(option)
             runCurrent()
-            assertEquals(option.name, names, f.viewModel.uiState.value.visibleItems.map { it.name })
+            assertEquals(
+                option.name,
+                names,
+                f.viewModel.uiState.value.visibleItems.map {
+                    it.name
+                }
+            )
         }
     }
 
     @Test
     fun `MDBList provider order preserves response order when rank and added date are absent`() = runTest {
         val f = LibraryViewModelTestFixture()
-        val items = decodeMdbListLibraryPage("""{"items":[
+        val items = decodeMdbListLibraryPage(
+            """{"items":[
             {"id":1,"mediatype":"movie","title":"Zulu"},
             {"id":2,"mediatype":"show","title":"Alpha"},
             {"id":3,"mediatype":"movie","title":"Bravo"}
-        ]}""").items
-        f.items.value = MdbListLibraryProjection(MdbListLibrarySnapshot(
-            itemsByList = mapOf(f.tab.key to items)
-        )).entries
+        ]}"""
+        ).items
+        f.items.value = MdbListLibraryProjection(
+            MdbListLibrarySnapshot(
+                itemsByList = mapOf(f.tab.key to items)
+            )
+        ).entries
         runCurrent()
         assertEquals(LibrarySortOption.DEFAULT, f.viewModel.uiState.value.selectedSortOption)
-        assertEquals(listOf("Zulu", "Alpha", "Bravo"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(
+            listOf("Zulu", "Alpha", "Bravo"),
+            f.viewModel.uiState.value.visibleItems.map {
+                it.name
+            }
+        )
     }
-
 }

@@ -7,10 +7,10 @@ import androidx.media3.common.Format
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.Tracks
 import androidx.media3.common.text.Cue
-import java.util.Locale
-import java.util.concurrent.ConcurrentHashMap
 import com.kien.movies.ui.util.LANGUAGE_OVERRIDES
 import com.kien.movies.ui.util.resolveLanguageNameAlias
+import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 internal object PlayerSubtitleUtils {
     private val WHITESPACE = Regex("\\s+")
@@ -18,7 +18,11 @@ internal object PlayerSubtitleUtils {
     private val normalizedLanguageCache = ConcurrentHashMap<String, String>()
     fun normalizeLanguageCode(lang: String): String {
         normalizedLanguageCache[lang]?.let { return it }
-        if (normalizedLanguageCache.size >= NORMALIZED_LANGUAGE_CACHE_LIMIT) normalizedLanguageCache.clear()
+        if (normalizedLanguageCache.size >=
+            NORMALIZED_LANGUAGE_CACHE_LIMIT
+        ) {
+            normalizedLanguageCache.clear()
+        }
         return computeNormalizedLanguageCode(lang).also { normalizedLanguageCache[lang] = it }
     }
 
@@ -39,7 +43,17 @@ internal object PlayerSubtitleUtils {
         }
 
         if (containsAny("portuguese", "portugues")) {
-            if (containsAny("brazil", "brasil", "brazilian", "brasileiro", "pt br", "ptbr", "pob", "(br)")) {
+            if (containsAny(
+                    "brazil",
+                    "brasil",
+                    "brazilian",
+                    "brasileiro",
+                    "pt br",
+                    "ptbr",
+                    "pob",
+                    "(br)"
+                )
+            ) {
                 return "pt-br"
             }
             if (containsAny("portugal", "european", "europeu", "iberian", "pt pt", "ptpt")) {
@@ -75,7 +89,7 @@ internal object PlayerSubtitleUtils {
     }
 
     private fun stripPrefixAndNormalizeLanguageCode(language: String, prefix: String): String? {
-        val stripped = language.replace(prefix,"").trim()
+        val stripped = language.replace(prefix, "").trim()
         return LANGUAGE_OVERRIDES[stripped]?.lowercase()
     }
 
@@ -164,17 +178,33 @@ internal object PlayerSubtitleUtils {
         "pt-br", "pt_br", "pob", "brazilian", "brazil", "brasil", "brasileiro", " br", "(br)"
     )
     internal val EUROPEAN_PT_TAGS = listOf(
-        "pt-pt", "pt_pt", "iberian", "european", "portugal", "europeu", " eu", "(eu)"
+        "pt-pt",
+        "pt_pt",
+        "iberian",
+        "european",
+        "portugal",
+        "europeu",
+        " eu",
+        "(eu)"
     )
     internal val LATINO_TAGS = listOf(
         "es-419", "es_419", "es-la", "es-lat", "latino", "latinoamerica",
         "latinoamericano", "latam", "lat am", "latin america"
     )
     internal val CASTILIAN_TAGS = listOf(
-        "es-es", "es_es", "castilian", "castellano", "spain", "españa", "espana", "iberian"
+        "es-es",
+        "es_es",
+        "castilian",
+        "castellano",
+        "spain",
+        "españa",
+        "espana",
+        "iberian"
     )
     internal val INDONESIAN_TAGS = listOf(
-        "indonesia", "indonesian", "bahasa indonesia"
+        "indonesia",
+        "indonesian",
+        "bahasa indonesia"
     )
 
     fun mimeTypeFromUrl(url: String): String {
@@ -186,9 +216,17 @@ internal object PlayerSubtitleUtils {
 
         return when {
             normalizedPath.endsWith(".srt") -> MimeTypes.APPLICATION_SUBRIP
-            normalizedPath.endsWith(".vtt") || normalizedPath.endsWith(".webvtt") -> MimeTypes.TEXT_VTT
+
+            normalizedPath.endsWith(
+                ".vtt"
+            ) || normalizedPath.endsWith(".webvtt") -> MimeTypes.TEXT_VTT
+
             normalizedPath.endsWith(".ass") || normalizedPath.endsWith(".ssa") -> MimeTypes.TEXT_SSA
-            normalizedPath.endsWith(".ttml") || normalizedPath.endsWith(".dfxp") -> MimeTypes.APPLICATION_TTML
+
+            normalizedPath.endsWith(
+                ".ttml"
+            ) || normalizedPath.endsWith(".dfxp") -> MimeTypes.APPLICATION_TTML
+
             else -> MimeTypes.APPLICATION_SUBRIP
         }
     }
@@ -282,9 +320,13 @@ internal object PlayerSubtitleUtils {
             validTexts.distinct().joinToString("\n")
         }
         val first = cues[0]
-        val sharesPosition = cues.all { it.position == first.position && it.positionAnchor == first.positionAnchor }
+        val sharesPosition = cues.all {
+            it.position == first.position &&
+                it.positionAnchor == first.positionAnchor
+        }
         val base = when {
             sharesPosition -> first
+
             else -> cues.firstOrNull { it.position == Cue.DIMEN_UNSET }
                 ?: first.buildUpon()
                     .setPosition(Cue.DIMEN_UNSET)
@@ -296,7 +338,9 @@ internal object PlayerSubtitleUtils {
     }
 
     fun normalizeBottomCuePosition(cue: Cue): Cue {
-        if (cue.bitmap != null || cue.verticalType != Cue.TYPE_UNSET || cue.line == Cue.DIMEN_UNSET) {
+        if (cue.bitmap != null || cue.verticalType != Cue.TYPE_UNSET ||
+            cue.line == Cue.DIMEN_UNSET
+        ) {
             return cue
         }
         val placedAwayFromBottom = when (cue.lineType) {
@@ -324,13 +368,13 @@ internal object PlayerSubtitleUtils {
         } == true
     }
 
-    private fun Format.isAssOrSsa(): Boolean =
-        sampleMimeType == MimeTypes.TEXT_SSA || codecs
-            ?.split(',')
-            ?.map { it.trim().lowercase(Locale.US) }
-            ?.any { codec ->
-                codec == MimeTypes.TEXT_SSA || codec == "s_text/ass" || codec == "s_text/ssa" || codec.endsWith("/x-ssa")
-            } == true
+    private fun Format.isAssOrSsa(): Boolean = sampleMimeType == MimeTypes.TEXT_SSA || codecs
+        ?.split(',')
+        ?.map { it.trim().lowercase(Locale.US) }
+        ?.any { codec ->
+            codec == MimeTypes.TEXT_SSA || codec == "s_text/ass" || codec == "s_text/ssa" ||
+                codec.endsWith("/x-ssa")
+        } == true
 
     private const val BOTTOM_CUE_LINE_FRACTION = 0.6f
 }

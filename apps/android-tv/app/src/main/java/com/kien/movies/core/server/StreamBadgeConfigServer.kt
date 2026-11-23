@@ -28,6 +28,7 @@ class StreamBadgeConfigServer(
 ) : NanoHTTPD(port) {
     private val gson = Gson()
     private val settingsMapType = object : TypeToken<Map<String, Any?>>() {}.type
+
     @OptIn(ExperimentalSerializationApi::class)
     private val badgeJson = Json {
         ignoreUnknownKeys = true
@@ -37,22 +38,36 @@ class StreamBadgeConfigServer(
     override fun serve(session: IHTTPSession): Response {
         return when {
             session.method == Method.GET && session.uri == "/" -> serveWebPage()
+
             session.method == Method.GET && session.uri == "/logo.png" -> serveLogo()
+
             session.method == Method.GET && session.uri == "/api/settings" -> serveSettings()
-            session.method == Method.POST && session.uri == "/api/settings" -> handleSettingsUpdate(session)
-            session.method == Method.POST && session.uri == "/api/badges/import" -> handleBadgeImport(session)
-            session.method == Method.POST && session.uri == "/api/badges/active" -> handleBadgeActive(session)
-            session.method == Method.POST && session.uri == "/api/badges/delete" -> handleBadgeDelete(session)
+
+            session.method == Method.POST && session.uri == "/api/settings" -> handleSettingsUpdate(
+                session
+            )
+
+            session.method == Method.POST && session.uri == "/api/badges/import" -> handleBadgeImport(
+                session
+            )
+
+            session.method == Method.POST && session.uri == "/api/badges/active" -> handleBadgeActive(
+                session
+            )
+
+            session.method == Method.POST && session.uri == "/api/badges/delete" -> handleBadgeDelete(
+                session
+            )
+
             else -> newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found")
         }
     }
 
-    private fun serveWebPage(): Response =
-        newFixedLengthResponse(
-            Response.Status.OK,
-            "text/html; charset=utf-8",
-            StreamBadgeWebPage.html(context)
-        )
+    private fun serveWebPage(): Response = newFixedLengthResponse(
+        Response.Status.OK,
+        "text/html; charset=utf-8",
+        StreamBadgeWebPage.html(context)
+    )
 
     private fun serveLogo(): Response {
         val bytes = logoProvider?.invoke()
@@ -70,16 +85,26 @@ class StreamBadgeConfigServer(
 
     private fun serveSettings(): Response {
         val settings = currentSettingsProvider()
-        val rulesJson = badgeJson.encodeToString(StreamBadgeRules.serializer(), settings.rules.normalized())
+        val rulesJson = badgeJson.encodeToString(
+            StreamBadgeRules.serializer(),
+            settings.rules.normalized()
+        )
         val responseJson = """{"settings":{"streamBadgeRules":$rulesJson,"showFileSizeBadges":${settings.showFileSizeBadges},"badgePlacement":"${settings.badgePlacement.name}"}}"""
-        return newFixedLengthResponse(Response.Status.OK, "application/json; charset=utf-8", responseJson)
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "application/json; charset=utf-8",
+            responseJson
+        )
     }
 
     private fun handleSettingsUpdate(session: IHTTPSession): Response {
         val parsed = parseBodyMap(session)
         val currentSettings = currentSettingsProvider()
-        val streamBadgeRules = parseStreamBadgeRules(parsed?.get("streamBadgeRules")) ?: currentSettings.rules.normalized()
-        val showFileSizeBadges = (parsed?.get("showFileSizeBadges") as? Boolean) ?: currentSettings.showFileSizeBadges
+        val streamBadgeRules =
+            parseStreamBadgeRules(parsed?.get("streamBadgeRules"))
+                ?: currentSettings.rules.normalized()
+        val showFileSizeBadges =
+            (parsed?.get("showFileSizeBadges") as? Boolean) ?: currentSettings.showFileSizeBadges
         val badgePlacement = (parsed?.get("badgePlacement") as? String)
             .toStreamBadgePlacement()
             ?: currentSettings.badgePlacement
@@ -90,7 +115,11 @@ class StreamBadgeConfigServer(
                 badgePlacement = badgePlacement
             )
         )
-        return newFixedLengthResponse(Response.Status.OK, "application/json; charset=utf-8", gson.toJson(mapOf("status" to "saved")))
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "application/json; charset=utf-8",
+            gson.toJson(mapOf("status" to "saved"))
+        )
     }
 
     private fun handleBadgeImport(session: IHTTPSession): Response {
@@ -98,13 +127,19 @@ class StreamBadgeConfigServer(
         val rawSourceUrl = (parsed?.get("sourceUrl") as? String).orEmpty().trim()
         val pastedPayload = (parsed?.get("payload") as? String).orEmpty()
         if (rawSourceUrl.isBlank() && pastedPayload.isBlank()) {
-            return errorResponse(context?.getString(com.kien.movies.R.string.web_stream_badge_error_url_required) ?: "Enter a badge JSON URL.")
+            return errorResponse(
+                context?.getString(com.kien.movies.R.string.web_stream_badge_error_url_required)
+                    ?: "Enter a badge JSON URL."
+            )
         }
         if (pastedPayload.isBlank() &&
             !rawSourceUrl.startsWith("https://", ignoreCase = true) &&
             !rawSourceUrl.startsWith("http://", ignoreCase = true)
         ) {
-            return errorResponse(context?.getString(com.kien.movies.R.string.web_stream_badge_error_url_scheme) ?: "Badge URL must start with http:// or https://.")
+            return errorResponse(
+                context?.getString(com.kien.movies.R.string.web_stream_badge_error_url_scheme)
+                    ?: "Badge URL must start with http:// or https://."
+            )
         }
 
         val currentSettings = currentSettingsProvider()
@@ -114,7 +149,13 @@ class StreamBadgeConfigServer(
             import.sourceUrl.equals(sourceUrl, ignoreCase = true)
         }
         if (!isExistingImport && currentRules.imports.size >= STREAM_BADGE_IMPORT_LIMIT) {
-            return errorResponse(context?.getString(com.kien.movies.R.string.web_stream_badge_error_import_limit, STREAM_BADGE_IMPORT_LIMIT) ?: "You can import up to $STREAM_BADGE_IMPORT_LIMIT badge URLs.")
+            return errorResponse(
+                context?.getString(
+                    com.kien.movies.R.string.web_stream_badge_error_import_limit,
+                    STREAM_BADGE_IMPORT_LIMIT
+                )
+                    ?: "You can import up to $STREAM_BADGE_IMPORT_LIMIT badge URLs."
+            )
         }
 
         return try {
@@ -180,10 +221,9 @@ class StreamBadgeConfigServer(
         }
     }
 
-    private fun String?.toStreamBadgePlacement(): StreamBadgePlacement? =
-        StreamBadgePlacement.entries.firstOrNull { placement ->
-            placement.name.equals(this, ignoreCase = true)
-        }
+    private fun String?.toStreamBadgePlacement(): StreamBadgePlacement? = StreamBadgePlacement.entries.firstOrNull { placement ->
+        placement.name.equals(this, ignoreCase = true)
+    }
 
     private fun fetchText(url: String): String {
         val connection = URL(url).openConnection() as HttpURLConnection
@@ -201,15 +241,14 @@ class StreamBadgeConfigServer(
         }
     }
 
-    private fun badgeImportFailedMessage(): String =
-        context?.getString(com.kien.movies.R.string.web_stream_badge_import_error) ?: "Badge import failed."
+    private fun badgeImportFailedMessage(): String = context?.getString(com.kien.movies.R.string.web_stream_badge_import_error)
+        ?: "Badge import failed."
 
-    private fun errorResponse(message: String): Response =
-        newFixedLengthResponse(
-            Response.Status.BAD_REQUEST,
-            "application/json; charset=utf-8",
-            gson.toJson(mapOf("error" to message))
-        )
+    private fun errorResponse(message: String): Response = newFixedLengthResponse(
+        Response.Status.BAD_REQUEST,
+        "application/json; charset=utf-8",
+        gson.toJson(mapOf("error" to message))
+    )
 
     private fun readUtf8Body(session: IHTTPSession): String {
         val length = session.headers["content-length"]?.toIntOrNull() ?: return ""

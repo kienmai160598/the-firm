@@ -44,8 +44,7 @@ internal fun TenFootTypography(content: @Composable () -> Unit) {
 /** A settings row's title: the body style raised to the row title floor. */
 @Composable
 @ReadOnlyComposable
-internal fun settingsRowTitleStyle(): TextStyle =
-    MaterialTheme.typography.bodyLarge.rowTitleFloor()
+internal fun settingsRowTitleStyle(): TextStyle = MaterialTheme.typography.bodyLarge.rowTitleFloor()
 
 private fun Typography.withTenFootFloors(): Typography = copy(
     headlineMedium = headlineMedium.screenTitleFloor(),
@@ -58,9 +57,8 @@ private fun Typography.withTenFootFloors(): Typography = copy(
 )
 
 /** A hard-coded secondary text size, raised to the meta floor. */
-internal fun metaFontSize(upstream: TextUnit): TextUnit =
-    if (upstream.value < TvSizeFloors.metaText.value) {
-        TvSizeFloors.metaText
-    } else {
-        upstream
-    }
+internal fun metaFontSize(upstream: TextUnit): TextUnit = if (upstream.value < TvSizeFloors.metaText.value) {
+    TvSizeFloors.metaText
+} else {
+    upstream
+}

@@ -41,7 +41,9 @@ internal fun buildMagnetUri(infoHash: String, trackers: List<String>): String {
     } else {
         "urn:btmh:1220$canonicalHash"
     }
-    val trackerParameters = trackers.filter(String::isNotBlank).distinct().joinToString("") { tracker ->
+    val trackerParameters = trackers.filter(
+        String::isNotBlank
+    ).distinct().joinToString("") { tracker ->
         "&tr=${tracker.encodeQueryValue()}"
     }
     return "magnet:?xt=$topic$trackerParameters"

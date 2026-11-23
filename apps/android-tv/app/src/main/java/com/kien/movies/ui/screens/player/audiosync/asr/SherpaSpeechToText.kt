@@ -15,8 +15,9 @@ internal class SherpaSpeechToText(
     modelDir: File,
     threads: Int,
     /** Trades some speed for a smaller footprint (see [AsrModelFiles.provider]). */
-    lowMemory: Boolean = false,
-) : SpeechToText, AutoCloseable {
+    lowMemory: Boolean = false
+) : SpeechToText,
+    AutoCloseable {
     val modelFormat = AsrModelFiles.format(modelDir)
     private val recognizer = OfflineRecognizer(
         config = OfflineRecognizerConfig(
@@ -25,15 +26,15 @@ internal class SherpaSpeechToText(
                 transducer = OfflineTransducerModelConfig(
                     encoder = File(modelDir, "encoder.int8.${modelFormat.extension}").absolutePath,
                     decoder = File(modelDir, "decoder.int8.${modelFormat.extension}").absolutePath,
-                    joiner = File(modelDir, "joiner.int8.${modelFormat.extension}").absolutePath,
+                    joiner = File(modelDir, "joiner.int8.${modelFormat.extension}").absolutePath
                 ),
                 tokens = File(modelDir, AsrModel.TOKENS).absolutePath,
                 numThreads = threads,
                 modelType = "transducer",
-                provider = AsrModelFiles.provider(modelDir, modelFormat, lowMemory),
+                provider = AsrModelFiles.provider(modelDir, modelFormat, lowMemory)
             ),
-            decodingMethod = "greedy_search",
-        ),
+            decodingMethod = "greedy_search"
+        )
     )
 
     override fun transcribe(samples: FloatArray): List<Pair<Double, String>> {

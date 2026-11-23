@@ -27,16 +27,16 @@ internal object AutoSyncAssDialogueFilter {
     private val nonDialogueName = Regex(
         """(?:^|[^a-z])(?:signs?|songs?|lyrics?|karaoke|kara|kfx|fx|op|ed|opening|ending|insert|""" +
             """romaji|kanji|title|eyecatch|preview|next|logo|credits?|staff|notes?|tl ?note|""" +
-            """typeset|ts|ruby|furigana|screen|text)(?:$|[^a-z])""",
+            """typeset|ts|ruby|furigana|screen|text)(?:$|[^a-z])"""
     )
     private val dialogueName = Regex(
         """(?:^|[^a-z])(?:default|main|dialog|dialogue|dial|italics?|flashback|thoughts?|""" +
-            """internal|narrat\w*|overlap|top|alt|sub|subs|subtitles?)(?:$|[^a-z])""",
+            """internal|narrat\w*|overlap|top|alt|sub|subs|subtitles?)(?:$|[^a-z])"""
     )
 
     // Override tags that place, animate, clip or draw text: typesetting, not dialogue.
     private val typesetTag = Regex(
-        """\\(?:pos|move|org|i?clip)\s*\(|\\t\s*\(|\\p[1-9]|\\[kK][fo]?\d|\\fr[xyz]?-?\d|\\fa[xy]""",
+        """\\(?:pos|move|org|i?clip)\s*\(|\\t\s*\(|\\p[1-9]|\\[kK][fo]?\d|\\fr[xyz]?-?\d|\\fa[xy]"""
     )
 
     internal data class Style(val name: String, val alignment: Int?)
@@ -47,7 +47,7 @@ internal object AutoSyncAssDialogueFilter {
         val style: String,
         val name: String,
         val effect: String,
-        val rawText: String,
+        val rawText: String
     )
 
     /**
@@ -79,7 +79,7 @@ internal object AutoSyncAssDialogueFilter {
      */
     fun indexedDialogueCues(
         cues: List<SubtitleSyncCue>,
-        estimatedEndStartsMs: Set<Long>,
+        estimatedEndStartsMs: Set<Long>
     ): List<SubtitleSyncCue> {
         if (cues.size < MIN_DIALOGUE_EVENTS) return cues
         val sorted = cues.sortedBy { it.startTimeMs }

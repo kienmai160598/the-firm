@@ -365,11 +365,7 @@ class SimklPlaybackReconciliationTest {
         show = playbackMedia
     )
 
-    private fun media(
-        id: Long,
-        imdb: String? = null,
-        tvdb: String? = null
-    ): SimklMedia = SimklMedia(
+    private fun media(id: Long, imdb: String? = null, tvdb: String? = null): SimklMedia = SimklMedia(
         title = "Title $id",
         runtime = 50,
         ids = buildJsonObject {

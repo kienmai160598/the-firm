@@ -40,8 +40,11 @@ internal fun UpdateChannelSettings(
         value = channelName,
         onClick = { showChannelDialog = true },
         modifier = modifier.then(
-            if (initialFocusRequester != null) Modifier.focusRequester(initialFocusRequester)
-            else Modifier
+            if (initialFocusRequester != null) {
+                Modifier.focusRequester(initialFocusRequester)
+            } else {
+                Modifier
+            }
         )
     )
 

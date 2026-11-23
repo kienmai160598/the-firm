@@ -2,29 +2,8 @@ package com.kien.movies.ui.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.media3.common.util.UnstableApi
-import com.kien.movies.core.plugin.PluginManager
-import com.kien.movies.data.local.DeviceLocalPlayerPreferences
-import com.kien.movies.data.local.LibassRenderScale
-import com.kien.movies.data.local.LibassRenderType
-import com.kien.movies.data.local.LibassRenderMode
-import com.kien.movies.data.local.InternalPlayerEngine
-import com.kien.movies.data.local.DownmixLfeLevel
-import com.kien.movies.data.local.NightMode
-import com.kien.movies.data.local.Dv7HandlingMode
-import com.kien.movies.data.local.PlayerSettings
-import com.kien.movies.data.local.PlayerSettingsDataStore
-import com.kien.movies.data.local.PlayerPreference
 import com.kien.movies.core.player.LastPlaybackDiagnostics
-import com.kien.movies.data.local.FrameRateMatchingMode
-import com.kien.movies.data.local.NextEpisodeThresholdMode
-import com.kien.movies.data.local.StreamAutoPlayMode
-import com.kien.movies.data.local.StreamAutoPlaySource
-import com.kien.movies.data.local.AudioOutputChannels
-import com.kien.movies.data.local.AutoSkipSegmentType
-import com.kien.movies.data.local.MpvHardwareDecodeMode
-import com.kien.movies.data.local.SubtitleOrganizationMode
-import com.kien.movies.data.local.TrailerSettings
-import com.kien.movies.data.local.TrailerSettingsDataStore
+import com.kien.movies.core.plugin.PluginManager
 import com.kien.movies.core.torrent.TorrentCacheClearResult
 import com.kien.movies.core.torrent.TorrentCacheSize
 import com.kien.movies.core.torrent.TorrentCacheState
@@ -33,16 +12,37 @@ import com.kien.movies.core.torrent.TorrentService
 import com.kien.movies.core.torrent.TorrentSettings
 import com.kien.movies.core.torrent.TorrentSettingsData
 import com.kien.movies.core.torrent.TorrentState
+import com.kien.movies.data.local.AudioOutputChannels
+import com.kien.movies.data.local.AutoSkipSegmentType
+import com.kien.movies.data.local.DeviceLocalPlayerPreferences
+import com.kien.movies.data.local.DownmixLfeLevel
+import com.kien.movies.data.local.Dv7HandlingMode
+import com.kien.movies.data.local.FrameRateMatchingMode
+import com.kien.movies.data.local.InternalPlayerEngine
+import com.kien.movies.data.local.LibassRenderMode
+import com.kien.movies.data.local.LibassRenderScale
+import com.kien.movies.data.local.LibassRenderType
+import com.kien.movies.data.local.MpvHardwareDecodeMode
+import com.kien.movies.data.local.NextEpisodeThresholdMode
+import com.kien.movies.data.local.NightMode
+import com.kien.movies.data.local.PlayerPreference
+import com.kien.movies.data.local.PlayerSettings
+import com.kien.movies.data.local.PlayerSettingsDataStore
+import com.kien.movies.data.local.StreamAutoPlayMode
+import com.kien.movies.data.local.StreamAutoPlaySource
+import com.kien.movies.data.local.SubtitleOrganizationMode
+import com.kien.movies.data.local.TrailerSettings
+import com.kien.movies.data.local.TrailerSettingsDataStore
 import com.kien.movies.data.local.VodCacheSizeMode
 import com.kien.movies.domain.model.enabledAddons
 import com.kien.movies.domain.repository.AddonRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
 @HiltViewModel
 class PlaybackSettingsViewModel @Inject constructor(
@@ -70,7 +70,9 @@ class PlaybackSettingsViewModel @Inject constructor(
     suspend fun clearTorrentCache(): TorrentCacheClearResult = torrentService.clearCache()
 
     val lastPlaybackDiagnostics: Flow<LastPlaybackDiagnostics> = playerSettingsDataStore.lastPlaybackDiagnostics
-    val installedAddonNames: Flow<List<String>> = addonRepository.getInstalledAddons().map { addons ->
+    val installedAddonNames: Flow<List<String>> = addonRepository.getInstalledAddons().map {
+            addons
+        ->
         addons
             .enabledAddons()
             .filter { addon ->
@@ -227,7 +229,6 @@ class PlaybackSettingsViewModel @Inject constructor(
     suspend fun setMpvHi10pGnextSoftwareFallbackEnabled(enabled: Boolean) {
         playerSettingsDataStore.setMpvHi10pGnextSoftwareFallbackEnabled(enabled)
     }
-
 
     suspend fun setDv5ToDv81Enabled(enabled: Boolean) {
         playerSettingsDataStore.setDv5ToDv81Enabled(enabled)
@@ -396,7 +397,9 @@ class PlaybackSettingsViewModel @Inject constructor(
     @androidx.annotation.OptIn(UnstableApi::class)
     suspend fun setBufferTargetSizeMb(mb: Int) {
         val current = playerSettings.first()
-        if (!current.useParallelConnections || current.moviesPerformanceModeEnabled || current.allowLargeTargetBuffer) {
+        if (!current.useParallelConnections || current.moviesPerformanceModeEnabled ||
+            current.allowLargeTargetBuffer
+        ) {
             playerSettingsDataStore.setBufferTargetSizeMb(mb)
             return
         }
@@ -428,7 +431,11 @@ class PlaybackSettingsViewModel @Inject constructor(
     suspend fun resetBufferSettingsToDefaults() {
         playerSettingsDataStore.resetBufferSettingsToDefaults()
         val current = playerSettings.first()
-        if (!current.useParallelConnections || current.moviesPerformanceModeEnabled || current.allowLargeTargetBuffer) return
+        if (!current.useParallelConnections || current.moviesPerformanceModeEnabled ||
+            current.allowLargeTargetBuffer
+        ) {
+            return
+        }
 
         val currentChunkMb = Math.ceil(current.parallelChunkSizeKb / 1024.0).toInt()
         val (adjBuffer, adjChunkMb) = MemoryBudget.enforce(

@@ -206,7 +206,8 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
 
     fun markMediaRequested(url: String) {
         val path = if (initialized) mpv.getPropertyString("path") else null
-        pathAtMediaRequest = mpvPathBaselineForRequest(url, requestedMediaUrl, pathAtMediaRequest, path)
+        pathAtMediaRequest =
+            mpvPathBaselineForRequest(url, requestedMediaUrl, pathAtMediaRequest, path)
         requestedMediaUrl = url
     }
 
@@ -257,7 +258,12 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
             if (sid != null && sid != "no" && sid != "false") {
                 mpv.setPropertyBoolean("sub-visibility", !styled)
             }
-            if (styled) mpv.getPropertyString("sub-text/ass") ?: mpv.getPropertyString(MPV_SUB_TEXT_PROPERTY) else null
+            if (styled) {
+                mpv.getPropertyString("sub-text/ass")
+                    ?: mpv.getPropertyString(MPV_SUB_TEXT_PROPERTY)
+            } else {
+                null
+            }
         }.getOrNull()
     }
 
@@ -348,7 +354,10 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
             mpv.setPropertyString("hwdec", hardwareDecoder)
             appliedHi10pGnextSoftwareFallback = active
         }.onFailure {
-            Log.w(TAG, "Failed to apply mpv Hi10P G-NEXT SW fallback (active=$active): ${it.message}")
+            Log.w(
+                TAG,
+                "Failed to apply mpv Hi10P G-NEXT SW fallback (active=$active): ${it.message}"
+            )
         }
     }
 
@@ -379,7 +388,10 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
         if (!initialized) return
         val wasPaused = !isPlayingNow()
         runCatching {
-            mpv.setPropertyString("audio-channels", MpvBluetoothAudioPolicy.audioChannels(isBluetooth))
+            mpv.setPropertyString(
+                "audio-channels",
+                MpvBluetoothAudioPolicy.audioChannels(isBluetooth)
+            )
             if (MpvBluetoothAudioPolicy.shouldClearAudioSpdif(isBluetooth)) {
                 mpv.setPropertyString("audio-spdif", "")
             }
@@ -390,7 +402,10 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
                 }
             }
         }.onFailure {
-            Log.w(TAG, "Failed to apply bluetooth audio route on mpv (bt=$isBluetooth): ${it.message}")
+            Log.w(
+                TAG,
+                "Failed to apply bluetooth audio route on mpv (bt=$isBluetooth): ${it.message}"
+            )
         }
     }
 
@@ -469,8 +484,10 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
                 (SUBTITLE_VERTICAL_OFFSET_MAX - SUBTITLE_VERTICAL_OFFSET_MIN).toDouble()
             val subPos = MPV_SUB_POS_AT_BOTTOM -
                 (normalizedOffset * (MPV_SUB_POS_AT_BOTTOM - MPV_SUB_POS_AT_TOP))
-            val subMarginY = (MPV_SUB_MARGIN_Y_MIN +
-                (normalizedOffset * (MPV_SUB_MARGIN_Y_MAX - MPV_SUB_MARGIN_Y_MIN))).toInt()
+            val subMarginY = (
+                MPV_SUB_MARGIN_Y_MIN +
+                    (normalizedOffset * (MPV_SUB_MARGIN_Y_MAX - MPV_SUB_MARGIN_Y_MIN))
+                ).toInt()
             val outlineSize = when {
                 !style.outlineEnabled -> 0.0
                 isAssOrSsaSubtitleSelectedNow() -> style.outlineWidth.coerceIn(1, 6).toDouble()
@@ -506,7 +523,9 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
     fun readPlayerMediaInfo(): PlayerMediaInfo? {
         if (!initialized) return null
         return mpvMediaInfo { name ->
-            runCatching { mpv.getPropertyString(name) }.getOrNull()?.trim()?.takeIf { it.isNotBlank() }
+            runCatching {
+                mpv.getPropertyString(name)
+            }.getOrNull()?.trim()?.takeIf { it.isNotBlank() }
         }
     }
 
@@ -522,7 +541,11 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
     }
 
     internal fun subtitleTextMetrics(style: SubtitleStyleSettings): SubtitleTextMetrics? {
-        if (!initialized || width <= 0 || height <= 0 || isAssOrSsaSubtitleSelectedNow()) return null
+        if (!initialized || width <= 0 || height <= 0 ||
+            isAssOrSsaSubtitleSelectedNow()
+        ) {
+            return null
+        }
         val fontSize = mpv.getPropertyDouble("sub-font-size") ?: return null
         val unitPx = height / MPV_SUBTITLE_REFERENCE_HEIGHT
         val textSizePx = if (style.usesStyledRenderer) {
@@ -534,7 +557,8 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
         } else {
             (fontSize * subtitleScale(style)).toFloat() * unitPx
         }
-        val marginXPx = (mpv.getPropertyInt("sub-margin-x") ?: MPV_SUBTITLE_DEFAULT_MARGIN_X) * unitPx
+        val marginXPx =
+            (mpv.getPropertyInt("sub-margin-x") ?: MPV_SUBTITLE_DEFAULT_MARGIN_X) * unitPx
         val location = IntArray(2)
         getLocationInWindow(location)
         return SubtitleTextMetrics(
@@ -563,7 +587,8 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
 
             val isSelectedByFlag = mpv.getPropertyBoolean("track-list/$i/selected") == true
             val trackId = mpv.getPropertyInt("track-list/$i/id")
-            val isSelected = isSelectedByFlag || (selectedSubtitleId != null && trackId == selectedSubtitleId)
+            val isSelected =
+                isSelectedByFlag || (selectedSubtitleId != null && trackId == selectedSubtitleId)
             if (!isSelected) continue
 
             val codec = mpv.getPropertyString("track-list/$i/codec")
@@ -624,8 +649,10 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
             when {
                 safeTitle != null && safeLanguage != null ->
                     mpv.command("sub-add", url, "cached", safeTitle, safeLanguage)
+
                 safeTitle != null ->
                     mpv.command("sub-add", url, "cached", safeTitle)
+
                 else ->
                     mpv.command("sub-add", url, "cached")
             }
@@ -646,7 +673,7 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
         path: String,
         title: String?,
         language: String?,
-        replaceTrackId: Int?,
+        replaceTrackId: Int?
     ): Int? {
         if (!initialized || path.isBlank()) return null
         return runCatching {
@@ -655,12 +682,18 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
             when {
                 safeTitle != null && safeLanguage != null ->
                     mpv.command("sub-add", path, "select", safeTitle, safeLanguage)
+
                 safeTitle != null -> mpv.command("sub-add", path, "select", safeTitle)
+
                 else -> mpv.command("sub-add", path, "select")
             }
             mpv.setPropertyBoolean("sub-visibility", !styledSubtitlesEnabled)
             val added = mpv.getPropertyString("sid")?.toIntOrNull()
-            if (replaceTrackId != null && replaceTrackId != added) removeSubtitleTrack(replaceTrackId)
+            if (replaceTrackId != null &&
+                replaceTrackId != added
+            ) {
+                removeSubtitleTrack(replaceTrackId)
+            }
             added
         }.getOrElse {
             Log.w(TAG, "Failed to replace external subtitle: ${it.message}")
@@ -727,8 +760,9 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
                     path = path,
                     count = trackCount,
                     tracks = it,
-                    channelCountRetriesLeft = cached?.let { previous -> previous.channelCountRetriesLeft - 1 }
-                        ?: TRACK_CHANNEL_COUNT_RETRIES
+                    channelCountRetriesLeft =
+                        cached?.let { previous -> previous.channelCountRetriesLeft - 1 }
+                            ?: TRACK_CHANNEL_COUNT_RETRIES
                 )
             }
         }
@@ -768,7 +802,12 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
                 MpvTrack(
                     id = id,
                     type = type,
-                    name = title ?: language ?: context.getString(com.kien.movies.R.string.player_track_audio_fallback, id),
+                    name =
+                        title ?: language
+                            ?: context.getString(
+                                com.kien.movies.R.string.player_track_audio_fallback,
+                                id
+                            ),
                     language = language,
                     codec = codec,
                     channelCount = mpv.getPropertyInt("track-list/$i/demux-channel-count")
@@ -784,7 +823,12 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
                 MpvTrack(
                     id = id,
                     type = type,
-                    name = title ?: language ?: context.getString(com.kien.movies.R.string.player_track_subtitle_fallback, id),
+                    name =
+                        title ?: language
+                            ?: context.getString(
+                                com.kien.movies.R.string.player_track_subtitle_fallback,
+                                id
+                            ),
                     language = language,
                     codec = codec,
                     channelCount = null,
@@ -805,7 +849,9 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
             val seconds = mpv.getPropertyDouble("chapter-list/$i/time") ?: return@mapNotNull null
             PlayerChapter(
                 startMs = (seconds * 1000.0).roundToLong(),
-                title = mpv.getPropertyString("chapter-list/$i/title")?.trim()?.takeIf { it.isNotBlank() }
+                title = mpv.getPropertyString("chapter-list/$i/title")?.trim()?.takeIf {
+                    it.isNotBlank()
+                }
             )
         }
     }
@@ -829,8 +875,13 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
 
     override fun initOptions() {
         mpv.command("apply-profile", "fast")
-        mpv.setOptionString("msg-level", "ffmpeg=warn,vd=warn,ad=warn,vo=warn,ao=warn,demux=warn,lavf=warn,cplayer=warn,autoconvert=warn,hwupload=warn")
-        setVo(if (hi10pGnextSoftwareFallbackActive) MPV_VIDEO_OUTPUT_GPU_NEXT else MPV_VIDEO_OUTPUT_GPU)
+        mpv.setOptionString(
+            "msg-level",
+            "ffmpeg=warn,vd=warn,ad=warn,vo=warn,ao=warn,demux=warn,lavf=warn,cplayer=warn,autoconvert=warn,hwupload=warn"
+        )
+        setVo(
+            if (hi10pGnextSoftwareFallbackActive) MPV_VIDEO_OUTPUT_GPU_NEXT else MPV_VIDEO_OUTPUT_GPU
+        )
         mpv.setOptionString("gpu-context", "android")
         mpv.setOptionString("opengl-es", "yes")
         mpv.setOptionString("user-agent", PlayerMediaSourceFactory.DEFAULT_USER_AGENT)
@@ -965,12 +1016,14 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
         private const val MPV_VIDEO_OUTPUT_GPU = "gpu"
         private const val MPV_VIDEO_OUTPUT_GPU_NEXT = "gpu-next"
         private const val MPV_HWDEC_DISABLED = "no"
+
         /** `loadfile` insertion index; only meaningful for insert-at flags, -1 is mpv's default. */
         private const val LOADFILE_DEFAULT_INDEX = "-1"
         private const val MPV_COVER_FALLBACK_SCALE = 1.15f
         private const val MPV_MAX_VOLUME_PERCENT = 400.0
         private const val ASPECT_RETRY_DELAY_MS = 120L
         private const val MAX_ASPECT_RETRY_COUNT = 10
+
         /** Track list re-reads (one per tick) while an audio track has no channel count yet. */
         private const val TRACK_CHANNEL_COUNT_RETRIES = 10
         private const val SUBTITLE_VERTICAL_OFFSET_MIN = -20
@@ -988,14 +1041,10 @@ private class MpvTrackListCache(
     val tracks: List<MpvTrack>,
     val channelCountRetriesLeft: Int
 ) {
-    fun awaitsChannelCount(): Boolean =
-        channelCountRetriesLeft > 0 && tracks.any { it.type == "audio" && it.channelCount == null }
+    fun awaitsChannelCount(): Boolean = channelCountRetriesLeft > 0 && tracks.any { it.type == "audio" && it.channelCount == null }
 }
 
-data class MpvTrackSnapshot(
-    val audioTracks: List<MpvTrack>,
-    val subtitleTracks: List<MpvTrack>
-)
+data class MpvTrackSnapshot(val audioTracks: List<MpvTrack>, val subtitleTracks: List<MpvTrack>)
 
 data class MpvTrack(
     val id: Int,
@@ -1021,7 +1070,16 @@ internal fun mpvPathBaselineForRequest(
     currentPath: String?
 ): String? {
     if (url != requestedUrl) return currentPath?.takeIf { it.isNotEmpty() }
-    return if (isMpvPositionFromMediaRequest(url, pathAtRequest, currentPath)) null else pathAtRequest
+    return if (isMpvPositionFromMediaRequest(
+            url,
+            pathAtRequest,
+            currentPath
+        )
+    ) {
+        null
+    } else {
+        pathAtRequest
+    }
 }
 
 /**

@@ -73,7 +73,10 @@ internal class MdbListTestSyncRemote : MdbListSyncRemote {
     override suspend fun playback() = playback.also { calls += "playback" }
     override suspend fun dropped() = dropped.also { calls += "dropped" }
     override suspend fun ratings() = ratings.also { calls += "ratings" }
-    override suspend fun journal(since: String) = MdbListPage<MdbListJournalRecord>(emptyList()).also { calls += "journal" }
+    override suspend fun journal(since: String) = MdbListPage<MdbListJournalRecord>(emptyList()).also {
+        calls +=
+            "journal"
+    }
 }
 
 internal class MdbListSyncTestHarness(coroutineScope: CoroutineScope) {
@@ -86,7 +89,12 @@ internal class MdbListSyncTestHarness(coroutineScope: CoroutineScope) {
     val storage = MdbListTestSyncStorage()
     val remote = MdbListTestSyncRemote()
     val repository = MdbListSyncRepository(
-        storage, http.store, http.api, activeProfile, coroutineScope, { http.now },
+        storage,
+        http.store,
+        http.api,
+        activeProfile,
+        coroutineScope,
+        { http.now },
         coroutineScope.coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
     ) { remote }
 
@@ -95,8 +103,12 @@ internal class MdbListSyncTestHarness(coroutineScope: CoroutineScope) {
     }
 
     fun snapshot(accountId: Long = 42) = MdbListSyncSnapshot(
-        accountId, watched = listOf(mdbListTestMovie()), activities = remote.activities,
-        watermark = MDBLIST_TEST_TIME, checkedAtEpochMs = http.now, isInitialized = true
+        accountId,
+        watched = listOf(mdbListTestMovie()),
+        activities = remote.activities,
+        watermark = MDBLIST_TEST_TIME,
+        checkedAtEpochMs = http.now,
+        isInitialized = true
     )
 
     fun switch(profileId: Int, accountId: Long? = null) {
@@ -110,12 +122,26 @@ internal class MdbListSyncTestHarness(coroutineScope: CoroutineScope) {
 }
 
 internal fun mdbListTestMovie(id: Long = 1) = MdbListWatchedRecord(
-    MdbListItemType.MOVIE, MdbListMedia(MdbListIds(imdb = "tt$id", tmdb = id), "Movie $id"), MDBLIST_TEST_TIME
+    MdbListItemType.MOVIE,
+    MdbListMedia(MdbListIds(imdb = "tt$id", tmdb = id), "Movie $id"),
+    MDBLIST_TEST_TIME
 )
 
-internal fun mdbListTestEpisode(season: Int = 1, episode: Int = 1, watchedAt: String = MDBLIST_TEST_TIME) =
-    mdbListTestMovie().copy(type = MdbListItemType.EPISODE, season = season, episode = episode, watchedAt = watchedAt)
+internal fun mdbListTestEpisode(
+    season: Int = 1,
+    episode: Int = 1,
+    watchedAt: String = MDBLIST_TEST_TIME
+) = mdbListTestMovie().copy(
+    type = MdbListItemType.EPISODE,
+    season = season,
+    episode = episode,
+    watchedAt = watchedAt
+)
 
 internal fun mdbListTestPlayback(progress: Float = 40f, timestamp: String = MDBLIST_TEST_TIME) = MdbListPlayback(
-    7, MdbListItemType.MOVIE, mdbListTestMovie().media, progress, timestamp
+    7,
+    MdbListItemType.MOVIE,
+    mdbListTestMovie().media,
+    progress,
+    timestamp
 )

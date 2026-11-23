@@ -51,8 +51,20 @@ class TrackingProgressOverheadTest {
         val historicalEntries = (1..100).map { i ->
             SimklLibraryEntry(
                 mediaType = if (i % 2 == 0) SimklMediaType.MOVIES else SimklMediaType.SHOWS,
-                movie = if (i % 2 == 0) SimklMedia(title = "Movie $i", ids = mapOf("imdb" to JsonPrimitive("tt$i"))) else null,
-                show = if (i % 2 != 0) SimklMedia(title = "Show $i", ids = mapOf("imdb" to JsonPrimitive("tt$i"))) else null
+                movie = if (i % 2 ==
+                    0
+                ) {
+                    SimklMedia(title = "Movie $i", ids = mapOf("imdb" to JsonPrimitive("tt$i")))
+                } else {
+                    null
+                },
+                show = if (i % 2 !=
+                    0
+                ) {
+                    SimklMedia(title = "Show $i", ids = mapOf("imdb" to JsonPrimitive("tt$i")))
+                } else {
+                    null
+                }
             )
         }
         val snapshot = SimklSyncSnapshot(
@@ -255,18 +267,34 @@ class TrackingProgressOverheadTest {
                 for (contentId in contentIdQueries) {
                     val expectedFirst = entries.firstOrNull { it.matchesSimklContentId(contentId) }
                     val actualFirst = index.firstMatchingContentId(entries, contentId)
-                    assertEquals("firstMatchingContentId mismatch for $contentId ($preference)", expectedFirst, actualFirst)
+                    assertEquals(
+                        "firstMatchingContentId mismatch for $contentId ($preference)",
+                        expectedFirst,
+                        actualFirst
+                    )
 
-                    val expectedRef = snapshot.mediaReference(contentId, "series", entryIndex = null)
+                    val expectedRef = snapshot.mediaReference(
+                        contentId,
+                        "series",
+                        entryIndex = null
+                    )
                     val actualRef = snapshot.mediaReference(contentId, "series", entryIndex = index)
-                    assertEquals("mediaReference mismatch for $contentId ($preference)", expectedRef, actualRef)
+                    assertEquals(
+                        "mediaReference mismatch for $contentId ($preference)",
+                        expectedRef,
+                        actualRef
+                    )
 
                     for (providerId in providerIdQueries) {
                         val parsed = parseTrackingExternalIds(contentId)
                         val expectedMatches = entries.filter {
                             it.matchesContentWithParsedIds(contentId, parsed, providerId)
                         }
-                        val actualMatches = index.matchingEntriesForContent(entries, contentId, providerId)
+                        val actualMatches = index.matchingEntriesForContent(
+                            entries,
+                            contentId,
+                            providerId
+                        )
                         assertEquals(
                             "matchingEntriesForContent mismatch for $contentId / $providerId ($preference)",
                             expectedMatches,
@@ -284,21 +312,39 @@ class TrackingProgressOverheadTest {
             SimklMedia(ids = mapOf("imdb" to JsonPrimitive("tt0133093"))),
             SimklMedia(ids = mapOf("imdb" to JsonPrimitive("TT0133093"))),
             // Split-cour disambiguation via Simkl ID or MAL ID
-            SimklMedia(ids = mapOf("imdb" to JsonPrimitive("tt2560140"), "mal" to JsonPrimitive(25777L))),
-            SimklMedia(ids = mapOf("simkl" to JsonPrimitive(101L), "imdb" to JsonPrimitive("tt2560140"))),
+            SimklMedia(
+                ids = mapOf(
+                    "imdb" to JsonPrimitive("tt2560140"),
+                    "mal" to JsonPrimitive(25777L)
+                )
+            ),
+            SimklMedia(
+                ids = mapOf(
+                    "simkl" to JsonPrimitive(101L),
+                    "imdb" to JsonPrimitive("tt2560140")
+                )
+            ),
             // Title + year matching (exact year 2021 -> index 3, exact year 2024 -> index 4, null year -> index 3, wrong year 1990 -> -1)
             SimklMedia(title = "mystery show", year = 2021),
             SimklMedia(title = "MYSTERY SHOW", year = 2024),
             SimklMedia(title = "Mystery Show", year = null),
             SimklMedia(title = "Mystery Show", year = 1990),
             // Unknown item
-            SimklMedia(title = "Nonexistent", year = 2025, ids = mapOf("imdb" to JsonPrimitive("tt0000000")))
+            SimklMedia(
+                title = "Nonexistent",
+                year = 2025,
+                ids = mapOf("imdb" to JsonPrimitive("tt0000000"))
+            )
         )
 
         for (media in mediaQueries) {
             val expectedMediaIdx = entries.indexOfMatchingMediaLinear(media)
             val actualMediaIdx = index.indexOfMatchingMedia(entries, media)
-            assertEquals("indexOfMatchingMedia mismatch for $media", expectedMediaIdx, actualMediaIdx)
+            assertEquals(
+                "indexOfMatchingMedia mismatch for $media",
+                expectedMediaIdx,
+                actualMediaIdx
+            )
 
             for (mediaType in SimklMediaType.entries) {
                 val scrobbleResult = SimklScrobbleResult(
@@ -343,7 +389,10 @@ class TrackingProgressOverheadTest {
         mutatedEntries[0] = replacedEntry
         val patchedIndex = index.withUpdatedEntry(mutatedEntries, 0, replacedEntry)
         assertNull(patchedIndex.firstMatchingContentId(mutatedEntries, "tt0133093"))
-        assertEquals(replacedEntry, patchedIndex.firstMatchingContentId(mutatedEntries, "tt0234215"))
+        assertEquals(
+            replacedEntry,
+            patchedIndex.firstMatchingContentId(mutatedEntries, "tt0234215")
+        )
     }
 
     @Test
@@ -383,7 +432,9 @@ class TrackingProgressOverheadTest {
         val knownShowProjection = initialProjection.withUpdatedPlayback(knownShowPlayback)
         assertTrue(initialProjection.watchedItems === knownShowProjection.watchedItems)
         assertTrue(initialProjection.watchedMovieIds === knownShowProjection.watchedMovieIds)
-        assertTrue(initialProjection.watchedShowEpisodes === knownShowProjection.watchedShowEpisodes)
+        assertTrue(
+            initialProjection.watchedShowEpisodes === knownShowProjection.watchedShowEpisodes
+        )
         assertTrue(initialProjection.showIdSiblings === knownShowProjection.showIdSiblings)
         assertTrue(initialProjection.mediaIndex === knownShowProjection.mediaIndex)
 
@@ -400,8 +451,14 @@ class TrackingProgressOverheadTest {
             )
         )
         val newShowProjection = initialProjection.withUpdatedPlayback(newShowPlayback)
-        assertEquals(setOf("tt300", "imdb:tt300", "tmdb:300"), newShowProjection.showIdSiblings["tt300"])
-        assertEquals(setOf("tt999", "imdb:tt999", "tmdb:999"), newShowProjection.showIdSiblings["tt999"])
+        assertEquals(
+            setOf("tt300", "imdb:tt300", "tmdb:300"),
+            newShowProjection.showIdSiblings["tt300"]
+        )
+        assertEquals(
+            setOf("tt999", "imdb:tt999", "tmdb:999"),
+            newShowProjection.showIdSiblings["tt999"]
+        )
     }
 
     @Test
@@ -409,8 +466,20 @@ class TrackingProgressOverheadTest {
         val entries = (1..1000).map { i ->
             SimklLibraryEntry(
                 mediaType = if (i % 2 == 0) SimklMediaType.MOVIES else SimklMediaType.SHOWS,
-                movie = if (i % 2 == 0) SimklMedia(title = "Movie $i", ids = mapOf("imdb" to JsonPrimitive("tt$i"))) else null,
-                show = if (i % 2 != 0) SimklMedia(title = "Show $i", ids = mapOf("imdb" to JsonPrimitive("tt$i"))) else null
+                movie = if (i % 2 ==
+                    0
+                ) {
+                    SimklMedia(title = "Movie $i", ids = mapOf("imdb" to JsonPrimitive("tt$i")))
+                } else {
+                    null
+                },
+                show = if (i % 2 !=
+                    0
+                ) {
+                    SimklMedia(title = "Show $i", ids = mapOf("imdb" to JsonPrimitive("tt$i")))
+                } else {
+                    null
+                }
             )
         }
         val snapshot = SimklSyncSnapshot(
@@ -428,7 +497,11 @@ class TrackingProgressOverheadTest {
             episode = null
         )
 
-        val updated = snapshot.applyScrobbleResult(pauseResult, System.currentTimeMillis(), projection.entryIndex)
+        val updated = snapshot.applyScrobbleResult(
+            pauseResult,
+            System.currentTimeMillis(),
+            projection.entryIndex
+        )
 
         assertTrue(snapshot.entries === updated.entries)
         assertEquals(1, updated.playback.size)
@@ -469,7 +542,10 @@ class TrackingProgressOverheadTest {
         val stopReceipt = MdbListScrobbleReceipt(
             target = MdbListMutationTarget(
                 type = MdbListItemType.MOVIE,
-                media = MdbListMedia(title = "Enriched Movie 500", ids = MdbListIds(imdb = "tt500", trakt = 5000L))
+                media = MdbListMedia(
+                    title = "Enriched Movie 500",
+                    ids = MdbListIds(imdb = "tt500", trakt = 5000L)
+                )
             ),
             action = TrackingScrobbleAction.STOP,
             progress = 90f,

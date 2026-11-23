@@ -4,9 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class MetaResponseDto(
-    @Json(name = "meta") val meta: MetaDto? = null
-)
+data class MetaResponseDto(@Json(name = "meta") val meta: MetaDto? = null)
 
 @JsonClass(generateAdapter = true)
 data class MetaDto(
@@ -52,9 +50,7 @@ data class MetaDto(
 )
 
 @JsonClass(generateAdapter = true)
-data class TrailerStreamDto(
-    @Json(name = "ytId") val ytId: String? = null
-)
+data class TrailerStreamDto(@Json(name = "ytId") val ytId: String? = null)
 
 @JsonClass(generateAdapter = true)
 data class AppExtrasDto(

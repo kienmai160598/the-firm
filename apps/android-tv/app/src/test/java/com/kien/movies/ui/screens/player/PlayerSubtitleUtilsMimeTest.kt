@@ -2,20 +2,29 @@ package com.kien.movies.ui.screens.player
 
 import androidx.media3.common.MimeTypes
 import com.kien.movies.ui.util.languageCodeToName
+import java.util.Locale
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.util.Locale
 
 class PlayerSubtitleUtilsMimeTest {
 
     @Test
     fun mimeTypeFromUrl_detectsCommonExtensions() {
-        assertEquals(MimeTypes.APPLICATION_SUBRIP, PlayerSubtitleUtils.mimeTypeFromUrl("https://x/a.srt"))
-        assertEquals(MimeTypes.TEXT_VTT, PlayerSubtitleUtils.mimeTypeFromUrl("https://x/a.vtt?token=1"))
+        assertEquals(
+            MimeTypes.APPLICATION_SUBRIP,
+            PlayerSubtitleUtils.mimeTypeFromUrl("https://x/a.srt")
+        )
+        assertEquals(
+            MimeTypes.TEXT_VTT,
+            PlayerSubtitleUtils.mimeTypeFromUrl("https://x/a.vtt?token=1")
+        )
         assertEquals(MimeTypes.TEXT_SSA, PlayerSubtitleUtils.mimeTypeFromUrl("https://x/a.ass"))
-        assertEquals(MimeTypes.APPLICATION_TTML, PlayerSubtitleUtils.mimeTypeFromUrl("https://x/a.ttml"))
+        assertEquals(
+            MimeTypes.APPLICATION_TTML,
+            PlayerSubtitleUtils.mimeTypeFromUrl("https://x/a.ttml")
+        )
         // Extension-less addon download links default to SRT.
         assertEquals(
             MimeTypes.APPLICATION_SUBRIP,
@@ -81,8 +90,12 @@ class PlayerSubtitleUtilsMimeTest {
 
     @Test
     fun mergeOverlappingCues_preservesPositionedCues() {
-        val cue1 = androidx.media3.common.text.Cue.Builder().setText("TOP").setLine(0.1f, androidx.media3.common.text.Cue.LINE_TYPE_FRACTION).build()
-        val cue2 = androidx.media3.common.text.Cue.Builder().setText("BOTTOM").setLine(0.9f, androidx.media3.common.text.Cue.LINE_TYPE_FRACTION).build()
+        val cue1 = androidx.media3.common.text.Cue.Builder().setText(
+            "TOP"
+        ).setLine(0.1f, androidx.media3.common.text.Cue.LINE_TYPE_FRACTION).build()
+        val cue2 = androidx.media3.common.text.Cue.Builder().setText(
+            "BOTTOM"
+        ).setLine(0.9f, androidx.media3.common.text.Cue.LINE_TYPE_FRACTION).build()
         val result = PlayerSubtitleUtils.mergeOverlappingCues(listOf(cue1, cue2))
         assertEquals(2, result.size)
         assertEquals("TOP", result[0].text.toString())

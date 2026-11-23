@@ -6,13 +6,13 @@ import com.kien.movies.data.remote.api.AuthDiagnosticReportApi
 import com.kien.movies.data.remote.dto.AuthDiagnosticReportRequestDto
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class AuthDiagnosticReportRepository @Inject constructor(
@@ -104,7 +104,11 @@ class AuthDiagnosticReportQueue(
                     if (queueFile.exists()) queueFile.delete()
                 } else {
                     queueFile.parentFile?.mkdirs()
-                    queueFile.writeText(bounded.joinToString(separator = "\n") { adapter.toJson(it) } + "\n")
+                    queueFile.writeText(
+                        bounded.joinToString(separator = "\n") {
+                            adapter.toJson(it)
+                        } + "\n"
+                    )
                 }
             }
         }

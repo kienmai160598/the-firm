@@ -16,7 +16,9 @@ class SubtitleCandidatePoolTest {
     @Test
     fun uncertainEarlySpeechKeepsAllCandidatesAndLaterDialogueCanRecover() {
         val spoken = cues(Random(950), durationMs)
-        val pool = SubtitleCandidatePool(SubtitleSpeechTrack.fromCues(cues(Random(951), durationMs)))
+        val pool = SubtitleCandidatePool(
+            SubtitleSpeechTrack.fromCues(cues(Random(951), durationMs))
+        )
             .apply { mediaDurationMs = durationMs }
         repeat(11) { pool.addCandidate("decoy$it", cues(Random(960 + it), durationMs)) }
         pool.addCandidate("good", spoken.map { (a, b, t) -> Triple(a - 3_000L, b - 3_000L, t) })
@@ -31,20 +33,29 @@ class SubtitleCandidatePoolTest {
             live.record(0, random.nextFloat())
             assertNull(pool.update(live, null, nowMs = pass * 10_000L))
         }
-        assertEquals("testing 12", pool.summary, "uncertain VAD must not prune or keep only the top four")
+        assertEquals(
+            "testing 12",
+            pool.summary,
+            "uncertain VAD must not prune or keep only the top four"
+        )
 
         // New sampled scenes replace the uncertain opening in the ten-minute scoring window.
         val full = speechFor(spoken, shiftMs = 0.0, random = Random(981))
         val end = full.knownRange()!!.last + 1
         val from = (9 * 60_000 / SpeechTimeline.FRAME_DURATION_MS).toInt()
-        full.snapshot(from, end).forEachIndexed { index, probability -> live.record(from + index, probability) }
+        full.snapshot(from, end).forEachIndexed { index, probability ->
+            live.record(from + index, probability)
+        }
         var winner: SubtitleCandidatePool.Winner? = null
         for (pass in 0 until 3) {
             live.record(0, random.nextFloat())
             winner = pool.update(live, null, nowMs = 60_000L + pass * 10_000L)
             if (winner != null) break
         }
-        assertEquals("good", assertNotNull(winner, "the correct file must remain available for later evidence").key)
+        assertEquals(
+            "good",
+            assertNotNull(winner, "the correct file must remain available for later evidence").key
+        )
     }
 
     @Test
@@ -52,9 +63,15 @@ class SubtitleCandidatePoolTest {
         val spoken = cues(Random(500), durationMs)
         val speech = speechFor(spoken, shiftMs = 0.0, random = Random(501))
         val chosen = cues(Random(502), durationMs)
-        val pool = SubtitleCandidatePool(SubtitleSpeechTrack.fromCues(chosen)).apply { mediaDurationMs = durationMs }
+        val pool = SubtitleCandidatePool(SubtitleSpeechTrack.fromCues(chosen)).apply {
+            mediaDurationMs =
+                durationMs
+        }
         repeat(4) { pool.addCandidate("decoy$it", cues(Random(510 + it), durationMs)) }
-        assertTrue(!pool.addCandidate("copy", chosen), "a copy of the chosen file is not tested again")
+        assertTrue(
+            !pool.addCandidate("copy", chosen),
+            "a copy of the chosen file is not tested again"
+        )
         pool.addCandidate("short", cues(Random(520), 8 * 60_000L))
         pool.addCandidate("good", spoken.map { (a, b, t) -> Triple(a - 3_000L, b - 3_000L, t) })
 
@@ -71,7 +88,10 @@ class SubtitleCandidatePoolTest {
     fun staysQuietWhenTheChosenFileFits() {
         val spoken = cues(Random(600), durationMs)
         val speech = speechFor(spoken, shiftMs = 1_500.0, random = Random(601))
-        val pool = SubtitleCandidatePool(SubtitleSpeechTrack.fromCues(spoken)).apply { mediaDurationMs = durationMs }
+        val pool = SubtitleCandidatePool(SubtitleSpeechTrack.fromCues(spoken)).apply {
+            mediaDurationMs =
+                durationMs
+        }
         repeat(3) { pool.addCandidate("decoy$it", cues(Random(610 + it), durationMs)) }
         pool.addCandidate("alsoGood", spoken.map { (a, b, t) -> Triple(a + 700L, b + 700L, t) })
         val tracker = AudioSyncTracker(SubtitleSpeechTrack.fromCues(spoken))
@@ -82,10 +102,19 @@ class SubtitleCandidatePoolTest {
     @Test
     fun neverPicksAnUnrelatedFile() {
         repeat(3) { seed ->
-            val speech = speechFor(cues(Random(700 + seed), durationMs), shiftMs = 0.0, random = Random(710 + seed))
-            val pool = SubtitleCandidatePool(SubtitleSpeechTrack.fromCues(cues(Random(720 + seed), durationMs)))
+            val speech =
+                speechFor(
+                    cues(Random(700 + seed), durationMs),
+                    shiftMs = 0.0,
+                    random = Random(710 + seed)
+                )
+            val pool = SubtitleCandidatePool(
+                SubtitleSpeechTrack.fromCues(cues(Random(720 + seed), durationMs))
+            )
                 .apply { mediaDurationMs = durationMs }
-            repeat(8) { pool.addCandidate("decoy$it", cues(Random(730 + seed * 10 + it), durationMs)) }
+            repeat(8) {
+                pool.addCandidate("decoy$it", cues(Random(730 + seed * 10 + it), durationMs))
+            }
             assertNull(replay(pool, speech), "false switch with seed $seed")
         }
     }
@@ -101,8 +130,20 @@ class SubtitleCandidatePoolTest {
         val chosen = script(Random(801), 90).map { (a, b, _) -> Triple(a, b, "linie") }
         val pool = SubtitleCandidatePool(SubtitleSpeechTrack.fromCues(chosen))
         pool.addReference("english", english)
-        repeat(3) { pool.addCandidate("decoy$it", script(Random(810 + it), 90).map { (a, b, _) -> Triple(a, b, "linie") }) }
-        pool.addCandidate("good", english.map { (a, b, _) -> Triple(a - 4_200L, b - 4_200L, "linie tradusa") })
+        repeat(3) {
+            pool.addCandidate(
+                "decoy$it",
+                script(Random(810 + it), 90).map { (a, b, _) ->
+                    Triple(a, b, "linie")
+                }
+            )
+        }
+        pool.addCandidate(
+            "good",
+            english.map { (a, b, _) ->
+                Triple(a - 4_200L, b - 4_200L, "linie tradusa")
+            }
+        )
 
         val winner = assertNotNull(pool.update(SpeechTimeline(), words, nowMs = 0L))
         assertEquals("good", winner.key)
@@ -120,7 +161,14 @@ class SubtitleCandidatePoolTest {
         val chosen = english.map { (a, b, _) -> Triple(a - 4_200L, b - 4_200L, "linie tradusa") }
         val pool = SubtitleCandidatePool(SubtitleSpeechTrack.fromCues(chosen))
         pool.addReference("english", english)
-        repeat(3) { pool.addCandidate("decoy$it", script(Random(830 + it), 90).map { (a, b, _) -> Triple(a, b, "linie") }) }
+        repeat(3) {
+            pool.addCandidate(
+                "decoy$it",
+                script(Random(830 + it), 90).map { (a, b, _) ->
+                    Triple(a, b, "linie")
+                }
+            )
+        }
         val winner = assertNotNull(pool.update(SpeechTimeline(), words, nowMs = 0L))
         assertTrue(winner.chosen, "the chosen subtitle itself fits")
         val shiftMs = winner.model.segments.single().shiftMs
@@ -136,25 +184,45 @@ class SubtitleCandidatePoolTest {
         val english = List(560) {
             val words = List(2 + random.nextInt(3)) { vocabulary[random.nextInt(vocabulary.size)] }
             val length = 800L + random.nextLong(700L)
-            Triple(t, t + length, words.joinToString(" ")).also { t += length + 300L + random.nextLong(700L) }
+            Triple(t, t + length, words.joinToString(" ")).also {
+                t +=
+                    length + 300L + random.nextLong(700L)
+            }
         }
         val words = hear(english, shiftSec = 5.0, random = random, upToLine = 560)
             .filter { it.segment < 20 || it.segment in 270..300 || it.segment >= 540 }
         // Timing that drifts 0.1% against the recognised reference, as a scene the release adds
         // looks over a 20 minute window: too slight to tell apart from a step, so it is no rate.
-        val chosen = english.map { (a, b, _) -> Triple((a / 1.001).toLong() - 4_200L, (b / 1.001).toLong() - 4_200L, "linie") }
+        val chosen = english.map { (a, b, _) ->
+            Triple(
+                (a / 1.001).toLong() - 4_200L,
+                (b / 1.001).toLong() - 4_200L,
+                "linie"
+            )
+        }
         val pool = SubtitleCandidatePool(SubtitleSpeechTrack.fromCues(chosen))
         pool.addReference("english", english)
-        pool.addCandidate("decoy", script(Random(850), 400).map { (a, b, _) -> Triple(a, b, "linie") })
+        pool.addCandidate(
+            "decoy",
+            script(Random(850), 400).map { (a, b, _) ->
+                Triple(a, b, "linie")
+            }
+        )
         val winner = pool.update(SpeechTimeline(), words, nowMs = 0L)
-        if (winner != null) assertEquals(1.0, winner.model.segments.single().scale, "${winner.model}")
+        if (winner !=
+            null
+        ) {
+            assertEquals(1.0, winner.model.segments.single().scale, "${winner.model}")
+        }
     }
 
     @Test
     fun scoringTwelveFilesStaysCheap() {
         val spoken = cues(Random(900), durationMs)
         val speech = speechFor(spoken, shiftMs = 0.0, random = Random(901))
-        fun pool() = SubtitleCandidatePool(SubtitleSpeechTrack.fromCues(cues(Random(902), durationMs))).apply {
+        fun pool() = SubtitleCandidatePool(
+            SubtitleSpeechTrack.fromCues(cues(Random(902), durationMs))
+        ).apply {
             repeat(12) { addCandidate("decoy$it", cues(Random(910 + it), durationMs)) }
         }
         pool().update(speech, null, nowMs = 0L) // JIT warm-up
@@ -162,7 +230,9 @@ class SubtitleCandidatePoolTest {
         val started = System.nanoTime()
         measured.update(speech, null, nowMs = 0L)
         val elapsedMs = (System.nanoTime() - started) / 1_000_000
-        println("scoring 12 candidates on 20 min of audio took ${elapsedMs}ms (${measured.summary})")
+        println(
+            "scoring 12 candidates on 20 min of audio took ${elapsedMs}ms (${measured.summary})"
+        )
         assertTrue(elapsedMs < 5_000, "took ${elapsedMs}ms")
     }
 
@@ -171,25 +241,50 @@ class SubtitleCandidatePoolTest {
         val expected = mapOf(
             "por-BR" to listOf(
                 "pt-BR", "pt_br", "PT-BR", "pob", "pb", "por-BR",
-                "Portuguese (Brazil)", "Portuguese (Brazilian)", "Portuguese - Brazil", "Portuguese (BR)",
+                "Portuguese (Brazil)", "Portuguese (Brazilian)", "Portuguese - Brazil", "Portuguese (BR)"
             ),
-            "por" to listOf("pt", "pt-PT", "pt_PT", "por", "Portuguese", "Portuguese (Portugal)", "Portuguese (European)"),
+            "por" to
+                listOf(
+                    "pt",
+                    "pt-PT",
+                    "pt_PT",
+                    "por",
+                    "Portuguese",
+                    "Portuguese (Portugal)",
+                    "Portuguese (European)"
+                ),
             "spa-419" to listOf(
                 "es-419", "es_419", "es-MX", "es-LA", "spl", "ea",
-                "Spanish (Latin America)", "Spanish (LA)", "Spanish (Latino)",
+                "Spanish (Latin America)", "Spanish (LA)", "Spanish (Latino)"
             ),
-            "spa" to listOf("es", "es-ES", "spa", "spn", "sp", "Spanish", "Spanish (Spain)", "Spanish (EU)"),
+            "spa" to
+                listOf(
+                    "es",
+                    "es-ES",
+                    "spa",
+                    "spn",
+                    "sp",
+                    "Spanish",
+                    "Spanish (Spain)",
+                    "Spanish (EU)"
+                ),
             "zho-Hant" to listOf(
                 "zh-Hant", "zh-TW", "zh-HK", "zh-Hant-TW", "zht", "chi-tw",
-                "Chinese (Traditional)", "Chinese (Taiwan)", "Chinese (Hong Kong)",
+                "Chinese (Traditional)", "Chinese (Taiwan)", "Chinese (Hong Kong)"
             ),
             "zho" to listOf(
                 "zh", "zh-Hans", "zh-CN", "zh-Hans-HK", "chi", "zho", "zhs", "chi-cn",
-                "Chinese", "Chinese (Simplified)",
-            ),
+                "Chinese", "Chinese (Simplified)"
+            )
         )
         for ((key, labels) in expected) {
-            for (label in labels) assertEquals(key, SubtitleCandidatePool.languageKey(label), "\"$label\"")
+            for (label in labels) {
+                assertEquals(
+                    key,
+                    SubtitleCandidatePool.languageKey(label),
+                    "\"$label\""
+                )
+            }
         }
     }
 
@@ -199,10 +294,16 @@ class SubtitleCandidatePoolTest {
             "eng" to listOf("en", "en-US", "en-GB", "eng", "English", "English (SDH)"),
             "fra" to listOf("fr", "fr-CA", "fre", "fra", "French"),
             "ron" to listOf("ro", "rum", "Romanian"),
-            "deu" to listOf("de", "de-AT", "ger", "German"),
+            "deu" to listOf("de", "de-AT", "ger", "German")
         )
         for ((key, labels) in expected) {
-            for (label in labels) assertEquals(key, SubtitleCandidatePool.languageKey(label), "\"$label\"")
+            for (label in labels) {
+                assertEquals(
+                    key,
+                    SubtitleCandidatePool.languageKey(label),
+                    "\"$label\""
+                )
+            }
         }
         assertNull(SubtitleCandidatePool.languageKey(null))
         assertNull(SubtitleCandidatePool.languageKey("  "))
@@ -215,7 +316,7 @@ class SubtitleCandidatePoolTest {
     private fun replay(
         pool: SubtitleCandidatePool,
         full: SpeechTimeline,
-        tracker: AudioSyncTracker? = null,
+        tracker: AudioSyncTracker? = null
     ): Pair<SubtitleCandidatePool.Winner, Long>? {
         val range = full.knownRange()!!
         val all = full.snapshot(0, range.last + 1)
@@ -224,7 +325,8 @@ class SubtitleCandidatePoolTest {
         val endMs = ((range.last + 1) * SpeechTimeline.FRAME_DURATION_MS).toLong()
         var positionMs = 0L
         while (positionMs <= endMs) {
-            val horizon = minOf(all.size, ((positionMs + 60_000L) / SpeechTimeline.FRAME_DURATION_MS).toInt())
+            val horizon =
+                minOf(all.size, ((positionMs + 60_000L) / SpeechTimeline.FRAME_DURATION_MS).toInt())
             while (copied < horizon) {
                 if (!all[copied].isNaN()) live.record(copied, all[copied])
                 copied++
@@ -250,7 +352,11 @@ class SubtitleCandidatePoolTest {
     }
 
     /** Noisy detector output for speech where [cues] land when shifted by [shiftMs]. */
-    private fun speechFor(cues: List<Triple<Long, Long, String>>, shiftMs: Double, random: Random): SpeechTimeline {
+    private fun speechFor(
+        cues: List<Triple<Long, Long, String>>,
+        shiftMs: Double,
+        random: Random
+    ): SpeechTimeline {
         val frameMs = SpeechTimeline.FRAME_DURATION_MS
         val frames = ((cues.maxOf { it.second } + shiftMs + 30_000) / frameMs).toInt()
         val speaking = BooleanArray(frames)
@@ -263,9 +369,21 @@ class SubtitleCandidatePoolTest {
         val timeline = SpeechTimeline()
         for (f in 0 until frames) {
             val p = if (speaking[f]) {
-                if (random.nextFloat() < 0.25f) random.nextFloat() * 0.3f else 0.7f + random.nextFloat() * 0.3f
+                if (random.nextFloat() <
+                    0.25f
+                ) {
+                    random.nextFloat() * 0.3f
+                } else {
+                    0.7f + random.nextFloat() * 0.3f
+                }
             } else {
-                if (random.nextFloat() < 0.08f) 0.4f + random.nextFloat() * 0.5f else random.nextFloat() * 0.1f
+                if (random.nextFloat() <
+                    0.08f
+                ) {
+                    0.4f + random.nextFloat() * 0.5f
+                } else {
+                    random.nextFloat() * 0.1f
+                }
             }
             timeline.record(f, p)
         }
@@ -282,17 +400,26 @@ class SubtitleCandidatePoolTest {
         return List(lines) {
             val words = List(3 + random.nextInt(5)) { vocabulary[random.nextInt(vocabulary.size)] }
             val length = 1_200L + random.nextLong(2_500L)
-            Triple(t, t + length, words.joinToString(" ")).also { t += length + 500L + random.nextLong(3_000L) }
+            Triple(t, t + length, words.joinToString(" ")).also {
+                t +=
+                    length + 500L + random.nextLong(3_000L)
+            }
         }
     }
 
-    private fun hear(cues: List<Triple<Long, Long, String>>, shiftSec: Double, random: Random, upToLine: Int): List<HeardWord> =
-        cues.take(upToLine).flatMapIndexed { line, (start, end, text) ->
-            val words = text.split(' ')
-            words.mapIndexedNotNull { k, word ->
-                if (random.nextFloat() < 0.3f) return@mapIndexedNotNull null
-                val t = (start + (end - start) * k / words.size) / 1_000.0 + shiftSec + random.nextDouble(-0.15, 0.15)
-                HeardWord(t, word, line)
-            }
+    private fun hear(
+        cues: List<Triple<Long, Long, String>>,
+        shiftSec: Double,
+        random: Random,
+        upToLine: Int
+    ): List<HeardWord> = cues.take(upToLine).flatMapIndexed { line, (start, end, text) ->
+        val words = text.split(' ')
+        words.mapIndexedNotNull { k, word ->
+            if (random.nextFloat() < 0.3f) return@mapIndexedNotNull null
+            val t =
+                (start + (end - start) * k / words.size) / 1_000.0 + shiftSec +
+                    random.nextDouble(-0.15, 0.15)
+            HeardWord(t, word, line)
         }
+    }
 }

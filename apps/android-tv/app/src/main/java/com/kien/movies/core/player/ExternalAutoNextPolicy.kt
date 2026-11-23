@@ -68,8 +68,7 @@ internal object ExternalAutoNextPolicy {
     }
 
     /** External players can only advance to an episode that is both published and available. */
-    fun isPlayableNextEpisode(available: Boolean?, hasAired: Boolean): Boolean =
-        available != false && hasAired
+    fun isPlayableNextEpisode(available: Boolean?, hasAired: Boolean): Boolean = available != false && hasAired
 
     fun shouldHoldLoaderOnSettle(
         overlayShowing: Boolean,
@@ -78,8 +77,7 @@ internal object ExternalAutoNextPolicy {
         forceRelease: Boolean
     ): Boolean = overlayShowing && handoffActive && mayHaveNextEpisode && !forceRelease
 
-    fun shouldIgnoreLoaderRelease(externalPlaybackActive: Boolean): Boolean =
-        externalPlaybackActive
+    fun shouldIgnoreLoaderRelease(externalPlaybackActive: Boolean): Boolean = externalPlaybackActive
 
     fun shouldCancelPendingAutoLaunch(
         autoLaunch: Boolean,
@@ -88,6 +86,5 @@ internal object ExternalAutoNextPolicy {
         chainAborted: Boolean
     ): Boolean = autoLaunch && autoNextNavigationPending && (cancelled || chainAborted)
 
-    private fun isSeriesEpisode(episode: Int?, contentType: String): Boolean =
-        episode != null && contentType.lowercase() in SERIES_TYPES
+    private fun isSeriesEpisode(episode: Int?, contentType: String): Boolean = episode != null && contentType.lowercase() in SERIES_TYPES
 }

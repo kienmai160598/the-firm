@@ -9,15 +9,15 @@ import com.kien.movies.data.local.effectivePluginProfileId
 import com.kien.movies.data.remote.supabase.SupabasePlugin
 import com.kien.movies.domain.model.RemotePluginInfo
 import io.github.jan.supabase.postgrest.Postgrest
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.addJsonObject
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "PluginSyncService"
 
@@ -55,7 +55,10 @@ class PluginSyncService @Inject constructor(
         try {
             val activeProfile = profileManager.activeProfile
             val profileId = pluginProfileId()
-            Log.d(TAG, "pushToRemote: activeProfile=${activeProfile?.id} isPrimary=${activeProfile?.isPrimary} usesPrimaryPlugins=${activeProfile?.usesPrimaryPlugins} profileId=$profileId")
+            Log.d(
+                TAG,
+                "pushToRemote: activeProfile=${activeProfile?.id} isPrimary=${activeProfile?.isPrimary} usesPrimaryPlugins=${activeProfile?.usesPrimaryPlugins} profileId=$profileId"
+            )
 
             if (PluginSyncProfile.current() == null &&
                 activeProfile != null &&
@@ -70,17 +73,20 @@ class PluginSyncService @Inject constructor(
             Log.d(TAG, "pushToRemote: localRepos count=${localRepos.size} for profile $profileId")
 
             val params = buildJsonObject {
-                put("p_plugins", buildJsonArray {
-                    localRepos.forEachIndexed { index, repo ->
-                        addJsonObject {
-                            put("url", repo.url)
-                            put("name", repo.name)
-                            put("enabled", repo.enabled)
-                            put("sort_order", index)
-                            put("repo_type", repo.type.name)
+                put(
+                    "p_plugins",
+                    buildJsonArray {
+                        localRepos.forEachIndexed { index, repo ->
+                            addJsonObject {
+                                put("url", repo.url)
+                                put("name", repo.name)
+                                put("enabled", repo.enabled)
+                                put("sort_order", index)
+                                put("repo_type", repo.type.name)
+                            }
                         }
                     }
-                })
+                )
                 put("p_profile_id", profileId)
                 putSyncOriginClientId(syncClientIdentity)
             }
@@ -108,17 +114,19 @@ class PluginSyncService @Inject constructor(
 
             val remotePlugins = withJwtRefreshRetry {
                 postgrest.from("plugins")
-                    .select { filter {
-                        eq("user_id", effectiveUserId)
-                        eq("profile_id", profileId)
-                    } }
+                    .select {
+                        filter {
+                            eq("user_id", effectiveUserId)
+                            eq("profile_id", profileId)
+                        }
+                    }
                     .decodeList<SupabasePlugin>()
             }
 
             Result.success(
                 remotePlugins
-                .sortedBy { it.sortOrder }
-                .map { RemotePluginInfo(url = it.url, repoType = it.repoType) }
+                    .sortedBy { it.sortOrder }
+                    .map { RemotePluginInfo(url = it.url, repoType = it.repoType) }
             )
         } catch (e: Exception) {
             Log.e(TAG, "Failed to get remote repo URLs", e)

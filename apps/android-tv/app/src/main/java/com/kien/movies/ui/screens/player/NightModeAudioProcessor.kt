@@ -58,10 +58,13 @@ internal class NightModeAudioProcessor : BaseAudioProcessor() {
         return super.isActive() && isNightModeEnabled()
     }
 
-    override fun onConfigure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
+    override fun onConfigure(
+        inputAudioFormat: AudioProcessor.AudioFormat
+    ): AudioProcessor.AudioFormat {
         return when (inputAudioFormat.encoding) {
             C.ENCODING_PCM_16BIT,
             C.ENCODING_PCM_FLOAT -> inputAudioFormat
+
             else -> AudioProcessor.AudioFormat.NOT_SET
         }
     }
@@ -176,6 +179,7 @@ internal class NightModeAudioProcessor : BaseAudioProcessor() {
         private const val ENVELOPE_RELEASE_MS = 200f
         private const val GAIN_ATTACK_MS = 5f
         private const val GAIN_RELEASE_MS = 300f
+
         // Full lift above LIFT_FADE_START_DB, none below LIFT_FADE_END_DB (peak level).
         private const val LIFT_FADE_START_DB = -50f
         private const val LIFT_FADE_END_DB = -65f
@@ -207,7 +211,10 @@ internal class NightModeAudioProcessor : BaseAudioProcessor() {
                 abs(overDb) < halfKnee -> slope * (overDb + halfKnee).pow(2) / (2f * KNEE_DB)
                 else -> slope * overDb
             }
-            val makeupWeight = ((levelDb - LIFT_FADE_END_DB) / (LIFT_FADE_START_DB - LIFT_FADE_END_DB))
+            val makeupWeight = (
+                (levelDb - LIFT_FADE_END_DB) /
+                    (LIFT_FADE_START_DB - LIFT_FADE_END_DB)
+                )
                 .coerceIn(0f, 1f)
             return (preset.makeupDb * makeupWeight + reduction).coerceAtLeast(0f)
         }

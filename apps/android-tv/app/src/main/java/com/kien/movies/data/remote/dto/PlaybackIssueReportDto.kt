@@ -16,7 +16,9 @@ data class PlaybackIssueReportRequestDto(
     @Json(name = "error") val error: PlaybackIssueErrorDto,
     @Json(name = "diagnostics") val diagnostics: PlaybackIssueDiagnosticsDto,
     @Json(name = "playbackSettings") val playbackSettings: PlaybackIssuePlaybackSettingsDto? = null,
-    @Json(name = "playbackAnalytics") val playbackAnalytics: PlaybackIssuePlaybackAnalyticsDto? = null
+    @Json(
+        name = "playbackAnalytics"
+    ) val playbackAnalytics: PlaybackIssuePlaybackAnalyticsDto? = null
 )
 
 @JsonClass(generateAdapter = true)
@@ -231,7 +233,9 @@ data class PlaybackIssuePlaybackSettingsDto(
     @Json(name = "streamAutoPlayMode") val streamAutoPlayMode: String,
     @Json(name = "streamAutoPlaySource") val streamAutoPlaySource: String,
     @Json(name = "streamAutoPlayNextEpisodeEnabled") val streamAutoPlayNextEpisodeEnabled: Boolean,
-    @Json(name = "streamAutoPlayPreferBingeGroupForNextEpisode") val streamAutoPlayPreferBingeGroupForNextEpisode: Boolean,
+    @Json(
+        name = "streamAutoPlayPreferBingeGroupForNextEpisode"
+    ) val streamAutoPlayPreferBingeGroupForNextEpisode: Boolean,
     @Json(name = "streamAutoPlayReuseBingeGroup") val streamAutoPlayReuseBingeGroup: Boolean,
     @Json(name = "streamAutoPlayTimeoutSeconds") val streamAutoPlayTimeoutSeconds: Int,
     @Json(name = "stillWatchingEnabled") val stillWatchingEnabled: Boolean,

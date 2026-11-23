@@ -101,14 +101,10 @@ data class LibraryListTab(
 }
 
 @Immutable
-data class ListMembershipSnapshot(
-    val listMembership: Map<String, Boolean> = emptyMap()
-)
+data class ListMembershipSnapshot(val listMembership: Map<String, Boolean> = emptyMap())
 
 @Immutable
-data class ListMembershipChanges(
-    val desiredMembership: Map<String, Boolean>
-)
+data class ListMembershipChanges(val desiredMembership: Map<String, Boolean>)
 
 @Immutable
 data class LibraryEntryInput(

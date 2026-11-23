@@ -15,8 +15,8 @@ import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.mkv.MatroskaExtractor as StockMatroskaExtractor
 import androidx.media3.extractor.text.SubtitleParser
 import com.kien.movies.core.player.dvmkv.MatroskaExtractor as DvMatroskaExtractor
-import com.nuvio.tv.libass.media.AssHandler
 import com.kien.movies.ui.screens.player.autosync.AutoSyncLibassSubtitles
+import com.nuvio.tv.libass.media.AssHandler
 import com.nuvio.tv.libass.media.parser.AssSubtitleParserFactory
 import com.nuvio.tv.libass.media.render.AssRenderersFactory
 import java.util.Collections
@@ -28,7 +28,9 @@ private val assHandlersByPlayer = Collections.synchronizedMap(WeakHashMap<ExoPla
 internal fun ExoPlayer.Builder.buildWithAssSupportCompat(
     context: Context,
     playerMediaSourceFactory: PlayerMediaSourceFactory? = null,
-    dataSourceFactory: DataSource.Factory = PlayerPlaybackNetworking.createDataSourceFactory(context),
+    dataSourceFactory: DataSource.Factory = PlayerPlaybackNetworking.createDataSourceFactory(
+        context
+    ),
     extractorsFactory: ExtractorsFactory = DefaultExtractorsFactory(),
     renderersFactory: RenderersFactory = DefaultRenderersFactory(context)
 ): ExoPlayer {
@@ -75,9 +77,7 @@ internal fun ExoPlayer.releaseAssHandlerCompat() {
 }
 
 @OptIn(UnstableApi::class)
-private class CompatAssSubtitleParserFactory(
-    private val assHandler: AssHandler
-) : SubtitleParser.Factory {
+private class CompatAssSubtitleParserFactory(private val assHandler: AssHandler) : SubtitleParser.Factory {
     private val delegate = AssSubtitleParserFactory(assHandler)
 
     override fun supportsFormat(format: Format): Boolean {
@@ -90,7 +90,11 @@ private class CompatAssSubtitleParserFactory(
 
     override fun create(format: Format): SubtitleParser {
         val normalized = normalizeSsaFormat(format)
-        return AutoSyncLibassSubtitles.wrapParser(assHandler, normalized, delegate.create(normalized)) // AutoSync hook
+        return AutoSyncLibassSubtitles.wrapParser(
+            assHandler,
+            normalized,
+            delegate.create(normalized)
+        ) // AutoSync hook
     }
 
     private fun normalizeSsaFormat(format: Format): Format {

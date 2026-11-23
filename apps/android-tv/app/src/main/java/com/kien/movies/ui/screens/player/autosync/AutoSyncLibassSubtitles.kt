@@ -60,38 +60,38 @@ internal object AutoSyncLibassSubtitles {
             .setId(libassTrackId)
             .setSampleMimeType(MimeTypes.TEXT_SSA)
             .build()
-        withContext(AutomaticSubtitleSync.autoSyncDispatcher) { assHandler.replaceTrack(format, bytes) }
+        withContext(AutomaticSubtitleSync.autoSyncDispatcher) {
+            assHandler.replaceTrack(format, bytes)
+        }
     }
 
     /**
      * The id libass knows [trackId] by: the subtitle configuration id itself, or that id behind a
      * prefix Media3 added. Falls back to [trackId] before Media3 handed the track to libass.
      */
-    internal fun libassTrackId(trackId: String, knownIds: Collection<String>): String =
-        knownIds.firstOrNull { it == trackId }
-            ?: knownIds.firstOrNull { it.endsWith(":$trackId") }
-            ?: trackId
+    internal fun libassTrackId(trackId: String, knownIds: Collection<String>): String = knownIds.firstOrNull { it == trackId }
+        ?: knownIds.firstOrNull { it.endsWith(":$trackId") }
+        ?: trackId
 
     fun clear(assHandler: AssHandler?) {
         if (assHandler == null) return
         retimedByHandler.remove(assHandler)
     }
 
-    internal fun retimedBody(assHandler: AssHandler, trackId: String): ByteArray? =
-        synchronized(retimedByHandler) { retimedByHandler[assHandler]?.get(trackId) }
+    internal fun retimedBody(assHandler: AssHandler, trackId: String): ByteArray? = synchronized(retimedByHandler) { retimedByHandler[assHandler]?.get(trackId) }
 }
 
 /** Feeds libass the synced copy of a subtitle when Media3 loads it after AutoSync applied it. */
 internal class RetimedAssSubtitleParser(
     private val delegate: SubtitleParser,
-    private val retimedBody: () -> ByteArray?,
+    private val retimedBody: () -> ByteArray?
 ) : SubtitleParser {
     override fun parse(
         data: ByteArray,
         offset: Int,
         length: Int,
         outputOptions: SubtitleParser.OutputOptions,
-        output: Consumer<CuesWithTiming>,
+        output: Consumer<CuesWithTiming>
     ) {
         val retimed = retimedBody()
         if (retimed == null) {

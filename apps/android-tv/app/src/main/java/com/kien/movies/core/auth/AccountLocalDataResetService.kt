@@ -2,8 +2,8 @@ package com.kien.movies.core.auth
 
 import android.content.Context
 import android.util.Log
-import com.kien.movies.core.sync.androidtv.AndroidTvChannelManager
 import com.kien.movies.core.profile.ProfileScopedCredentialStore
+import com.kien.movies.core.sync.androidtv.AndroidTvChannelManager
 import com.kien.movies.data.local.ProfileDataStore
 import com.kien.movies.data.local.ProfileDataStoreFactory
 import com.kien.movies.data.local.ProfileLockStateDataStore

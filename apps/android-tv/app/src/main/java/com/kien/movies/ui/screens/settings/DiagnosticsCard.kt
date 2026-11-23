@@ -2,12 +2,6 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.components.expressive.M3eShapes
-import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.theme.MoviesPrimitives
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.util.keepLtr
-
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -39,6 +33,11 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.core.player.DolbyVisionCodecFallback
 import com.kien.movies.core.player.LastPlaybackDiagnostics
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.theme.ExpressiveColors
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.util.keepLtr
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -84,8 +83,7 @@ internal fun LazyListScope.diagnosticsCardItems(
         diagnostics.dv7ModeRequested.isNotBlank() &&
         diagnostics.dv7ModeRequested != "OFF" &&
         dvContentPlayed
-    fun dv(value: String?): String =
-        if (dvEngaged) (value?.takeIf { it.isNotBlank() } ?: "-") else "-"
+    fun dv(value: String?): String = if (dvEngaged) (value?.takeIf { it.isNotBlank() } ?: "-") else "-"
 
     // Card 1: Source + Display + Decoder + Bridge (the input side)
     item(key = "diag_card_input") {
@@ -96,7 +94,10 @@ internal fun LazyListScope.diagnosticsCardItems(
                 stringResource(R.string.diag_section_source_hardware_sub)
             )
             DiagnosticRow(stringResource(R.string.diag_label_host), diagnostics.host)
-            DiagnosticRow(stringResource(R.string.diag_label_when), formatTimestamp(diagnostics.timestampMs))
+            DiagnosticRow(
+                stringResource(R.string.diag_label_when),
+                formatTimestamp(diagnostics.timestampMs)
+            )
             DiagnosticRow(stringResource(R.string.diag_label_device), deviceName(unknownLabel))
             DiagnosticRow(
                 stringResource(R.string.diag_label_display),
@@ -104,8 +105,11 @@ internal fun LazyListScope.diagnosticsCardItems(
                     if (diagnostics.hdrCapsKnown) {
                         buildString {
                             if (diagnostics.displayDv) append("DV ")
-                            if (diagnostics.displayHdr10Plus) append("HDR10+ ")
-                            else if (diagnostics.displayHdr10) append("HDR10 ")
+                            if (diagnostics.displayHdr10Plus) {
+                                append("HDR10+ ")
+                            } else if (diagnostics.displayHdr10) {
+                                append("HDR10 ")
+                            }
                             if (!diagnostics.displayDv && !diagnostics.displayHdr10) append("SDR")
                         }.trim().ifBlank { unknownLabel }
                     } else {
@@ -116,28 +120,40 @@ internal fun LazyListScope.diagnosticsCardItems(
             DiagnosticRow(
                 stringResource(R.string.diag_label_dv7_decoder),
                 dv(
-                    if (diagnostics.codecDv7Supported) stringResource(R.string.diag_value_available)
-                    else stringResource(R.string.diag_value_not_available)
+                    if (diagnostics.codecDv7Supported) {
+                        stringResource(R.string.diag_value_available)
+                    } else {
+                        stringResource(R.string.diag_value_not_available)
+                    }
                 )
             )
             DiagnosticRow(
                 stringResource(R.string.diag_label_dv_decoder),
                 dv(
                     diagnostics.dv81DecoderName
-                        ?: findAnyDvDecoderName()?.let { stringResource(R.string.diag_value_decoder_hidden, it) }
+                        ?: findAnyDvDecoderName()?.let {
+                            stringResource(R.string.diag_value_decoder_hidden, it)
+                        }
                         ?: stringResource(R.string.diag_value_none)
                 )
             )
             DiagnosticRow(
                 stringResource(R.string.diag_label_dv_bridge),
                 dv(
-                    if (diagnostics.bridgeReady) stringResource(R.string.diag_value_ready)
-                    else stringResource(R.string.diag_value_not_ready)
+                    if (diagnostics.bridgeReady) {
+                        stringResource(R.string.diag_value_ready)
+                    } else {
+                        stringResource(R.string.diag_value_not_ready)
+                    }
                 )
             )
             if (dvEngaged) {
-                diagnostics.bridgeVersion?.let { DiagnosticRow(stringResource(R.string.diag_label_bridge_version), it) }
-                diagnostics.bridgeReason?.let { DiagnosticRow(stringResource(R.string.diag_label_bridge_reason), it) }
+                diagnostics.bridgeVersion?.let {
+                    DiagnosticRow(stringResource(R.string.diag_label_bridge_version), it)
+                }
+                diagnostics.bridgeReason?.let {
+                    DiagnosticRow(stringResource(R.string.diag_label_bridge_reason), it)
+                }
             }
         }
     }
@@ -146,13 +162,24 @@ internal fun LazyListScope.diagnosticsCardItems(
     item(key = "diag_card_decision") {
         DiagnosticsSectionCard {
             SectionHeader(stringResource(R.string.diag_section_decision_settings))
-            DiagnosticRow(stringResource(R.string.diag_label_dv_mode_requested), dv(diagnostics.dv7ModeRequested))
+            DiagnosticRow(
+                stringResource(R.string.diag_label_dv_mode_requested),
+                dv(diagnostics.dv7ModeRequested)
+            )
             if (dvEngaged && diagnostics.dv7ModeRequested != diagnostics.dv7ModeEffective) {
-                DiagnosticRow(stringResource(R.string.diag_label_dv_mode_effective), dv(diagnostics.dv7ModeEffective))
+                DiagnosticRow(
+                    stringResource(R.string.diag_label_dv_mode_effective),
+                    dv(diagnostics.dv7ModeEffective)
+                )
             }
-            DiagnosticRow(stringResource(R.string.diag_label_auto_decision), dv(diagnostics.dv7AutoDecision))
+            DiagnosticRow(
+                stringResource(R.string.diag_label_auto_decision),
+                dv(diagnostics.dv7AutoDecision)
+            )
             if (dvEngaged) {
-                diagnostics.dvSourceProfile?.let { DiagnosticRow(stringResource(R.string.diag_label_source_profile), it) }
+                diagnostics.dvSourceProfile?.let {
+                    DiagnosticRow(stringResource(R.string.diag_label_source_profile), it)
+                }
                 if (diagnostics.dv7DoviCalls > 0) {
                     DiagnosticRow(
                         stringResource(R.string.diag_label_conversions),
@@ -164,7 +191,10 @@ internal fun LazyListScope.diagnosticsCardItems(
                     )
                 }
                 if (diagnostics.dv7DoviSignalRewrites > 0) {
-                    DiagnosticRow(stringResource(R.string.diag_label_signal_rewrites), diagnostics.dv7DoviSignalRewrites.toString())
+                    DiagnosticRow(
+                        stringResource(R.string.diag_label_signal_rewrites),
+                        diagnostics.dv7DoviSignalRewrites.toString()
+                    )
                 }
                 // A bare clock time is only unambiguous on the day it happened, so an older
                 // conversion is left off rather than shown as if it were today.
@@ -174,13 +204,19 @@ internal fun LazyListScope.diagnosticsCardItems(
             }
             DiagnosticRow(
                 stringResource(R.string.diag_label_custom_buffers),
-                if (diagnostics.bufferEngineEnabled) stringResource(R.string.diag_value_on)
-                else stringResource(R.string.diag_value_off)
+                if (diagnostics.bufferEngineEnabled) {
+                    stringResource(R.string.diag_value_on)
+                } else {
+                    stringResource(R.string.diag_value_off)
+                }
             )
             DiagnosticRow(
                 stringResource(R.string.diag_label_custom_network_cache),
-                if (diagnostics.parallelNetworkEnabled) stringResource(R.string.diag_value_on)
-                else stringResource(R.string.diag_value_off)
+                if (diagnostics.parallelNetworkEnabled) {
+                    stringResource(R.string.diag_value_on)
+                } else {
+                    stringResource(R.string.diag_value_off)
+                }
             )
             DiagnosticRow(
                 stringResource(R.string.diag_label_disk_cache),
@@ -199,17 +235,25 @@ internal fun LazyListScope.diagnosticsCardItems(
     item(key = "diag_card_outcome") {
         DiagnosticsSectionCard {
             SectionHeader(stringResource(R.string.diag_section_outcome))
-            DiagnosticRow(stringResource(R.string.diag_label_hdr_format_intended), diagnostics.videoHdrType?.takeIf { it.isNotBlank() } ?: "-")
+            DiagnosticRow(
+                stringResource(R.string.diag_label_hdr_format_intended),
+                diagnostics.videoHdrType?.takeIf { it.isNotBlank() } ?: "-"
+            )
             DiagnosticRow(
                 stringResource(R.string.diag_label_first_frame),
-                if (diagnostics.firstFrameMs >= 0) "${diagnostics.firstFrameMs} ms"
-                else stringResource(R.string.diag_value_never_rendered)
+                if (diagnostics.firstFrameMs >= 0) {
+                    "${diagnostics.firstFrameMs} ms"
+                } else {
+                    stringResource(R.string.diag_value_never_rendered)
+                }
             )
             DiagnosticRow(
                 stringResource(R.string.diag_label_rebuffers),
-                if (diagnostics.rebufferCount > 0)
+                if (diagnostics.rebufferCount > 0) {
                     "${diagnostics.rebufferCount} (${diagnostics.rebufferTotalMs} ms)"
-                else "0"
+                } else {
+                    "0"
+                }
             )
             DiagnosticRow(
                 stringResource(R.string.diag_label_result),
@@ -217,7 +261,9 @@ internal fun LazyListScope.diagnosticsCardItems(
                 valueColor = when {
                     diagnostics.result.startsWith("Error", ignoreCase = true) ->
                         MoviesTheme.colors.Error
+
                     diagnostics.result == "Played" -> MoviesPrimitives.success
+
                     else -> MoviesTheme.colors.TextPrimary
                 }
             )
@@ -226,9 +272,7 @@ internal fun LazyListScope.diagnosticsCardItems(
 }
 
 @Composable
-private fun DiagnosticsSectionCard(
-    content: @Composable ColumnScope.() -> Unit
-) {
+private fun DiagnosticsSectionCard(content: @Composable ColumnScope.() -> Unit) {
     var isFocused by remember { mutableStateOf(false) }
 
     // Read-only: it carries no action, so it is a plain Surface rather than a clickable Card,

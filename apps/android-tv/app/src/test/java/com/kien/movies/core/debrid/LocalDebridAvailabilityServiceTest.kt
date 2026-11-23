@@ -59,7 +59,9 @@ class LocalDebridAvailabilityServiceTest {
         } returns null
         val service = service(localDebridService)
 
-        val result = service.annotateCachedAvailability(listOf(group(listOf(stream(infoHash = "ABC123")))))
+        val result = service.annotateCachedAvailability(
+            listOf(group(listOf(stream(infoHash = "ABC123"))))
+        )
         val status = result.single().streams.single().debridCacheStatus
 
         assertEquals(StreamDebridCacheState.UNKNOWN, status?.state)
@@ -79,35 +81,33 @@ class LocalDebridAvailabilityServiceTest {
         return LocalDebridAvailabilityService(dataStore, localDebridService)
     }
 
-    private fun group(streams: List<Stream>): AddonStreams =
-        AddonStreams(
-            addonName = "Addon",
-            addonLogo = null,
-            streams = streams
-        )
+    private fun group(streams: List<Stream>): AddonStreams = AddonStreams(
+        addonName = "Addon",
+        addonLogo = null,
+        streams = streams
+    )
 
     private fun stream(
         name: String = "Torrent",
         url: String? = null,
         infoHash: String? = "ABC123"
-    ): Stream =
-        Stream(
-            name = name,
-            title = name,
-            description = null,
-            url = url,
-            ytId = null,
-            infoHash = infoHash,
-            fileIdx = null,
-            externalUrl = null,
-            behaviorHints = StreamBehaviorHints(
-                notWebReady = null,
-                bingeGroup = null,
-                countryWhitelist = null,
-                proxyHeaders = null,
-                filename = "$name.mkv"
-            ),
-            addonName = "Addon",
-            addonLogo = null
-        )
+    ): Stream = Stream(
+        name = name,
+        title = name,
+        description = null,
+        url = url,
+        ytId = null,
+        infoHash = infoHash,
+        fileIdx = null,
+        externalUrl = null,
+        behaviorHints = StreamBehaviorHints(
+            notWebReady = null,
+            bingeGroup = null,
+            countryWhitelist = null,
+            proxyHeaders = null,
+            filename = "$name.mkv"
+        ),
+        addonName = "Addon",
+        addonLogo = null
+    )
 }

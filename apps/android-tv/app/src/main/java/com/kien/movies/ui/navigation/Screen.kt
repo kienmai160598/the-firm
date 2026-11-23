@@ -5,9 +5,10 @@ import java.net.URLEncoder
 
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
-    data object Detail : Screen("detail/{itemId}/{itemType}?addonBaseUrl={addonBaseUrl}&returnFocusSeason={returnFocusSeason}&returnFocusEpisode={returnFocusEpisode}&returnToHomeOnBack={returnToHomeOnBack}&heroBackdropUrl={heroBackdropUrl}&playOnLoad={playOnLoad}&manualSelection={manualSelection}") {
-        private fun encode(value: String): String =
-            URLEncoder.encode(value, "UTF-8").replace("+", "%20")
+    data object Detail : Screen(
+        "detail/{itemId}/{itemType}?addonBaseUrl={addonBaseUrl}&returnFocusSeason={returnFocusSeason}&returnFocusEpisode={returnFocusEpisode}&returnToHomeOnBack={returnToHomeOnBack}&heroBackdropUrl={heroBackdropUrl}&playOnLoad={playOnLoad}&manualSelection={manualSelection}"
+    ) {
+        private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 
         fun createRoute(
             itemId: String,
@@ -27,9 +28,10 @@ sealed class Screen(val route: String) {
             return "detail/$encodedItemId/$encodedItemType?addonBaseUrl=$encodedAddon&returnFocusSeason=${returnFocusSeason ?: ""}&returnFocusEpisode=${returnFocusEpisode ?: ""}&returnToHomeOnBack=$returnToHomeOnBack&heroBackdropUrl=$encodedHeroBackdrop&playOnLoad=$playOnLoad&manualSelection=$manualSelection"
         }
     }
-    data object Stream : Screen("stream/{videoId}/{contentType}/{title}?poster={poster}&backdrop={backdrop}&logo={logo}&season={season}&episode={episode}&episodeName={episodeName}&genres={genres}&year={year}&contentId={contentId}&contentName={contentName}&runtime={runtime}&manualSelection={manualSelection}&returnToDetailOnBack={returnToDetailOnBack}&returnToHomeOnBack={returnToHomeOnBack}&startFromBeginning={startFromBeginning}&contentLanguage={contentLanguage}&profileId={profileId}") {
-        private fun encode(value: String): String =
-            URLEncoder.encode(value, "UTF-8").replace("+", "%20")
+    data object Stream : Screen(
+        "stream/{videoId}/{contentType}/{title}?poster={poster}&backdrop={backdrop}&logo={logo}&season={season}&episode={episode}&episodeName={episodeName}&genres={genres}&year={year}&contentId={contentId}&contentName={contentName}&runtime={runtime}&manualSelection={manualSelection}&returnToDetailOnBack={returnToDetailOnBack}&returnToHomeOnBack={returnToHomeOnBack}&startFromBeginning={startFromBeginning}&contentLanguage={contentLanguage}&profileId={profileId}"
+    ) {
+        private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 
         fun createRoute(
             videoId: String,
@@ -68,9 +70,10 @@ sealed class Screen(val route: String) {
             return "stream/$encodedVideoId/$encodedContentTypePath/$encodedTitle?poster=$encodedPoster&backdrop=$encodedBackdrop&logo=$encodedLogo&season=${season ?: ""}&episode=${episode ?: ""}&episodeName=$encodedEpisodeName&genres=$encodedGenres&year=$encodedYear&contentId=$encodedContentId&contentName=$encodedContentName&runtime=${runtime ?: ""}&manualSelection=$manualSelection&returnToDetailOnBack=$returnToDetailOnBack&returnToHomeOnBack=$returnToHomeOnBack&startFromBeginning=$startFromBeginning&contentLanguage=$encodedContentLanguage&profileId=${profileId ?: ""}"
         }
     }
-    data object Player : Screen("player/{streamUrl}/{title}?streamName={streamName}&year={year}&headers={headers}&contentId={contentId}&contentType={contentType}&contentName={contentName}&poster={poster}&backdrop={backdrop}&logo={logo}&videoId={videoId}&season={season}&episode={episode}&episodeTitle={episodeTitle}&bingeGroup={bingeGroup}&autoPlayNav={autoPlayNav}&returnToDetailOnBack={returnToDetailOnBack}&returnToHomeOnBack={returnToHomeOnBack}&filename={filename}&videoHash={videoHash}&videoSize={videoSize}&startFromBeginning={startFromBeginning}&addonName={addonName}&addonLogo={addonLogo}&streamDescription={streamDescription}&infoHash={infoHash}&fileIdx={fileIdx}&sources={sources}&contentLanguage={contentLanguage}&cloudSessionToken={cloudSessionToken}&launchStartedAtMs={launchStartedAtMs}&profileId={profileId}&audioDelayMs={audioDelayMs}&audioDelayLanguage={audioDelayLanguage}&fromLinkCache={fromLinkCache}") {
-        private fun encode(value: String): String =
-            URLEncoder.encode(value, "UTF-8").replace("+", "%20")
+    data object Player : Screen(
+        "player/{streamUrl}/{title}?streamName={streamName}&year={year}&headers={headers}&contentId={contentId}&contentType={contentType}&contentName={contentName}&poster={poster}&backdrop={backdrop}&logo={logo}&videoId={videoId}&season={season}&episode={episode}&episodeTitle={episodeTitle}&bingeGroup={bingeGroup}&autoPlayNav={autoPlayNav}&returnToDetailOnBack={returnToDetailOnBack}&returnToHomeOnBack={returnToHomeOnBack}&filename={filename}&videoHash={videoHash}&videoSize={videoSize}&startFromBeginning={startFromBeginning}&addonName={addonName}&addonLogo={addonLogo}&streamDescription={streamDescription}&infoHash={infoHash}&fileIdx={fileIdx}&sources={sources}&contentLanguage={contentLanguage}&cloudSessionToken={cloudSessionToken}&launchStartedAtMs={launchStartedAtMs}&profileId={profileId}&audioDelayMs={audioDelayMs}&audioDelayLanguage={audioDelayLanguage}&fromLinkCache={fromLinkCache}"
+    ) {
+        private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 
         fun createRoute(
             streamUrl: String,
@@ -165,20 +168,27 @@ sealed class Screen(val route: String) {
     data object AuthQrSignIn : Screen("auth_qr_sign_in")
     data object SyncCodeGenerate : Screen("sync_code_generate")
     data object SyncCodeClaim : Screen("sync_code_claim")
-    data object CatalogSeeAll : Screen("catalog_see_all/{catalogId}/{addonId}/{type}?fromSearch={fromSearch}") {
-        private fun encode(value: String): String =
-            URLEncoder.encode(value, "UTF-8").replace("+", "%20")
+    data object CatalogSeeAll : Screen(
+        "catalog_see_all/{catalogId}/{addonId}/{type}?fromSearch={fromSearch}"
+    ) {
+        private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 
-        fun createRoute(catalogId: String, addonId: String, type: String, fromSearch: Boolean = false): String {
-            return "catalog_see_all/${encode(catalogId)}/${encode(addonId)}/${encode(type)}?fromSearch=$fromSearch"
+        fun createRoute(
+            catalogId: String,
+            addonId: String,
+            type: String,
+            fromSearch: Boolean = false
+        ): String {
+            return "catalog_see_all/${encode(
+                catalogId
+            )}/${encode(addonId)}/${encode(type)}?fromSearch=$fromSearch"
         }
     }
 
     data object Collections : Screen("collections")
 
     data object CollectionEditor : Screen("collection_editor?collectionId={collectionId}") {
-        private fun encode(value: String): String =
-            URLEncoder.encode(value, "UTF-8").replace("+", "%20")
+        private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 
         fun createRoute(collectionId: String? = null): String {
             return if (collectionId.isNullOrEmpty()) {
@@ -190,8 +200,7 @@ sealed class Screen(val route: String) {
     }
 
     data object FolderDetail : Screen("folder_detail/{collectionId}/{folderId}") {
-        private fun encode(value: String): String =
-            URLEncoder.encode(value, "UTF-8").replace("+", "%20")
+        private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 
         fun createRoute(collectionId: String, folderId: String): String {
             return "folder_detail/${encode(collectionId)}/${encode(folderId)}"
@@ -201,14 +210,9 @@ sealed class Screen(val route: String) {
     data object ProfileSelection : Screen("profile_selection")
 
     data object CastDetail : Screen("cast_detail/{personId}/{personName}?preferCrew={preferCrew}") {
-        private fun encode(value: String): String =
-            URLEncoder.encode(value, "UTF-8").replace("+", "%20")
+        private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 
-        fun createRoute(
-            personId: Int,
-            personName: String,
-            preferCrew: Boolean = false
-        ): String {
+        fun createRoute(personId: Int, personName: String, preferCrew: Boolean = false): String {
             return "cast_detail/$personId/${encode(personName)}?preferCrew=$preferCrew"
         }
     }
@@ -216,8 +220,7 @@ sealed class Screen(val route: String) {
     data object TmdbEntityBrowse : Screen(
         "tmdb_entity_browse/{entityKind}/{entityId}/{entityName}?sourceType={sourceType}"
     ) {
-        private fun encode(value: String): String =
-            URLEncoder.encode(value, "UTF-8").replace("+", "%20")
+        private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 
         fun createRoute(
             entityKind: String,
@@ -225,7 +228,9 @@ sealed class Screen(val route: String) {
             entityName: String,
             sourceType: String
         ): String {
-            return "tmdb_entity_browse/${encode(entityKind)}/$entityId/${encode(entityName)}?sourceType=${encode(sourceType)}"
+            return "tmdb_entity_browse/${encode(
+                entityKind
+            )}/$entityId/${encode(entityName)}?sourceType=${encode(sourceType)}"
         }
     }
 }

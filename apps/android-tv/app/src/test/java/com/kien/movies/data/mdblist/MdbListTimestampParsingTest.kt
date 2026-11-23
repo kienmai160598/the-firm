@@ -33,7 +33,11 @@ class MdbListTimestampParsingTest {
             "2025-02-02T17:28:22.250+00:00",
             "2025-02-02T00:00:00+18:00"
         ).forEach { value ->
-            assertEquals(value, OffsetDateTime.parse(value).toInstant().toEpochMilli(), mdbListTimestamp(value))
+            assertEquals(
+                value,
+                OffsetDateTime.parse(value).toInstant().toEpochMilli(),
+                mdbListTimestamp(value)
+            )
         }
     }
 
@@ -44,7 +48,10 @@ class MdbListTimestampParsingTest {
             "2025-02-02 17:28:22.000000",
             "2025-02-02 17:28:22.987654321"
         ).forEach { value ->
-            val expected = LocalDateTime.parse(value, LOCAL_FORMAT).toInstant(ZoneOffset.UTC).toEpochMilli()
+            val expected = LocalDateTime.parse(
+                value,
+                LOCAL_FORMAT
+            ).toInstant(ZoneOffset.UTC).toEpochMilli()
             assertEquals(value, expected, mdbListTimestamp(value))
         }
     }

@@ -21,9 +21,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -79,13 +79,21 @@ class PlaybackAvailabilityViewModelTest {
             runCurrent()
             assertFalse(viewModel.availability.value.canStream("movie", "tt123"))
 
-            scrapers.value = listOf(ScraperInfo(
-                id = "scraper", name = "Scraper", description = "", version = "1", filename = "scraper.js",
-                supportedTypes = listOf("movie"), enabled = true, manifestEnabled = true, logo = null,
-                contentLanguage = emptyList(), repositoryId = "repo", formats = null
-            ))
+            scrapers.value = listOf(
+                ScraperInfo(
+                    id = "scraper", name = "Scraper", description = "", version = "1", filename = "scraper.js",
+                    supportedTypes = listOf(
+                        "movie"
+                    ),
+                    enabled = true, manifestEnabled = true, logo = null,
+                    contentLanguage = emptyList(), repositoryId = "repo", formats = null
+                )
+            )
             runCurrent()
-            assertTrue(viewModel.availability.value.canStream("movie", "tt123") == AppFeaturePolicy.pluginsEnabled)
+            assertTrue(
+                viewModel.availability.value.canStream("movie", "tt123") ==
+                    AppFeaturePolicy.pluginsEnabled
+            )
             pluginsEnabled.value = false
             runCurrent()
             assertFalse(viewModel.availability.value.canStream("movie", "tt123"))

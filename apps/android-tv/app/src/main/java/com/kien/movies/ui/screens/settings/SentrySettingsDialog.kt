@@ -23,11 +23,7 @@ import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
-internal fun SentrySettingsDialog(
-    enabled: Boolean,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
+internal fun SentrySettingsDialog(enabled: Boolean, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     val cancelFocusRequester = remember { FocusRequester() }
     val confirmFocusRequester = remember { FocusRequester() }
 
@@ -123,10 +119,7 @@ internal fun SentrySettingsDialog(
 }
 
 @Composable
-private fun SentryInfoSection(
-    title: String,
-    body: String
-) {
+private fun SentryInfoSection(title: String, body: String) {
     Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs)) {
         Text(
             text = title,

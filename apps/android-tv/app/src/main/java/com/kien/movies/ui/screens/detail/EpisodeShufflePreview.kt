@@ -52,9 +52,9 @@ import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.Video
 import com.kien.movies.ui.components.PlayManualOverrideDialog
 import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.localizeEpisodeTitle
-import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
 
 @Composable
 internal fun EpisodeShufflePreview(
@@ -82,7 +82,10 @@ internal fun EpisodeShufflePreview(
 
     Dialog(
         onDismissRequest = { if (!starting) onBack() },
-        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
     ) {
         AmbientDialogEffect { if (!starting) onBack() }
         LaunchedEffect(canShuffleAgain) { playFocus.requestFocusAfterFrames() }
@@ -97,9 +100,15 @@ internal fun EpisodeShufflePreview(
                 .onPreviewKeyEvent { event ->
                     if (starting) return@onPreviewKeyEvent true
                     val native = event.nativeKeyEvent
-                    if (native.keyCode in listOf(AndroidKeyEvent.KEYCODE_DPAD_CENTER,
-                            AndroidKeyEvent.KEYCODE_ENTER, AndroidKeyEvent.KEYCODE_NUMPAD_ENTER)) {
-                        if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0) {
+                    if (native.keyCode in listOf(
+                            AndroidKeyEvent.KEYCODE_DPAD_CENTER,
+                            AndroidKeyEvent.KEYCODE_ENTER,
+                            AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
+                        )
+                    ) {
+                        if (native.action == AndroidKeyEvent.ACTION_DOWN &&
+                            native.repeatCount == 0
+                        ) {
                             acceptsSelectKey = true
                         }
                         if (!acceptsSelectKey) return@onPreviewKeyEvent true
@@ -107,19 +116,39 @@ internal fun EpisodeShufflePreview(
                     }
                     false
                 }
-                .padding(horizontal = if (compact) 40.dp else 64.dp, vertical = if (compact) 24.dp else 40.dp),
+                .padding(
+                    horizontal = if (compact) 40.dp else 64.dp,
+                    vertical = if (compact) 24.dp else 40.dp
+                ),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
                 MoviesButton(
                     onClick = { if (!starting) onBack() },
-                    modifier = Modifier.focusRequester(backFocus).focusProperties { down = playFocus }
+                    modifier = Modifier.focusRequester(backFocus).focusProperties {
+                        down = playFocus
+                    }
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Text(stringResource(R.string.action_back), modifier = Modifier.padding(start = 8.dp))
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        stringResource(R.string.action_back),
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
                 }
-                Text(meta.name, style = MaterialTheme.typography.titleLarge, color = MoviesTheme.colors.TextPrimary,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(
+                    meta.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MoviesTheme.colors.TextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
             Row(
                 modifier = Modifier.weight(1f).fillMaxWidth(),
@@ -129,36 +158,69 @@ internal fun EpisodeShufflePreview(
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     ShuffleEpisodeArtwork(episode, isWatched, blurUnwatchedEpisodes && !isWatched)
                     Text(
-                        stringResource(if (includeWatched) R.string.random_episode_include_watched else R.string.random_episode_unwatched),
-                        style = MaterialTheme.typography.bodyMedium, color = MoviesTheme.colors.TextSecondary
+                        stringResource(
+                            if (includeWatched) R.string.random_episode_include_watched else R.string.random_episode_unwatched
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(if (compact) 12.dp else 20.dp)) {
-                    Text(stringResource(R.string.shuffle_preview_title), style = MaterialTheme.typography.labelLarge,
-                        color = MoviesTheme.colors.Primary)
-                    Text(stringResource(R.string.season_episode_format, episode.season ?: 0, episode.episode ?: 0),
-                        style = MaterialTheme.typography.titleMedium, color = MoviesTheme.colors.TextSecondary)
-                    Text(episode.title.localizeEpisodeTitle(LocalContext.current),
+                Column(
+                    Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(if (compact) 12.dp else 20.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.shuffle_preview_title),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MoviesTheme.colors.Primary
+                    )
+                    Text(
+                        stringResource(
+                            R.string.season_episode_format,
+                            episode.season ?: 0,
+                            episode.episode ?: 0
+                        ),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MoviesTheme.colors.TextSecondary
+                    )
+                    Text(
+                        episode.title.localizeEpisodeTitle(LocalContext.current),
                         style = if (compact) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineLarge,
-                        color = MoviesTheme.colors.TextPrimary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        color = MoviesTheme.colors.TextPrimary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
                     episode.overview?.takeIf { it.isNotBlank() }?.let {
-                        Text(it, style = MaterialTheme.typography.bodyMedium, color = MoviesTheme.colors.TextSecondary,
-                            maxLines = if (compact) 3 else 4, overflow = TextOverflow.Ellipsis)
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MoviesTheme.colors.TextSecondary,
+                            maxLines = if (compact) 3 else 4,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         PlayButton(
-                            text = stringResource(when {
-                                starting -> R.string.shuffle_starting
-                                isResume -> R.string.detail_btn_resume
-                                else -> R.string.shuffle_play_episode
-                            }),
+                            text = stringResource(
+                                when {
+                                    starting -> R.string.shuffle_starting
+                                    isResume -> R.string.detail_btn_resume
+                                    else -> R.string.shuffle_play_episode
+                                }
+                            ),
                             onClick = { if (!starting) onPlay() },
                             onLongPress = if (!starting && (showManualPlayOption || isResume)) {
                                 { showPlayOptions = true }
-                            } else null,
+                            } else {
+                                null
+                            },
                             focusRequester = playFocus,
                             restoreFocusToken = restorePlayFocusToken,
-                            modifier = Modifier.focusProperties { up = backFocus; down = FocusRequester.Cancel }
+                            modifier = Modifier.focusProperties {
+                                up = backFocus
+                                down =
+                                    FocusRequester.Cancel
+                            }
                         )
                         if (canShuffleAgain) {
                             MoviesButton(
@@ -191,7 +253,8 @@ internal fun EpisodeShufflePreview(
                             stringResource(R.string.shuffle_only_episode),
                             style = MaterialTheme.typography.bodySmall
                                 .atLeastOnBox(TvSizeFloors.metaText),
-                            color = MoviesTheme.colors.TextSecondary)
+                            color = MoviesTheme.colors.TextSecondary
+                        )
                     }
                 }
             }
@@ -200,7 +263,11 @@ internal fun EpisodeShufflePreview(
     if (showPlayOptions && !starting && (showManualPlayOption || isResume)) {
         PlayManualOverrideDialog(
             title = episode.title.localizeEpisodeTitle(LocalContext.current),
-            subtitle = stringResource(R.string.season_episode_format, episode.season ?: 0, episode.episode ?: 0),
+            subtitle = stringResource(
+                R.string.season_episode_format,
+                episode.season ?: 0,
+                episode.episode ?: 0
+            ),
             onDismiss = {
                 showPlayOptions = false
                 restorePlayFocusToken++
@@ -235,18 +302,38 @@ private fun ShuffleEpisodeArtwork(episode: Video, isWatched: Boolean, hidden: Bo
             .background(MoviesTheme.colors.BackgroundCard),
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Icon(if (hidden) Icons.Default.VisibilityOff else Icons.Default.Shuffle, contentDescription = null,
-                tint = MoviesTheme.colors.TextSecondary, modifier = Modifier.size(48.dp))
-            if (hidden) Text(
-                stringResource(R.string.shuffle_artwork_hidden),
-                style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-                color = MoviesTheme.colors.TextSecondary)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                if (hidden) Icons.Default.VisibilityOff else Icons.Default.Shuffle,
+                contentDescription = null,
+                tint = MoviesTheme.colors.TextSecondary,
+                modifier = Modifier.size(48.dp)
+            )
+            if (hidden) {
+                Text(
+                    stringResource(R.string.shuffle_artwork_hidden),
+                    style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
+                    color = MoviesTheme.colors.TextSecondary
+                )
+            }
         }
-        if (request != null) AsyncImage(model = request, contentDescription = null, contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize())
+        if (request !=
+            null
+        ) {
+            AsyncImage(
+                model = request,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
         Text(
-            stringResource(if (isWatched) R.string.library_filter_watched else R.string.library_watched_filter_unwatched),
+            stringResource(
+                if (isWatched) R.string.library_filter_watched else R.string.library_watched_filter_unwatched
+            ),
             style = MaterialTheme.typography.labelMedium.atLeastOnBox(TvSizeFloors.metaText),
             color = Color.White,
             modifier = Modifier.align(Alignment.BottomStart).padding(14.dp)

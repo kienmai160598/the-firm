@@ -16,7 +16,7 @@ class AddonManagerFocusRestoreTest {
         baseUrl = url,
         catalogs = emptyList(),
         types = emptyList(),
-        resources = emptyList(),
+        resources = emptyList()
     )
 
     @Test

@@ -16,9 +16,7 @@ object TorrentModule {
 
     @Provides
     @Singleton
-    fun provideTorrentSettings(
-        @ApplicationContext context: Context
-    ): TorrentSettings = TorrentSettings(context)
+    fun provideTorrentSettings(@ApplicationContext context: Context): TorrentSettings = TorrentSettings(context)
 
     @Provides
     @Singleton

@@ -30,10 +30,23 @@ internal object PlayerDisplayModeUtils {
     fun resizeModeLabel(mode: Int, context: Context): String {
         return when (mode) {
             AspectRatioFrameLayout.RESIZE_MODE_FIT -> context.getString(R.string.player_aspect_fit)
-            AspectRatioFrameLayout.RESIZE_MODE_FILL -> context.getString(R.string.player_aspect_stretch)
-            AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH -> context.getString(R.string.player_aspect_fit_width)
-            AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT -> context.getString(R.string.player_aspect_fit_height)
-            AspectRatioFrameLayout.RESIZE_MODE_ZOOM -> context.getString(R.string.player_aspect_crop)
+
+            AspectRatioFrameLayout.RESIZE_MODE_FILL -> context.getString(
+                R.string.player_aspect_stretch
+            )
+
+            AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH -> context.getString(
+                R.string.player_aspect_fit_width
+            )
+
+            AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT -> context.getString(
+                R.string.player_aspect_fit_height
+            )
+
+            AspectRatioFrameLayout.RESIZE_MODE_ZOOM -> context.getString(
+                R.string.player_aspect_crop
+            )
+
             else -> context.getString(R.string.player_aspect_fit)
         }
     }

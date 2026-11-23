@@ -23,7 +23,14 @@ internal object MatroskaAfrProbe {
     const val MAX_TRACKS_FETCH_BYTES = 8_388_608L
 
     private val VINT_LENGTH_MASKS = longArrayOf(
-        0x80L, 0x40L, 0x20L, 0x10L, 0x08L, 0x04L, 0x02L, 0x01L
+        0x80L,
+        0x40L,
+        0x20L,
+        0x10L,
+        0x08L,
+        0x04L,
+        0x02L,
+        0x01L
     )
 
     data class EbmlElement(
@@ -56,10 +63,7 @@ internal object MatroskaAfrProbe {
         val segmentUnknownSize: Boolean = false
     )
 
-    data class Vint(
-        val value: Long,
-        val length: Int
-    )
+    data class Vint(val value: Long, val length: Int)
 
     fun analyzeHead(file: File): MatroskaHeadLayout? {
         if (!file.exists() || file.length() < 4L) return null
@@ -161,10 +165,12 @@ internal object MatroskaAfrProbe {
                     )
                     if (fromSeek != null) tracksAbsoluteOffset = fromSeek
                 }
+
                 ID_TRACKS -> {
                     tracksAbsoluteOffset = child.offset
                     tracksCompleteInPrefix = true
                 }
+
                 ID_CLUSTER -> clusterInPrefix = true
             }
             pos = childEnd
@@ -236,10 +242,7 @@ internal object MatroskaAfrProbe {
     }
 
     /** Minimal Cluster with block timing so demuxers expose Tracks on truncated heads. */
-    fun buildMinimalStubCluster(
-        frameCount: Int = 40,
-        frameDurationMs: Int = 42
-    ): ByteArray {
+    fun buildMinimalStubCluster(frameCount: Int = 40, frameDurationMs: Int = 42): ByteArray {
         val blocks = buildSimpleBlockPayload(
             frameCount = frameCount,
             frameDurationMs = frameDurationMs
@@ -250,8 +253,13 @@ internal object MatroskaAfrProbe {
 
     private fun buildSimpleBlockPayload(frameCount: Int, frameDurationMs: Int): ByteArray {
         val frame = byteArrayOf(
-            0x00, 0x00, 0x00, 0x01,
-            0x65.toByte(), 0x88.toByte(), 0x84.toByte()
+            0x00,
+            0x00,
+            0x00,
+            0x01,
+            0x65.toByte(),
+            0x88.toByte(),
+            0x84.toByte()
         )
         val out = java.io.ByteArrayOutputStream(frameCount * 24)
         repeat(frameCount) { index ->
@@ -341,7 +349,9 @@ internal object MatroskaAfrProbe {
         segmentDataOffset: Long
     ): Long? {
         val dataStart = seekHead.dataOffset.toInt()
-        val dataEnd = (seekHead.endExclusiveOrNull() ?: return null).toInt().coerceAtMost(bytes.size)
+        val dataEnd = (seekHead.endExclusiveOrNull() ?: return null).toInt().coerceAtMost(
+            bytes.size
+        )
         var pos = dataStart.toLong()
         while (pos + 2 < dataEnd) {
             val seek = readElement(bytes, pos) ?: break
@@ -446,7 +456,9 @@ internal object MatroskaAfrProbe {
             -1
         }
         require(parsedLen == width) {
-            "id 0x${id.toString(16)} is not a canonical EBML ID wire form (width=$width parsedLen=$parsedLen)"
+            "id 0x${id.toString(
+                16
+            )} is not a canonical EBML ID wire form (width=$width parsedLen=$parsedLen)"
         }
         return out
     }
@@ -459,8 +471,14 @@ internal object MatroskaAfrProbe {
     /** Unknown-size Segment payload marker (common Matroska form). */
     fun encodeUnknownSizeVint8(): ByteArray {
         return byteArrayOf(
-            0x01, 0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte(),
-            0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte()
+            0x01,
+            0xFF.toByte(),
+            0xFF.toByte(),
+            0xFF.toByte(),
+            0xFF.toByte(),
+            0xFF.toByte(),
+            0xFF.toByte(),
+            0xFF.toByte()
         )
     }
 

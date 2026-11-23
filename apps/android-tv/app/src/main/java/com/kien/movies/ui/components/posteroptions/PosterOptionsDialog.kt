@@ -1,20 +1,15 @@
 package com.kien.movies.ui.components.posteroptions
 
-import com.kien.movies.ui.components.buttonLabelStyle
-import com.kien.movies.ui.components.expressive.MoviesButton
-import com.kien.movies.ui.components.expressive.MoviesButtonStyle
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,15 +32,19 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.core.tracking.TrackingMembershipRemovalImpact
-import com.kien.movies.core.tracking.TrackingMembershipRemovalConfirmation
 import com.kien.movies.core.tracking.LOCAL_LIBRARY_LIST_KEY
+import com.kien.movies.core.tracking.TrackingMembershipRemovalConfirmation
+import com.kien.movies.core.tracking.TrackingMembershipRemovalImpact
 import com.kien.movies.core.tracking.supportsMembershipFor
 import com.kien.movies.domain.model.LibraryListTab
+import com.kien.movies.domain.model.LibrarySourceMode
 import com.kien.movies.domain.model.isSeriesLikeType
 import com.kien.movies.domain.model.localizedMembershipTitle
-import com.kien.movies.domain.model.LibrarySourceMode
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.buttonLabelStyle
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.TvSizeFloors
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -161,13 +160,15 @@ fun PosterListPickerDialog(
                 MoviesButton(
                     onClick = { onToggle(tab.key) },
                     enabled = !isPending,
-                    modifier = (if (tab.key == tabs.firstOrNull()?.key) {
-                        Modifier
-                            .fillMaxWidth()
-                            .focusRequester(primaryFocusRequester)
-                    } else {
-                        Modifier.fillMaxWidth()
-                    }).semantics {
+                    modifier = (
+                        if (tab.key == tabs.firstOrNull()?.key) {
+                            Modifier
+                                .fillMaxWidth()
+                                .focusRequester(primaryFocusRequester)
+                        } else {
+                            Modifier.fillMaxWidth()
+                        }
+                        ).semantics {
                         role = Role.Checkbox
                         toggleableState = if (selected) ToggleableState.On else ToggleableState.Off
                     },
@@ -304,8 +305,10 @@ fun TrackingRemovalConfirmationDialog(
     val impact = when (impacts) {
         setOf(TrackingMembershipRemovalImpact.WATCHED_HISTORY) ->
             stringResource(R.string.tracking_removal_impact_history)
+
         setOf(TrackingMembershipRemovalImpact.RATING) ->
             stringResource(R.string.tracking_removal_impact_rating)
+
         else -> stringResource(R.string.tracking_removal_impact_history_rating)
     }
     MoviesDialog(

@@ -15,8 +15,7 @@ private const val PANEL_SCRIM_ALPHA = 0.45f
 
 /** The same [outline] in every state, so tv-material's default focus ring never shows. */
 @Composable
-internal fun streamCardBorder(outline: Border): CardBorder =
-    CardDefaults.border(border = outline, focusedBorder = outline, pressedBorder = outline)
+internal fun streamCardBorder(outline: Border): CardBorder = CardDefaults.border(border = outline, focusedBorder = outline, pressedBorder = outline)
 
 /** The panel that holds the stream list: a translucent dark scrim, never a blur. */
 internal object StreamPanelStyle {
@@ -34,5 +33,4 @@ internal object StreamTitleColumnStyle {
 }
 
 /** Horizontal stops of the backdrop scrim, dark behind the title column and over the list. */
-internal fun streamBackdropScrimStops(): List<Pair<Float, Float>> =
-    listOf(0.0f to 0.92f, 0.30f to 0.70f, 0.50f to 0.45f, 0.75f to 0.55f, 1.0f to 0.75f)
+internal fun streamBackdropScrimStops(): List<Pair<Float, Float>> = listOf(0.0f to 0.92f, 0.30f to 0.70f, 0.50f to 0.45f, 0.75f to 0.55f, 1.0f to 0.75f)

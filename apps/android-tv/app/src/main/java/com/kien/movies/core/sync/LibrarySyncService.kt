@@ -9,13 +9,13 @@ import com.kien.movies.core.sync.library.consumeCursorPages
 import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.domain.model.LibrarySyncReducer
 import com.kien.movies.domain.model.LibrarySyncState
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
 data class LibraryRemoteSyncResult(
     val appliedUpserts: Int,
@@ -51,9 +51,7 @@ class LibrarySyncService @Inject constructor(
         }
     }
 
-    suspend fun syncFromRemote(
-        profileId: Int
-    ): Result<LibraryRemoteSyncResult> = withContext(Dispatchers.IO) {
+    suspend fun syncFromRemote(profileId: Int): Result<LibraryRemoteSyncResult> = withContext(Dispatchers.IO) {
         syncMutex.withLock {
             try {
                 var state = localStore.getSyncState(profileId)
@@ -131,8 +129,12 @@ class LibrarySyncService @Inject constructor(
     ): Pair<Int, Int> {
         if (!state.hasPendingMutations) return 0 to 0
 
-        val upsertItems = LibrarySyncReducer.pendingUpsertItems(state).filterNot { ServerItemRef.isServerId(it.id) }
-        val deleteKeys = state.pendingDeleteKeys.filterNot { ServerItemRef.isServerId(it.contentId) }
+        val upsertItems = LibrarySyncReducer.pendingUpsertItems(state).filterNot {
+            ServerItemRef.isServerId(it.id)
+        }
+        val deleteKeys = state.pendingDeleteKeys.filterNot {
+            ServerItemRef.isServerId(it.contentId)
+        }
         remoteDataSource.pushItems(profileId, upsertItems)
         remoteDataSource.deleteItems(profileId, deleteKeys)
         val acknowledged = localStore.acknowledgePush(

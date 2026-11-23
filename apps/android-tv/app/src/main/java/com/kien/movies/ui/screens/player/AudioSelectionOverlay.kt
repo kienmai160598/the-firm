@@ -2,8 +2,6 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -42,13 +40,13 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -56,10 +54,11 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.data.local.NightMode
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesCard
-import com.kien.movies.data.local.NightMode
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.languageCodeToName
 import java.util.Locale
 import kotlinx.coroutines.delay
@@ -100,10 +99,16 @@ internal fun AudioSelectionOverlay(
     val currentDelayMs = audioDelayMs.coerceIn(AUDIO_DELAY_MIN_MS, AUDIO_DELAY_MAX_MS)
     val canDecreaseDelay = currentDelayMs > AUDIO_DELAY_MIN_MS
     val canIncreaseDelay = currentDelayMs < AUDIO_DELAY_MAX_MS
-    val currentDb = audioAmplificationDb.coerceIn(AUDIO_AMPLIFICATION_MIN_DB, AUDIO_AMPLIFICATION_MAX_DB)
+    val currentDb = audioAmplificationDb.coerceIn(
+        AUDIO_AMPLIFICATION_MIN_DB,
+        AUDIO_AMPLIFICATION_MAX_DB
+    )
     val canDecreaseAmp = isAmplificationAvailable && currentDb > AUDIO_AMPLIFICATION_MIN_DB
     val canIncreaseAmp = isAmplificationAvailable && currentDb < AUDIO_AMPLIFICATION_MAX_DB
-    val currentCenterMixDb = centerMixLevelDb.coerceIn(CENTER_MIX_LEVEL_MIN_DB, CENTER_MIX_LEVEL_MAX_DB)
+    val currentCenterMixDb = centerMixLevelDb.coerceIn(
+        CENTER_MIX_LEVEL_MIN_DB,
+        CENTER_MIX_LEVEL_MAX_DB
+    )
     val canDecreaseCenterMix = isCenterMixAvailable && currentCenterMixDb > CENTER_MIX_LEVEL_MIN_DB
     val canIncreaseCenterMix = isCenterMixAvailable && currentCenterMixDb < CENTER_MIX_LEVEL_MAX_DB
 
@@ -116,7 +121,8 @@ internal fun AudioSelectionOverlay(
         if (!visible) return@LaunchedEffect
 
         if (tracks.isNotEmpty()) {
-            val selectedListIndex = tracks.indexOfFirst { it.index == selectedIndex }.takeIf { it >= 0 } ?: 0
+            val selectedListIndex =
+                tracks.indexOfFirst { it.index == selectedIndex }.takeIf { it >= 0 } ?: 0
             listState.scrollToItem(selectedListIndex)
             delay(120)
             runCatching { tracksFocusRequester.requestFocus() }
@@ -135,7 +141,12 @@ internal fun AudioSelectionOverlay(
         }
     }
 
-    LaunchedEffect(visible, pendingControlFocusTarget, audioAmplificationDb, isAmplificationAvailable) {
+    LaunchedEffect(
+        visible,
+        pendingControlFocusTarget,
+        audioAmplificationDb,
+        isAmplificationAvailable
+    ) {
         if (!visible) return@LaunchedEffect
         val target = pendingControlFocusTarget ?: return@LaunchedEffect
         val targetCanFocus = when (target) {
@@ -258,7 +269,10 @@ private fun AudioTracksContent(
             text = stringResource(R.string.audio_lang_default),
             style = MaterialTheme.typography.bodyLarge,
             color = Color.White.copy(alpha = 0.7f),
-            modifier = Modifier.padding(top = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.md)
+            modifier = Modifier.padding(
+                top = MoviesTheme.spacing.sm,
+                bottom = MoviesTheme.spacing.md
+            )
         )
         return
     }
@@ -266,7 +280,10 @@ private fun AudioTracksContent(
     LazyColumn(
         state = listState,
         verticalArrangement = Arrangement.spacedBy(6.dp),
-        contentPadding = PaddingValues(top = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.sm),
+        contentPadding = PaddingValues(
+            top = MoviesTheme.spacing.sm,
+            bottom = MoviesTheme.spacing.sm
+        ),
         modifier = Modifier
             .heightIn(max = 620.dp)
             .fillMaxWidth()
@@ -279,7 +296,8 @@ private fun AudioTracksContent(
                 onClick = { onTrackSelected(track.index) },
                 rightFocusRequester = rightFocusRequester,
                 focusRequester = if (
-                    track.index == selectedIndex || (selectedIndex < 0 && track == tracks.firstOrNull())
+                    track.index == selectedIndex ||
+                    (selectedIndex < 0 && track == tracks.firstOrNull())
                 ) {
                     initialFocusRequester
                 } else {
@@ -392,10 +410,16 @@ private fun AudioControlsContent(
     val currentDelayMs = audioDelayMs.coerceIn(AUDIO_DELAY_MIN_MS, AUDIO_DELAY_MAX_MS)
     val canDecreaseDelay = currentDelayMs > AUDIO_DELAY_MIN_MS
     val canIncreaseDelay = currentDelayMs < AUDIO_DELAY_MAX_MS
-    val currentDb = audioAmplificationDb.coerceIn(AUDIO_AMPLIFICATION_MIN_DB, AUDIO_AMPLIFICATION_MAX_DB)
+    val currentDb = audioAmplificationDb.coerceIn(
+        AUDIO_AMPLIFICATION_MIN_DB,
+        AUDIO_AMPLIFICATION_MAX_DB
+    )
     val canDecreaseAmp = isAmplificationAvailable && currentDb > AUDIO_AMPLIFICATION_MIN_DB
     val canIncreaseAmp = isAmplificationAvailable && currentDb < AUDIO_AMPLIFICATION_MAX_DB
-    val currentCenterMixDb = centerMixLevelDb.coerceIn(CENTER_MIX_LEVEL_MIN_DB, CENTER_MIX_LEVEL_MAX_DB)
+    val currentCenterMixDb = centerMixLevelDb.coerceIn(
+        CENTER_MIX_LEVEL_MIN_DB,
+        CENTER_MIX_LEVEL_MAX_DB
+    )
     val canDecreaseCenterMix = isCenterMixAvailable && currentCenterMixDb > CENTER_MIX_LEVEL_MIN_DB
     val canIncreaseCenterMix = isCenterMixAvailable && currentCenterMixDb < CENTER_MIX_LEVEL_MAX_DB
 
@@ -459,11 +483,13 @@ private fun AudioControlsContent(
 
     val amplificationHelperText = when {
         !isAmplificationAvailable -> stringResource(R.string.audio_mix_unavailable)
+
         persistAmplification -> stringResource(
             R.string.audio_mix_range_saved,
             AUDIO_AMPLIFICATION_MIN_DB,
             AUDIO_AMPLIFICATION_MAX_DB
         )
+
         else -> stringResource(
             R.string.audio_mix_range,
             AUDIO_AMPLIFICATION_MIN_DB,
@@ -613,7 +639,10 @@ private fun AudioControlsContent(
                     selected = nightModeOn
                 ) {
                     Text(
-                        text = stringResource(R.string.audio_night_mode_value, nightModeLevelLabel(nightMode)),
+                        text = stringResource(
+                            R.string.audio_night_mode_value,
+                            nightModeLevelLabel(nightMode)
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = PlayerListItemStyle.labelColor(),
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp)
@@ -636,7 +665,8 @@ private fun AudioControlsContent(
                     }
                     .focusProperties {
                         left = persistLeftFocusRequester
-                        up = if (isNightModeAvailable) nightModeFocusRequester else persistUpFocusRequester
+                        up =
+                            if (isNightModeAvailable) nightModeFocusRequester else persistUpFocusRequester
                     },
                 selected = persistAmplification
             ) {

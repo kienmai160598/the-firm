@@ -33,7 +33,12 @@ class ServerUserStateProjectionTest {
 
     private val seriesId = ServerItemRef(connection.id, FakeServerProvider.SHOW_ID).encode()
 
-    private fun state(episode: Int, played: Boolean, positionMs: Long = 0L, lastPlayed: Long? = 1_000L) = ServerUserState(
+    private fun state(
+        episode: Int,
+        played: Boolean,
+        positionMs: Long = 0L,
+        lastPlayed: Long? = 1_000L
+    ) = ServerUserState(
         videoId = ServerItemRef(connection.id, "ep$episode").encode(),
         positionMs = positionMs,
         durationMs = 60_000L,
@@ -49,7 +54,10 @@ class ServerUserStateProjectionTest {
         val details = ServerItemDetails(
             meta = meta(seriesId, ServerMediaKind.SERIES, "Show"),
             externalIds = TrackingExternalIds(),
-            userStates = listOf(state(1, played = true), state(2, played = false, positionMs = 30_000L))
+            userStates = listOf(
+                state(1, played = true),
+                state(2, played = false, positionMs = 30_000L)
+            )
         )
 
         projection.apply(details)
@@ -61,7 +69,8 @@ class ServerUserStateProjectionTest {
     @Test
     fun mirrorsServerStateIntoLocalHistory() = runBlocking {
         server.first.setImportWatchState(connection.id, true)
-        every { watchedPreferences.getWatchedEpisodesForContent(seriesId, 1) } returns flowOf(setOf(1 to 2, 1 to 3))
+        every { watchedPreferences.getWatchedEpisodesForContent(seriesId, 1) } returns
+            flowOf(setOf(1 to 2, 1 to 3))
         every { progressPreferences.getEpisodeProgress(seriesId, 1, 4, 1) } returns flowOf(null)
         every { progressPreferences.getEpisodeProgress(seriesId, 1, 5, 1) } returns flowOf(
             WatchProgress(seriesId, "series", "Show", null, null, null, "v", 1, 5, null, 1L, 2L, lastWatched = 9_000L)

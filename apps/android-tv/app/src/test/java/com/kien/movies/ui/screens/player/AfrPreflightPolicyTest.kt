@@ -42,7 +42,11 @@ class AfrPreflightPolicyTest {
     @Test
     fun `FrameRateMatchingMode OFF is the only disabled mode`() {
         assertEquals(
-            setOf(FrameRateMatchingMode.OFF, FrameRateMatchingMode.START, FrameRateMatchingMode.START_STOP),
+            setOf(
+                FrameRateMatchingMode.OFF,
+                FrameRateMatchingMode.START,
+                FrameRateMatchingMode.START_STOP
+            ),
             FrameRateMatchingMode.entries.toSet()
         )
         // Preflight returns immediately only for OFF
@@ -55,8 +59,7 @@ class AfrPreflightPolicyTest {
         // Mirrors PlayerScreen DisposableEffect contract:
         // START_STOP → restoreOriginalDisplayMode
         // START / OFF → clearOriginalDisplayMode (no restore on dispose for START)
-        fun shouldRestoreOnExit(mode: FrameRateMatchingMode): Boolean =
-            mode == FrameRateMatchingMode.START_STOP
+        fun shouldRestoreOnExit(mode: FrameRateMatchingMode): Boolean = mode == FrameRateMatchingMode.START_STOP
 
         assertFalse(shouldRestoreOnExit(FrameRateMatchingMode.OFF))
         assertFalse(shouldRestoreOnExit(FrameRateMatchingMode.START))
@@ -153,8 +156,7 @@ class AfrPreflightPolicyTest {
     @Test
     fun `duplicate preflight guard condition is exclusive or`() {
         // Mirrors: if (afrProbeRunning || detectedFrameRateSource != null) skip
-        fun shouldSkipDuplicate(afrProbeRunning: Boolean, source: FrameRateSource?): Boolean =
-            afrProbeRunning || source != null
+        fun shouldSkipDuplicate(afrProbeRunning: Boolean, source: FrameRateSource?): Boolean = afrProbeRunning || source != null
 
         assertFalse(shouldSkipDuplicate(false, null))
         assertTrue(shouldSkipDuplicate(true, null))

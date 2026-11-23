@@ -1,7 +1,6 @@
 package com.kien.movies.core.logging
 
-fun String?.rawForLog(): String =
-    this ?: "(null)"
+fun String?.rawForLog(): String = this ?: "(null)"
 
 fun String?.urlForLog(): String {
     return this ?: "(null)"

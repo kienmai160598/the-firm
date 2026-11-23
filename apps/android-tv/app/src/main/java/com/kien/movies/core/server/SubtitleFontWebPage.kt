@@ -76,7 +76,7 @@ input.addEventListener('change',async()=>{
 </script>
 </body>
 </html>
-""".trimIndent()
+        """.trimIndent()
     }
 
     private fun String.html(): String = replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")

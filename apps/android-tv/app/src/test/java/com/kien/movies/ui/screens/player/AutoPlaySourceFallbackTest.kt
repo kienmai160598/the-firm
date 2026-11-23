@@ -42,7 +42,10 @@ class AutoPlaySourceFallbackTest {
     @Test
     fun `with no source left the last failure is the one to show`() = runBlocking {
         val run = run(
-            outcomes = mapOf(sources[0] to expired, sources[1] to AutoPlayResolveAttempt.Failed("not cached")),
+            outcomes = mapOf(
+                sources[0] to expired,
+                sources[1] to AutoPlayResolveAttempt.Failed("not cached")
+            ),
             available = sources.take(2)
         )
 
@@ -72,8 +75,16 @@ class AutoPlaySourceFallbackTest {
     ): AutoPlayFallbackRun<String, String> = resolveWithSourceFallback(
         first = sources[0],
         maxSources = maxSources,
-        resolve = { stream -> outcomes[stream] ?: error("${stream.name} was not expected to be tried") },
-        nextCandidate = { _, triedKeys -> available.firstOrNull { it.sourceFallbackKey() !in triedKeys } }
+        resolve = { stream ->
+            outcomes[stream]
+                ?: error("${stream.name} was not expected to be tried")
+        },
+        nextCandidate = { _, triedKeys ->
+            available.firstOrNull {
+                it.sourceFallbackKey() !in
+                    triedKeys
+            }
+        }
     )
 
     private fun stream(name: String) = Stream(

@@ -7,14 +7,16 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 private val Context.authSessionNoticeDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "auth_session_notice_store",
-    corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler { androidx.datastore.preferences.core.emptyPreferences() }
+    corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler {
+        androidx.datastore.preferences.core.emptyPreferences()
+    }
 )
 
 enum class StartupAuthNotice {
@@ -34,7 +36,9 @@ class AuthSessionNoticeDataStore @Inject constructor(
     private val traktExplicitLogoutKey = booleanPreferencesKey("trakt_explicit_logout")
     private val pendingTraktNoticeKey = booleanPreferencesKey("pending_trakt_notice")
 
-    val pendingNotice: Flow<StartupAuthNotice?> = context.authSessionNoticeDataStore.data.map { preferences ->
+    val pendingNotice: Flow<StartupAuthNotice?> = context.authSessionNoticeDataStore.data.map {
+            preferences
+        ->
         when {
             preferences[pendingMoviesNoticeKey] == true -> StartupAuthNotice.NUVIO
             preferences[pendingTraktNoticeKey] == true -> StartupAuthNotice.TRAKT

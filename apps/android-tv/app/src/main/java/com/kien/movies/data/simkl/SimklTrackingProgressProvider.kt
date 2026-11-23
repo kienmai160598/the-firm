@@ -46,11 +46,10 @@ class SimklTrackingProgressProvider @Inject constructor(
     }.onStart { syncRepository.refresh(TrackingRefreshIntent.AUTOMATIC) }
         .distinctUntilChanged()
 
-    override fun episodeProgress(contentId: String): Flow<Map<Pair<Int, Int>, WatchProgress>> =
-        syncRepository.projection.map { projection ->
-            projection.episodeProgress(contentId)
-        }.onStart { syncRepository.refresh(TrackingRefreshIntent.AUTOMATIC) }
-            .distinctUntilChanged()
+    override fun episodeProgress(contentId: String): Flow<Map<Pair<Int, Int>, WatchProgress>> = syncRepository.projection.map { projection ->
+        projection.episodeProgress(contentId)
+    }.onStart { syncRepository.refresh(TrackingRefreshIntent.AUTOMATIC) }
+        .distinctUntilChanged()
 
     override fun airedEpisodeOrder(contentId: String): Flow<List<Pair<Int, Int>>> = flowOf(emptyList())
 
@@ -81,7 +80,11 @@ class SimklTrackingProgressProvider @Inject constructor(
         val snapshot = syncRepository.state.value.snapshot
         val entryIndex = syncRepository.currentEntryIndex()
         val matchingEntries by lazy(LazyThreadSafetyMode.NONE) {
-            entryIndex?.matchingEntriesForContent(snapshot.entries, contentId, trackingProviderItemId = null)
+            entryIndex?.matchingEntriesForContent(
+                snapshot.entries,
+                contentId,
+                trackingProviderItemId = null
+            )
                 ?: snapshot.entries.filter { entry -> entry.matchesSimklContentId(contentId) }
         }
         val sessions = snapshot.playback.filter { session ->
@@ -90,8 +93,10 @@ class SimklTrackingProgressProvider @Inject constructor(
                 matchingEntries.any { entry -> entry.media == media }
             val sessionSeason = session.episode?.tvdbSeason ?: session.episode?.season
             val sessionEpisode = session.episode?.tvdbNumber ?: session.episode?.number
-            sameContent && (season == null || episode == null ||
-                sessionSeason == season && sessionEpisode == episode)
+            sameContent && (
+                season == null || episode == null ||
+                    sessionSeason == season && sessionEpisode == episode
+                )
         }
         val removed = linkedSetOf<Long>()
         sessions.mapNotNull(SimklPlaybackSession::id).forEach { sessionId ->
@@ -118,11 +123,9 @@ class SimklTrackingProgressProvider @Inject constructor(
 
     override fun clearOptimistic() = Unit
 
-    override fun isHiddenFromProgress(contentId: String): Boolean =
-        syncRepository.projection.value.isHidden(contentId)
+    override fun isHiddenFromProgress(contentId: String): Boolean = syncRepository.projection.value.isHidden(contentId)
 
-    override fun isWatchedByVideoId(videoId: String, episode: Int): Boolean =
-        syncRepository.projection.value.isWatchedByVideoId(videoId, episode)
+    override fun isWatchedByVideoId(videoId: String, episode: Int): Boolean = syncRepository.projection.value.isWatchedByVideoId(videoId, episode)
 
     override suspend fun prepareNextUpSeed(progress: WatchProgress): WatchProgress = progress
 }

@@ -104,10 +104,7 @@ internal data class ProvidersWire(
 internal data class ProviderWire(val mode: String = "")
 
 @Serializable
-internal data class DeviceCapabilityWire(
-    val state: String = "",
-    val cancel: Boolean = false
-)
+internal data class DeviceCapabilityWire(val state: String = "", val cancel: Boolean = false)
 
 @Serializable
 internal data class DeviceStartBody(

@@ -46,7 +46,9 @@ internal fun PlayerRuntimeController.selectAudioTrack(trackIndex: Int) {
     logSwitchTrace(
         stage = "select-audio-track",
         message = "trackIndex=$trackIndex usingMpv=${isUsingMpvEngine()} " +
-            "track=${_uiState.value.audioTracks.getOrNull(trackIndex)?.let { "${it.language}/${it.name}/${it.trackId}" } ?: "none"}"
+            "track=${_uiState.value.audioTracks.getOrNull(trackIndex)?.let {
+                "${it.language}/${it.name}/${it.trackId}"
+            } ?: "none"}"
     )
     if (isUsingMpvEngine()) {
         val wasPlaying = isPlaybackCurrentlyPlaying()
@@ -62,7 +64,7 @@ internal fun PlayerRuntimeController.selectAudioTrack(trackIndex: Int) {
     _exoPlayer?.let { player ->
         val tracks = player.currentTracks
         var currentAudioIndex = 0
-        
+
         tracks.groups.forEach { trackGroup ->
             if (trackGroup.type == C.TRACK_TYPE_AUDIO) {
                 for (i in 0 until trackGroup.length) {
@@ -128,7 +130,10 @@ internal fun PlayerRuntimeController.applyAddonSubtitleOverride(addonTrackId: St
             }
         }
     }
-    Log.d(PlayerRuntimeController.TAG, "applyAddonSubtitleOverride: track not found yet for id=$addonTrackId")
+    Log.d(
+        PlayerRuntimeController.TAG,
+        "applyAddonSubtitleOverride: track not found yet for id=$addonTrackId"
+    )
     return false
 }
 
@@ -140,7 +145,9 @@ internal fun PlayerRuntimeController.applyAddonSubtitleOverrideByLanguage(
         if (trackGroup.type != C.TRACK_TYPE_TEXT) return@forEach
         for (i in 0 until trackGroup.length) {
             val format = trackGroup.getTrackFormat(i)
-            if (format.id?.contains(PlayerRuntimeController.ADDON_SUBTITLE_TRACK_ID_PREFIX) != true) {
+            if (format.id?.contains(PlayerRuntimeController.ADDON_SUBTITLE_TRACK_ID_PREFIX) !=
+                true
+            ) {
                 continue
             }
             if (!PlayerSubtitleUtils.matchesLanguageCode(format.language, language)) {
@@ -170,10 +177,15 @@ internal fun PlayerRuntimeController.selectSubtitleTrack(trackIndex: Int) {
     logSwitchTrace(
         stage = "select-subtitle-track",
         message = "trackIndex=$trackIndex usingMpv=${isUsingMpvEngine()} " +
-            "track=${_uiState.value.subtitleTracks.getOrNull(trackIndex)?.let { "${it.language}/${it.name}/${it.trackId}/forced=${it.isForced}" } ?: "none"}"
+            "track=${_uiState.value.subtitleTracks.getOrNull(trackIndex)?.let {
+                "${it.language}/${it.name}/${it.trackId}/forced=${it.isForced}"
+            } ?: "none"}"
     )
     if (isUsingMpvEngine()) {
-        Log.d(PlayerRuntimeController.TAG, "Selecting INTERNAL subtitle trackIndex=$trackIndex (mpv)")
+        Log.d(
+            PlayerRuntimeController.TAG,
+            "Selecting INTERNAL subtitle trackIndex=$trackIndex (mpv)"
+        )
         val shouldKeepPlaying = !userPausedManually && !_uiState.value.playbackEnded
         val track = _uiState.value.subtitleTracks.getOrNull(trackIndex)
         val trackId = track?.trackId?.toIntOrNull()
@@ -193,12 +205,18 @@ internal fun PlayerRuntimeController.selectSubtitleTrack(trackIndex: Int) {
         stopSidecarAddonSubtitle(clearView = true)
         val tracks = player.currentTracks
         var currentSubIndex = 0
-        
+
         tracks.groups.forEach { trackGroup ->
             if (trackGroup.type == C.TRACK_TYPE_TEXT) {
                 for (i in 0 until trackGroup.length) {
                     val format = trackGroup.getTrackFormat(i)
-                    if (format.id?.contains(PlayerRuntimeController.ADDON_SUBTITLE_TRACK_ID_PREFIX) == true) continue
+                    if (format.id?.contains(
+                            PlayerRuntimeController.ADDON_SUBTITLE_TRACK_ID_PREFIX
+                        ) ==
+                        true
+                    ) {
+                        continue
+                    }
                     if (currentSubIndex == trackIndex) {
                         val override = TrackSelectionOverride(trackGroup.mediaTrackGroup, i)
                         player.trackSelectionParameters = player.trackSelectionParameters
@@ -225,8 +243,9 @@ internal fun PlayerRuntimeController.rememberInternalSubtitleSelection(trackInde
     val selectedTrack = _uiState.value.subtitleTracks.getOrNull(trackIndex) ?: return
     logSwitchTrace(
         stage = "user-remember-subtitle-internal",
-        message = "trackIndex=$trackIndex lang=${selectedTrack.language} name=${selectedTrack.name} " +
-            "id=${selectedTrack.trackId} forced=${selectedTrack.isForced}"
+        message =
+            "trackIndex=$trackIndex lang=${selectedTrack.language} name=${selectedTrack.name} " +
+                "id=${selectedTrack.trackId} forced=${selectedTrack.isForced}"
     )
     val rememberedSelection = PlayerRuntimeController.RememberedSubtitleSelection.Internal(
         track = buildRememberedInternalSubtitleSelectionForEngineSwitch(
@@ -392,9 +411,7 @@ internal fun PlayerRuntimeController.buildAddonSubtitleTrackId(subtitle: Subtitl
     return "${PlayerRuntimeController.ADDON_SUBTITLE_TRACK_ID_PREFIX}${subtitle.id}:$urlHashSuffix"
 }
 
-internal fun PlayerRuntimeController.isMpvAddonSubtitleTrackActive(
-    subtitle: Subtitle
-): Boolean {
+internal fun PlayerRuntimeController.isMpvAddonSubtitleTrackActive(subtitle: Subtitle): Boolean {
     if (!isUsingMpvEngine()) return false
 
     val targetTrackId = buildAddonSubtitleTrackId(subtitle)
@@ -412,19 +429,22 @@ internal fun PlayerRuntimeController.addonSubtitleKey(subtitle: Subtitle): Strin
 }
 
 /** Routes for [SubtitleRoutingDataSourceFactory], keyed by configuration URI. When subtitles share a URI, the first route is used. */
-internal fun PlayerRuntimeController.subtitleRoutes(subtitles: List<Subtitle>): Map<String, SubtitleRoute> =
-    buildMap {
-        subtitles.forEach { subtitle ->
-            val key = toSubtitleConfiguration(subtitle).uri.toString()
-            if (key !in this) put(key, SubtitleRoute(subtitle.url, subtitle.headers))
-        }
+internal fun PlayerRuntimeController.subtitleRoutes(
+    subtitles: List<Subtitle>
+): Map<String, SubtitleRoute> = buildMap {
+    subtitles.forEach { subtitle ->
+        val key = toSubtitleConfiguration(subtitle).uri.toString()
+        if (key !in this) put(key, SubtitleRoute(subtitle.url, subtitle.headers))
     }
+}
 
-internal fun PlayerRuntimeController.toSubtitleConfiguration(subtitle: Subtitle): MediaItem.SubtitleConfiguration {
+internal fun PlayerRuntimeController.toSubtitleConfiguration(
+    subtitle: Subtitle
+): MediaItem.SubtitleConfiguration {
     val normalizedLang = PlayerSubtitleUtils.normalizeLanguageCode(subtitle.lang)
     val subtitleMimeType = PlayerSubtitleUtils.mimeTypeFromUrl(subtitle.url)
     val addonTrackId = buildAddonSubtitleTrackId(subtitle)
-    
+
     val baseUri = android.net.Uri.parse(subtitle.url)
     val subtitleUri = baseUri.buildUpon()
         .appendQueryParameter("nuvio_type", "subtitle")
@@ -452,14 +472,18 @@ internal fun PlayerRuntimeController.selectAddonSubtitle(subtitle: Subtitle) {
         ) {
             return
         }
-        Log.d(PlayerRuntimeController.TAG, "Selecting ADDON subtitle lang=${subtitle.lang} id=${subtitle.id} (mpv)")
+        Log.d(
+            PlayerRuntimeController.TAG,
+            "Selecting ADDON subtitle lang=${subtitle.lang} id=${subtitle.id} (mpv)"
+        )
         val wasPlaying = isPlaybackCurrentlyPlaying()
         val normalizedLang = PlayerSubtitleUtils.normalizeLanguageCode(subtitle.lang)
         val trackTitle = buildAddonSubtitleTrackId(subtitle)
         AutoSyncSyncedSubtitle.clear() // AutoSync hook
         mpvAddonSubtitleSelectionJob = scope.launch {
             val localPath = try {
-                val decodedBody = downloadSubtitleBody(subtitle.url, subtitle.lang, subtitle.headers)
+                val decodedBody =
+                    downloadSubtitleBody(subtitle.url, subtitle.lang, subtitle.headers)
                 val sanitized = SubtitleMojibakeSanitizer.sanitize(decodedBody).toString()
                 val cacheDir = java.io.File(context.cacheDir, "subtitles").also { it.mkdirs() }
                 val ext = if (subtitle.url.contains(".vtt", ignoreCase = true)) "vtt" else "srt"
@@ -467,7 +491,11 @@ internal fun PlayerRuntimeController.selectAddonSubtitle(subtitle: Subtitle) {
                 file.writeText(sanitized, Charsets.UTF_8)
                 file.absolutePath
             } catch (e: Exception) {
-                Log.w(PlayerRuntimeController.TAG, "Failed to cache normalized subtitle for MPV, falling back to URL", e)
+                Log.w(
+                    PlayerRuntimeController.TAG,
+                    "Failed to cache normalized subtitle for MPV, falling back to URL",
+                    e
+                )
                 subtitle.url
             }
 
@@ -637,7 +665,6 @@ internal fun PlayerRuntimeController.attachAddonSubtitleViaMediaReload(subtitle:
         )
     }
 }
-
 
 internal fun PlayerRuntimeController.rememberAddonSubtitleSelection(subtitle: Subtitle) {
     logSwitchTrace(

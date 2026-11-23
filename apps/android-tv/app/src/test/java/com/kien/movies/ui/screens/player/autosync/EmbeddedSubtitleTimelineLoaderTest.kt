@@ -23,7 +23,7 @@ class EmbeddedSubtitleTimelineLoaderTest {
             server.enqueue(
                 MockResponse()
                     .setResponseCode(404)
-                    .setHeadersDelay(300L, TimeUnit.MILLISECONDS),
+                    .setHeadersDelay(300L, TimeUnit.MILLISECONDS)
             )
             val url = server.url("/shared.mkv").toString()
 
@@ -46,7 +46,7 @@ class EmbeddedSubtitleTimelineLoaderTest {
 
             val prefetch = async { EmbeddedSubtitleTimelineLoader.load(url, emptyMap()) }
             assertNotNull(
-                withContext(Dispatchers.IO) { server.takeRequest(5, TimeUnit.SECONDS) },
+                withContext(Dispatchers.IO) { server.takeRequest(5, TimeUnit.SECONDS) }
             )
             val autoSync = async { EmbeddedSubtitleTimelineLoader.load(url, emptyMap()) }
             yield()

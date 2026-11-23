@@ -34,11 +34,11 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.tv.material3.Text
 import com.kien.movies.core.network.StreamSpeedTester
+import java.io.File
+import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.util.Locale
 
 internal enum class DebugStatSeverity {
     NORMAL,
@@ -72,10 +72,7 @@ internal data class PlayerSnapshot(
 
 @OptIn(UnstableApi::class)
 @Composable
-internal fun PlayerDebugStatsOverlay(
-    viewModel: PlayerViewModel,
-    modifier: Modifier = Modifier
-) {
+internal fun PlayerDebugStatsOverlay(viewModel: PlayerViewModel, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val sampler = remember { DebugStatsSampler(context) }
     var stats by remember { mutableStateOf(emptyList<DebugStat>()) }
@@ -110,7 +107,10 @@ internal fun PlayerDebugStatsOverlay(
                     videoBitrate = runCatching { it.videoFormat?.bitrate }.getOrNull() ?: -1,
                     audioBitrate = runCatching { it.audioFormat?.bitrate }.getOrNull() ?: -1,
                     durationMs = runCatching { it.duration }.getOrNull() ?: -1L,
-                    droppedFrames = runCatching { it.videoDecoderCounters?.droppedBufferCount }.getOrNull() ?: 0,
+                    droppedFrames =
+                        runCatching {
+                            it.videoDecoderCounters?.droppedBufferCount
+                        }.getOrNull() ?: 0,
                     fileSizeBytes = viewModel.getCurrentFileSizeBytes() ?: probedFileSize,
                     nativeMemoryBytes = viewModel.getPlayerNativeMemoryBytes()
                 )
@@ -227,7 +227,12 @@ private class DebugStatsSampler(context: Context) {
         faultSamples++
         return DebugStat(
             label = "paging",
-            value = String.format(Locale.US, "%.0f/s   avg %.0f/s", perSecond, faultTotal / faultSamples),
+            value = String.format(
+                Locale.US,
+                "%.0f/s   avg %.0f/s",
+                perSecond,
+                faultTotal / faultSamples
+            ),
             warn = perSecond >= 100.0
         )
     }
@@ -261,7 +266,9 @@ private class DebugStatsSampler(context: Context) {
             else -> "   native $nativeMb MB"
         }
         val safeLimitMb = MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(appContext)
-        val warningLimitMb = MoviesExoPlayerPerformanceHelper.getWarningNativeMemoryLimitMb(appContext)
+        val warningLimitMb = MoviesExoPlayerPerformanceHelper.getWarningNativeMemoryLimitMb(
+            appContext
+        )
 
         val severity = when {
             nativeMb > 0L && nativeMb > warningLimitMb -> DebugStatSeverity.DANGER
@@ -285,7 +292,12 @@ private class DebugStatsSampler(context: Context) {
         bufferSamples++
         return DebugStat(
             label = "buffer",
-            value = String.format(Locale.US, "%.1fs   avg %.1fs", ahead, bufferTotal / bufferSamples),
+            value = String.format(
+                Locale.US,
+                "%.1fs   avg %.1fs",
+                ahead,
+                bufferTotal / bufferSamples
+            ),
             warn = ahead < 5.0
         )
     }
@@ -351,10 +363,20 @@ private class DebugStatsSampler(context: Context) {
             runCatching { pm.getThermalHeadroom(0) }.getOrDefault(Float.NaN)
         }
         headroomMisses = if (headroom.isNaN()) headroomMisses + 1 else 0
-        val status = runCatching { pm.currentThermalStatus }.getOrDefault(PowerManager.THERMAL_STATUS_NONE)
+        val status = runCatching {
+            pm.currentThermalStatus
+        }.getOrDefault(PowerManager.THERMAL_STATUS_NONE)
         val headroomStat = DebugStat(
             label = "thermal",
-            value = if (headroom.isNaN()) UNAVAILABLE else String.format(Locale.US, "%.2f / 1.00", headroom),
+            value = if (headroom.isNaN()) {
+                UNAVAILABLE
+            } else {
+                String.format(
+                    Locale.US,
+                    "%.2f / 1.00",
+                    headroom
+                )
+            },
             warn = !headroom.isNaN() && headroom >= 0.9f
         )
         val throttleName = throttleName(status) ?: return listOf(headroomStat)

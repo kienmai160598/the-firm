@@ -6,13 +6,10 @@ import com.kien.movies.updater.model.AppUpdate
 import javax.inject.Inject
 import javax.inject.Singleton
 
-internal class NoEligibleUpdateException(channel: UpdateChannel) :
-    IllegalStateException("No compatible APK release found for ${channel.storedValue} channel")
+internal class NoEligibleUpdateException(channel: UpdateChannel) : IllegalStateException("No compatible APK release found for ${channel.storedValue} channel")
 
 @Singleton
-class UpdateRepository @Inject constructor(
-    private val gitHubReleaseApi: GitHubReleaseApi
-) {
+class UpdateRepository @Inject constructor(private val gitHubReleaseApi: GitHubReleaseApi) {
 
     suspend fun getLatestUpdate(channel: UpdateChannel): Result<AppUpdate> {
         return runCatching {
@@ -27,6 +24,7 @@ class UpdateRepository @Inject constructor(
                     }
                     listOf(response.body() ?: error("Empty GitHub release response"))
                 }
+
                 UpdateChannel.BETA -> {
                     val response = gitHubReleaseApi.getReleases(owner = owner, repo = repo)
                     if (!response.isSuccessful) {

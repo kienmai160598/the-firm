@@ -6,6 +6,9 @@ import com.kien.movies.data.local.MemberCatalogStorage
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,9 +26,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val ProfileBackgroundBucket = "membership-profile-backgrounds"
 private const val ProfileBackgroundTag = "ProfileBackgrounds"
@@ -50,7 +50,10 @@ class ProfileBackgroundRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
     private val _catalog = MutableStateFlow<List<ProfileBackgroundCatalogItem>>(emptyList())
     val catalog: StateFlow<List<ProfileBackgroundCatalogItem>> = _catalog.asStateFlow()
     private var remoteCatalog = emptyList<SupabaseProfileBackgroundCatalogItem>()
@@ -160,13 +163,15 @@ class ProfileBackgroundRepository @Inject constructor(
         val prefix = "$id-v"
         val imageFile = context.cacheDir.resolve("member_profile_backgrounds").listFiles()
             ?.filter { file ->
-                file.isFile && file.length() > 0L && file.name.startsWith(prefix) && file.name.endsWith(".png")
+                file.isFile && file.length() > 0L && file.name.startsWith(prefix) &&
+                    file.name.endsWith(".png")
             }
             ?.maxByOrNull { file ->
                 file.name.removePrefix(prefix).removeSuffix(".png").toIntOrNull() ?: Int.MIN_VALUE
             }
             ?: return
-        val version = imageFile.name.removePrefix(prefix).removeSuffix(".png").toIntOrNull() ?: return
+        val version =
+            imageFile.name.removePrefix(prefix).removeSuffix(".png").toIntOrNull() ?: return
         _catalog.update { catalog ->
             if (catalog.any { it.id == id }) {
                 catalog
@@ -194,7 +199,11 @@ class ProfileBackgroundRepository @Inject constructor(
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {
-            Log.w(ProfileBackgroundTag, "Unable to load supporter profile background ${item.id}", error)
+            Log.w(
+                ProfileBackgroundTag,
+                "Unable to load supporter profile background ${item.id}",
+                error
+            )
         }
     }
 
@@ -216,7 +225,9 @@ class ProfileBackgroundRepository @Inject constructor(
 
         val directory = imageFile.parentFile ?: return@withContext imageFile
         directory.mkdirs()
-        val imageBytes = storage[ProfileBackgroundBucket].downloadAuthenticated(item.storagePath)
+        val imageBytes = storage[ProfileBackgroundBucket].downloadAuthenticated(
+            item.storagePath
+        )
         val temporaryFile = directory.resolve(".${imageFile.name}.tmp")
         temporaryFile.writeBytes(imageBytes)
         if (!temporaryFile.renameTo(imageFile)) {
@@ -226,9 +237,7 @@ class ProfileBackgroundRepository @Inject constructor(
         imageFile
     }
 
-    private fun cachedImageFile(item: SupabaseProfileBackgroundCatalogItem): File? =
-        profileBackgroundFile(item).takeIf { it.isFile && it.length() > 0L }
+    private fun cachedImageFile(item: SupabaseProfileBackgroundCatalogItem): File? = profileBackgroundFile(item).takeIf { it.isFile && it.length() > 0L }
 
-    private fun profileBackgroundFile(item: SupabaseProfileBackgroundCatalogItem): File =
-        context.cacheDir.resolve("member_profile_backgrounds/${item.id}-v${item.assetVersion}.png")
+    private fun profileBackgroundFile(item: SupabaseProfileBackgroundCatalogItem): File = context.cacheDir.resolve("member_profile_backgrounds/${item.id}-v${item.assetVersion}.png")
 }

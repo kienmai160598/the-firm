@@ -7,6 +7,7 @@ import com.kien.movies.core.tracking.TrackingListStatus
 import com.kien.movies.core.tracking.TrackingMediaKind
 import com.kien.movies.core.tracking.TrackingMediaReference
 import com.kien.movies.core.tracking.TrackingScrobbleEvent
+import kotlin.math.round
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -14,7 +15,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import kotlin.math.round
 
 fun buildSimklListMutationBody(
     items: Collection<TrackingMediaReference>,
@@ -54,10 +54,7 @@ fun buildSimklHistoryRemovalBody(
     )
 )
 
-fun buildSimklScrobbleBody(
-    event: TrackingScrobbleEvent,
-    json: Json = SimklMutationJson
-): String {
+fun buildSimklScrobbleBody(event: TrackingScrobbleEvent, json: Json = SimklMutationJson): String {
     val media = event.media.toScrobbleMediaDto()
     val usesTvStyleAnimeCoordinates = event.media.kind == TrackingMediaKind.ANIME &&
         event.media.episode?.season != null
@@ -159,8 +156,7 @@ private fun TrackingMediaReference.toHistoryItemDto(
     useTvdbAnimeSeasons = useTvdbAnimeSeasons
 )
 
-private fun TrackingMediaReference.toScrobbleMediaDto(): SimklScrobbleMediaDto =
-    SimklScrobbleMediaDto(title.nonBlankOrNull(), year, ids.toSimklJsonObjectOrNull())
+private fun TrackingMediaReference.toScrobbleMediaDto(): SimklScrobbleMediaDto = SimklScrobbleMediaDto(title.nonBlankOrNull(), year, ids.toSimklJsonObjectOrNull())
 
 private fun TrackingEpisode.toEpisodeDto(
     includeSeason: Boolean,
@@ -188,8 +184,7 @@ internal fun TrackingExternalIds.toSimklJsonObjectOrNull(): JsonObject? {
     return value.takeIf { it.isNotEmpty() }
 }
 
-private fun Double.clampAndRoundProgress(): Double =
-    round(coerceIn(0.0, 100.0) * 100.0) / 100.0
+private fun Double.clampAndRoundProgress(): Double = round(coerceIn(0.0, 100.0) * 100.0) / 100.0
 
 private fun String?.nonBlankOrNull(): String? = this?.trim()?.takeIf(String::isNotEmpty)
 
@@ -219,13 +214,18 @@ fun Long.epochMsToUtcIso(): String? {
     }
     val month = monthIndex + 1
     val day = days.toInt() + 1
-    return "${year.pad(4)}-${month.pad(2)}-${day.pad(2)}T${hour.pad(2)}:${minute.pad(2)}:${second.pad(2)}Z"
+    return "${year.pad(
+        4
+    )}-${month.pad(2)}-${day.pad(2)}T${hour.pad(2)}:${minute.pad(2)}:${second.pad(2)}Z"
 }
 
 private fun Int.isLeapYear(): Boolean = (this % 4 == 0 && this % 100 != 0) || this % 400 == 0
 private fun Int.pad(length: Int): String = toString().padStart(length, '0')
 
-private val SimklMutationJson = Json { encodeDefaults = false; explicitNulls = false }
+private val SimklMutationJson = Json {
+    encodeDefaults = false
+    explicitNulls = false
+}
 
 @Serializable
 private data class SimklListMutationRequestDto(

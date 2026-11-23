@@ -34,7 +34,10 @@ internal fun PlayerRuntimeController.attemptStartupRecovery(
     detailedError: String
 ): Boolean {
     if (currentVideoTrackIsLikelyVc1 ||
-        Vc1VideoFormatHeuristics.isLikelyVc1(streamName = _uiState.value.currentStreamName ?: streamName)
+        Vc1VideoFormatHeuristics.isLikelyVc1(
+            streamName =
+                _uiState.value.currentStreamName ?: streamName
+        )
     ) {
         return false
     }
@@ -87,7 +90,7 @@ internal fun isRetryablePlaybackError(error: PlaybackException): Boolean {
         PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND,
         PlaybackException.ERROR_CODE_IO_NO_PERMISSION,
         PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED,
-        PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE, -> true
+        PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE -> true
 
         PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS -> {
             val httpCause = error.findCause<HttpDataSource.InvalidResponseCodeException>()
@@ -97,6 +100,7 @@ internal fun isRetryablePlaybackError(error: PlaybackException): Boolean {
                 true
             }
         }
+
         PlaybackException.ERROR_CODE_PARSING_CONTAINER_MALFORMED,
         PlaybackException.ERROR_CODE_PARSING_MANIFEST_MALFORMED,
         PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED,
@@ -119,8 +123,7 @@ internal fun isRetryablePlaybackError(error: PlaybackException): Boolean {
 }
 
 /** HTTP statuses a retry of the same request gets again, so retrying only delays the error. */
-internal fun isPermanentHttpStatus(code: Int): Boolean =
-    code == 400 || code == 401 || code == 403 || code == 404 || code == 410
+internal fun isPermanentHttpStatus(code: Int): Boolean = code == 400 || code == 401 || code == 403 || code == 404 || code == 410
 
 /**
  * Audio-track failures that the safe-audio → audio-disabled fallback ladder can recover from.
@@ -182,9 +185,13 @@ internal fun PlaybackException.toDisplayMessage(context: android.content.Context
     }
 
     // Check for unrecognized format (provider returned non-video content)
-    val isUnrecognizedFormat = findCause<androidx.media3.exoplayer.source.UnrecognizedInputFormatException>() != null
+    val isUnrecognizedFormat =
+        findCause<androidx.media3.exoplayer.source.UnrecognizedInputFormatException>() != null
     if (isUnrecognizedFormat) {
-        return context.getString(com.kien.movies.R.string.player_error_source_invalid_content, errorCodeName)
+        return context.getString(
+            com.kien.movies.R.string.player_error_source_invalid_content,
+            errorCodeName
+        )
     }
 
     val decoderInit = findCause<MediaCodecRenderer.DecoderInitializationException>()
@@ -206,7 +213,10 @@ internal fun PlaybackException.toDisplayMessage(context: android.content.Context
     }
 }
 
-internal fun Throwable.toDisplayMessage(context: android.content.Context, fallback: String? = null): String {
+internal fun Throwable.toDisplayMessage(
+    context: android.content.Context,
+    fallback: String? = null
+): String {
     val meaningfulMessage = findMostRelevantCauseMessage()
     return meaningfulMessage
         ?: message?.takeIf { it.isNotBlank() }
@@ -247,7 +257,10 @@ internal fun PlayerRuntimeController.attemptAutoRetry(
     detailedError: String
 ): Boolean {
     if (currentVideoTrackIsLikelyVc1 ||
-        Vc1VideoFormatHeuristics.isLikelyVc1(streamName = _uiState.value.currentStreamName ?: streamName)
+        Vc1VideoFormatHeuristics.isLikelyVc1(
+            streamName =
+                _uiState.value.currentStreamName ?: streamName
+        )
     ) {
         return false
     }
@@ -366,9 +379,7 @@ internal fun PlayerRuntimeController.refreshStableProgressResetGate() {
  * logic takes over.
  */
 @androidx.annotation.OptIn(UnstableApi::class)
-internal fun PlayerRuntimeController.tryAudioTrackPcmFallback(
-    error: PlaybackException
-): Boolean {
+internal fun PlayerRuntimeController.tryAudioTrackPcmFallback(error: PlaybackException): Boolean {
     if (error.errorCode != PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED) return false
     if (hasTriedAudioPcmFallback) return false
     if (cachedDecoderPriority != 1) return false // Only for EXTENSION_RENDERER_MODE_ON
@@ -381,7 +392,10 @@ internal fun PlayerRuntimeController.tryAudioTrackPcmFallback(
     val savedPosition = player.currentPosition.takeIf { it > 0L } ?: 0L
     val paused = userPausedManually
 
-    Log.d(PlayerRuntimeController.TAG, "Audio track init failed (5001) — rebuilding player with PCM forcing, position=${savedPosition}ms")
+    Log.d(
+        PlayerRuntimeController.TAG,
+        "Audio track init failed (5001) — rebuilding player with PCM forcing, position=${savedPosition}ms"
+    )
     showRecoveryOverlay()
 
     errorRetryJob?.cancel()
@@ -411,11 +425,13 @@ internal fun PlayerRuntimeController.tryNextAudioFallbackStep(positionMs: Long):
             safeAudioForcedStreamUrls.add(currentStreamUrl)
             retryCurrentStreamWithSafeAudioFallback(positionMs)
         }
+
         PlayerAudioFallbackPolicy.Step.FORCE_PCM -> {
             hasTriedAudioPcmFallback = true
             pendingAudioPcmFallbackRebuild = true
             retryCurrentStreamWithSafeAudioFallback(positionMs)
         }
+
         PlayerAudioFallbackPolicy.Step.DISABLE_AUDIO -> {
             pendingAudioPcmFallbackRebuild = true
             audioDisabledForcedStreamUrls.add(currentStreamUrl)
@@ -438,9 +454,7 @@ internal fun PlayerRuntimeController.tryNextAudioFallbackStep(positionMs: Long):
  * Tunneling state does not matter for this fallback.
  */
 @androidx.annotation.OptIn(UnstableApi::class)
-internal fun PlayerRuntimeController.tryDv7HevcFallback(
-    error: PlaybackException
-): Boolean {
+internal fun PlayerRuntimeController.tryDv7HevcFallback(error: PlaybackException): Boolean {
     if (error.errorCode != PlaybackException.ERROR_CODE_DECODER_INIT_FAILED) return false
     if (hasTriedDv7HevcFallback) return false
     if (cachedDecoderPriority != 1) return false
@@ -481,18 +495,23 @@ internal fun PlayerRuntimeController.tryParsingErrorProbeFallback(
     paused: Boolean = userPausedManually
 ): Boolean {
     if (currentVideoTrackIsLikelyVc1 ||
-        Vc1VideoFormatHeuristics.isLikelyVc1(streamName = _uiState.value.currentStreamName ?: streamName)
+        Vc1VideoFormatHeuristics.isLikelyVc1(
+            streamName =
+                _uiState.value.currentStreamName ?: streamName
+        )
     ) {
         return false
     }
-    val isSourceOrParsingError = error.errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED ||
-        error.errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_MALFORMED ||
-        error.errorCode == PlaybackException.ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED ||
-        error.errorCode == PlaybackException.ERROR_CODE_PARSING_MANIFEST_MALFORMED ||
-        error.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW ||
-        error.errorCode == PlaybackException.ERROR_CODE_IO_UNSPECIFIED ||
-        error.findCause<androidx.media3.exoplayer.source.UnrecognizedInputFormatException>() != null ||
-        error.cause?.toString()?.contains("UnrecognizedInputFormatException") == true
+    val isSourceOrParsingError =
+        error.errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED ||
+            error.errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_MALFORMED ||
+            error.errorCode == PlaybackException.ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED ||
+            error.errorCode == PlaybackException.ERROR_CODE_PARSING_MANIFEST_MALFORMED ||
+            error.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW ||
+            error.errorCode == PlaybackException.ERROR_CODE_IO_UNSPECIFIED ||
+            error.findCause<androidx.media3.exoplayer.source.UnrecognizedInputFormatException>() !=
+            null ||
+            error.cause?.toString()?.contains("UnrecognizedInputFormatException") == true
 
     if (!isSourceOrParsingError) return false
     if (parsingErrorProbeAttempted) return false
@@ -540,7 +559,11 @@ internal fun PlayerRuntimeController.tryParsingErrorProbeFallback(
             if (tryFallbackToNextSourceAfterError(detailedError)) {
                 return@launch
             }
-            if (maybeAutoSwitchInternalPlayerOnStartupError(detailedError = detailedError, allowEngineFailover = allowEngineFailover)) {
+            if (maybeAutoSwitchInternalPlayerOnStartupError(
+                    detailedError = detailedError,
+                    allowEngineFailover = allowEngineFailover
+                )
+            ) {
                 return@launch
             }
             if (attemptAutoRetry(error, detailedError)) {

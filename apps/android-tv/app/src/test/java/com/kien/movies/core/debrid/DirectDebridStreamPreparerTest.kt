@@ -13,10 +13,14 @@ class DirectDebridStreamPreparerTest {
 
     @Test
     fun `replaces debrid streams with the same resolve fields in every addon, ignoring case`() {
-        val original = debridStream(addonName = "Addon A", infoHash = "abcdef", filename = "Movie.mkv")
-        val sameTorrent = debridStream(addonName = "Addon B", infoHash = "ABCDEF", filename = "movie.MKV")
-        val otherTorrent = debridStream(addonName = "Addon A", infoHash = "123456", filename = "Movie.mkv")
-        val untouchedGroup = AddonStreams("Addon C", null, listOf(otherTorrent.copy(addonName = "Addon C")))
+        val original =
+            debridStream(addonName = "Addon A", infoHash = "abcdef", filename = "Movie.mkv")
+        val sameTorrent =
+            debridStream(addonName = "Addon B", infoHash = "ABCDEF", filename = "movie.MKV")
+        val otherTorrent =
+            debridStream(addonName = "Addon A", infoHash = "123456", filename = "Movie.mkv")
+        val untouchedGroup =
+            AddonStreams("Addon C", null, listOf(otherTorrent.copy(addonName = "Addon C")))
         val prepared = original.copy(url = PREPARED_URL)
 
         val updated = preparer.replacePreparedStream(
@@ -39,14 +43,24 @@ class DirectDebridStreamPreparerTest {
 
     @Test
     fun `replaces torrent streams without resolve data only when every key field matches`() {
-        val original = torrentStream(addonName = "Torrents", infoHash = "abcdef", title = "Movie 1080p")
-        val sameIgnoringCase = torrentStream(addonName = "TORRENTS", infoHash = "ABCDEF", title = "movie 1080P")
-        val otherTitle = torrentStream(addonName = "Torrents", infoHash = "abcdef", title = "Movie 2160p")
-        val otherAddon = torrentStream(addonName = "Other", infoHash = "abcdef", title = "Movie 1080p")
+        val original =
+            torrentStream(addonName = "Torrents", infoHash = "abcdef", title = "Movie 1080p")
+        val sameIgnoringCase =
+            torrentStream(addonName = "TORRENTS", infoHash = "ABCDEF", title = "movie 1080P")
+        val otherTitle =
+            torrentStream(addonName = "Torrents", infoHash = "abcdef", title = "Movie 2160p")
+        val otherAddon =
+            torrentStream(addonName = "Other", infoHash = "abcdef", title = "Movie 1080p")
         val prepared = original.copy(url = PREPARED_URL)
 
         val updated = preparer.replacePreparedStream(
-            groups = listOf(AddonStreams("Torrents", null, listOf(original, sameIgnoringCase, otherTitle, otherAddon))),
+            groups = listOf(
+                AddonStreams(
+                    "Torrents",
+                    null,
+                    listOf(original, sameIgnoringCase, otherTitle, otherAddon)
+                )
+            ),
             original = original,
             prepared = prepared
         ).single().streams
@@ -57,28 +71,27 @@ class DirectDebridStreamPreparerTest {
         assertSame(otherAddon, updated[3])
     }
 
-    private fun debridStream(addonName: String, infoHash: String, filename: String): Stream =
-        torrentStream(addonName = addonName, infoHash = null, title = "Title").copy(
-            clientResolve = StreamClientResolve(
-                type = "debrid",
-                infoHash = infoHash,
-                fileIdx = 0,
-                magnetUri = null,
-                sources = null,
-                torrentName = "Torrent",
-                filename = filename,
-                mediaType = "movie",
-                mediaId = "tt1",
-                mediaOnlyId = "tt1",
-                title = "Title",
-                season = null,
-                episode = null,
-                service = "torbox",
-                serviceIndex = 0,
-                serviceExtension = null,
-                isCached = true
-            )
+    private fun debridStream(addonName: String, infoHash: String, filename: String): Stream = torrentStream(addonName = addonName, infoHash = null, title = "Title").copy(
+        clientResolve = StreamClientResolve(
+            type = "debrid",
+            infoHash = infoHash,
+            fileIdx = 0,
+            magnetUri = null,
+            sources = null,
+            torrentName = "Torrent",
+            filename = filename,
+            mediaType = "movie",
+            mediaId = "tt1",
+            mediaOnlyId = "tt1",
+            title = "Title",
+            season = null,
+            episode = null,
+            service = "torbox",
+            serviceIndex = 0,
+            serviceExtension = null,
+            isCached = true
         )
+    )
 
     private fun torrentStream(addonName: String, infoHash: String?, title: String): Stream = Stream(
         name = "Name",

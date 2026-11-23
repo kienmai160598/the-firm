@@ -1,7 +1,5 @@
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.theme.MoviesTheme
-
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -11,10 +9,8 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,31 +24,33 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -70,10 +68,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -90,18 +88,19 @@ import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.components.expressive.MoviesCardFocus
+import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.localizeEpisodeTitle
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.launch
-import kotlin.math.max
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
+import kotlin.math.max
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalTvMaterial3Api::class)
 @Composable
@@ -138,7 +137,8 @@ fun CommentsSection(
     val internalTitleModeFocusRequester = remember { FocusRequester() }
     val internalEpisodeModeFocusRequester = remember { FocusRequester() }
     val resolvedTitleModeFocusRequester = titleModeFocusRequester ?: internalTitleModeFocusRequester
-    val resolvedEpisodeModeFocusRequester = episodeModeFocusRequester ?: internalEpisodeModeFocusRequester
+    val resolvedEpisodeModeFocusRequester =
+        episodeModeFocusRequester ?: internalEpisodeModeFocusRequester
     val commentFocusRequesters = remember(comments) { mutableMapOf<Long, FocusRequester>() }
     var showEpisodePicker by remember { mutableStateOf(false) }
     var pickerSeason by rememberSaveable { mutableStateOf<Int?>(null) }
@@ -323,9 +323,13 @@ fun CommentsSection(
                     modifier = Modifier
                         .fillMaxWidth()
                         .then(
-                            commentsTargetFocusRequester?.let { Modifier.focusRestorer(it) } ?: Modifier
+                            commentsTargetFocusRequester?.let { Modifier.focusRestorer(it) }
+                                ?: Modifier
                         ),
-                    contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = 6.dp),
+                    contentPadding = PaddingValues(
+                        horizontal = MoviesTheme.spacing.xxxl,
+                        vertical = 6.dp
+                    ),
                     horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
                     items(3) { index ->
@@ -417,17 +421,24 @@ fun CommentsSection(
                         }
                         .focusGroup(),
                     state = listState,
-                    contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = 6.dp),
+                    contentPadding = PaddingValues(
+                        horizontal = MoviesTheme.spacing.xxxl,
+                        vertical = 6.dp
+                    ),
                     horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
                     items(comments, key = { it.id }) { review ->
-                        val commentFocusRequester = commentFocusRequesters.getOrPut(review.id) { FocusRequester() }
+                        val commentFocusRequester = commentFocusRequesters.getOrPut(review.id) {
+                            FocusRequester()
+                        }
                         CommentCard(
                             review = review,
                             shape = cardShape,
                             modifier = Modifier
                                 .then(
-                                    if (rowEntryFocusRequester != null && review.id == commentsFocusTargetId) {
+                                    if (rowEntryFocusRequester != null &&
+                                        review.id == commentsFocusTargetId
+                                    ) {
                                         Modifier.focusRequester(rowEntryFocusRequester)
                                     } else {
                                         Modifier
@@ -672,7 +683,10 @@ private fun EpisodeCommentPickerDialog(
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                     state = seasonListState,
-                    contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.xs),
+                    contentPadding = PaddingValues(
+                        horizontal = MoviesTheme.spacing.md,
+                        vertical = MoviesTheme.spacing.xs
+                    ),
                     horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                 ) {
                     items(sortedSeasons, key = { it }) { seasonNumber ->
@@ -714,12 +728,16 @@ private fun EpisodeCommentPickerDialog(
             ) {
                 items(episodes, key = { it.id }) { episode ->
                     val episodeModifier = when {
-                        episode.id == selectedEpisodeId -> Modifier
-                            .fillMaxWidth()
-                            .focusRequester(selectedEpisodeFocusRequester)
-                        episode.id == episodes.firstOrNull()?.id -> Modifier
-                            .fillMaxWidth()
-                            .focusRequester(primaryFocusRequester)
+                        episode.id == selectedEpisodeId ->
+                            Modifier
+                                .fillMaxWidth()
+                                .focusRequester(selectedEpisodeFocusRequester)
+
+                        episode.id == episodes.firstOrNull()?.id ->
+                            Modifier
+                                .fillMaxWidth()
+                                .focusRequester(primaryFocusRequester)
+
                         else -> Modifier.fillMaxWidth()
                     }
                     MoviesButton(
@@ -730,7 +748,11 @@ private fun EpisodeCommentPickerDialog(
                     ) {
                         Text(
                             style = buttonLabelStyle(),
-                            text = "${selectedEpisodeLabel(episode)}  ${episode.title.localizeEpisodeTitle(androidx.compose.ui.platform.LocalContext.current)}",
+                            text = "${selectedEpisodeLabel(
+                                episode
+                            )}  ${episode.title.localizeEpisodeTitle(
+                                androidx.compose.ui.platform.LocalContext.current
+                            )}",
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -787,6 +809,7 @@ fun CommentOverlay(
                                     false
                                 }
                             }
+
                             Key.DirectionRight -> {
                                 if (canNavigateNext) {
                                     if (!isLoadingNext) onNext()
@@ -795,6 +818,7 @@ fun CommentOverlay(
                                     false
                                 }
                             }
+
                             else -> false
                         }
                     }
@@ -809,10 +833,14 @@ fun CommentOverlay(
                             slideInHorizontally(initialOffsetX = { it / 5 }) + fadeIn() togetherWith
                                 slideOutHorizontally(targetOffsetX = { -it / 5 }) + fadeOut()
                         }
+
                         transitionDirection < 0 -> {
-                            slideInHorizontally(initialOffsetX = { -it / 5 }) + fadeIn() togetherWith
+                            slideInHorizontally(initialOffsetX = {
+                                -it / 5
+                            }) + fadeIn() togetherWith
                                 slideOutHorizontally(targetOffsetX = { it / 5 }) + fadeOut()
                         }
+
                         else -> fadeIn() togetherWith fadeOut()
                     }
                 },
@@ -820,8 +848,7 @@ fun CommentOverlay(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(end = 10.dp)
-            ) {
-                currentReview ->
+            ) { currentReview ->
                 CommentOverlayContent(
                     review = currentReview,
                     episode = episode,
@@ -876,7 +903,9 @@ private fun CommentOverlayContent(
 ) {
     val commentScrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
-    var isSpoilerRevealed by rememberSaveable(review.id) { mutableStateOf(!review.hasSpoilerContent) }
+    var isSpoilerRevealed by rememberSaveable(review.id) {
+        mutableStateOf(!review.hasSpoilerContent)
+    }
     val commentText = if (review.hasSpoilerContent && !isSpoilerRevealed) {
         stringResource(R.string.detail_comments_spoiler_hidden)
     } else {
@@ -955,14 +984,19 @@ private fun CommentOverlayContent(
                     .onPreviewKeyEvent { event ->
                         when {
                             event.type != KeyEventType.KeyDown -> false
-                            event.key == Key.DirectionDown && commentScrollState.value < commentScrollState.maxValue -> {
+
+                            event.key == Key.DirectionDown &&
+                                commentScrollState.value < commentScrollState.maxValue -> {
                                 coroutineScope.launch {
                                     commentScrollState.animateScrollTo(
-                                        (commentScrollState.value + 260).coerceAtMost(commentScrollState.maxValue)
+                                        (commentScrollState.value + 260).coerceAtMost(
+                                            commentScrollState.maxValue
+                                        )
                                     )
                                 }
                                 true
                             }
+
                             event.key == Key.DirectionUp && commentScrollState.value > 0 -> {
                                 coroutineScope.launch {
                                     commentScrollState.animateScrollTo(
@@ -971,6 +1005,7 @@ private fun CommentOverlayContent(
                                 }
                                 true
                             }
+
                             !isSpoilerRevealed && (
                                 event.key == Key.DirectionCenter ||
                                     event.key == Key.Enter ||
@@ -979,6 +1014,7 @@ private fun CommentOverlayContent(
                                 isSpoilerRevealed = true
                                 true
                             }
+
                             else -> false
                         }
                     },
@@ -1093,14 +1129,10 @@ private fun selectedEpisodeLabel(video: Video): String {
     return "S${season.toString().padStart(2, '0')}E${episode.toString().padStart(2, '0')}"
 }
 
-private fun selectedButtonStyle(selected: Boolean): MoviesButtonStyle =
-    if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
+private fun selectedButtonStyle(selected: Boolean): MoviesButtonStyle = if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
 
 @Composable
-private fun LoadingCommentCard(
-    shape: Shape,
-    modifier: Modifier = Modifier
-) {
+private fun LoadingCommentCard(shape: Shape, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .width(360.dp)

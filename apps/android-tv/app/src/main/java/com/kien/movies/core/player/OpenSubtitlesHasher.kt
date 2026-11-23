@@ -2,11 +2,11 @@ package com.kien.movies.core.player
 
 import com.kien.movies.ui.screens.player.PlayerMediaSourceFactory
 import com.kien.movies.ui.screens.player.PlayerPlaybackNetworking
+import java.io.InputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.InputStream
 
 /**
  * Calculates the OpenSubtitles file hash for a video stream.
@@ -31,7 +31,14 @@ object OpenSubtitlesHasher {
 
             var hash = fileSize
             hash += readChunkSum(url, headers, offset = 0, length = CHUNK_SIZE, client = client)
-            hash += readChunkSum(url, headers, offset = fileSize - CHUNK_SIZE, length = CHUNK_SIZE, client = client)
+            hash +=
+                readChunkSum(
+                    url,
+                    headers,
+                    offset = fileSize - CHUNK_SIZE,
+                    length = CHUNK_SIZE,
+                    client = client
+                )
 
             Result(
                 hash = "%016x".format(hash),
