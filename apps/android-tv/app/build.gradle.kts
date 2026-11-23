@@ -83,6 +83,12 @@ android {
     }
 }
 
+// Two variants: debug (tests, DebugLaunch extras) and box (R8, what users get). The default
+// release build type has no DebugLaunch source set and no use, so it is switched off.
+androidComponents {
+    beforeVariants(selector().withBuildType("release")) { variant -> variant.enable = false }
+}
+
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
