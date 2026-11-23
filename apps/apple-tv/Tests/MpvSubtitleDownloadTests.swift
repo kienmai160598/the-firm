@@ -14,7 +14,7 @@ final class MpvSubtitleDownloadTests: XCTestCase {
             ["French", "English", "Vietnamese", "Vietnamese 2", "Vietnamese 3", "Vietnamese 4"]
         )
         XCTAssertEqual(downloads[2].url, "https://subs.test/vi/1.srt")
-        XCTAssertEqual(downloads[2].trackTitle, "Vietnamese · OpenSubtitles")
+        XCTAssertEqual(downloads[2].trackTitle, "Vietnamese (OpenSubtitles)")
     }
 
     private func subtitle(_ language: String, _ label: String, _ number: Int) -> TvosSubtitle {
