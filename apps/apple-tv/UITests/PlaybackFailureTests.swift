@@ -48,16 +48,19 @@ final class PlaybackFailureTests: XCTestCase {
         XCTAssertTrue(tv.text(beginningWith: "Resume from").waitForExistence(timeout: 5))
     }
 
-    func testStalledLinkIsCheckedInTheHeaderThenFailsAndSavesNothing() {
+    func testStalledLinkIsCheckedOnItsRowThenFailsAndSavesNothing() {
         tv.launch(route: Self.tearsOfSteelStreams)
         let stalled = tv.button(containing: "Test Stalled link")
-        let checking = tv.app.staticTexts["Checking stream"]
+        let checking = tv.button(containing: "Checking stream")
         XCTAssertTrue(stalled.waitForExistence(timeout: 60))
+        tv.screenshot("streams-list")
 
         tv.select(stalled)
 
         XCTAssertTrue(checking.waitForExistence(timeout: 3))
-        XCTAssertLessThan(checking.frame.maxY, stalled.frame.minY)
+        XCTAssertTrue(checking.label.contains("Test Stalled link"), checking.label)
+        XCTAssertTrue(checking.hasFocus)
+        tv.screenshot("streams-checking-row")
         XCTAssertTrue(tv.app.staticTexts[Self.failureTitle].waitForExistence(timeout: 75))
         XCTAssertTrue(tv.text(beginningWith: Self.playerError).exists)
         tv.launch(route: Self.tearsOfSteel, keepingState: true)
