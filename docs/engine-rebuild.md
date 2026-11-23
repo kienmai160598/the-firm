@@ -163,12 +163,17 @@ Verified (E1, on a Mac and the tvOS simulator):
 - `shared/torrent` tests run on the tvOS simulator against the real engine (open, resolve, close,
   bad magnet) and against a scripted engine (polling, failure, timeout).
 - `tvosShared` builds and its tests pass with both `nuvio.tvos.engine=legacy` and `next`; the
-  `next` app links `movies_engine_*` and none of the old engine's symbols.
+  `next` app (simulator and the signed Release device build) links `movies_engine_*` and none of
+  the old engine's symbols, and the `legacy` app the reverse.
+- In the tvOS simulator, the `next` app passes `testTorrentStreamPlaysThroughTheEngine`: the
+  test add-on's Sintel torrent goes through `TvosTorrent`, the engine and the gateway, and mpv
+  plays it.
 - A real swarm, from a Mac through the C ABI (Sintel, 129 MB, magnet plus the app's UDP
   trackers, no TLS): metadata in 2 s, the whole file over HTTP plus two Range requests with
   matching bytes, ffmpeg decodes it without an error, and the state directory stays empty.
 
 Not verified: a film on the Apple TV with the `next` build (the device was in use);
 `os_proc_available_memory()` on an Apple TV 4K; eviction against a real swarm (Sintel is under
-the cap; the loopback test covers it); that mpv's reads through the gateway (one connection per
-seek, `Connection: close`) stay smooth.
+the cap; the loopback test covers it); a long film and seeks in mpv through the gateway (one
+connection per seek, `Connection: close`). Memory on the device: the store holds up to 512 MiB
+and mpv's demuxer up to 250 MiB on top of it.
