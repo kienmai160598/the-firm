@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,11 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Icon
 import androidx.tv.material3.ListItem
 import androidx.tv.material3.ListItemDefaults
@@ -36,16 +31,18 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.kien.movies.R
-import com.kien.movies.design.CardSize
-import com.kien.movies.design.Palette
-import com.kien.movies.design.Spacing
-import com.kien.movies.design.TextStyles
+import com.kien.movies.streams.TvColors
+import com.kien.movies.streams.TvControls
+import com.kien.movies.streams.TvGlass
+import com.kien.movies.streams.TvShapes
+import com.kien.movies.streams.TvType
 import com.nuvio.tvos.TvosAddon
 
 /**
  * One installed addon (tvOS AddonRow.swift): logo, name and version, summary or error, capability
- * badges, and On, Off or Refreshing. A tv-material ListItem: flat at rest, solid white with black
- * content when focused, so every secondary text takes its colour from the content colour.
+ * badges, and On, Off or Refreshing. A tv-material ListItem as a platter (white 22% plus the glass
+ * edge, panel corner), solid white with dark content when focused, so every secondary text takes
+ * its colour from the content colour.
  */
 @Composable
 fun AddonRow(addon: TvosAddon, onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -54,12 +51,16 @@ fun AddonRow(addon: TvosAddon, onClick: () -> Unit, modifier: Modifier = Modifie
         onClick = onClick,
         modifier = modifier.testTag(ADDON_ROW_TAG),
         colors = ListItemDefaults.colors(
-            containerColor = Color.Transparent,
-            contentColor = Palette.textPrimary,
-            focusedContainerColor = Palette.focusedContainer,
-            focusedContentColor = Palette.focusedContent
+            containerColor = TvColors.platter,
+            contentColor = TvColors.textPrimary,
+            focusedContainerColor = TvColors.focusedFill,
+            focusedContentColor = TvColors.focusedContent,
+            pressedContainerColor = TvColors.focusedFill,
+            pressedContentColor = TvColors.focusedContent
         ),
-        shape = ListItemDefaults.shape(shape = RoundedCornerShape(CardSize.cornerRadius)),
+        shape = ListItemDefaults.shape(shape = TvShapes.panel),
+        scale = ListItemDefaults.scale(focusedScale = TvControls.controlFocusScale),
+        border = TvGlass.listItemBorder(TvShapes.panel),
         leadingContent = { AddonLogo(url = addon.logoUrl, enabled = addon.enabled) },
         headlineContent = { TitleLine(addon) },
         supportingContent = { Details(addon) },
@@ -71,10 +72,10 @@ const val ADDON_ROW_TAG = "addon-row"
 
 @Composable
 private fun TitleLine(addon: TvosAddon) {
-    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.textGap), verticalAlignment = Alignment.Bottom) {
-        Text(text = addon.name, style = HEADLINE, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+    Row(horizontalArrangement = Arrangement.spacedBy(TITLE_GAP), verticalAlignment = Alignment.Bottom) {
+        Text(text = addon.name, style = TvType.body, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
         if (addon.version.isNotEmpty()) {
-            Text(text = "v${addon.version}", style = TextStyles.small, color = secondary())
+            Text(text = "v${addon.version}", style = TvType.caption2, color = secondary())
         }
     }
 }
@@ -84,12 +85,12 @@ private fun Details(addon: TvosAddon) {
     Column(verticalArrangement = Arrangement.spacedBy(DETAIL_GAP)) {
         val error = addon.errorMessage
         when {
-            error != null -> Row(horizontalArrangement = Arrangement.spacedBy(Spacing.textGapSmall), verticalAlignment = Alignment.CenterVertically) {
+            error != null -> Row(horizontalArrangement = Arrangement.spacedBy(ICON_GAP), verticalAlignment = Alignment.CenterVertically) {
                 Icon(painter = painterResource(R.drawable.ic_addons_warning), contentDescription = null, tint = ERROR_RED, modifier = Modifier.size(SMALL_ICON))
-                Text(text = error, style = CALLOUT, color = ERROR_RED, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(text = error, style = TvType.caption2, color = ERROR_RED, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
 
-            addon.summary.isNotEmpty() -> Text(text = addon.summary, style = CALLOUT, color = secondary(), maxLines = 2, overflow = TextOverflow.Ellipsis)
+            addon.summary.isNotEmpty() -> Text(text = addon.summary, style = TvType.caption2, color = secondary(), maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
         if (addon.capabilities.isNotEmpty()) CapabilityBadges(addon.capabilities)
     }
@@ -102,10 +103,10 @@ private fun CapabilityBadges(capabilities: List<String>) {
         capabilities.forEach { capability ->
             Text(
                 text = capability,
-                style = TextStyles.badge,
+                style = TvType.overline,
                 color = color,
                 modifier = Modifier
-                    .border(BADGE_BORDER, color, CircleShape)
+                    .border(BADGE_BORDER, color, TvShapes.pill)
                     .padding(horizontal = BADGE_PADDING_H, vertical = BADGE_PADDING_V)
             )
         }
@@ -119,10 +120,10 @@ private fun StateLabel(addon: TvosAddon) {
         addon.enabled -> "On"
         else -> "Off"
     }
-    Text(text = label, style = CALLOUT, color = secondary())
+    Text(text = label, style = TvType.caption1, color = secondary())
 }
 
-/** tvOS AddonLogo: 96 pt, corner 20 pt, the puzzle symbol until the logo loads. */
+/** tvOS AddonLogo: 96 pt with the card corner, the puzzle symbol until the logo loads. */
 @Composable
 private fun AddonLogo(url: String?, enabled: Boolean) {
     var loaded by remember(url) { mutableStateOf(false) }
@@ -130,15 +131,15 @@ private fun AddonLogo(url: String?, enabled: Boolean) {
     Box(
         modifier = Modifier
             .size(LOGO_SIZE)
-            .clip(RoundedCornerShape(LOGO_CORNER))
-            .background(Palette.artworkPlaceholder),
+            .clip(TvShapes.card)
+            .background(TvColors.platter),
         contentAlignment = Alignment.Center
     ) {
         if (!loaded) {
             Icon(
                 painter = painterResource(R.drawable.ic_tab_addons),
                 contentDescription = null,
-                tint = Palette.textSecondary.copy(alpha = Palette.textSecondary.alpha * alpha),
+                tint = TvColors.textSecondary.copy(alpha = TvColors.textSecondary.alpha * alpha),
                 modifier = Modifier.size(LOGO_SYMBOL)
             )
         }
@@ -159,22 +160,17 @@ private fun AddonLogo(url: String?, enabled: Boolean) {
 @Composable
 private fun secondary(): Color = LocalContentColor.current.copy(alpha = SECONDARY_ALPHA)
 
-/** tvOS `.headline`, 38 pt semibold. */
-internal val HEADLINE = TextStyle(fontSize = 19.sp, fontWeight = FontWeight.SemiBold, lineHeight = 24.sp)
-
-/** tvOS `.callout`, 31 pt. */
-internal val CALLOUT = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Normal, lineHeight = 21.sp)
-
 /** tvOS `.red` on a dark background. */
 internal val ERROR_RED = Color(0xFFFF453A)
 
-private const val SECONDARY_ALPHA = 0.6f
+private val SECONDARY_ALPHA = TvColors.textSecondary.alpha
 private const val DISABLED_ALPHA = 0.4f
 private val LOGO_SIZE = 48.dp
-private val LOGO_CORNER = 10.dp
 private val LOGO_SYMBOL = 20.dp
 private val SMALL_ICON = 14.dp
 private val DETAIL_GAP = 5.dp
+private val TITLE_GAP = 8.dp
+private val ICON_GAP = 4.dp
 private val BADGE_GAP = 6.dp
 private val BADGE_BORDER = 1.dp
 private val BADGE_PADDING_H = 7.dp
