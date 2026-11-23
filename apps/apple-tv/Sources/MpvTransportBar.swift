@@ -7,20 +7,22 @@ struct MpvTransportBar: View {
     private static let labelSlot: CGFloat = 180
     private static let labelRowHeight: CGFloat = 44
     private static let playheadRise: CGFloat = 10
-
+    private static let playheadWidth: CGFloat = 4
     private static let skipRise: CGFloat = 40
+    private static let progressAnimation: Animation = .smooth(duration: 0.3)
 
-    @ObservedObject var controller: MpvPlaybackController
+    @ObservedObject var clock: MpvPlaybackClock
+    let isPausedByViewer: Bool
     let isScrubbing: Bool
     let skip: MpvSkip?
 
     var body: some View {
         GeometryReader { geometry in
             let width = geometry.size.width
-            let playheadX = width * fraction(controller.positionSeconds)
+            let playheadX = width * clock.fraction(clock.positionSeconds)
             VStack(spacing: 12) {
-                track(width: width)
-                    .overlay {
+                track
+                    .overlay(alignment: .leading) {
                         if isScrubbing { playhead(at: playheadX) }
                     }
                     .overlay {
@@ -30,6 +32,8 @@ struct MpvTransportBar: View {
             }
         }
         .frame(height: Self.trackSlot + 12 + Self.labelRowHeight)
+        .animation(Self.progressAnimation, value: clock.positionSeconds)
+        .animation(Self.progressAnimation, value: clock.bufferedSeconds)
         .animation(.easeOut(duration: 0.2), value: isScrubbing)
         .animation(.smooth(duration: 0.25), value: skip)
     }
@@ -41,13 +45,11 @@ struct MpvTransportBar: View {
             .transition(.opacity.combined(with: .scale(scale: 0.7)))
     }
 
-    private func track(width: CGFloat) -> some View {
-        ZStack(alignment: .leading) {
+    private var track: some View {
+        ZStack {
             Capsule().fill(.thinMaterial)
-            Capsule().fill(.white.opacity(0.3))
-                .frame(width: width * fraction(controller.bufferedSeconds))
-            Capsule().fill(.white.opacity(isScrubbing ? 0.55 : 0.9))
-                .frame(width: width * fraction(controller.positionSeconds))
+            filled(clock.fraction(clock.bufferedSeconds), opacity: 0.3)
+            filled(clock.fraction(clock.positionSeconds), opacity: isScrubbing ? 0.55 : 0.9)
         }
         .overlay(Capsule().strokeBorder(.white.opacity(0.18), lineWidth: 1))
         .shadow(color: .black.opacity(0.3), radius: 6, y: 2)
@@ -55,11 +57,19 @@ struct MpvTransportBar: View {
         .frame(height: Self.trackSlot)
     }
 
+    private func filled(_ fraction: Double, opacity: Double) -> some View {
+        Capsule()
+            .fill(.white.opacity(opacity))
+            .mask(alignment: .leading) {
+                Rectangle().scaleEffect(x: fraction, anchor: .leading)
+            }
+    }
+
     private func playhead(at x: CGFloat) -> some View {
         Capsule()
             .fill(.white)
-            .frame(width: 4, height: Self.trackSlot + Self.playheadRise)
-            .position(x: x, y: Self.trackSlot / 2)
+            .frame(width: Self.playheadWidth, height: Self.trackSlot + Self.playheadRise)
+            .offset(x: x - Self.playheadWidth / 2)
     }
 
     private func labels(width: CGFloat, playheadX: CGFloat) -> some View {
@@ -69,8 +79,8 @@ struct MpvTransportBar: View {
                 .offset(x: clampedSlotOrigin(playheadX, width: width))
             HStack {
                 Spacer()
-                if controller.durationSeconds > 0 {
-                    Text("-" + MpvClock.label(remainingSeconds))
+                if clock.durationSeconds > 0 {
+                    Text("-" + MpvClock.label(clock.remainingSeconds))
                 }
             }
         }
@@ -81,27 +91,18 @@ struct MpvTransportBar: View {
 
     @ViewBuilder
     private var elapsed: some View {
-        if controller.isPausedByViewer {
+        if isPausedByViewer {
             Image(systemName: "pause.circle")
                 .font(.system(size: 30, weight: .regular))
                 .accessibilityLabel("Paused")
         } else {
-            Text(MpvClock.label(controller.positionSeconds))
+            Text(MpvClock.label(clock.positionSeconds))
         }
     }
 
     private func clampedSlotOrigin(_ playheadX: CGFloat, width: CGFloat) -> CGFloat {
         let centered = playheadX - Self.labelSlot / 2
         return min(max(centered, 0), max(width - Self.labelSlot * 2, 0))
-    }
-
-    private var remainingSeconds: Int {
-        max(controller.durationSeconds - controller.positionSeconds, 0)
-    }
-
-    private func fraction(_ seconds: Int) -> Double {
-        guard controller.durationSeconds > 0 else { return 0 }
-        return min(max(Double(seconds) / Double(controller.durationSeconds), 0), 1)
     }
 }
 
