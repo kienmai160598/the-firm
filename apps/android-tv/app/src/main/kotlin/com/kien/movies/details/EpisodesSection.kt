@@ -52,6 +52,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Border
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Card
@@ -194,6 +195,7 @@ private fun EpisodeCard(episode: TvosEpisode, onOpen: (TvosStreamTarget) -> Unit
             shape = CardDefaults.shape(shape = TvShapes.card),
             colors = CardDefaults.colors(containerColor = Color.Transparent, focusedContainerColor = Color.Transparent),
             scale = CardDefaults.scale(focusedScale = TvFocus.cardScale),
+            border = CardDefaults.border(border = Border.None, focusedBorder = Border.None, pressedBorder = Border.None),
             glow = CardDefaults.glow(focusedGlow = Glow(elevationColor = TvColors.focusShadow, elevation = TvFocus.shadowElevation)),
             interactionSource = interaction,
             modifier = Modifier

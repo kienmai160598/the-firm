@@ -15,9 +15,10 @@ import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -189,8 +190,8 @@ private fun DetailsContent(
     CompositionLocalProvider(LocalBringIntoViewSpec provides NoScrollSpec) {
         LazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize().focusRequester(contentFocus).focusGroup().testTag(DETAILS_CONTENT_TAG),
-            contentPadding = PaddingValues(bottom = BOTTOM_PADDING)
+            // No content padding: the hero's height is a share of the whole viewport.
+            modifier = Modifier.fillMaxSize().focusRequester(contentFocus).focusGroup().testTag(DETAILS_CONTENT_TAG)
         ) {
             item(key = DetailsSection.Top.name, contentType = DetailsSection.Top.name) {
                 DetailsTop(
@@ -234,6 +235,7 @@ private fun DetailsContent(
                     DetailsInfoSection(entries = entries, modifier = Modifier.sectionSpacing().onSectionFocus { scrollTo(DetailsSection.Info) })
                 }
             }
+            item(key = END_KEY, contentType = END_KEY) { Spacer(modifier = Modifier.height(BOTTOM_PADDING)) }
         }
     }
 }
@@ -414,6 +416,7 @@ const val DETAILS_LOADING_TAG = "details-loading"
 const val DETAILS_ERROR_TAG = "details-error"
 
 private const val LOADING_DESCRIPTION = "Loading"
+private const val END_KEY = "end"
 private const val FULL_TURN = 360f
 private const val SPINNER_SWEEP = 270f
 private const val SPINNER_TURN_MILLIS = 1_000

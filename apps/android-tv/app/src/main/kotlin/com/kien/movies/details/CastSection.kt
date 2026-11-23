@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.Glow
@@ -85,6 +86,7 @@ private fun CastCard(member: TvosCastMember, modifier: Modifier = Modifier) {
             shape = CardDefaults.shape(shape = CircleShape),
             colors = CardDefaults.colors(containerColor = Color.Transparent, focusedContainerColor = Color.Transparent),
             scale = CardDefaults.scale(focusedScale = TvFocus.cardScale),
+            border = CardDefaults.border(border = Border.None, focusedBorder = Border.None, pressedBorder = Border.None),
             glow = CardDefaults.glow(focusedGlow = Glow(elevationColor = TvColors.focusShadow, elevation = TvFocus.shadowElevation)),
             modifier = modifier
                 .size(side)
