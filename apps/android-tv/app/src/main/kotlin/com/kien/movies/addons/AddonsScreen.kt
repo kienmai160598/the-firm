@@ -1,6 +1,5 @@
 package com.kien.movies.addons
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +38,7 @@ import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvInsets
 import com.kien.movies.design.TvType
+import com.kien.movies.shell.upToNavPill
 import com.nuvio.tvos.TvosAddon
 
 /**
@@ -65,9 +65,6 @@ fun AddonsScreen() {
     Row(
         modifier = Modifier
             .fillMaxSize()
-            // lead: drop this fill when RootScreen gives Search, Library and Addons the slate as
-            // the window background; it is one opaque full screen layer until then.
-            .background(TvColors.searchLibrary)
             .padding(start = TvGrid.sideMargin, end = TvGrid.sideMargin, top = TvInsets.tabContentTop)
             .focusRestorer(if (state.addons.isEmpty()) fieldFocus else firstRowFocus)
             .focusGroup(),
@@ -167,7 +164,7 @@ private fun InstalledList(
         }
         items(addons, key = TvosAddon::manifestUrl, contentType = { "addon" }) { addon ->
             val requester = rowFocus.getOrPut(addon.manifestUrl) { FocusRequester() }
-            val first = if (addon.manifestUrl == addons.first().manifestUrl) Modifier.focusRequester(firstRowFocus) else Modifier
+            val first = if (addon.manifestUrl == addons.first().manifestUrl) Modifier.focusRequester(firstRowFocus).upToNavPill() else Modifier
             AddonRow(
                 addon = addon,
                 onClick = { onChoose(addon) },

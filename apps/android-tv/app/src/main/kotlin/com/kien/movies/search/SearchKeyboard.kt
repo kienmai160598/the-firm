@@ -40,6 +40,7 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
+import com.kien.movies.shell.upToNavPill
 
 /** Focus handles of the keyboard: the row as a whole (restores the last key), "a", and "123". */
 internal class SearchKeyboardFocus {
@@ -65,6 +66,7 @@ internal fun SearchKeyboard(
     onOpenIme: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val upToPill = Modifier.upToNavPill()
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -76,18 +78,18 @@ internal fun SearchKeyboard(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Keycap(label = NUMBERS_LABEL, id = KEY_NUMBERS, width = NUMBERS_WIDTH, onClick = onOpenIme, modifier = Modifier.focusRequester(focus.numbers))
+        Keycap(label = NUMBERS_LABEL, id = KEY_NUMBERS, width = NUMBERS_WIDTH, onClick = onOpenIme, modifier = upToPill.focusRequester(focus.numbers))
         Spacer(Modifier.width(NUMBERS_TO_SPACE))
-        Keycap(label = SPACE_LABEL, id = KEY_SPACE, width = SPACE_WIDTH, onClick = { onType(" ") })
+        Keycap(label = SPACE_LABEL, id = KEY_SPACE, width = SPACE_WIDTH, onClick = { onType(" ") }, modifier = upToPill)
         Spacer(Modifier.width(SPACE_TO_LETTERS))
         LETTERS.forEachIndexed { index, letter ->
-            val requester = if (index == 0) Modifier.focusRequester(focus.firstLetter) else Modifier
+            val requester = if (index == 0) upToPill.focusRequester(focus.firstLetter) else upToPill
             KeyCell(id = letter.toString(), onClick = { onType(letter.toString()) }, modifier = requester) {
                 Text(text = letter.toString(), style = letterStyle)
             }
         }
         Spacer(Modifier.width(LETTERS_TO_DELETE))
-        KeyCell(id = KEY_DELETE, onClick = onDelete, modifier = Modifier.semantics { contentDescription = DELETE_DESCRIPTION }) {
+        KeyCell(id = KEY_DELETE, onClick = onDelete, modifier = upToPill.semantics { contentDescription = DELETE_DESCRIPTION }) {
             Icon(painter = painterResource(R.drawable.ic_key_delete), contentDescription = null, modifier = Modifier.size(DELETE_ICON))
         }
     }

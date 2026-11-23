@@ -4,7 +4,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -27,7 +26,6 @@ import androidx.tv.material3.DrawerValue
 import androidx.tv.material3.rememberDrawerState
 import com.kien.movies.addons.AddonsScreen
 import com.kien.movies.design.Palette
-import com.kien.movies.design.RailSize
 import com.kien.movies.design.TvColors
 import com.kien.movies.details.DetailsScreen
 import com.kien.movies.home.HomeScreen
@@ -117,15 +115,9 @@ private fun tabBackground(tab: RootTab): Color = if (tab == RootTab.Home) TvColo
 private fun TabRootScreen(tab: RootTab, router: Router) {
     when (tab) {
         RootTab.Home -> HomeScreen(router)
-
         RootTab.Search -> SearchScreen(router)
-
         RootTab.Addons -> AddonsScreen()
-
-        RootTab.Library, RootTab.Settings -> PlaceholderScreen(
-            title = tab.title,
-            modifier = Modifier.padding(start = RailSize.contentStart)
-        )
+        RootTab.Library, RootTab.Settings -> PlaceholderScreen(title = tab.title)
     }
 }
 

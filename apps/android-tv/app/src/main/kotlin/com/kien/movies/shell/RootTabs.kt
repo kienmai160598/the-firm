@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -26,6 +28,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -125,6 +128,26 @@ class NavPillState(val focusRequester: FocusRequester) {
 
 /** The [NavPillState] of the shell around the current tab root. */
 val LocalNavPillState = staticCompositionLocalOf { NavPillState(FocusRequester.Default) }
+
+/** Up from a tab root's top control reaches the collapsed pill (spec section 3); see [NavPillState]. */
+@Composable
+fun Modifier.upToNavPill(): Modifier {
+    val pill = LocalNavPillState.current.focusRequester
+    return focusProperties { up = pill }
+}
+
+/** Hides the collapsed pill while the tab root's list is scrolled away from its top. */
+@Composable
+fun ReportScrollToNavPill(listState: LazyListState) {
+    val pillState = LocalNavPillState.current
+    LaunchedEffect(listState, pillState) {
+        snapshotFlow { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
+            .collect { isScrolled -> pillState.isContentScrolled = isScrolled }
+    }
+    DisposableEffect(pillState) {
+        onDispose { pillState.isContentScrolled = false }
+    }
+}
 
 @Composable
 private fun SidebarContent(

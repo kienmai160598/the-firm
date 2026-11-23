@@ -50,6 +50,7 @@ import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
 import com.kien.movies.design.glassEdge
+import com.kien.movies.shell.upToNavPill
 
 /**
  * The left column of Addons (tvOS AddonInstallPanel.swift): what addons are, a manifest URL field,
@@ -171,7 +172,7 @@ private fun ManifestUrlField(value: String, onValueChange: (String) -> Unit, onS
                 scale = TvGlass.surfaceScale(),
                 shape = TvGlass.surfaceShape(TvShapes.pill),
                 border = TvGlass.surfaceBorder(TvShapes.pill),
-                modifier = Modifier.fillMaxWidth().height(FIELD_HEIGHT).testTag(URL_SURFACE_TAG)
+                modifier = Modifier.fillMaxWidth().height(FIELD_HEIGHT).upToNavPill().testTag(URL_SURFACE_TAG)
             ) {
                 Text(
                     text = value.ifEmpty { PLACEHOLDER },

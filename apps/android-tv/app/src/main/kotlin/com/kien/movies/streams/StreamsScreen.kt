@@ -67,9 +67,6 @@ fun StreamsScreen(route: AppRoute.Streams, router: Router) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (playback == null) {
-            // lead: drop this fill once the window background of pushed routes is the spec's
-            // Details colour; it replaces the receded backdrop, so it adds no extra pass.
-            Box(modifier = Modifier.fillMaxSize().background(TvColors.details))
             StreamsPage(
                 viewModel = viewModel,
                 state = state,

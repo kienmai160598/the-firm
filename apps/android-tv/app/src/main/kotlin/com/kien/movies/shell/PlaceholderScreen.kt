@@ -20,7 +20,7 @@ import com.kien.movies.design.TvType
 
 /**
  * The empty state (docs/tv-look-spec.md section 3, 61-library.png): a Headline bold title and one
- * line of Caption 2 in secondary, centred, on the Search and Library slate. Library and Settings
+ * line of Caption 2 in secondary, centred. The slate behind it is the window colour the shell sets. Library and Settings
  * use it until they are built, and the app while its runtime starts.
  *
  * The text block holds focus with no focus look, so the remote is never stranded (AC N5). tvOS
@@ -34,11 +34,11 @@ fun PlaceholderScreen(
     detail: String = COMING_LATER,
     onClick: () -> Unit = {}
 ) {
-    WindowBackground(TvColors.searchLibrary)
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(
             modifier = Modifier
                 .offset(y = BLOCK_RAISE)
+                .upToNavPill()
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onClick)
                 .testTag(PLACEHOLDER_TAG),
             horizontalAlignment = Alignment.CenterHorizontally,

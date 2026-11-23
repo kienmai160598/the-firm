@@ -57,8 +57,8 @@ import com.kien.movies.design.glassEdge
 import com.kien.movies.design.glassEdgeBorder
 import com.kien.movies.design.rememberInsetBringIntoViewSpec
 import com.kien.movies.shell.AppRoute
+import com.kien.movies.shell.ReportScrollToNavPill
 import com.kien.movies.shell.Router
-import com.kien.movies.shell.WindowBackground
 import com.nuvio.tvos.TvosItem
 import kotlinx.coroutines.launch
 
@@ -75,7 +75,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchScreen(router: Router) {
-    WindowBackground(TvColors.searchLibrary)
     val viewModel = viewModel { SearchViewModel() }
     val content by viewModel.content.collectAsStateWithLifecycle()
     val keyboardFocus = remember { SearchKeyboardFocus() }
@@ -107,6 +106,7 @@ fun SearchScreen(router: Router) {
     // One inset spec for the page and every row in it: a focused child stays inside the side
     // margins (rows) or the margin band at top and bottom (page) with the least scroll, instead
     // of the TV default that pulls every focused child to a pivot line.
+    ReportScrollToNavPill(listState)
     val scrollSpec = rememberInsetBringIntoViewSpec(leading = TvGrid.sideMargin)
     CompositionLocalProvider(LocalBringIntoViewSpec provides scrollSpec) {
         LazyColumn(

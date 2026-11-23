@@ -57,15 +57,6 @@ object StreamsSize {
     val resolutionBadge = DpSize(62.dp, 32.dp)
 }
 
-/** The navigation drawer around the tab roots (spec section 3, "Navigation"). */
-object RailSize {
-    /**
-     * Where tab content starts. The closed drawer is a pill floating over the top left of the
-     * content, not a rail, so content starts at the side margin.
-     */
-    val contentStart = TvGrid.sideMargin
-}
-
 /** Focus look (spec section 2): scale in graphicsLayer, one soft shadow, no ring. */
 object Focus {
     const val cardScale = 1.1f

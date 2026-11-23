@@ -18,9 +18,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kien.movies.debug.DebugLaunch
 import com.kien.movies.design.MoviesTheme
+import com.kien.movies.design.TvColors
 import com.kien.movies.shell.PlaceholderScreen
 import com.kien.movies.shell.RootScreen
 import com.kien.movies.shell.ShellViewModel
+import com.kien.movies.shell.WindowBackground
 
 /**
  * Hosts the shell once the bridge runtime is ready. Until then it shows a loading screen, or the
@@ -70,6 +72,8 @@ private fun RuntimeGate(runtime: RuntimeState, onReady: () -> Unit, ready: @Comp
 @Composable
 private fun FocusedPlaceholder(title: String, detail: String) {
     val focus = remember { FocusRequester() }
+    // Before the shell exists the gate sets the window colour itself (the shell does it after).
+    WindowBackground(TvColors.searchLibrary)
     Box(modifier = Modifier.fillMaxSize().focusRequester(focus).focusGroup()) {
         PlaceholderScreen(title = title, detail = detail)
     }
