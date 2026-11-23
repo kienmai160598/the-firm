@@ -16,7 +16,10 @@ object TvosTorrent {
     private val mainScope = MainScope()
 
     fun start(stream: TvosStream, onResult: (TvosTorrentStart) -> Unit): TvosCancellable {
-        val job = mainScope.launch { onResult(startOrFailure(stream)) }
+        val job = mainScope.launch {
+            TvosTorrentDefaults.apply()
+            onResult(startOrFailure(stream))
+        }
         return TvosCancellable(job)
     }
 
