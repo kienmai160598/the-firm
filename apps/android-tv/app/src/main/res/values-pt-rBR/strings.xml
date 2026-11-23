@@ -2014,7 +2014,6 @@
     <string name="account_sign_out">Sair da conta</string>
     <string name="account_sign_out_confirm_title">Sair da conta?</string>
     <string name="account_sign_out_confirm_subtitle">Você precisará entrar de novo para sincronizar biblioteca, progresso, addons e plugins neste aparelho.</string>
-    <string name="account_error_signin_required">Faça login com uma conta primeiro.</string>
 
     <string name="auth_email_hint">Entre diretamente com a conta do seu servidor self‑hosted.</string>
     <string name="auth_email_instruction">Digite seu e‑mail e senha para continuar.</string>

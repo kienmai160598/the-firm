@@ -1486,7 +1486,6 @@
     <string name="account_total_label">Всього</string>
     <string name="account_loading_sync">Завантаження даних синхронізації\u2026</string>
     <string name="account_sign_out">Вийти</string>
-    <string name="account_error_signin_required">Спочатку увійдіть до акаунту.</string>
 
 
     <string name="auth_qr_finishing">Завершення входу\u2026</string>

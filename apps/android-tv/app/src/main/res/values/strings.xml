@@ -2097,7 +2097,6 @@
     <string name="account_sign_out">Sign Out</string>
     <string name="account_sign_out_confirm_title">Sign out?</string>
     <string name="account_sign_out_confirm_subtitle">You will need to sign in again to sync library, watch progress, addons, and plugins on this device.</string>
-    <string name="account_error_signin_required">Sign in with an account first.</string>
 
     <string name="auth_email_hint">Sign in directly with the account on your self-hosted server.</string>
     <string name="auth_email_instruction">Enter your email and password to continue.</string>

@@ -2090,7 +2090,6 @@
     <string name="account_sign_out">Đăng xuất</string>
     <string name="account_sign_out_confirm_title">Đăng xuất?</string>
     <string name="account_sign_out_confirm_subtitle">Bạn sẽ cần đăng nhập lại để đồng bộ thư viện, tiến trình xem, tiện ích và trình mở rộng trên thiết bị này.</string>
-    <string name="account_error_signin_required">Đăng nhập bằng tài khoản trước.</string>
 
     <string name="auth_email_hint">Đăng nhập trực tiếp bằng tài khoản trên máy chủ riêng của bạn.</string>
     <string name="auth_email_instruction">Nhập email và mật khẩu để tiếp tục.</string>

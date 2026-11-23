@@ -1615,7 +1615,6 @@
     <string name="account_sign_out">Dil nga llogaria</string>
     <string name="account_sign_out_confirm_title">Të dalësh nga llogaria?</string>
     <string name="account_sign_out_confirm_subtitle">Do të duhet të hysh përsëri për të sinkronizuar bibliotekën, progresin e shikimit, shtesat dhe shtojcat në këtë pajisje.</string>
-    <string name="account_error_signin_required">Hyr fillimisht me një llogari.</string>
     <string name="auth_email_hint">Hyr drejtpërdrejt me llogarinë në serverin tënd të vetë-hostuar.</string>
     <string name="auth_email_instruction">Shkruaj emailin dhe fjalëkalimin për të vazhduar.</string>
     <string name="auth_email_placeholder">Adresa e emailit</string>

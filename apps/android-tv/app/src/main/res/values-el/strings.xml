@@ -2060,7 +2060,6 @@
   <string name="error_unknown">Άγνωστο σφάλμα</string>
   <string name="addon_error_not_found">Το πρόσθετο δεν βρέθηκε</string>
   <!-- Account errors -->
-  <string name="account_error_signin_required">Συνδεθείτε πρώτα με έναν λογαριασμό.</string>
   <!-- Search errors -->
   <string name="search_error_no_catalogs">Δεν βρέθηκαν κατάλογοι με δυνατότητα αναζήτησης στα εγκατεστημένα πρόσθετα</string>
   <!-- Home errors -->

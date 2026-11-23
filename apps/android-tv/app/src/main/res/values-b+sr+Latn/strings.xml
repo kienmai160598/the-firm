@@ -1811,7 +1811,6 @@
     <string name="account_sign_out">Odjavite se</string>
     <string name="account_sign_out_confirm_title">Odjaviti se?</string>
     <string name="account_sign_out_confirm_subtitle">Moraćete ponovo da se prijavite da biste sinhronizovali biblioteku, napredak gledanja, dodatke i priključke na ovom uređaju.</string>
-    <string name="account_error_signin_required">Prvo se prijavite pomoću naloga.</string>
 
     <string name="auth_email_hint">Prijavite se direktno sa nalogom na vašem samostalno hostovanom (self-hosted) serveru.</string>
     <string name="auth_email_instruction">Unesite e-poštu i lozinku da biste nastavili.</string>

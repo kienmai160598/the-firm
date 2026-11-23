@@ -1490,7 +1490,6 @@
     <string name="addon_error_not_found">ஆட்ஒன் கிடைக்கவில்லை</string>
 
     <!-- Account errors -->
-    <string name="account_error_signin_required">முதலில் கணக்கில் உள்நுழையவும்.</string>
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">நிறுவப்பட்ட ஆட்ஒன்களில் தேடக்கூடிய கேட்டலாக்குகள் எதுவும் இல்லை</string>

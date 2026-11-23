@@ -1412,7 +1412,6 @@
     <string name="error_unknown">Neznana napaka</string>
     <string name="addon_error_not_found">Dodatek ni najden</string>
     <!-- Account errors -->					   
-	<string name="account_error_signin_required">Najprej se prijavite z računom.</string>																					
 	<!-- Search errors -->					  
 	<string name="search_error_no_catalogs">V nameščenih dodatkih ni iskalnih katalogov</string>																								 
 	<!-- Home errors -->					

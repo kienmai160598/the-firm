@@ -2148,7 +2148,6 @@
     <string name="account_signin_email_subtitle">Įveskite savo serveryje esančios paskyros el. paštą ir slaptažodį</string>
     <string name="account_sign_out_confirm_title">Atsijungti?</string>
     <string name="account_sign_out_confirm_subtitle">Norėdami šiame įrenginyje sinchronizuoti biblioteką, žiūrėjimo pažangą, priedus ir įskiepius, turėsite vėl prisijungti.</string>
-    <string name="account_error_signin_required">Pirmiausia prisijunkite prie paskyros.</string>
     <string name="auth_email_hint">Prisijunkite tiesiogiai prie savo serverio paskyros.</string>
     <string name="auth_email_instruction">Norėdami tęsti, įveskite el. paštą ir slaptažodį.</string>
     <string name="auth_email_placeholder">El. pašto adresas</string>

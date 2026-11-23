@@ -1407,7 +1407,6 @@
     <string name="trakt_error_denied">Авторизация отклонена в Trakt.</string>
 
     <!-- Account errors -->
-    <string name="account_error_signin_required">Сначала войдите в аккаунт.</string>
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">В установленных аддонах нет каталогов для поиска</string>

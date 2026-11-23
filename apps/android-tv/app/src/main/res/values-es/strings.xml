@@ -2011,7 +2011,6 @@ Utilizas esta función bajo tu entera responsabilidad. P2P se puede desactivar e
     <string name="account_sign_out">Cerrar sesión</string>
     <string name="account_sign_out_confirm_title">¿Cerrar sesión?</string>
     <string name="account_sign_out_confirm_subtitle">Necesitarás iniciar sesión de nuevo para sincronizar biblioteca, progreso de visualización, complementos y complementos en este dispositivo.</string>
-    <string name="account_error_signin_required">Inicia sesión con una cuenta primero.</string>
 
     <string name="auth_email_hint">Inicia sesión directamente con la cuenta de tu servidor autoalojado.</string>
     <string name="auth_email_instruction">Introduce tu correo electrónico y contraseña para continuar.</string>

@@ -2016,7 +2016,6 @@
     <string name="account_sign_out">サインアウト</string>
     <string name="account_sign_out_confirm_title">サインアウトしますか？</string>
     <string name="account_sign_out_confirm_subtitle">このデバイスでライブラリ、視聴進行状況、アドオン、プラグインを同期するには再度サインインする必要があります。</string>
-    <string name="account_error_signin_required">最初にアカウントでサインインしてください。</string>
 
     <string name="auth_email_hint">セルフホストサーバーのアカウントで直接サインインします。</string>
     <string name="auth_email_instruction">続けるにはメールアドレスとパスワードを入力してください。</string>

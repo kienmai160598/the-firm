@@ -1865,7 +1865,6 @@
     <string name="account_sign_out">登出</string>
     <string name="account_sign_out_confirm_title">登出？</string>
     <string name="account_sign_out_confirm_subtitle">您需要重新登录才能在此设备上同步媒体库、观看进度、扩展和插件。</string>
-    <string name="account_error_signin_required">请先登录账户。</string>
 
     <string name="auth_email_hint">直接使用您自托管服务器上的账户登录。</string>
     <string name="auth_email_instruction">输入您的电子邮件和密码以继续。</string>

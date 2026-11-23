@@ -1577,7 +1577,6 @@
     <string name="account_sign_out">Odhlásit se</string>
     <string name="account_sign_out_confirm_title">Odhlásit se?</string>
     <string name="account_sign_out_confirm_subtitle">Pro synchronizaci knihovny, průběhu sledování, doplňků a pluginů na tomto zařízení se budete muset znovu přihlásit.</string>
-    <string name="account_error_signin_required">Nejprve se přihlaste pomocí účtu.</string>
 
     <string name="auth_email_hint">Přihlaste se přímo účtem na svém self-hosted serveru.</string>
     <string name="auth_email_instruction">Pro pokračování zadejte svůj e-mail a heslo.</string>

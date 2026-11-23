@@ -1865,7 +1865,6 @@
     <string name="account_sign_out">登出</string>
     <string name="account_sign_out_confirm_title">登出？</string>
     <string name="account_sign_out_confirm_subtitle">您需要重新登入才能在此裝置上同步媒體庫、觀看進度、擴充套件和外掛。</string>
-    <string name="account_error_signin_required">請先登入帳戶。</string>
 
     <string name="auth_email_hint">直接使用您自託管伺服器上的帳戶登入。</string>
     <string name="auth_email_instruction">輸入您的電子郵件和密碼以繼續。</string>

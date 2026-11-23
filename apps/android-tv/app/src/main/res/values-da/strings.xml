@@ -1492,7 +1492,6 @@
     <string name="account_total_label">I alt</string>
     <string name="account_loading_sync">Indlæser synkroniseringsdata\u2026</string>
     <string name="account_sign_out">Log ud</string>
-    <string name="account_error_signin_required">Log ind med en konto først.</string>
 
 
     <string name="auth_qr_finishing">Afslutter login\u2026</string>

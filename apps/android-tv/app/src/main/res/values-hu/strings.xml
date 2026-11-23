@@ -2010,7 +2010,6 @@
     <string name="account_sign_out">Kijelentkezés</string>
     <string name="account_sign_out_confirm_title">Kijelentkezel?</string>
     <string name="account_sign_out_confirm_subtitle">Újra be kell majd jelentkezned, hogy a könyvtár, a megtekintési állapot, a bővítmények és a beépülő modulok szinkronizálódjanak ezen az eszközön.</string>
-    <string name="account_error_signin_required">Előbb jelentkezz be egy fiókkal.</string>
 
     <string name="auth_email_hint">Jelentkezz be közvetlenül a saját üzemeltetésű szervereden lévő fiókkal.</string>
     <string name="auth_email_instruction">A folytatáshoz add meg az e-mail címed és a jelszavad.</string>

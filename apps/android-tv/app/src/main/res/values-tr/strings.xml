@@ -2584,7 +2584,6 @@
     <string name="addon_error_not_found">Eklenti bulunamadı</string>
 
     <!-- Account errors -->
-    <string name="account_error_signin_required">Önce hesabınızla giriş yapın.</string>
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Kurulu eklentilerde aranabilir katalog bulunamadı</string>

@@ -1287,7 +1287,6 @@
     <string name="trakt_error_denied">Auktorisering nekad på Trakt.</string>
 
     <!-- Account errors -->
-    <string name="account_error_signin_required">Logga in med ett konto först.</string>
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Inga sökbara kataloger hittades i installerade tillägg</string>

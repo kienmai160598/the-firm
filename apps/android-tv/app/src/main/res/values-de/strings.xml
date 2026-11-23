@@ -1506,7 +1506,6 @@
     <string name="addon_error_not_found">Add-On nicht gefunden</string>
 
     <!-- Account errors -->
-    <string name="account_error_signin_required">Bitte zuerst einloggen.</string>
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Keine durchsuchbaren Kataloge in installieren Add-Ons gefunden</string>

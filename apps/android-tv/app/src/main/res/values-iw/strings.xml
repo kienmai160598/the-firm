@@ -2072,7 +2072,6 @@
     <string name="account_sign_out">התנתקות</string>
     <string name="account_sign_out_confirm_title">להתנתק?</string>
     <string name="account_sign_out_confirm_subtitle">יהיה צורך להתחבר מחדש כדי לסנכרן את הספרייה, התקדמות הצפייה, התוספים והפלאגינים במכשיר זה.</string>
-    <string name="account_error_signin_required">יש להתחבר עם חשבון תחילה.</string>
 
     <string name="auth_email_hint">יש להתחבר ישירות עם החשבון בשרת שלך.</string>
     <string name="auth_email_instruction">יש להזין את האימייל והסיסמה שלך כדי להמשיך.</string>

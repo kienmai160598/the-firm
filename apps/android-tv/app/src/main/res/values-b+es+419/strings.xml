@@ -2018,7 +2018,6 @@
     <string name="account_sign_out">Cerrar Sesión</string>
     <string name="account_sign_out_confirm_title">¿Cerrar sesión?</string>
     <string name="account_sign_out_confirm_subtitle">Tendrás que iniciar sesión nuevamente para sincronizar la biblioteca, el progreso de visualización, addons y plugins en este dispositivo.</string>
-    <string name="account_error_signin_required">Primero debes iniciar sesión con una cuenta.</string>
 
     <string name="auth_email_hint">Inicia sesión directamente con la cuenta de tu servidor autoalojado.</string>
     <string name="auth_email_instruction">Ingresa tu correo electrónico y contraseña para continuar.</string>

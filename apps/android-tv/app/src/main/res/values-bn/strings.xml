@@ -1856,7 +1856,6 @@
     <string name="account_sign_out">সাইন আউট</string>
     <string name="account_sign_out_confirm_title">সাইন আউট করবেন?</string>
     <string name="account_sign_out_confirm_subtitle">এই ডিভাইসে লাইব্রেরি, ওয়াচ প্রগ্রেস, অ্যাডন এবং প্লাগিন সিঙ্ক করতে আপনাকে আবার সাইন ইন করতে হবে।</string>
-    <string name="account_error_signin_required">প্রথমে একটি অ্যাকাউন্ট দিয়ে সাইন ইন করুন।</string>
     <string name="auth_email_hint">আপনার সেলফ-হোস্টেড সার্ভারে অ্যাকাউন্টটি দিয়ে সরাসরি সাইন ইন করুন।</string>
     <string name="auth_email_instruction">চালিয়ে যেতে আপনার ইমেইল এবং পাসওয়ার্ড লিখুন।</string>
     <string name="auth_email_placeholder">ইমেইল অ্যাড্রেস</string>

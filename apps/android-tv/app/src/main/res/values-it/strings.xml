@@ -1777,7 +1777,6 @@
 <string name="account_sign_out">Esci</string>
 <string name="account_sign_out_confirm_title">Disconnettersi?</string>
 <string name="account_sign_out_confirm_subtitle">Dovrai accedere di nuovo per sincronizzare libreria, progressi di visione, addon e plugin su questo dispositivo.</string>
-<string name="account_error_signin_required">Accedi prima con un account.</string>
 
 <string name="auth_email_hint">Accedi direttamente con l\'account sul tuo server self-hosted.</string>
 <string name="auth_email_instruction">Inserisci email e password per continuare.</string>

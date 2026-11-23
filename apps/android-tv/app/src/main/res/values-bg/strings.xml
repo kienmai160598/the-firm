@@ -1987,7 +1987,6 @@
     <string name="account_sign_out">Изход</string>
     <string name="account_sign_out_confirm_title">Излизане?</string>
     <string name="account_sign_out_confirm_subtitle">Ще трябва да влезете отново, за да синхронизирате библиотеката, да гледате напредъка, добавките и плъгините на това устройство.</string>
-    <string name="account_error_signin_required">Първо влезте с акаунт.</string>
     
     <string name="auth_email_hint">Влезте директно с акаунта на вашия самостоятелно хостван сървър.</string>
     <string name="auth_email_instruction">Въведете имейл адреса и паролата си, за да продължите.</string>

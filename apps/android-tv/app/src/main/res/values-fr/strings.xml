@@ -2081,7 +2081,6 @@
     <string name="account_sign_out">Se déconnecter</string>
     <string name="account_sign_out_confirm_title">Se déconnecter&#160;?</string>
     <string name="account_sign_out_confirm_subtitle">Vous devrez vous reconnecter pour synchroniser la bibliothèque, la progression de visionnage, les addons et les plugins sur cet appareil.</string>
-    <string name="account_error_signin_required">Connectez-vous d’abord avec un compte.</string>
 
     <string name="auth_email_hint">Connectez-vous directement avec le compte de votre serveur auto-hébergé.</string>
     <string name="auth_email_instruction">Saisissez votre adresse e-mail et votre mot de passe pour continuer.</string>

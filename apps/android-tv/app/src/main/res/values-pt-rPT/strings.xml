@@ -2081,7 +2081,6 @@
     <string name="account_sign_out">Terminar sessão</string>
     <string name="account_sign_out_confirm_title">Terminar sessão?</string>
     <string name="account_sign_out_confirm_subtitle">Precisarás de iniciar sessão novamente para sincronizar a biblioteca, o progresso de visualização, as extensões e os plugins neste dispositivo.</string>
-    <string name="account_error_signin_required">Inicia sessão com uma conta primeiro.</string>
 
     <string name="auth_email_hint">Inicia sessão diretamente com a conta no teu servidor autoalojado.</string>
     <string name="auth_email_instruction">Introduz o teu e-mail e palavra-passe para continuar.</string>

@@ -271,23 +271,6 @@ private fun SyncOverviewCard(overview: SyncOverview) {
 }
 
 @Composable
-private fun SyncStatChip(label: String, value: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MoviesTheme.colors.Secondary,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = label,
-            fontSize = metaFontSize(9.sp),
-            color = MoviesTheme.colors.TextTertiary
-        )
-    }
-}
-
-@Composable
 private fun ProfileSyncRow(profile: ProfileSyncStats) {
     val color = runCatching { Color(android.graphics.Color.parseColor(profile.avatarColorHex)) }
         .getOrDefault(MoviesPrimitives.blue500)

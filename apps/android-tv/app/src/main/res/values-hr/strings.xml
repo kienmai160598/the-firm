@@ -1920,7 +1920,6 @@
     <string name="account_sign_out">Odjava</string>
     <string name="account_sign_out_confirm_title">Odjaviti se?</string>
     <string name="account_sign_out_confirm_subtitle">Morat ćeš se ponovno prijaviti za sinkronizaciju biblioteke, napretka gledanja, dodataka i pluginova na ovom uređaju.</string>
-    <string name="account_error_signin_required">Najprije se prijavi računom.</string>
 
     <string name="auth_email_hint">Prijavi se izravno računom na svom vlastitom poslužitelju.</string>
     <string name="auth_email_instruction">Unesi e-mail i lozinku za nastavak.</string>

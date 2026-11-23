@@ -1996,7 +1996,6 @@
     <string name="account_sign_out">Afmelden</string>
     <string name="account_sign_out_confirm_title">Afmelden?</string>
     <string name="account_sign_out_confirm_subtitle">Je moet je opnieuw aanmelden om je bibliotheek, kijkvoortgang, add-ons en plug-ins op dit apparaat te synchroniseren.</string>
-    <string name="account_error_signin_required">Meld je eerst aan met een account.</string>
 
     <string name="auth_email_hint">Meld je rechtstreeks aan met het account op je zelfgehoste server.</string>
     <string name="auth_email_instruction">Voer je e-mailadres en wachtwoord in om door te gaan.</string>

@@ -13,7 +13,6 @@ import com.kien.movies.ui.theme.MoviesTheme
 // dialogs share the launcher's palette.
 
 private const val ERROR_CONTAINER_ALPHA = 0.14f
-private const val FOCUSED_ERROR_CONTAINER_ALPHA = 0.26f
 private const val GRADIENT_ACCENT_ALPHA = 0.32f
 private const val GRADIENT_ACCENT_STOP = 0.14f
 private const val GRADIENT_FADE_STOP = 0.7f
@@ -62,10 +61,6 @@ internal fun accountErrorContent(): Color = MoviesTheme.colors.Error
 @Composable
 @ReadOnlyComposable
 internal fun accountErrorContainer(): Color = MoviesTheme.colors.Error.copy(alpha = ERROR_CONTAINER_ALPHA)
-
-@Composable
-@ReadOnlyComposable
-internal fun accountFocusedErrorContainer(): Color = MoviesTheme.colors.Error.copy(alpha = FOCUSED_ERROR_CONTAINER_ALPHA)
 
 @Composable
 @ReadOnlyComposable

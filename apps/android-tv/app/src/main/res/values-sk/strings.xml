@@ -1638,7 +1638,6 @@
     <string name="addon_error_not_found">Doplnok sa nenašiel</string>
 
     
-    <string name="account_error_signin_required">Najprv sa prihláste pomocou účtu.</string>
 
     
     <string name="search_error_no_catalogs">V nainštalovaných doplnkoch sa nenašli žiadne prehľadávateľné katalógy</string>

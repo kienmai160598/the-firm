@@ -1851,7 +1851,6 @@
     <string name="account_total_label">الإجمالي</string>
     <string name="account_loading_sync">جارٍ تحميل بيانات المزامنة…</string>
     <string name="account_sign_out">تسجيل الخروج</string>
-    <string name="account_error_signin_required">قم بتسجيل الدخول بحساب أولًا.</string>
 
     <!-- AuthSignInScreen -->
 

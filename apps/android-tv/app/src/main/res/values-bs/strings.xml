@@ -1149,7 +1149,6 @@
     <string name="trakt_error_denied">Autorizacija odbijena na Traktu.</string>
 
     <!-- Account errors -->
-    <string name="account_error_signin_required">Prvo se prijavi sa svojim računom.</string>
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Nisu pronađeni pretraživi katalozi u instaliranim addonima</string>

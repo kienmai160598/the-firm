@@ -1633,7 +1633,6 @@
     <string name="addon_error_not_found">Addon tidak ditemukan</string>
 
     <!-- Account errors -->
-    <string name="account_error_signin_required">Masuk dengan akun terlebih dahulu.</string>
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Tidak ada katalog yang bisa dicari ditemukan di addon terpasang</string>

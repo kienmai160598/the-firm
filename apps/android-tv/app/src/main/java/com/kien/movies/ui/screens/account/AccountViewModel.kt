@@ -35,7 +35,6 @@ import com.kien.movies.data.repository.LibraryRepositoryImpl
 import com.kien.movies.data.repository.WatchProgressRepositoryImpl
 import com.kien.movies.domain.model.AuthState
 import com.kien.movies.domain.model.ServerConfiguration
-import com.kien.movies.domain.repository.SyncRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.postgrest.Postgrest
 import java.security.SecureRandom
@@ -66,7 +65,6 @@ private val qrLoginTraceCounter = AtomicLong(0L)
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val authManager: AuthManager,
-    private val syncRepository: SyncRepository,
     private val pluginSyncService: PluginSyncService,
     private val addonSyncService: AddonSyncService,
     private val watchProgressSyncService: WatchProgressSyncService,
@@ -153,21 +151,6 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun signUp(email: String, password: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-            authManager.signUpWithEmail(email, password).fold(
-                onSuccess = {
-                    pushLocalDataToRemote()
-                    _uiState.update { it.copy(isLoading = false) }
-                },
-                onFailure = { e ->
-                    _uiState.update { it.copy(isLoading = false, error = userFriendlyError(e)) }
-                }
-            )
-        }
-    }
-
     fun signIn(email: String, password: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
@@ -190,117 +173,11 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun generateSyncCode(pin: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-            if (!authManager.isAuthenticated) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        error = context.getString(R.string.account_error_signin_required)
-                    )
-                }
-                return@launch
-            }
-            pushLocalDataToRemote()
-            syncRepository.generateSyncCode(pin).fold(
-                onSuccess = { code ->
-                    _uiState.update { it.copy(isLoading = false, generatedSyncCode = code) }
-                },
-                onFailure = { e ->
-                    _uiState.update { it.copy(isLoading = false, error = userFriendlyError(e)) }
-                }
-            )
-        }
-    }
-
-    fun getSyncCode(pin: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-            syncRepository.getSyncCode(pin).fold(
-                onSuccess = { code ->
-                    _uiState.update { it.copy(isLoading = false, generatedSyncCode = code) }
-                },
-                onFailure = { e ->
-                    _uiState.update { it.copy(isLoading = false, error = userFriendlyError(e)) }
-                }
-            )
-        }
-    }
-
-    fun claimSyncCode(code: String, pin: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-            if (!authManager.isAuthenticated) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        error = context.getString(R.string.account_error_signin_required)
-                    )
-                }
-                return@launch
-            }
-            syncRepository.claimSyncCode(code, pin, Build.MODEL).fold(
-                onSuccess = { result ->
-                    if (result.success) {
-                        authManager.clearEffectiveUserIdCache()
-                        pullRemoteData().onFailure { e ->
-                            Log.e(
-                                "AccountViewModel",
-                                "claimSyncCode: pullRemoteData failed, continuing",
-                                e
-                            )
-                        }
-                        updateEffectiveOwnerId(_uiState.value.authState)
-                        _uiState.update { it.copy(isLoading = false, syncClaimSuccess = true) }
-                    } else {
-                        authManager.signOut(explicit = false)
-                        _uiState.update { it.copy(isLoading = false, error = result.message) }
-                    }
-                },
-                onFailure = { e ->
-                    authManager.signOut(explicit = false)
-                    _uiState.update { it.copy(isLoading = false, error = userFriendlyError(e)) }
-                }
-            )
-        }
-    }
-
     fun signOut() {
         viewModelScope.launch {
             authManager.signOut()
             _uiState.update { it.copy(connectedStats = null, isStatsLoading = false) }
         }
-    }
-
-    fun loadLinkedDevices() {
-        viewModelScope.launch {
-            syncRepository.getLinkedDevices().fold(
-                onSuccess = { devices ->
-                    _uiState.update { it.copy(linkedDevices = devices) }
-                },
-                onFailure = { /* silently handle */ }
-            )
-        }
-    }
-
-    fun unlinkDevice(deviceUserId: String) {
-        viewModelScope.launch {
-            syncRepository.unlinkDevice(deviceUserId)
-            loadLinkedDevices()
-        }
-    }
-
-    fun clearError() {
-        _uiState.update { it.copy(error = null) }
-    }
-
-    fun clearSyncClaimSuccess() {
-        _uiState.update { it.copy(syncClaimSuccess = false) }
-    }
-
-    fun clearGeneratedSyncCode() {
-        _uiState.update { it.copy(generatedSyncCode = null) }
     }
 
     fun startQrLogin() {
@@ -431,13 +308,6 @@ class AccountViewModel @Inject constructor(
                     }
                 }
             )
-        }
-    }
-
-    fun pollQrLogin() {
-        viewModelScope.launch {
-            Log.d(TAG, "QR_LOGIN[${activeQrLoginTraceId ?: "-"}] manual poll requested")
-            pollQrLoginOnce()
         }
     }
 
@@ -931,17 +801,6 @@ class AccountViewModel @Inject constructor(
                 _uiState.update { it.copy(error = userFriendlyError(e)) }
             }
         )
-    }
-
-    private suspend fun pushLocalDataToRemote() {
-        val profileId = profileManager.activeProfileId.value
-        profileSettingsSyncService.pushCurrentProfileToRemote()
-        providerCredentialSyncService.syncFromRemote(profileId)
-        pluginSyncService.pushToRemote()
-        addonSyncService.pushToRemote()
-        watchProgressSyncService.pushToRemote(profileId)
-        librarySyncService.pushToRemote(profileId)
-        watchedItemsSyncService.pushToRemote(profileId)
     }
 
     private suspend fun pullRemoteData(): Result<Unit> {
