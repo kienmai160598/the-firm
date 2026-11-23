@@ -1,0 +1,621 @@
+# Android TV rebuild: guideline and slices
+
+Status: plan, nothing built yet. Written 2026-11-23.
+
+The old `apps/android-tv` (about 1,650 Kotlin files, 400k lines, its own copy of the logic) is
+thrown away. The new Android TV app is a small Compose for TV app that mirrors `apps/apple-tv`
+file by file (68 Swift files, 6.3k lines in `Sources`) and uses the same Kotlin logic through
+`shared/`.
+
+Each slice below is one pull request that leaves `main` working. Start a slice by reading this
+file, then the Swift files the slice names.
+
+## 1. Decisions that are yours (defaults are what the plan assumes)
+
+| # | Decision | Default | Why | Alternative |
+|---|---|---|---|---|
+| 1 | When to delete the old app | First (slice A0), behind a git tag | You asked for it gone; the box keeps the installed APK either way | Delete at cutover (A14) and build in a second folder until then |
+| 2 | Root navigation | Sidebar (`ModalNavigationDrawer` from tv-material) | It is what the tvOS app shows on tvOS 18+, and it is a system component | The floating top tab bar of the old box build (commit `d005eae298`): hand built, about a dozen focus rules |
+| 3 | Import old data on the box | No importer | The box install dates from 2026-11-22, so it holds one day of addons and progress | A one time importer of `addon_preferences` and the three `watch_progress_*` DataStores; needs the same applicationId, the same signing key and versionCode above 1080 |
+| 4 | Package id while building | `com.kien.movies.next`, next to the old app | The old app stays usable every evening until cutover | Use `com.kien.movies` from day one and uninstall the old app now |
+
+## 2. Target
+
+- Platform: Android TV, Google TV, TV boxes. Kotlin, Jetpack Compose, `androidx.tv:tv-material`.
+- Minimum OS: API 24 (the `shared/` minSdk). Test box: Mi Box MiTV-AFKR0, Android 14 (API 34),
+  armeabi-v7a only, 1.9 GB RAM, 4K panel driven at 1920x1080, density 320, so 960x540 dp.
+- Input: D-pad remote (arrows, select, Back, media keys). No touch surface, so nothing that
+  depends on a swipe.
+- Viewing distance: about 3 m.
+- Safe region: content stays 48 dp from the sides and 27 dp from top and bottom. Backgrounds,
+  hero art and rows run to the screen edge.
+- Size range: one bucket, 960x540 dp, landscape only.
+
+Library versions on Google Maven on 2026-11-23: tv-material 1.1.0, tv-foundation 1.0.0, Compose
+BOM 2026.11.01, media3 1.11.1 stable. Check the docs of the pinned version when a slice starts;
+do not write these APIs from memory.
+
+## 3. Architecture
+
+```mermaid
+flowchart TD
+  subgraph apps
+    ATV["apps/apple-tv<br/>SwiftUI"]
+    AND["apps/android-tv/app<br/>Compose for TV"]
+  end
+  subgraph shared
+    API["shared/tv-api<br/>plain source folder: Tvos* API, mappings, next up, continue watching"]
+    TB[":tvosShared (apple-tv-bridge)<br/>tvOS storage actuals, Color and string stand-ins"]
+    AB[":androidTvShared (android-tv-bridge)<br/>TvRuntime.init(context), Android exclusion list"]
+    CORE["shared/core sources<br/>commonMain filtered to 526 files<br/>+ iosMain or androidMain actuals"]
+  end
+  ATV --> TB
+  AND --> AB
+  TB --> API
+  AB --> API
+  TB --> CORE
+  AB --> CORE
+```
+
+### How the logic is shared
+
+- The tvOS bridge does not depend on `:composeApp`. It compiles `shared/core` sources into its
+  own module and drops 299 of the 825 `commonMain` files (UI, and what fails to compile without
+  it) through `excluded-by-rule.txt` and `excluded-by-compiler.txt`. The Android bridge is built the same way, so both TV apps run the
+  same 526 logic files and can call `internal` core helpers.
+- The API Swift calls (`TvosHome`, `TvosDetails`, `TvosStreams`, `TvosSearch`, `TvosAddons`,
+  `TvosPlayback`, `TvosSubtitles`, `TvosTorrent`, `TvosDebugAddon`, 2,085 lines) is plain Kotlin
+  apart from `PayloadFileStore.kt`. It moves to `shared/tv-api/` and both bridges add it with
+  `kotlin.srcDir`. Names stay `Tvos*` for now; a rename is a later mechanical slice, not a blocker.
+- Two single target modules, not one module with two targets: the tvOS side needs a home made
+  `androidx.compose.ui.graphics.Color` (`TvosColor.kt`) that would clash with the real class on
+  Android. On Android the bridge depends on the real `ui-graphics` and keeps the English string
+  stand-in.
+- Android actuals come from `shared/core/src/androidMain` (plus `androidPlaystore` stubs). Start
+  from the actuals that the 526 included common files need, then close the compiler errors.
+  Write the result to `shared/android-tv-bridge/excluded-android.txt`, one path and one reason
+  per line, like the tvOS lists. Always excluded: `MainActivity`, `LinkActivity`, the player
+  composables, orientation lock, picture in picture, haptics, notification permission, downloads.
+- `TvRuntime.init(context)` in the Android bridge repeats the storage and engine `initialize`
+  calls of `shared/core/src/androidMain/kotlin/com/nuvio/app/MainActivity.kt:86-149`, without UI.
+  The storages read `preferences?.` and return null when not initialised: nothing crashes, data
+  is silently lost. Two guards: a script in `make check` that fails when an included object with
+  `fun initialize(` is missing from `TvRuntime.init`, and a persistence round trip test.
+- Do not edit `shared/core` for the TV apps. It is upstream code. Put TV logic in `shared/tv-api`
+  or, when a UI file must be split, add a patch in the style of `apple-tv-bridge/upstream-prs/`.
+
+### Gradle
+
+- The new app joins the `shared/` Gradle build as a project, so there is one toolchain and
+  `scripts/toolchain-check` can go:
+
+  ```kotlin
+  // shared/settings.gradle.kts
+  include(":androidTvShared")
+  project(":androidTvShared").projectDir = file("android-tv-bridge")
+  include(":androidTvApp")
+  project(":androidTvApp").projectDir = file("../apps/android-tv/app")
+  ```
+
+- `shared/core/build.gradle.kts:264-294` demands a distribution for assemble tasks. Pass
+  `-Pnuvio.android.distribution=full` from the Makefile, or set `NUVIO_ANDROID_DISTRIBUTION` in
+  `shared/local.properties`.
+- Build types: `debug` (instrumented tests only) and `box` (R8, resource shrinking, not
+  debuggable, armeabi-v7a, baseline profile). Jank numbers come only from `box` installed with
+  `box/install.sh`.
+- No Hilt, no KSP, no Retrofit, no DataStore in the app: the bridge objects are singletons and
+  own all storage and networking.
+- Signing values come from `shared/local.properties` only. The old `app/build.gradle.kts:187,189`
+  has hard coded password fallbacks: do not copy them.
+
+### Folder structure
+
+What the repo looks like once A0 to A3 have landed. `(new)` is created by this rebuild, `(moved)`
+comes from the old app or the tvOS bridge, everything else exists today and stays.
+
+```
+the-firm/
+  CLAUDE.md
+  Makefile                      android-tv targets call the shared/ Gradle build
+  .editorconfig        (moved)  ktlint rules, scoped to *.kt and *.kts
+  docs/
+    android-tv-rebuild.md
+  scripts/
+    ktlint
+    check-tv-runtime-init (new) fails when an initialize() object is missing from TvRuntime.init
+                                (check-layering and toolchain-check are deleted in A0)
+  engine/  nuvio-engine/        torrent engine for tvOS, unchanged
+
+  shared/                       the one Gradle build for everything Kotlin
+    settings.gradle.kts         + :androidTvShared, :androidTvApp, :androidTvBaselineProfile
+    gradle/libs.versions.toml   + tv-material, Compose BOM, nanohttpd, zxing
+    local.properties            signing values and ABIS (moved from apps/android-tv, not in git)
+    core/                       upstream logic, never edited for a TV feature
+    tv-api/            (new)    plain source folder, both bridges add it with kotlin.srcDir
+      src/commonMain/kotlin/com/nuvio/tvos/
+        Tvos*.kt       (moved)  the API Swift and Android call, from apple-tv-bridge/tvosMain
+        rules/         (new)    pure rules both apps need:
+          StreamFeatures.kt        resolution, HDR, audio, size, seeders from addon text
+          PlaybackAdvisory.kt      rating and up to 3 genres
+          OnlineSubtitleChoice.kt  source order, 4 per language, labels
+          ProgressSavePolicy.kt    10 s and 1,000 ms rule, when to sync remote
+        phone/         (new)    AddonPairingSession.kt, AddonPairingRequest.kt (section 5b)
+      src/commonTest/kotlin/com/nuvio/tvos/
+        mapping tests  (moved)  from apple-tv-bridge/src/tvosTest (all but PayloadFileStore)
+        rules/, phone/ (new)    ported from apps/apple-tv/Tests, plus pairing tests
+    apple-tv-bridge/            :tvosShared, keeps only what is Apple specific:
+      src/commonMain/           Color and string stand-ins
+      src/tvosMain/             PayloadFileStore and the three storage actuals
+      src/tvosTest/             PayloadFileStore and payload size tests
+    android-tv-bridge/ (new)    :androidTvShared, KMP with one Android library target
+      build.gradle.kts          core commonMain and androidMain minus the exclusions, + tv-api
+      excluded-android.txt      one path and one reason per line
+      src/androidMain/kotlin/com/nuvio/tvos/android/
+        TvRuntime.kt            init(context): the storage and engine initialize calls, no UI
+      src/androidDeviceTest/kotlin/com/nuvio/tvos/android/
+        PersistenceRoundTripTest.kt  two runs with am force-stop between them
+
+  apps/
+    apple-tv/                   unchanged, except that it reads rules from tv-api once a slice
+                                switches it (its Swift copies stay until then)
+      TestAddon/                test addon server used by both apps' UI tests
+    android-tv/        (new)    rebuilt from scratch
+      README.md                 how to build, install on the box and measure
+      app/                      :androidTvApp
+        build.gradle.kts        debug and box build types, armeabi-v7a, applicationId
+                                com.kien.movies.next until A14
+        proguard-rules.pro (moved)  only the keeps for com.nuvio.engine, the media3 fork and JNI
+        libs/          (moved)  only AARs the bridge does not already link:
+                                lib-decoder-ffmpeg-release.aar (downmix build)
+        src/main/
+          AndroidManifest.xml   leanback launcher, banner, INTERNET, cleartext config
+          res/
+            mipmap-*/ic_launcher.png, mipmap-xhdpi/banner.png  (moved, default colour only)
+            xml/network_security_config.xml  (moved)
+            values/themes.xml   flat window background, no splash
+            values/strings.xml  app name
+          kotlin/com/kien/movies/
+            MoviesApp.kt        Application: TvRuntime.init off the main thread, TvosHome.start
+            MainActivity.kt     setContent { RootScreen() }, semantics pruning
+            shell/              RootScreen, RootTabs (sidebar), Router, AppRoute, RouteLink,
+                                PlaceholderScreen
+            design/             Tokens, Theme, CardShape, CardFocus, GlassStyle (flat fills),
+                                Backdrop, ArtworkImage, MetadataLine, DpadThrottle,
+                                SemanticsPruning
+            bridge/             BridgeFlows (observe callbacks as Flow)
+            home/               HomeScreen, HomeViewModel, HomeHero, HomeStatus, CatalogRow,
+                                ContinueWatchingRow, PosterCard, RowNeighbor
+            details/            DetailsScreen, DetailsViewModel, DetailsHero, DetailsInfoSection,
+                                EpisodesSection, CastSection
+            streams/            StreamsScreen, StreamsViewModel, StreamsHeader, StreamGroupList,
+                                StreamsRow, StreamDetailSheet, StreamsEmpty, StreamRowState
+            search/             SearchScreen, SearchViewModel
+            addons/             AddonsScreen, AddonsViewModel, AddonRow, AddonInstallPanel
+              phone/            PhoneAddonPanel, PhoneAddonDialog, PhoneAddonServer,
+                                PhoneAddonPage (HTML), LanAddress, QrCode
+            player/             PlaybackScreen, PlaybackRequest, PlaybackMetadata, PlayerFactory,
+                                PlayerController, PlayerState, PlayerScreen, PlayerSurface,
+                                TransportBar, HoldScrub, PlayerPanels, PlayerTracks,
+                                PlayerMediaInfo, PlaybackAdvisoryBanner, StartupDeadline,
+                                StallWatchdog
+            torrent/            TorrentSession, TorrentCacheBudget
+            debug/              DebugLaunch, StreamsDebugFixture (debug source set only)
+        src/test/kotlin/com/kien/movies/
+                                RowNeighborTest, PlayerStateTest, HoldScrubTest,
+                                StartupDeadlineTest, StallWatchdogTest, TorrentCacheBudgetTest,
+                                PhoneAddonServerTest
+        src/androidTest/kotlin/com/kien/movies/
+          support/TvRobot.kt    launch extras, D-pad and wait helpers (like UITests/Support)
+          NavigationTest, HomeTest, ContinueWatchingTest, DetailsTest, StreamsTest,
+          PlayerTest, PlaybackFailureTest, SearchTest, AddonsTest, PhoneAddonTest
+                                one test per AC, the AC id first in the name:
+                                fun h5_removedCardStaysGoneAfterRelaunch()
+      baselineprofile/ (new)    :androidTvBaselineProfile
+        src/main/kotlin/com/kien/movies/baselineprofile/
+          BaselineProfileGenerator, Journeys, StartupBenchmark, ScrollBenchmark
+      box/             (moved)  same paths as today
+        install.sh
+        perf/measure.sh         package and key scenario rewritten in A2 and A4
+        perf/results/           not in git; old runs kept as legacy-agp8-movies-1625/
+        legal-test-addon/
+        brand/
+      third_party/
+        ffmpeg-decoder-downmix/ (moved)  GPL source and NOTICE of the decoder AAR, not a Gradle
+                                module; README says how to rebuild the AAR
+```
+
+Package rule: Android code is grouped by feature, tvOS keeps its flat `Sources/`. Names map
+one to one so a feature is found on both sides:
+
+| tvOS | Android | Example |
+|---|---|---|
+| `XxxView.swift` that is a screen | `XxxScreen.kt` | `HomeView` to `HomeScreen` |
+| `XxxView.swift` that is a part | `Xxx.kt` | `CatalogRowView` to `CatalogRow`, `BackdropView` to `Backdrop` |
+| `XxxModel.swift` | `XxxViewModel.kt` | `StreamsModel` to `StreamsViewModel` |
+| `MpvXxx.swift` (mpv engine) | `PlayerXxx.kt` or the plain name (ExoPlayer engine) | `MpvTransportBar` to `TransportBar`, `MpvPlaybackController` to `PlayerController` |
+| Pure rule (`StreamFeatures`, `PlaybackAdvisory`, `MpvSubtitleDownload`) | `shared/tv-api/.../rules/` | Android uses the Kotlin copy from day one; tvOS switches in a later slice |
+| Any other file | same name, `.kt` | `HomeHero`, `PosterCard`, `EpisodesSection` |
+
+tvOS files with no Android counterpart in v1: `PlaybackPreflight`, `PlayerView`,
+`PlaybackController`, `PlayerItemBuffer` (AVPlayer only), `MpvHandle`, `MpvVideoView`,
+`MpvOptions`, `MpvPlaybackClock`, `MpvTouchpad`, `MpvTouchScrubber`, `MpvSwipeScrub` (replaced
+by `HoldScrub`), `MpvDisplayMatch` (later: frame rate match).
+
+AAR rule: exactly one copy of each AAR on the app's classpath. The bridge links what core's
+Android actuals need from `shared/core/libs` (engine and media3 fork); `app/libs` holds only the
+downmix FFmpeg decoder. A2 decides which `lib-datasource-release.aar` copy wins.
+
+### Data and state
+
+- The bridge owns the data. Screens read these and nothing else: `TvosHomeState`,
+  `TvosDetailsState`, `TvosStreamsState`, `TvosSearchState`, `List<TvosAddon>`,
+  `TvosTorrentStatus`, `TvosResumePoint`, `TvosStreamTarget`. All user facing labels (play
+  button, resume, continue watching subtitles, empty states) already come from Kotlin.
+- `bridge/BridgeFlows.kt` turns `observeX(cb): TvosCancellable` into a `callbackFlow` whose
+  `awaitClose` calls `cancel()`. A ViewModel exposes one `StateFlow<UiState>` with
+  `stateIn(viewModelScope, WhileSubscribed(5_000), initial)`. Screens use
+  `collectAsStateWithLifecycle`.
+- App owned state:
+  - `AppRoute`: `Details(type, id)`, `Streams(target, resumesDirectly)`. `Router` is a list back
+    stack with `open(route)`, as in `Router.swift`. The player is a full screen cover over
+    Streams, not a route.
+  - Stream row: `Idle -> Checking -> Playing -> Idle`, `Idle -> TorrentStarting(step, peers,
+    buffer) -> Playing`, any state `-> Notice(title, message)`. A press is ignored while another
+    row is not `Idle`.
+  - Player: `Loading -> Playing <-> Paused`, `Playing <-> Buffering`, `-> Ended`, `-> Failed`.
+    Scrub: `None -> Pending(previewMs) -> None` by commit or cancel.
+    `Loading` fails after 20 s without data (`StartupDeadline`), `Buffering` after 20 s without
+    buffer growth (`StallWatchdog`).
+  - Progress: save through `TvosPlaybackSession.save` every 10 s when the position moved at
+    least 1,000 ms (local only); on pause, end, exit and `onStop` with `syncRemote`. Never
+    before playback has started.
+
+## 4. Mirroring the tvOS design
+
+### Units
+
+tvOS lays out on 1920x1080 pt, Android TV on 960x540 dp. Rule: `dp = pt / 2`, `sp = pt / 2`,
+then round. Durations and opacities are copied as they are. All values live in
+`design/Tokens.kt`; no literal sizes in screens.
+
+| Token | tvOS | Android TV |
+|---|---|---|
+| Poster card | 260x390 pt | 130x195 dp |
+| Continue Watching and episode card | 400x225 pt | 200x112 dp |
+| Cast portrait | 180 pt | 90 dp |
+| Card corner radius, content inset | 24, 20 pt | 12, 10 dp |
+| Shelf item spacing, row padding, gap between shelves | 40, 34, 24 pt | 20, 17, 12 dp |
+| Side inset of hero and rows | 80 pt | 48 dp (Android overscan floor, not 40) |
+| Hero text block, next shelf peek | 860, 150 pt | 430, 75 dp |
+| Stream row, resolution badge | 104, 124x64 pt | 52, 62x32 dp |
+| Titles (hero, details, player, streams) | 76, 80, 54, 52 pt | 38, 40, 27, 26 sp |
+| Shelf header, body, card title | 31, 29, 26 pt | 16, 15, 13 sp |
+| Small text (19 to 25 pt) | 19 to 25 pt | 12 sp floor; 11 sp only inside badges |
+| Card focus | system lift and highlight | scale 1.08 plus one soft shadow, no ring |
+
+The full list of tvOS literals is in the Swift files named in each slice. Read them, do not
+estimate from a screenshot.
+
+### Not ported literally
+
+| tvOS | Android TV | Reason |
+|---|---|---|
+| Full screen gradient backgrounds (Home, Details) | One flat colour set as the window background: Home `#24282E`, Details `#1B1D22` (gradient midpoints, tune on the panel) | Measured on the box: a full screen gradient costs about 6.5 ms of a 16.7 ms frame |
+| Backdrop blur 40 plus 45% black when receded | A second, tiny decode of the same image (about 96 px wide) scaled up, darkened with a colour filter on the image | Runtime blur and extra translucent layers are fill passes on a fill rate bound GPU |
+| Glass buttons and panels (tvOS 26) | Flat frosted fills: white 14%, 22%, 30%; focused control is solid white with black content | The look does not exist in the Android toolkit |
+| System focus lift and specular highlight | Scale in `graphicsLayer`, read in the draw phase; the card never changes layout size | A size change on focus re-measures the row every frame |
+| Poster genre shade, hero shades | Keep, but one gradient per card, drawn only over the text band; one hero scrim instead of two | About 14 small scrims cost 1.5 ms: budgeted, not free |
+| Swipe scrubbing (`MpvSwipeScrub`, `MpvTouchpad`) | Hold left or right: key repeat grows the step, preview on the bar, seek 900 ms after the last key | No touch surface on the remote |
+| AVPlayer or mpv chosen by file extension (`PlaybackPreflight`) | ExoPlayer for everything in v1 | ExoPlayer plays MKV, TS, HLS and DASH itself; mpv is a later fallback |
+| Context menu (long press) on a card | Long press select opens a small dialog | Check tv-material for a menu component first; a dialog is the fallback |
+| `.searchable`, system keyboard | Text field with the system IME | Platform component |
+| `sidebarAdaptable` tab view | `ModalNavigationDrawer`, flat scrim, no blur | Platform component, see decision 2 |
+
+### Focus rules
+
+- Exactly one focused element in every state, including loading, empty and error.
+- Home is a `LazyColumn` of `LazyRow`s. Each row remembers its last focused card
+  (`focusRestorer`), each lazy list has stable `key` and `contentType`.
+- Back returns to the same card on every level (Streams, Details, Home), then opens the sidebar,
+  then leaves to the launcher. No exit dialog.
+- Up and down move between rows, left and right inside a row. Fix a missing straight path by
+  moving the control, not with a custom focus jump.
+- Import check on every screen: `androidx.tv.material3.*`, never `androidx.compose.material3.*`
+  for controls.
+
+### Box performance rules
+
+- No full screen gradient, no stacked translucent layers, no runtime blur. Check with
+  `adb shell setprop debug.hwui.overdraw show` and a perfetto trace before naming a cause.
+- Port from the old app (read it from the `android-tv-legacy` tag): the semantics pruning
+  (`ui/util/SemanticsForScreenReaders.kt`, `AccessibilitySemanticsDemand.kt`; it took Home jank
+  from 8.0% to about 4%) and `ui/util/DpadThrottleModifier.kt`.
+- Images: ask Coil for the exact card size in pixels; never decode a poster at full size.
+- Where the shared core can cost frames, and the fix in the app layer, not in core:
+  `TvRuntime.init` runs about 60 SharedPreferences initialisations, so keep it off the main
+  thread and measure `TotalTime` (old app: 1,038 ms); a bridge state such as `TvosHomeState`
+  arrives as one object, so map it to one immutable state per row with stable keys so a change
+  in one row does not recompose the others.
+- Gate, measured with `box/perf/measure.sh` on the `box` build installed by `box/install.sh`.
+  Reference, old app, two runs (files dated 2026-11-23): Home jank 3.56% and 3.73%, p90 30 to
+  32 ms; Details jank 7.69% and 8.33%; PSS 328 to 355 MB. The new scenario keeps the same shape
+  (scroll Home, open Details, Back) so the numbers stay comparable; the old numbers are a
+  reference, not an identical test. The new app must not be worse on any of the three.
+- What smooth means here: the box panel runs at 59.94 Hz, a 16.7 ms frame budget. The old Home
+  had a median frame of 21 ms (p50) while scrolling, so most frames missed 60 fps even though
+  the jank counter read 3.6%. Target for the new Home and Details scroll (a target, change it if
+  it proves wrong): p50 at or under 16 ms, p90 at or under 25 ms, jank under 3%.
+- Reference app on the same box: Apple TV 17.0.4 (`com.apple.atve.androidtv.appletv`). Its APK
+  has almost no Java code; the UI is Apple's own engine (`libluna.so`, 19 MB, embeds V8, draws
+  with OpenGL ES 2 on a native window, decodes with NDK MediaCodec) running JavaScript from
+  `assets/app.zip`. It ships a baseline profile too. `gfxinfo` does not see it (no HWUI frames):
+  compare it with `dumpsys SurfaceFlinger --latency` on its layer, during the same scroll.
+
+## 5. Player on Android
+
+- Engine: Media3 ExoPlayer from the forked 1.8.0 AARs (no source in the repo, known good on the
+  box) plus the FFmpeg audio decoder with the downmix. Stock media3 1.11 is a later slice that
+  needs the decoder rebuilt from `ffmpeg-decoder-downmix/`.
+- AAR copies differ between the two folders. Same hash in both: common, datasource-okhttp,
+  decoder-av1, decoder-mpegh, exoplayer, exoplayer-hls, extractor, nuvio-engine 0.1.6, libass,
+  quickjs, ui. Different: `lib-decoder-ffmpeg-release.aar` (app copy 3.8 MB is the downmix
+  build, core copy 9.2 MB) and `lib-datasource-release.aar` (177,533 against 177,480 bytes).
+  Only in the old app: `lib-decoder-iamf`, `nextlib-mediainfo-local`. The new app links the old
+  app's copies of the two that differ, and drops iamf, mediainfo, quickjs and `lib-ui`.
+- UI: one custom Compose player that copies `MpvPlayerScreen.swift`, `MpvTransportBar.swift` and
+  `MpvPanels.swift`: title block, three round buttons (Subtitles, Audio, Info), transport bar,
+  panels. Not the media3 `PlayerView` controls.
+- Remote: select toggles pause; left and right skip 10 s and add up; holding scrubs; down
+  enters the scrub view, up goes to the buttons; play/pause key toggles and commits a pending
+  scrub. Controls hide after 5 s unless paused, a panel is open or a scrub is pending.
+- Back order, as on tvOS: close panel, cancel pending scrub, leave scrubbing, focus the video
+  surface, hide controls, exit.
+- Leaving the app pauses and saves. Bars around the video are black.
+- Torrents: `TvosTorrent` on top of the `P2pStreamingEngine` Android actual already in
+  `shared/core/src/androidMain` (uses `lib-nuvio-engine-android-0.1.6.aar`). Port the box cache
+  budget from the old `core/torrent/TorrentCacheBudget.kt` and `core/streams/P2pStreamDeviceFit.kt`
+  if the shared actual lacks them.
+
+## 5b. Add addons from a phone (QR)
+
+Not in the tvOS app: an Android TV addition, asked for on 2026-11-23. Typing a manifest URL with
+a remote is slow, so the TV shows a QR code, the phone opens a small page from it and sends the
+URL to the TV.
+
+How it works:
+
+1. On Addons, the install panel has "Add from phone". Selecting it starts a local HTTP server on
+   the first free port from 8080 to 8089 and shows a QR code for
+   `http://<tv-lan-ip>:<port>/?t=<token>`, the same address as text, and "Waiting for your phone".
+2. The phone opens the page: one field (several URLs allowed, one per line, at most 10) and a
+   Send button. `stremio://` links are fine: `normalizeManifestUrl` in core turns them into
+   `https://`.
+3. The page sends `POST /api/addons` with the token and the URLs. The TV shows a dialog with
+   each URL and Install or Cancel, focus on Install.
+4. Install runs each URL through `TvosAddons.install`, the same path as typing it. The page polls
+   `GET /api/status/<id>?t=<token>` and shows the result per URL (installed with its name, or the
+   error from Kotlin).
+5. The server stops when the panel closes, when the app goes to the background, or after
+   10 minutes without a request.
+
+Session state: `Off -> Waiting -> Proposed(urls) -> Installing -> Done(results) -> Waiting`, any
+state `-> Off`. A new proposal while one is `Proposed` or `Installing` gets HTTP 409.
+
+Access model:
+
+- Whoever can read the TV screen can add addons: the token in the QR is 128 random bits from
+  `SecureRandom`, new for each session, checked on every request with a constant time compare.
+  A request without it gets 403 and changes nothing.
+- Every change is confirmed on the TV with the remote. The phone only proposes.
+- The page only adds. Removing, turning off and ordering stay on the TV (the old app's page also
+  edited catalogs and collections; that is not ported).
+- Input checks before anything reaches the dialog: body at most 16 KB, at most 10 URLs, each at
+  most 2,048 characters, scheme `https`, `http` or `stremio`. The manifest itself is checked by
+  core when it installs.
+- Plain HTTP on the home network: someone sniffing the LAN during the session could read the
+  token. Accepted for a home box, and the TV confirmation still stands in the way.
+
+Placement:
+
+- `shared/tv-api`: the session state machine, token check, request parsing and URL limits, as
+  plain Kotlin with unit tests, so tvOS can add the same feature later with its own listener
+  (Network.framework).
+- Android app (`addons/phone/`): the HTTP server (`org.nanohttpd:nanohttpd:2.3.1`, what the old
+  app ran on the box), the LAN address from `ConnectivityManager.getLinkProperties` (the old
+  `WifiManager.connectionInfo` path is deprecated and misses Ethernet first), the QR from
+  `com.google.zxing:core:3.5.3` drawn with a Compose `Canvas` as black squares on white, at
+  least 180 dp so a phone reads it across the room, and the page as one small HTML string with
+  inline script.
+- From the old app (tag `android-tv-legacy`): read `core/server/AddonConfigServer.kt` for the
+  propose, confirm and poll flow and `core/qr/QrCodeGenerator.kt` plus its test for the module
+  grid. Do not port `AddonWebPage.kt` (3,695 lines).
+
+States to lay out: no network ("Connect the TV to Wi-Fi or Ethernet"), no free port, waiting,
+proposal dialog, installing, results. Each holds focus.
+
+## 6. Acceptance criteria (assumed: parity with the tvOS app on the box, plus 5b)
+
+Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
+
+| Id | Criterion |
+|---|---|
+| N1 | Launch puts focus on the hero button of Home |
+| N2 | The sidebar reaches Home, Search, Library, Addons, Settings; Back on the sidebar leaves to the launcher |
+| N3 | Left from the hero opens the sidebar, down reaches the first row |
+| N4 | Poster, then Details, then Streams; Back returns to the same card at each step |
+| N5 | Library and Settings show a placeholder that holds focus |
+| H1 | Hero shows up to 6 items of the first row that have a backdrop; arrows change the item; it advances every 8 s only while unfocused |
+| H2 | Catalog rows scroll sideways with the next card partly visible |
+| H3 | Loading, empty and error states are laid out and focusable |
+| H4 | A Continue Watching card resumes without asking |
+| H5 | Removing a card moves focus to its neighbour and the card stays gone after relaunch |
+| H6 | Finishing an episode shows Next Up on Home and on Details |
+| H7 | An addon catalog that needs a year as its genre (Cinemeta "New") shows as a row for its newest year, right after the first row of the same addon and type (Popular Movies, New Movies, Popular Series, New Series). The selection and placement live in Kotlin, so Android gets it from the shared API |
+| H8 | The hero artwork fills the screen, behind the peek of the first shelf, and leaves only as Home scrolls down. After 1 s of focus on a hero item, its backdrop fades into the item's YouTube trailer with sound, its volume fading in with the picture; the facts and overview stay as they are. The link is resolved in Kotlin (`TvosTrailers`) ahead of focus for the page showing and the next one, and the player buffers during the wait. The trailer plays hidden for under a second while upstream `LetterboxDetector` measures its black bars on small frames (`TvosLetterbox`), then shows already zoomed past them, so no black bars ever show. Picture and sound fade out when the trailer ends, when focus leaves the hero and when another screen opens. Nothing plays when the item has no trailer or the system turns off video autoplay. A lookup made before the addons are ready is tried again. Android needs its own player view and frame sampler for this; measure it on the box before shipping it there |
+| D1 | Details shows logo or title, overview, facts and the play label that Kotlin gives |
+| D2 | A part watched title shows Resume with its bar; the episode shows its percentage |
+| D3 | The season picker focuses the selected season on entry; Back from Streams restores episode and season |
+| D4 | Cast and Information are reachable by scrolling with the D-pad |
+| D5 | Loading and error states |
+| S1 | Stream groups appear per addon as they load; the left column shows the source count and "Searching N more addons" |
+| S2 | A row shows resolution, capability badges, size and seeders parsed as on tvOS |
+| S3 | Empty state with Try Again and the missing addon hint |
+| S4 | A stream that cannot play opens the info sheet |
+| S5 | With a resume point, a dialog offers Resume or Start Over |
+| S6 | The pressed row shows "Checking stream", the other rows dim |
+| S7 | Two columns: artwork, title, subtitle and resume stay fixed on the left while the stream list scrolls on the right and never covers them |
+| P1 | Direct MP4, MKV and HLS streams play |
+| P2 | Skip 10 s, presses add up, controls hide after 5 s |
+| P3 | Progress is saved and playback resumes after a relaunch |
+| P4 | No data for 20 s at start fails and saves nothing; a stall of 20 s mid play fails and keeps progress; both show the notice on Streams |
+| P5 | Audio menu reaches every track; subtitle menu has Off, embedded and online tracks (4 per language at most); Info shows the decoder |
+| P6 | The rating and genre advisory shows once for 6 s |
+| P7 | Back follows the six step order |
+| P8 | Leaving the app pauses and saves |
+| T1 | A torrent stream starts through the engine, the row shows step, peers, speed and buffer, then plays; the engine stops on exit |
+| Q1 | Typing a title shows result rows |
+| Q2 | Opening a result records a recent search; a recent search can be removed |
+| Q3 | An empty query shows recent searches and the discover row |
+| A1 | Install by manifest URL; a failure shows why |
+| A2 | Turn an addon off and on |
+| A3 | Move an addon up and down |
+| A4 | Remove with confirmation; with no addons the empty state shows |
+| AQ1 | "Add from phone" shows a QR code and the address as text within 1 s; with no network it says so and keeps focus |
+| AQ2 | Scanning the code with a phone on the same network opens the page; sending a manifest URL shows the confirmation dialog on the TV |
+| AQ3 | Install adds the addon (it appears in the list and its catalogs on Home); the phone page shows the result per URL; Cancel adds nothing and the page says so |
+| AQ4 | A request with a wrong or missing token gets 403 and changes nothing; a second proposal while one is open gets 409 |
+| AQ5 | The server stops when the panel closes, when the app goes to the background and after 10 idle minutes: the address no longer answers |
+| X1 | `box` build: R8, armeabi-v7a, baseline profile applied (check the compile state of the package) |
+| X2 | Jank and PSS are not worse than the old app (numbers in section 4) |
+| X3 | No text cut at any edge, every label readable at a quarter size screenshot |
+
+## 7. Slices
+
+| Slice | What it does | ACs | Proof |
+|---|---|---|---|
+| A0 Rescue and delete | Tag `android-tv-legacy`. Move out what a tag cannot save or the new app needs (list below). Delete the old app, its Makefile targets, `scripts/check-layering` and `scripts/toolchain-check` (it compares two builds, one is gone). `make check` becomes `shared-test` until A2 adds lint and Android tests back. Update README | none | `make check` and `make apple-tv-sim` pass; rescued files exist at their new paths |
+| A1 Shared API folder | Move the `Tvos*` API and mappings from `apple-tv-bridge/src/tvosMain` to `shared/tv-api`. No behaviour change | none | `make shared-test` and `make apple-tv-sim` pass, UI tests unchanged |
+| A2 Android bridge and bare app | `:androidTvShared` with its exclusion list and `TvRuntime.init`; `:androidTvApp` with a leanback manifest, banner, `box` build type; one Activity that lists Home row titles as text. `make lint`, `make format` and `make android-tv-test` point at the new sources. Timebox it (suggested: two working days); if the exclusion list does not close, take the fallback in section 9 | X1 partly | Round trip in two instrumentation runs with `adb shell am force-stop` between them: run one installs the test addon and saves progress, run two reads both back. `:androidTvApp:dependencies` for the `box` build shows no alpha or beta Compose artifact. `make android-tv`, `make box-install`, row titles visible on the box. Init guard script in `make check` |
+| A3 Shell | Tokens, theme, `Router`, `AppRoute`, sidebar with five tabs, placeholders, debug launch extras that mirror `DebugLaunch.swift` | N2, N5 | UI test: every tab reachable, Back exits. Screenshot check of the four edges |
+| A4 Home rows | `HomeViewModel`, `CatalogRow`, `PosterCard`, `HomeStatus`, focus restore per row, semantics pruning, key throttle | H2, H3, H7 | UI test for states and focus; first `measure.sh` run of the new Home recorded |
+| A5 Hero and Continue Watching | `HomeHero`, page indicator, `ContinueWatchingRow`, Upcoming row, remove with neighbour focus | N1, N3, H1, H4 partly, H5, H8 | Port `RowNeighborTests`; UI tests from `NavigationTests` and `ContinueWatchingTests`; `measure.sh` against the gate |
+| A6 Details | `DetailsViewModel`, hero, play action, resume bar, season picker, episode shelf, cast, information, backdrop | D1 to D5 | UI tests for resume label, season focus, states; `measure.sh` details numbers |
+| A7 Streams | `StreamsViewModel`, header, group list, rows, `StreamFeatures`, empty and loading views, info sheet, resume dialog | N4, S1 to S5, S7 | Port `StreamFeaturesTests`; UI test for Back restoring the card |
+| A8 Player core | `PlaybackRequest`, ExoPlayer engine, player state machine, transport bar, skip and hold scrub, startup deadline, stall watchdog, progress saver, failure notice | S6, P1 to P4, P7, P8, H4, H6 | Unit tests for the state machine, save rule and scrub steps; UI tests from `PlayerTests` and `PlaybackFailureTests` against the test addon |
+| A9 Player panels | Audio and subtitle menus, online subtitles (`TvosSubtitles`), info panel, advisory banner | P5, P6 | Port `MpvSubtitleDownloadTests` and `PlaybackAdvisoryTests`; UI test for the menus |
+| A10 Torrents | `TorrentSession`, row progress, box cache budget | T1 | UI test with `box/legal-test-addon`; cache budget unit tests ported from the old app |
+| A11 Search | `SearchViewModel` (350 ms debounce), recent searches, discover row | Q1 to Q3 | UI tests from `NavigationTests` (search cases) |
+| A12 Addons | `AddonsViewModel`, install panel, rows, action dialog, remove confirmation | A1 to A4 | UI tests from `AddonsTests` |
+| A12b Add addons from phone | Session logic in `shared/tv-api`, server, QR, phone page, confirm dialog (section 5b) | AQ1 to AQ5 | Unit tests: state machine, token check, request limits. Server test on the JVM: 403, 409, propose then confirm. Manual: a real phone on the home network installs an addon on the box |
+| A13 Box hardening | `baselineprofile` module with new journeys, R8 keep rules check, memory and jank pass, quarter size screenshot pass on every screen | X1 to X3 | `measure.sh` numbers before and after in the PR; profile compile state from `box/install.sh` |
+| A14 Cutover | applicationId `com.kien.movies`, uninstall the old app on the box (this erases its data: ask for confirmation in that chat before running it), remove `.next`, final README and Makefile | all | Full D-pad walk and Back path on the box; the checklist of section 8 |
+
+Order: A0 to A3 are strictly in order. A12b needs A12. After A3, A4 to A7 follow the user path; A11 and A12 are
+independent and can be done at any point after A3. A8 needs A7.
+
+After cutover, by value: refresh rate and HDR mode match (the tvOS app has `MpvDisplayMatch`; port
+the old `core/player/FrameRateUtils.kt`), mpv as a fallback engine, ASS subtitles through libass,
+Watch Next row on the launcher, `movies://` and `stremio://` deep links, Dolby Vision profile 7
+(off in the old build as well), a rename of `Tvos*` to `Tv*`, moving the pure Swift rules
+(`StreamFeatures`, `PlaybackAdvisory`, subtitle choice): switch tvOS to the `shared/tv-api`
+copies that Android already uses.
+
+### A0 rescue list
+
+Tag first: `git tag android-tv-legacy`. Then move these to their place in the new tree (section
+3, Folder structure), and delete everything else under `apps/android-tv/`.
+
+Not in git, copied by hand (a tag does not keep them):
+
+| From | To |
+|---|---|
+| `apps/android-tv/local.properties` (signing `NUVIO_RELEASE_*`, `ABIS`) | merged into `shared/local.properties` |
+| `apps/android-tv/box/perf/results/agp8-movies-1625/` | `apps/android-tv/box/perf/results/legacy-agp8-movies-1625/` |
+
+In git, `git mv` so history follows:
+
+| From (under `apps/android-tv/`) | To |
+|---|---|
+| `box/` (install.sh, perf/measure.sh, legal-test-addon/, brand/, .gitignore) | same path |
+| `.editorconfig` | repo root `.editorconfig` |
+| `ffmpeg-decoder-downmix/` | `third_party/ffmpeg-decoder-downmix/` (drop its `build.gradle.kts`) |
+| `app/libs/lib-decoder-ffmpeg-release.aar` | same path |
+| `app/libs/README.md` | `third_party/ffmpeg-decoder-downmix/AAR.md` |
+| `app/src/main/res/mipmap-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi}/ic_launcher.png` | same paths |
+| `app/src/main/res/mipmap-xhdpi/banner.png` | same path |
+| `app/src/main/res/xml/network_security_config.xml` | same path |
+| `assets/brand/app_logo_mark.png`, `app_logo_wordmark.png` | `box/brand/` (inputs of `make_brand.py`) |
+
+Copied in part, then the old file goes:
+
+- `app/proguard-rules.pro`: only the keep rules for `com.nuvio.engine.**`, the media3 fork and JNI
+  (old lines 60, 61 and 73 to 90).
+- `gradle.properties`: the two R8 flags at old lines 30 and 31, into `shared/gradle.properties`,
+  to be re-checked on the box.
+
+Not kept: the colour variants of the icon and banner, the 45 translated app names, the other
+AARs in `app/libs` (the bridge links core's copies; iamf, mediainfo, quickjs and `lib-ui` are
+dropped), `DV7/`, `libmpv-android/`, `org/`, the old `.github/` and release scripts. They stay
+readable through the tag. Nothing for 5b: the old server and QR code are read from the tag when
+A12b starts.
+
+Read the old code later with `git worktree add ../the-firm-legacy android-tv-legacy`.
+
+## 8. Check before a slice is called done
+
+0. Before code, for a slice that adds or re-arranges a screen: post the target block and the
+   layout plan row (navigation, panes, columns and item width, widest content, test target).
+1. Unit tests and `make check` pass.
+2. Installed on the box as the `box` build through `box/install.sh`.
+3. D-pad walk of every state the slice touches: loading, empty, error, loaded. Focus always
+   visible.
+4. Back from the deepest screen to the launcher.
+5. Screenshot at 1080p: four edges, then the same image at a quarter size.
+6. `box/perf/measure.sh` numbers in the PR for any slice that touches Home, Details or the player.
+7. Say in the PR which of these ran and on what. "Built, not seen on the box" is a valid report;
+   "done" without it is not.
+
+Functional UI tests may run on the `debug` build, on the box or on a TV emulator
+(`system-images;android-34;android-tv;arm64-v8a` is available to `sdkmanager`, none is installed).
+Never take a performance number from `debug`.
+
+The test addon is `apps/apple-tv/TestAddon/serve_test_addon.py` on the Mac at `127.0.0.1:8765`;
+the box reaches it after `adb reverse tcp:8765 tcp:8765`.
+
+## 9. Risks
+
+| Risk | Handling |
+|---|---|
+| The Android exclusion list does not close in the timebox | Fallback that is known to compile: add `shared/tv-api` and `TvRuntime` to `:composeApp`'s Android sources and depend on `:composeApp`. Cost: the phone UI, Compose Multiplatform 1.13.0-beta01 and the phone manifest come along; R8 has to strip them |
+| A storage that was never initialised loses data without an error | Round trip test and init guard script in A2 |
+| GPU fill rate on the box | The "not ported literally" table, and `measure.sh` in every UI slice |
+| Forked media3 AARs have no source; two copies differ | The app links one copy; v1 stays on the fork; stock media3 is its own slice |
+| Focus is lost after Back or after a row reloads | Row focus restore helper and its UI test land in A4, before more screens depend on it |
+| Compose version drift: the shared catalog carries Compose Multiplatform 1.13.0-beta01, the app wants the stable Jetpack BOM | The Android bridge takes `runtime` and `ui-graphics` from the app's BOM, and A2 checks the resolved versions of the `box` build |
+| Strings are English only (the string stand-in) | Same as tvOS today; real resources are a later decision |
+| Old signing passwords are hard coded in the old build file | New build reads `shared/local.properties` only |
+
+## 10. Verified and not verified
+
+Verified on 2026-11-23:
+
+- `./gradlew :composeApp:compileAndroidMain -Pnuvio.android.distribution=full` in `shared/`:
+  BUILD SUCCESSFUL, no errors. This proves the full core Android target builds (the fallback
+  above). It does not prove the filtered bridge builds.
+- The box runs `com.kien.movies` versionCode 1080, first installed 2026-11-22.
+- AAR hashes of `apps/android-tv/app/libs` against `shared/core/libs` (section 5).
+- `shared/core/src/androidMain/.../p2p/P2pStreamingEngine.android.kt` exists (857 lines).
+- `adb reverse tcp:8765 tcp:8765` is accepted over network adb.
+- Library versions listed in section 2.
+
+Not verified:
+
+- That the filtered Android bridge compiles, and how long its exclusion list is (31 of 162
+  `androidMain` files match the UI rules; compiler cascades will add more).
+- That the app can live in the `shared/` Gradle build with the distribution check in core.
+- A fetch from the box through `adb reverse` (the box has no `curl`).
+- That the downmix FFmpeg decoder AAR needs the forked media3 and not stock 1.8.0.
+- Which `lib-datasource-release.aar` copy is the right one.
+- Drawer, menu, focus restore and lazy list APIs of tv-material 1.1.0 and the current Compose BOM.
+- That the bridge can compile against the Jetpack Compose runtime of the app's BOM while core
+  was written against Compose Multiplatform 1.13.0-beta01.
