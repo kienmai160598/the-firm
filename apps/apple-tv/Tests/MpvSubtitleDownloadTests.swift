@@ -3,18 +3,18 @@ import XCTest
 @testable import NuvioTv
 
 final class MpvSubtitleDownloadTests: XCTestCase {
-    func testVietnameseComesFirstWithAtMostFourPerLanguage() {
+    func testKeepsSourceOrderWithAtMostFourPerLanguage() {
         let subtitles = [subtitle("fr", "French", 1), subtitle("en", "English", 1)]
             + (1...6).map { subtitle("vi", "Vietnamese", $0) }
 
-        let ranked = MpvSubtitleDownload.ranked(subtitles)
+        let downloads = MpvSubtitleDownload.inSourceOrder(subtitles)
 
         XCTAssertEqual(
-            ranked.map(\.option.label),
-            ["Vietnamese", "Vietnamese 2", "Vietnamese 3", "Vietnamese 4", "English", "French"]
+            downloads.map(\.option.label),
+            ["French", "English", "Vietnamese", "Vietnamese 2", "Vietnamese 3", "Vietnamese 4"]
         )
-        XCTAssertEqual(ranked[0].url, "https://subs.test/vi/1.srt")
-        XCTAssertEqual(ranked[0].trackTitle, "Vietnamese · OpenSubtitles")
+        XCTAssertEqual(downloads[2].url, "https://subs.test/vi/1.srt")
+        XCTAssertEqual(downloads[2].trackTitle, "Vietnamese (OpenSubtitles)")
     }
 
     private func subtitle(_ language: String, _ label: String, _ number: Int) -> TvosSubtitle {

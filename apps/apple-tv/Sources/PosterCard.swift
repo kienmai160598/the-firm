@@ -24,7 +24,7 @@ private struct PosterArtwork: View {
     @Environment(\.isFocused) private var isFocused
 
     var body: some View {
-        ArtworkImage(url: item.posterUrl)
+        ArtworkImage(url: item.posterUrl, fallbackTitle: item.name)
             .frame(width: PosterCard.width, height: PosterCard.height)
             .overlay(alignment: .bottom) {
                 if let genre = item.genres.first {

@@ -39,6 +39,10 @@ struct PlaybackRequest: Identifiable {
         self.resumes = resumes
         self.engine = engine
     }
+
+    var advisory: PlaybackAdvisory? {
+        PlaybackAdvisory(ageRating: target.ageRating, genres: target.genres)
+    }
 }
 
 struct PendingResume: Identifiable {

@@ -13,6 +13,8 @@ data class TvosStreamTarget(
     val logoUrl: String?,
     val episodeTitle: String?,
     val episodeThumbnailUrl: String?,
+    val genres: List<String> = emptyList(),
+    val ageRating: String? = null,
 )
 
 data class TvosPlayAction(

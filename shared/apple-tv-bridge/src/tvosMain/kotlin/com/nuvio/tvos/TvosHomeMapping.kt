@@ -27,7 +27,7 @@ internal fun HomeCatalogSection.toTvosRow(): TvosRow =
         items = items.map(MetaPreview::toTvosItem),
     )
 
-private fun MetaPreview.toTvosItem(): TvosItem =
+internal fun MetaPreview.toTvosItem(): TvosItem =
     TvosItem(
         metaId = id,
         type = type,

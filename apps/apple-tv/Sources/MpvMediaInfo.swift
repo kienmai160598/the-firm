@@ -70,6 +70,6 @@ enum MpvMediaInfo {
 
     private static func joined(_ parts: [String?]) -> String {
         let present = parts.compactMap { $0 }.filter { !$0.isEmpty }
-        return present.isEmpty ? "Unknown" : present.joined(separator: " · ")
+        return present.isEmpty ? "Unknown" : present.joined(separator: ", ")
     }
 }

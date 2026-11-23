@@ -35,6 +35,7 @@ struct DetailsHeroView: View {
                     ResumeProgressView(resume: resume)
                 }
             }
+            .fixedSize(horizontal: true, vertical: false)
         }
     }
 
@@ -46,7 +47,14 @@ struct DetailsHeroView: View {
                     .foregroundStyle(.white.opacity(0.9))
                     .lineLimit(3)
             }
-            MetadataLine(text: metadataLine, badges: badges)
+            MetadataLine(
+                facts: facts,
+                ageRating: details.ageRating,
+                imdbRating: details.imdbRating,
+                badgeFontSize: 18
+            )
+            .font(.system(size: 23, weight: .medium))
+            .foregroundStyle(.white.opacity(0.6))
             if let starring {
                 Text(starring)
                     .font(.system(size: 23))
@@ -57,15 +65,10 @@ struct DetailsHeroView: View {
         .frame(maxWidth: Self.descriptionWidth, alignment: .leading)
     }
 
-    private var metadataLine: String {
+    private var facts: [String] {
         let genres = details.genres.prefix(2).joined(separator: ", ")
         return [genres.isEmpty ? nil : genres, details.releaseLine, details.runtime]
             .compactMap { $0 }
-            .joined(separator: " · ")
-    }
-
-    private var badges: [String] {
-        [details.ageRating, details.imdbRating.map { "IMDb \($0)" }].compactMap { $0 }
     }
 
     private var starring: String? {
@@ -97,41 +100,21 @@ private struct TitleArtwork: View {
     }
 }
 
-private struct MetadataLine: View {
-    let text: String
-    let badges: [String]
-
-    var body: some View {
-        HStack(spacing: 12) {
-            if !text.isEmpty {
-                Text(text)
-                    .padding(.trailing, 6)
-            }
-            ForEach(badges, id: \.self) { badge in
-                Text(badge)
-                    .font(.system(size: 18, weight: .bold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 5).stroke(.white.opacity(0.55), lineWidth: 1.5)
-                    )
-            }
-        }
-        .font(.system(size: 23, weight: .medium))
-        .foregroundStyle(.white.opacity(0.6))
-    }
-}
-
 private struct ResumeProgressView: View {
     let resume: TvosResumePoint
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            WatchProgressBar(fraction: Double(resume.watchedFraction))
-                .frame(width: 300)
+        VStack(alignment: .leading, spacing: 12) {
+            WatchProgressBar(
+                fraction: Double(resume.watchedFraction),
+                track: .white.opacity(0.28),
+                height: 10
+            )
+            .frame(maxWidth: .infinity)
             Text(resume.label)
-                .font(.system(size: 22))
+                .font(.system(size: 24, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.8))
+                .lineLimit(1)
         }
-        .foregroundStyle(.white.opacity(0.6))
     }
 }

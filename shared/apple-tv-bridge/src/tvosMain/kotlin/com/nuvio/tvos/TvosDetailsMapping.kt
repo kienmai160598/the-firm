@@ -162,6 +162,8 @@ private suspend fun MetaDetails.episodeStreamTarget(video: MetaVideo): TvosStrea
         logoUrl = logo?.takeIf(String::isNotBlank),
         episodeTitle = video.title.takeIf(String::isNotBlank),
         episodeThumbnailUrl = video.thumbnail?.takeIf(String::isNotBlank),
+        genres = genres,
+        ageRating = ageRating?.takeIf(String::isNotBlank),
     )
 
 private suspend fun MetaDetails.actionStreamTarget(action: SeriesPrimaryAction): TvosStreamTarget =
@@ -178,6 +180,8 @@ private suspend fun MetaDetails.actionStreamTarget(action: SeriesPrimaryAction):
         logoUrl = logo?.takeIf(String::isNotBlank),
         episodeTitle = action.episodeTitle?.takeIf(String::isNotBlank),
         episodeThumbnailUrl = action.episodeThumbnail?.takeIf(String::isNotBlank),
+        genres = genres,
+        ageRating = ageRating?.takeIf(String::isNotBlank),
     )
 
 private fun MetaDetails.movieStreamTarget(): TvosStreamTarget =
@@ -194,6 +198,8 @@ private fun MetaDetails.movieStreamTarget(): TvosStreamTarget =
         logoUrl = logo?.takeIf(String::isNotBlank),
         episodeTitle = null,
         episodeThumbnailUrl = null,
+        genres = genres,
+        ageRating = ageRating?.takeIf(String::isNotBlank),
     )
 
 private suspend fun MetaDetails.primaryAction(context: WatchContext): TvosPlayAction? =
