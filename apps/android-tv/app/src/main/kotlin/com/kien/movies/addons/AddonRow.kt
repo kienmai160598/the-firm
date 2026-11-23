@@ -59,7 +59,7 @@ fun AddonRow(addon: TvosAddon, onClick: () -> Unit, modifier: Modifier = Modifie
             pressedContentColor = TvColors.focusedContent
         ),
         shape = ListItemDefaults.shape(shape = TvShapes.panel),
-        scale = ListItemDefaults.scale(focusedScale = TvControls.controlFocusScale),
+        scale = ListItemDefaults.scale(focusedScale = TvControls.wideRowFocusScale),
         border = TvGlass.listItemBorder(TvShapes.panel),
         leadingContent = { AddonLogo(url = addon.logoUrl, enabled = addon.enabled) },
         headlineContent = { TitleLine(addon) },
@@ -139,7 +139,7 @@ private fun AddonLogo(url: String?, enabled: Boolean) {
             Icon(
                 painter = painterResource(R.drawable.ic_tab_addons),
                 contentDescription = null,
-                tint = TvColors.textSecondary.copy(alpha = TvColors.textSecondary.alpha * alpha),
+                tint = secondary().copy(alpha = SECONDARY_ALPHA * alpha),
                 modifier = Modifier.size(LOGO_SYMBOL)
             )
         }

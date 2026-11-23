@@ -139,8 +139,8 @@ object TvControls {
     const val controlFocusScale = 1.05f
 
     /**
-     * Full content width rows (stream list): 1.05 would push the focused edge 22 dp past the
-     * 48 dp side margin and its text into the overscan band, so they grow 2% (17 dp in all).
+     * Wide rows (stream list, Addons installed list): 1.05 would push the focused edge past the
+     * 48 dp side margin into the overscan band and eat the 20 dp gutter, so they grow 2%.
      */
     const val wideRowFocusScale = 1.02f
 }

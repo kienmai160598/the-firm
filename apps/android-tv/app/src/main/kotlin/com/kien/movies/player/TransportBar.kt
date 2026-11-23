@@ -27,6 +27,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
@@ -41,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.streams.PlatterOverBlack
 import com.kien.movies.streams.TvColors
 import com.kien.movies.streams.TvShapes
 import com.kien.movies.streams.TvType
@@ -105,10 +107,10 @@ fun TransportBar(
                     val height = (RestHeight + (ScrubHeight - RestHeight) * trackHeight).toPx()
                     val top = (size.height - height) / 2
                     val radius = CornerRadius(height / 2)
-                    drawRoundRect(TvColors.platter, Offset(0f, top), Size(size.width, height), radius)
-                    drawRoundRect(TvColors.textTertiary, Offset(0f, top), Size(size.width * current.fraction(current.bufferedSeconds), height), radius)
-                    val playedAlpha = if (isScrubbing) PLAYED_SCRUB_ALPHA else PLAYED_ALPHA
-                    drawRoundRect(Color.White.copy(alpha = playedAlpha), Offset(0f, top), Size(size.width * current.fraction(current.positionSeconds), height), radius)
+                    drawRoundRect(TrackFill, Offset(0f, top), Size(size.width, height), radius)
+                    drawRoundRect(BufferedFill, Offset(0f, top), Size(size.width * current.fraction(current.bufferedSeconds), height), radius)
+                    val playedFill = if (isScrubbing) PlayedScrubFill else PlayedFill
+                    drawRoundRect(playedFill, Offset(0f, top), Size(size.width * current.fraction(current.positionSeconds), height), radius)
                 }
                 if (isScrubbing || previewSeconds != null) {
                     Box(
@@ -181,6 +183,10 @@ private fun SkipBadgeIcon(badge: SkipBadge) {
 }
 
 private val SkipNumberDrop = 2.dp
-private const val PLAYED_ALPHA = 0.9f
-private const val PLAYED_SCRUB_ALPHA = 0.55f
+
+// Opaque fills (composited over black) so the bar adds no translucent layer over video on the box.
+private val TrackFill = PlatterOverBlack
+private val BufferedFill = TvColors.textTertiary.compositeOver(Color.Black)
+private val PlayedFill = Color.White.copy(alpha = 0.9f).compositeOver(Color.Black)
+private val PlayedScrubFill = Color.White.copy(alpha = 0.55f).compositeOver(Color.Black)
 private const val SKIP_START_SCALE = 0.7f
