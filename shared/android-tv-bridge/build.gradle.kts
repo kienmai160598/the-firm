@@ -196,6 +196,11 @@ kotlin {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.media3.decoder)
                 implementation(libs.androidx.media3.database)
+                // Stock 1.8.0 modules the fork AARs call but do not ship, as in the old app:
+                // container (NalUnitUtil, ObuParser for the extractor and ExoPlayer) and effect
+                // (GlEffect for libass). Their stock media3-common is excluded below.
+                api(libs.androidx.media3.container)
+                implementation(libs.androidx.media3.effect)
                 upstreamMedia3Aars.forEach { aar -> api(files(upstreamLibs.resolve(aar))) }
                 upstreamOtherAars.forEach { aar -> implementation(files(upstreamLibs.resolve(aar))) }
             }
