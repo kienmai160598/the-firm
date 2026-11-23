@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Fails when an object in the Android TV bridge's compiled androidMain sources declares
+# `fun initialize(` and TvRuntime.init does not call it. Such a storage reads `preferences?.`
+# and silently loses data when it is never initialised.
+# Compiled sources: shared/core/src/{androidMain,androidPlaystore}/kotlin minus
+# shared/android-tv-bridge/excluded-android.txt, plus shared/android-tv-bridge/src/androidMain.
+set -euo pipefail
+
+root="$(cd "$(dirname "$0")/.." && pwd)"
+core="$root/shared/core/src"
+bridge="$root/shared/android-tv-bridge"
+runtime="$bridge/src/androidMain/kotlin/com/nuvio/tvos/android/TvRuntime.kt"
+excluded="$bridge/excluded-android.txt"
+
+[[ -f "$runtime" ]] || { echo "check-tv-runtime-init: missing $runtime" >&2; exit 1; }
+[[ -f "$excluded" ]] || { echo "check-tv-runtime-init: missing $excluded" >&2; exit 1; }
+
+compiled_sources() {
+	local set file key
+	for set in androidMain androidPlaystore; do
+		while IFS= read -r file; do
+			key="${file#"$core/"}"
+			grep -qxF "$key" <(cut -f1 "$excluded") || echo "$file"
+		done < <(find "$core/$set/kotlin" -name '*.kt' | sort)
+	done
+	find "$bridge/src/androidMain/kotlin" -name '*.kt' ! -path "$runtime" | sort
+}
+
+# Prints "<object>\t<file>" for each `fun initialize(` under the nearest enclosing object
+# declaration; a companion object is named after its class.
+initialize_owners() {
+	awk '
+		{ line = $0; sub(/\/\/.*/, "", line) }
+		match(line, /(^|[^A-Za-z0-9_])class[ \t]+[A-Za-z0-9_]+/) {
+			name = substr(line, RSTART, RLENGTH); sub(/.*class[ \t]+/, "", name); owner_class = name
+		}
+		match(line, /(^|[^A-Za-z0-9_])object[ \t]+[A-Za-z0-9_]+/) {
+			name = substr(line, RSTART, RLENGTH); sub(/.*object[ \t]+/, "", name); owner = name
+		}
+		line ~ /companion[ \t]+object/ && line !~ /companion[ \t]+object[ \t]+[A-Za-z0-9_]+/ {
+			owner = owner_class
+		}
+		line ~ /fun[ \t]+initialize\(/ { print owner "\t" FILENAME }
+	' "$1"
+}
+
+missing=0
+checked=0
+while IFS=$'\t' read -r owner file; do
+	checked=$((checked + 1))
+	if [[ -z "$owner" ]]; then
+		echo "check-tv-runtime-init: top-level fun initialize( in ${file#"$root/"}" >&2
+		missing=1
+	elif ! grep -qE "(^|[^A-Za-z0-9_.])$owner\.initialize\(" "$runtime"; then
+		echo "check-tv-runtime-init: $owner.initialize is not called from TvRuntime.init" \
+			"(${file#"$root/"})" >&2
+		missing=1
+	fi
+done < <(compiled_sources | while IFS= read -r file; do
+	if grep -q 'fun initialize(' "$file"; then initialize_owners "$file"; fi
+done)
+
+[[ $missing -eq 0 ]] || exit 1
+echo "check-tv-runtime-init: $checked initialize() objects, all called from TvRuntime.init"

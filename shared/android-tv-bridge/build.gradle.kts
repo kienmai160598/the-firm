@@ -52,26 +52,29 @@ fun excludedKeys(): Set<String> {
 
 // The Android KMP plugin hands the Kotlin compiler whole source directories, so a source set
 // exclude is ignored (checked: compileAndroidMain saw all 1,033 files). The included core files
-// are therefore copied into build/upstream-src/<source set>; edit them in shared/core, not there.
+// are therefore copied into build/upstream-src/<source set>/kotlin; edit them in shared/core.
+// One Sync per source set, so each output folder holds only Kotlin (AGP looks for profiles and
+// resources next to a Kotlin folder).
 val upstreamSourceSets = listOf("commonMain", "androidMain", "androidPlaystore")
-val syncUpstreamSources = tasks.register<Sync>("syncUpstreamSources") {
-    val excluded = excludedKeys()
-    upstreamSourceSets.forEach { set ->
+val excludedKeyFiles = listOf(
+    tvosBridge.resolve("excluded-by-rule.txt"),
+    tvosBridge.resolve("excluded-by-compiler.txt"),
+    project.file("excluded-android.txt"),
+)
+val syncUpstreamSources = upstreamSourceSets.associateWith { set ->
+    tasks.register<Sync>("syncUpstream${set.replaceFirstChar(Char::uppercase)}") {
+        val excluded = excludedKeys()
         from(upstreamSrc.resolve("$set/kotlin")) {
             include("**/*.kt")
             exclude { element -> "$set/kotlin/${element.relativePath.pathString}" in excluded }
-            into(set)
         }
+        inputs.files(excludedKeyFiles)
+        into(layout.buildDirectory.dir("upstream-src/$set/kotlin"))
     }
-    inputs.files(
-        tvosBridge.resolve("excluded-by-rule.txt"),
-        tvosBridge.resolve("excluded-by-compiler.txt"),
-        project.file("excluded-android.txt"),
-    )
-    into(layout.buildDirectory.dir("upstream-src"))
 }
 
-fun upstreamSources(set: String) = syncUpstreamSources.map { task -> task.destinationDir.resolve(set) }
+fun upstreamSources(set: String) =
+    syncUpstreamSources.getValue(set).map { task -> task.destinationDir }
 
 abstract class GenerateEnglishResShim : DefaultTask() {
     @get:InputDirectory
@@ -150,6 +153,11 @@ kotlin {
         }
     }
 
+    compilerOptions {
+        // Core's storages are expect/actual objects (Beta); same opt-in as core.
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     sourceSets {
         commonMain {
             kotlin.srcDir(upstreamSources("commonMain"))
@@ -214,6 +222,6 @@ configurations.all {
 }
 
 tasks.withType<KotlinCompilationTask<*>>().configureEach {
-    dependsOn(":composeApp:generateRuntimeConfigs", syncUpstreamSources)
+    dependsOn(":composeApp:generateRuntimeConfigs", syncUpstreamSources.values)
 }
 
