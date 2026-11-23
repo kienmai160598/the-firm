@@ -93,7 +93,6 @@ class PlayerRuntimeController(
     internal val bingeGroupCacheDataStore: BingeGroupCacheDataStore,
     internal val layoutPreferenceDataStore: com.kien.movies.data.local.LayoutPreferenceDataStore,
     internal val episodeShufflePlayback: com.kien.movies.core.player.EpisodeShufflePlayback,
-    internal val watchedItemsPreferences: com.kien.movies.data.local.WatchedItemsPreferences,
     internal val trackPreferenceDataStore: com.kien.movies.data.local.TrackPreferenceDataStore,
     internal val audioDelayRouteDataStore: AudioDelayRouteDataStore,
     internal val torrentService: TorrentService,
@@ -170,8 +169,6 @@ class PlayerRuntimeController(
     internal val initialEpisode: Int? = navigationArgs.initialEpisode
     internal val initialEpisodeTitle: String? = navigationArgs.initialEpisodeTitle
     internal val launchStartedAtElapsedMs: Long? = navigationArgs.launchStartedAtMs
-    internal val rememberedAudioLanguage: String? = navigationArgs.rememberedAudioLanguage
-    internal val rememberedAudioName: String? = navigationArgs.rememberedAudioName
     internal val cloudSessionToken: String? = navigationArgs.cloudSessionToken
     internal val mediaSourceFactory = PlayerMediaSourceFactory(context.applicationContext).apply {
         onStreamRedirected =
