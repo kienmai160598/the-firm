@@ -19,8 +19,17 @@ val nuvioEngineSlices = mapOf(
 val engineBuilt = nuvioEngineSlices.values.all { slice ->
     nuvioEngineAppleFramework.resolve("$slice/libCNuvioEngine.a").isFile
 }
-val p2pEngineEnabled =
-    providers.gradleProperty("nuvio.tvos.p2p").orNull?.toBoolean() ?: engineBuilt
+// Which torrent engine the app links (docs/engine-rebuild.md D2): "legacy" (nuvio-engine) or
+// "next" (engine/). Both bring their own libtorrent, so a build links exactly one.
+val torrentEngine = providers.gradleProperty("nuvio.tvos.engine")
+    .orElse(providers.environmentVariable("NUVIO_TVOS_ENGINE"))
+    .getOrElse("legacy")
+check(torrentEngine == "legacy" || torrentEngine == "next") {
+    "nuvio.tvos.engine must be legacy or next, not $torrentEngine"
+}
+val nextEngine = torrentEngine == "next"
+val p2pEngineEnabled = !nextEngine &&
+    (providers.gradleProperty("nuvio.tvos.p2p").orNull?.toBoolean() ?: engineBuilt)
 val p2pEngineStub =
     upstreamSrc.resolve("iosAppStore/kotlin/com/nuvio/app/features/p2p/P2pStreamingEngine.ios.kt")
 val trailerResolverStub = upstreamSrc.resolve(
@@ -172,11 +181,11 @@ kotlin {
                 kotlin.srcDir(upstreamSrc.resolve("appleP2pEngine/kotlin"))
                 kotlin.srcDir(project.file("src/tvosP2pEngine/kotlin"))
             }
+            kotlin.srcDir(project.file(if (nextEngine) "src/tvosNextEngine/kotlin" else "src/tvosLegacyEngine/kotlin"))
             kotlin.exclude(isExcluded)
             dependencies {
                 implementation(libs.ktor.client.darwin)
-                // The new torrent engine (docs/engine-rebuild.md); unused until slice E1.
-                implementation(project(":torrent"))
+                if (nextEngine) implementation(project(":torrent"))
             }
         }
         tvosTest {

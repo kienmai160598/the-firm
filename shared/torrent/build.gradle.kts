@@ -37,6 +37,11 @@ kotlin {
     }
 
     sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.core)
+            }
+        }
         tvosTest {
             dependencies {
                 implementation(kotlin("test"))

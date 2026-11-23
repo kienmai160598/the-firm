@@ -44,6 +44,7 @@ make engine                                  # old torrent engine for Apple TV, 
 make engine-next engine-test                 # new torrent engine: xcframework, unit tests
 make apple-tv-sim                            # Apple TV app for the simulator
 make apple-tv-install APPLE_TEAM=<team id> APPLE_TV_DEVICE=<devicectl id>
+make apple-tv-install NUVIO_TVOS_ENGINE=next ...   # same, with the new engine (payload in RAM)
 make android-tv-test shared-test
 make check                                   # toolchain, layering, ktlint, engine and Android TV unit tests
 make format                                  # ktlint --format on the Android TV sources
@@ -57,7 +58,10 @@ is gone; the formatter still wraps at 100 columns.
 `domain/` must not reference `com.kien.movies.ui`, and `domain/` must not reference
 `com.kien.movies.data`. Move the shared piece down a layer instead of importing upward.
 
-Without `make engine` the Apple TV app still builds, with torrents turned off.
+Without `make engine` the Apple TV app still builds, with torrents turned off. With
+`NUVIO_TVOS_ENGINE=next` it needs only `make engine-next`, which the apple-tv targets run anyway.
+The first `make engine-next` downloads Boost 1.86 and libtorrent 2.0.12 (pinned by SHA-256) into
+`engine/.deps` and compiles libtorrent for each slice, a few minutes.
 
 `apps/android-tv/local.properties` and `shared/local.properties` hold local settings and are not
 committed.

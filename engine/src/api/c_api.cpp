@@ -4,6 +4,7 @@
 #include <new>
 #include <string>
 
+#include "api/stream_info_copy.hpp"
 #include "core/engine.hpp"
 #include "core/engine_error.hpp"
 
@@ -30,6 +31,8 @@ movies_engine_status status_for(const movies::core::ErrorCode code) {
         return MOVIES_ENGINE_INVALID_ARGUMENT;
     case movies::core::ErrorCode::internal:
         return MOVIES_ENGINE_INTERNAL_ERROR;
+    case movies::core::ErrorCode::not_found:
+        return MOVIES_ENGINE_NOT_FOUND;
     }
     return MOVIES_ENGINE_INTERNAL_ERROR;
 }
@@ -85,6 +88,42 @@ movies_engine_status movies_engine_create(
 
 void movies_engine_destroy(movies_engine* engine) {
     delete engine;
+}
+
+movies_engine_status movies_engine_open_stream(
+    movies_engine* engine,
+    const char* magnet_uri,
+    int32_t file_index,
+    uint64_t* stream
+) {
+    if (engine == nullptr || magnet_uri == nullptr || stream == nullptr) {
+        return fail(MOVIES_ENGINE_INVALID_ARGUMENT, "engine, magnet link or stream output is NULL");
+    }
+    return guarded([&] { *stream = engine->engine.open_stream(magnet_uri, file_index); });
+}
+
+movies_engine_status movies_engine_get_stream_info(
+    movies_engine* engine,
+    uint64_t stream,
+    movies_engine_stream_info* info
+) {
+    if (engine == nullptr || info == nullptr) {
+        return fail(MOVIES_ENGINE_INVALID_ARGUMENT, "engine or info output is NULL");
+    }
+    return guarded([&] {
+        const auto found = engine->engine.stream_info(stream);
+        if (!found) throw movies::core::EngineError(movies::core::ErrorCode::not_found, "no such stream");
+        movies::api::copy_stream_info(*found, *info);
+    });
+}
+
+movies_engine_status movies_engine_close_stream(movies_engine* engine, uint64_t stream) {
+    if (engine == nullptr) return fail(MOVIES_ENGINE_INVALID_ARGUMENT, "engine is NULL");
+    return guarded([&] {
+        if (!engine->engine.close_stream(stream)) {
+            throw movies::core::EngineError(movies::core::ErrorCode::not_found, "no such stream");
+        }
+    });
 }
 
 }

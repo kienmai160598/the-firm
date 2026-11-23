@@ -2,7 +2,10 @@ SHELL := /bin/bash
 
 JAVA_HOME ?= /opt/homebrew/opt/openjdk@17
 ANDROID_HOME ?= /opt/homebrew/share/android-commandlinetools
-export JAVA_HOME ANDROID_HOME
+# Torrent engine the Apple TV app links: legacy (nuvio-engine) or next (engine/). See D2 in
+# docs/engine-rebuild.md. Gradle reads it from the environment, also inside the Xcode build.
+NUVIO_TVOS_ENGINE ?= legacy
+export JAVA_HOME ANDROID_HOME NUVIO_TVOS_ENGINE
 
 ANDROID_TV := apps/android-tv
 APPLE_TV := apps/apple-tv
@@ -29,9 +32,10 @@ help:
 	@echo "android-tv-test   Android TV unit tests"
 	@echo "box-install       install the box APK with its profile (ANDROID_SERIAL=<ip>:5555)"
 	@echo "apple-tv          Release build for a device (APPLE_TEAM=<team id>)"
+	@echo "                  any apple-tv target: NUVIO_TVOS_ENGINE=next links the new torrent engine"
 	@echo "apple-tv-sim      Debug build for the tvOS simulator"
 	@echo "apple-tv-install  install the Release build (APPLE_TV_DEVICE=<devicectl id>)"
-	@echo "shared-test       Apple TV bridge and torrent module tests on the tvOS simulator"
+	@echo "shared-test       Apple TV bridge (both engines) and torrent module tests on the tvOS simulator"
 	@echo "engine            build the old torrent engine xcframework (about 16 minutes)"
 	@echo "engine-next       build the new torrent engine xcframework (engine/build)"
 	@echo "engine-test       new torrent engine unit tests on this Mac"
@@ -79,7 +83,9 @@ apple-tv-install: apple-tv
 		$(APPLE_TV_APP)
 
 shared-test: engine-next
-	cd shared && ./gradlew :tvosShared:tvosSimulatorArm64Test :torrent:tvosSimulatorArm64Test
+	cd shared && ./gradlew :tvosShared:tvosSimulatorArm64Test :torrent:tvosSimulatorArm64Test \
+		-Pnuvio.tvos.engine=legacy
+	cd shared && ./gradlew :tvosShared:tvosSimulatorArm64Test -Pnuvio.tvos.engine=next
 
 engine:
 	engine/build.sh
