@@ -67,8 +67,10 @@ fun LibraryListTab.supportsMembershipFor(contentType: String): Boolean {
     if (!isMembershipDestination) return false
     return supportedContentTypes?.any { supported ->
         supported.equals(contentType, ignoreCase = true) ||
-            supported.equals("series", ignoreCase = true) &&
-            contentType.lowercase() in setOf("tv", "show", "anime")
+            (
+                supported.equals("series", ignoreCase = true) &&
+                    contentType.lowercase() in setOf("tv", "show", "anime")
+                )
     } != false
 }
 

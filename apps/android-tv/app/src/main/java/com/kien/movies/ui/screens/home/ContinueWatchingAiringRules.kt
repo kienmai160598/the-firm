@@ -1,12 +1,6 @@
 package com.kien.movies.ui.screens.home
 
 /**
- * Pure Continue Watching rules for currently-airing / fully-watched series.
- * Kept free of Android / ViewModel dependencies so unit tests can lock the
- * air-day regression (checkmark + new episode → series removed from CW).
- */
-
-/**
  * What to do when a series is marked fully-watched (caught-up checkmark) but
  * next-up resolution still found a next episode.
  */

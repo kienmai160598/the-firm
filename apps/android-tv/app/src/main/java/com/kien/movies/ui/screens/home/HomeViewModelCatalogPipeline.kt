@@ -1210,13 +1210,6 @@ private fun HomeViewModel.reconcileFullyWatchedFromLocalItems(
 }
 
 /**
- * Re-request page 1 of every catalog that is already on screen and swap each result in
- * place.  Unlike [loadAllCatalogsPipeline] with `forceReload`, this leaves the row list,
- * its order and the loading placeholders untouched, so the vertical layout never reflows
- * and focus stays on the card the user left it on.
- */
-
-/**
  * Merges a freshly fetched page 1 into the row that is already on screen.
  *
  * Returns true when the row has been dealt with here, false when the caller should just replace

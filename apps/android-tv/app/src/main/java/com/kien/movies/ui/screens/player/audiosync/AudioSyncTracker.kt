@@ -952,8 +952,6 @@ internal class AudioSyncTracker(
             }
         }
 
-        /** Splits [segments] in time into two parts holding half of the known frames each. */
-
         /** The last line-start search prepared on this thread, reused while the same [segments] are checked. */
         private val lastStarts =
             ThreadLocal<Pair<List<SpeechSegment>, SubtitleAudioAligner.PreparedSpeech?>>()

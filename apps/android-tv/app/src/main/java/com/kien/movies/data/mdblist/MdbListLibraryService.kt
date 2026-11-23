@@ -79,8 +79,10 @@ class MdbListLibraryService(
             library.visibleTabs().associate { tab ->
                 tab.key to library.itemsByList[tab.key].orEmpty().any { item ->
                     target?.matches(item) == true ||
-                        item.type == mdbListLibraryType(input.itemType) &&
-                        input.itemId in item.media.ids.aliases()
+                        (
+                            item.type == mdbListLibraryType(input.itemType) &&
+                                input.itemId in item.media.ids.aliases()
+                            )
                 }
             }
         )

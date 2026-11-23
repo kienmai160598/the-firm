@@ -68,9 +68,11 @@ class MdbListHistoryService @Inject constructor(
                     snapshot.watched.filterNot { record ->
                         changes.any { change ->
                             change.target.matches(record) ||
-                                change.target.type == MdbListItemType.SHOW &&
-                                record.type != MdbListItemType.MOVIE &&
-                                change.target.media.ids.matches(record.media.ids)
+                                (
+                                    change.target.type == MdbListItemType.SHOW &&
+                                        record.type != MdbListItemType.MOVIE &&
+                                        change.target.media.ids.matches(record.media.ids)
+                                    )
                         }
                     }
                 } else {

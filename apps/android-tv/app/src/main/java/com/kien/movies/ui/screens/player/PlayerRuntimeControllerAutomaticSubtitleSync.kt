@@ -34,8 +34,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Thin TV adapter around the feature-owned Mobile AutoSync V2 pipeline. */
-
 /**
  * Wraps Movies's extractors so AutoSync can observe embedded subtitle timing (output is forwarded
  * unchanged), and starts AutoSync's embedded subtitle index download while the stream opens.

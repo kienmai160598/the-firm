@@ -65,7 +65,8 @@ data class LastPlaybackDiagnostics(
     val rebufferCount: Int = 0,
     val rebufferTotalMs: Long = 0L,
 
-    val result: String = "Pending" // "Played", "Error: ..."
+    // "Played", "Error: ..."
+    val result: String = "Pending"
 ) {
     /**
      * Serialize to a JSON string for DataStore persistence.

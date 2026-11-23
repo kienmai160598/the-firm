@@ -817,7 +817,8 @@ class ExternalExtensionRunner @Inject constructor(
     private data class SearchOutcome(
         val items: List<SearchResponse>?,
         val hostUnreachable: Boolean = false,
-        val unsupported: Boolean = false // provider didn't implement search()
+        // provider didn't implement search()
+        val unsupported: Boolean = false
     )
 
     private suspend fun trySearch(api: MainAPI, query: String): SearchOutcome = try {

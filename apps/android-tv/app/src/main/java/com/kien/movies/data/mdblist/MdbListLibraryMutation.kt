@@ -58,7 +58,7 @@ internal fun verifyMdbListMembershipResponse(body: String, type: MdbListItemType
     val changed = count(if (adding) "added" else "removed") ?: throw MdbListDecodingException()
     val unchanged = count(if (adding) "existing" else "not_found") ?: 0
     if (changed < 0 || unchanged < 0 || changed + unchanged != 1L ||
-        adding && (count("not_found") ?: 0) != 0L
+        (adding && (count("not_found") ?: 0) != 0L)
     ) {
         throw MdbListDecodingException()
     }

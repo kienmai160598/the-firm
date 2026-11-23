@@ -168,7 +168,7 @@ class PlexSignInFlow(
         mutableState.update { it.copy(server = server, error = null) }
         val only = state.users.singleOrNull()
         when {
-            state.users.isEmpty() || only != null && !only.hasPin -> finish(
+            state.users.isEmpty() || (only != null && !only.hasPin) -> finish(
                 server,
                 only,
                 pin = null

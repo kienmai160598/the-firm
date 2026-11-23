@@ -223,9 +223,12 @@ object DolbyVisionBaseLayerPolicy {
     }
 
     private data class DvDecoderProfileSupport(
-        val dvheDtb: Boolean, // P7
-        val dvheStn: Boolean, // P5
-        val dvheSt: Boolean // P8
+        // P7
+        val dvheDtb: Boolean,
+        // P5
+        val dvheStn: Boolean,
+        // P8
+        val dvheSt: Boolean
     )
 
     /**

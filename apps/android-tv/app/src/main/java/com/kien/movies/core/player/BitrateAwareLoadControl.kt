@@ -31,7 +31,12 @@ class BitrateAwareLoadControl(
     /** Memory ceiling in bytes. */
     private val budgetBytes: Long,
     allocator: DefaultAllocator =
-        DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE, 64)
+        DefaultAllocator(
+            // trimOnReset
+            true,
+            C.DEFAULT_BUFFER_SEGMENT_SIZE,
+            64
+        )
 ) : DefaultLoadControl(
     allocator,
     minBufferMs,

@@ -381,15 +381,6 @@ class ExternalPlaybackTracker @Inject constructor(
     }
 
     /**
-     * Enqueues [launchPlayer] on the tracker's process-scoped [scope] so the launch
-     * survives ViewModel / composition clear (e.g. leaving PlayerScreen immediately
-     * after "Open in External Player" — see #2560).
-     *
-     * Optional [prepareSubtitles] runs on this same scope before the intent is fired
-     * (subtitle downloads must not be cancelled by ViewModel clear).
-     */
-
-    /**
      * Launch external player with progress tracking.
      * Uses the Activity-level launcher for ActivityResult. Zidoo's REST monitor runs separately
      * as a fallback for its built-in player, without bypassing results from third-party players.

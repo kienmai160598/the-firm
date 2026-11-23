@@ -622,7 +622,11 @@ internal fun PlayerRuntimeController.initializePlayer(
                         "(1.5s back buffer, no VOD cache) host=${url.safeHost()}"
                 )
                 DefaultLoadControl.Builder()
-                    .setBackBuffer(1_500, /* retainBackBufferFromKeyframe = */ true)
+                    .setBackBuffer(
+                        1_500,
+                        // retainBackBufferFromKeyframe
+                        true
+                    )
                     .build()
             }
             _loadControl = loadControl

@@ -147,7 +147,7 @@ class TrackingSettingsOverviewTest {
     }
 
     @Test
-    fun TraktProgressEnablesEveryConnectedTraktFeature() {
+    fun traktProgressEnablesEveryConnectedTraktFeature() {
         setOverview(
             traktState = TraktUiState(mode = TraktConnectionMode.CONNECTED),
             trackingState = TrackingSettingsUiState(

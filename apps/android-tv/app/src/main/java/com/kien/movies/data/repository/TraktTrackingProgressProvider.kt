@@ -169,10 +169,14 @@ private fun shouldReplaceTrackingSeed(
     val candidatePosition = (candidate.season ?: -1) to (candidate.episode ?: -1)
     val existingPosition = (existing.season ?: -1) to (existing.episode ?: -1)
     return candidatePosition.first > existingPosition.first ||
-        candidatePosition.first == existingPosition.first &&
         (
-            candidatePosition.second > existingPosition.second ||
-                candidatePosition.second == existingPosition.second &&
-                candidate.lastWatched >= existing.lastWatched
+            candidatePosition.first == existingPosition.first &&
+                (
+                    candidatePosition.second > existingPosition.second ||
+                        (
+                            candidatePosition.second == existingPosition.second &&
+                                candidate.lastWatched >= existing.lastWatched
+                            )
+                    )
             )
 }

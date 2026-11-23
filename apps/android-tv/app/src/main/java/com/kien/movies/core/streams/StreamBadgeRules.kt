@@ -326,8 +326,10 @@ internal object StreamBadgeMatcher {
         val matched = linkedMapOf<String, StreamBadge>()
         filters.forEachIndexed { i, filter ->
             val hit = playbackHits[i] ||
-                (filter.groupId.isBlank() || filter.groupId !in coveredGroups) &&
-                matchesAnyCandidateReusable(filter, meta)
+                (
+                    (filter.groupId.isBlank() || filter.groupId !in coveredGroups) &&
+                        matchesAnyCandidateReusable(filter, meta)
+                    )
             if (hit) {
                 val key = filter.badge.dedupeKey()
                 if (key !in matched) matched[key] = filter.badge

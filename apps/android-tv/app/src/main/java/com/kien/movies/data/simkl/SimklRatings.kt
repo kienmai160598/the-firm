@@ -93,12 +93,12 @@ internal fun buildSimklRatingBody(
     rating: Int?
 ): String {
     val anime = entry?.mediaType == SimklMediaType.ANIME ||
-        entry == null && media.kind == TrackingMediaKind.ANIME
+        (entry == null && media.kind == TrackingMediaKind.ANIME)
     val bucket = when {
         anime -> if (rating == null) "shows" else "anime"
 
         entry?.mediaType == SimklMediaType.MOVIES ||
-            entry == null && media.kind == TrackingMediaKind.MOVIE -> "movies"
+            (entry == null && media.kind == TrackingMediaKind.MOVIE) -> "movies"
 
         else -> "shows"
     }

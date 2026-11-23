@@ -48,7 +48,7 @@ class MdbListScrobbleService @Inject constructor(
             contentId in session.media.ids.aliases() &&
                 (
                     season == null || episode == null ||
-                        session.season == season && session.episode == episode
+                        (session.season == season && session.episode == episode)
                     )
         }
         for (session in sessions) {

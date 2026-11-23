@@ -42,7 +42,7 @@ internal fun decodeMdbListDynamicLists(body: String, accountId: Long): List<MdbL
     val rows = mdbListResponseElement(body) as? JsonArray ?: throw MdbListDecodingException()
     return rows.mapNotNull { element ->
         val row = element.objectValue()
-        if (row.flag("dynamic") != true && row.text("type") != "dynamic" ||
+        if ((row.flag("dynamic") != true && row.text("type") != "dynamic") ||
             row.number("user_id")?.let { it != accountId } == true
         ) {
             return@mapNotNull null
@@ -152,8 +152,9 @@ private fun decodeLibraryItem(
     val declaredType = row.text("mediatype", "type")
     val type = declaredType?.let(::mdbListLibraryType) ?: bucket
     if (declaredType in listOf("season", "episode")) return null
-    if (type == null || declaredType != null && mdbListLibraryType(declaredType) == null ||
-        bucket != null && type != bucket
+    if (type == null ||
+        (declaredType != null && mdbListLibraryType(declaredType) == null) ||
+        (bucket != null && type != bucket)
     ) {
         throw MdbListDecodingException()
     }

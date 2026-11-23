@@ -22,9 +22,12 @@ import kotlinx.coroutines.flow.firstOrNull
 
 data class SkipInterval(
     val startTime: Double, // seconds
-    val endTime: Double, // seconds
-    val type: String, // intro/op, recap, outro/ed, movie-credits, post-credits
-    val provider: String // "introdb", "aniskip", "animeskip"
+    // seconds
+    val endTime: Double,
+    // intro/op, recap, outro/ed, movie-credits, post-credits
+    val type: String,
+    // "introdb", "aniskip", "animeskip"
+    val provider: String
 )
 
 internal fun IntroDbSegmentsResponse.toSkipIntervals(movie: Boolean): List<SkipInterval> {

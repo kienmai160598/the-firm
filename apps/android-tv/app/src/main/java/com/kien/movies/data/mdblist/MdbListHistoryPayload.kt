@@ -123,7 +123,7 @@ internal fun decodeMdbListHistoryReceipt(
     return MdbListHistoryReceipt(
         confirmed = confirmed,
         complete = complete,
-        needsSnapshot = !complete || hasExpansion || confirmed.size != changes.size && !remove,
+        needsSnapshot = !complete || hasExpansion || (confirmed.size != changes.size && !remove),
         notFoundCount = if (complete) {
             0
         } else {

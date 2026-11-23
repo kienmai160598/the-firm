@@ -175,11 +175,6 @@ class HomeEnrichmentRetryTest {
     }
 
     /**
-     * fetchExternalMetaOutcome promises to turn a thrown exception into Failed. The repository
-     * reports request failures as NetworkResult.Error, so this covers what it does not promise.
-     */
-
-    /**
      * The in-flight id is claimed before the fetch is launched and released when it completes. A
      * focus that moves on during the debounce cancels the job before its body runs, so releasing
      * inside the body would strand the id and block every later fetch for that item.

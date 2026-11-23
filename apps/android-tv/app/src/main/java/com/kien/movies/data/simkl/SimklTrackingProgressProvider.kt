@@ -95,7 +95,7 @@ class SimklTrackingProgressProvider @Inject constructor(
             val sessionEpisode = session.episode?.tvdbNumber ?: session.episode?.number
             sameContent && (
                 season == null || episode == null ||
-                    sessionSeason == season && sessionEpisode == episode
+                    (sessionSeason == season && sessionEpisode == episode)
                 )
         }
         val removed = linkedSetOf<Long>()

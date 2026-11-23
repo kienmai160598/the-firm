@@ -7,7 +7,12 @@ import com.kien.movies.data.remote.api.TmdbApi
 import com.kien.movies.data.remote.api.TrailerApi
 import com.kien.movies.data.remote.api.TrailerResponse
 import com.kien.movies.domain.model.TmdbSettings
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.After

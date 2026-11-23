@@ -90,7 +90,7 @@ internal class SiloClient(http: OkHttpClient, private val identity: ServerClient
             throw ServerException(ServerFailure.UNREACHABLE)
         }
         if (response.status in 200..299 ||
-            allowRedirect && response.status in 300..399
+            (allowRedirect && response.status in 300..399)
         ) {
             return response
         }

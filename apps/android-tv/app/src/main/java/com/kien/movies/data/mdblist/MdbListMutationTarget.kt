@@ -47,7 +47,7 @@ internal data class MdbListMutationTarget(
     fun scrobbleBody(progress: Double? = null): JsonObject = buildJsonObject {
         require(
             type == MdbListItemType.MOVIE ||
-                type == MdbListItemType.EPISODE && scrobbleCoordinatesResolved
+                (type == MdbListItemType.EPISODE && scrobbleCoordinatesResolved)
         )
         put(
             if (type == MdbListItemType.MOVIE) "movie" else "show",
