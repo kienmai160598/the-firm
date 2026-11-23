@@ -49,7 +49,7 @@ fun PlayerSurface(player: ExoPlayer?, subtitlesLifted: Boolean, modifier: Modifi
         val listener = object : Player.Listener {
             override fun onVideoSizeChanged(videoSize: VideoSize) = views.showAspect(videoSize)
 
-            override fun onCues(cueGroup: CueGroup) = views.subtitles.setCues(Media3Lists.cues(cueGroup))
+            override fun onCues(cueGroup: CueGroup) = views.subtitles.setCues(cueGroup.cues)
         }
         player.setVideoSurfaceView(views.surface)
         player.addListener(listener)

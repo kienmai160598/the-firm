@@ -106,6 +106,8 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     // Stock media3-decoder at the fork's version: the FFmpeg renderer's supertypes live there.
     implementation(libs.androidx.media3.decoder)
+    // media3 exposes Guava ImmutableList in its public API (Tracks.groups, CueGroup.cues).
+    implementation(libs.guava)
 
     implementation(platform(libs.jetpack.compose.bom))
     implementation(libs.jetpack.compose.ui)

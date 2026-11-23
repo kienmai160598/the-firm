@@ -239,7 +239,7 @@ class PlayerController(private val context: Context, private val request: Playba
             }
         }
         pendingAudioFormatId?.let { formatId ->
-            val group = Media3Lists.groups(tracks).firstOrNull { it.type == C.TRACK_TYPE_AUDIO && (0 until it.length).any { index -> it.getTrackFormat(index).id == formatId } } ?: return
+            val group = tracks.groups.firstOrNull { it.type == C.TRACK_TYPE_AUDIO && (0 until it.length).any { index -> it.getTrackFormat(index).id == formatId } } ?: return
             val index = (0 until group.length).first { group.getTrackFormat(it).id == formatId }
             exo.trackSelectionParameters = exo.trackSelectionParameters.buildUpon()
                 .setOverrideForType(TrackSelectionOverride(group.mediaTrackGroup, index))
@@ -248,7 +248,7 @@ class PlayerController(private val context: Context, private val request: Playba
         }
     }
 
-    private fun selectedFormatId(exo: ExoPlayer, trackType: Int): String? = Media3Lists.groups(exo.currentTracks)
+    private fun selectedFormatId(exo: ExoPlayer, trackType: Int): String? = exo.currentTracks.groups
         .firstOrNull { it.type == trackType && it.isSelected }
         ?.let { group -> (0 until group.length).firstOrNull(group::isTrackSelected)?.let { group.getTrackFormat(it).id } }
 

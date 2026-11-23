@@ -36,7 +36,7 @@ internal object PlayerTracks {
      * [online] subtitles whose id is not in [loadedOnlineIds].
      */
     fun options(kind: TrackKind, tracks: Tracks, online: List<OnlineSubtitle>, loadedOnlineIds: Set<String>): List<TrackOption> {
-        val embedded = Media3Lists.groups(tracks).withIndex()
+        val embedded = tracks.groups.withIndex()
             .filter { (_, group) -> group.type == kind.trackType }
             .flatMap { (groupIndex, group) ->
                 (0 until group.length).map { trackIndex ->
@@ -57,7 +57,7 @@ internal object PlayerTracks {
             return current.buildUpon().clearOverridesOfType(kind.trackType).setTrackTypeDisabled(kind.trackType, true).build()
         }
         val (groupIndex, trackIndex) = parseTrackId(optionId) ?: return null
-        val group = Media3Lists.groups(tracks).getOrNull(groupIndex)?.takeIf { it.type == kind.trackType } ?: return null
+        val group = tracks.groups.getOrNull(groupIndex)?.takeIf { it.type == kind.trackType } ?: return null
         return current.buildUpon()
             .setTrackTypeDisabled(kind.trackType, false)
             .setOverrideForType(TrackSelectionOverride(group.mediaTrackGroup, trackIndex))
@@ -66,7 +66,7 @@ internal object PlayerTracks {
 
     /** Parameters that select the text track whose format id ends with [subtitleId], if it is there yet. */
     fun selectingLoaded(subtitleId: String, tracks: Tracks, current: TrackSelectionParameters): TrackSelectionParameters? {
-        Media3Lists.groups(tracks).forEach { group ->
+        tracks.groups.forEach { group ->
             if (group.type != C.TRACK_TYPE_TEXT) return@forEach
             for (trackIndex in 0 until group.length) {
                 // Merged sources prefix the sideloaded id ("1:online:..."), so match the end.
