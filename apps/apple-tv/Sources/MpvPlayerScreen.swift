@@ -61,6 +61,7 @@ struct MpvPlayerScreen: View {
     @FocusState private var focus: MpvFocus?
     @State private var isControlsShown = true
     @State private var isScrubbing = false
+    @State private var resumesAfterScrub = false
     @State private var panel: MpvPanel?
     @State private var trackOptions: [MpvTrackOption] = []
     @State private var infoRows: [MpvInfoRow] = []
@@ -250,31 +251,41 @@ struct MpvPlayerScreen: View {
         let scrubber = controller.scrubber
         scrubber.panContext = {
             MpvPanContext(
-                isPaused: controller.isPaused,
                 isOnSurface: focus == .surface && panel == nil,
                 durationSeconds: controller.clock.durationSeconds
             )
         }
         scrubber.onScrubStart = beginTouchScrub
-        scrubber.onRevealControls = showControls
+        scrubber.onSettle = settleScrub
         scrubber.start()
     }
 
     private func beginTouchScrub() {
+        resumesAfterScrub = !controller.isPaused
+        controller.setPaused(true)
         isScrubbing = true
         showControls()
     }
 
     private func commitScrub() {
+        seekToScrubPreview()
+        endScrub(resuming: true)
+    }
+
+    private func settleScrub() {
+        seekToScrubPreview()
+        endScrub(resuming: resumesAfterScrub)
+    }
+
+    private func seekToScrubPreview() {
         if let seconds = controller.scrubber.commit() {
             controller.seek(toSeconds: seconds)
         }
-        endScrub(resuming: true)
     }
 
     private func cancelScrub() {
         controller.scrubber.cancel()
-        endScrub(resuming: false)
+        endScrub(resuming: resumesAfterScrub)
     }
 
     private func endScrub(resuming: Bool) {
@@ -353,7 +364,7 @@ struct MpvPlayerScreen: View {
         case .audio:
             openTracks(.audio)
         case .info:
-            infoRows = controller.mediaInfo()
+            infoRows = controller.mediaInfo() + controller.scrubber.diagnosticRows
             panel = .info
         }
     }
@@ -432,7 +443,7 @@ struct MpvPlayerScreen: View {
 
     private func refreshInfoWhileOpen() async {
         while panel == .info, !Task.isCancelled {
-            infoRows = controller.mediaInfo()
+            infoRows = controller.mediaInfo() + controller.scrubber.diagnosticRows
             try? await Task.sleep(for: Self.infoRefresh)
         }
     }
