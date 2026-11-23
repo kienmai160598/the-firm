@@ -2,17 +2,21 @@ package com.kien.movies
 
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.kien.movies.debug.DebugLaunch
+import com.kien.movies.details.DETAILS_CONTENT_TAG
+import com.kien.movies.details.DETAILS_PLAY_TAG
 import com.kien.movies.home.HOME_ROWS_TAG
 import com.kien.movies.shell.COMING_LATER
 import com.kien.movies.shell.PLACEHOLDER_TAG
 import com.kien.movies.shell.RootTab
 import com.kien.movies.shell.tabTag
+import com.kien.movies.streams.STREAMS_TITLE_TAG
 import com.kien.movies.support.TvRobot
 import org.junit.After
 import org.junit.Assume.assumeTrue
@@ -44,7 +48,8 @@ class NavigationTest {
             tv.assertFocusedTag(tabTag(tab))
             tv.select()
             tv.await(hasText(tab.title))
-            tv.awaitFocus(hasTestTag(PLACEHOLDER_TAG))
+            // Each screen chooses its own first focus; it only has to leave the sidebar.
+            tv.awaitFocus(!hasTestTag(tabTag(tab)), TvRobot.DEFAULT_TIMEOUT_MS)
             tv.back()
             tv.assertFocusedTag(tabTag(tab))
         }
@@ -74,19 +79,16 @@ class NavigationTest {
         tv.awaitExit()
     }
 
-    /** Back from the deepest stub (Streams) walks Details, Home content, sidebar, launcher. */
+    /** Back from the deepest screen (Streams) walks Details, Home content, sidebar, launcher. */
     @Test
     fun n2_backFromStreamsLeavesTheApp() {
         tv.launch(DebugLaunch.ROUTE to "details/movie/tt0032138")
-        tv.await(hasText("Details"))
-        tv.awaitFocus(hasTestTag(PLACEHOLDER_TAG))
+        tv.awaitFocus(hasTestTag(DETAILS_PLAY_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
         tv.select()
-        tv.await(hasText("Streams"))
-        tv.awaitFocus(hasTestTag(PLACEHOLDER_TAG))
+        tv.await(hasTestTag(STREAMS_TITLE_TAG))
 
         tv.back()
-        tv.await(hasText("Details"))
-        tv.awaitFocus(hasTestTag(PLACEHOLDER_TAG))
+        tv.awaitFocus(hasTestTag(DETAILS_PLAY_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
         tv.back()
         tv.await(hasTestTag(tabTag(RootTab.Home)))
         tv.back()
@@ -98,7 +100,8 @@ class NavigationTest {
 
     /**
      * N4 for the shell: each entry keeps its saved state, so Back returns focus to the element that
-     * opened the next screen. Uses the stub Home rows; skipped when no catalog row loads (no network).
+     * opened the next screen. Cards carry their title as content description. Skipped when no
+     * catalog row loads (no network).
      */
     @Test
     fun n4_backReturnsToTheSameHomeRow() {
@@ -107,15 +110,17 @@ class NavigationTest {
         assumeTrue("No Home rows loaded", rowsLoaded)
         tv.down()
         val focused = compose.onNode(isFocused()).fetchSemanticsNode()
-        val rowTitle = focused.config.getOrNull(SemanticsProperties.Text)
-            ?.joinToString { text -> text.text }
-        assumeTrue("Second row has no title", !rowTitle.isNullOrEmpty())
+        val cardTitle = focused.config.getOrNull(SemanticsProperties.ContentDescription)
+            ?.joinToString()
+        assumeTrue("Focused element is not a card", !cardTitle.isNullOrEmpty())
         tv.select()
-        val opened = runCatching { tv.await(hasText("Details"), TvRobot.FOCUS_TIMEOUT_MS) }.isSuccess
-        assumeTrue("Second row is not a catalog row", opened)
+        val opened = runCatching {
+            tv.await(hasTestTag(DETAILS_CONTENT_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
+        }.isSuccess
+        assumeTrue("The card did not open Details", opened)
 
         tv.back()
 
-        tv.awaitFocus(hasText(rowTitle.orEmpty()))
+        tv.awaitFocus(hasContentDescription(cardTitle.orEmpty()))
     }
 }
