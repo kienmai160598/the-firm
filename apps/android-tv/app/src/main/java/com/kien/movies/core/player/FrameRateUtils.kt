@@ -16,7 +16,6 @@ import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -643,22 +642,6 @@ object FrameRateUtils {
             Log.d(TAG, "AFR CDN warmup failed: ${e.message}")
             false
         }
-    }
-
-    fun detectFrameRateFromSource(
-        context: Context,
-        sourceUrl: String,
-        headers: Map<String, String> = emptyMap(),
-        mimeType: String? = null,
-        filename: String? = null
-    ): FrameRateDetection? {
-        detectFrameRateWithOkHttpProbe(context, sourceUrl, headers, mimeType, filename)?.let {
-            return it
-        }
-        detectFrameRateFromNextLib(context, sourceUrl, headers, mimeType, filename)?.let {
-            return it
-        }
-        return detectFrameRateFromExtractor(context, sourceUrl, headers)
     }
 
     fun detectFrameRateFromNextLib(

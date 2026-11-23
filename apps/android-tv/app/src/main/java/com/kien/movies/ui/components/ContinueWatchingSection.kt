@@ -2,7 +2,6 @@ package com.kien.movies.ui.components
 
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
@@ -90,8 +89,6 @@ import com.kien.movies.ui.util.computeAirDateBadgeTextShort
 import com.kien.movies.ui.util.localizeEpisodeTitle
 import com.kien.movies.ui.util.recompositionHighlighter
 import com.kien.movies.ui.util.rememberLongPressKeyTracker
-import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 
 private val BadgeShape = RoundedCornerShape(MoviesTheme.radii.sm)
@@ -1279,21 +1276,4 @@ private fun isSelectKey(keyCode: Int): Boolean {
 
 private fun firstNonBlank(vararg candidates: String?): String? {
     return candidates.firstOrNull { !it.isNullOrBlank() }?.trim()
-}
-
-internal fun formatRemainingTime(
-    remainingMs: Long,
-    strHoursMinLeft: String,
-    strMinLeft: String,
-    strAlmostDone: String
-): String {
-    val totalMinutes = TimeUnit.MILLISECONDS.toMinutes(remainingMs)
-    val hours = totalMinutes / 60
-    val minutes = totalMinutes % 60
-
-    return when {
-        hours > 0 -> strHoursMinLeft.format(hours, minutes)
-        minutes > 0 -> strMinLeft.format(minutes)
-        else -> strAlmostDone
-    }
 }

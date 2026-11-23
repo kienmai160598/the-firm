@@ -30,7 +30,6 @@ import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.text.SubtitleParser
 import com.kien.movies.MoviesApplication
 import com.kien.movies.R
-import com.kien.movies.core.network.IPv4FirstDns
 import com.kien.movies.core.network.NoDelaySocketFactory
 import com.kien.movies.core.util.findCause
 import com.kien.movies.data.local.PlayerSettings
@@ -38,16 +37,10 @@ import com.kien.movies.data.local.VodCacheSizeMode
 import java.io.File
 import java.net.SocketTimeoutException
 import java.net.URLDecoder
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
 import java.util.Base64
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -56,10 +49,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import okhttp3.ConnectionPool
-import okhttp3.Dispatcher
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import okhttp3.OkHttpClient
 import okhttp3.Request
 
 internal class PlayerMediaSourceFactory(private val context: Context) {

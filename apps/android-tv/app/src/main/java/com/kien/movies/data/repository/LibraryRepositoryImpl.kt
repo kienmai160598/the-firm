@@ -1,9 +1,7 @@
 package com.kien.movies.data.repository
 
-import android.util.Log
 import com.kien.movies.R
 import com.kien.movies.core.auth.AuthManager
-import com.kien.movies.core.network.NetworkResult
 import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.core.sync.LibrarySyncService
 import com.kien.movies.core.tracking.LOCAL_LIBRARY_LIST_KEY
@@ -42,12 +40,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 @Singleton

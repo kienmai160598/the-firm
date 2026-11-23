@@ -1114,7 +1114,6 @@ private fun RepositoryCard(
     isReadOnly: Boolean = false
 ) {
     val enabledCount = repoScrapers.count { it.enabled }
-    val allEnabled = repoScrapers.isNotEmpty() && enabledCount == repoScrapers.size
     val anyEnabled = enabledCount > 0
     var isToggleFocused by remember { mutableStateOf(false) }
     var isRefreshFocused by remember { mutableStateOf(false) }

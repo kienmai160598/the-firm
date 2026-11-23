@@ -10,12 +10,10 @@ import com.kien.movies.core.player.StreamAutoPlaySelector
 import com.kien.movies.data.local.PlayerSettings
 import com.kien.movies.data.local.StreamAutoPlayMode
 import com.kien.movies.data.local.StreamAutoPlaySource
-import com.kien.movies.data.local.toTrackPreference
 import com.kien.movies.domain.model.AddonStreams
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.StreamDebridCacheState
 import com.kien.movies.domain.model.Video
-import com.kien.movies.domain.model.enabledAddons
 import com.kien.movies.domain.model.scraperIdFromPluginBingeGroup
 import com.kien.movies.ui.components.SourceChipItem
 import com.kien.movies.ui.components.SourceChipStatus

@@ -3,7 +3,6 @@ package com.kien.movies.ui.screens.player
 import android.app.Activity
 import android.content.Context
 import android.media.AudioDeviceCallback
-import android.media.audiofx.LoudnessEnhancer
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.media3.common.C

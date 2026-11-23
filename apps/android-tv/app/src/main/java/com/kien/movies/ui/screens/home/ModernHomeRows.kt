@@ -8,9 +8,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
@@ -49,23 +47,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -73,15 +66,12 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -99,17 +89,14 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import coil3.imageLoader
 import coil3.memory.MemoryCache
-import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.request.transformations
 import com.kien.movies.LocalSidebarExpanded
-import com.kien.movies.R
 import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.domain.model.ContinueWatchingCardStyle
 import com.kien.movies.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.kien.movies.domain.model.MetaPreview
-import com.kien.movies.domain.model.PLACEHOLDER_IMAGE_URL
 import com.kien.movies.domain.model.isPlaceholder
 import com.kien.movies.ui.components.ContinueWatchingCard
 import com.kien.movies.ui.components.LightweightCard
@@ -132,14 +119,12 @@ import com.kien.movies.ui.theme.rememberMetaFloor
 import com.kien.movies.ui.theme.rowTitleFloor
 import com.kien.movies.ui.util.StableMap
 import com.kien.movies.ui.util.StableRef
-import com.kien.movies.ui.util.asStable
 import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.recompositionHighlighter
 import com.kien.movies.ui.util.rememberLongPressKeyTracker
 import kotlin.math.abs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.withContext
 
@@ -588,8 +573,6 @@ internal fun ModernRowSection(
                 )
             )
         }
-
-        val firstItemKey = row.items.list.firstOrNull()?.key
 
         // When placeholder items are replaced by real data and this row
         // is the active row, re-request focus on the first real item.

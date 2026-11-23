@@ -8,7 +8,6 @@ import com.kien.movies.data.remote.dto.trakt.TraktDeviceTokenRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktHiddenItemDto
 import com.kien.movies.data.remote.dto.trakt.TraktHistoryAddRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktHistoryAddResponseDto
-import com.kien.movies.data.remote.dto.trakt.TraktHistoryItemDto
 import com.kien.movies.data.remote.dto.trakt.TraktHistoryRemoveRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktHistoryRemoveResponseDto
 import com.kien.movies.data.remote.dto.trakt.TraktLastActivitiesResponseDto

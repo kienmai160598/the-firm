@@ -3,8 +3,6 @@ package com.kien.movies.ui.screens.player
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.RectF
-import android.media.MediaFormat
-import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -31,7 +29,6 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.ForwardingRenderer
 import androidx.media3.exoplayer.Renderer
 import androidx.media3.exoplayer.RendererCapabilities
-import androidx.media3.exoplayer.RendererConfiguration
 import androidx.media3.exoplayer.ScrubbingModeParameters
 import androidx.media3.exoplayer.analytics.AnalyticsListener
 import androidx.media3.exoplayer.audio.AudioCapabilities
@@ -39,8 +36,6 @@ import androidx.media3.exoplayer.audio.AudioRendererEventListener
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
-import androidx.media3.exoplayer.mediacodec.MediaCodecAdapter
-import androidx.media3.exoplayer.mediacodec.MediaCodecInfo
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.LoadEventInfo
@@ -73,7 +68,6 @@ import com.kien.movies.core.tracking.TrackingScrobbleAction
 import com.kien.movies.core.util.findCause
 import com.kien.movies.data.local.AudioLanguageOption
 import com.kien.movies.data.local.Dv7HandlingMode
-import com.kien.movies.data.local.FrameRateMatchingMode
 import com.kien.movies.data.local.InternalPlayerEngine
 import com.kien.movies.data.local.LibassRenderMode
 import com.kien.movies.data.local.PlayerSettings
@@ -83,7 +77,6 @@ import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.ui.screens.player.audiosync.AudioSyncTaps
 import com.kien.movies.ui.screens.settings.MemoryBudget
 import java.net.SocketTimeoutException
-import kotlin.math.min
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first

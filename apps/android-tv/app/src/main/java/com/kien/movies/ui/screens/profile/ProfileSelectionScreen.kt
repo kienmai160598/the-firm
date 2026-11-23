@@ -157,7 +157,6 @@ private object ProfileSelectionSpacing {
     val NameToMeta = MoviesTheme.spacing.sm
     val MetaSlotHeight = MoviesTheme.spacing.lg.atLeastOnBox(20.dp)
     val EditorPanelMaxWidth = 980.dp
-    val EditorPanelGap = 28.dp
     val EditorPreviewWidth = 280.dp
     val EditorPreviewAvatarSize = 112.dp
     val EditorPreviewTopOffset = 28.dp

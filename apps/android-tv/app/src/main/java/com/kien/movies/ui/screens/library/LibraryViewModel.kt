@@ -683,10 +683,6 @@ class LibraryViewModel @Inject constructor(
 
     fun onMoveSelectedListDown() = reorderSelectedList(moveUp = false)
 
-    fun onClearTransientMessage() {
-        _uiState.update { it.copy(transientMessage = null) }
-    }
-
     private fun isListManagementCurrent(
         expected: ListManagementContext? = listManagementContext
     ): Boolean = expected != null && expected == listManagementContext &&

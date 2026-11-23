@@ -1,6 +1,5 @@
 package com.kien.movies.ui.screens.player
 
-import android.net.Uri
 import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.common.Format
@@ -16,13 +15,8 @@ import com.kien.movies.data.local.InternalPlayerEngine
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.ui.util.languageCodeToName
 import java.util.Locale
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @UnstableApi
 internal fun PlayerRuntimeController.updateAvailableTracks(tracks: Tracks) {

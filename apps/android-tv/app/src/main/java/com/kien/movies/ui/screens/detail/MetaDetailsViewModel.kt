@@ -39,7 +39,6 @@ import com.kien.movies.data.repository.parseContentIds
 import com.kien.movies.data.trailer.TrailerService
 import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.LibraryEntryInput
-import com.kien.movies.domain.model.LibrarySourceMode
 import com.kien.movies.domain.model.ListMembershipChanges
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MetaTrailer
@@ -3206,11 +3205,6 @@ class MetaDetailsViewModel @Inject constructor(
             genres = genres,
             addonBaseUrl = preferredAddonBaseUrl
         )
-    }
-
-    fun getNextEpisodeInfo(): String? {
-        val nextToWatch = _uiState.value.nextToWatch
-        return nextToWatch?.displayText
     }
 
     // --- Trailer ---

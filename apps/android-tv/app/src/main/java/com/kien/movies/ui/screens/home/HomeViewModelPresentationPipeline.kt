@@ -2,7 +2,6 @@ package com.kien.movies.ui.screens.home
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.kien.movies.LocaleCache
 import com.kien.movies.core.build.AppFeaturePolicy
 import com.kien.movies.core.network.NetworkResult
 import com.kien.movies.core.poster.CustomPosterScreen
@@ -1049,32 +1048,6 @@ internal fun HomeViewModel.updateCatalogItemMdbListRatings(
     }
 }
 
-internal fun HomeViewModel.updateCatalogItemImdbRating(itemId: String, rating: Float) {
-    updateIndexedCatalogItem(itemId) { currentItem ->
-        currentItem.copy(imdbRating = rating)
-    }
-    _uiState.update { state ->
-        var changed = false
-        val updatedRows = state.catalogRows.map { row ->
-            val idx = row.items.indexOfFirst { it.id == itemId }
-            if (idx < 0) {
-                row
-            } else {
-                val updated = row.items[idx].copy(imdbRating = rating)
-                if (updated == row.items[idx]) {
-                    row
-                } else {
-                    changed = true
-                    val mutableItems = row.items.toMutableList()
-                    mutableItems[idx] = updated
-                    row.copy(items = mutableItems)
-                }
-            }
-        }
-        if (changed) state.copy(catalogRows = updatedRows) else state
-    }
-}
-
 private fun HomeViewModel.updateCatalogItemWithMeta(itemId: String, meta: Meta) {
     enrichmentMergedIds.add(itemId)
     val incomingTrailerYtIds = meta.trailerYtIds
@@ -1122,40 +1095,6 @@ private fun HomeViewModel.updateCatalogItemWithMeta(itemId: String, meta: Meta) 
         trailerPreviewRequestVersion++
         val currentItem = findCatalogItemById(itemId) ?: return
         requestTrailerPreviewPipeline(currentItem)
-    }
-}
-
-private fun HomeViewModel.updateCatalogItemArtworkOnly(itemId: String, meta: Meta) {
-    fun mergeItem(currentItem: MetaPreview): MetaPreview = currentItem.copy(
-        background = meta.backdropUrl ?: currentItem.backdropUrl,
-        logo = meta.logo ?: currentItem.logo
-    )
-
-    updateIndexedCatalogItem(itemId, ::mergeItem)
-
-    _uiState.update { state ->
-        var changed = false
-        val updatedRows = state.catalogRows.map { row ->
-            val itemIndex = row.items.indexOfFirst { it.id == itemId }
-            if (itemIndex < 0) {
-                row
-            } else {
-                val mergedItem = mergeItem(row.items[itemIndex])
-                if (mergedItem == row.items[itemIndex]) {
-                    row
-                } else {
-                    changed = true
-                    val mutableItems = row.items.toMutableList()
-                    mutableItems[itemIndex] = mergedItem
-                    row.copy(items = mutableItems)
-                }
-            }
-        }
-        if (changed) state.copy(catalogRows = updatedRows) else state
-    }
-    findCatalogItemById(itemId)?.let { enriched ->
-        _lastEnrichedPreview.value = enriched
-        addEnrichedPreview(itemId, enriched)
     }
 }
 

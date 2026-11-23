@@ -8,7 +8,6 @@ import com.kien.movies.core.poster.patternForScreen
 import com.kien.movies.core.poster.withCustomPosterArt
 import com.kien.movies.data.local.LayoutPreferenceDataStore
 import com.kien.movies.domain.model.WatchProgress
-import com.kien.movies.ui.screens.home.ContinueWatchingItem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject

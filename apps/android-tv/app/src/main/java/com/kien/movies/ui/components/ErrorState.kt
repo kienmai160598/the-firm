@@ -15,7 +15,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import com.kien.movies.R
@@ -45,20 +44,6 @@ fun ErrorState(message: String, onRetry: () -> Unit, modifier: Modifier = Modifi
         Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
         MoviesTextButton(text = stringResource(R.string.action_retry), onClick = onRetry)
     }
-}
-
-internal fun formatErrorStateMessage(message: String): String {
-    return buildErrorStatePresentation(
-        message = message,
-        strings = defaultErrorStateStrings()
-    ).text
-}
-
-internal fun buildErrorStateAnnotatedMessage(message: String): AnnotatedString {
-    return buildErrorStatePresentation(
-        message = message,
-        strings = defaultErrorStateStrings()
-    ).annotated
 }
 
 private data class ErrorStatePresentation(val text: String, val boldRanges: List<IntRange>) {
@@ -140,34 +125,6 @@ private fun rememberErrorStateStrings(): ErrorStateStrings {
             "%2\$s"
         ),
         metaNotFound = stringResource(R.string.error_meta_not_found)
-    )
-}
-
-private fun defaultErrorStateStrings(): ErrorStateStrings {
-    return ErrorStateStrings(
-        genericIssue = "Something went wrong.",
-        possibleFixFormat = "Possible fix: %s",
-        retrySoonFix = "retry in a moment.",
-        noMetadataAnyAddonIssue = "This id could not load details because none of the installed addons returned metadata.",
-        noMetadataAnyAddonFix = "try another addon, disable \"Prefer external meta addon\" in Layout settings, or confirm an installed addon supports this id.",
-        noSupportedMetadataPrefix = "No installed addon supports metadata for ",
-        noAddonForIdPrefix = "No installed addon could provide metadata for id=",
-        noSupportedMetadataFix = "install or update an addon that supports this content type, then retry.",
-        triedMetaAddonsPrefix = "Tried meta addons:",
-        triedMetaAddonsFix = "install an addon that supports this id, or reconfigure/update the addon and retry.",
-        missingMetadataForIdIssue = "does not have metadata for this id",
-        missingMetadataForIdFix = "open this id from a different addon, disable \"Prefer external meta addon\", or check that the addon supports this id.",
-        addonUnreachableIssue = "could not be reached",
-        addonUnreachableFix = "check your internet connection, verify the addon URL still works, then retry.",
-        addonConnectionFailedIssue = "rejected the connection",
-        addonConnectionFailedFix = "make sure the addon server is online and reachable, then retry.",
-        addonTimeoutIssue = "took too long to respond",
-        addonTimeoutFix = "retry in a moment, or try a different addon if this keeps happening.",
-        addonCleartextIssue = "uses an insecure HTTP connection that Android blocked",
-        addonCleartextFix = "switch the addon URL to HTTPS or update the addon configuration.",
-        addonGenericFix = "retry, update or reinstall the addon, or try a different addon.",
-        addonIssueTemplate = "%s: %s.",
-        metaNotFound = "Meta not found"
     )
 }
 

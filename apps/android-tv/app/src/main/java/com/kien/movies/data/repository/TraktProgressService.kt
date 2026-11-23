@@ -8,7 +8,6 @@ import com.kien.movies.core.network.NetworkResult
 import com.kien.movies.core.profile.ProfileManager
 import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.data.remote.api.TraktApi
-import com.kien.movies.data.remote.dto.trakt.TraktEpisodeDto
 import com.kien.movies.data.remote.dto.trakt.TraktHistoryAddRequestDto
 import com.kien.movies.data.remote.dto.trakt.TraktHistoryAddResponseDto
 import com.kien.movies.data.remote.dto.trakt.TraktHistoryEpisodeAddDto
@@ -46,7 +45,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow

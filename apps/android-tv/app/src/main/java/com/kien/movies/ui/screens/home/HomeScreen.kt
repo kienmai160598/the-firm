@@ -198,13 +198,6 @@ fun HomeScreen(
         remember(onNavigateToCatalogSeeAll) { onNavigateToCatalogSeeAll }
     val onNavigateToFolderDetailStable =
         remember(onNavigateToFolderDetail) { onNavigateToFolderDetail }
-    val onRemoveContinueWatchingStable = remember(viewModel) {
-        { contentId: String, season: Int?, episode: Int?, isNextUp: Boolean ->
-            viewModel.onEvent(
-                HomeEvent.OnRemoveContinueWatching(contentId, season, episode, isNextUp)
-            )
-        }
-    }
 
     LaunchedEffect(
         uiState.isLoading,
