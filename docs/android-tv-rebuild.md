@@ -18,7 +18,7 @@ Decisions 1 to 4 were taken on 2026-11-23 when the build started: decision 1 as 
 | # | Decision | Taken | Why | Alternative not taken |
 |---|---|---|---|---|
 | 1 | When to delete the old app | First (slice A0), behind a git tag | You asked for it gone; the box keeps the installed APK either way | Delete at cutover (A14) and build in a second folder until then |
-| 2 | Root navigation | Sidebar (`ModalNavigationDrawer` from tv-material) | It is what the tvOS app shows on tvOS 18+, and it is a system component | The floating top tab bar of the old box build (commit `d005eae298`): hand built, about a dozen focus rules |
+| 2 | Root navigation | Sidebar (`ModalNavigationDrawer` from tv-material) | It is what the tvOS app shows on tvOS 18+, and it is a system component. Checked on tvOS 27 hardware on 2026-11-23: `.sidebarAdaptable` draws the same collapsed pill and floating panel as Apple's TV app (the 27.2 simulator shows a top tab bar instead) | The floating top tab bar of the old box build (commit `d005eae298`): hand built, about a dozen focus rules |
 | 3 | Import old data on the box | No importer | The box install dates from 2026-11-22, so it holds one day of addons and progress | A one time importer of `addon_preferences` and the three `watch_progress_*` DataStores; needs the same applicationId, the same signing key and versionCode above 1080 |
 | 4 | Package id while building | `com.kien.movies.next`, next to the old app | The old app stays usable every evening until cutover | Use `com.kien.movies` from day one and uninstall the old app now |
 | 5 | What happens to Nuvio after cutover | We own `shared/core`: slice A15 deletes the UI files both bridges exclude and Nuvio's mobile app parts, keeps the logic, and drops the exclusion lists | Both TV apps run Nuvio's logic (about 257k lines: catalog, addons, streams, progress, Trakt); only the UI was rebuilt, so the logic stays, the dead UI goes | Keep tracking upstream NuvioMobile; or rewrite the logic from scratch (weeks, no smoothness gain); a package rename away from `com.nuvio.*` was not asked for |
@@ -291,29 +291,21 @@ ObuParser for the extractor and ExoPlayer), `media3-effect` (GlEffect for libass
 
 ## 4. Mirroring the tvOS design
 
-### Units
+### Units and tokens
 
-tvOS lays out on 1920x1080 pt, Android TV on 960x540 dp. Rule: `dp = pt / 2`, `sp = pt / 2`,
-then round. Durations and opacities are copied as they are. All values live in
-`design/Tokens.kt`; no literal sizes in screens.
+Sizes, colours, type and motion come from `docs/tv-look-spec.md`, measured on Apple's TV app on a
+tvOS 27 Apple TV (2026-11-23). It is the single source for both apps; this section keeps only the
+rules it does not cover. Rule: `dp = pt / 2`, `sp = pt / 2`, then round. All values live in
+`design/Tokens.kt` (Android) and one tokens file on tvOS; no literal sizes in screens.
+
+Screens the TV app does not have (Streams, our player chrome, Addons, Settings) keep the tvOS app's
+own values:
 
 | Token | tvOS | Android TV |
 |---|---|---|
-| Poster card | 260x390 pt | 130x195 dp |
-| Continue Watching and episode card | 400x225 pt | 200x112 dp |
-| Cast portrait | 180 pt | 90 dp |
-| Card corner radius, content inset | 24, 20 pt | 12, 10 dp |
-| Shelf item spacing, row padding, gap between shelves | 40, 34, 24 pt | 20, 17, 12 dp |
-| Side inset of hero and rows | 80 pt | 48 dp (Android overscan floor, not 40) |
-| Hero text block, next shelf peek | 860, 150 pt | 430, 75 dp |
 | Stream row, resolution badge | 104, 124x64 pt | 52, 62x32 dp |
-| Titles (hero, details, player, streams) | 76, 80, 54, 52 pt | 38, 40, 27, 26 sp |
-| Shelf header, body, card title | 31, 29, 26 pt | 16, 15, 13 sp |
-| Small text (19 to 25 pt) | 19 to 25 pt | 12 sp floor; 11 sp only inside badges |
-| Card focus | system lift and highlight | scale 1.08 plus one soft shadow, no ring |
-
-The full list of tvOS literals is in the Swift files named in each slice. Read them, do not
-estimate from a screenshot.
+| Titles (player, streams) | 54, 52 pt | 27, 26 sp |
+| Small text floor | 19 pt | 12 sp; 11 sp only inside badges |
 
 ### Not ported literally
 
@@ -327,7 +319,8 @@ estimate from a screenshot.
 | Swipe scrubbing (`MpvSwipeScrub`, `MpvTouchpad`) | Hold left or right: key repeat grows the step, preview on the bar, seek 900 ms after the last key | No touch surface on the remote |
 | AVPlayer or mpv chosen by file extension (`PlaybackPreflight`) | ExoPlayer for everything in v1 | ExoPlayer plays MKV, TS, HLS and DASH itself; mpv is a later fallback |
 | Context menu (long press) on a card | Long press select opens a small dialog | Check tv-material for a menu component first; a dialog is the fallback |
-| `.searchable`, system keyboard | Text field with the system IME | Platform component |
+| `.searchable`, inline one row keyboard | One row keyboard built in Compose, system IME for "123" | Android has no inline keyboard; the IME covers the results the TV app keeps visible |
+| Floating glass sidebar panel and collapsed "‹ Home" pill | `ModalNavigationDrawer` content drawn as the pill when closed and an opaque panel when open | No blur on the box; the drawer stays the system component |
 | `sidebarAdaptable` tab view | `ModalNavigationDrawer`, flat scrim, no blur | Platform component, see decision 2 |
 
 ### Focus rules
