@@ -252,7 +252,10 @@ AAR rule: exactly one copy of each AAR on the app's classpath. The bridge links 
 Android actuals need from `shared/core/libs` (engine and media3 fork); its media3 AARs are `api`
 so the app's player compiles against the same copy (A3). The app links `lib-ui-release.aar`
 from `shared/core/libs` once, for `SubtitleView` (A3), plus `recyclerview` that the AAR needs at
-run time; `app/libs` holds only the downmix FFmpeg decoder. A2 decides which
+run time; `app/libs` holds only the downmix FFmpeg decoder. The fork calls three stock 1.8.0
+modules it does not ship, linked by the bridge: `media3-container` (`api`; NalUnitUtil and
+ObuParser for the extractor and ExoPlayer), `media3-effect` (GlEffect for libass) and
+`media3-decoder`; stock `media3-common` and the other forked modules stay excluded. A2 decides which
 `lib-datasource-release.aar` copy wins.
 
 ### Data and state
@@ -654,8 +657,14 @@ Verified in slice A3 (2026-11-23):
 - `make android-tv` builds the `box` APK with R8 (`minifyBoxWithR8`), 12.3 MB. Each native
   library is in it once, `libffmpegJNI.so` included; R8 reports no duplicate classes, so each
   media3 AAR is linked once (bridge `api`, `lib-ui` from `core/libs` in the app).
-- The `box` runtime classpath resolves no alpha, beta or rc artifact; Coil 3.6.3 asks for
-  Compose 1.11.0-rc01 and gets the BOM's 1.13.0.
+- The `box` runtime classpath resolves no alpha, beta or rc artifact; navigationevent-compose
+  1.1.0 asks for Compose 1.11.0-rc01 and gets the BOM's 1.13.0.
+- Every `androidx/media3` class the fork AARs, libass and the FFmpeg decoder reference is defined
+  on the classpath (a class list diff of the AAR jars; only generated `R` classes are left). This
+  found `media3-container` and `media3-effect` missing, hidden by `-dontwarn androidx.media3.**`;
+  both are now linked. A `box` build with a temporary keep rule on `DependencySmoke` (not
+  committed) passes R8 with ExoPlayer, the FFmpeg renderer, `SubtitleView`, Coil, NanoHTTPD and
+  zxing kept.
 - The UI tests `n2_everyTabReachable`, `n5_backExits`, `n2_backFromStreamsLeavesTheApp` and
   `n4_backReturnsToTheSameHomeRow` compile (`:androidTvApp:assembleDebugAndroidTest`).
 - `make apple-tv-sim` builds (the catalog and the bridge build file changed in `shared/`).

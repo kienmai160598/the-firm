@@ -63,7 +63,9 @@ Every agent may also:
   focusable element. Rows use `focusRestorer` and stable `key` and `contentType`.
 - ViewModels: `viewModel { DetailsViewModel(route.type, route.id) }` inside the screen; the store
   is per back stack entry. No SavedStateHandle, no Hilt. The player uses
-  `viewModel(key = request.id) { ... }` because the cover lives in the Streams entry.
+  `viewModel(key = request.id) { ... }` because the cover lives in the Streams entry; its
+  `onCleared` runs only when Streams pops, so release the player in `onExit` or a
+  `DisposableEffect`, not in `onCleared`.
 - Data: callback APIs only through `bridge/BridgeFlows` (flows are conflated, one shots cancel
   with the caller); plain synchronous `Tvos*` calls are made directly (list in `BridgeFlows`).
   Expose one `StateFlow` per ViewModel with `stateIn(viewModelScope, WhileSubscribed(5_000), ...)`.
@@ -77,7 +79,8 @@ Every agent may also:
   focusable content starts at `RailSize.contentStart`.
 - Imports: `androidx.tv.material3.*` for controls, never `androidx.compose.material3.*`.
 - Libraries on the classpath: ExoPlayer, HLS and extractors from the media3 fork (through the
-  bridge), media3 `lib-ui` (`SubtitleView`), stock `media3-decoder` 1.8.0, the downmix FFmpeg
+  bridge), media3 `lib-ui` (`SubtitleView`), stock `media3-decoder`, `media3-container` and
+  `media3-effect` 1.8.0 (calls the fork makes but does not ship), the downmix FFmpeg
   decoder, Coil 3.6.3 with the OkHttp fetcher (default singleton image loader), NanoHTTPD 2.3.1,
   zxing core 3.5.3, Compose ui-test-junit4. A new library is a frozen file change: request it.
 - Debug launch: `DebugLaunch` (intent extras, table in `src/debug/.../DebugLaunch.kt`) exposes
