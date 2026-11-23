@@ -1,0 +1,3 @@
+headers = movies_engine/movies_engine.h
+package = com.nuvio.torrent.native
+staticLibraries = libmovies_engine.a

@@ -175,6 +175,8 @@ kotlin {
             kotlin.exclude(isExcluded)
             dependencies {
                 implementation(libs.ktor.client.darwin)
+                // The new torrent engine (docs/engine-rebuild.md); unused until slice E1.
+                implementation(project(":torrent"))
             }
         }
         tvosTest {
