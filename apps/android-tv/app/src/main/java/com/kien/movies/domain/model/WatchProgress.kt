@@ -86,12 +86,6 @@ data class WatchProgress(
             COMPLETED_THRESHOLD
         }
 
-    /**
-     * Returns the remaining time in milliseconds
-     */
-    val remainingTime: Long
-        get() = (duration - position).coerceAtLeast(0)
-
     fun resolveResumePosition(actualDuration: Long): Long {
         if (actualDuration <= 0) return position.coerceAtLeast(0L)
         // Position is the most precise resume indicator. Prefer it over

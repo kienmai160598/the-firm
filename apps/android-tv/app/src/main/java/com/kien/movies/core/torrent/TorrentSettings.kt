@@ -75,12 +75,6 @@ class TorrentSettings @Inject constructor(@ApplicationContext private val contex
         }
     }
 
-    fun setEnableUpload(enabled: Boolean) {
-        scope.launch {
-            context.torrentDataStore.edit { it[Keys.ENABLE_UPLOAD] = enabled }
-        }
-    }
-
     fun setHideTorrentStats(enabled: Boolean) {
         scope.launch {
             context.torrentDataStore.edit { it[Keys.HIDE_TORRENT_STATS] = enabled }

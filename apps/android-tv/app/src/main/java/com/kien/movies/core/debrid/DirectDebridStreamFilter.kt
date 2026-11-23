@@ -92,10 +92,6 @@ object DirectDebridStreamFilter {
             resolve.isCached == true
     }
 
-    fun isDirectDebridSourceName(addonName: String): Boolean {
-        return DebridProviders.all().any { addonName == DebridProviders.instantName(it.id) }
-    }
-
     fun applyPreferences(streams: List<Stream>, settings: DebridSettings): List<Stream> = applyPreferencesWithFacts(streams, settings).map { it.first }
 
     /** Same as [applyPreferences], but keeps each stream's facts so callers don't recompute them. */

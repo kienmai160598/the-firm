@@ -65,7 +65,6 @@ class LibraryRepositoryImpl @Inject constructor(
 ) : LibraryRepository {
 
     private val syncScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val hydratedLogoIds = mutableSetOf<String>()
     private var syncJob: Job? = null
     private val _isSyncingFromRemote = MutableStateFlow(false)
     var isSyncingFromRemote: Boolean
@@ -425,20 +424,6 @@ class LibraryRepositoryImpl @Inject constructor(
             addonBaseUrl = addonBaseUrl,
             logo = logo
         )
-    }
-
-    private suspend fun hydrateLibraryLogos(items: List<LibraryEntry>) {
-        items.take(20).forEach { entry ->
-            hydratedLogoIds.add(entry.id)
-            runCatching {
-                val result = metaRepository.getMetaFromPrimaryAddon(entry.type, entry.id)
-                    .firstOrNull { it is NetworkResult.Success }
-                val logo = (result as? NetworkResult.Success)?.data?.logo
-                if (logo != null) {
-                    libraryPreferences.updateLogo(entry.id, entry.type, logo)
-                }
-            }.onFailure { Log.w("LibraryRepo", "Logo hydration failed for ${entry.id}", it) }
-        }
     }
 }
 

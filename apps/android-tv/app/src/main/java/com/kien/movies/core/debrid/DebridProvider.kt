@@ -110,10 +110,6 @@ object DebridProviders {
         return services.firstOrNull { it.provider.id == preferredId } ?: services.firstOrNull()
     }
 
-    fun configuredSourceNames(settings: DebridSettings): List<String> {
-        return configuredServices(settings).map { instantName(it.provider.id) }
-    }
-
     private fun String?.toFallbackDisplayName(): String {
         val value = this?.trim()?.takeIf { it.isNotBlank() } ?: return "Debrid"
         return value

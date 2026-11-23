@@ -25,9 +25,6 @@ data class DebridSettings(
     val hasAnyApiKey: Boolean
         get() = DebridProviders.configuredServices(this).isNotEmpty()
 
-    val resolverServices: List<com.kien.movies.core.debrid.DebridServiceCredential>
-        get() = DebridProviders.configuredResolverServices(this)
-
     val activeResolverCredential: com.kien.movies.core.debrid.DebridServiceCredential?
         get() = DebridProviders.preferredResolverService(this)
 

@@ -91,15 +91,4 @@ class CloudLibraryRepository @Inject constructor(
             file = file
         )
     }
-
-    suspend fun connectedCloudCredentials(): List<DebridServiceCredential> {
-        val settings = dataStore.settings.first()
-        return settings
-            .takeIf { it.cloudLibraryEnabled }
-            ?.let(DebridProviders::configuredServices)
-            .orEmpty()
-            .filter { credential ->
-                credential.provider.supports(DebridProviderCapability.CloudLibrary)
-            }
-    }
 }

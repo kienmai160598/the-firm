@@ -201,15 +201,6 @@ class PluginRuntime @Inject constructor() {
         return Base64.getEncoder().encodeToString(bytes)
     }
 
-    private fun bytesToHex(bytes: ByteArray): String {
-        val sb = StringBuilder(bytes.size * 2)
-        for (b in bytes) {
-            sb.append(((b.toInt() shr 4) and 0xF).toString(16))
-            sb.append((b.toInt() and 0xF).toString(16))
-        }
-        return sb.toString()
-    }
-
     /**
      * Execute a plugin and return streams.
      *

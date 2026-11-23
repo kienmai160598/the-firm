@@ -38,39 +38,6 @@ class ExternalExtractorRegistry @Inject constructor() {
     }
 
     /**
-     * Try to resolve a URL using the library's loadExtractor.
-     * The library's loadExtractor iterates through the global extractorApis list
-     * which includes both built-in library extractors and extension-provided ones.
-     */
-    suspend fun resolveExtractor(
-        url: String,
-        referer: String?,
-        subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit
-    ): Boolean {
-        return try {
-            val result = loadExtractor(url, referer, subtitleCallback, callback)
-            if (!result) {
-                val domain = try {
-                    java.net.URI(url).host ?: url
-                } catch (_: Exception) {
-                    url
-                }
-                if (missingExtractorDomains.add(domain)) {
-                    Log.w(TAG, "No extractor registered for domain: $domain (url: $url)")
-                }
-            }
-            result
-        } catch (e: Exception) {
-            Log.e(TAG, "loadExtractor error for ${url.take(80)}: ${e.message}", e)
-            false
-        } catch (e: Error) {
-            Log.e(TAG, "loadExtractor linkage error for ${url.take(80)}: ${e.message}", e)
-            false
-        }
-    }
-
-    /**
      * Install this registry. The library's loadExtractor function uses the global
      * extractorApis list directly, so no delegate setup is needed.
      * This method ensures the library's built-in extractors are available.

@@ -56,7 +56,6 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
 private const val TAG = "AuthManager"
-private const val AUTH_ENDPOINT_SIGNUP = "/auth/v1/signup"
 private const val AUTH_ENDPOINT_PASSWORD = "/auth/v1/token?grant_type=password"
 private const val AUTH_ENDPOINT_REFRESH = "/auth/v1/token?grant_type=refresh_token"
 private const val AUTH_ENDPOINT_START_DEVICE_LOGIN = "/rest/v1/rpc/start_device_login_session"
@@ -373,37 +372,6 @@ class AuthManager @Inject constructor(
                 Log.e(TAG, "Failed to get effective user ID", e)
                 null
             }
-        }
-    }
-
-    suspend fun signUpWithEmail(email: String, password: String): Result<Unit> {
-        val diagnostics = AuthDiagnosticsSession(
-            authDiagnosticReportRepository,
-            "signup",
-            serverConfiguration = serverConfiguration
-        )
-        return try {
-            val payload = buildJsonObject {
-                put("email", email)
-                put("password", password)
-            }.toString()
-            val body = executeSupabaseJsonRequest(
-                diagnostics = diagnostics,
-                endpoint = AUTH_ENDPOINT_SIGNUP,
-                url = supabaseUrl(AUTH_ENDPOINT_SIGNUP),
-                headers = supabaseHeaders(),
-                body = payload
-            ).body
-            runCatching {
-                val result = json.decodeFromString<TvLoginExchangeResult>(body)
-                auth.importTokenResponse(result)
-            }
-            diagnostics.finishSuccess("signup_completed")
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Log.e(TAG, "Sign up failed", e)
-            diagnostics.finishFailure("signup_failed", AUTH_ENDPOINT_SIGNUP, e.authHttpStatus(), e)
-            Result.failure(e)
         }
     }
 

@@ -60,21 +60,6 @@ data class TrackingMutationResolution(
     val providerSubtype: String? = null
 )
 
-interface TrackingListWriter {
-    val providerId: TrackingProviderId
-
-    suspend fun moveToList(
-        profileId: Int,
-        items: Collection<TrackingMediaReference>,
-        destination: TrackingListStatus
-    ): TrackingMutationResult
-
-    suspend fun removeFromList(
-        profileId: Int,
-        items: Collection<TrackingMediaReference>
-    ): TrackingMutationResult
-}
-
 interface TrackingHistoryWriter {
     val providerId: TrackingProviderId
 
