@@ -472,6 +472,7 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | P6 | The rating and genre advisory shows once for 6 s |
 | P7 | Back follows the six step order |
 | P8 | Leaving the app pauses and saves |
+| P9 | When the buffer runs dry mid play, playback resumes only once 5 s are buffered again, so a source slower than the bitrate stalls in long pauses, not every second. tvOS mpv sets `cache-pause-wait=5`; AVPlayer keeps its own rebuffer logic. ExoPlayer's `bufferForPlaybackAfterRebufferMs` defaults to 5,000 ms, so Android needs no change if it keeps that default |
 | T1 | A torrent stream starts through the engine, the row shows step, peers, speed and buffer, then plays; the engine stops on exit |
 | Q1 | Typing a title shows result rows |
 | Q2 | Opening a result records a recent search; a recent search can be removed |
