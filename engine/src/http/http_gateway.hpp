@@ -7,6 +7,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <thread>
 
 #include "http/byte_source.hpp"
@@ -24,7 +25,8 @@ public:
     HttpGateway& operator=(const HttpGateway&) = delete;
 
     [[nodiscard]] std::uint16_t port() const { return port_; }
-    [[nodiscard]] std::string url_for(std::uint64_t stream) const;
+    // Ends in "/video.<ext>" of the played file, so a player that reads the URL sees the format.
+    [[nodiscard]] std::string url_for(std::uint64_t stream, std::string_view file_name) const;
     // Stops accepting and waits for every connection to finish.
     void stop();
 
