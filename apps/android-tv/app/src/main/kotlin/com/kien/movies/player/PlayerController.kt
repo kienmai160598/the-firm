@@ -18,8 +18,10 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.analytics.AnalyticsListener
 import com.kien.movies.bridge.BridgeFlows
 import com.kien.movies.debug.DebugLaunch
+import com.kien.movies.settings.LanguageName
 import com.nuvio.tvos.TvosPlayback
 import com.nuvio.tvos.TvosPlaybackSession
+import com.nuvio.tvos.TvosSettings
 import com.nuvio.tvos.rules.OnlineSubtitle
 import com.nuvio.tvos.rules.OnlineSubtitleChoice
 import com.nuvio.tvos.rules.ProgressSavePolicy
@@ -93,6 +95,7 @@ class PlayerController(private val context: Context, private val request: Playba
         isStarted = true
         val dataSource = PlaybackDataSource.factory(context, request.url, request.stream.requestHeaders, ByteCounter(loadedBytes))
         val exo = PlayerFactory.create(context, dataSource)
+        exo.trackSelectionParameters = PlayerLanguageSelection.applied(exo.trackSelectionParameters, TvosSettings.playerLanguages(LanguageName.device))
         exo.addListener(engineListener)
         exo.addAnalyticsListener(decoderListener)
         exo.setMediaItem(mediaItem())

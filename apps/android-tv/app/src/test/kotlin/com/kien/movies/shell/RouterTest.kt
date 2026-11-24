@@ -52,7 +52,7 @@ class RouterTest {
     @Test
     fun backAtAnotherTabRootGoesHome() {
         val router = Router()
-        router.selectTab(RootTab.Addons)
+        router.selectTab(RootTab.Library)
 
         val result = router.back()
 

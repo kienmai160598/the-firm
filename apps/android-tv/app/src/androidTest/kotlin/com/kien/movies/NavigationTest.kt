@@ -12,6 +12,8 @@ import com.kien.movies.debug.DebugLaunch
 import com.kien.movies.details.DETAILS_CONTENT_TAG
 import com.kien.movies.details.DETAILS_PLAY_TAG
 import com.kien.movies.home.HOME_ROWS_TAG
+import com.kien.movies.settings.SettingsPage
+import com.kien.movies.settings.settingsRowTag
 import com.kien.movies.shell.COMING_LATER
 import com.kien.movies.shell.PLACEHOLDER_TAG
 import com.kien.movies.shell.RootTab
@@ -35,7 +37,7 @@ class NavigationTest {
     @After
     fun closeApp() = tv.close()
 
-    /** N2: the sidebar reaches all five tabs and Select moves focus into the tab's content. */
+    /** N2: the sidebar reaches all four tabs and Select moves focus into the tab's content. */
     @Test
     fun n2_everyTabReachable() {
         tv.launch()
@@ -56,19 +58,17 @@ class NavigationTest {
     }
 
     /**
-     * N5: Library and Settings show a placeholder that holds focus. Then the tail of N2: Back on
+     * N5: Library shows a placeholder that holds focus. Then the tail of N2 from Settings: Back on
      * the sidebar of another tab goes Home, Back on the Home sidebar leaves the app.
      */
     @Test
     fun n5_backExits() {
-        for (tab in listOf(RootTab.Library, RootTab.Settings)) {
-            tv.launch(DebugLaunch.ROUTE to "tab/${tab.name.lowercase()}")
-            tv.await(hasText(COMING_LATER))
-            tv.awaitFocus(hasTestTag(PLACEHOLDER_TAG))
-            tv.close()
-        }
+        tv.launch(DebugLaunch.ROUTE to "tab/library")
+        tv.await(hasText(COMING_LATER))
+        tv.awaitFocus(hasTestTag(PLACEHOLDER_TAG))
+        tv.close()
         tv.launch(DebugLaunch.ROUTE to "tab/settings")
-        tv.awaitFocus(hasTestTag(PLACEHOLDER_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
+        tv.awaitFocus(hasTestTag(settingsRowTag(SettingsPage.Account)), TvRobot.DEFAULT_TIMEOUT_MS)
 
         tv.back()
         tv.assertFocusedTag(tabTag(RootTab.Settings))

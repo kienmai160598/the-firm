@@ -116,7 +116,7 @@ class AddonsTest {
     }
 
     private fun openAddons(vararg extras: Pair<String, Any>) {
-        tv.launch(DebugLaunch.ROUTE to "tab/addons", *extras)
+        tv.launch(DebugLaunch.ROUTE to "settings/addons", *extras)
         tv.await(hasTestTag(URL_SURFACE_TAG))
         tv.awaitFocus(hasTestTag(ADDON_ROW_TAG) or hasTestTag(URL_SURFACE_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
     }

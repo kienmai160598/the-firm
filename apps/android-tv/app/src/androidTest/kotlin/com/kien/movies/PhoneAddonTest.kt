@@ -93,7 +93,7 @@ class PhoneAddonTest {
     }
 
     private fun openAddons() {
-        tv.launch(DebugLaunch.ROUTE to "tab/addons")
+        tv.launch(DebugLaunch.ROUTE to "settings/addons")
         tv.await(hasTestTag(PHONE_BUTTON_TAG))
         tv.awaitFocus(hasTestTag(ADDON_ROW_TAG) or hasTestTag(URL_SURFACE_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
     }

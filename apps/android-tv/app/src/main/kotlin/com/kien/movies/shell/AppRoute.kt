@@ -2,14 +2,14 @@ package com.kien.movies.shell
 
 import androidx.annotation.DrawableRes
 import com.kien.movies.R
+import com.kien.movies.settings.SettingsPage
 import com.nuvio.tvos.TvosStreamTarget
 
-/** The five sidebar tabs, in tvOS order (RootTabs.swift). */
+/** The four sidebar tabs, in tvOS order (RootTabs.swift). Addons is a Settings page. */
 enum class RootTab(val title: String, @param:DrawableRes val icon: Int) {
     Home("Home", R.drawable.ic_tab_home),
     Search("Search", R.drawable.ic_tab_search),
     Library("Library", R.drawable.ic_tab_library),
-    Addons("Addons", R.drawable.ic_tab_addons),
     Settings("Settings", R.drawable.ic_tab_settings)
 }
 
@@ -25,4 +25,7 @@ sealed interface AppRoute {
     data class Details(val type: String, val id: String) : AppRoute
 
     data class Streams(val target: TvosStreamTarget, val resumesDirectly: Boolean = false) : AppRoute
+
+    /** A page of the Settings tab (tvOS `AppRoute.settings`). */
+    data class Settings(val page: SettingsPage) : AppRoute
 }

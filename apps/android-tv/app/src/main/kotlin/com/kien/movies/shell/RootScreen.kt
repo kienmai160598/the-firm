@@ -24,12 +24,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.tv.material3.DrawerValue
 import androidx.tv.material3.rememberDrawerState
-import com.kien.movies.addons.AddonsScreen
 import com.kien.movies.design.Palette
 import com.kien.movies.design.TvColors
 import com.kien.movies.details.DetailsScreen
 import com.kien.movies.home.HomeScreen
 import com.kien.movies.search.SearchScreen
+import com.kien.movies.settings.SettingsPageScreen
+import com.kien.movies.settings.SettingsScreen
 import com.kien.movies.streams.StreamsScreen
 
 /**
@@ -103,7 +104,7 @@ fun RootScreen(router: Router, stores: RouteViewModelStores, onExit: () -> Unit)
             EntryContent(top, saveableState, stores, contentFocus) { TabRootScreen(route.tab, router) }
         }
     } else {
-        WindowBackground(Palette.detailsBackground)
+        WindowBackground(pushedBackground(route))
         EntryContent(top, saveableState, stores, contentFocus) { PushedScreen(route, router) }
     }
 }
@@ -111,13 +112,16 @@ fun RootScreen(router: Router, stores: RouteViewModelStores, onExit: () -> Unit)
 /** Window colour of a tab root (spec section 2): Home's rows, else the grey slate of Search and Library. */
 private fun tabBackground(tab: RootTab): Color = if (tab == RootTab.Home) TvColors.homeRows else TvColors.searchLibrary
 
+/** A Settings page keeps the slate of its tab; Details and Streams have their own colour. */
+private fun pushedBackground(route: AppRoute): Color = if (route is AppRoute.Settings) TvColors.searchLibrary else Palette.detailsBackground
+
 @Composable
 private fun TabRootScreen(tab: RootTab, router: Router) {
     when (tab) {
         RootTab.Home -> HomeScreen(router)
         RootTab.Search -> SearchScreen(router)
-        RootTab.Addons -> AddonsScreen()
-        RootTab.Library, RootTab.Settings -> PlaceholderScreen(title = tab.title)
+        RootTab.Settings -> SettingsScreen(router)
+        RootTab.Library -> PlaceholderScreen(title = tab.title)
     }
 }
 
@@ -126,6 +130,7 @@ private fun PushedScreen(route: AppRoute, router: Router) {
     when (route) {
         is AppRoute.Details -> DetailsScreen(route, router)
         is AppRoute.Streams -> StreamsScreen(route, router)
+        is AppRoute.Settings -> SettingsPageScreen(route.page)
         is AppRoute.Tab -> error("A tab root is never pushed")
     }
 }
