@@ -20,6 +20,16 @@ final class TrailerPlayerItem {
             loader = nil
         }
     }
+
+    /// A silent player that keeps the picture on the TV, as the film player does (P10), and lets
+    /// the screen sleep.
+    func makePlayer() -> AVPlayer {
+        let player = AVPlayer(playerItem: item)
+        player.volume = 0
+        player.preventsDisplaySleepDuringVideoPlayback = false
+        player.allowsExternalPlayback = false
+        return player
+    }
 }
 
 /// Answers AVPlayer's one request for the rewritten master playlist.

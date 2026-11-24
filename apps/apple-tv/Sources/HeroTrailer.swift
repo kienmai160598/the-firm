@@ -78,11 +78,8 @@ final class HeroTrailer: ObservableObject {
 
     private func prepare(_ link: TvosTrailerLink?, for id: String) {
         guard focusedId == id, let link, let source = TrailerPlayerItem(link: link) else { return }
-        let playerItem = source.item
-        let player = AVPlayer(playerItem: playerItem)
-        player.volume = 0
-        player.preventsDisplaySleepDuringVideoPlayback = false
-        observe(player, playing: playerItem)
+        let player = source.makePlayer()
+        observe(player, playing: source.item)
         zoom = 1
         itemId = id
         self.source = source
