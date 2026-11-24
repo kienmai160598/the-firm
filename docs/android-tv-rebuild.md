@@ -13,7 +13,7 @@ file, then the Swift files the slice names.
 ## 1. Decisions
 
 Decisions 1 to 4 were taken on 2026-11-23 when the build started: decision 1 as asked by the user,
-2 to 4 as the defaults below. Decision 5 was taken by the user the same day. Change one only by editing this table in a PR.
+2 to 4 as the defaults below. Decision 5 was taken by the user the same day, decision 6 on 2026-11-24. Change one only by editing this table in a PR.
 
 | # | Decision | Taken | Why | Alternative not taken |
 |---|---|---|---|---|
@@ -22,6 +22,7 @@ Decisions 1 to 4 were taken on 2026-11-23 when the build started: decision 1 as 
 | 3 | Import old data on the box | No importer | The box install dates from 2026-11-22, so it holds one day of addons and progress | A one time importer of `addon_preferences` and the three `watch_progress_*` DataStores; needs the same applicationId, the same signing key and versionCode above 1080 |
 | 4 | Package id while building | `com.kien.movies.next`, next to the old app | The old app stays usable every evening until cutover | Use `com.kien.movies` from day one and uninstall the old app now |
 | 5 | What happens to Nuvio after cutover | We own `shared/core`: slice A15 deletes the UI files both bridges exclude and Nuvio's mobile app parts, keeps the logic, and drops the exclusion lists | Both TV apps run Nuvio's logic (about 257k lines: catalog, addons, streams, progress, Trakt); only the UI was rebuilt, so the logic stays, the dead UI goes | Keep tracking upstream NuvioMobile; or rewrite the logic from scratch (weeks, no smoothness gain); a package rename away from `com.nuvio.*` was not asked for |
+| 6 | Order of tvOS and Android work | tvOS first: the tvOS features in section 7 (F1 to F8) are built and merged before Android ports them, and Android ports a screen only from `main`, never from an open tvOS pull request | Android was chasing a tvOS spec that was still changing in open pull requests (A12c to A12g sat on unmerged tvOS branches). The logic of F1 to F8 already exists in `shared/core`, so tvOS builds the `shared/tv-api` facades once and Android only ports the UI. Android work that does not depend on the tvOS look (engine E5 and E6, box performance) goes on in parallel | Build each feature on both platforms at once; or port the tvOS app only when it is complete |
 
 ## 2. Target
 
@@ -542,6 +543,26 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 
 Order: A0 to A3 are strictly in order. A12b needs A12. After A3, A4 to A7 follow the user path; A11 and A12 are
 independent and can be done at any point after A3. A8 needs A7.
+
+### tvOS features before porting (decision 6)
+
+Each is one slice, one branch, one pull request, in this order. The logic exists in `shared/core`;
+the slice adds the `shared/tv-api` facade with unit tests, the tvOS UI with UI tests, and its
+acceptance criteria to section 6. Android ports each one after it is on `main`.
+
+| Slice | What it does | Logic in `shared/core` |
+|---|---|---|
+| F1 Library | Library tab instead of the placeholder (N5), Add to Library on Details | `LibraryRepository` (local list, Trakt lists when signed in) |
+| F2 Watched | Mark watched and unwatched on a Continue Watching card, an episode and a season | `WatchedRepository`, `WatchingActions` |
+| F3 Trakt writes | Scrobble while playing, history when finished, watchlist from Details | `TrackingScrobbleCoordinator`, `recordExternalPlaybackProgress` |
+| F4 Next episode | Next episode button near the end of an episode, autoplay with a countdown | `PlayerNextEpisodeRules` |
+| F5 Skip intro | Skip intro and recap button while the segment plays | `SkipIntroRepository` |
+| F6 Details sections | Trailers and Related rows; a cast card opens the person's page | `MetaDetails.trailers`, `moreLikeThis`, `PersonDetail` |
+| F7 Home catalogs | Hide, show and reorder Home rows from Settings | `HomeCatalogSettingsRepository` |
+| F8 Player extras | Subtitle size, colour and background; playback speed on mpv | `SubtitleAppearance` |
+
+Later, not part of F1 to F8: Debrid keys, profiles and a Nuvio account (needs Supabase sign in),
+an offline notice, a "See all" grid per catalog.
 
 After cutover, by value: refresh rate and HDR mode match (the tvOS app has `MpvDisplayMatch`; port
 the old `core/player/FrameRateUtils.kt`), mpv as a fallback engine, ASS subtitles through libass,
