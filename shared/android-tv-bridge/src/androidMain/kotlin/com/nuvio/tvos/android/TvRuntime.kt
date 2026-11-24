@@ -26,7 +26,6 @@ import com.nuvio.app.features.mdblist.PlatformMdbListSyncStorage
 import com.nuvio.app.features.membership.MemberAssetStorage
 import com.nuvio.app.features.notifications.EpisodeReleaseNotificationsStorage
 import com.nuvio.app.features.p2p.P2pSettingsStorage
-import com.nuvio.app.features.p2p.P2pStreamingEngine
 import com.nuvio.app.features.player.ExternalPlayerPlatform
 import com.nuvio.app.features.player.PlayerSettingsStorage
 import com.nuvio.app.features.player.PlayerTrackPreferenceStorage
@@ -58,6 +57,7 @@ import com.nuvio.app.features.watchprogress.ContinueWatchingEnrichmentStorage
 import com.nuvio.app.features.watchprogress.ContinueWatchingPreferencesStorage
 import com.nuvio.app.features.watchprogress.ResumePromptStorage
 import com.nuvio.app.features.watchprogress.WatchProgressStorage
+import com.nuvio.tvos.TvosTorrentBackend
 
 /**
  * Gives every core storage and platform object compiled into the bridge its Context, as
@@ -103,7 +103,7 @@ object TvRuntime {
         PlayerSettingsStorage.initialize(context)
         PlayerTrackPreferenceStorage.initialize(context)
         P2pSettingsStorage.initialize(context)
-        P2pStreamingEngine.initialize(context)
+        TvosTorrentBackend.initialize(context)
         ExternalPlayerPlatform.initialize(context)
         SubtitleFileCache.initialize(context)
         ProfileStorage.initialize(context)

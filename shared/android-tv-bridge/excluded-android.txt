@@ -46,3 +46,4 @@ androidMain/kotlin/com/nuvio/app/features/player/PlayerSubtitleRouting.android.k
 androidPlaystore/kotlin/com/nuvio/app/features/player/PlatformPlaybackDataSourceFactory.android.kt	needs SubtitleRequestHeaderDataSourceFactory from the excluded PlayerEngine.android.kt
 androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.android.kt	downloads: needs AndroidDownloadScheduler (WorkManager); bridge stub in src/androidMain
 androidMain/kotlin/com/nuvio/app/features/player/PlaybackErrorMessages.kt	needs MpvNonHttpExplanationKind from the excluded MpvErrorLog.kt (mpv)
+androidMain/kotlin/com/nuvio/app/features/p2p/P2pStreamingEngine.android.kt	old torrent engine (nuvio-engine AAR, not linked since E7); bridge stub in src/androidMain, torrents run through TvosTorrent
