@@ -24,11 +24,19 @@ final class HomeModel: ObservableObject {
     func perform(_ action: ContinueWatchingAction, on item: TvosContinueWatchingItem) {
         switch action {
         case .markWatched:
-            markedSeries = MarkedSeries(item: item)
+            markedSeries = isAlone(item) ? MarkedSeries(item: item) : nil
             TvosHome.shared.markContinueWatchingWatched(key: item.key)
         case .remove:
             TvosHome.shared.removeFromContinueWatching(key: item.key)
         }
+    }
+
+    /// With a neighbour, focus moves there (H5) and stays; alone, focus would fall back to the hero.
+    private func isAlone(_ item: TvosContinueWatchingItem) -> Bool {
+        let row = [continueWatching, upcoming].compactMap { $0 }
+            .first { row in row.items.contains { $0.key == item.key } }
+        let keys = row?.items.map(\.key) ?? []
+        return RowNeighbor.key(beside: item.key, in: keys) == nil
     }
 
     func continueWatchingFocusHandled() {
@@ -61,8 +69,8 @@ final class HomeModel: ObservableObject {
     }
 }
 
-/// A series whose Continue Watching episode was just marked watched: its Next Up card, when the
-/// shared state brings one within a few seconds, takes focus instead of the hero.
+/// A series whose Continue Watching episode, the only card of its row, was just marked watched:
+/// its Next Up card, when the shared state brings one within 10 s, takes focus from the hero.
 private struct MarkedSeries {
     let seriesId: String
     let markedKey: String

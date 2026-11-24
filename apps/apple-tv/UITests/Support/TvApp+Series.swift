@@ -45,6 +45,20 @@ extension TvApp {
         return app.buttons.matching(saved).firstMatch
     }
 
+    /// Plays the Big Buck Bunny test stream for a few seconds and returns its Continue Watching card.
+    func watchTestMovie() -> XCUIElement {
+        launch(route: "details/movie/tt1254207", keepingState: true)
+        let stream = button(containing: "Test Pattern MP4")
+        select(button(beginningWith: "Play"))
+        XCTAssertTrue(stream.waitForExistence(timeout: 30))
+        select(stream)
+        watch(seconds: 6)
+        leavePlayer(from: stream, waitingFor: savedPrimary(replacing: "Play"))
+        return app.buttons.matching(identifier: Self.continueWatchingId)
+            .matching(NSPredicate(format: "label != %@", Self.testSeriesTitle))
+            .firstMatch
+    }
+
     /// Moves focus down from the Details hero to the row whose identifiers start with [rowPrefix],
     /// then right along it to [element]. The page scrolls, so the row is found by identifier.
     func focusOnDetails(

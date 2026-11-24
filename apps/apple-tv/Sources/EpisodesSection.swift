@@ -94,6 +94,9 @@ private struct SeasonButton: View {
         .contextMenu {
             if hasReleasedEpisodes {
                 WatchedToggleButton(scope: "Season", isWatched: season.isWatched) {
+                    // Selecting it shows the marks change, and focus returning from the menu
+                    // lands on the selected season, so the picker does not snap away.
+                    action()
                     TvosWatched.shared.toggleSeason(
                         id: metaId,
                         season: season.number,

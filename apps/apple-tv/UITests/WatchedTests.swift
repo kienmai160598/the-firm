@@ -31,6 +31,22 @@ final class WatchedTests: XCTestCase {
         XCTAssertEqual(tv.episodeValue(1), "Watched")
     }
 
+    func testW1_withANeighbourFocusMovesToItAndStaysThere() {
+        tv.launch(route: TvApp.testSeries)
+        tv.playEpisode(from: "Play S1 E1", seconds: 6)
+        let movie = tv.watchTestMovie()
+        tv.launch(keepingState: true)
+        XCTAssertTrue(seriesCard.waitForExistence(timeout: 60))
+        tv.focusCard(seriesCard)
+
+        tv.chooseFromContextMenu("Mark as Watched")
+
+        XCTAssertTrue(tv.waitForValue(seriesCard, TvApp.nextUpPrefix, timeout: 60))
+        XCTAssertTrue(tv.waitForFocus(movie, timeout: 5), "Focused: \(tv.focusedLabel)")
+        _ = XCTWaiter.wait(for: [XCTestExpectation(description: "Next Up settles")], timeout: 3)
+        XCTAssertTrue(movie.hasFocus, "Focus left the neighbour: \(tv.focusedLabel)")
+    }
+
     func testW2_anEpisodeMarkedWatchedStaysWatchedAfterARelaunchAndCanBeUnmarked() {
         tv.launch(route: TvApp.testSeries)
         tv.focusOnDetails(tv.episodeCard(2), inRow: Self.episodeRow)
