@@ -12,7 +12,9 @@ import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.kien.movies.debug.DebugLaunch
+import com.kien.movies.details.DETAILS_PLAY_TAG
 import com.kien.movies.home.CONTINUE_WATCHING_CARD_TAG
+import com.kien.movies.home.GO_TO_DETAILS_BUTTON_TAG
 import com.kien.movies.home.HERO_BUTTON_TAG
 import com.kien.movies.home.HOME_STATUS_TAG
 import com.kien.movies.home.REMOVE_BUTTON_TAG
@@ -80,6 +82,8 @@ class ContinueWatchingTest {
             .mapNotNull { node -> node.config.getOrNull(SemanticsProperties.ContentDescription)?.joinToString() }
             .first { title -> title != MOVIE.title }
         longPressSelect()
+        tv.awaitFocus(hasTestTag(GO_TO_DETAILS_BUTTON_TAG))
+        tv.down()
         tv.awaitFocus(hasTestTag(REMOVE_BUTTON_TAG))
 
         tv.select()
@@ -90,6 +94,25 @@ class ContinueWatchingTest {
         launchHome()
         tv.await(card(neighbour))
         assertTrue("Removed card came back", compose.onAllNodes(card(MOVIE.title)).fetchSemanticsNodes().isEmpty())
+    }
+
+    /** W5: "Go to Show", first in the card's menu, opens the show's Details; Back returns to the card. */
+    @Test
+    fun w5_goToShowOpensTheShowsDetailsAndBackReturnsToTheCard() {
+        saveProgress(MOVIE)
+        saveProgress(EPISODE)
+        launchHome()
+        tv.await(card(MOVIE.title))
+        focusCard(EPISODE.title)
+        longPressSelect()
+        tv.awaitFocus(hasTestTag(GO_TO_DETAILS_BUTTON_TAG) and hasText("Go to Show"))
+
+        tv.select()
+
+        tv.awaitFocus(hasTestTag(DETAILS_PLAY_TAG) and hasText("Resume S1 E1", substring = true), TvRobot.DEFAULT_TIMEOUT_MS)
+        tv.back()
+        tv.awaitFocus(card(EPISODE.title))
+        tv.await(card(MOVIE.title))
     }
 
     private fun card(title: String) = hasTestTag(CONTINUE_WATCHING_CARD_TAG) and hasContentDescription(title)

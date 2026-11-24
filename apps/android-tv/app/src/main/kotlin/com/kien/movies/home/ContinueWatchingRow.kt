@@ -72,9 +72,10 @@ import com.kien.movies.shell.AppRoute
 
 /**
  * Continue Watching or Upcoming on 5 columns (spec section 3). Select resumes without
- * asking (AC H4). A long press of select opens a small dialog with "Remove from Continue
- * Watching", the stand-in for the tvOS context menu; after removing, focus moves to the card's
- * neighbour (next, else previous: [RowNeighbor]) before the card leaves the row (AC H5).
+ * asking (AC H4). A long press of select opens a small dialog, the stand-in for the tvOS context
+ * menu: "Go to Show" or "Go to Movie" opens the title's Details (AC W5), and "Remove from Continue
+ * Watching" takes the card off; after removing, focus moves to the card's neighbour (next, else
+ * previous: [RowNeighbor]) before the card leaves the row (AC H5).
  */
 @Composable
 fun ContinueWatchingRow(
@@ -87,6 +88,7 @@ fun ContinueWatchingRow(
 ) {
     var menuFor by remember { mutableStateOf<WatchingCard?>(null) }
     var removalAfterMenuCloses by remember { mutableStateOf<WatchingCard?>(null) }
+    var detailsAfterMenuCloses by remember { mutableStateOf<WatchingCard?>(null) }
     val focusManager = LocalFocusManager.current
 
     Column(modifier = modifier) {
@@ -104,14 +106,28 @@ fun ContinueWatchingRow(
     }
 
     menuFor?.let { card ->
-        RemoveDialog(
-            title = card.title,
+        CardMenuDialog(
+            card = card,
+            onGoToDetails = {
+                menuFor = null
+                detailsAfterMenuCloses = card
+            },
             onRemove = {
                 menuFor = null
                 removalAfterMenuCloses = card
             },
             onDismiss = { menuFor = null }
         )
+    }
+
+    // As tvOS: Details opens once the menu has closed and focus is back on the card, so Back
+    // returns to it (AC N4). The card stays in the row.
+    detailsAfterMenuCloses?.let { card ->
+        LaunchedEffect(card.key) {
+            withFrameNanos {}
+            detailsAfterMenuCloses = null
+            onOpen(card.detailsRoute)
+        }
     }
 
     // As tvOS: remove once the menu has closed and focus is back on the row, after moving focus
@@ -253,10 +269,13 @@ private fun rememberBandArt(url: String?): ImageRequest? {
     }
 }
 
-/** The tvOS context menu as a small dialog: Remove first, then Cancel. Back closes it. */
+/**
+ * The tvOS context menu as a small dialog, in its order: "Go to Show" or "Go to Movie" first and
+ * focused, then Remove, then Cancel. Back closes it.
+ */
 @Composable
-private fun RemoveDialog(title: String, onRemove: () -> Unit, onDismiss: () -> Unit) {
-    val removeFocus = remember { FocusRequester() }
+private fun CardMenuDialog(card: WatchingCard, onGoToDetails: () -> Unit, onRemove: () -> Unit, onDismiss: () -> Unit) {
+    val firstFocus = remember { FocusRequester() }
     Dialog(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
@@ -264,37 +283,37 @@ private fun RemoveDialog(title: String, onRemove: () -> Unit, onDismiss: () -> U
                 .padding(DIALOG_PADDING),
             verticalArrangement = Arrangement.spacedBy(Spacing.textGapLarge)
         ) {
-            Text(text = title, style = TextStyles.body, color = Palette.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Button(
-                onClick = onRemove,
-                colors = TvGlass.buttonColors(),
-                scale = TvGlass.buttonScale(),
-                shape = TvGlass.pillShape(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(removeFocus)
-                    .testTag(REMOVE_BUTTON_TAG)
-            ) {
-                Text(text = REMOVE_TITLE)
-            }
-            Button(
-                onClick = onDismiss,
-                colors = TvGlass.buttonColors(),
-                scale = TvGlass.buttonScale(),
-                shape = TvGlass.pillShape(),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = CANCEL_TITLE)
-            }
+            Text(text = card.title, style = TextStyles.body, color = Palette.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            MenuButton(
+                title = card.goToDetailsTitle,
+                onClick = onGoToDetails,
+                modifier = Modifier.focusRequester(firstFocus).testTag(GO_TO_DETAILS_BUTTON_TAG)
+            )
+            MenuButton(title = REMOVE_TITLE, onClick = onRemove, modifier = Modifier.testTag(REMOVE_BUTTON_TAG))
+            MenuButton(title = CANCEL_TITLE, onClick = onDismiss)
         }
     }
     LaunchedEffect(Unit) {
         withFrameNanos {}
-        removeFocus.requestFocus()
+        firstFocus.requestFocus()
+    }
+}
+
+@Composable
+private fun MenuButton(title: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Button(
+        onClick = onClick,
+        colors = TvGlass.buttonColors(),
+        scale = TvGlass.buttonScale(),
+        shape = TvGlass.pillShape(),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Text(text = title)
     }
 }
 
 const val CONTINUE_WATCHING_CARD_TAG = "continue-watching-card"
+const val GO_TO_DETAILS_BUTTON_TAG = "continue-watching-go-to-details"
 const val REMOVE_BUTTON_TAG = "continue-watching-remove"
 const val REMOVE_TITLE = "Remove from Continue Watching"
 private const val CANCEL_TITLE = "Cancel"

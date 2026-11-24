@@ -81,6 +81,27 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun w5_anEpisodeCardGoesToItsShowsDetailsNotTheEpisode() {
+        val home = homeState(continueWatching = TvosContinueWatchingRow("Continue Watching", listOf(watching("show"))))
+
+        val card = homeUiState(home).watchingRows.single().cards.single()
+
+        assertEquals(AppRoute.Details(type = "series", id = "show"), card.detailsRoute)
+        assertEquals("Go to Show", card.goToDetailsTitle)
+    }
+
+    @Test
+    fun w5_aMovieCardGoesToTheMoviesDetails() {
+        val movie = watching("tt1").copy(target = TvosStreamTarget("movie", "tt1", "tt1", null, null, "Movie", null, null, null, null, null, null))
+        val home = homeState(continueWatching = TvosContinueWatchingRow("Continue Watching", listOf(movie)))
+
+        val card = homeUiState(home).watchingRows.single().cards.single()
+
+        assertEquals(AppRoute.Details(type = "movie", id = "tt1"), card.detailsRoute)
+        assertEquals("Go to Movie", card.goToDetailsTitle)
+    }
+
+    @Test
     fun anEpisodeCardBandShowsTheEpisodeCodeAndTheTimeLeft() {
         val home = homeState(continueWatching = TvosContinueWatchingRow("Continue Watching", listOf(watching("k1"))))
 
