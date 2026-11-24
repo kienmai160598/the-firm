@@ -66,7 +66,7 @@ class StreamsTest {
 
         tv.select()
 
-        tv.await(hasText(STARTING_TORRENT) or hasText(PEERS, substring = true))
+        tv.await(hasText(STARTING_TORRENT) or hasText(RESOLVING))
         tv.await(hasTestTag(PLAYER_SURFACE_TAG), timeoutMillis = TORRENT_PLAY_TIMEOUT_MS)
         tv.await(hasTestTag(PLAYER_REMAINING_TAG), timeoutMillis = TORRENT_PLAY_TIMEOUT_MS)
     }
@@ -86,7 +86,7 @@ class StreamsTest {
         const val DIRECT_ROW = "Test 1080p MP4"
         const val TORRENT_ROW = "Test Torrent"
         const val STARTING_TORRENT = "Starting torrent"
-        const val PEERS = " peers, "
+        const val RESOLVING = "resolving"
         const val TORRENT_PLAY_TIMEOUT_MS = 180_000L
     }
 }

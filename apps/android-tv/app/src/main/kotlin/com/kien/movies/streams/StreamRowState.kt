@@ -22,17 +22,13 @@ data class StreamRowProgress(val title: String, val detail: String? = null, val 
 }
 
 /**
- * The pressed row while its torrent starts (tvOS StreamCheckingStatus): the engine's step, its
- * peers, seeds and speed, and how full the buffer is; "Starting torrent" before the first tick.
+ * The pressed row while its torrent starts (tvOS StreamCheckingStatus): the engine's step, and
+ * "Starting torrent" before the first tick. The engine reports no peers, speed or buffer until E4,
+ * so the row shows neither a detail line nor a bar (AC T1).
  */
-fun torrentProgress(status: TvosTorrentStatus?): StreamRowProgress {
-    status ?: return StreamRowProgress.startingTorrent
-    return StreamRowProgress(
-        title = status.step ?: StreamRowProgress.startingTorrent.title,
-        detail = "${status.peers} peers, ${status.seeds} seeds, ${status.downloadSpeedLabel}",
-        fraction = status.bufferFraction
-    )
-}
+fun torrentProgress(status: TvosTorrentStatus?): StreamRowProgress = StreamRowProgress(
+    title = status?.step ?: StreamRowProgress.startingTorrent.title
+)
 
 /** The one row that is not Idle. Every other row dims while it is set (AC S6). */
 @Immutable
