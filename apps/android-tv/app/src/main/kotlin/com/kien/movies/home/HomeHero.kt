@@ -89,13 +89,9 @@ import kotlinx.coroutines.delay
 
 /**
  * The top of Home (docs/tv-look-spec.md, section 3, "Hero"), the first item of Home's list,
- * [HERO_SLOT_HEIGHT] tall. Its art is a full screen opaque bitmap with the scrim baked in
- * ([BakedScrim]); at the top of the page it runs below the slot, under the peek of the first row.
- * As the list scrolls into the rows, the art's bottom edge rises with the scroll until it meets the
- * slot's end ([visibleArtHeight]), so Home's rows background takes over without a jump, as in
- * `03-sidebar-down.png`. A focus anywhere in the hero brings the whole slot into view, so the list
- * scrolls back to the top and the art grows back. The text block moves up faster than the list
- * ([PARALLAX]).
+ * [HERO_SLOT_HEIGHT] tall: the text block and the button. The art is [HomeHeroArt], behind the
+ * list. Both move with the list, as the tvOS page does: no parallax. A focus anywhere in the hero
+ * brings the whole slot into view, so the list scrolls back to the top.
  *
  * - [HeroMode.Featured]: one item of the first row at a time, with the page dots. Left and right
  *   on the button change the item; left on the first item is not taken, so focus goes on to the
@@ -114,11 +110,11 @@ fun HomeHero(
     statusMessage: String?,
     focusMemory: HomeFocusMemory,
     onOpen: (AppRoute) -> Unit,
-    scrollOffset: () -> Float,
+    index: Int,
+    onIndexChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var index by rememberSaveable { mutableIntStateOf(0) }
-    val shown = if (items.isEmpty()) 0 else index.coerceIn(0, items.lastIndex)
+    val shown = shownHeroIndex(index, items.size)
     val current = items.getOrNull(shown).takeIf { mode == HeroMode.Featured }
     var isFocused by remember { mutableStateOf(false) }
 
@@ -129,21 +125,12 @@ fun HomeHero(
             .bringIntoViewResponder(rememberWholeSlotResponder())
             .onFocusChanged { state -> isFocused = state.hasFocus }
     ) {
-        if (current != null) {
-            HeroArt(
-                item = current,
-                dots = if (items.size > 1) items.size else 0,
-                shownIndex = shown,
-                scrollOffset = scrollOffset
-            )
-        }
-        val parallax = Modifier.graphicsLayer { translationY = -scrollOffset() * PARALLAX }
         when (mode) {
             HeroMode.Status -> HomeStatus(statusMessage, Modifier.align(Alignment.Center).padding(bottom = STATUS_TEXT_LIFT))
             HeroMode.Featured, HeroMode.Loading, HeroMode.None -> Unit
         }
         HeroTextStack(
-            modifier = Modifier.fillMaxSize().then(parallax),
+            modifier = Modifier.fillMaxSize(),
             details = {
                 when {
                     current != null -> HeroDetails(current)
@@ -163,7 +150,7 @@ fun HomeHero(
                     },
                     onStep = { step ->
                         val next = shown + step
-                        if (mode == HeroMode.Featured && next in items.indices) index = next
+                        if (mode == HeroMode.Featured && next in items.indices) onIndexChange(next)
                         // Right is always taken on the hero, so it never jumps down to the first row.
                         mode == HeroMode.Featured && (step > 0 || next >= 0)
                     },
@@ -177,7 +164,7 @@ fun HomeHero(
     if (mode == HeroMode.Featured && items.size > 1 && !isFocused) {
         LaunchedEffect(shown, items.size) {
             delay(Motion.heroAdvanceMillis)
-            index = (shown + 1) % items.size
+            onIndexChange((shown + 1) % items.size)
         }
     }
 }
@@ -193,46 +180,6 @@ private fun rememberWholeSlotResponder(): BringIntoViewResponder {
             override fun calculateRectForParent(localRect: Rect): Rect = Rect(0f, 0f, localRect.right, slotHeight)
 
             override suspend fun bringChildIntoView(localRect: () -> Rect?) = Unit
-        }
-    }
-}
-
-/**
- * The art, a full screen tall from the slot's top, clipped to [visibleArtHeight] of the list's
- * [scrollOffset]. The offset is read in the draw phase, so the edge follows every scroll frame
- * without recomposing. The page dots sit in the part below the slot and leave with it.
- */
-@Composable
-private fun HeroArt(item: HeroItem, dots: Int, shownIndex: Int, scrollOffset: () -> Float) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(align = Alignment.Top, unbounded = true)
-            .height(SCREEN_HEIGHT)
-            .drawWithContent {
-                val bottom = visibleArtHeight(
-                    scrollOffset = scrollOffset(),
-                    slotHeight = HERO_SLOT_HEIGHT.toPx(),
-                    fullHeight = size.height,
-                    retractDistance = ART_RETRACT_SCROLL.toPx()
-                )
-                clipRect(bottom = bottom) { this@drawWithContent.drawContent() }
-            }
-    ) {
-        AsyncImage(
-            model = rememberBakedImage(item.backdropUrl, DpSize(SCREEN_WIDTH, SCREEN_HEIGHT), heroScrim),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-        if (dots > 0) {
-            PageDots(
-                count = dots,
-                index = shownIndex,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = DOTS_CENTRE_Y - DOTS_PLATTER_HEIGHT / 2)
-            )
         }
     }
 }
@@ -411,28 +358,6 @@ private fun HeroButton(mode: HeroMode, itemName: String?, onClick: () -> Unit, o
     }
 }
 
-/** Page dots on a dark capsule; the current dot is a short bar. */
-@Composable
-private fun PageDots(count: Int, index: Int, modifier: Modifier) {
-    Row(
-        modifier = modifier
-            .height(DOTS_PLATTER_HEIGHT)
-            .background(DOTS_PLATTER, TvShapes.pill)
-            .padding(horizontal = DOTS_PADDING),
-        horizontalArrangement = Arrangement.spacedBy(DOT_GAP),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        repeat(count) { position ->
-            val isCurrent = position == index
-            Box(
-                modifier = Modifier
-                    .size(width = if (isCurrent) DOT_CURRENT_WIDTH else DOT_SIZE, height = DOT_SIZE)
-                    .background(if (isCurrent) Color.White else DOT_REST, CircleShape)
-            )
-        }
-    }
-}
-
 const val HERO_BUTTON_TAG = "home-hero-button"
 const val HERO_PLACEHOLDER_TAG = "home-hero-placeholder"
 const val HOME_STATUS_TAG = "home-status"
@@ -443,36 +368,12 @@ private const val FACT_SEPARATOR = " · "
 private const val OVERVIEW_MAX_LINES = 3
 
 /**
- * The hero's slot in Home's list. Measured on `03-sidebar-down.png`: with Continue Watching
- * focused (cards at y 426 pt), the art ends at y 324 pt, 102 pt above the cards. With the cards at
- * y 931 pt on the unscrolled Home (`01-home.png`), the slot ends at 829 pt.
+ * The hero's slot in Home's list: with the cards at y 931 pt on the unscrolled Home
+ * (`01-home.png`), the slot ends at 829 pt.
  */
 internal val HERO_SLOT_HEIGHT: Dp = 414.5.dp
 
-/**
- * How much of the art, from the slot's top, shows when the list is scrolled by [scrollOffset]:
- * [fullHeight] at the top of the page, down to [slotHeight] once the list has scrolled
- * [retractDistance], in proportion between. The art's edge on screen then rises steadily with
- * the scroll instead of jumping when focus leaves the hero.
- */
-internal fun visibleArtHeight(scrollOffset: Float, slotHeight: Float, fullHeight: Float, retractDistance: Float): Float {
-    val progress = (scrollOffset / retractDistance).coerceIn(0f, 1f)
-    return fullHeight - (fullHeight - slotHeight) * progress
-}
-
-/**
- * List scroll over which the art retracts to the slot: a little less than the scroll that centres
- * the first row's cards (Continue Watching cards move from y 931 to 426 pt, 252 dp; poster rows
- * scroll further), so the edge reaches the slot's end by the time the scroll settles.
- */
-private val ART_RETRACT_SCROLL = 240.dp
-
-/** Text block over list scroll: the buttons move 619 pt while the cards move 504 pt (`05` to `03`). */
-private const val PARALLAX = 0.228f
 private const val PRIMARY_FOCUS_SCALE = 1.05f
-
-private val SCREEN_WIDTH = 960.dp
-private val SCREEN_HEIGHT = 540.dp
 
 // Measured, pt / 2: buttons 706 to 774 pt focused (68 pt; rest 64 pt), primary 306 pt wide focused;
 // overview last baseline 669 pt; metadata baseline 614 pt; logo bottom 569 pt; logo up to
@@ -490,17 +391,6 @@ private const val LOGO_DECODE_FACTOR = 2
 private val OVERVIEW_WIDTH = 280.dp
 private val META_GAP = 8.dp
 
-// Page dots measured on `03-sidebar-down.png` and `05-up-hero.png`: centred at y 868 pt, dots
-// 9 pt on a 21 pt pitch, current 30 pt wide, on a black 50% capsule 27 pt tall.
-private val DOTS_CENTRE_Y = 434.dp
-private val DOTS_PLATTER_HEIGHT = 13.5.dp
-private val DOTS_PADDING = 8.dp
-private val DOT_SIZE = 4.5.dp
-private val DOT_GAP = 6.dp
-private val DOT_CURRENT_WIDTH = 15.dp
-private val DOTS_PLATTER = Color.Black.copy(alpha = 0.5f)
-private val DOT_REST = Color.White.copy(alpha = 0.3f)
-
 private val SKELETON_FILL = Color.White.copy(alpha = 0.12f)
 private val SKELETON_SHAPE = RoundedCornerShape(4.dp)
 private val glassBorder = Border(border = BorderStroke(1.dp, TvColors.glassEdge), shape = TvShapes.pill)
@@ -508,16 +398,3 @@ private val glassBorder = Border(border = BorderStroke(1.dp, TvColors.glassEdge)
 // The status text sits above the centre and the button below it.
 private val STATUS_TEXT_LIFT = 40.dp
 private val STATUS_BUTTON_DROP = 36.dp
-
-/**
- * The hero art with its shades baked in. Stops from `01-home.png`: the sky is about 32% darker at
- * the left edge than right of the text block, 13% at x 300 pt and clear from about x 560 pt; the
- * bottom darkens by about 40% under the first row.
- */
-private val heroScrim = BakedScrim(
-    underlay = TvColors.homeRows,
-    layers = listOf(
-        ScrimLayer.horizontal(0f to Color.Black.copy(alpha = 0.4f), 0.16f to Color.Black.copy(alpha = 0.2f), 0.33f to Color.Transparent),
-        ScrimLayer.vertical(0.7f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.45f))
-    )
-)

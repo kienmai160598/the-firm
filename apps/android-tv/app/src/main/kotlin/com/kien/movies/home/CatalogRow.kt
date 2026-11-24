@@ -2,7 +2,6 @@ package com.kien.movies.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -102,18 +101,4 @@ fun ShelfRow(
     }
 }
 
-/**
- * A [BringIntoViewSpec] for Home's list: a focused card is centred on the screen, as every
- * scrolled capture shows (cards at 345 to 735, 426 to 652, 190 to 888 pt on a 1080 pt screen).
- * A child at least [WHOLE_FRACTION] of the screen tall (the hero slot) is aligned to the top.
- */
-@OptIn(ExperimentalFoundationApi::class)
-internal val CentringBringIntoViewSpec: BringIntoViewSpec = object : BringIntoViewSpec {
-    override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float = centringScrollDistance(offset, size, containerSize)
-}
-
-/** How far to scroll so a child at [offset] with [size] is centred, or top aligned when large. */
-internal fun centringScrollDistance(offset: Float, size: Float, containerSize: Float): Float = if (size >= containerSize * WHOLE_FRACTION) offset else offset + size / 2 - containerSize / 2
-
-private const val WHOLE_FRACTION = 0.6f
 private const val POSTER_CONTENT_TYPE = "poster"

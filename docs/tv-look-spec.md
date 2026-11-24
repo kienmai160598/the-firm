@@ -57,7 +57,7 @@ colour the box can afford (decided in `android-tv-rebuild.md`, box performance r
 
 | Token | Reference | tvOS | Android TV |
 |---|---|---|---|
-| Home rows background | slate under the rows once the hero scrolls away, measured `#353A3C` (`10-row3.png`) | slate gradient `#253035` top to `#333637` | `#353A3C` flat |
+| Home rows background | slate under the rows once the hero scrolls away, measured `#353A3C` (`10-row3.png`) | gradient `#2B3038` top to `#1C1F24` (`HomeBackground`, HomeView.swift) | `#24282E` flat, the tvOS midpoint |
 | Details background | navy, lighter in the centre: `#0B131B` edges, `#263642` centre | gradient as measured | `#141C24` flat |
 | Search and Library background | grey slate `#273137` top to `#35393A` | gradient as measured | `#2E3437` flat |
 | Text primary | white | `.primary` | `#FFFFFF` |
@@ -133,7 +133,13 @@ Reference: `01-home.png`, `05-up-hero.png`, `13-details-top.png`.
     buttons (add, info), then a chevron to the next hero item. 24 pt between buttons (re-measured;
     first read 64 and 26). Primary is 296 x 64 unfocused and 306 x 68 focused.
   - Caption under the primary button (price), tertiary.
-- Home pager: dots centred at y 868; Left and Right on the chevron change item.
+- Home pager: dots centred at y 868; Left and Right on the chevron change item. Our tvOS app puts
+  them 36 pt above the page's end (y 819 on the simulator); Android does the same from its slot.
+- Home art (our tvOS app, HomeHeroBackdrop.swift): one screen tall from the page top, so it runs
+  under the first shelf; leading shade black 75% to 25% at half width to clear at 75%; bottom
+  shade clear at 50% to black 55% at 85%; the bottom 20% fades into the Home background. It
+  scrolls with the page: no parallax, no clip. Android bakes all three into the bitmap
+  (`BakedScrim.homeHero`) and draws it behind the list, moved by the list's scroll.
 - Details: "Starring ..." block on the right at x 1350, Caption 2, secondary label then primary names.
 - Box: the scrim is baked into the backdrop bitmap once (`BakedScrim` Coil transformation, commit
   `3b64836ac0`), never drawn per frame. Trailer autoplay stays off on the box (decode and fill cost).
@@ -189,7 +195,7 @@ Reference: `38-search.png`, `39-search-results.png`.
 
 | Screen | Order top to bottom | Notes |
 |---|---|---|
-| Home | nav pill; hero (logo, metadata, overview, buttons, dots); Continue Watching peeking at y 930; then featured, Top 10 and genre rows | Focus into the rows scrolls the page up so the focused row sits under the top; the backdrop gives way to the rows background |
+| Home | nav pill; hero (logo, metadata, overview, buttons, dots); Continue Watching peeking at y 930; then featured, Top 10 and genre rows | Focus into the rows scrolls the page only as far as needed: our tvOS app keeps a focused card 181 pt from the top and bottom edges (simulator, 2026-11-24), so after the first Down the hero's text and its fading art still show above the first row |
 | Details (show) | hero; Episodes (season tabs, episode cards); Trailers; Bonus Content; Related (posters); Cast & Crew (circles); How to Watch; About card; Information, Languages, Accessibility | Opens from a card as an inset card (x 120 to 1800, top 40) that grows to full screen; Left and Right on the top move to the neighbour title as a card pager |
 | Details (movie) | hero with Buy and Rent; Related; How to Watch; About | `41-movie-details.png` to `49-play2.png` |
 | Search | field, keyboard, results as in section 3 | |
@@ -207,7 +213,7 @@ Reference: `38-search.png`, `39-search-results.png`.
 | Card pager on Details | Left or Right at the top slides the neighbour title in | custom `TabView(.page)` of details cards | `HorizontalPager` | `unmeasured` |
 | Sidebar open and close | panel fades and slides in from the left over the content | system | `ModalNavigationDrawer` default | `system` |
 | Row scroll | focused card kept in place, row slides | system | `LazyRow` with `BringIntoViewSpec` keeping the item at the start margin | `system` |
-| Home page scroll into rows | hero slides up, its art's bottom edge rises from the screen bottom to a hard edge above the first row, rows take the screen | `ScrollView` scroll target; edge animated with the focus change (`tvos/look2`, `.smooth(0.35)`) | focus bring-into-view (default `spring()`); the art's clip follows the list scroll offset over the first 240 dp, read in the draw phase; rows within a screen stay composed (`LazyLayoutCacheWindow`, idle fill) so the first Down composes no cards | `unmeasured`; box, longest Down frame (perfetto, 2026-11-24): warm 52 to 14 ms, cold 143 to 33 ms (the rest is the render thread drawing new content the first time) |
+| Home page scroll into rows | the page, hero art and text included, slides up as one; the rows pass over the art's faded end, no edge | `ScrollView` focus scroll, the art in the hero page's background | focus bring-into-view (default `spring()`) with 90 dp insets above and below the focused card; the art is a layer behind the list moved by its scroll, read in the draw phase; rows within a screen stay composed (`LazyLayoutCacheWindow`, idle fill) so the first Down composes no cards | `unmeasured`; box, longest Down frame (perfetto, 2026-11-24): warm 52 to 14 ms, cold 143 to 33 ms (the rest is the render thread drawing new content the first time) |
 
 How the open motion values get measured: a capture card on the Apple TV's HDMI output, or a 240 fps
 slow motion phone video of the TV, stepped frame by frame with `ffmpeg`. Until then the Android

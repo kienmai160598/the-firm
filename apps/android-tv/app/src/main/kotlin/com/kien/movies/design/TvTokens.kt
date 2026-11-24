@@ -52,11 +52,11 @@ object TvInsets {
 /** Colours of spec section 2, Android column. Flat fills only. */
 object TvColors {
     /**
-     * Home under the rows once the hero scrolls away. Measured `#353A3C` on `09-top10-focus.png`,
-     * `10-row3.png`, `12-row5.png` (gutters between posters); the spec's `#1C2228` is darker than
-     * every capture.
+     * Home under the rows, flat: the midpoint of the tvOS app's Home gradient, `#2B3038` at the
+     * top to `#1C1F24` at the bottom (`HomeBackground` in HomeView.swift; decision table in
+     * docs/android-tv-rebuild.md, "Not ported literally"). The hero art fades into it.
      */
-    val homeRows = Color(0xFF353A3C)
+    val homeRows = Color(0xFF24282E)
 
     /** Details background (navy). */
     val details = Color(0xFF141C24)

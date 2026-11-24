@@ -12,11 +12,11 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.withFrameNanos
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -29,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kien.movies.design.SemanticsForScreenReaders
 import com.kien.movies.design.dpadRepeatThrottle
 import com.kien.movies.design.prunesUnreadSemantics
+import com.kien.movies.design.rememberInsetBringIntoViewSpec
 import com.kien.movies.shell.AppRoute
 import com.kien.movies.shell.ReportScrollToNavPill
 import com.kien.movies.shell.Router
@@ -38,9 +39,9 @@ import com.kien.movies.shell.Router
  * Upcoming, then the catalog shelves, in one vertical list of sideways rows. The hero's art runs
  * to the screen edge; text and cards start at the side margin, under the floating nav pill.
  *
- * Scroll: a focused card is centred on the screen ([CentringBringIntoViewSpec]), so focus into the
- * rows scrolls the page up and the rows background (the window colour) takes the screen; a focus
- * in the hero scrolls back to the top.
+ * Scroll: as on tvOS, a focused card comes into view only as far as needed, with [ROW_INSET]
+ * above and below it; a focus in the hero scrolls back to the top. The hero's art lies behind the
+ * list ([HomeHeroArt]) and moves with it.
  *
  * Focus: entering Home (launch, Back from a pushed screen, right from the sidebar) focuses the
  * element that had focus last, else the hero's button (AC N1, N4; [HomeFocusMemory]), and each
@@ -66,6 +67,7 @@ private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove
     val focusMemory = rememberSaveable(saver = HomeFocusMemory.Saver) { HomeFocusMemory() }
     val homeFocus = remember { FocusRequester() }
     val mode = state.heroMode
+    var heroIndex by rememberSaveable { mutableIntStateOf(0) }
 
     LoseNoFocusWhenTheHeroGoes(mode, homeFocus)
 
@@ -77,7 +79,8 @@ private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove
             .focusProperties { onEnter = { focusMemory.restore() } }
             .focusGroup()
     ) {
-        CompositionLocalProvider(LocalBringIntoViewSpec provides CentringBringIntoViewSpec) {
+        HomeHeroArt(mode = mode, items = state.hero, index = heroIndex, listState = listState)
+        CompositionLocalProvider(LocalBringIntoViewSpec provides rememberInsetBringIntoViewSpec(leading = ROW_INSET)) {
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize().testTag(HOME_ROWS_TAG),
@@ -92,7 +95,8 @@ private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove
                             statusMessage = state.errorMessage,
                             focusMemory = focusMemory,
                             onOpen = onOpen,
-                            scrollOffset = { if (listState.firstVisibleItemIndex == 0) listState.firstVisibleItemScrollOffset.toFloat() else 0f }
+                            index = heroIndex,
+                            onIndexChange = { next -> heroIndex = next }
                         )
                     }
                 }
@@ -120,23 +124,6 @@ private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove
     }
 }
 
-/**
- * When loading ends and the first row has no backdrop, the hero (and the button that held focus
- * since launch) leaves the list; focus then moves to the first card instead of being lost.
- */
-@Composable
-private fun LoseNoFocusWhenTheHeroGoes(mode: HeroMode, homeFocus: FocusRequester) {
-    val previous = remember { arrayOf(mode) }
-    LaunchedEffect(mode) {
-        val wasLoading = previous[0] == HeroMode.Loading
-        previous[0] = mode
-        if (wasLoading && mode == HeroMode.None) {
-            withFrameNanos {}
-            homeFocus.requestFocus()
-        }
-    }
-}
-
 /** The Home list, for UI tests. */
 const val HOME_ROWS_TAG = "home-rows"
 
@@ -153,5 +140,8 @@ private val ONE_SCREEN = 540.dp
  */
 private val rowsCacheWindow = LazyLayoutCacheWindow(ahead = ONE_SCREEN, behind = ONE_SCREEN, isNonScrollCachingEnabled = true)
 
-// Room under the last shelf so its posters can be centred too: half the screen minus half a poster.
-private val LIST_BOTTOM_PADDING = 175.dp
+/** tvOS keeps a focused card 181 pt from the screen's top and bottom edges (simulator, 2026-11-24). */
+private val ROW_INSET = 90.dp
+
+/** tvOS: 60 pt under the last shelf plus the 60 pt bottom safe area. */
+private val LIST_BOTTOM_PADDING = 60.dp
