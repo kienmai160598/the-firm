@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -59,6 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import coil3.request.ImageRequest
+import coil3.size.Precision
 import com.kien.movies.R
 import com.kien.movies.debug.DebugLaunch
 import com.kien.movies.design.ArtworkImage
@@ -157,7 +159,6 @@ private fun DetailsContent(
     val listState = rememberLazyListState()
     val playFocus = remember { FocusRequester() }
     val contentFocus = remember { FocusRequester() }
-    val aboutFocus = remember { FocusRequester() }
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val entries = remember(details) { infoEntries(details) }
@@ -178,15 +179,6 @@ private fun DetailsContent(
         val topPx = with(density) { section.top.toPx() }
         val bottomMarginPx = with(density) { OVERSCAN_BOTTOM.toPx() }
         scope.launch { listState.scrollSection(index, section, topPx, bottomMarginPx) }
-    }
-
-    // The About item may not be composed yet: bring it in, then focus it (it scrolls into place).
-    fun focusAbout() {
-        scope.launch {
-            listState.scrollToItem(sections.indexOf(DetailsSection.About))
-            withFrameNanos {}
-            aboutFocus.requestFocus()
-        }
     }
 
     // The page scrolls each section to its own place (see DetailsSection.top), not by the default
@@ -210,7 +202,6 @@ private fun DetailsContent(
                     },
                     onSeasonsFocused = { scrollTo(DetailsSection.Episodes) },
                     onOpen = onOpen,
-                    onInfo = if (hasAbout) ::focusAbout else null,
                     onSelectSeason = onSelectSeason,
                     modifier = Modifier.fillParentMaxHeight(topFraction(details))
                 )
@@ -231,7 +222,7 @@ private fun DetailsContent(
             }
             if (hasAbout) {
                 item(key = DetailsSection.About.name, contentType = DetailsSection.About.name) {
-                    AboutSection(details = details, focusRequester = aboutFocus, modifier = Modifier.sectionSpacing().onSectionFocus { scrollTo(DetailsSection.About) })
+                    AboutSection(details = details, modifier = Modifier.sectionSpacing().onSectionFocus { scrollTo(DetailsSection.About) })
                 }
             }
             if (entries.isNotEmpty()) {
@@ -259,7 +250,6 @@ private fun DetailsTop(
     onHeroFocusChanged: (Boolean) -> Unit,
     onSeasonsFocused: () -> Unit,
     onOpen: (TvosStreamTarget) -> Unit,
-    onInfo: (() -> Unit)?,
     onSelectSeason: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -270,10 +260,9 @@ private fun DetailsTop(
             logo = logo,
             playFocus = playFocus,
             onOpen = onOpen,
-            onInfo = onInfo,
             modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(start = TvGrid.sideMargin, end = TvGrid.sideMargin, bottom = HERO_BOTTOM)
+                .heroFrame()
+                .padding(horizontal = TvGrid.sideMargin)
                 .graphicsLayer { alpha = heroAlpha }
                 .onFocusChanged { focusState -> onHeroFocusChanged(focusState.hasFocus) }
                 .focusGroup()
@@ -293,6 +282,13 @@ private fun DetailsTop(
             )
         }
     }
+}
+
+/** The hero's place in the Top item: [HERO_FRAME_HEIGHT] from the top, its bottom on that line. */
+private fun Modifier.heroFrame(): Modifier = layout { measurable, constraints ->
+    val frame = HERO_FRAME_HEIGHT.roundToPx()
+    val placeable = measurable.measure(constraints.copy(minHeight = 0, maxHeight = frame))
+    layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(0, frame - placeable.height) }
 }
 
 /** The sections of the page, in order, each with where its top sits when it takes focus. */
@@ -358,7 +354,7 @@ private fun rememberLogoRequest(url: String?): ImageRequest? {
     return remember(url, density) {
         url?.let { data ->
             val (width, height) = with(density) { LOGO_DECODE.width.roundToPx() to LOGO_DECODE.height.roundToPx() }
-            ImageRequest.Builder(context).data(data).size(width, height).build()
+            ImageRequest.Builder(context).data(data).size(width, height).precision(Precision.EXACT).build()
         }
     }
 }
@@ -429,7 +425,10 @@ private const val CONTENT_FADE_MILLIS = 200
 
 private val BACKDROP_SCRIM = BakedScrim.backdrop(TvColors.details)
 private val SCREEN_SIZE = DpSize(960.dp, 540.dp)
-private val LOGO_DECODE = DpSize(210.dp, 55.dp)
+
+// The hero's logo box (tvOS 720 x 220 pt). Decoded at exact precision, so a small logo is scaled up
+// to fit the box as tvOS `resizable().scaledToFit()` does, not left at its source size.
+private val LOGO_DECODE = DpSize(360.dp, 110.dp)
 
 // Measured on 14-details-d1.png and 15-details-d2.png (pt / 2): cards peek at 1040 pt, the
 // button row ends at 926 pt, the tabs end 34 pt above the cards; 75 pt from one shelf's cards
@@ -440,7 +439,14 @@ private const val SECTION_GAP_VALUE = 37f
 private const val SHELF_TITLE_BLOCK = 31f
 private val SECTION_GAP = SECTION_GAP_VALUE.dp
 private val SECTION_TOP = 133.dp
-private val HERO_BOTTOM = 57.dp
+
+/**
+ * tvOS gives the hero 88% of the screen and bottom aligns it there (DetailsView.swift); its text
+ * ends near y 905 pt on the simulator, its logo near 677 pt and its Play button at 718 pt. The hero
+ * sits at the top of the Top item, bottom aligned in this frame, so a movie and a series place it
+ * the same. 451 dp puts the logo and Play within 2 px of those on the TCL.
+ */
+private val HERO_FRAME_HEIGHT = 451.dp
 private val TABS_BOTTOM = 17.dp
 private val BOTTOM_PADDING = 40.dp
 private val OVERSCAN_BOTTOM = 27.dp

@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -33,12 +31,12 @@ import com.nuvio.tvos.TvosMetaDetails
  * (reference `20-details-d7.png`). Focusable so the D-pad can scroll to it; Select does nothing.
  */
 @Composable
-internal fun AboutSection(details: TvosMetaDetails, focusRequester: FocusRequester, modifier: Modifier = Modifier) {
+internal fun AboutSection(details: TvosMetaDetails, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         ShelfHeader(title = ABOUT_TITLE)
         Platter(
             restingFill = ABOUT_FILL,
-            modifier = Modifier.padding(start = TvGrid.sideMargin).focusRequester(focusRequester).testTag(DETAILS_ABOUT_TAG),
+            modifier = Modifier.padding(start = TvGrid.sideMargin).testTag(DETAILS_ABOUT_TAG),
             width = TvGrid.itemWidth(INFO_COLUMNS),
             contentPadding = ABOUT_PADDING
         ) {

@@ -7,11 +7,10 @@ import com.nuvio.tvos.TvosPlayAction
 import kotlin.math.roundToInt
 
 // The texts Details builds from the bridge's values, as pure functions. Labels the bridge already
-// gives (play label, resume label) are shown as they are. The arrangement follows the Apple TV
-// app (docs/tv-look-spec.md, section 3).
+// gives (play label, resume label) are shown as they are. The arrangement follows the tvOS app.
 
-/** Kind and two genres, e.g. "TV Show", "Drama", "Crime" (hero metadata line). */
-internal fun heroMetadata(details: TvosMetaDetails): List<String> = listOfNotNull(kindLabel(details.type)) + details.genres.take(HERO_GENRES)
+/** Two genres, release line and run time, e.g. "Comedy, Drama", "2026", "1h 49m" (tvOS DetailsHeroView `facts`). */
+internal fun summaryFacts(details: TvosMetaDetails): List<String> = listOfNotNull(joinedOrNull(details.genres.take(HERO_GENRES)), details.releaseLine, details.runtime)
 
 /** "TV Show" or "Movie" for the bridge's type; null for a type the reference does not name. */
 internal fun kindLabel(type: String): String? = when (type) {
@@ -20,17 +19,11 @@ internal fun kindLabel(type: String): String? = when (type) {
     else -> null
 }
 
-/** Release line and run time, the start of the hero's tech line ("2022 · 57m"). */
-internal fun techFacts(details: TvosMetaDetails): List<String> = listOfNotNull(details.releaseLine, details.runtime)
-
-/** The first three cast names, shown after the "Starring" label; null without cast. */
-internal fun starringNames(cast: List<TvosCastMember>): String? {
+/** "Starring" and the first three cast names; null without cast (tvOS DetailsHeroView `starring`). */
+internal fun starringLine(cast: List<TvosCastMember>): String? {
     val names = cast.take(STARRING_NAMES).map(TvosCastMember::name)
-    return if (names.isEmpty()) null else names.joinToString(", ")
+    return if (names.isEmpty()) null else "Starring " + names.joinToString(", ")
 }
-
-/** The directors, shown after the "Director" label; null without any. */
-internal fun directorNames(directors: List<String>): String? = joinedOrNull(directors)
 
 /** The bar and label under the play button (tvOS ResumeProgressView). */
 data class ResumeProgress(val fraction: Float, val label: String)

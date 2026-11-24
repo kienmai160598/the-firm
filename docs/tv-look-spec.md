@@ -140,7 +140,16 @@ Reference: `01-home.png`, `05-up-hero.png`, `13-details-top.png`.
   shade clear at 50% to black 55% at 85%; the bottom 20% fades into the Home background. It
   scrolls with the page: no parallax, no clip. Android bakes all three into the bitmap
   (`BakedScrim.homeHero`) and draws it behind the list, moved by the list's scroll.
-- Details: "Starring ..." block on the right at x 1350, Caption 2, secondary label then primary names.
+- Details top (our tvOS app, DetailsHeroView.swift; the Apple TV app lays it out otherwise): bottom
+  aligned in the top 88% of the screen at the side margin. The logo (max 720 x 220 pt, scaled up
+  to fit) or the title, 40 pt below it a row: Play (play glyph, 30 pt semibold, at least 300 pt
+  wide, glass prominent; resume bar and label 18 pt under it), 64 pt gap, then the summary at most
+  820 pt wide: overview 27 pt white 90% (3 lines), facts "Comedy, Drama | 2026 | 1h 49m" 23 pt
+  medium white 60% with the age and IMDb badges, "Starring A, B, C" 23 pt white 55% (1 line).
+  No info or add button: About is reached by scrolling. Measured on the simulator: logo bottom
+  677 pt, Play 367 x 81 pt at top 718 pt, "Cast & Crew" near 980 pt. Android on the TCL: logo
+  bottom 677 px, Play top 716 px; "Cast & Crew" still near 997 px (the sections below the top
+  are a later slice).
 - Box: the scrim is baked into the backdrop bitmap once (`BakedScrim` Coil transformation, commit
   `3b64836ac0`), never drawn per frame. Trailer autoplay stays off on the box (decode and fill cost).
 
@@ -167,7 +176,9 @@ Reference: `01-home.png`, `05-up-hero.png`, `13-details-top.png`.
 
 ### Buttons and pills
 
-- Primary: white capsule, dark text, height 68 (Home) or 64 (Details).
+- Primary: white capsule, dark text, height 68 (Home) or 64 (Details). Our tvOS Home Watch Now
+  is 267 x 66 pt focused with a 24 pt play glyph and a semibold label; Android sizes it to at least
+  that and wider when the label needs it.
 - Secondary: 66 pt circle, glyph only; dark translucent when unfocused (Android: plus the glass edge), white when focused.
 - Season tabs: capsules height 60, Callout; selected tab grey capsule, others plain text.
 - Search suggestions: capsules height 64 with a magnifier glyph.
