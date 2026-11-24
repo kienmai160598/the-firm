@@ -101,15 +101,15 @@ object TvGlass {
         pressedBorder = Border.None
     )
 
-    /** The glass edge of a circular tv-material `IconButton`. */
+    /** The rim of a circular tv-material `IconButton` over video: [liquidGlassRim]. */
     @Composable
     @ReadOnlyComposable
-    fun circleBorder(): ButtonBorder = IconButtonDefaults.border(
-        border = edge.withShape(CircleShape),
+    fun liquidCircleBorder(): ButtonBorder = IconButtonDefaults.border(
+        border = liquidGlassBorder(CircleShape),
         focusedBorder = Border.None,
         pressedBorder = Border.None,
-        disabledBorder = edge.withShape(CircleShape),
-        focusedDisabledBorder = edge.withShape(CircleShape)
+        disabledBorder = liquidGlassBorder(CircleShape),
+        focusedDisabledBorder = liquidGlassBorder(CircleShape)
     )
 
     /**

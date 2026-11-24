@@ -489,8 +489,8 @@ private fun InfoRow(
                     enabled = !isTrackMenuOpen || isOpen,
                     shape = TvGlass.circleShape(),
                     scale = TvGlass.circleScale(),
-                    border = TvGlass.circleBorder(),
-                    colors = TvGlass.circleColors(containerColor = if (isOpen) OpenControlFill else TvColors.platter),
+                    border = TvGlass.liquidCircleBorder(),
+                    colors = TvGlass.circleColors(containerColor = if (isOpen) OpenControlFill else TvColors.playerGlass),
                     modifier = Modifier
                         .size(TvControls.circle)
                         .focusRequester(controlFocus.getValue(control))

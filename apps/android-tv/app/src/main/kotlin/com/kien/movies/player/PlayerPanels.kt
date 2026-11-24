@@ -42,7 +42,7 @@ import com.kien.movies.R
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
-import com.kien.movies.design.glassEdge
+import com.kien.movies.design.liquidGlassEdge
 
 const val PLAYER_TRACK_MENU_TAG = "player-track-menu"
 const val PLAYER_INFO_MENU_TAG = "player-info-menu"
@@ -187,14 +187,14 @@ private fun TrackRow(option: TrackOption, onClick: () -> Unit, modifier: Modifie
     }
 }
 
-/** A platter over the video: opaque near black panel, panel corner and the glass edge. */
+/** A platter over the video: opaque near black panel, panel corner and the liquid glass rim. */
 @Composable
 private fun MenuPanel(width: Dp, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Column(
         modifier = modifier
             .width(width)
             .background(PanelFill, TvShapes.panel)
-            .glassEdge(TvShapes.panel)
+            .liquidGlassEdge(TvShapes.panel)
             .padding(PanelPadding),
         content = content
     )

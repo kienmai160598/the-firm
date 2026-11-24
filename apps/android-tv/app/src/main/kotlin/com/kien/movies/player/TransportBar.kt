@@ -211,9 +211,9 @@ private fun SkipBadgeIcon(badge: SkipBadge) {
 private val SkipGlyphSize = 22.dp // 44 pt
 private const val SKIP_BOUNCE_SCALE = 1.2f
 
-// tvOS MpvTransportBar.track: a glass capsule with white fills and a 1 pt white edge at 18%. The
+// tvOS MpvTransportBar.track: a glass capsule (grey as measured over video) with white fills and a 1 pt white edge at 18%. The
 // track is a few dp tall, so its translucent fills cost the box next to nothing.
-private val TrackFill = TvColors.platter
+private val TrackFill = TvColors.playerTrack
 private val BufferedFill = Color.White.copy(alpha = 0.3f)
 private val PlayedFill = Color.White.copy(alpha = 0.9f)
 private val PlayedScrubFill = Color.White.copy(alpha = 0.55f)
