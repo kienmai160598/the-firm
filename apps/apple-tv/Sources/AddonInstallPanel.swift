@@ -3,7 +3,7 @@ import SwiftUI
 /// The preview while "Add Addon" has focus: the QR code a phone scans to send a manifest URL,
 /// and how the last install went.
 struct AddonInstallPanel: View {
-    private static let codeRadius: CGFloat = 40
+    private static let codeRadius: CGFloat = 32
 
     let pageUrl: URL?
     let status: AddonInstallStatus?
@@ -32,14 +32,14 @@ struct AddonInstallPanel: View {
             Image(decorative: image, scale: 1)
                 .interpolation(.none)
                 .resizable()
-                .padding(36)
+                .padding(28)
                 .background(.white, in: RoundedRectangle(cornerRadius: Self.codeRadius, style: .continuous))
         } else {
             RoundedRectangle(cornerRadius: Self.codeRadius, style: .continuous)
                 .fill(.quaternary)
                 .overlay {
                     Image(systemName: "qrcode")
-                        .font(.system(size: 200))
+                        .font(.system(size: 150))
                         .foregroundStyle(.secondary)
                 }
         }
