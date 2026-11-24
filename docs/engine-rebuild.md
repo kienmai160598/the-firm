@@ -1,9 +1,10 @@
 # Torrent engine rebuild
 
 A new torrent streaming engine, written from scratch in `engine/`, replaces the NuvioMedia
-`nuvio-engine` that `engine/build.sh` builds from a pinned upstream commit. Both TV apps reach it
-only through the Kotlin module `shared/torrent`. Until slice E7 the old engine stays the one the
-apps use, so `main` always plays torrents.
+`nuvio-engine`. Both TV apps reach it only through the Kotlin module `shared/torrent`. Since E7a
+the Apple TV app links only the new engine and `engine/build.sh` with its patches is gone. Android
+still plays torrents through the prebuilt `nuvio-engine` AAR (upstream's `P2pStreamingEngine`
+in `android-tv-bridge`) and gets the new engine with E6.
 
 ## 1. Decisions
 
@@ -19,11 +20,14 @@ Settled:
   Apple, route bounds on macOS). Each is rewritten only when a slice needs it. E1 checked HTTPS
   trackers: without TLS (D3) libtorrent skips them, and streams find peers through UDP trackers
   and DHT. The app adds five public UDP trackers to the ones the add-on sends.
-- D2: one engine per build. The old static library exports about 11,000 libtorrent symbols and
-  the new one brings its own copy, so the Gradle property `nuvio.tvos.engine=legacy` or `next`
-  (or `NUVIO_TVOS_ENGINE`, which the Makefile passes into the Xcode build) picks which one is
-  linked. `legacy` is the default until E7. `TvosTorrent` keeps its Swift facing API; its
-  `TvosTorrentBackend` comes from `src/tvosLegacyEngine` or `src/tvosNextEngine`.
+- D2: one engine per build. From E1 to E7a the Gradle property `nuvio.tvos.engine` picked the
+  old or the new one, since both bring their own libtorrent. E7a removed the switch with the old
+  engine: `TvosTorrent` keeps its Swift facing API and `TvosTorrentBackend` in `tvosMain` runs the
+  new engine.
+- The gateway url ends in `/video.<ext>` of the played file and answers with its media type
+  (`video/mp4`, `video/x-matroska`, ...). AVPlayer refuses an extensionless url served as
+  `application/octet-stream`, so the app picks AVPlayer for .mp4 and mpv for .mkv as it does for
+  any other url.
 
 Open (the default is what the plan assumes):
 
@@ -40,9 +44,10 @@ Open (the default is what the plan assumes):
 | E-AC3 | Seeking lands on the right bytes, and engine memory stays under a fixed cap through 20 seeks |
 | E-AC4 | The UI reads stream state (resolving, buffering with percent, playing, stalled, failed) through `shared/torrent` |
 | E-AC5 | Android TV plays a torrent with the same engine |
-| E-AC6 | Until E7 a build can still use the old engine (D2) |
+| E-AC6 | Until E7 a build can still use the old engine (D2). Retired on tvOS by E7a |
 
-T2 in `docs/android-tv-rebuild.md` (1 GiB readahead on the old engine) stays valid until E7.
+T2 in `docs/android-tv-rebuild.md` reads 256 MiB ahead on tvOS since E7a (E1's window); E2 and
+E3 size the window from memory.
 A10 (Android torrents) builds on E6.
 
 ## 3. Architecture
@@ -119,7 +124,8 @@ shared/torrent/   Kotlin module: commonMain API, tvosMain cinterop, androidMain 
 | E4 State to UI | TelemetryService, `StreamSession` state machine in Kotlin, tvOS UI reads it | E-AC4 | Kotlin state machine tests; UI test sees progress on the stream row |
 | E5 Disk store | DiskPayloadStore for the 1.9 GB box | box | The E1 to E3 integration tests pass with the disk store |
 | E6 Android | JNI binding, AAR built from this source, armeabi-v7a | E-AC5 | A torrent plays on the box (with A10) |
-| E7 Cutover | New engine is the default, `nuvio-engine`, `engine/build.sh` and its patches go | all | `make check`, `make apple-tv-sim`, a film on the Apple TV and on the box |
+| E7a tvOS cutover | The Apple TV app links only the new engine; the D2 switch, `engine/build.sh`, its patches and the tvOS `nuvio-engine` sources go. Done ahead of E2 to E4 at the owner's request, so tvOS reads 256 MiB ahead from RAM and shows no peers or speed until E4 | E-AC1 | `make shared-test`, `make apple-tv-sim`, a film plays and seeks on the Apple TV |
+| E7 Cutover | Android on the new engine (with E6 and A10), the `nuvio-engine` AAR goes | all | `make check`, a film on the box |
 
 ## 5. Risks
 
@@ -172,7 +178,16 @@ Verified (E1, on a Mac and the tvOS simulator):
   trackers, no TLS): metadata in 2 s, the whole file over HTTP plus two Range requests with
   matching bytes, ffmpeg decodes it without an error, and the state directory stays empty.
 
-Not verified: a film on the Apple TV with the `next` build (the device was in use);
+Verified (E7a, Debug build driven by a UI test on an Apple TV 4K): Big Buck Bunny 1080p (.mp4,
+263 MB, Torrentio, 20 peers) plays in AVPlayer through the gateway, seeks forward by 30 presses
+of the remote to 05:53, and plays on to 06:24 thirty seconds later without "Playback failed".
+Before the media type fix AVPlayer refused the same stream with "Cannot Open".
+Night of the Living Dead 2160p HEVC (.mkv, 4.35 GB, YTS, 45 peers) plays in mpv, seeks to 15:27
+(about 680 MB into the file, past the 512 MiB cap, so eviction ran) and plays on to 16:05 forty
+five seconds later. A 15.77 GB .mkv with 5 peers found no metadata in 90 s (weak swarm; HTTPS
+trackers need D3).
+
+Not verified:
 `os_proc_available_memory()` on an Apple TV 4K; eviction against a real swarm (Sintel is under
 the cap; the loopback test covers it); a long film and seeks in mpv through the gateway (one
 connection per seek, `Connection: close`). Memory on the device: the store holds up to 512 MiB
