@@ -12,8 +12,8 @@ README.md has the layout and every build command.
   `android-tv-legacy`: read it there for reference, never restore it.
 - The torrent engine is being rewritten in `engine/` (slices E0, E1, ...). Plan, decisions and
   slices are in `docs/engine-rebuild.md`; read its section 1 and the slice row the same way.
-  The Apple TV app runs only this engine (E7a). Write no line from `nuvio-engine`: Android
-  still plays torrents through its prebuilt AAR until E6.
+  Both apps run only this engine (E7a for tvOS, E7 for Android). Write no line from
+  `nuvio-engine`.
 
 ## Working on a slice
 
