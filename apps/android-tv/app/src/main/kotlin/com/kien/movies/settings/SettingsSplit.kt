@@ -40,7 +40,7 @@ fun SettingsSplit(title: String?, preview: @Composable () -> Unit, list: @Compos
             if (title != null) Text(text = title, style = TvType.pageTitle, color = TvColors.textSecondary, maxLines = 1)
         }
         Row(
-            modifier = Modifier.fillMaxSize().padding(end = TvGrid.sideMargin),
+            modifier = Modifier.fillMaxSize().padding(horizontal = TvGrid.sideMargin),
             horizontalArrangement = Arrangement.spacedBy(SettingsMetrics.gap)
         ) {
             Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(top = SettingsMetrics.artTop), contentAlignment = Alignment.TopCenter) {
@@ -88,18 +88,22 @@ fun ArtPlatter(content: @Composable ColumnScope.() -> Unit) {
     )
 }
 
-/** tvOS SettingsMetrics halved (dp = pt / 2). */
+/**
+ * The Settings app split measured on an Apple TV 4K screenshot and halved (dp = pt / 2): rows start
+ * 89 dp down, the art 30 dp below them, centred in the space between the side margin and the list.
+ */
 object SettingsMetrics {
     val top = 27.dp
-    val titleRoom = 45.dp
+    val titleRoom = 62.dp
     val listWidth = 390.dp
     val gap = 45.dp
-    val artTop = 0.dp
-    val artSide = 230.dp
-    val artRadius = 50.dp
+    val artTop = 30.dp
+    val artSide = 270.dp
+    val artRadius = 60.dp
     val artToCaption = 20.dp
-    val captionWidth = 330.dp
+    val captionWidth = 360.dp
     const val captionLines = 5
-    val symbol = 110.dp
-    val rowGap = 8.dp
+    val symbol = 130.dp
+    val rowHeight = 33.dp
+    val rowGap = 7.dp
 }

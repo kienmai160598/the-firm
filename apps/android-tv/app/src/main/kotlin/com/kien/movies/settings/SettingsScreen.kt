@@ -25,7 +25,8 @@ import com.nuvio.tvos.TvosTraktState
 
 /**
  * The Settings tab root (tvOS SettingsView.swift), laid out like the Settings app: the pages on
- * the right, and on the left the focused page's icon and what it holds. First focus is Account.
+ * the right, and on the left the focused page's icon and what it holds. First focus is Account,
+ * and Back from a page lands on that page's row.
  */
 @Composable
 fun SettingsScreen(router: Router) {
@@ -35,7 +36,7 @@ fun SettingsScreen(router: Router) {
     val trakt by account.state.collectAsStateWithLifecycle()
     var previewedName by rememberSaveable { mutableStateOf(SettingsPage.Account.name) }
     val previewed = SettingsPage.valueOf(previewedName)
-    val firstRow = remember { FocusRequester() }
+    val rowFocus = remember { SettingsPage.entries.associateWith { FocusRequester() } }
 
     SettingsSplit(
         title = null,
@@ -44,11 +45,13 @@ fun SettingsScreen(router: Router) {
         },
         list = {
             LazyColumn(
-                modifier = Modifier.focusRestorer(firstRow).testTag(SETTINGS_LIST_TAG),
+                // Back from a page recomposes the list; the saved preview names the row to land on.
+                modifier = Modifier.focusRestorer(rowFocus.getValue(previewed)).testTag(SETTINGS_LIST_TAG),
                 verticalArrangement = Arrangement.spacedBy(SettingsMetrics.rowGap)
             ) {
                 items(SettingsPage.entries, key = SettingsPage::name) { page ->
-                    val first = if (page == SettingsPage.entries.first()) Modifier.focusRequester(firstRow).upToNavPill() else Modifier
+                    val row = Modifier.focusRequester(rowFocus.getValue(page))
+                    val first = if (page == SettingsPage.entries.first()) row.upToNavPill() else row
                     SettingsLinkLabel(
                         title = page.title,
                         value = value(page, choice, trakt),
