@@ -467,7 +467,11 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | N2 | The sidebar reaches Home, Search, Library, Settings (Addons is a Settings page, ST1); Back on the sidebar of another tab selects Home, Back on the Home sidebar leaves to the launcher (Android; tvOS leaves from any tab, see section 4) |
 | N3 | Left from the hero opens the sidebar, down reaches the first row |
 | N4 | Poster, then Details, then Streams; Back returns to the same card at each step |
-| N5 | Library shows a placeholder that holds focus |
+| N5 | The Library tab is reachable and holds focus (LB2 when empty). Android still shows its placeholder until it ports F1 |
+| LB1 | Library lists saved titles as shelves, one per section `LibraryRepository` gives (by type for the local list, by list such as Watchlist when Trakt is the library source); a poster opens Details. tvOS since F1; Android needs the same change |
+| LB2 | An empty Library says so and holds focus, so the sidebar closes |
+| LB3 | Details shows a round Library button right of Play (plus when not saved, check when saved, labelled "Add to Library" and "In Library"); pressing it saves or removes the title, Library follows at once and after a relaunch. Focus on it keeps the backdrop forward and the trailer playing (D6) |
+| LB4 | When Trakt is signed in and is the library source (the upstream default), the button adds to and removes from the Trakt watchlist through `LibraryRepository.toggleSaved`; a removal the tracker asks to confirm shows a confirmation first, and a failure shows an alert |
 | H1 | Hero shows up to 6 items of the first row that have a backdrop; arrows change the item; it advances every 8 s only while unfocused |
 | H2 | Catalog rows scroll sideways with the next card partly visible |
 | H3 | Loading, empty and error states are laid out and focusable. Android: the empty and error status holds an "Open Addons" button so focus has a target; tvOS has no button there and could get the same |
