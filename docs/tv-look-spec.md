@@ -60,6 +60,7 @@ colour the box can afford (decided in `android-tv-rebuild.md`, box performance r
 | Home rows background | slate under the rows once the hero scrolls away, measured `#353A3C` (`10-row3.png`) | gradient `#2B3038` top to `#1C1F24` (`HomeBackground`, HomeView.swift) | `#24282E` flat, the tvOS midpoint |
 | Details background | navy, lighter in the centre: `#0B131B` edges, `#263642` centre | gradient as measured | `#141C24` flat |
 | Search and Library background | grey slate `#273137` top to `#35393A` | gradient as measured | `#2E3437` flat |
+| Settings and its pages | dark system background `#1E1E1E`; rows `#333232` with no rim, white when focused; preview art platter `#4B4B4B` (Apple TV simulator, 2026-11-24) | system `List` and `.quaternary` | the same values, opaque, no glass edge |
 | Text primary | white | `.primary` | `#FFFFFF` |
 | Text secondary (row titles, overview, captions) | white about 60% | `.secondary` | `#FFFFFF` at 60% |
 | Text tertiary (placeholder, price caption) | white about 35% | `.tertiary` | `#FFFFFF` at 35% |

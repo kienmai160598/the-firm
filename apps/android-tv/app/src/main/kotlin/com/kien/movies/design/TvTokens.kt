@@ -95,6 +95,15 @@ object TvColors {
 
     /** Behind artwork that has not loaded yet. */
     val artworkPlaceholder = Color(0xFF3F4446)
+
+    /**
+     * Settings and its pages, the tvOS system `List` on the dark system background, measured on the
+     * Apple TV simulator: the window, a row, the art platter (`.quaternary`), and a focused row.
+     */
+    val settingsBackground = Color(0xFF1E1E1E)
+    val settingsRow = Color(0xFF333232)
+    val settingsArt = Color(0xFF4B4B4B)
+    val settingsFocusedRow = Color.White
 }
 
 /**

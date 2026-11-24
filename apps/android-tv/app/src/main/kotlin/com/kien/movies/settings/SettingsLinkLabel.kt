@@ -28,8 +28,8 @@ import com.kien.movies.design.TvType
 /**
  * A Settings row (tvOS SettingsLinkLabel.swift): the title, its value where Settings shows one, and
  * a trailing glyph, the chevron of a row that opens a page or the check of a chosen one. A capsule
- * platter with the glass edge, as tall as the tvOS grouped row, solid white with dark content when
- * focused. The row's description reads "Title, Value", as on tvOS.
+ * in [SettingsRowColors], as tall as the tvOS grouped row. The row's description reads
+ * "Title, Value", as on tvOS.
  */
 @Composable
 fun SettingsLinkLabel(
@@ -45,10 +45,9 @@ fun SettingsLinkLabel(
             .fillMaxWidth()
             .height(SettingsMetrics.rowHeight)
             .semantics(mergeDescendants = true) { contentDescription = listOfNotNull(title, value).joinToString(", ") },
-        colors = TvGlass.surfaceColors(),
+        colors = SettingsRowColors.surface(),
         shape = TvGlass.surfaceShape(TvShapes.pill),
-        scale = TvGlass.surfaceScale(Focus.wideRowScale),
-        border = TvGlass.surfaceBorder(TvShapes.pill)
+        scale = TvGlass.surfaceScale(Focus.wideRowScale)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().height(SettingsMetrics.rowHeight).padding(start = TITLE_INSET, end = GLYPH_INSET),
