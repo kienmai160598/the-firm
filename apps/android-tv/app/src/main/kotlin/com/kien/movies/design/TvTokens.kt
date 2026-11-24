@@ -99,10 +99,12 @@ object TvColors {
     /**
      * Settings and its pages, the tvOS system `List` on the dark system background, measured on the
      * Apple TV simulator: the window, a row, the art platter (`.quaternary`), and a focused row.
+     * Row and platter are glass, white over the window: 9% lands on the measured `#333232` and 20%
+     * on `#4B4B4B`, and whatever is behind them still shows through.
      */
     val settingsBackground = Color(0xFF1E1E1E)
-    val settingsRow = Color(0xFF333232)
-    val settingsArt = Color(0xFF4B4B4B)
+    val settingsRow = Color.White.copy(alpha = 0.09f)
+    val settingsArt = Color.White.copy(alpha = 0.2f)
     val settingsFocusedRow = Color.White
 }
 
