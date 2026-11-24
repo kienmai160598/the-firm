@@ -52,7 +52,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
@@ -79,7 +78,6 @@ import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.design.Motion
-import com.kien.movies.design.PlatterOverBlack
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvControls
 import com.kien.movies.design.TvGlass
@@ -144,7 +142,8 @@ private val ScrimBand = Brush.verticalGradient(
 
 // Circle buttons sit on the band: opaque fills (the platter and the tertiary white composited over
 // black), so the band stays the only translucent layer over the video.
-private val OpenControlFill = TvColors.textTertiary.compositeOver(Color.Black)
+// tvOS mpvCircleButtonStyle tints an open control white at 40%.
+private val OpenControlFill = Color.White.copy(alpha = 0.4f)
 private val InfoRowGap = 20.dp // 40 pt
 private val ControlsRise = 14.dp // 28 pt
 private val SpinnerSize = 24.dp // ProgressView scaled 1.6
@@ -491,16 +490,7 @@ private fun InfoRow(
                     shape = TvGlass.circleShape(),
                     scale = TvGlass.circleScale(),
                     border = TvGlass.circleBorder(),
-                    colors = IconButtonDefaults.colors(
-                        containerColor = if (isOpen) OpenControlFill else PlatterOverBlack,
-                        contentColor = TvColors.textPrimary,
-                        focusedContainerColor = TvColors.focusedFill,
-                        focusedContentColor = TvColors.focusedContent,
-                        pressedContainerColor = TvColors.focusedFill,
-                        pressedContentColor = TvColors.focusedContent,
-                        disabledContainerColor = PlatterOverBlack,
-                        disabledContentColor = TvColors.textTertiary
-                    ),
+                    colors = TvGlass.circleColors(containerColor = if (isOpen) OpenControlFill else TvColors.platter),
                     modifier = Modifier
                         .size(TvControls.circle)
                         .focusRequester(controlFocus.getValue(control))

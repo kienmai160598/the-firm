@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -27,7 +26,8 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
@@ -42,9 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.design.PlatterOverBlack
 import com.kien.movies.design.TvColors
-import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
 import kotlinx.coroutines.flow.StateFlow
 
@@ -111,14 +109,8 @@ fun TransportBar(
                     drawRoundRect(BufferedFill, Offset(0f, top), Size(size.width * current.fraction(current.bufferedSeconds), height), radius)
                     val playedFill = if (isScrubbing) PlayedScrubFill else PlayedFill
                     drawRoundRect(playedFill, Offset(0f, top), Size(size.width * current.fraction(current.positionSeconds), height), radius)
-                }
-                if (isScrubbing || previewSeconds != null) {
-                    Box(
-                        modifier = Modifier
-                            .offset(x = playheadX - PlayheadWidth / 2, y = -PlayheadRise / 2)
-                            .size(PlayheadWidth, TrackSlot + PlayheadRise)
-                            .background(Color.White, TvShapes.pill)
-                    )
+                    drawRoundRect(TrackEdge, Offset(0f, top), Size(size.width, height), radius, style = Stroke(TrackEdgeWidth.toPx()))
+                    if (isScrubbing || previewSeconds != null) drawPlayhead(size.width * current.fraction(shownSeconds))
                 }
                 // Qualified: inside the Column, the ColumnScope overload would be picked.
                 androidx.compose.animation.AnimatedVisibility(
@@ -132,7 +124,13 @@ fun TransportBar(
             }
             if (current.durationSeconds > 0) {
                 Box(modifier = Modifier.padding(top = LabelGap).fillMaxWidth().height(LabelRowHeight)) {
-                    ElapsedLabel(shownSeconds, showsPause = isPausedByViewer && previewSeconds == null, playheadX = playheadX, width = width)
+                    ElapsedLabel(
+                        seconds = shownSeconds,
+                        showsPause = isPausedByViewer && previewSeconds == null,
+                        playheadX = playheadX,
+                        width = width,
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    )
                     Text(
                         text = "-" + clockLabel((current.durationSeconds - shownSeconds).coerceAtLeast(0)),
                         style = LabelStyle,
@@ -146,9 +144,9 @@ fun TransportBar(
 }
 
 @Composable
-private fun ElapsedLabel(seconds: Int, showsPause: Boolean, playheadX: Dp, width: Dp) {
+private fun ElapsedLabel(seconds: Int, showsPause: Boolean, playheadX: Dp, width: Dp, modifier: Modifier) {
     var labelWidth by remember { mutableIntStateOf(0) }
-    val placement = Modifier
+    val placement = modifier
         .onSizeChanged { labelWidth = it.width }
         .offset {
             val centered = playheadX.roundToPx() - labelWidth / 2
@@ -164,6 +162,16 @@ private fun ElapsedLabel(seconds: Int, showsPause: Boolean, playheadX: Dp, width
     } else {
         Text(text = clockLabel(seconds), style = LabelStyle, modifier = placement)
     }
+}
+
+/**
+ * The playhead, centred on the track and taller than it by [PlayheadRise]. Drawn, not laid out:
+ * a laid out box would be clipped to the track's height by its constraints.
+ */
+private fun DrawScope.drawPlayhead(x: Float) {
+    val width = PlayheadWidth.toPx()
+    val height = (TrackSlot + PlayheadRise).toPx()
+    drawRoundRect(Color.White, Offset(x - width / 2, (size.height - height) / 2), Size(width, height), CornerRadius(width / 2))
 }
 
 @Composable
@@ -184,9 +192,12 @@ private fun SkipBadgeIcon(badge: SkipBadge) {
 
 private val SkipNumberDrop = 2.dp
 
-// Opaque fills (composited over black) so the bar adds no translucent layer over video on the box.
-private val TrackFill = PlatterOverBlack
-private val BufferedFill = TvColors.textTertiary.compositeOver(Color.Black)
-private val PlayedFill = Color.White.copy(alpha = 0.9f).compositeOver(Color.Black)
-private val PlayedScrubFill = Color.White.copy(alpha = 0.55f).compositeOver(Color.Black)
+// tvOS MpvTransportBar.track: a glass capsule with white fills and a 1 pt white edge at 18%. The
+// track is a few dp tall, so its translucent fills cost the box next to nothing.
+private val TrackFill = TvColors.platter
+private val BufferedFill = Color.White.copy(alpha = 0.3f)
+private val PlayedFill = Color.White.copy(alpha = 0.9f)
+private val PlayedScrubFill = Color.White.copy(alpha = 0.55f)
+private val TrackEdge = Color.White.copy(alpha = 0.18f)
+private val TrackEdgeWidth = 0.5.dp // 1 pt
 private const val SKIP_START_SCALE = 0.7f
