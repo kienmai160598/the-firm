@@ -1,93 +1,85 @@
 import SwiftUI
 import NuvioTvShared
 
+/// Laid out like the Settings app: a system `List` on the right, and on the left a preview of the
+/// focused row (the addon's logo and summary, or the QR code while "Add Addon" has focus).
 struct AddonsView: View {
-    @StateObject private var model = AddonsModel()
-    @State private var chosenAddon: TvosAddon?
-    @State private var addonToRemove: TvosAddon?
-    @FocusState private var focusedAddonUrl: String?
+    @StateObject private var model: AddonsModel
+    @StateObject private var qrServer: AddonQrServer
+    @State private var manifestUrl = ""
+    @State private var previewed: AddonFocus = .add
+    @FocusState private var focus: AddonFocus?
 
-    var body: some View {
-        HStack(alignment: .top, spacing: 80) {
-            AddonInstallPanel(model: model)
-                .frame(width: 560)
-                .focusSection()
-            installedList
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .focusSection()
-        }
-        .defaultFocus($focusedAddonUrl, model.addons.first?.manifestUrl, priority: .userInitiated)
-        .padding(.top, 60)
-        .onAppear(perform: model.observe)
-        .onDisappear(perform: model.stop)
-        .confirmationDialog(
-            chosenAddon?.name ?? "",
-            isPresented: isPresenting($chosenAddon),
-            titleVisibility: .visible,
-            presenting: chosenAddon,
-            actions: addonActions,
-            message: { addon in Text(addon.enabled ? "On" : "Off") }
-        )
-        .alert(
-            "Remove \(addonToRemove?.name ?? "")?",
-            isPresented: isPresenting($addonToRemove),
-            presenting: addonToRemove,
-            actions: removalActions,
-            message: { _ in Text(Self.removalMessage) }
-        )
+    init() {
+        let model = AddonsModel()
+        _model = StateObject(wrappedValue: model)
+        _qrServer = StateObject(wrappedValue: AddonQrServer { url, onFinish in
+            model.install(url, onFinish: onFinish)
+        })
     }
 
-    private static let removalMessage = "Its catalogs, streams and subtitles leave the app."
+    var body: some View {
+        SettingsSplit {
+            preview
+        } list: {
+            list
+        }
+        .navigationTitle(SettingsPage.addons.title)
+        .defaultFocus($focus, .add)
+        .onChange(of: focus) { _, focus in
+            if let focus { previewed = focus }
+        }
+        .onChange(of: model.installStatus) { _, status in
+            if case .installed = status { manifestUrl = "" }
+        }
+        .onAppear {
+            model.observe()
+            qrServer.start()
+        }
+        .onDisappear {
+            model.stop()
+            qrServer.stop()
+        }
+    }
 
     @ViewBuilder
-    private var installedList: some View {
-        if model.addons.isEmpty {
-            ContentUnavailableView(
-                "No addons",
-                systemImage: "puzzlepiece.extension",
-                description: Text("Add a manifest URL to get catalogs and streams.")
-            )
+    private var preview: some View {
+        if case .addon(let url) = previewed, let addon = model.addon(url) {
+            AddonSummary(addon: addon)
         } else {
-            List {
-                Section {
+            AddonInstallPanel(
+                pageUrl: qrServer.pageUrl,
+                status: model.installStatus,
+                hasAddons: !model.addons.isEmpty
+            )
+        }
+    }
+
+    private var list: some View {
+        List {
+            TextField("Add Addon", text: $manifestUrl)
+                .textContentType(.URL)
+                .autocorrectionDisabled()
+                .onSubmit { model.install(manifestUrl) }
+                .focused($focus, equals: .add)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+            if !model.addons.isEmpty {
+                Section("Installed") {
                     ForEach(model.addons, id: \.manifestUrl) { addon in
-                        Button { chosenAddon = addon } label: { AddonRow(addon: addon) }
-                            .accessibilityIdentifier("addon-row")
-                            .focused($focusedAddonUrl, equals: addon.manifestUrl)
+                        RouteLink(value: .addon(manifestUrl: addon.manifestUrl)) {
+                            AddonRow(addon: addon)
+                        }
+                        .accessibilityIdentifier("addon-row")
+                        .focused($focus, equals: .addon(addon.manifestUrl))
                     }
-                } header: {
-                    Text("Installed")
-                } footer: {
-                    Text("Select an addon to turn it off, move it or remove it.")
-                        .foregroundStyle(.secondary)
                 }
             }
         }
     }
+}
 
-    @ViewBuilder
-    private func addonActions(_ addon: TvosAddon) -> some View {
-        Button(addon.enabled ? "Turn Off" : "Turn On") { model.toggle(addon) }
-        if model.canMove(addon, .up) {
-            Button("Move Up") { model.move(addon, .up) }
-        }
-        if model.canMove(addon, .down) {
-            Button("Move Down") { model.move(addon, .down) }
-        }
-        Button("Remove", role: .destructive) { addonToRemove = addon }
-        Button("Cancel", role: .cancel) {}
-    }
-
-    @ViewBuilder
-    private func removalActions(_ addon: TvosAddon) -> some View {
-        Button("Remove", role: .destructive) { model.remove(addon) }
-        Button("Cancel", role: .cancel) {}
-    }
-
-    private func isPresenting(_ addon: Binding<TvosAddon?>) -> Binding<Bool> {
-        Binding(
-            get: { addon.wrappedValue != nil },
-            set: { isShown in if !isShown { addon.wrappedValue = nil } }
-        )
-    }
+private enum AddonFocus: Hashable {
+    case add
+    case addon(String)
 }

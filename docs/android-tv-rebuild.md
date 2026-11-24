@@ -196,7 +196,8 @@ the-firm/
             streams/            StreamsScreen, StreamsViewModel, StreamsHeader, StreamGroupList,
                                 StreamsRow, StreamDetailSheet, StreamsEmpty, StreamRowState
             search/             SearchScreen, SearchViewModel
-            addons/             AddonsScreen, AddonsViewModel, AddonRow, AddonInstallPanel
+            addons/             AddonsScreen, AddonsViewModel, AddonRow, AddonInstallPanel,
+                                AddonPreview, AddonDetailScreen
               phone/            PhoneAddonPanel, PhoneAddonDialog, PhoneAddonServer,
                                 PhoneAddonPage (HTML), LanAddress, QrCode
             player/             PlaybackScreen, PlaybackRequest, PlaybackMetadata, PlayerFactory,
@@ -462,10 +463,10 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | Id | Criterion |
 |---|---|
 | N1 | Launch puts focus on the hero button of Home |
-| N2 | The sidebar reaches Home, Search, Library, Addons, Settings; Back on the sidebar of another tab selects Home, Back on the Home sidebar leaves to the launcher (Android; tvOS leaves from any tab, see section 4) |
+| N2 | The sidebar reaches Home, Search, Library, Settings (Addons is a Settings page, ST1); Back on the sidebar of another tab selects Home, Back on the Home sidebar leaves to the launcher (Android; tvOS leaves from any tab, see section 4) |
 | N3 | Left from the hero opens the sidebar, down reaches the first row |
 | N4 | Poster, then Details, then Streams; Back returns to the same card at each step |
-| N5 | Library and Settings show a placeholder that holds focus |
+| N5 | Library shows a placeholder that holds focus |
 | H1 | Hero shows up to 6 items of the first row that have a backdrop; arrows change the item; it advances every 8 s only while unfocused |
 | H2 | Catalog rows scroll sideways with the next card partly visible |
 | H3 | Loading, empty and error states are laid out and focusable. Android: the empty and error status holds an "Open Addons" button so focus has a target; tvOS has no button there and could get the same |
@@ -497,10 +498,15 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | Q1 | Typing a title shows result rows |
 | Q2 | Opening a result records a recent search; a recent search can be removed |
 | Q3 | An empty query shows recent searches and the discover row |
-| A1 | Install by manifest URL; a failure shows why |
-| A2 | Turn an addon off and on |
-| A3 | Move an addon up and down |
-| A4 | Remove with confirmation; with no addons the empty state shows |
+| A1 | Add Addon, focused when the screen opens, takes a manifest URL through the system keyboard; a failure shows why under the QR code |
+| A2 | On an addon's page, Enabled turns it off and on in place, and the list row then says Off or On |
+| A3 | Move Up and Move Down on an addon's page change its order |
+| A4 | Remove Addon on the page asks first, then returns to the list; with no addons only Add Addon is left and the preview says "No addons" |
+| A5 | Laid out like the system Settings app, with its sizes measured on an Apple TV: a grouped list 780 pt wide against the right safe edge (Add Addon, then the Installed section), every row on its own platter, and on the left a 540 pt preview of the focused row centred in the space that is left (the addon's logo with up to five lines of summary or its error, or the QR code while Add Addon has focus). The list and its page put the first row and the art at the same height, so nothing moves on the way in. An addon's row shows On, Off or Error and opens the addon's page with the same layout, where the full description sits under About. tvOS uses `List` rows and opens the page through `AppRoute.addon`, because a `NavigationLink` in a `List` inside the sidebar `TabView` does not push. Android builds the same skeleton from Compose for TV list items. Addons is reached from Settings (ST1), not from a tab |
+| ST1 | Settings lists Playback, Subtitles, Addons and About in the A5 layout: the list on the right, and on the left the focused page's symbol and what it holds. Playback and Subtitles show the chosen language as their value. About shows the name, version, build and licence |
+| ST2 | Subtitles lists Off, Automatic (the device language), then every language by name, with a checkmark on the choice; it opens focused on the choice. The choice is saved in core's player settings through `TvosSettings`, so both apps and a relaunch see it. Until a first choice it is Vietnamese, then English, the languages the player picked before Settings existed |
+| ST3 | Playback picks the audio language the same way: Automatic or a language |
+| ST4 | The player starts with the chosen audio and subtitle language, falling back to the second choice, and with no subtitles when Off is chosen. tvOS mpv gets `alang`, `slang` and `subs-fallback` (or `sid=no`); AVPlayer gets media selection criteria. Android gives ExoPlayer the same through its track selection parameters |
 | AQ1 | "Add from phone" shows a QR code and the address as text within 1 s; with no network it says so and keeps focus |
 | AQ2 | Scanning the code with a phone on the same network opens the page; sending a manifest URL shows the confirmation dialog on the TV |
 | AQ3 | Install adds the addon (it appears in the list and its catalogs on Home); the phone page shows the result per URL; Cancel adds nothing and the page says so |
@@ -526,8 +532,9 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | A9 Player panels | Audio and subtitle menus, online subtitles (`TvosSubtitles`), info panel, advisory banner | P5, P6 | Port `MpvSubtitleDownloadTests` and `PlaybackAdvisoryTests`; UI test for the menus |
 | A10 Torrents | `TorrentSession`, row progress, box cache budget | T1 | UI test with `box/legal-test-addon`; cache budget unit tests ported from the old app |
 | A11 Search | `SearchViewModel` (350 ms debounce), recent searches, discover row. Android: a one row keyboard drawn in Compose takes first focus on "a" (tvOS focuses its keyboard on entry; no tvOS change needed), "123" opens the system IME for digits and symbols, Down from the keyboard reaches suggestions and Top Results; a recent search is removed by long press and a Remove dialog | Q1 to Q3 | UI tests from `NavigationTests` (search cases), plus a keyboard test (letters, space, delete) |
-| A12 Addons | `AddonsViewModel`, install panel, rows, action dialog, remove confirmation | A1 to A4 | UI tests from `AddonsTests` |
+| A12 Addons | `AddonsViewModel`, Settings style list and preview, install panel, addon page, remove confirmation | A1 to A5 | UI tests from `AddonsTests` |
 | A12b Add addons from phone | Session logic in `shared/tv-api/.../phone` (`AddonPairingSession`, `AddonPairingRequest`, `AddonPairingToken`, `AddonPairingReply`), server, QR, phone page, confirm dialog (section 5b). Wire format, every request with `?t=<token>`: `GET /` the page, `POST /api/addons` with `{"urls": [...]}` (answers `{"id": n}`, 403, 409, 411, 413, 400), `GET /api/status/<id>` (`pending`, `installing`, `done` with per URL results, `cancelled`, `unknown`). The server binds to the LAN address only. `Done` takes a new proposal like `Waiting` | AQ1 to AQ5 | Unit tests: state machine, token check, request limits. Server test on the JVM: 403, 409, propose then confirm. Manual: a real phone on the home network installs an addon on the box |
+| A12c Settings | Settings tab with Playback, Subtitles, Addons and About through `TvosSettings` (tvOS has it since its Settings PR); the Addons tab goes; the player takes the language choice | N2, N5, ST1 to ST4 | UI tests from `SettingsTests` |
 | A13 Box hardening | `baselineprofile` module with new journeys, R8 keep rules check, memory and jank pass, quarter size screenshot pass on every screen | X1 to X3 | `measure.sh` numbers before and after in the PR; profile compile state from `box/install.sh` |
 | A14 Cutover | applicationId `com.kien.movies`, uninstall the old app on the box (this erases its data: ask for confirmation in that chat before running it), remove `.next`, final README and Makefile | all | Full D-pad walk and Back path on the box; the checklist of section 8 |
 | A15 Own core | Delete from `shared/core` every file both bridges exclude, the Compose UI, Android and iOS app entry points and Nuvio mobile resources; move what is left into the bridges' plain source sets; delete `excluded-*.txt` and the upstream patch folder; update CLAUDE.md (core is no longer upstream) | all | `make check`, `make apple-tv-sim`, box APK builds; both apps seen on a device after the cut |
