@@ -2,9 +2,11 @@ package com.kien.movies.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -89,3 +91,20 @@ fun Modifier.rememberedFocus(memory: HomeFocusMemory, key: String, rowKey: Strin
 fun cardFocusKey(rowKey: String, itemKey: String): String = "$rowKey/$itemKey"
 
 const val HERO_FOCUS_KEY = "hero"
+
+/**
+ * When loading ends and the first row has no backdrop, the hero (and the button that held focus
+ * since launch) leaves the list; focus then moves to the first card instead of being lost.
+ */
+@Composable
+internal fun LoseNoFocusWhenTheHeroGoes(mode: HeroMode, homeFocus: FocusRequester) {
+    val previous = remember { arrayOf(mode) }
+    LaunchedEffect(mode) {
+        val wasLoading = previous[0] == HeroMode.Loading
+        previous[0] = mode
+        if (wasLoading && mode == HeroMode.None) {
+            withFrameNanos {}
+            homeFocus.requestFocus()
+        }
+    }
+}
