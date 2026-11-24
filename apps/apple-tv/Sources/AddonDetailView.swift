@@ -23,7 +23,7 @@ struct AddonDetailView: View {
     private var content: some View {
         if let addon = model.addon(manifestUrl) {
             SettingsSplit {
-                AddonSummary(addon: addon)
+                AddonSummary(addon: addon, showsDescription: false)
             } list: {
                 rows(addon)
             }
@@ -47,16 +47,22 @@ struct AddonDetailView: View {
             if model.canMove(addon, .down) {
                 Button("Move Down") { model.move(addon, .down) }
             }
-            Section("About") {
+            Section {
                 if !addon.version.isEmpty {
                     LabeledContent("Version", value: addon.version)
                 }
                 if !addon.capabilities.isEmpty {
                     LabeledContent("Provides", value: addon.capabilities.joined(separator: ", "))
                 }
+            } header: {
+                Text("About")
+            } footer: {
+                if !addon.summary.isEmpty {
+                    Text(addon.summary)
+                }
             }
             Section {
-                Button("Remove Addon", role: .destructive) { isConfirmingRemoval = true }
+                Button("Remove Addon") { isConfirmingRemoval = true }
             }
         }
     }

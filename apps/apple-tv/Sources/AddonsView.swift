@@ -19,7 +19,7 @@ struct AddonsView: View {
     }
 
     var body: some View {
-        SettingsSplit {
+        SettingsSplit(hasTitle: false) {
             preview
         } list: {
             list
@@ -61,6 +61,8 @@ struct AddonsView: View {
                 .autocorrectionDisabled()
                 .onSubmit { model.install(manifestUrl) }
                 .focused($focus, equals: .add)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
             if !model.addons.isEmpty {
                 Section("Installed") {
                     ForEach(model.addons, id: \.manifestUrl) { addon in
