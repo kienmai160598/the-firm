@@ -215,7 +215,17 @@ Verified (E6, on a Mac; nothing run on a device yet):
 - The `:torrent` device test APK and AAR carry `lib/armeabi-v7a/libmovies_engine.so`; without the
   library the Android build stops with "Build it first: make engine-android".
 
+Verified (E7, on a Mac; built, not seen on a device):
+
+- `make check` and `make apple-tv-sim` pass with both apps on `EngineTorrentBackend`.
+- The release `box` APK carries `lib/armeabi-v7a/libmovies_engine.so`, and R8 keeps
+  `MoviesEngineJni` and its native methods under their names.
+
 Not verified:
+Android on the Mi Box: open to first frame, the PSS during playback against `budgetFor`'s cap,
+and seeks. The box was in use while E7 was built. The `:torrent` device test and the A10 UI test
+are built but not run on a device.
+
 `os_proc_available_memory()` on an Apple TV 4K; eviction against a real swarm (Sintel is under
 the cap; the loopback test covers it); a long film and seeks in mpv through the gateway (one
 connection per seek, `Connection: close`). Memory on the device: the store holds up to 512 MiB
