@@ -50,9 +50,8 @@ import com.kien.movies.shell.Router
 
 /**
  * Streams (tvOS StreamsView.swift): the title column on the left stays in view, and loading, empty
- * or the groups as addons answer fill the column on the right, 20 dp from it. On the flat Details
- * background (docs/tv-look-spec.md, section 2 Colour): no backdrop, since tvOS's receded backdrop
- * is a blurred, darkened layer the box cannot afford. A press checks the resume point, asks Resume or Start Over when
+ * or the groups as addons answer fill the column on the right, 20 dp from it, over the receded
+ * backdrop of [StreamsBackground]. A press checks the resume point, asks Resume or Start Over when
  * there is one (S5), and presents the player as a full screen cover in this entry, as tvOS does
  * with fullScreenCover. A stream that cannot play opens the info sheet (S4).
  *
@@ -72,6 +71,7 @@ fun StreamsScreen(route: AppRoute.Streams, router: Router) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (playback == null) {
+            StreamsBackground(backdropUrl = viewModel.target.backdropUrl)
             StreamsPage(
                 viewModel = viewModel,
                 state = state,
@@ -183,7 +183,7 @@ private fun StreamsResumeDialog(title: String, pending: PendingResume, onAnswer:
         Column(
             modifier = Modifier
                 .width(DIALOG_WIDTH)
-                .background(DialogPanelFill, ResumeDialogShape)
+                .background(TvColors.dialogPanel, ResumeDialogShape)
                 .glassEdge(ResumeDialogShape)
                 .padding(DIALOG_PADDING)
                 .testTag(STREAMS_RESUME_DIALOG_TAG),
@@ -237,9 +237,6 @@ private fun DialogButton(text: String, onClick: () -> Unit, modifier: Modifier =
 const val STREAMS_RESUME_DIALOG_TAG = "streams-resume-dialog"
 const val STREAMS_RESUME_TAG = "streams-resume"
 const val STREAMS_START_OVER_TAG = "streams-start-over"
-
-/** Dialog panels are opaque: the dialog window already dims what is behind them once. */
-internal val DialogPanelFill = TvColors.sidebarPanel.copy(alpha = 1f)
 
 // tvOS literals, pt / 2.
 private val PAGE_TOP = 30.dp // the header and the first addon start 60 pt down

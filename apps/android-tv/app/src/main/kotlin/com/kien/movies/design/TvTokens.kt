@@ -75,6 +75,19 @@ object TvColors {
     /** Unfocused pill, platter or circular button: one flat layer, plus [glassEdge]. */
     val platter = Color.White.copy(alpha = 0.22f)
 
+    /**
+     * A stream row over the receded backdrop of Streams: white 13%, as measured on tvOS where the
+     * glass row lifts the backdrop by 12 to 13% (2026-11-24).
+     */
+    val streamRow = Color.White.copy(alpha = 0.13f)
+
+    /**
+     * The panel of a popup (dialogs and sheets): near black glass at 85%, so the dimmed screen
+     * behind lifts through it a little as through tvOS's glass sheet. One layer over the dialog
+     * window's dim, no blur.
+     */
+    val dialogPanel = Color(0xFF1A1A1A).copy(alpha = 0.85f)
+
     /** The open sidebar panel: one layer, no blur, plus [glassEdge]. */
     val sidebarPanel = Color(0xFF1A1A1A).copy(alpha = 0.96f)
 

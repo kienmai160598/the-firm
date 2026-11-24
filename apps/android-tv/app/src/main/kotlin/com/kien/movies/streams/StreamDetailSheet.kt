@@ -64,7 +64,7 @@ fun StreamDetailSheet(sheet: StreamSheet, onClose: () -> Unit) {
             modifier = Modifier
                 .width(TvSheet.width)
                 .heightIn(max = SHEET_MAX_HEIGHT)
-                .background(DialogPanelFill, TvSheet.shape)
+                .background(TvColors.dialogPanel, TvSheet.shape)
                 .glassEdge(TvSheet.shape)
                 .padding(TvSheet.padding)
                 .testTag(STREAM_SHEET_TAG),

@@ -176,7 +176,7 @@ private fun StreamButton(
             .alpha(if (isDimmed) DIMMED_ALPHA else 1f)
             .testTag(streamRowTag(row.key)),
         shape = TvGlass.surfaceShape(STREAM_ROW_SHAPE),
-        colors = TvGlass.surfaceColors(),
+        colors = TvGlass.surfaceColors(containerColor = TvColors.streamRow),
         scale = TvGlass.surfaceScale(Focus.wideRowScale),
         border = TvGlass.surfaceBorder(STREAM_ROW_SHAPE)
     ) {

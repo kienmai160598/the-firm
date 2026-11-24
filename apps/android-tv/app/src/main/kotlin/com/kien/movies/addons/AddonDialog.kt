@@ -29,7 +29,6 @@ import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
 import com.kien.movies.design.glassEdge
-import com.kien.movies.streams.DialogPanelFill
 
 /**
  * The confirmation dialogs of Addons (tvOS `confirmationDialog` and `alert`): a title, an optional
@@ -50,7 +49,7 @@ fun AddonDialog(
         Column(
             modifier = modifier
                 .width(width)
-                .background(DialogPanelFill, TvShapes.panel)
+                .background(TvColors.dialogPanel, TvShapes.panel)
                 .glassEdge(TvShapes.panel)
                 .padding(DIALOG_PADDING),
             verticalArrangement = Arrangement.spacedBy(DIALOG_GAP),
