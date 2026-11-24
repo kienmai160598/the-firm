@@ -53,9 +53,7 @@ data class ScrubSession(val originSeconds: Int, val durationSeconds: Int, val pr
     fun moved(bySeconds: Double): ScrubSession = copy(previewSeconds = (previewSeconds + bySeconds).coerceIn(0.0, durationSeconds.toDouble()))
 }
 
-/** The skip badge over the bar: presses in the same direction add up (tvOS MpvSkip). */
+/** The skip badge over the bar: presses in the same direction add up, each one bounces it (tvOS MpvSkip). */
 data class SkipBadge(val isForward: Boolean, val presses: Int) {
-    val seconds: Int get() = presses * HoldScrub.TAP_STEP_SECONDS
-
     fun adding(isForward: Boolean): SkipBadge = SkipBadge(isForward, if (isForward == this.isForward) presses + 1 else 1)
 }

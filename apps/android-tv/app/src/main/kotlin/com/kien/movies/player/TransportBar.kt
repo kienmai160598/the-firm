@@ -1,6 +1,9 @@
 package com.kien.movies.player
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -174,23 +178,38 @@ private fun DrawScope.drawPlayhead(x: Float) {
     drawRoundRect(Color.White, Offset(x - width / 2, (size.height - height) / 2), Size(width, height), CornerRadius(width / 2))
 }
 
+/**
+ * tvOS MpvSkipBadge: the "10" arrow of the direction, its number part of the glyph so nothing
+ * overlaps it, bouncing on every press while presses add up.
+ */
 @Composable
 private fun SkipBadgeIcon(badge: SkipBadge) {
     val description = if (badge.isForward) "Skipped forward" else "Skipped back"
+    val glyph = if (badge.isForward) R.drawable.ic_player_skip_forward_10 else R.drawable.ic_player_skip_back_10
+    val bounce = remember { Animatable(1f) }
+    LaunchedEffect(badge.presses) {
+        if (badge.presses > 1) {
+            bounce.snapTo(SKIP_BOUNCE_SCALE)
+            bounce.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+        }
+    }
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.size(SkipBadgeSize).testTag(PLAYER_SKIP_TAG).semantics { contentDescription = description }
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_player_skip_back),
+            painter = painterResource(glyph),
             contentDescription = null,
-            modifier = Modifier.size(SkipBadgeSize).graphicsLayer { scaleX = if (badge.isForward) -1f else 1f }
+            modifier = Modifier.size(SkipGlyphSize).graphicsLayer {
+                scaleX = bounce.value
+                scaleY = bounce.value
+            }
         )
-        Text(text = "${badge.seconds}", style = TvType.overline, modifier = Modifier.offset(y = SkipNumberDrop))
     }
 }
 
-private val SkipNumberDrop = 2.dp
+private val SkipGlyphSize = 22.dp // 44 pt
+private const val SKIP_BOUNCE_SCALE = 1.2f
 
 // tvOS MpvTransportBar.track: a glass capsule with white fills and a 1 pt white edge at 18%. The
 // track is a few dp tall, so its translucent fills cost the box next to nothing.
