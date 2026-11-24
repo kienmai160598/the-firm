@@ -32,13 +32,16 @@ struct SettingsSplit<Preview: View, Rows: View>: View {
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: SettingsMetrics.gap) {
+        HStack(alignment: .top, spacing: SettingsMetrics.gap - SettingsMetrics.focusGrowth) {
             preview
                 .padding(.top, SettingsMetrics.artTop)
                 .frame(maxWidth: .infinity, alignment: .top)
+            // The list clips its leading edge, so it reaches past the rows by a focused row's
+            // growth and pads that back in; otherwise a focused row loses its left end.
             list
                 .listStyle(.grouped)
-                .frame(width: SettingsMetrics.listWidth)
+                .safeAreaPadding(.leading, SettingsMetrics.focusGrowth)
+                .frame(width: SettingsMetrics.listWidth + SettingsMetrics.focusGrowth)
                 .mask { scrolledRowsStop }
         }
         .padding(.top, hasTitle ? 0 : SettingsMetrics.titleRoom)
