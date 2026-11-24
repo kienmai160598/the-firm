@@ -7,15 +7,7 @@ struct HeroBackdrop: View {
     var body: some View {
         Color.clear
             .overlay { ArtworkImage(url: url) }
-            .overlay {
-                if let trailer {
-                    // The crop is set while the trailer is hidden, so only the fade animates.
-                    HeroTrailerVideo(player: trailer.player, isShowing: trailer.isShowing)
-                        .opacity(trailer.isShowing ? 1 : 0)
-                        .animation(HeroMotion.trailerFade(isShowing: trailer.isShowing), value: trailer.isShowing)
-                        .scaleEffect(trailer.zoom)
-                }
-            }
+            .trailerOverlay(trailer)
             .clipped()
             .overlay(leadingShade)
             .overlay(bottomShade)

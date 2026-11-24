@@ -61,18 +61,17 @@ private struct StreamNoticeView: View {
     let notice: StreamNotice
 
     var body: some View {
-        HStack(alignment: .top, spacing: 28) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 52))
-                .symbolRenderingMode(.multicolor)
-            VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline, spacing: 16) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .symbolRenderingMode(.multicolor)
                 Text(notice.title)
-                    .font(.system(size: 38, weight: .semibold))
-                Text(notice.message)
-                    .font(.system(size: 29))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
             }
+            .font(.system(size: 38, weight: .semibold))
+            Text(notice.message)
+                .font(.system(size: 29))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }
@@ -87,7 +86,7 @@ private struct StreamFieldGrid: View {
                     Text(field.label)
                         .font(.system(size: 25, weight: .medium))
                         .foregroundStyle(.secondary)
-                        .gridColumnAlignment(.trailing)
+                        .gridColumnAlignment(.leading)
                     Text(field.value)
                         .font(.system(size: 29))
                         .lineLimit(4)

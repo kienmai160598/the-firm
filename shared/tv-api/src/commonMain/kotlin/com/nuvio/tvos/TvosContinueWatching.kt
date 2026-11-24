@@ -9,6 +9,7 @@ import com.nuvio.app.features.home.splitUpcomingItems
 import com.nuvio.app.features.profiles.ProfileRepository
 import com.nuvio.app.features.tracking.TrackingSettingsRepository
 import com.nuvio.app.features.watched.WatchedRepository
+import com.nuvio.app.features.watching.application.WatchingActions
 import com.nuvio.app.features.watchprogress.ContinueWatchingItem
 import com.nuvio.app.features.watchprogress.ContinueWatchingPreferencesRepository
 import com.nuvio.app.features.watchprogress.CurrentDateProvider
@@ -81,6 +82,16 @@ internal object TvosContinueWatching {
             WatchProgressRepository.removeProgress(contentId = item.parentMetaId)
         }
         log.i { "Removed ${item.parentMetaId} from Continue Watching, nextUp=${item.isNextUp}" }
+    }
+
+    fun markWatched(key: String) {
+        val item = itemsByKey[key]
+        if (item == null) {
+            log.w { "Mark watched ignored: no Continue Watching item $key" }
+            return
+        }
+        WatchingActions.markContinueWatchingWatched(item)
+        log.i { "Marked ${item.parentMetaId} ${item.videoId} watched from Continue Watching" }
     }
 
     private fun sources(): Flow<ContinueWatchingSources> =

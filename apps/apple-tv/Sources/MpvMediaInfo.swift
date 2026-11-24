@@ -12,6 +12,7 @@ enum MpvMediaInfo {
         [
             MpvInfoRow(label: "Video", value: video(using: mpv)),
             MpvInfoRow(label: "Audio", value: audio(using: mpv)),
+            MpvInfoRow(label: "Audio output", value: audioOutput(using: mpv)),
             MpvInfoRow(label: "Decoder", value: decoder(using: mpv)),
             MpvInfoRow(label: "Buffered", value: buffered(using: mpv)),
         ]
@@ -35,6 +36,11 @@ enum MpvMediaInfo {
         let channels = mpv.string("audio-params/channel-count").flatMap(Int.init)
             .map(MpvTrackKind.channelLabel)
         return joined([mpv.string("audio-codec-name")?.uppercased(), channels])
+    }
+
+    /// Where the sound goes and through which mpv driver, so an AirPlay problem shows here.
+    private static func audioOutput(using mpv: MpvHandle) -> String {
+        joined([PlaybackAudioSession.outputDescription, mpv.string("current-ao")])
     }
 
     private static func decoder(using mpv: MpvHandle) -> String {

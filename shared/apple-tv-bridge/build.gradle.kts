@@ -10,28 +10,6 @@ plugins {
 val upstreamSrc = rootProject.file("core/src")
 val upstreamRuntimeConfig = rootProject.file("core/build/generated/runtime-config/kotlin")
 val cinteropDir = upstreamSrc.resolve("nativeInterop/cinterop")
-val nuvioEngineAppleFramework =
-    rootProject.file("../nuvio-engine/platform/apple/NuvioEngine.xcframework")
-val nuvioEngineSlices = mapOf(
-    "tvosArm64" to "tvos-arm64",
-    "tvosSimulatorArm64" to "tvos-arm64-simulator",
-)
-val engineBuilt = nuvioEngineSlices.values.all { slice ->
-    nuvioEngineAppleFramework.resolve("$slice/libCNuvioEngine.a").isFile
-}
-// Which torrent engine the app links (docs/engine-rebuild.md D2): "legacy" (nuvio-engine) or
-// "next" (engine/). Both bring their own libtorrent, so a build links exactly one.
-val torrentEngine = providers.gradleProperty("nuvio.tvos.engine")
-    .orElse(providers.environmentVariable("NUVIO_TVOS_ENGINE"))
-    .getOrElse("legacy")
-check(torrentEngine == "legacy" || torrentEngine == "next") {
-    "nuvio.tvos.engine must be legacy or next, not $torrentEngine"
-}
-val nextEngine = torrentEngine == "next"
-val p2pEngineEnabled = !nextEngine &&
-    (providers.gradleProperty("nuvio.tvos.p2p").orNull?.toBoolean() ?: engineBuilt)
-val p2pEngineStub =
-    upstreamSrc.resolve("iosAppStore/kotlin/com/nuvio/app/features/p2p/P2pStreamingEngine.ios.kt")
 val trailerResolverStub = upstreamSrc.resolve(
     "iosAppStore/kotlin/com/nuvio/app/features/trailer/TrailerPlaybackResolver.ios.kt",
 )
@@ -40,8 +18,6 @@ val trailerExtractorSources = listOf(
     "fullCommonMain/kotlin/com/nuvio/app/features/trailer/TrailerPlaybackResolver.kt",
     "iosFull/kotlin/com/nuvio/app/features/trailer/TrailerExtractionPlatform.ios.kt",
 ).map(upstreamSrc::resolve)
-val missingEngineMessage = "Build the Nuvio Engine XCFramework with " +
-    "nuvio-engine/scripts/build-apple-xcframework.sh, or pass -Pnuvio.tvos.p2p=false."
 
 fun excludedUpstreamPaths(): Set<String> =
     listOf("excluded-by-rule.txt", "excluded-by-compiler.txt")
@@ -130,16 +106,6 @@ kotlin {
             defFile(cinteropDir.resolve("commoncrypto.def"))
             compilerOpts("-I${cinteropDir.absolutePath}")
         }
-        if (p2pEngineEnabled) {
-            val engineSlice = nuvioEngineAppleFramework.resolve(nuvioEngineSlices.getValue(name))
-            check(engineSlice.resolve("libCNuvioEngine.a").isFile) { missingEngineMessage }
-            compilations.getByName("main").cinterops.create("nuvioengine") {
-                defFile(cinteropDir.resolve("nuvioengine.def"))
-                compilerOpts("-I${engineSlice.resolve("Headers").absolutePath}")
-                extraOpts("-libraryPath", engineSlice.absolutePath)
-                extraOpts("-Xccall-mode", "direct")
-            }
-        }
         binaries.framework {
             baseName = "NuvioTvShared"
             isStatic = true
@@ -148,9 +114,7 @@ kotlin {
     }
 
     sourceSets {
-        val replacedByEngine = if (p2pEngineEnabled) setOf(p2pEngineStub.absolutePath) else emptySet()
-        val excludedPaths =
-            excludedUpstreamPaths() + replacedByEngine + trailerResolverStub.absolutePath
+        val excludedPaths = excludedUpstreamPaths() + trailerResolverStub.absolutePath
         val isExcluded = Spec<FileTreeElement> { element ->
             element.file.absolutePath in excludedPaths
         }
@@ -178,15 +142,10 @@ kotlin {
             kotlin.srcDir(upstreamSrc.resolve("iosMain/kotlin"))
             kotlin.srcDir(upstreamSrc.resolve("iosAppStore/kotlin"))
             kotlin.srcDir(syncTrailerExtractor.map { trailerExtractorDir })
-            if (p2pEngineEnabled) {
-                kotlin.srcDir(upstreamSrc.resolve("appleP2pEngine/kotlin"))
-                kotlin.srcDir(project.file("src/tvosP2pEngine/kotlin"))
-            }
-            kotlin.srcDir(project.file(if (nextEngine) "src/tvosNextEngine/kotlin" else "src/tvosLegacyEngine/kotlin"))
             kotlin.exclude(isExcluded)
             dependencies {
                 implementation(libs.ktor.client.darwin)
-                if (nextEngine) implementation(project(":torrent"))
+                implementation(project(":torrent"))
             }
         }
         commonTest {

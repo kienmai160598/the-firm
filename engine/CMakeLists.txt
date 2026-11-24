@@ -18,6 +18,7 @@ add_library(movies_engine STATIC
     src/http/http_connection.cpp
     src/http/http_gateway.cpp
     src/http/http_request.cpp
+    src/http/media_type.cpp
     src/http/socket.cpp
     src/session/events.cpp
     src/session/session_service.cpp

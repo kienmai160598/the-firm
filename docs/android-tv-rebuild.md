@@ -13,7 +13,7 @@ file, then the Swift files the slice names.
 ## 1. Decisions
 
 Decisions 1 to 4 were taken on 2026-11-23 when the build started: decision 1 as asked by the user,
-2 to 4 as the defaults below. Decision 5 was taken by the user the same day. Change one only by editing this table in a PR.
+2 to 4 as the defaults below. Decision 5 was taken by the user the same day, decision 6 on 2026-11-24. Change one only by editing this table in a PR.
 
 | # | Decision | Taken | Why | Alternative not taken |
 |---|---|---|---|---|
@@ -22,6 +22,7 @@ Decisions 1 to 4 were taken on 2026-11-23 when the build started: decision 1 as 
 | 3 | Import old data on the box | No importer | The box install dates from 2026-11-22, so it holds one day of addons and progress | A one time importer of `addon_preferences` and the three `watch_progress_*` DataStores; needs the same applicationId, the same signing key and versionCode above 1080 |
 | 4 | Package id while building | `com.kien.movies.next`, next to the old app | The old app stays usable every evening until cutover | Use `com.kien.movies` from day one and uninstall the old app now |
 | 5 | What happens to Nuvio after cutover | We own `shared/core`: slice A15 deletes the UI files both bridges exclude and Nuvio's mobile app parts, keeps the logic, and drops the exclusion lists | Both TV apps run Nuvio's logic (about 257k lines: catalog, addons, streams, progress, Trakt); only the UI was rebuilt, so the logic stays, the dead UI goes | Keep tracking upstream NuvioMobile; or rewrite the logic from scratch (weeks, no smoothness gain); a package rename away from `com.nuvio.*` was not asked for |
+| 6 | Order of tvOS and Android work | tvOS first: the tvOS features in section 7 (F1 to F8) are built and merged before Android ports them, and Android ports a screen only from `main`, never from an open tvOS pull request | Android was chasing a tvOS spec that was still changing in open pull requests (A12c to A12g sat on unmerged tvOS branches). The logic of F1 to F8 already exists in `shared/core`, so tvOS builds the `shared/tv-api` facades once and Android only ports the UI. Android work that does not depend on the tvOS look (engine E5 and E6, box performance) goes on in parallel | Build each feature on both platforms at once; or port the tvOS app only when it is complete |
 
 ## 2. Target
 
@@ -466,21 +467,32 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | N2 | The sidebar reaches Home, Search, Library, Settings (Addons is a Settings page, ST1); Back on the sidebar of another tab selects Home, Back on the Home sidebar leaves to the launcher (Android; tvOS leaves from any tab, see section 4) |
 | N3 | Left from the hero opens the sidebar, down reaches the first row |
 | N4 | Poster, then Details, then Streams; Back returns to the same card at each step |
-| N5 | Library shows a placeholder that holds focus |
+| N5 | The Library tab is reachable and holds focus (LB2 when empty). Android still shows its placeholder until it ports F1 |
 | N6 | Push and Back cross fade the two screens in place, as tvOS does (push 300 ms, Back 220 ms); a tab change does not fade; the leaving screen never takes focus, and N4 still holds |
+| LB1 | Library lists saved titles as shelves, one per section `LibraryRepository` gives (by type for the local list, by list such as Watchlist when Trakt is the library source); a poster opens Details. tvOS since F1; Android needs the same change |
+| LB2 | An empty Library says so and holds focus, so the sidebar closes |
+| LB3 | Details shows a round Library button right of Play (plus when not saved, check when saved, labelled "Add to Library" and "In Library"); pressing it saves or removes the title, Library follows at once and after a relaunch. Focus on it keeps the backdrop forward and the trailer playing (D6) |
+| LB4 | When Trakt is signed in and is the library source (the upstream default), the button adds to and removes from the Trakt watchlist through `LibraryRepository.toggleSaved`; a removal the tracker asks to confirm shows a confirmation first, and a failure shows an alert |
 | H1 | Hero shows up to 6 items of the first row that have a backdrop; arrows change the item; it advances every 8 s only while unfocused |
 | H2 | Catalog rows scroll sideways with the next card partly visible |
 | H3 | Loading, empty and error states are laid out and focusable. Android: the empty and error status holds an "Open Addons" button so focus has a target; tvOS has no button there and could get the same |
 | H4 | A Continue Watching card resumes without asking |
 | H5 | Removing a card moves focus to its neighbour and the card stays gone after relaunch |
 | H6 | Finishing an episode shows Next Up on Home and on Details |
-| H7 | Home scrolls like the tvOS app: the hero art and text move with the rows as one page (no parallax, no clip), the art fades into the Home background under the first row, and a focused card comes into view only as far as needed, 90 dp from the top or bottom edge |
+| H7 | An addon catalog that needs a year as its genre (Cinemeta "New") shows as a row for its newest year, right after the first row of the same addon and type (Popular Movies, New Movies, Popular Series, New Series). The selection and placement live in Kotlin, so Android gets it from the shared API |
+| H8 | The hero artwork fills the screen, behind the peek of the first shelf, and leaves only as Home scrolls down. After 1 s of focus on a hero item, its backdrop fades into the item's YouTube trailer with sound, its volume fading in with the picture; the facts and overview stay as they are. The link is resolved in Kotlin (`TvosTrailers`) ahead of focus for the page showing and the next one, and the player buffers during the wait. A YouTube HLS trailer plays its master playlist cut down to the sharpest H.264 variants (`sharpestTierPlaylist`), so it starts at 1080p instead of the 240p variant YouTube lists first. The trailer plays hidden for under a second while upstream `LetterboxDetector` measures its black bars on small frames (`TvosLetterbox`), then shows already zoomed past them, so no black bars ever show. Picture and sound fade out when the trailer ends, when focus leaves the hero and when another screen opens. Nothing plays when the item has no trailer or the system turns off video autoplay. A lookup made before the addons are ready is tried again. Android needs its own player view and frame sampler for this; measure it on the box before shipping it there |
+| H9 | Home scrolls like the tvOS app: the hero art and text move with the rows as one page (no parallax, no clip), the art fades into the Home background under the first row, and a focused card comes into view only as far as needed, 90 dp from the top or bottom edge |
 | D1 | Details shows logo or title, then Play with the summary beside it (overview, facts, Starring) laid out as the tvOS app does, and the play label that Kotlin gives; there is no info button |
 | D2 | A part watched title shows Resume with its bar; the episode shows its percentage |
 | D3 | The season picker focuses the selected season on entry; Back from Streams restores episode and season |
 | D4 | Cast and Information are reachable by scrolling with the D-pad |
 | D5 | Loading and error states |
-| S1 | Stream groups appear per addon as they load, with "Searching N more addons" |
+| D6 | While the Play button has focus, the Details backdrop fades into the title's trailer as on Home (H8: wait, sound fade, letterbox crop, sharpest variants). It fades out when focus moves down to the episodes, cast or information, and when Streams opens; it plays again on return. Android gets it with H8 |
+| W1 | A Continue Watching card's context menu (long press Select) offers "Mark as Watched" above Remove, except for a Next Up episode that is not released yet. It marks the episode watched through `WatchingActions.markContinueWatchingWatched`; the card leaves with focus on its neighbour (H5), and a series moves on to its next episode as Next Up. When the card had no neighbour, that Next Up card takes focus if it arrives within 10 s; otherwise (a movie, the last episode, a Next Up that lands in Upcoming, a slow fetch) focus falls back to the hero, as after Remove. tvOS since F2; Android needs the same change |
+| W2 | A released episode card's context menu offers "Mark as Watched" or "Mark as Unwatched". The check mark and its "Watched" value change at once and stay after a relaunch; marking clears the episode's progress. tvOS since F2; Android needs the same change |
+| W3 | A season tab's context menu offers "Mark Season as Watched" until every released episode of the season is watched, then "Mark Season as Unwatched"; it selects that season and marks or unmarks all its released episodes at once (`WatchingActions.toggleSeasonWatched`), so focus stays on the tab after the menu closes. Cancelling the menu on a season that is not selected moves focus to the selected one (D3). Unreleased episodes and seasons with nothing released have no menu. tvOS since F2; Android needs the same change |
+| W4 | When Trakt is signed in, these marks go to Trakt history through `WatchedRepository`, as upstream does. Checked by hand, not by a UI test |
+| S1 | Stream groups appear per addon as they load; the left column shows the source count and "Searching N more addons" |
 | S2 | A row shows resolution, capability badges, size and seeders parsed as on tvOS |
 | S3 | Empty state with Try Again and the missing addon hint |
 | S4 | A stream that cannot play opens the info sheet |
@@ -490,13 +502,14 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | P2 | Skip 10 s, presses add up, controls hide after 5 s |
 | P3 | Progress is saved and playback resumes after a relaunch |
 | P4 | No data for 20 s at start fails and saves nothing; a stall of 20 s mid play fails and keeps progress; both show the notice on Streams |
-| P5 | Audio menu reaches every track; subtitle menu has Off, embedded and online tracks (4 per language at most); Info shows the decoder |
+| P5 | Audio menu reaches every track; subtitle menu has Off, embedded and online tracks (4 per language at most); Info shows the source (stream name, the Streams row's tags such as resolution, HDR and audio, then addon, size and torrent or direct) and the video, audio, audio output (route and player driver), decoder and buffer; no touch diagnostics |
 | P6 | The rating and genre advisory shows once for 6 s |
 | P7 | Back follows the six step order |
 | P8 | Leaving the app pauses and saves |
 | P9 | When the buffer runs dry mid play, playback resumes only once 5 s are buffered again, so a source slower than the bitrate stalls in long pauses, not every second. tvOS mpv sets `cache-pause-wait=5`; AVPlayer keeps its own rebuffer logic. ExoPlayer's `bufferForPlaybackAfterRebufferMs` defaults to 5,000 ms, so Android needs no change if it keeps that default |
-| T1 | A torrent stream starts through the engine, the row shows step, peers, speed and buffer, then plays; the engine stops on exit |
-| T2 | A torrent reads up to 1 GiB ahead of playback (about 90 s of a 4K remux), so a slow patch in the swarm does not stall it. tvOS: `engine/stream-readahead.patch` raises the engine cap from 256 MiB, and `TvosTorrentDefaults` sets a 5 GB disk cache and the FAST profile (200 peers). Android uses the prebuilt `lib-nuvio-engine-android-0.1.6.aar`, so it keeps 256 MiB until that AAR is rebuilt with the patch and the box cache budget has room for it |
+| P10 | Sound plays to the AirPlay speakers picked on the Apple TV, like the TV app: the audio session uses the long-form audio route sharing policy and the Info.plist sets `AVInitialRouteSharingPolicy`. The picture stays on the TV: AVPlayer (films and trailers) has external playback off, which otherwise sent the video to an AirPlay receiver and left the TV black. Android routes through the system and needs no change |
+| T1 | A torrent stream starts through the engine, the row shows step, peers and speed (no progress bar), then plays; the engine stops on exit |
+| T2 | A torrent reads up to 1 GiB ahead of playback (about 90 s of a 4K remux), so a slow patch in the swarm does not stall it. tvOS: since E7a (`docs/engine-rebuild.md`) the new engine reads 256 MiB ahead from RAM, under its 512 MiB cap, until E2 and E3 size the window from memory; the 1 GiB disk readahead went with the old engine. Android uses the prebuilt `lib-nuvio-engine-android-0.1.6.aar`, so it keeps 256 MiB until that AAR is rebuilt with the patch and the box cache budget has room for it |
 | Q1 | Typing a title shows result rows |
 | Q2 | Opening a result records a recent search; a recent search can be removed |
 | Q3 | An empty query shows recent searches and the discover row |
@@ -547,6 +560,26 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 
 Order: A0 to A3 are strictly in order. A12b needs A12. After A3, A4 to A7 follow the user path; A11 and A12 are
 independent and can be done at any point after A3. A8 needs A7.
+
+### tvOS features before porting (decision 6)
+
+Each is one slice, one branch, one pull request, in this order. The logic exists in `shared/core`;
+the slice adds the `shared/tv-api` facade with unit tests, the tvOS UI with UI tests, and its
+acceptance criteria to section 6. Android ports each one after it is on `main`.
+
+| Slice | What it does | Logic in `shared/core` |
+|---|---|---|
+| F1 Library | Library tab instead of the placeholder (N5), Add to Library on Details | `LibraryRepository` (local list, Trakt lists when signed in) |
+| F2 Watched | Mark watched and unwatched on a Continue Watching card, an episode and a season | `WatchedRepository`, `WatchingActions` |
+| F3 Trakt writes | Scrobble while playing, history when finished, watchlist from Details | `TrackingScrobbleCoordinator`, `recordExternalPlaybackProgress` |
+| F4 Next episode | Next episode button near the end of an episode, autoplay with a countdown | `PlayerNextEpisodeRules` |
+| F5 Skip intro | Skip intro and recap button while the segment plays | `SkipIntroRepository` |
+| F6 Details sections | Trailers and Related rows; a cast card opens the person's page | `MetaDetails.trailers`, `moreLikeThis`, `PersonDetail` |
+| F7 Home catalogs | Hide, show and reorder Home rows from Settings | `HomeCatalogSettingsRepository` |
+| F8 Player extras | Subtitle size, colour and background; playback speed on mpv | `SubtitleAppearance` |
+
+Later, not part of F1 to F8: Debrid keys, profiles and a Nuvio account (needs Supabase sign in),
+an offline notice, a "See all" grid per catalog.
 
 After cutover, by value: refresh rate and HDR mode match (the tvOS app has `MpvDisplayMatch`; port
 the old `core/player/FrameRateUtils.kt`), mpv as a fallback engine, ASS subtitles through libass,
