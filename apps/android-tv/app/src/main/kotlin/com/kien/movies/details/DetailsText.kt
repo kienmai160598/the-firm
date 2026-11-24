@@ -40,13 +40,10 @@ internal fun progressFraction(value: Float): Float = if (value.isNaN()) 0f else 
 /** Code and title, two spaces apart (tvOS EpisodeCard.heading), e.g. "E1  Pilot": the card's spoken label. */
 internal fun episodeHeading(episode: TvosEpisode): String = listOf(episode.code, episode.title).filter(String::isNotEmpty).joinToString("  ")
 
-/** "EPISODE 2" above the title; the code in capitals when the number is unknown. */
-internal fun episodeOverline(episode: TvosEpisode): String = episode.streamTarget.episodeNumber?.let { number -> "EPISODE $number" } ?: episode.code.uppercase()
-
-/** "Upcoming" and the release date under the description; the run time sits on the thumbnail. */
+/** "Upcoming", the release date and the run time under the description (tvOS EpisodeCard.details). */
 internal fun episodeFacts(episode: TvosEpisode): List<String> {
     val upcoming = if (episode.isReleased) null else "Upcoming"
-    return listOfNotNull(upcoming, episode.releaseDate)
+    return listOfNotNull(upcoming, episode.releaseDate, episode.runtime)
 }
 
 /** The episode's watch state for the screen reader and UI tests (tvOS EpisodeCard.watchState). */
@@ -76,9 +73,6 @@ internal fun infoEntries(details: TvosMetaDetails): List<InfoEntry> = listOf(
     "Genres" to joinedOrNull(details.genres),
     "Director" to joinedOrNull(details.directors)
 ).mapNotNull { (title, value) -> value?.let { InfoEntry(title, it) } }
-
-/** All genres for the About card's subtitle, e.g. "Thriller, Mystery, Drama". */
-internal fun aboutGenres(details: TvosMetaDetails): String? = joinedOrNull(details.genres)
 
 private fun joinedOrNull(values: List<String>): String? = if (values.isEmpty()) null else values.joinToString(", ")
 

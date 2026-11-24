@@ -12,8 +12,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.kien.movies.debug.DebugLaunch
-import com.kien.movies.details.CAST_ROW_TAG
-import com.kien.movies.details.DETAILS_ABOUT_TAG
 import com.kien.movies.details.DETAILS_CONTENT_TAG
 import com.kien.movies.details.DETAILS_ERROR_TAG
 import com.kien.movies.details.DETAILS_INFO_TAG
@@ -118,18 +116,16 @@ class DetailsTest {
         tv.await(hasText(SEASON_2_EPISODE_1), TvRobot.FOCUS_TIMEOUT_MS)
     }
 
-    /** D4: the D-pad scrolls down to Cast, then About, then Information. */
+    /** D4: the D-pad scrolls down to Cast, then Information (tvOS has no About section). */
     @Test
-    fun d4_castAboutAndInformationReachableByScrolling() {
+    fun d4_castAndInformationReachableByScrolling() {
         tv.launch(DebugLaunch.ROUTE to BREAKING_BAD)
         tv.awaitFocus(hasTestTag(DETAILS_PLAY_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
-        tv.await(hasTestTag(CAST_ROW_TAG))
+        // Play, the season tabs, the episodes, then Cast: a lazy page composes Cast only once near.
         tv.down()
         tv.down()
         tv.down()
         tv.assertFocusedTag(castTag(0))
-        tv.down()
-        tv.assertFocusedTag(DETAILS_ABOUT_TAG)
 
         tv.down()
 
@@ -139,7 +135,8 @@ class DetailsTest {
     /** D5: while the details load, the loading state holds focus. */
     @Test
     fun d5_loadingStateHoldsFocus() {
-        tv.launch(DebugLaunch.ROUTE to BREAKING_BAD)
+        // A title no other test opens: one already loaded in this process skips the loading state.
+        tv.launch(DebugLaunch.ROUTE to UNLOADED_SERIES)
 
         tv.awaitFocus(hasTestTag(DETAILS_LOADING_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
     }
@@ -166,11 +163,12 @@ class DetailsTest {
     private companion object {
         const val BREAKING_BAD = "details/series/tt0903747"
         const val TEST_SERIES = "details/series/tvostest-series"
+        const val UNLOADED_SERIES = "details/series/tt0141842"
         const val UNKNOWN_TITLE = "details/movie/tt0000000000"
         const val TEST_ADDON_URL = "http://127.0.0.1:8765/manifest.json"
 
         // The episode title under its "EPISODE 1" overline.
-        const val SEASON_2_EPISODE_1 = "Seven Thirty-Seven"
+        const val SEASON_2_EPISODE_1 = "E1  Seven Thirty-Seven"
 
         val TEST_SERIES_EPISODE_1 = TvosStreamTarget(
             type = "series",

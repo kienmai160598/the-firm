@@ -171,7 +171,7 @@ private fun PlayAction(action: TvosPlayAction, playFocus: FocusRequester, onOpen
 
 /** Dark translucent at rest (one flat layer plus the glass edge), solid white when focused. */
 @Composable
-private fun controlColors() = ButtonDefaults.colors(
+internal fun controlColors() = ButtonDefaults.colors(
     containerColor = CONTROL_FILL,
     contentColor = TvColors.textPrimary,
     focusedContainerColor = TvColors.focusedFill,
