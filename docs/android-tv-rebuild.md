@@ -196,7 +196,8 @@ the-firm/
             streams/            StreamsScreen, StreamsViewModel, StreamsHeader, StreamGroupList,
                                 StreamsRow, StreamDetailSheet, StreamsEmpty, StreamRowState
             search/             SearchScreen, SearchViewModel
-            addons/             AddonsScreen, AddonsViewModel, AddonRow, AddonInstallPanel
+            addons/             AddonsScreen, AddonsViewModel, AddonRow, AddonInstallPanel,
+                                AddonPreview, AddonDetailScreen
               phone/            PhoneAddonPanel, PhoneAddonDialog, PhoneAddonServer,
                                 PhoneAddonPage (HTML), LanAddress, QrCode
             player/             PlaybackScreen, PlaybackRequest, PlaybackMetadata, PlayerFactory,
@@ -497,10 +498,11 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | Q1 | Typing a title shows result rows |
 | Q2 | Opening a result records a recent search; a recent search can be removed |
 | Q3 | An empty query shows recent searches and the discover row |
-| A1 | Install by manifest URL; a failure shows why |
-| A2 | Turn an addon off and on |
-| A3 | Move an addon up and down |
-| A4 | Remove with confirmation; with no addons the empty state shows |
+| A1 | Add Addon, focused when the screen opens, takes a manifest URL through the system keyboard; a failure shows why under the QR code |
+| A2 | On an addon's page, Enabled turns it off and on in place, and the list row then says Off or On |
+| A3 | Move Up and Move Down on an addon's page change its order |
+| A4 | Remove Addon on the page asks first, then returns to the list; with no addons only Add Addon is left and the preview says "No addons" |
+| A5 | Laid out like the system Settings app: the system list on the right (Add Addon, then the Installed section) and on the left a preview of the focused row (the addon's logo and summary or its error, or the QR code while Add Addon has focus). An addon's row shows On, Off or Error and opens the addon's page with the same layout. tvOS uses `List` rows and opens the page through `AppRoute.addon`, because a `NavigationLink` in a `List` inside the sidebar `TabView` does not push. Android builds the same skeleton from Compose for TV list items |
 | AQ1 | "Add from phone" shows a QR code and the address as text within 1 s; with no network it says so and keeps focus |
 | AQ2 | Scanning the code with a phone on the same network opens the page; sending a manifest URL shows the confirmation dialog on the TV |
 | AQ3 | Install adds the addon (it appears in the list and its catalogs on Home); the phone page shows the result per URL; Cancel adds nothing and the page says so |
@@ -526,7 +528,7 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | A9 Player panels | Audio and subtitle menus, online subtitles (`TvosSubtitles`), info panel, advisory banner | P5, P6 | Port `MpvSubtitleDownloadTests` and `PlaybackAdvisoryTests`; UI test for the menus |
 | A10 Torrents | `TorrentSession`, row progress, box cache budget | T1 | UI test with `box/legal-test-addon`; cache budget unit tests ported from the old app |
 | A11 Search | `SearchViewModel` (350 ms debounce), recent searches, discover row. Android: a one row keyboard drawn in Compose takes first focus on "a" (tvOS focuses its keyboard on entry; no tvOS change needed), "123" opens the system IME for digits and symbols, Down from the keyboard reaches suggestions and Top Results; a recent search is removed by long press and a Remove dialog | Q1 to Q3 | UI tests from `NavigationTests` (search cases), plus a keyboard test (letters, space, delete) |
-| A12 Addons | `AddonsViewModel`, install panel, rows, action dialog, remove confirmation | A1 to A4 | UI tests from `AddonsTests` |
+| A12 Addons | `AddonsViewModel`, Settings style list and preview, install panel, addon page, remove confirmation | A1 to A5 | UI tests from `AddonsTests` |
 | A12b Add addons from phone | Session logic in `shared/tv-api/.../phone` (`AddonPairingSession`, `AddonPairingRequest`, `AddonPairingToken`, `AddonPairingReply`), server, QR, phone page, confirm dialog (section 5b). Wire format, every request with `?t=<token>`: `GET /` the page, `POST /api/addons` with `{"urls": [...]}` (answers `{"id": n}`, 403, 409, 411, 413, 400), `GET /api/status/<id>` (`pending`, `installing`, `done` with per URL results, `cancelled`, `unknown`). The server binds to the LAN address only. `Done` takes a new proposal like `Waiting` | AQ1 to AQ5 | Unit tests: state machine, token check, request limits. Server test on the JVM: 403, 409, propose then confirm. Manual: a real phone on the home network installs an addon on the box |
 | A13 Box hardening | `baselineprofile` module with new journeys, R8 keep rules check, memory and jank pass, quarter size screenshot pass on every screen | X1 to X3 | `measure.sh` numbers before and after in the PR; profile compile state from `box/install.sh` |
 | A14 Cutover | applicationId `com.kien.movies`, uninstall the old app on the box (this erases its data: ask for confirmation in that chat before running it), remove `.next`, final README and Makefile | all | Full D-pad walk and Back path on the box; the checklist of section 8 |

@@ -57,6 +57,8 @@ private struct AppDestination: View {
             DetailsView(type: type, id: id)
         case let .streams(target, resumesDirectly):
             StreamsView(target: target, resumesDirectly: resumesDirectly)
+        case let .addon(manifestUrl):
+            AddonDetailView(manifestUrl: manifestUrl)
         }
     }
 }

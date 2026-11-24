@@ -4,6 +4,7 @@ final class AddonsTests: XCTestCase {
     private static let testAddonName = "Nuvio tvOS test films"
     private static let rowId = "addon-row"
     private static let qrId = "addonQrCode"
+    private static let enabledId = "addon-enabled"
 
     private var tv: TvApp!
 
@@ -12,28 +13,29 @@ final class AddonsTests: XCTestCase {
         tv = TvApp(self)
     }
 
-    func testChoosingAnAddonOffersItsActionsAndTurnOffMarksItOff() throws {
+    func testAnAddonPageTurnsItOffInPlaceAndTheListSaysOff() throws {
         try XCTSkipUnless(TvApp.isAddonServerUp, "Test addon server is not running")
         tv.launch()
         openAddonsTab()
-        let testAddon = tv.button(containing: Self.testAddonName)
-        XCTAssertTrue(testAddon.waitForExistence(timeout: 20))
-        XCTAssertTrue(testAddon.label.contains("Streams"), "Row: \(testAddon.label)")
-        XCTAssertTrue(waitForRowFocus(), "Focused \(tv.focusedLabel)")
+        XCTAssertTrue(tv.button(containing: Self.testAddonName).waitForExistence(timeout: 20))
         tv.screenshot("addons-list")
 
-        focusRow(containing: Self.testAddonName)
+        openPage(of: Self.testAddonName)
+        let provides = tv.app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS 'Streams'")).firstMatch
+        XCTAssertTrue(provides.waitForExistence(timeout: 5), "No Provides row")
+        let enabledFocused = NSPredicate(format: "label BEGINSWITH 'Enabled'")
+        XCTAssertTrue(tv.waitUntil(tv.focused, enabledFocused, timeout: 3), "Focused \(tv.focusedLabel)")
+        tv.screenshot("addons-page")
         tv.remote.press(.select)
-        let turnOff = tv.app.buttons["Turn Off"].firstMatch
-        XCTAssertTrue(turnOff.waitForExistence(timeout: 5))
-        tv.screenshot("addons-actions")
-        focusButton(labeled: "Turn Off", moving: .up)
-        tv.remote.press(.select)
+        let turnedOff = NSPredicate(format: "label BEGINSWITH 'Enabled' AND label ENDSWITH 'Off'")
+        XCTAssertTrue(tv.waitUntil(tv.focused, turnedOff, timeout: 3), "Focused \(tv.focusedLabel)")
+        tv.remote.press(.menu)
 
         let offRow = tv.app.buttons.matching(
             NSPredicate(format: "label CONTAINS %@ AND label ENDSWITH 'Off'", Self.testAddonName)
         ).firstMatch
-        XCTAssertTrue(offRow.waitForExistence(timeout: 5), "Row: \(testAddon.label)")
+        XCTAssertTrue(offRow.waitForExistence(timeout: 5), "Focused \(tv.focusedLabel)")
         tv.screenshot("addons-turned-off")
     }
 
@@ -42,12 +44,12 @@ final class AddonsTests: XCTestCase {
         tv.launch()
         openAddonsTab()
         XCTAssertTrue(tv.button(containing: Self.testAddonName).waitForExistence(timeout: 20))
-        focusRow(containing: Self.testAddonName)
-        tv.remote.press(.select)
+        openPage(of: Self.testAddonName)
         XCTAssertTrue(tv.app.buttons["Move Up"].firstMatch.waitForExistence(timeout: 5))
 
         focusButton(labeled: "Move Up", moving: .down)
         tv.remote.press(.select)
+        tv.remote.press(.menu)
 
         let firstRow = tv.app.buttons.matching(identifier: Self.rowId).firstMatch
         let startsWithTestAddon = NSPredicate(format: "label BEGINSWITH %@", Self.testAddonName)
@@ -64,6 +66,7 @@ final class AddonsTests: XCTestCase {
         }
 
         XCTAssertTrue(emptyState.waitForExistence(timeout: 5))
+        XCTAssertTrue(tv.waitForFocus(tv.app.textFields.firstMatch), "Focused \(tv.focusedLabel)")
         tv.screenshot("addons-empty")
     }
 
@@ -72,7 +75,7 @@ final class AddonsTests: XCTestCase {
         openAddonsTab()
         let field = tv.app.textFields.firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 5))
-        tv.focus(field, moving: [.left, .up, .up])
+        XCTAssertTrue(tv.waitForFocus(field), "Add Addon is not focused first: \(tv.focusedLabel)")
         tv.remote.press(.select)
         let keyboard = NSPredicate(format: "label == %@", "Keyboard")
         XCTAssertTrue(tv.waitUntil(tv.focused, keyboard, timeout: 5), "Focused \(tv.focusedLabel)")
@@ -128,14 +131,13 @@ final class AddonsTests: XCTestCase {
     }
 
     private func removeFirstAddon() {
-        let anyRow = tv.app.buttons[Self.rowId].firstMatch
-        XCTAssertTrue(anyRow.waitForExistence(timeout: 20))
+        XCTAssertTrue(tv.app.buttons[Self.rowId].firstMatch.waitForExistence(timeout: 20))
+        tv.remote.press(.down)
         XCTAssertTrue(waitForRowFocus(), "Focused \(tv.focusedLabel)")
         let name = tv.focusedLabel
         tv.remote.press(.select)
-        let removeAction = tv.app.buttons["Remove"].firstMatch
-        XCTAssertTrue(removeAction.waitForExistence(timeout: 5))
-        focusButton(labeled: "Remove", moving: .down)
+        XCTAssertTrue(tv.app.buttons["Remove Addon"].firstMatch.waitForExistence(timeout: 5))
+        focusButton(labeled: "Remove Addon", moving: .down)
         tv.remote.press(.select)
         let question = tv.text(beginningWith: "Remove ")
         XCTAssertTrue(question.waitForExistence(timeout: 5), "No confirmation for \(name)")
@@ -143,6 +145,14 @@ final class AddonsTests: XCTestCase {
         focusButton(labeled: "Remove", moving: .right)
         tv.remote.press(.select)
         _ = tv.waitForDisappearance(question, timeout: 5)
+        XCTAssertTrue(tv.app.textFields.firstMatch.waitForExistence(timeout: 5), "Did not return to the list")
+    }
+
+    /// Selects the row of `name` and waits for its page, where Enabled has focus.
+    private func openPage(of name: String) {
+        focusRow(containing: name)
+        tv.remote.press(.select)
+        XCTAssertTrue(tv.app.descendants(matching: .any)[Self.enabledId].waitForExistence(timeout: 5))
     }
 
     private func focusButton(labeled label: String, moving direction: XCUIRemote.Button) {
@@ -159,7 +169,7 @@ final class AddonsTests: XCTestCase {
     }
 
     private func focusRow(containing name: String) {
-        for _ in 0..<4 where !tv.focusedLabel.contains(name) {
+        for _ in 0..<6 where !tv.focusedLabel.contains(name) {
             tv.remote.press(.down)
         }
         XCTAssertTrue(tv.focusedLabel.contains(name), "Focused \(tv.focusedLabel)")

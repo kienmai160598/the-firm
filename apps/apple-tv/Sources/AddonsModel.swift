@@ -27,6 +27,10 @@ final class AddonsModel: ObservableObject {
         installStatus == .installing
     }
 
+    func addon(_ manifestUrl: String) -> TvosAddon? {
+        addons.first { $0.manifestUrl == manifestUrl }
+    }
+
     func observe() {
         guard subscription == nil else { return }
         subscription = TvosAddons.shared.observe { [weak self] addons in

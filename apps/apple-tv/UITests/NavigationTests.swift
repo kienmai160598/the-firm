@@ -90,7 +90,7 @@ final class NavigationTests: XCTestCase {
             XCTAssertTrue(waitForTab(tab), "Expected \(tab), focused \(tv.focusedTabTitle)")
         }
         tv.remote.press(.select)
-        XCTAssertTrue(tv.app.staticTexts["Add an addon"].waitForExistence(timeout: 10))
+        XCTAssertTrue(tv.app.textFields["Add Addon"].waitForExistence(timeout: 10))
         XCTAssertTrue(tv.waitUntil(tv.focused, NSPredicate(format: "exists == true"), timeout: 3))
         XCTAssertFalse(tv.isTabBarFocused, "Select on Addons kept focus in the sidebar")
         pressMenuUntilTabBar()
