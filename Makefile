@@ -19,10 +19,10 @@ APPLE_TV_SIM := 'platform=tvOS Simulator,name=Apple TV 4K (4th generation)'
 
 .PHONY: help check lint format tv-runtime-init-check android-tv android-tv-test box-install \
 	box-roundtrip apple-tv-project apple-tv apple-tv-sim apple-tv-install shared-test \
-	engine-next engine-test
+	engine-next engine-test engine-android
 
 help:
-	@echo "check             shared, engine and Android TV tests, lint and the TvRuntime init check"
+	@echo "check             shared, engine and Android TV tests, the Android engine build, lint and the TvRuntime init check"
 	@echo "lint              ktlint on the Android TV app, its bridge and shared/torrent"
 	@echo "format            ktlint --format on the same sources"
 	@echo "android-tv        box APK ($(BOX_APK))"
@@ -35,8 +35,9 @@ help:
 	@echo "shared-test       Apple TV bridge and torrent module tests on the tvOS simulator"
 	@echo "engine-next       build the torrent engine xcframework (engine/build)"
 	@echo "engine-test       torrent engine unit tests on this Mac"
+	@echo "engine-android    build the torrent engine for Android (engine/build/android/jniLibs)"
 
-check: shared-test engine-test android-tv-test lint tv-runtime-init-check
+check: shared-test engine-test engine-android android-tv-test lint tv-runtime-init-check
 
 lint:
 	scripts/ktlint --relative $(KOTLIN_SOURCES)
@@ -47,16 +48,16 @@ format:
 tv-runtime-init-check:
 	scripts/check-tv-runtime-init
 
-android-tv:
+android-tv: engine-android
 	$(GRADLE) :androidTvApp:assembleBox
 
 android-tv-test:
-	$(GRADLE) :androidTvApp:testDebugUnitTest :androidTvShared:testAndroidHostTest
+	$(GRADLE) :androidTvApp:testDebugUnitTest :androidTvShared:testAndroidHostTest :torrent:testAndroidHostTest
 
 box-install: android-tv
 	BOX_PACKAGE=$(BOX_PACKAGE) $(ANDROID_TV)/box/install.sh $(BOX_APK)
 
-box-roundtrip:
+box-roundtrip: engine-android
 	$(GRADLE) :androidTvApp:assembleDebug :androidTvApp:assembleDebugAndroidTest
 	$(ANDROID_TV)/box/roundtrip.sh
 
@@ -85,3 +86,6 @@ engine-next:
 
 engine-test:
 	engine/scripts/test.sh
+
+engine-android:
+	engine/scripts/build-android.sh

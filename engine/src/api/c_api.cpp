@@ -80,8 +80,15 @@ movies_engine_status movies_engine_create(
         return fail(MOVIES_ENGINE_INVALID_ARGUMENT, "config or state directory is NULL");
     }
     return guarded([&] {
+        const movies::core::MemoryBudget budget{
+            .store_cap_bytes = config->store_cap_bytes,
+            .ahead_bytes = config->ahead_bytes,
+            .behind_bytes = config->behind_bytes,
+            .eviction_threshold_bytes = config->eviction_threshold_bytes,
+        };
+        const auto tuning = movies::core::with_budget(movies::core::EngineTuning{}, budget);
         *engine = new movies_engine{
-            movies::core::Engine(movies::core::EngineConfig(config->state_directory)),
+            movies::core::Engine(movies::core::EngineConfig(config->state_directory, tuning)),
         };
     });
 }

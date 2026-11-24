@@ -43,6 +43,22 @@ target_link_libraries(movies_engine PUBLIC torrent-rasterbar)
 target_compile_definitions(movies_engine PRIVATE MOVIES_ENGINE_VERSION="${PROJECT_VERSION}")
 target_compile_options(movies_engine PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
+if(ANDROID)
+    # The one library the Android app loads: the C ABI, libtorrent and the JNI shim for
+    # shared/torrent. Only the JNI entry points are exported.
+    add_library(movies_engine_jni SHARED src/android/movies_engine_jni.cpp)
+    set_target_properties(movies_engine_jni PROPERTIES
+        OUTPUT_NAME movies_engine
+        CXX_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN ON
+    )
+    target_link_libraries(movies_engine_jni PRIVATE movies_engine)
+    target_compile_options(movies_engine_jni PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    target_link_options(movies_engine_jni PRIVATE
+        -Wl,--exclude-libs,ALL -Wl,--gc-sections -Wl,--no-undefined -Wl,-z,max-page-size=16384
+    )
+endif()
+
 if(MOVIES_ENGINE_TESTS)
     enable_testing()
     add_subdirectory(tests)

@@ -40,10 +40,11 @@ AGP 9.2, Kotlin 2.4.10.
 make android-tv                              # box APK
 ANDROID_SERIAL=<ip>:5555 make box-install    # install it on the box with its baseline profile
 make engine-next engine-test                 # torrent engine: xcframework, unit tests
+make engine-android                          # torrent engine for Android: libmovies_engine.so per ABI
 make apple-tv-sim                            # Apple TV app for the simulator
 make apple-tv-install APPLE_TEAM=<team id> APPLE_TV_DEVICE=<devicectl id>
 make android-tv-test shared-test
-make check                                   # shared, engine and Android TV tests, ktlint, TvRuntime init check
+make check                                   # shared, engine and Android TV tests, Android engine build, ktlint, TvRuntime init check
 make format                                  # ktlint --format on the Kotlin sources
 ```
 
@@ -51,8 +52,11 @@ Kotlin style is ktlint 1.8.0 (`scripts/ktlint` fetches it and checks its hash) w
 `.editorconfig`.
 
 The Apple TV app links the engine that `make engine-next` builds; the apple-tv targets run it.
-The first `make engine-next` downloads Boost 1.86 and libtorrent 2.0.12 (pinned by SHA-256) into
-`engine/.deps` and compiles libtorrent for each slice, a few minutes.
+`make engine-android` cross builds the same sources with the Android NDK (29.0.14206865, under
+`$ANDROID_HOME/ndk`) for the ABIs in `shared/local.properties`; `make android-tv` runs it first,
+and an Android build fails when the library is missing. The first engine build downloads Boost 1.86
+and libtorrent 2.0.12 (pinned by SHA-256) into `engine/.deps` and compiles libtorrent for each
+slice or ABI, a minute or two each.
 
 `shared/local.properties` holds local settings (signing values, `ABIS`) and is not committed.
 
