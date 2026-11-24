@@ -12,7 +12,7 @@ final class SettingsTests: XCTestCase {
     func testST1SettingsListsItsPagesAndAboutShowsTheVersion() {
         tv.launch(withTestAddon: false)
         tv.openSettingsTab()
-        for page in ["account", "playback", "subtitles", "addons", "about"] {
+        for page in ["playback", "subtitles", "addons", "about"] {
             XCTAssertTrue(tv.app.buttons["settings-\(page)"].exists, "No \(page) row")
         }
         tv.screenshot("settings-root")
@@ -41,19 +41,5 @@ final class SettingsTests: XCTestCase {
             NSPredicate(format: "identifier == 'settings-subtitles' AND label ENDSWITH 'Off'")
         ).firstMatch
         XCTAssertTrue(offRow.waitForExistence(timeout: 5), "Focused \(tv.focusedLabel)")
-    }
-
-    /// Builds without TRAKT_CLIENT_ID and TRAKT_CLIENT_SECRET, as in CI, cannot sign in and say so.
-    func testST5AccountWithoutTraktCredentialsSaysItIsNotAvailable() throws {
-        tv.launch(withTestAddon: false)
-        tv.openSettingsTab()
-        let account = tv.app.buttons["settings-account"]
-        try XCTSkipUnless(account.label.hasSuffix("Not Available"), "This build has Trakt credentials")
-
-        tv.openSettingsPage("Account")
-        let signIn = tv.app.buttons["trakt-sign-in"]
-        XCTAssertTrue(signIn.waitForExistence(timeout: 5))
-        XCTAssertTrue(tv.waitUntil(tv.focused, NSPredicate(format: "label ENDSWITH 'Not Available'"), timeout: 5), tv.focusedLabel)
-        tv.screenshot("settings-account")
     }
 }

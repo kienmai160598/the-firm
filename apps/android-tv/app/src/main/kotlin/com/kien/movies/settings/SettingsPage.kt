@@ -7,7 +7,6 @@ import com.kien.movies.addons.AddonsScreen
 
 /** The pages of the Settings tab, in the order the list shows them (tvOS SettingsPage.swift). */
 enum class SettingsPage(val title: String, @param:DrawableRes val icon: Int, val caption: String) {
-    Account("Account", R.drawable.ic_settings_account, "Sign in to Trakt to sync what you watch, your watchlist and your progress."),
     Playback("Playback", R.drawable.ic_player_audio, "The audio language a film starts in."),
     Subtitles("Subtitles", R.drawable.ic_player_subtitles, "The subtitles a film starts with, or none."),
     Addons("Addons", R.drawable.ic_tab_addons, "Install, order and turn off the addons that bring catalogs, streams and subtitles."),
@@ -21,7 +20,6 @@ fun settingsRowTag(page: SettingsPage): String = "settings-${page.name.lowercase
 @Composable
 fun SettingsPageScreen(page: SettingsPage) {
     when (page) {
-        SettingsPage.Account -> AccountScreen()
         SettingsPage.Playback -> LanguageSettingsScreen(LanguageKind.Audio)
         SettingsPage.Subtitles -> LanguageSettingsScreen(LanguageKind.Subtitles)
         SettingsPage.Addons -> AddonsScreen()

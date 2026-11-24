@@ -1,8 +1,6 @@
 package com.kien.movies
 
 import android.view.KeyEvent
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isFocused
@@ -11,22 +9,20 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.kien.movies.debug.DebugLaunch
 import com.kien.movies.settings.SettingsPage
-import com.kien.movies.settings.TRAKT_SIGN_IN_TAG
 import com.kien.movies.settings.languageRowTag
 import com.kien.movies.settings.settingsRowTag
 import com.kien.movies.support.TvRobot
 import com.nuvio.tvos.TVOS_LANGUAGE_OFF
 import com.nuvio.tvos.TvosSettings
 import org.junit.After
-import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Settings (tvOS SettingsTests.swift): the pages it lists, a language choice that sticks, and the
- * Account page of a build without Trakt credentials. ST2 needs the fresh state of
- * `adb shell pm clear com.kien.movies.next` and puts Vietnamese back when it ends.
+ * Settings (tvOS SettingsTests.swift): the pages it lists and a language choice that sticks.
+ * ST2 needs the fresh state of `adb shell pm clear com.kien.movies.next` and puts Vietnamese back
+ * when it ends.
  */
 @RunWith(AndroidJUnit4::class)
 class SettingsTest {
@@ -65,20 +61,6 @@ class SettingsTest {
         }
     }
 
-    /** Builds without TRAKT_CLIENT_ID and TRAKT_CLIENT_SECRET, as in CI, cannot sign in and say so. */
-    @Test
-    fun st5_accountWithoutTraktCredentialsSaysItIsNotAvailable() {
-        openSettingsTab()
-        val account = compose.onNode(hasTestTag(settingsRowTag(SettingsPage.Account))).fetchSemanticsNode()
-        val label = account.config.getOrNull(SemanticsProperties.ContentDescription)?.joinToString().orEmpty()
-        assumeTrue("This build has Trakt credentials", label.endsWith("Not Available"))
-
-        tv.select()
-
-        tv.await(hasTestTag(TRAKT_SIGN_IN_TAG))
-        tv.awaitFocus(hasTestTag(TRAKT_SIGN_IN_TAG) and hasContentDescription("Sign In to Trakt, Not Available"))
-    }
-
     /** A press during the fade cannot reach the leaving screen, and the fade leaves no trace. */
     @Test
     fun n6_pushAndBackCrossFadeAndTheLeavingScreenTakesNoFocus() {
@@ -95,13 +77,13 @@ class SettingsTest {
         tv.awaitGone(hasContentDescription("Version, ", substring = true))
     }
 
-    /** Opens the Settings tab; its first row, Account, takes focus. */
+    /** Opens the Settings tab; its first row, Playback, takes focus. */
     private fun openSettingsTab() {
         tv.launch(DebugLaunch.ROUTE to "tab/settings")
-        tv.awaitFocus(hasTestTag(settingsRowTag(SettingsPage.Account)), TvRobot.DEFAULT_TIMEOUT_MS)
+        tv.awaitFocus(hasTestTag(settingsRowTag(SettingsPage.entries.first())), TvRobot.DEFAULT_TIMEOUT_MS)
     }
 
-    /** From the Account row, Down to [page]'s row and Select. */
+    /** From the first row, Down to [page]'s row and Select. */
     private fun openPage(page: SettingsPage) {
         pressUntilFocused(KeyEvent.KEYCODE_DPAD_DOWN, settingsRowTag(page))
         tv.select()
