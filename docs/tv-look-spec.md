@@ -207,7 +207,7 @@ Reference: `38-search.png`, `39-search-results.png`.
 | Card pager on Details | Left or Right at the top slides the neighbour title in | custom `TabView(.page)` of details cards | `HorizontalPager` | `unmeasured` |
 | Sidebar open and close | panel fades and slides in from the left over the content | system | `ModalNavigationDrawer` default | `system` |
 | Row scroll | focused card kept in place, row slides | system | `LazyRow` with `BringIntoViewSpec` keeping the item at the start margin | `system` |
-| Home page scroll into rows | hero slides up, rows take the screen | `ScrollView` scroll target | `LazyColumn.animateScrollToItem` | `unmeasured` |
+| Home page scroll into rows | hero slides up, its art's bottom edge rises from the screen bottom to a hard edge above the first row, rows take the screen | `ScrollView` scroll target; edge animated with the focus change (`tvos/look2`, `.smooth(0.35)`) | focus bring-into-view (default `spring()`); the art's clip follows the list scroll offset over the first 240 dp, read in the draw phase; rows within a screen stay composed (`LazyLayoutCacheWindow`, idle fill) so the first Down composes no cards | `unmeasured`; box, longest Down frame (perfetto, 2026-11-24): warm 52 to 14 ms, cold 143 to 33 ms (the rest is the render thread drawing new content the first time) |
 
 How the open motion values get measured: a capture card on the Apple TV's HDMI output, or a 240 fps
 slow motion phone video of the TV, stepped frame by frame with `ffmpeg`. Until then the Android

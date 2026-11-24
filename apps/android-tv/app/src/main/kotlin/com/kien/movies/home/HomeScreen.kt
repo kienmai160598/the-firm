@@ -8,12 +8,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.withFrameNanos
@@ -65,7 +65,6 @@ private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove
     ReportScrollToNavPill(listState)
     val focusMemory = rememberSaveable(saver = HomeFocusMemory.Saver) { HomeFocusMemory() }
     val homeFocus = remember { FocusRequester() }
-    val heroHasFocus = remember { mutableStateOf(false) }
     val mode = state.heroMode
 
     LoseNoFocusWhenTheHeroGoes(mode, homeFocus)
@@ -82,7 +81,8 @@ private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize().testTag(HOME_ROWS_TAG),
-                contentPadding = PaddingValues(bottom = LIST_BOTTOM_PADDING)
+                contentPadding = PaddingValues(bottom = LIST_BOTTOM_PADDING),
+                cacheWindow = rowsCacheWindow
             ) {
                 if (mode != HeroMode.None) {
                     item(key = HERO_KEY, contentType = HERO_KEY) {
@@ -92,8 +92,6 @@ private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove
                             statusMessage = state.errorMessage,
                             focusMemory = focusMemory,
                             onOpen = onOpen,
-                            showsArtBelow = heroHasFocus,
-                            onFocusChanged = { hasFocus -> heroHasFocus.value = hasFocus },
                             scrollOffset = { if (listState.firstVisibleItemIndex == 0) listState.firstVisibleItemScrollOffset.toFloat() else 0f }
                         )
                     }
@@ -145,6 +143,15 @@ const val HOME_ROWS_TAG = "home-rows"
 private const val HERO_KEY = "hero"
 private const val WATCHING_ROW_TYPE = "watching-row"
 private const val CATALOG_ROW_TYPE = "catalog-row"
+
+private val ONE_SCREEN = 540.dp
+
+/**
+ * Rows within a screen of the viewport stay composed and measured, also while the list is idle:
+ * the first Down from the hero then scrolls rows that already exist, instead of composing a
+ * shelf of cards in the first scroll frame (a 52 ms frame on the box, perfetto 2026-11-24).
+ */
+private val rowsCacheWindow = LazyLayoutCacheWindow(ahead = ONE_SCREEN, behind = ONE_SCREEN, isNonScrollCachingEnabled = true)
 
 // Room under the last shelf so its posters can be centred too: half the screen minus half a poster.
 private val LIST_BOTTOM_PADDING = 175.dp

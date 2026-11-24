@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -91,10 +90,12 @@ import kotlinx.coroutines.delay
 /**
  * The top of Home (docs/tv-look-spec.md, section 3, "Hero"), the first item of Home's list,
  * [HERO_SLOT_HEIGHT] tall. Its art is a full screen opaque bitmap with the scrim baked in
- * ([BakedScrim]); below the slot it shows under the peek of the first row only while the hero has
- * focus ([showsArtBelow]), else Home's rows background starts at the slot's end, as in
+ * ([BakedScrim]); at the top of the page it runs below the slot, under the peek of the first row.
+ * As the list scrolls into the rows, the art's bottom edge rises with the scroll until it meets the
+ * slot's end ([visibleArtHeight]), so Home's rows background takes over without a jump, as in
  * `03-sidebar-down.png`. A focus anywhere in the hero brings the whole slot into view, so the list
- * scrolls back to the top. The text block moves up faster than the list ([PARALLAX]).
+ * scrolls back to the top and the art grows back. The text block moves up faster than the list
+ * ([PARALLAX]).
  *
  * - [HeroMode.Featured]: one item of the first row at a time, with the page dots. Left and right
  *   on the button change the item; left on the first item is not taken, so focus goes on to the
@@ -113,8 +114,6 @@ fun HomeHero(
     statusMessage: String?,
     focusMemory: HomeFocusMemory,
     onOpen: (AppRoute) -> Unit,
-    showsArtBelow: State<Boolean>,
-    onFocusChanged: (hasFocus: Boolean) -> Unit,
     scrollOffset: () -> Float,
     modifier: Modifier = Modifier
 ) {
@@ -128,17 +127,14 @@ fun HomeHero(
             .fillMaxWidth()
             .height(HERO_SLOT_HEIGHT)
             .bringIntoViewResponder(rememberWholeSlotResponder())
-            .onFocusChanged { state ->
-                isFocused = state.hasFocus
-                onFocusChanged(state.hasFocus)
-            }
+            .onFocusChanged { state -> isFocused = state.hasFocus }
     ) {
         if (current != null) {
             HeroArt(
                 item = current,
                 dots = if (items.size > 1) items.size else 0,
                 shownIndex = shown,
-                showsArtBelow = showsArtBelow
+                scrollOffset = scrollOffset
             )
         }
         val parallax = Modifier.graphicsLayer { translationY = -scrollOffset() * PARALLAX }
@@ -202,23 +198,25 @@ private fun rememberWholeSlotResponder(): BringIntoViewResponder {
 }
 
 /**
- * The art, a full screen tall from the slot's top, drawn past the slot's bottom only while
- * [showsArtBelow] (read in the draw phase, so a focus change redraws without recomposing).
- * The page dots sit in the part below the slot.
+ * The art, a full screen tall from the slot's top, clipped to [visibleArtHeight] of the list's
+ * [scrollOffset]. The offset is read in the draw phase, so the edge follows every scroll frame
+ * without recomposing. The page dots sit in the part below the slot and leave with it.
  */
 @Composable
-private fun HeroArt(item: HeroItem, dots: Int, shownIndex: Int, showsArtBelow: State<Boolean>) {
+private fun HeroArt(item: HeroItem, dots: Int, shownIndex: Int, scrollOffset: () -> Float) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.Top, unbounded = true)
             .height(SCREEN_HEIGHT)
             .drawWithContent {
-                if (showsArtBelow.value) {
-                    drawContent()
-                } else {
-                    clipRect(bottom = HERO_SLOT_HEIGHT.toPx()) { this@drawWithContent.drawContent() }
-                }
+                val bottom = visibleArtHeight(
+                    scrollOffset = scrollOffset(),
+                    slotHeight = HERO_SLOT_HEIGHT.toPx(),
+                    fullHeight = size.height,
+                    retractDistance = ART_RETRACT_SCROLL.toPx()
+                )
+                clipRect(bottom = bottom) { this@drawWithContent.drawContent() }
             }
     ) {
         AsyncImage(
@@ -450,6 +448,24 @@ private const val OVERVIEW_MAX_LINES = 3
  * y 931 pt on the unscrolled Home (`01-home.png`), the slot ends at 829 pt.
  */
 internal val HERO_SLOT_HEIGHT: Dp = 414.5.dp
+
+/**
+ * How much of the art, from the slot's top, shows when the list is scrolled by [scrollOffset]:
+ * [fullHeight] at the top of the page, down to [slotHeight] once the list has scrolled
+ * [retractDistance], in proportion between. The art's edge on screen then rises steadily with
+ * the scroll instead of jumping when focus leaves the hero.
+ */
+internal fun visibleArtHeight(scrollOffset: Float, slotHeight: Float, fullHeight: Float, retractDistance: Float): Float {
+    val progress = (scrollOffset / retractDistance).coerceIn(0f, 1f)
+    return fullHeight - (fullHeight - slotHeight) * progress
+}
+
+/**
+ * List scroll over which the art retracts to the slot: a little less than the scroll that centres
+ * the first row's cards (Continue Watching cards move from y 931 to 426 pt, 252 dp; poster rows
+ * scroll further), so the edge reaches the slot's end by the time the scroll settles.
+ */
+private val ART_RETRACT_SCROLL = 240.dp
 
 /** Text block over list scroll: the buttons move 619 pt while the cards move 504 pt (`05` to `03`). */
 private const val PARALLAX = 0.228f
