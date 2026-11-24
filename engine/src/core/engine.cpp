@@ -49,7 +49,8 @@ std::optional<StreamInfo> Engine::stream_info(std::uint64_t stream) const {
     auto snapshot = streams_.snapshot(stream);
     if (!snapshot) return std::nullopt;
     const bool ready = snapshot->state == stream::StreamState::ready;
-    return StreamInfo{std::move(*snapshot), ready ? gateway_.url_for(stream) : std::string()};
+    auto url = ready ? gateway_.url_for(stream, snapshot->file_name) : std::string();
+    return StreamInfo{std::move(*snapshot), std::move(url)};
 }
 
 bool Engine::close_stream(std::uint64_t stream) {

@@ -65,11 +65,6 @@ extension TvApp {
 
     func removeFromContinueWatching(_ card: XCUIElement) {
         focusCard(card)
-        remote.press(.select, forDuration: 1.5)
-        let remove = app.descendants(matching: .any)
-            .matching(NSPredicate(format: "label == %@", "Remove from Continue Watching"))
-            .firstMatch
-        XCTAssertTrue(remove.waitForExistence(timeout: 10))
-        remote.press(.select)
+        chooseFromContextMenu("Remove from Continue Watching")
     }
 }

@@ -35,7 +35,7 @@ final class HomeTrailerTests: XCTestCase {
         tv.launch(keepingState: true, withTestAddon: false)
         XCTAssertTrue(tv.heroButton.waitForExistence(timeout: Self.homeTimeout))
         XCTAssertTrue(tv.waitForFocus(tv.heroButton, timeout: 5), "Focused: \(tv.focusedLabel)")
-        let trailer = tv.app.descendants(matching: .any)["homeHeroTrailer"]
+        let trailer = tv.app.descendants(matching: .any)["heroTrailer"]
         let focusedAt = Date()
 
         XCTAssertTrue(tv.waitForValue(trailer, "playing", timeout: Self.trailerTimeout))

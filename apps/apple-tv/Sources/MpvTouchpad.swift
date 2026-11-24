@@ -1,4 +1,3 @@
-import GameController
 import UIKit
 
 @MainActor
@@ -7,12 +6,10 @@ final class MpvTouchpad: NSObject, UIGestureRecognizerDelegate {
 
     var onMove: (MpvTouchMove) -> Void = { _ in }
     var onRelease: (Float) -> Void = { _ in }
-    let diagnostics = MpvTouchDiagnostics()
     private var travel = MpvTouchTravel()
     private var lastPanTime: TimeInterval?
     private var recognizer: UIPanGestureRecognizer?
     private weak var window: UIWindow?
-    private var countedPads: [GCMicroGamepad] = []
 
     var isSwiping: Bool {
         guard !travel.isPanning else { return true }
@@ -29,14 +26,11 @@ final class MpvTouchpad: NSObject, UIGestureRecognizerDelegate {
         window.addGestureRecognizer(pan)
         recognizer = pan
         self.window = window
-        GCController.controllers().forEach(countGameControllerTouches)
     }
 
     func stop() {
         recognizer.map { window?.removeGestureRecognizer($0) }
         recognizer = nil
-        countedPads.forEach { $0.dpad.valueChangedHandler = nil }
-        countedPads = []
         travel = MpvTouchTravel()
     }
 
@@ -56,7 +50,6 @@ final class MpvTouchpad: NSObject, UIGestureRecognizerDelegate {
             time: Self.now,
             isLifted: pan.state != .began && pan.state != .changed
         )
-        diagnostics.recordPan(sample)
         track(sample)
     }
 
@@ -72,14 +65,6 @@ final class MpvTouchpad: NSObject, UIGestureRecognizerDelegate {
         }
     }
 
-    private func countGameControllerTouches(_ controller: GCController) {
-        guard let pad = controller.microGamepad else { return }
-        pad.dpad.valueChangedHandler = { [weak self] _, _, _ in
-            MainActor.assumeIsolated { self?.diagnostics.recordGameControllerTouch() }
-        }
-        countedPads.append(pad)
-    }
-
     private static var keyWindow: UIWindow? {
         UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
@@ -89,31 +74,5 @@ final class MpvTouchpad: NSObject, UIGestureRecognizerDelegate {
 
     private static var now: TimeInterval {
         ProcessInfo.processInfo.systemUptime
-    }
-}
-
-@MainActor
-final class MpvTouchDiagnostics {
-    private(set) var panEvents = 0
-    private(set) var gameControllerEvents = 0
-    private(set) var widestTravel: Float = 0
-    var lastDecision = "none"
-
-    func recordPan(_ sample: MpvTouchSample) {
-        panEvents += 1
-        widestTravel = max(widestTravel, abs(sample.x))
-    }
-
-    func recordGameControllerTouch() {
-        gameControllerEvents += 1
-    }
-
-    var rows: [MpvInfoRow] {
-        [
-            MpvInfoRow(label: "Swipe events", value: "\(panEvents)"),
-            MpvInfoRow(label: "Remote touches", value: "\(gameControllerEvents)"),
-            MpvInfoRow(label: "Widest swipe", value: String(format: "%.2f", widestTravel)),
-            MpvInfoRow(label: "Swipe decision", value: lastDecision),
-        ]
     }
 }

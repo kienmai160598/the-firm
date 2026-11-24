@@ -53,7 +53,7 @@ struct MpvPlayerScreen: View {
     private static let panelAnimation: Animation = .spring(response: 0.35, dampingFraction: 0.86)
 
     private let target: TvosStreamTarget
-    private let source: String
+    private let source: MpvSourceInfo
     private let advisory: PlaybackAdvisory?
     @StateObject private var controller: MpvPlaybackController
     @Environment(\.dismiss) private var dismiss
@@ -72,8 +72,7 @@ struct MpvPlayerScreen: View {
     init(request: PlaybackRequest, onFailure: @escaping (StreamNotice) -> Void) {
         target = request.target
         advisory = request.advisory
-        source = [request.stream.addonName, request.stream.filename ?? request.stream.name]
-            .joined(separator: ", ")
+        source = MpvSourceInfo(stream: request.stream)
         _controller = StateObject(
             wrappedValue: MpvPlaybackController(request: request, onFailure: onFailure)
         )
@@ -364,7 +363,7 @@ struct MpvPlayerScreen: View {
         case .audio:
             openTracks(.audio)
         case .info:
-            infoRows = controller.mediaInfo() + controller.scrubber.diagnosticRows
+            infoRows = controller.mediaInfo()
             panel = .info
         }
     }
@@ -443,7 +442,7 @@ struct MpvPlayerScreen: View {
 
     private func refreshInfoWhileOpen() async {
         while panel == .info, !Task.isCancelled {
-            infoRows = controller.mediaInfo() + controller.scrubber.diagnosticRows
+            infoRows = controller.mediaInfo()
             try? await Task.sleep(for: Self.infoRefresh)
         }
     }
