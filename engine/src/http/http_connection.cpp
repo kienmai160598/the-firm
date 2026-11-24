@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "http/http_request.hpp"
+#include "http/media_type.hpp"
 
 namespace movies::http {
 namespace {
@@ -17,9 +18,10 @@ std::string status_head(int code, const char* reason) {
         "Connection: close\r\n\r\n";
 }
 
-std::string body_head(std::int64_t size, const ByteRange& range, bool partial) {
+std::string body_head(std::int64_t size, const ByteRange& range, bool partial,
+                      std::string_view type) {
     std::string head = partial ? "HTTP/1.1 206 Partial Content\r\n" : "HTTP/1.1 200 OK\r\n";
-    head += "Content-Type: application/octet-stream\r\nAccept-Ranges: bytes\r\n";
+    head += "Content-Type: " + std::string(type) + "\r\nAccept-Ranges: bytes\r\n";
     head += "Content-Length: " + std::to_string(range.length()) + "\r\n";
     if (partial) {
         head += "Content-Range: bytes " + std::to_string(range.first) + "-"
@@ -69,7 +71,7 @@ void serve_connection(Socket& socket, ByteCatalog& catalog, const std::atomic<bo
     if (request->method == "GET" && !reader) {
         return send_text(socket, status_head(404, "Not Found"), stopping);
     }
-    send_text(socket, body_head(*size, range, request->range.has_value()), stopping);
+    send_text(socket, body_head(*size, range, request->range.has_value(), media_type_for(request->target)), stopping);
     if (reader && *size > 0) send_body(socket, *reader, range, stopping);
 }
 

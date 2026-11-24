@@ -2,10 +2,7 @@ SHELL := /bin/bash
 
 JAVA_HOME ?= /opt/homebrew/opt/openjdk@17
 ANDROID_HOME ?= /opt/homebrew/share/android-commandlinetools
-# Torrent engine the Apple TV app links: legacy (nuvio-engine) or next (engine/). See D2 in
-# docs/engine-rebuild.md. Gradle reads it from the environment, also inside the Xcode build.
-NUVIO_TVOS_ENGINE ?= legacy
-export JAVA_HOME ANDROID_HOME NUVIO_TVOS_ENGINE
+export JAVA_HOME ANDROID_HOME
 
 ANDROID_TV := apps/android-tv
 APPLE_TV := apps/apple-tv
@@ -21,7 +18,7 @@ APPLE_TV_APP := $(APPLE_TV_DERIVED)/Build/Products/Release-appletvos/NuvioTv.app
 APPLE_TV_SIM := 'platform=tvOS Simulator,name=Apple TV 4K (4th generation)'
 
 .PHONY: help check lint format tv-runtime-init-check android-tv android-tv-test box-install \
-	box-roundtrip apple-tv-project apple-tv apple-tv-sim apple-tv-install shared-test engine \
+	box-roundtrip apple-tv-project apple-tv apple-tv-sim apple-tv-install shared-test \
 	engine-next engine-test
 
 help:
@@ -33,13 +30,11 @@ help:
 	@echo "box-install       install the box APK with its profile (ANDROID_SERIAL=<ip>:5555)"
 	@echo "box-roundtrip     persistence round trip on the box (test addon on 127.0.0.1:8765)"
 	@echo "apple-tv          Release build for a device (APPLE_TEAM=<team id>)"
-	@echo "                  any apple-tv target: NUVIO_TVOS_ENGINE=next links the new torrent engine"
 	@echo "apple-tv-sim      Debug build for the tvOS simulator"
 	@echo "apple-tv-install  install the Release build (APPLE_TV_DEVICE=<devicectl id>)"
-	@echo "shared-test       Apple TV bridge (both engines) and torrent module tests on the tvOS simulator"
-	@echo "engine            build the old torrent engine xcframework (about 16 minutes)"
-	@echo "engine-next       build the new torrent engine xcframework (engine/build)"
-	@echo "engine-test       new torrent engine unit tests on this Mac"
+	@echo "shared-test       Apple TV bridge and torrent module tests on the tvOS simulator"
+	@echo "engine-next       build the torrent engine xcframework (engine/build)"
+	@echo "engine-test       torrent engine unit tests on this Mac"
 
 check: shared-test engine-test android-tv-test lint tv-runtime-init-check
 
@@ -83,12 +78,7 @@ apple-tv-install: apple-tv
 		$(APPLE_TV_APP)
 
 shared-test: engine-next
-	cd shared && ./gradlew :tvosShared:tvosSimulatorArm64Test :torrent:tvosSimulatorArm64Test \
-		-Pnuvio.tvos.engine=legacy
-	cd shared && ./gradlew :tvosShared:tvosSimulatorArm64Test -Pnuvio.tvos.engine=next
-
-engine:
-	engine/build.sh
+	cd shared && ./gradlew :tvosShared:tvosSimulatorArm64Test :torrent:tvosSimulatorArm64Test
 
 engine-next:
 	engine/scripts/build-xcframework.sh

@@ -1,11 +1,17 @@
 import NuvioTvShared
 import SwiftUI
 
+/// The hero buttons: while either has focus the backdrop stays forward and the trailer plays.
+enum DetailsHeroFocus: Hashable {
+    case play
+    case library
+}
+
 struct DetailsHeroView: View {
     private static let descriptionWidth: CGFloat = 820
 
     let details: TvosMetaDetails
-    let isActionFocused: FocusState<Bool>.Binding
+    let focus: FocusState<DetailsHeroFocus?>.Binding
 
     var body: some View {
         VStack(alignment: .leading, spacing: 40) {
@@ -23,14 +29,18 @@ struct DetailsHeroView: View {
     private var actions: some View {
         if let action = details.primaryAction {
             VStack(alignment: .leading, spacing: 18) {
-                RouteLink(value: AppRoute.streams(action.target)) {
-                    Label(action.label, systemImage: "play.fill")
-                        .font(.system(size: 30, weight: .semibold))
-                        .frame(minWidth: 300)
-                        .padding(.vertical, 4)
+                HStack(spacing: 24) {
+                    RouteLink(value: AppRoute.streams(action.target)) {
+                        Label(action.label, systemImage: "play.fill")
+                            .font(.system(size: 30, weight: .semibold))
+                            .frame(minWidth: 300)
+                            .padding(.vertical, 4)
+                    }
+                    .glassProminentButtonStyle()
+                    .focused(focus, equals: .play)
+                    LibraryButton(type: details.type, id: details.metaId)
+                        .focused(focus, equals: .library)
                 }
-                .glassProminentButtonStyle()
-                .focused(isActionFocused)
                 if let resume = action.resume {
                     ResumeProgressView(resume: resume)
                 }

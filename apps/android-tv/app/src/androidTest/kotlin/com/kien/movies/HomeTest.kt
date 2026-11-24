@@ -119,7 +119,7 @@ class HomeTest {
     }
 
     /**
-     * H7: down from the hero brings the first row in only as far as tvOS does, its cards 90 dp
+     * H9: down from the hero brings the first row in only as far as tvOS does, its cards 90 dp
      * above the screen's bottom, and the hero moves with the rows (no parallax); up brings it back.
      */
     @Test

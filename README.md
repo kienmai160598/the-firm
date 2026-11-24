@@ -21,11 +21,10 @@ apps/
 shared/                Kotlin Multiplatform Gradle build (AGP 9.2, Kotlin 2.4)
   core/                shared logic: models, addons, Trakt, sync, player state (Gradle :composeApp)
   apple-tv-bridge/     builds core for tvOS as a framework the Apple TV app links (Gradle :tvosShared)
-  torrent/             Kotlin API of the new torrent engine (Gradle :torrent)
+  torrent/             Kotlin API of the torrent engine (Gradle :torrent)
   Version.xcconfig     version read by core
-engine/                the new torrent engine (C++20, libtorrent), see docs/engine-rebuild.md.
-                       build.sh still builds the old one (NuvioMedia/nuvio-engine, pinned, plus
-                       a tvOS patch) into nuvio-engine/, which is not committed
+engine/                the torrent engine (C++20, libtorrent, payload in RAM), see
+                       docs/engine-rebuild.md
 docs/                  plans that span both apps
 Makefile               one entry point for every build
 ```
@@ -40,11 +39,9 @@ AGP 9.2, Kotlin 2.4.10.
 ```bash
 make android-tv                              # box APK
 ANDROID_SERIAL=<ip>:5555 make box-install    # install it on the box with its baseline profile
-make engine                                  # old torrent engine for Apple TV, once (about 16 minutes)
-make engine-next engine-test                 # new torrent engine: xcframework, unit tests
+make engine-next engine-test                 # torrent engine: xcframework, unit tests
 make apple-tv-sim                            # Apple TV app for the simulator
 make apple-tv-install APPLE_TEAM=<team id> APPLE_TV_DEVICE=<devicectl id>
-make apple-tv-install NUVIO_TVOS_ENGINE=next ...   # same, with the new engine (payload in RAM)
 make android-tv-test shared-test
 make check                                   # shared, engine and Android TV tests, ktlint, TvRuntime init check
 make format                                  # ktlint --format on the Kotlin sources
@@ -53,8 +50,7 @@ make format                                  # ktlint --format on the Kotlin sou
 Kotlin style is ktlint 1.8.0 (`scripts/ktlint` fetches it and checks its hash) with the rules in
 `.editorconfig`.
 
-Without `make engine` the Apple TV app still builds, with torrents turned off. With
-`NUVIO_TVOS_ENGINE=next` it needs only `make engine-next`, which the apple-tv targets run anyway.
+The Apple TV app links the engine that `make engine-next` builds; the apple-tv targets run it.
 The first `make engine-next` downloads Boost 1.86 and libtorrent 2.0.12 (pinned by SHA-256) into
 `engine/.deps` and compiles libtorrent for each slice, a few minutes.
 

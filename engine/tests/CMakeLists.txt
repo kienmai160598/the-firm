@@ -14,6 +14,7 @@ add_executable(movies_engine_tests
     engine_config_test.cpp
     file_choice_test.cpp
     http_request_test.cpp
+    media_type_test.cpp
     memory_payload_store_test.cpp
     sequential_window_test.cpp
     stream_integration_test.cpp

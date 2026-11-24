@@ -49,17 +49,13 @@ struct MpvTrackMenu: View {
 }
 
 struct MpvInfoMenu: View {
-    let source: String
+    let source: MpvSourceInfo
     let rows: [MpvInfoRow]
 
     var body: some View {
         MpvMenuPanel(width: 640) {
             MpvMenuHeader(title: "Source")
-            Text(source)
-                .font(MpvMenuFont.row)
-                .lineLimit(2)
-                .padding(.horizontal, MpvMenuMetrics.rowInset)
-                .padding(.vertical, 10)
+            MpvSourceSummary(source: source)
             MpvMenuSeparator()
             MpvMenuHeader(title: "Playback")
             ForEach(rows) { row in
@@ -75,6 +71,27 @@ struct MpvInfoMenu: View {
                 .padding(.vertical, 10)
             }
         }
+    }
+}
+
+private struct MpvSourceSummary: View {
+    let source: MpvSourceInfo
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(source.title)
+                .font(MpvMenuFont.row)
+                .lineLimit(2)
+            if !source.badges.isEmpty {
+                StreamBadgeFlow(badges: source.badges)
+            }
+            Text(source.detail)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+        .font(MpvMenuFont.detail)
+        .padding(.horizontal, MpvMenuMetrics.rowInset)
+        .padding(.vertical, 10)
     }
 }
 
