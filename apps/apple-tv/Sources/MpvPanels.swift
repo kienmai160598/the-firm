@@ -78,19 +78,16 @@ private struct MpvSourceSummary: View {
     let source: MpvSourceInfo
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(source.title)
                 .font(MpvMenuFont.row)
                 .lineLimit(2)
-            Text(source.addon)
-                .foregroundStyle(.secondary)
-            if let file = source.file {
-                Text(file)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+            if !source.badges.isEmpty {
+                StreamBadgeFlow(badges: source.badges)
             }
-            Text(source.facts)
-                .lineLimit(2)
+            Text(source.detail)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
         }
         .font(MpvMenuFont.detail)
         .padding(.horizontal, MpvMenuMetrics.rowInset)

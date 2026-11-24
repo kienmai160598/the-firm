@@ -491,7 +491,7 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | P2 | Skip 10 s, presses add up, controls hide after 5 s |
 | P3 | Progress is saved and playback resumes after a relaunch |
 | P4 | No data for 20 s at start fails and saves nothing; a stall of 20 s mid play fails and keeps progress; both show the notice on Streams |
-| P5 | Audio menu reaches every track; subtitle menu has Off, embedded and online tracks (4 per language at most); Info shows the source (stream name, addon, file, then resolution, badges, size and torrent or direct link) and the video, audio, audio output (route and player driver), decoder and buffer; no touch diagnostics |
+| P5 | Audio menu reaches every track; subtitle menu has Off, embedded and online tracks (4 per language at most); Info shows the source (stream name, the Streams row's tags such as resolution, HDR and audio, then addon, size and torrent or direct) and the video, audio, audio output (route and player driver), decoder and buffer; no touch diagnostics |
 | P6 | The rating and genre advisory shows once for 6 s |
 | P7 | Back follows the six step order |
 | P8 | Leaving the app pauses and saves |
