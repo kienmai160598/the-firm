@@ -5,14 +5,12 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -76,16 +74,16 @@ private val LabelRowHeight = 22.dp // 44 pt
 private val LabelGap = 6.dp // 12 pt
 private val PlayheadWidth = 2.dp // 4 pt
 private val PlayheadRise = 5.dp // 10 pt
-private val SkipBadgeSize = 32.dp // 64 pt
-private val SkipRise = 20.dp // 40 pt
+private val SkipGap = 8.dp
+private val SkipGlyphGap = 4.dp
 private val PauseIconSize = 15.dp // 30 pt
 private val LabelStyle = TvType.caption2.copy(fontFeatureSettings = "tnum") // AVKit time labels, Caption 2
 private const val SCRUB_ANIMATION_MILLIS = 200
 
 /**
  * The transport bar (tvOS MpvTransportBar.swift): track with buffered and played fills, a
- * playhead while scrubbing, elapsed time under the playhead (or the pause icon), remaining time at
- * the end, and the skip badge. The fills are drawn in one Canvas and read their fractions in the
+ * playhead while scrubbing, the row under the playhead (elapsed time, pause icon, skip glyph) and
+ * the remaining time at the end. The fills are drawn in one Canvas and read their fractions in the
  * draw phase, so the per second clock does not re-measure anything.
  */
 @Composable
@@ -104,33 +102,23 @@ fun TransportBar(
         val width = maxWidth
         val playheadX = width * current.fraction(shownSeconds)
         Column {
-            Box(modifier = Modifier.fillMaxWidth().height(TrackSlot)) {
-                Canvas(modifier = Modifier.fillMaxWidth().height(TrackSlot)) {
-                    val height = (RestHeight + (ScrubHeight - RestHeight) * trackHeight).toPx()
-                    val top = (size.height - height) / 2
-                    val radius = CornerRadius(height / 2)
-                    drawRoundRect(TrackFill, Offset(0f, top), Size(size.width, height), radius)
-                    drawRoundRect(BufferedFill, Offset(0f, top), Size(size.width * current.fraction(current.bufferedSeconds), height), radius)
-                    val playedFill = if (isScrubbing) PlayedScrubFill else PlayedFill
-                    drawRoundRect(playedFill, Offset(0f, top), Size(size.width * current.fraction(current.positionSeconds), height), radius)
-                    drawRoundRect(TrackEdge, Offset(0f, top), Size(size.width, height), radius, style = Stroke(TrackEdgeWidth.toPx()))
-                    if (isScrubbing || previewSeconds != null) drawPlayhead(size.width * current.fraction(shownSeconds))
-                }
-                // Qualified: inside the Column, the ColumnScope overload would be picked.
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = skip != null,
-                    enter = fadeIn() + scaleIn(initialScale = SKIP_START_SCALE),
-                    exit = fadeOut() + scaleOut(targetScale = SKIP_START_SCALE),
-                    modifier = Modifier.offset(x = (playheadX - SkipBadgeSize / 2).coerceIn(0.dp, width - SkipBadgeSize), y = -(SkipRise + SkipBadgeSize / 2))
-                ) {
-                    skip?.let { badge -> SkipBadgeIcon(badge) }
-                }
+            Canvas(modifier = Modifier.fillMaxWidth().height(TrackSlot)) {
+                val height = (RestHeight + (ScrubHeight - RestHeight) * trackHeight).toPx()
+                val top = (size.height - height) / 2
+                val radius = CornerRadius(height / 2)
+                drawRoundRect(TrackFill, Offset(0f, top), Size(size.width, height), radius)
+                drawRoundRect(BufferedFill, Offset(0f, top), Size(size.width * current.fraction(current.bufferedSeconds), height), radius)
+                val playedFill = if (isScrubbing) PlayedScrubFill else PlayedFill
+                drawRoundRect(playedFill, Offset(0f, top), Size(size.width * current.fraction(current.positionSeconds), height), radius)
+                drawRoundRect(TrackEdge, Offset(0f, top), Size(size.width, height), radius, style = Stroke(TrackEdgeWidth.toPx()))
+                if (isScrubbing || previewSeconds != null) drawPlayhead(size.width * current.fraction(shownSeconds))
             }
             if (current.durationSeconds > 0) {
                 Box(modifier = Modifier.padding(top = LabelGap).fillMaxWidth().height(LabelRowHeight)) {
-                    ElapsedLabel(
+                    ElapsedRow(
                         seconds = shownSeconds,
                         showsPause = isPausedByViewer && previewSeconds == null,
+                        skip = skip,
                         playheadX = playheadX,
                         width = width,
                         modifier = Modifier.align(Alignment.CenterStart)
@@ -147,24 +135,55 @@ fun TransportBar(
     }
 }
 
+/**
+ * The row under the playhead. At rest: the elapsed time, or the pause icon while paused, centred
+ * on the playhead. After a skip: the skip glyph and the time beside that anchor, on the right
+ * for forward and on the left for back, so they never sit on top of the pause icon.
+ */
 @Composable
-private fun ElapsedLabel(seconds: Int, showsPause: Boolean, playheadX: Dp, width: Dp, modifier: Modifier) {
-    var labelWidth by remember { mutableIntStateOf(0) }
+private fun ElapsedRow(seconds: Int, showsPause: Boolean, skip: SkipBadge?, playheadX: Dp, width: Dp, modifier: Modifier) {
+    var rowWidth by remember { mutableIntStateOf(0) }
     val placement = modifier
-        .onSizeChanged { labelWidth = it.width }
+        .onSizeChanged { rowWidth = it.width }
         .offset {
-            val centered = playheadX.roundToPx() - labelWidth / 2
-            val last = (width - RemainingReserve).roundToPx() - labelWidth
-            IntOffset(centered.coerceAtMost(last.coerceAtLeast(0)).coerceAtLeast(0), 0)
+            val anchorHalf = if (showsPause) (PauseIconSize / 2).roundToPx() else 0
+            val playhead = playheadX.roundToPx()
+            val start = when {
+                skip == null -> playhead - rowWidth / 2
+                skip.isForward -> playhead - anchorHalf
+                else -> playhead + anchorHalf - rowWidth
+            }
+            val last = (width - RemainingReserve).roundToPx() - rowWidth
+            IntOffset(start.coerceAtMost(last.coerceAtLeast(0)).coerceAtLeast(0), 0)
         }
-    if (showsPause) {
-        Icon(
-            painter = painterResource(R.drawable.ic_player_pause_circle),
-            contentDescription = "Paused",
-            modifier = placement.size(PauseIconSize).testTag(PLAYER_PAUSED_TAG)
-        )
-    } else {
-        Text(text = clockLabel(seconds), style = LabelStyle, modifier = placement)
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(SkipGap), modifier = placement) {
+        if (skip?.isForward == false) SkippedTime(skip, seconds)
+        if (showsPause) PauseIcon()
+        if (skip == null && !showsPause) ElapsedTime(seconds)
+        if (skip?.isForward == true) SkippedTime(skip, seconds)
+    }
+}
+
+@Composable
+private fun PauseIcon() {
+    Icon(
+        painter = painterResource(R.drawable.ic_player_pause_circle),
+        contentDescription = "Paused",
+        modifier = Modifier.size(PauseIconSize).testTag(PLAYER_PAUSED_TAG)
+    )
+}
+
+@Composable
+private fun ElapsedTime(seconds: Int) {
+    Text(text = clockLabel(seconds), style = LabelStyle)
+}
+
+/** The skip glyph then the time it landed on, as one group beside the pause icon. */
+@Composable
+private fun SkippedTime(skip: SkipBadge, seconds: Int) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(SkipGlyphGap)) {
+        SkipBadgeIcon(skip)
+        ElapsedTime(seconds)
     }
 }
 
@@ -195,7 +214,7 @@ private fun SkipBadgeIcon(badge: SkipBadge) {
     }
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(SkipBadgeSize).testTag(PLAYER_SKIP_TAG).semantics { contentDescription = description }
+        modifier = Modifier.size(SkipGlyphSize).testTag(PLAYER_SKIP_TAG).semantics { contentDescription = description }
     ) {
         Icon(
             painter = painterResource(glyph),
@@ -219,4 +238,3 @@ private val PlayedFill = Color.White.copy(alpha = 0.9f)
 private val PlayedScrubFill = Color.White.copy(alpha = 0.55f)
 private val TrackEdge = Color.White.copy(alpha = 0.18f)
 private val TrackEdgeWidth = 0.5.dp // 1 pt
-private const val SKIP_START_SCALE = 0.7f
