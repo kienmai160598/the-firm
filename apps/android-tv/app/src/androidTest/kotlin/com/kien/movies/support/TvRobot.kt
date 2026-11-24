@@ -61,6 +61,13 @@ class TvRobot(private val compose: ComposeTestRule) {
         }
     }
 
+    /** Waits until no node matches [matcher], such as a screen that faded out. */
+    fun awaitGone(matcher: SemanticsMatcher, timeoutMillis: Long = FOCUS_TIMEOUT_MS) {
+        compose.waitUntil(timeoutMillis) {
+            compose.onAllNodes(matcher).fetchSemanticsNodes().isEmpty()
+        }
+    }
+
     /** Waits until exactly one node has focus and it matches [matcher]. */
     fun awaitFocus(matcher: SemanticsMatcher, timeoutMillis: Long = FOCUS_TIMEOUT_MS) {
         compose.waitUntil(timeoutMillis) {

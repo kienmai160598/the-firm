@@ -202,8 +202,8 @@ Reference: `38-search.png`, `39-search-results.png`.
 |---|---|---|---|---|
 | Focus moves to a card | card scales about 1.1 with a shadow, specular sheen settles | system: `.buttonStyle(.borderless)` with image hover effect, or `.card` for platters | `graphicsLayer` scale 1.0 to 1.1, `spring(dampingRatio = 1f, stiffness = 500f)` | scale `measured`, curve `unmeasured` |
 | Highlight settle after a focus move | sheen animation until the frame stops changing | system | none (no specular on the box) | `measured` in the simulator: 530 to 560 ms of changing frames |
-| Push to Details | inset card grows from the source card to full screen | `.navigationTransition(.zoom(sourceID:in:))` with `matchedTransitionSource` | shared bounds is too costly on the box: fade plus scale 0.96 to 1.0 | `unmeasured` |
-| Push and pop timing | | system | push 450 ms, pop 400 ms, ease in out (`FastOutSlowInEasing`) | `measured`: simulator system push 470 ms, pop 400 ms, symmetric ease in out (midpoint at 230 ms) |
+| Push to Details | inset card grows from the source card to full screen | our app uses the system push, a cross fade in place (simulator recording, 2026-11-24); no zoom | the same cross fade, no scale | `measured` in the simulator |
+| Push and pop | the two screens cross fade in place, no slide; what both share (the Settings art) stays put | system | `AnimatedContent` in the shell, alpha in the draw phase without an offscreen layer: push 300 ms, pop 220 ms, `FastOutSlowInEasing`; a tab change does not fade | `measured` on our app in the simulator: Settings to About about 300 ms, Poster to Details about 220 ms, Back about 200 ms, ease in out (the probe app's system push measured 470 and 400 ms) |
 | Card pager on Details | Left or Right at the top slides the neighbour title in | custom `TabView(.page)` of details cards | `HorizontalPager` | `unmeasured` |
 | Sidebar open and close | panel fades and slides in from the left over the content | system | `ModalNavigationDrawer` default | `system` |
 | Row scroll | focused card kept in place, row slides | system | `LazyRow` with `BringIntoViewSpec` keeping the item at the start margin | `system` |
@@ -223,7 +223,7 @@ values above are the defaults, and the tvOS app uses the system components so it
 | Primary button | `Button` + `.borderedProminent` capsule | tv-material `Button` with white container |
 | Circular button | `Button` + `.buttonBorderShape(.circle)` | tv-material `IconButton` |
 | Search | `.searchable` | custom one row keyboard + `BasicTextField` |
-| Push to Details | `.navigationTransition(.zoom)` | navigation with fade and scale |
+| Push to Details | system push (cross fade) | shell cross fade |
 | Player | AVKit or mpv chrome | Media3 with own chrome |
 
 ## 7. Matching procedure

@@ -79,6 +79,22 @@ class SettingsTest {
         tv.awaitFocus(hasTestTag(TRAKT_SIGN_IN_TAG) and hasContentDescription("Sign In to Trakt, Not Available"))
     }
 
+    /** A press during the fade cannot reach the leaving screen, and the fade leaves no trace. */
+    @Test
+    fun n6_pushAndBackCrossFadeAndTheLeavingScreenTakesNoFocus() {
+        openSettingsTab()
+        openPage(SettingsPage.About)
+        tv.press(KeyEvent.KEYCODE_DPAD_UP)
+
+        tv.awaitFocus(hasContentDescription("Name, ", substring = true))
+        tv.awaitGone(hasTestTag(settingsRowTag(SettingsPage.About)))
+
+        tv.back()
+
+        tv.awaitFocus(hasTestTag(settingsRowTag(SettingsPage.About)))
+        tv.awaitGone(hasContentDescription("Version, ", substring = true))
+    }
+
     /** Opens the Settings tab; its first row, Account, takes focus. */
     private fun openSettingsTab() {
         tv.launch(DebugLaunch.ROUTE to "tab/settings")

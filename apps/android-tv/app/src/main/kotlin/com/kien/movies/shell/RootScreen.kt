@@ -1,27 +1,19 @@
 package com.kien.movies.shell
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.tv.material3.DrawerValue
 import androidx.tv.material3.rememberDrawerState
 import com.kien.movies.design.Palette
@@ -44,7 +36,7 @@ import com.kien.movies.streams.StreamsScreen
  * 4. Sidebar focused on another tab: select Home, focus stays in the sidebar.
  * 5. Sidebar focused on Home: [onExit].
  *
- * Focus: before the stack changes, the shell saves which element of the screen had focus into the
+ * Push and pop move as in [RouteContent]. Focus: before the stack changes, the shell saves which element of the screen had focus into the
  * entry's saved state; after every change of the top entry the screen's root group gets focus,
  * which lands on that saved element when the entry comes back (AC N4), else on the screen's first
  * focusable child. A screen that wants another first focus sets `focusProperties { onEnter }` or
@@ -61,7 +53,8 @@ fun RootScreen(router: Router, stores: RouteViewModelStores, onExit: () -> Unit)
     var contentFocusTick by remember { mutableIntStateOf(0) }
     var drawerFocusTick by remember { mutableIntStateOf(0) }
 
-    ForgetRemovedEntries(stack, saveableState, stores)
+    val transition = updateTransition(top, label = "route")
+    ForgetRemovedEntries(stack, saveableState, stores, settled = transition.isSettled)
     DisposableEffect(router) {
         router.beforeChange = { contentFocus.saveFocusedChild() }
         onDispose { router.beforeChange = null }
@@ -88,32 +81,38 @@ fun RootScreen(router: Router, stores: RouteViewModelStores, onExit: () -> Unit)
     FocusAfterFrame(contentFocus, contentFocusTick)
     FocusAfterFrame(selectedTabFocus, drawerFocusTick)
 
-    val route = top.route
-    if (route is AppRoute.Tab) {
-        WindowBackground(tabBackground(route.tab))
-        RootTabs(
-            selected = route.tab,
-            drawerState = drawerState,
-            selectedTabFocus = selectedTabFocus,
-            contentFocus = contentFocus,
-            onSelect = { tab ->
-                router.selectTab(tab)
-                contentFocusTick++
+    WindowBackground(windowBackground(top.route))
+    transition.RouteContent { entry ->
+        val route = entry.route
+        val isTarget = entry.id == transition.targetState.id
+        if (route is AppRoute.Tab) {
+            RootTabs(
+                selected = route.tab,
+                drawerState = drawerState,
+                selectedTabFocus = selectedTabFocus,
+                contentFocus = contentFocus,
+                onSelect = { tab ->
+                    router.selectTab(tab)
+                    contentFocusTick++
+                }
+            ) {
+                EntryContent(entry, saveableState, stores, contentFocus, isTarget) { TabRootScreen(route.tab, router) }
             }
-        ) {
-            EntryContent(top, saveableState, stores, contentFocus) { TabRootScreen(route.tab, router) }
+        } else {
+            EntryContent(entry, saveableState, stores, contentFocus, isTarget) { PushedScreen(route, router) }
         }
-    } else {
-        WindowBackground(pushedBackground(route))
-        EntryContent(top, saveableState, stores, contentFocus) { PushedScreen(route, router) }
     }
 }
 
-/** Window colour of a tab root (spec section 2): Home's rows, else the grey slate of Search and Library. */
-private fun tabBackground(tab: RootTab): Color = if (tab == RootTab.Home) TvColors.homeRows else TvColors.searchLibrary
-
-/** A Settings page keeps the slate of its tab; Details and Streams have their own colour. */
-private fun pushedBackground(route: AppRoute): Color = if (route is AppRoute.Settings) TvColors.searchLibrary else Palette.detailsBackground
+/**
+ * Window colour (spec section 2): Home's rows, the grey slate of Search, Library and Settings with
+ * its pages, and the Details colour behind Details and Streams.
+ */
+private fun windowBackground(route: AppRoute): Color = when {
+    route is AppRoute.Tab && route.tab == RootTab.Home -> TvColors.homeRows
+    route is AppRoute.Tab || route is AppRoute.Settings -> TvColors.searchLibrary
+    else -> Palette.detailsBackground
+}
 
 @Composable
 private fun TabRootScreen(tab: RootTab, router: Router) {
@@ -132,39 +131,6 @@ private fun PushedScreen(route: AppRoute, router: Router) {
         is AppRoute.Streams -> StreamsScreen(route, router)
         is AppRoute.Settings -> SettingsPageScreen(route.page)
         is AppRoute.Tab -> error("A tab root is never pushed")
-    }
-}
-
-/** One entry's screen with its own saved state slot and ViewModel store. */
-@Composable
-private fun EntryContent(
-    entry: RouteEntry,
-    saveableState: SaveableStateHolder,
-    stores: RouteViewModelStores,
-    focus: FocusRequester,
-    screen: @Composable () -> Unit
-) {
-    saveableState.SaveableStateProvider(entry.id) {
-        CompositionLocalProvider(LocalViewModelStoreOwner provides stores.owner(entry.id)) {
-            Box(modifier = Modifier.fillMaxSize().focusRequester(focus).focusRestorer().focusGroup()) {
-                screen()
-            }
-        }
-    }
-}
-
-/** Drops the saved state and the ViewModels of entries that left the stack. */
-@Composable
-private fun ForgetRemovedEntries(stack: List<RouteEntry>, saveableState: SaveableStateHolder, stores: RouteViewModelStores) {
-    val known = remember { mutableSetOf<Long>() }
-    DisposableEffect(stack) {
-        val current = stack.map(RouteEntry::id).toSet()
-        val tabIds = RootTab.entries.map(Router::tabEntryId).toSet()
-        (known - current - tabIds).forEach(saveableState::removeState)
-        known.retainAll(current + tabIds)
-        known.addAll(current)
-        stores.retainOnly(current)
-        onDispose {}
     }
 }
 

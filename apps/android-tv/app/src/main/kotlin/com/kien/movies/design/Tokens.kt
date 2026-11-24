@@ -108,6 +108,13 @@ object Palette {
 object Motion {
     const val heroAdvanceMillis = 8_000L
     const val controlsHideMillis = 5_000L
+
+    /**
+     * Push and pop cross fade, timed on a simulator recording of the tvOS app: Settings to About
+     * about 300 ms, Back about 200 ms, ease in and out.
+     */
+    const val pushMillis = 300
+    const val popMillis = 220
 }
 
 /** Text roles. tvOS point sizes in the comments. */
