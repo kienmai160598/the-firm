@@ -147,7 +147,7 @@ shared/torrent/   Kotlin module: commonMain API and budgetFor, tvosMain cinterop
 
 | Risk | Handling |
 |---|---|
-| Streaming tuning of the old engine is lost | Compare both engines on the same film before E7 (D2 switch) |
+| Streaming tuning of the old engine is lost | Happened: on the box E7 first ran with libtorrent's defaults and no stream reached the player's 20 s start deadline. The session now connects the way section 6 item 6 says; measure time to the first piece against a real swarm after any session change |
 | Weeks of work | The old engine kept playing until E7 |
 | The box has 1.9 GB of RAM and a 32-bit address space | RAM only within `budgetFor`'s cap, at most 192 MiB (D6); the disk store was dropped |
 | Native threads calling into Kotlin deadlock or crash | The ABI never calls back; hosts poll |
@@ -168,6 +168,12 @@ shared/torrent/   Kotlin module: commonMain API and budgetFor, tvosMain cinterop
    would is refused and libtorrent drops that one peer.
 5. `close_redundant_connections` is off: a stream often counts as finished (all wanted pieces
    held), and libtorrent would otherwise drop every seed at that moment.
+6. The session reaches the swarm fast, because a reader gets nothing until its first piece is
+   whole and a 4K film has 16 MiB pieces: outgoing connections are TCP only (outgoing uTP waits
+   out its timeout on unreachable peers), 200 connection attempts a second, a 3 s connect
+   timeout, a 5 s request timeout (a slow peer cannot hold blocks of the first piece for
+   libtorrent's 60 s), and every tracker of the magnet link is announced to. Both apps get this
+   since E7.
 
 ## 7. Verified and not verified
 
@@ -220,6 +226,15 @@ Verified (E7, on a Mac; built, not seen on a device):
 - `make check` and `make apple-tv-sim` pass with both apps on `EngineTorrentBackend`.
 - The release `box` APK carries `lib/armeabi-v7a/libmovies_engine.so`, and R8 keeps
   `MoviesEngineJni` and its native methods under their names.
+
+Seen on the Mi Box (E7, release `box` build, 2026-11-25): with libtorrent's default session
+settings every stream reached `READY` in 2 to 10 s and then failed with "sent no data for 20
+seconds". The gateway answered `206` at once but the first 16 MiB piece took up to 59 s (4 runs on
+the box: 1 s, 25 s, 30 s, 59 s). Measured from a Mac (Guarding Stars 2160p, 15.9 GB, 951 pieces of
+16 MiB, time from `READY` to the first piece): defaults 45 s, 70 s and over 90 s twice; with
+section 6 item 6 8 to 30 s, median 14 s, 9 of 11 runs under 20 s; the same with outgoing uTP kept
+on 25 to 65 s in 4 runs; a deadline on the first piece only instead of the first 4, 11 to 34 s
+in 4 runs.
 
 Not verified:
 Android on the Mi Box: open to first frame, the PSS during playback against `budgetFor`'s cap,
