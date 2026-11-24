@@ -4,11 +4,12 @@ import androidx.compose.runtime.Immutable
 import com.kien.movies.player.StreamNotice
 import com.nuvio.tvos.TvosResumePoint
 import com.nuvio.tvos.TvosStream
+import com.nuvio.tvos.TvosTorrentStatus
 import com.nuvio.tvos.rules.StreamFeatures
 
 // The rows' state and the rule for a press (tvOS StreamsRow.swift, StreamGroupList.swift and the
 // select path of StreamsView.swift). Row states, docs/android-tv-rebuild.md section 3:
-// Idle -> Checking -> Playing -> Idle; Idle -> TorrentStarting -> Playing (A10); any -> Notice
+// Idle -> Checking -> Playing -> Idle; Idle -> TorrentStarting -> Checking -> Playing; any -> Notice
 // (the info sheet). A press is ignored while another row is not Idle.
 
 /** What the trailing side of the pressed row shows instead of size and seeders. */
@@ -16,9 +17,21 @@ import com.nuvio.tvos.rules.StreamFeatures
 data class StreamRowProgress(val title: String, val detail: String? = null, val fraction: Float? = null) {
     companion object {
         val checking = StreamRowProgress(title = "Checking stream")
-        // TODO(A10): startingTorrent ("Starting torrent") and the TvosTorrentStatus mapping
-        // (step, "N peers, N seeds, speed", buffer fraction) of StreamsView.torrentProgress.
+        val startingTorrent = StreamRowProgress(title = "Starting torrent")
     }
+}
+
+/**
+ * The pressed row while its torrent starts (tvOS StreamCheckingStatus): the engine's step, its
+ * peers, seeds and speed, and how full the buffer is; "Starting torrent" before the first tick.
+ */
+fun torrentProgress(status: TvosTorrentStatus?): StreamRowProgress {
+    status ?: return StreamRowProgress.startingTorrent
+    return StreamRowProgress(
+        title = status.step ?: StreamRowProgress.startingTorrent.title,
+        detail = "${status.peers} peers, ${status.seeds} seeds, ${status.downloadSpeedLabel}",
+        fraction = status.bufferFraction
+    )
 }
 
 /** The one row that is not Idle. Every other row dims while it is set (AC S6). */
@@ -67,24 +80,18 @@ sealed interface StreamPress {
 
     /** The row shows "Checking stream" while the resume point loads. */
     data class Checks(val stream: TvosStream) : StreamPress
+
+    /** A torrent without a playable URL: the engine starts it, the row shows its progress (T1). */
+    data class StartsTorrent(val stream: TvosStream) : StreamPress
 }
 
 /** The press rule of StreamsView.select. [isBusy]: a row is not Idle or the player is up. */
 fun streamPress(stream: TvosStream, isBusy: Boolean): StreamPress = when {
     isBusy -> StreamPress.Ignored
-
-    // TODO(A10): start the torrent through TorrentSession and show its progress on the row.
-    stream.playableUrl == null && stream.infoHash != null -> StreamPress.OpensSheet(StreamSheet(stream, torrentNotYetNotice))
-
+    stream.playableUrl == null && stream.infoHash != null -> StreamPress.StartsTorrent(stream)
     stream.playableUrl == null -> StreamPress.OpensSheet(StreamSheet(stream))
-
     else -> StreamPress.Checks(stream)
 }
-
-private val torrentNotYetNotice = StreamNotice(
-    title = "Torrents are not ready yet",
-    message = "This build cannot start torrents. Pick a direct link instead."
-)
 
 /** The row for [stream], with the addon text read once. */
 fun streamRowItem(stream: TvosStream): StreamRowItem = StreamRowItem(

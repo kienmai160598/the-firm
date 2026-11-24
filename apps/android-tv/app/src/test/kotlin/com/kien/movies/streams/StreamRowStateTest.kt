@@ -1,7 +1,7 @@
 package com.kien.movies.streams
 
+import com.nuvio.tvos.TvosTorrentStatus
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 
@@ -19,12 +19,29 @@ class StreamRowStateTest {
     }
 
     @Test
-    fun aTorrentOpensTheInfoSheetWithANoticeUntilTorrentsStart() {
+    fun t1_aTorrentWithoutAPlayableUrlStartsInTheEngine() {
         val torrent = stream("a#0", playableUrl = null, infoHash = "0123456789abcdef0123456789abcdef01234567")
 
-        val press = streamPress(torrent, isBusy = false) as StreamPress.OpensSheet
+        assertEquals(StreamPress.StartsTorrent(torrent), streamPress(torrent, isBusy = false))
+    }
 
-        assertNotNull(press.sheet.notice)
+    @Test
+    fun t1_theRowReadsStartingTorrentUntilTheEngineFirstReports() {
+        assertEquals(StreamRowProgress.startingTorrent, torrentProgress(null))
+    }
+
+    @Test
+    fun t1_theRowShowsTheEngineStepPeersSpeedAndBuffer() {
+        val progress = torrentProgress(torrentStatus(step = "Finding peers", peers = 12, seeds = 3, speed = "1.2 MB/s", buffer = 0.4f))
+
+        assertEquals(StreamRowProgress("Finding peers", "12 peers, 3 seeds, 1.2 MB/s", 0.4f), progress)
+    }
+
+    @Test
+    fun t1_aStatusWithoutAStepReadsStartingTorrent() {
+        val progress = torrentProgress(torrentStatus(step = null, peers = 0, seeds = 0, speed = "0 B/s", buffer = 0f))
+
+        assertEquals(StreamRowProgress.startingTorrent.title, progress.title)
     }
 
     @Test
@@ -65,4 +82,16 @@ class StreamRowStateTest {
 
         assertEquals("Movie.mkv", row.fileLine)
     }
+
+    private fun torrentStatus(step: String?, peers: Int, seeds: Int, speed: String, buffer: Float) = TvosTorrentStatus(
+        phase = "connecting",
+        step = step,
+        localUrl = null,
+        peers = peers,
+        seeds = seeds,
+        downloadSpeedLabel = speed,
+        bufferFraction = buffer,
+        downloadedFraction = 0f,
+        errorMessage = null
+    )
 }
