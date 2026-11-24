@@ -3,6 +3,7 @@ import NuvioTvShared
 
 struct DetailsView: View {
     @StateObject private var model: DetailsModel
+    @StateObject private var trailer = HeroTrailer()
     @EnvironmentObject private var router: Router
     @FocusState private var isActionFocused: Bool
 
@@ -13,15 +14,36 @@ struct DetailsView: View {
     var body: some View {
         ZStack {
             DetailsBackground()
-            BackdropView(url: model.details?.backdropUrl, isReceded: !isActionFocused)
+            BackdropView(
+                url: model.details?.backdropUrl,
+                isReceded: !isActionFocused,
+                trailer: trailer.picture(for: model.id)
+            )
             content
         }
         .animation(.smooth(duration: 0.4), value: isActionFocused)
-        .onAppear(perform: model.observe)
-        .onDisappear(perform: model.stop)
+        .onAppear {
+            model.observe()
+            updateTrailer()
+        }
+        .onDisappear {
+            model.stop()
+            trailer.stop()
+        }
+        .onChange(of: isTrailerDue) { updateTrailer() }
         #if DEBUG
         .onChange(of: model.details) { _, details in openDebugStreams(for: details) }
         #endif
+    }
+
+    /// The trailer plays behind the title while its Play button has focus, and fades out once the
+    /// viewer scrolls down to the episodes, the cast or the info.
+    private var isTrailerDue: Bool {
+        model.details != nil && isActionFocused
+    }
+
+    private func updateTrailer() {
+        isTrailerDue ? trailer.play(type: model.type, id: model.id) : trailer.stop()
     }
 
     @ViewBuilder

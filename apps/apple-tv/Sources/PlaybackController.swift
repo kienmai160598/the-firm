@@ -34,6 +34,9 @@ final class PlaybackController {
         let item = AVPlayerItem(asset: Self.asset(for: request))
         item.externalMetadata = PlaybackMetadata.items(target: request.target)
         player = AVPlayer()
+        // AirPlay is for the sound only (P10): with external playback on, AVPlayer sent the picture
+        // to the AirPlay receiver too and left the TV black.
+        player.allowsExternalPlayback = false
         PlayerLanguageSelection.apply(
             TvosSettings.shared.playerLanguages(deviceLanguage: LanguageName.device),
             to: player

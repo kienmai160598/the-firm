@@ -7,8 +7,8 @@ final class DetailsModel: ObservableObject {
     @Published private(set) var isLoading = true
     @Published private(set) var errorMessage: String?
 
-    private let type: String
-    private let id: String
+    let type: String
+    let id: String
     private var subscription: TvosCancellable?
 
     init(type: String, id: String) {

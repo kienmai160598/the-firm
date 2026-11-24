@@ -3,14 +3,9 @@ import SwiftUI
 struct StreamRowProgress: Equatable {
     let title: String
     let detail: String?
-    let fraction: Double?
 
-    static let checking = StreamRowProgress(title: "Checking stream", detail: nil, fraction: nil)
-    static let startingTorrent = StreamRowProgress(
-        title: "Starting torrent",
-        detail: nil,
-        fraction: nil
-    )
+    static let checking = StreamRowProgress(title: "Checking stream", detail: nil)
+    static let startingTorrent = StreamRowProgress(title: "Starting torrent", detail: nil)
 }
 
 /// The trailing side of the row being checked. It alone watches the torrent, so a status tick
@@ -28,14 +23,12 @@ struct StreamCheckingStatus: View {
         guard let status = torrent.status else { return .startingTorrent }
         return StreamRowProgress(
             title: status.step ?? StreamRowProgress.startingTorrent.title,
-            detail: "\(status.peers) peers, \(status.seeds) seeds, \(status.downloadSpeedLabel)",
-            fraction: Double(status.bufferFraction)
+            detail: "\(status.peers) peers, \(status.seeds) seeds, \(status.downloadSpeedLabel)"
         )
     }
 }
 
 private struct StreamRowProgressView: View {
-    private static let barWidth: CGFloat = 260
     private static let maxWidth: CGFloat = 420
 
     let progress: StreamRowProgress
@@ -47,10 +40,6 @@ private struct StreamRowProgressView: View {
                 Text(progress.title)
                     .font(.system(size: 25, weight: .semibold))
                     .lineLimit(1)
-            }
-            if let fraction = progress.fraction {
-                ProgressView(value: fraction)
-                    .frame(width: Self.barWidth)
             }
             if let detail = progress.detail {
                 Text(detail)
