@@ -52,8 +52,9 @@ class DetailsTextTest {
     }
 
     @Test
-    fun anUnreleasedEpisodeSaysUpcomingFirst() {
-        assertEquals(listOf("Upcoming", "2026-12-01"), episodeFacts(episode(isReleased = false, releaseDate = "2026-12-01", runtime = "47 min")))
+    fun episodeFactsAreUpcomingThenDateThenRunTime() {
+        assertEquals(listOf("Upcoming", "2026-12-01", "47 min"), episodeFacts(episode(isReleased = false, releaseDate = "2026-12-01", runtime = "47 min")))
+        assertEquals(listOf("2008-01-20", "58 min"), episodeFacts(episode(isReleased = true, releaseDate = "2008-01-20", runtime = "58 min")))
     }
 
     @Test
@@ -70,12 +71,6 @@ class DetailsTextTest {
 
         assertEquals("Starring A, B, C", starringLine(cast))
         assertNull(starringLine(emptyList()))
-    }
-
-    @Test
-    fun anEpisodeOverlineNamesItsNumberOrFallsBackToTheCode() {
-        assertEquals("EPISODE 2", episodeOverline(episode(code = "E2", episodeNumber = 2)))
-        assertEquals("E2", episodeOverline(episode(code = "e2", episodeNumber = null)))
     }
 
     @Test

@@ -146,10 +146,22 @@ Reference: `01-home.png`, `05-up-hero.png`, `13-details-top.png`.
   wide, glass prominent; resume bar and label 18 pt under it), 64 pt gap, then the summary at most
   820 pt wide: overview 27 pt white 90% (3 lines), facts "Comedy, Drama | 2026 | 1h 49m" 23 pt
   medium white 60% with the age and IMDb badges, "Starring A, B, C" 23 pt white 55% (1 line).
-  No info or add button: About is reached by scrolling. Measured on the simulator: logo bottom
-  677 pt, Play 367 x 81 pt at top 718 pt, "Cast & Crew" near 980 pt. Android on the TCL: logo
-  bottom 677 px, Play top 716 px; "Cast & Crew" still near 997 px (the sections below the top
-  are a later slice).
+  No info or add button and no About section: the overview is the summary. Measured on the
+  simulator: logo bottom 677 pt, Play 367 x 81 pt at top 718 pt, "Cast & Crew" near 980 pt.
+  Android on the TCL: logo bottom 677 px, Play top 716 px.
+- Details sections (our tvOS app, DetailsView.swift, EpisodesSection.swift, DetailsInfoSection.swift),
+  56 pt apart under the hero. Season tabs: glass capsules 68 pt tall, 24 pt apart, the selected one
+  with a checkmark; focus entering the row lands on the selected one. Episode cards 400 x 225 pt,
+  24 pt corners, 40 pt apart, no shade on the art; under the card "E1  Pilot" 25 pt semibold,
+  3 lines of overview 21 pt white 60%, then upcoming, date and runtime 20 pt medium white 45%; the
+  text moves down with the focus lift. Cast & Crew: 180 pt circles that lift 1.22, name 24 pt
+  medium (2 lines), role 21 pt white 50%. Information: columns 400 pt wide, 48 pt apart, label
+  22 pt semibold white 50%, value 24 pt white 85% (3 lines), in a 24 pt corner platter filled
+  white 12% only while focused. Section titles 31 pt semibold white 60%. Scroll targets measured
+  on the simulator: the tabs at 828 pt with focus on them and at 390 pt with focus on an episode,
+  "Cast & Crew" near 394 pt at the end of a series page; Android on the TCL within 2 px of each.
+  tvOS shows a blurred, dimmed backdrop under the sections; Android fades the backdrop out there
+  (window colour), as a baked blurred copy cost too much on the box (see the Details KDoc).
 - Box: the scrim is baked into the backdrop bitmap once (`BakedScrim` Coil transformation, commit
   `3b64836ac0`), never drawn per frame. Trailer autoplay stays off on the box (decode and fill cost).
 

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -30,19 +30,16 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
@@ -52,74 +49,49 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Border
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.Glow
+import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
+import androidx.tv.material3.ProvideTextStyle
 import androidx.tv.material3.Text
 import coil3.request.ImageRequest
 import com.kien.movies.R
 import com.kien.movies.design.ArtworkImage
-import com.kien.movies.design.BakedScrim
+import com.kien.movies.design.FactLine
 import com.kien.movies.design.Focus
-import com.kien.movies.design.ScrimLayer
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
 import com.kien.movies.design.glassEdge
-import com.kien.movies.design.rememberBakedImage
 import com.kien.movies.design.rememberStartAlignedRowSpec
 import com.nuvio.tvos.TvosEpisode
 import com.nuvio.tvos.TvosSeason
 import com.nuvio.tvos.TvosStreamTarget
 
 /**
- * What sits above the episode cards (reference `15-details-d2.png`): the title logo centred and
- * the season tabs. It lives at the bottom of the hero item and shows only once focus leaves the
- * hero, so the cards peek at the bottom of the screen in the hero state, as in the reference.
+ * One glass capsule per season, the selected one with a checkmark (tvOS EpisodesSection.swift
+ * `SeasonPicker`). Focus entering the row from outside lands on the selected season, not on the
+ * nearest tab (tvOS focusSelectedSeasonOnEntry; AC D3). A plain scrolling Row, so the selected
+ * tab is always composed and its requester attached.
  */
 @Composable
-internal fun EpisodesHeader(
-    name: String,
-    logo: ImageRequest?,
-    seasons: List<TvosSeason>,
-    selectedNumber: Int?,
-    onSelectSeason: (Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        TitleArtwork(
-            name = name,
-            logo = logo,
-            maxWidth = HEADER_LOGO_SIZE.width,
-            maxHeight = HEADER_LOGO_SIZE.height,
-            alignment = Alignment.Center,
-            modifier = Modifier.fillMaxWidth().height(HEADER_LOGO_SIZE.height)
-        )
-        Spacer(modifier = Modifier.height(HEADER_LOGO_GAP))
-        SeasonPicker(seasons = seasons, selectedNumber = selectedNumber, onSelect = onSelectSeason)
-    }
-}
-
-/**
- * One capsule per season. Focus entering the row from outside lands on the selected season, not
- * on the nearest tab (tvOS focusSelectedSeasonOnEntry; AC D3). A plain scrolling Row, so the
- * selected tab is always composed and its requester attached.
- */
-@Composable
-private fun SeasonPicker(seasons: List<TvosSeason>, selectedNumber: Int?, onSelect: (Int) -> Unit) {
+internal fun SeasonPicker(seasons: List<TvosSeason>, selectedNumber: Int?, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
     val selectedFocus = remember { FocusRequester() }
     val hasSelected = seasons.any { season -> season.number == selectedNumber }
     Row(
-        modifier = Modifier
+        modifier = modifier
             .focusProperties { if (hasSelected) onEnter = { selectedFocus.requestFocus() } }
             .focusGroup()
             .testTag(SEASON_PICKER_TAG)
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = TvGrid.sideMargin),
+            .padding(horizontal = TvGrid.sideMargin, vertical = SEASON_ROW_PADDING_V),
         horizontalArrangement = Arrangement.spacedBy(SEASON_TAB_GAP)
     ) {
         seasons.forEach { season ->
@@ -138,41 +110,39 @@ private fun SeasonPicker(seasons: List<TvosSeason>, selectedNumber: Int?, onSele
     }
 }
 
-/** Selected: grey capsule with the glass edge. Others: plain secondary text. Focused: white. */
+/** A glass button (tvOS `.glass`): dark capsule with the glass edge, white when focused. */
 @Composable
 private fun SeasonTab(title: String, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val interaction = remember { MutableInteractionSource() }
     val isFocused by interaction.collectIsFocusedAsState()
     Button(
         onClick = onClick,
-        colors = ButtonDefaults.colors(
-            containerColor = if (isSelected) TvColors.platter else Color.Transparent,
-            contentColor = if (isSelected) TvColors.textPrimary else TvColors.textSecondary,
-            focusedContainerColor = TvColors.focusedFill,
-            focusedContentColor = TvColors.focusedContent,
-            pressedContainerColor = TvColors.focusedFill,
-            pressedContentColor = TvColors.focusedContent
-        ),
+        colors = controlColors(),
         scale = ButtonDefaults.scale(focusedScale = Focus.buttonScale),
         shape = ButtonDefaults.shape(shape = TvShapes.pill),
         contentPadding = PaddingValues(horizontal = SEASON_TAB_PADDING_H),
         interactionSource = interaction,
         modifier = modifier
             .height(SEASON_TAB_HEIGHT)
-            .glassEdge(TvShapes.pill, visible = isSelected && !isFocused)
+            .glassEdge(TvShapes.pill, visible = !isFocused)
             .semantics { if (isSelected) stateDescription = SELECTED_SEASON_STATE }
     ) {
-        Text(text = title, style = SEASON_TAB_STYLE, maxLines = 1)
+        Row(horizontalArrangement = Arrangement.spacedBy(SEASON_CHECK_GAP), verticalAlignment = Alignment.CenterVertically) {
+            if (isSelected) {
+                Icon(painter = painterResource(R.drawable.ic_player_check), contentDescription = null, modifier = Modifier.size(SEASON_CHECK))
+            }
+            Text(text = title, style = SEASON_TAB_STYLE, maxLines = 1)
+        }
     }
 }
 
-/** The selected season's episodes, four per screen width on the column grid. */
+/** The selected season's episodes (tvOS `EpisodeShelf`): 200 dp cards, 20 dp apart. */
 @Composable
 internal fun EpisodeShelf(episodes: List<TvosEpisode>, onOpen: (TvosStreamTarget) -> Unit, modifier: Modifier = Modifier) {
     CompositionLocalProvider(LocalBringIntoViewSpec provides rememberStartAlignedRowSpec()) {
         LazyRow(
             modifier = modifier.focusRestorer().focusGroup().testTag(EPISODE_SHELF_TAG),
-            contentPadding = PaddingValues(start = TvGrid.sideMargin, end = TvGrid.sideMargin, bottom = PANEL_LIFT),
+            contentPadding = PaddingValues(horizontal = TvGrid.sideMargin, vertical = SHELF_PADDING_V),
             horizontalArrangement = Arrangement.spacedBy(TvGrid.gutter)
         ) {
             // Addon data does not promise unique video ids, and a repeated lazy key throws.
@@ -184,9 +154,8 @@ internal fun EpisodeShelf(episodes: List<TvosEpisode>, onOpen: (TvosStreamTarget
 }
 
 /**
- * Thumbnail with the run time inside, then overline, title, description and date. On focus the
- * thumbnail lifts 1.1 and the text gets a translucent panel, lifted 1.05 and moved down clear of
- * the card (reference `c-episodes.png`). Both are draw phase changes: the layout never moves.
+ * Thumbnail, then "E1  Pilot", three lines of overview and the facts line (tvOS `EpisodeCard`).
+ * On focus the thumbnail lifts 1.1 and the text moves down with its edge, in the draw phase.
  */
 @Composable
 private fun EpisodeCard(episode: TvosEpisode, onOpen: (TvosStreamTarget) -> Unit) {
@@ -194,40 +163,41 @@ private fun EpisodeCard(episode: TvosEpisode, onOpen: (TvosStreamTarget) -> Unit
     val watchState = episodeWatchState(episode)
     val interaction = remember { MutableInteractionSource() }
     val isFocused by interaction.collectIsFocusedAsState()
-    val focus by animateFloatAsState(if (isFocused) 1f else 0f, tween(FOCUS_MILLIS), label = "episode-focus")
-    val size = episodeCardSize()
-    Column(modifier = Modifier.width(size.width)) {
+    val focus by animateFloatAsState(if (isFocused) 1f else 0f, tween(Focus.animationMillis), label = "episode-focus")
+    Column(modifier = Modifier.width(EPISODE_SIZE.width)) {
         Card(
             onClick = { onOpen(episode.streamTarget) },
-            shape = CardDefaults.shape(shape = TvShapes.card),
+            shape = CardDefaults.shape(shape = EPISODE_SHAPE),
             colors = CardDefaults.colors(containerColor = Color.Transparent, focusedContainerColor = Color.Transparent),
             scale = CardDefaults.scale(focusedScale = Focus.cardScale),
             border = CardDefaults.border(border = Border.None, focusedBorder = Border.None, pressedBorder = Border.None),
             glow = CardDefaults.glow(focusedGlow = Glow(elevationColor = TvColors.focusShadow, elevation = Focus.shadowElevation)),
             interactionSource = interaction,
             modifier = Modifier
-                .size(size)
+                .size(EPISODE_SIZE)
                 .testTag(episodeTag(episode.videoId))
                 .semantics {
                     contentDescription = heading
                     if (watchState.isNotEmpty()) stateDescription = watchState
                 }
         ) {
-            EpisodeThumbnail(episode, size)
+            EpisodeThumbnail(episode)
         }
-        EpisodeText(episode = episode, focus = { focus })
+        EpisodeText(episode = episode, heading = heading, modifier = Modifier.graphicsLayer { translationY = focus * (Focus.cardScale - 1f) * EPISODE_SIZE.height.toPx() / 2f })
     }
 }
 
 @Composable
-private fun EpisodeThumbnail(episode: TvosEpisode, size: DpSize) {
-    val request = rememberBakedImage(episode.thumbnailUrl, size, THUMBNAIL_SHADE)
+private fun EpisodeThumbnail(episode: TvosEpisode) {
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    val request = remember(episode.thumbnailUrl, density) {
+        episode.thumbnailUrl?.let { url ->
+            with(density) { ImageRequest.Builder(context).data(url).size(EPISODE_SIZE.width.roundToPx(), EPISODE_SIZE.height.roundToPx()).build() }
+        }
+    }
     Box(modifier = Modifier.fillMaxSize()) {
-        ArtworkImage(
-            model = request,
-            modifier = Modifier.fillMaxSize(),
-            colorFilter = if (episode.isReleased) null else unreleasedFilter
-        )
+        ArtworkImage(model = request, modifier = Modifier.fillMaxSize(), colorFilter = if (episode.isReleased) null else unreleasedFilter)
         if (episode.isWatched) {
             Image(
                 painter = painterResource(R.drawable.ic_details_watched),
@@ -235,74 +205,26 @@ private fun EpisodeThumbnail(episode: TvosEpisode, size: DpSize) {
                 modifier = Modifier.align(Alignment.TopEnd).padding(CARD_INSET).size(WATCHED_MARK)
             )
         }
-        Column(
-            modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(CARD_INSET),
-            verticalArrangement = Arrangement.spacedBy(CARD_LINE_GAP)
-        ) {
-            episode.runtime?.let { runtime ->
-                Text(text = runtime, style = TvType.caption2, color = TvColors.textPrimary, maxLines = 1)
-            }
-            if (episodeShowsProgress(episode)) {
-                WatchProgressBar(fraction = episode.progressFraction, modifier = Modifier.fillMaxWidth())
-            }
+        if (episodeShowsProgress(episode)) {
+            WatchProgressBar(fraction = episode.progressFraction, modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(CARD_INSET))
         }
     }
 }
 
-/** The text under the card; [focus] (0 to 1) is read in the draw phase only. */
 @Composable
-private fun EpisodeText(episode: TvosEpisode, focus: () -> Float) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .graphicsLayer {
-                val progress = focus()
-                val scale = 1f + (Focus.buttonScale - 1f) * progress
-                scaleX = scale
-                scaleY = scale
-                translationY = PANEL_LIFT.toPx() * progress
-            }
-            .drawBehind {
-                val progress = focus()
-                if (progress > 0f) {
-                    val radius = CornerRadius(PANEL_CORNER.toPx())
-                    drawRoundRect(color = PANEL_FILL, cornerRadius = radius, alpha = progress)
-                    val stroke = 1.dp.toPx()
-                    drawRoundRect(
-                        color = TvColors.glassEdge,
-                        topLeft = Offset(stroke / 2, stroke / 2),
-                        size = Size(size.width - stroke, size.height - stroke),
-                        cornerRadius = radius,
-                        style = Stroke(width = stroke),
-                        alpha = progress
-                    )
-                }
-            }
-            .padding(start = PANEL_PADDING_H, end = PANEL_PADDING_H, top = PANEL_PADDING_TOP, bottom = PANEL_PADDING_BOTTOM)
-    ) {
-        Text(text = episodeOverline(episode), style = TvType.overline, color = TvColors.textSecondary, maxLines = 1)
-        Text(text = episode.title, style = EPISODE_TITLE_STYLE, color = TvColors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+private fun EpisodeText(episode: TvosEpisode, heading: String, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxWidth().padding(top = CAPTION_GAP), verticalArrangement = Arrangement.spacedBy(CAPTION_LINE_GAP)) {
+        Text(text = heading, style = HEADING_STYLE, color = TvColors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
         episode.overview?.let { overview ->
-            Text(
-                text = overview,
-                style = TvType.caption2,
-                color = TvColors.textSecondary,
-                minLines = DESCRIPTION_LINES,
-                maxLines = DESCRIPTION_LINES,
-                overflow = TextOverflow.Ellipsis
-            )
+            Text(text = overview, style = OVERVIEW_STYLE, color = OVERVIEW_COLOR, maxLines = OVERVIEW_LINES, overflow = TextOverflow.Ellipsis)
         }
         val facts = episodeFacts(episode)
         if (facts.isNotEmpty()) {
-            Text(text = facts.joinToString(" · "), style = TvType.caption2, color = TvColors.textSecondary, maxLines = 1)
+            CompositionLocalProvider(LocalContentColor provides FACTS_COLOR) {
+                ProvideTextStyle(FACTS_STYLE) { FactLine(facts) }
+            }
         }
     }
-}
-
-/** 16:9 at four columns: 201 x 113 dp. */
-private fun episodeCardSize(): DpSize {
-    val width = TvGrid.itemWidth(EPISODE_COLUMNS)
-    return DpSize(width, width * 9 / 16)
 }
 
 fun seasonTag(number: Int): String = "season-$number"
@@ -314,35 +236,31 @@ const val EPISODE_SHELF_TAG = "episode-shelf"
 const val SELECTED_SEASON_STATE = "Selected"
 
 private const val EPISODE_CONTENT_TYPE = "episode"
-private const val EPISODE_COLUMNS = 4
-private const val DESCRIPTION_LINES = 5
-private const val FOCUS_MILLIS = 150
+private const val OVERVIEW_LINES = 3
 
 // Opacity 0.5 of an unreleased episode, as a filter on the image: no layer, no extra pass.
 private val unreleasedFilter = ColorFilter.colorMatrix(ColorMatrix().apply { setToScale(1f, 1f, 1f, 0.5f) })
 
-// The soft shade under the run time, baked into the thumbnail once (no per frame gradient).
-private val THUMBNAIL_SHADE = BakedScrim(
-    underlay = TvColors.details,
-    layers = listOf(ScrimLayer.vertical(0.55f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.5f)))
-)
-
-// Measured on 15-details-d2.png (pt / 2): logo 100 pt tall, 60 pt above the tabs; tabs 60 pt
-// tall, text inset 30 pt, 12 pt apart; run time 18 pt inside the card; text 18 pt inside the
-// card edge; focused panel white about 10%, lifted 31 pt.
-private val HEADER_LOGO_SIZE = DpSize(190.dp, 50.dp)
-private val HEADER_LOGO_GAP = 30.dp
-private val SEASON_TAB_HEIGHT = 30.dp
+// tvOS (pt / 2, simulator 2026-11-24): tabs 68 pt tall, 24 pt apart, the row 12 pt above and
+// below; check 12 pt before the title. Cards 400 x 225 pt with a 24 pt corner, the shelf 24 pt
+// above and below; text 22 pt under the card, lines 10 pt apart: heading 25 pt semibold,
+// overview 21 pt white 60%, facts 20 pt medium white 45%. Marks 20 pt inside the card.
+private val SEASON_TAB_HEIGHT = 34.dp
 private val SEASON_TAB_PADDING_H = 15.dp
-private val SEASON_TAB_GAP = 6.dp
-private val SEASON_TAB_STYLE = TvType.rowTitle.copy(fontWeight = FontWeight.SemiBold)
-private val CARD_INSET = 9.dp
-private val CARD_LINE_GAP = 4.dp
+private val SEASON_TAB_GAP = 12.dp
+private val SEASON_ROW_PADDING_V = 6.dp
+private val SEASON_CHECK = 16.dp
+private val SEASON_CHECK_GAP = 6.dp
+private val SEASON_TAB_STYLE = TvType.body
+private val EPISODE_SIZE = DpSize(200.dp, 112.5.dp)
+private val EPISODE_SHAPE = RoundedCornerShape(12.dp)
+private val SHELF_PADDING_V = 12.dp
+private val CARD_INSET = 10.dp
 private val WATCHED_MARK = 22.dp
-private val PANEL_PADDING_H = 9.dp
-private val PANEL_PADDING_TOP = 7.dp
-private val PANEL_PADDING_BOTTOM = 9.dp
-private val PANEL_LIFT = 15.dp
-private val PANEL_CORNER = 12.dp
-private val PANEL_FILL = Color.White.copy(alpha = 0.1f)
-private val EPISODE_TITLE_STYLE = TvType.caption1Emphasized
+private val CAPTION_GAP = 11.dp
+private val CAPTION_LINE_GAP = 5.dp
+private val HEADING_STYLE = TvType.body.copy(fontSize = 12.5.sp, lineHeight = 15.sp, fontWeight = FontWeight.SemiBold)
+private val OVERVIEW_STYLE = TvType.body.copy(fontSize = 10.5.sp, lineHeight = 13.sp, fontWeight = FontWeight.Normal)
+private val OVERVIEW_COLOR = Color.White.copy(alpha = 0.6f)
+private val FACTS_STYLE = TvType.body.copy(fontSize = 10.sp, lineHeight = 12.sp, fontWeight = FontWeight.Medium)
+private val FACTS_COLOR = Color.White.copy(alpha = 0.45f)

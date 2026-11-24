@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -38,6 +37,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.CompositingStrategy
@@ -77,13 +77,14 @@ import com.nuvio.tvos.TvosStreamTarget
 import kotlinx.coroutines.launch
 
 /**
- * Details in the Apple TV app's arrangement (docs/tv-look-spec.md, sections 3 and 4): a full
- * screen hero over the backdrop, then Episodes, Cast & Crew, About and Information on the flat
- * details background. Or a loading or error state that holds focus (AC D5).
+ * Details as the tvOS app lays it out (DetailsView.swift): one column over the backdrop, the hero
+ * in the top 88% of the screen, then the season tabs and episodes, Cast & Crew and Information,
+ * 28 dp apart. Or a loading or error state that holds focus (AC D5).
  *
  * Box GPU: the backdrop is one opaque image with its shades baked into the bitmap (BakedScrim),
- * shown only while the hero holds focus; below the hero the window colour is the background. No
- * gradient, blur or translucent layer is drawn per frame.
+ * shown while the hero holds focus and faded out below it, where the window colour shows. tvOS
+ * shows a blurred, dimmed copy there (`isReceded`); a baked copy measured p50 36 ms a frame on the
+ * box while the page left the hero, against 24 ms without it (2026-11-24), so it waits.
  *
  * Play and an episode open Streams exactly as tvOS does: `AppRoute.Streams(target)` with
  * `resumesDirectly = false`, so Streams asks Resume or Start Over (AC S5).
@@ -164,8 +165,12 @@ private fun DetailsContent(
     val entries = remember(details) { infoEntries(details) }
     val logo = rememberLogoRequest(details.logoUrl)
     val hasSeasons = details.seasons.isNotEmpty()
-    val hasAbout = details.overview != null || details.genres.isNotEmpty()
-    val sections = remember(details) { detailsSections(details, hasAbout, entries.isNotEmpty()) }
+    val sections = remember(details) { detailsSections(details, entries.isNotEmpty()) }
+    // Saved with the entry: focus entering the page from outside, as when it comes back from
+    // Streams, goes to this section, whose own restorer finds the card (AC D3). Without it the
+    // window hands focus to Play, the first focusable, before the shell's restore runs.
+    var focusedSection by rememberSaveable { mutableStateOf(DetailsSection.Top) }
+    val sectionFocus = remember { DetailsSection.entries.associateWith { FocusRequester() } }
 
     LaunchedEffect(Unit) {
         if (!takesFocus) return@LaunchedEffect
@@ -175,11 +180,15 @@ private fun DetailsContent(
     }
 
     fun scrollTo(section: DetailsSection) {
+        focusedSection = section
         val index = sections.indexOf(section)
         val topPx = with(density) { section.top.toPx() }
         val bottomMarginPx = with(density) { OVERSCAN_BOTTOM.toPx() }
         scope.launch { listState.scrollSection(index, section, topPx, bottomMarginPx) }
     }
+
+    /** The section's requester on its focus group, and its scroll when focus enters it. */
+    fun Modifier.section(section: DetailsSection): Modifier = focusRequester(sectionFocus.getValue(section)).onSectionFocus { scrollTo(section) }
 
     // The page scrolls each section to its own place (see DetailsSection.top), not by the default
     // bring into view; rows set their own spec for their horizontal scroll.
@@ -187,47 +196,58 @@ private fun DetailsContent(
         LazyColumn(
             state = listState,
             // No content padding: the hero's height is a share of the whole viewport.
-            modifier = Modifier.fillMaxSize().focusRequester(contentFocus).focusGroup().testTag(DETAILS_CONTENT_TAG)
+            modifier = Modifier
+                .fillMaxSize()
+                .focusRequester(contentFocus)
+                .focusProperties { if (focusedSection != DetailsSection.Top) onEnter = { sectionFocus.getValue(focusedSection).requestFocus() } }
+                .focusGroup()
+                .testTag(DETAILS_CONTENT_TAG)
         ) {
             item(key = DetailsSection.Top.name, contentType = DetailsSection.Top.name) {
-                DetailsTop(
+                DetailsHero(
                     details = details,
                     logo = logo,
-                    selectedSeasonNumber = state.selectedSeason?.number,
-                    heroHasFocus = heroHasFocus,
                     playFocus = playFocus,
-                    onHeroFocusChanged = { focused ->
-                        onHeroFocusChanged(focused)
-                        if (focused) scrollTo(DetailsSection.Top)
-                    },
-                    onSeasonsFocused = { scrollTo(DetailsSection.Episodes) },
                     onOpen = onOpen,
-                    onSelectSeason = onSelectSeason,
-                    modifier = Modifier.fillParentMaxHeight(topFraction(details))
+                    modifier = Modifier
+                        .heroFrame()
+                        .padding(horizontal = TvGrid.sideMargin)
+                        .onFocusChanged { focusState ->
+                            onHeroFocusChanged(focusState.hasFocus)
+                            if (focusState.hasFocus) scrollTo(DetailsSection.Top)
+                        }
+                        .focusGroup()
                 )
             }
             if (hasSeasons) {
+                item(key = DetailsSection.Seasons.name, contentType = DetailsSection.Seasons.name) {
+                    SeasonPicker(
+                        seasons = details.seasons,
+                        selectedNumber = state.selectedSeason?.number,
+                        onSelect = onSelectSeason,
+                        modifier = Modifier.sectionSpacing().section(DetailsSection.Seasons)
+                    )
+                }
                 item(key = DetailsSection.Episodes.name, contentType = DetailsSection.Episodes.name) {
                     val episodes = state.selectedSeason?.episodes.orEmpty()
                     // A new season starts its shelf at the first episode (tvOS `.id(season.number)`).
                     key(state.selectedSeason?.number) {
-                        EpisodeShelf(episodes = episodes, onOpen = onOpen, modifier = Modifier.onSectionFocus { scrollTo(DetailsSection.Episodes) })
+                        EpisodeShelf(
+                            episodes = episodes,
+                            onOpen = onOpen,
+                            modifier = Modifier.padding(top = EPISODES_GAP).section(DetailsSection.Episodes)
+                        )
                     }
                 }
             }
             if (details.cast.isNotEmpty()) {
                 item(key = DetailsSection.Cast.name, contentType = DetailsSection.Cast.name) {
-                    CastSection(cast = details.cast, modifier = Modifier.sectionSpacing().onSectionFocus { scrollTo(DetailsSection.Cast) })
-                }
-            }
-            if (hasAbout) {
-                item(key = DetailsSection.About.name, contentType = DetailsSection.About.name) {
-                    AboutSection(details = details, modifier = Modifier.sectionSpacing().onSectionFocus { scrollTo(DetailsSection.About) })
+                    CastSection(cast = details.cast, modifier = Modifier.sectionSpacing().section(DetailsSection.Cast))
                 }
             }
             if (entries.isNotEmpty()) {
                 item(key = DetailsSection.Info.name, contentType = DetailsSection.Info.name) {
-                    DetailsInfoSection(entries = entries, modifier = Modifier.sectionSpacing().onSectionFocus { scrollTo(DetailsSection.Info) })
+                    DetailsInfoSection(entries = entries, modifier = Modifier.sectionSpacing().section(DetailsSection.Info))
                 }
             }
             item(key = END_KEY, contentType = END_KEY) { Spacer(modifier = Modifier.height(BOTTOM_PADDING)) }
@@ -235,81 +255,32 @@ private fun DetailsContent(
     }
 }
 
-/**
- * The hero item: the hero text over the backdrop and, for a series, the logo and season tabs at
- * its bottom edge, right above the episode cards. The hero shows while it holds focus; the tabs
- * and logo show once focus is below it (reference `14-details-d1.png` against `15-details-d2.png`).
- */
-@Composable
-private fun DetailsTop(
-    details: TvosMetaDetails,
-    logo: ImageRequest?,
-    selectedSeasonNumber: Int?,
-    heroHasFocus: Boolean,
-    playFocus: FocusRequester,
-    onHeroFocusChanged: (Boolean) -> Unit,
-    onSeasonsFocused: () -> Unit,
-    onOpen: (TvosStreamTarget) -> Unit,
-    onSelectSeason: (Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val heroAlpha by animateFloatAsState(if (heroHasFocus) 1f else 0f, tween(CONTENT_FADE_MILLIS), label = "hero")
-    Box(modifier = modifier.fillMaxWidth()) {
-        DetailsHero(
-            details = details,
-            logo = logo,
-            playFocus = playFocus,
-            onOpen = onOpen,
-            modifier = Modifier
-                .heroFrame()
-                .padding(horizontal = TvGrid.sideMargin)
-                .graphicsLayer { alpha = heroAlpha }
-                .onFocusChanged { focusState -> onHeroFocusChanged(focusState.hasFocus) }
-                .focusGroup()
-        )
-        if (details.seasons.isNotEmpty()) {
-            EpisodesHeader(
-                name = details.name,
-                logo = logo,
-                seasons = details.seasons,
-                selectedNumber = selectedSeasonNumber,
-                onSelectSeason = onSelectSeason,
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(bottom = TABS_BOTTOM)
-                    .graphicsLayer { alpha = 1f - heroAlpha }
-                    .onSectionFocus(onSeasonsFocused)
-            )
-        }
-    }
-}
-
-/** The hero's place in the Top item: [HERO_FRAME_HEIGHT] from the top, its bottom on that line. */
+/** The hero's frame, the Top item: [HERO_FRAME_HEIGHT] tall, the hero bottom aligned in it. */
 private fun Modifier.heroFrame(): Modifier = layout { measurable, constraints ->
     val frame = HERO_FRAME_HEIGHT.roundToPx()
     val placeable = measurable.measure(constraints.copy(minHeight = 0, maxHeight = frame))
-    layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(0, frame - placeable.height) }
+    layout(constraints.maxWidth, frame) { placeable.place(0, frame - placeable.height) }
 }
 
-/** The sections of the page, in order, each with where its top sits when it takes focus. */
+/**
+ * The sections of the page, in order, each with where its item's top sits once it takes focus,
+ * measured on the tvOS simulator (pt / 2, 2026-11-24): the tabs at 828 pt with focus on them and
+ * at 390 pt with focus on an episode; Cast & Crew's title near 394 pt, which is where the page
+ * ends for a series. Each item starts with its 28 dp gap, the tabs 6 dp further down.
+ */
 internal enum class DetailsSection(val top: Dp) {
-    // Scrolled to the very top.
     Top(0.dp),
-
-    // Episode cards at 304 pt, tabs at 210 pt (15-details-d2.png).
-    Episodes(152.dp),
-
-    // Row title at about 340 pt (17-details-d4.png, 18-details-d5.png), less the section gap.
+    Seasons(380.dp),
+    Episodes(235.dp),
     Cast(SECTION_TOP),
-    About(SECTION_TOP),
     Info(SECTION_TOP)
 }
 
-private fun detailsSections(details: TvosMetaDetails, hasAbout: Boolean, hasInfo: Boolean): List<DetailsSection> = listOfNotNull(
+private fun detailsSections(details: TvosMetaDetails, hasInfo: Boolean): List<DetailsSection> = listOfNotNull(
     DetailsSection.Top,
+    DetailsSection.Seasons.takeIf { details.seasons.isNotEmpty() },
     DetailsSection.Episodes.takeIf { details.seasons.isNotEmpty() },
     DetailsSection.Cast.takeIf { details.cast.isNotEmpty() },
-    DetailsSection.About.takeIf { hasAbout },
     DetailsSection.Info.takeIf { hasInfo }
 )
 
@@ -326,7 +297,8 @@ private suspend fun LazyListState.scrollSection(index: Int, section: DetailsSect
     if (layoutInfo.visibleItemsInfo.none { item -> item.index == index }) scrollToItem(index)
     val item = layoutInfo.visibleItemsInfo.firstOrNull { info -> info.index == index } ?: return
     val fitsBelowLine = layoutInfo.viewportEndOffset - bottomMarginPx - item.size
-    val target = if (section == DetailsSection.Episodes) topPx else minOf(topPx, maxOf(fitsBelowLine, 0f))
+    val exact = section == DetailsSection.Seasons || section == DetailsSection.Episodes
+    val target = if (exact) topPx else minOf(topPx, maxOf(fitsBelowLine, 0f))
     val distance = item.offset - target
     if (distance != 0f) animateScrollBy(distance)
 }
@@ -336,17 +308,7 @@ private fun Modifier.onSectionFocus(onFocused: () -> Unit): Modifier = onFocusCh
 
 private fun Modifier.sectionSpacing(): Modifier = padding(top = SECTION_GAP)
 
-/**
- * The hero item's share of the screen: the episode cards (or the next shelf's cards) start at
- * 1040 pt, so only their top shows in the hero state.
- */
-private fun topFraction(details: TvosMetaDetails): Float {
-    val cardsTop = CARDS_PEEK_TOP
-    val top = if (details.seasons.isNotEmpty()) cardsTop else cardsTop - SECTION_GAP_VALUE - SHELF_TITLE_BLOCK
-    return top / SCREEN_HEIGHT
-}
-
-/** One logo decode for the hero and the episodes header. */
+/** One logo decode for the hero. */
 @Composable
 private fun rememberLogoRequest(url: String?): ImageRequest? {
     val context = LocalContext.current
@@ -421,7 +383,6 @@ private const val FULL_TURN = 360f
 private const val SPINNER_SWEEP = 270f
 private const val SPINNER_TURN_MILLIS = 1_000
 private const val BACKDROP_FADE_MILLIS = 300
-private const val CONTENT_FADE_MILLIS = 200
 
 private val BACKDROP_SCRIM = BakedScrim.backdrop(TvColors.details)
 private val SCREEN_SIZE = DpSize(960.dp, 540.dp)
@@ -430,15 +391,12 @@ private val SCREEN_SIZE = DpSize(960.dp, 540.dp)
 // to fit the box as tvOS `resizable().scaledToFit()` does, not left at its source size.
 private val LOGO_DECODE = DpSize(360.dp, 110.dp)
 
-// Measured on 14-details-d1.png and 15-details-d2.png (pt / 2): cards peek at 1040 pt, the
-// button row ends at 926 pt, the tabs end 34 pt above the cards; 75 pt from one shelf's cards
-// to the next title; the next title at about 340 pt once focused.
-private const val SCREEN_HEIGHT = 540f
-private const val CARDS_PEEK_TOP = 520f
-private const val SECTION_GAP_VALUE = 37f
-private const val SHELF_TITLE_BLOCK = 31f
-private val SECTION_GAP = SECTION_GAP_VALUE.dp
-private val SECTION_TOP = 133.dp
+// tvOS: 56 pt between the sections, 8 pt between the tabs and the shelf, 80 pt under the last
+// plus the 60 pt bottom safe area the scroll view keeps;
+// Cast & Crew's title near 394 pt once focused, less the gap.
+private val SECTION_GAP = 28.dp
+private val EPISODES_GAP = 4.dp
+private val SECTION_TOP = 160.dp
 
 /**
  * tvOS gives the hero 88% of the screen and bottom aligns it there (DetailsView.swift); its text
@@ -447,8 +405,7 @@ private val SECTION_TOP = 133.dp
  * the same. 451 dp puts the logo and Play within 2 px of those on the TCL.
  */
 private val HERO_FRAME_HEIGHT = 451.dp
-private val TABS_BOTTOM = 17.dp
-private val BOTTOM_PADDING = 40.dp
+private val BOTTOM_PADDING = 70.dp
 private val OVERSCAN_BOTTOM = 27.dp
 
 private val ERROR_GAP = 12.dp
