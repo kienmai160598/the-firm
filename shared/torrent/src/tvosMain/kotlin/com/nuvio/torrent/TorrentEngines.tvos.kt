@@ -25,6 +25,13 @@ actual object TorrentEngines {
     actual fun open(config: TorrentEngineConfig): TorrentEngine = memScoped {
         val nativeConfig = alloc<movies_engine_config>()
         nativeConfig.state_directory = config.stateDirectory.cstr.ptr
+        // Written even without a budget: 0 keeps the engine's default, and memory from alloc is
+        // not promised to be zeroed.
+        val budget = config.budget
+        nativeConfig.store_cap_bytes = budget?.storeCapBytes ?: 0L
+        nativeConfig.ahead_bytes = budget?.aheadBytes ?: 0L
+        nativeConfig.behind_bytes = budget?.behindBytes ?: 0L
+        nativeConfig.eviction_threshold_bytes = budget?.evictionThresholdBytes ?: 0L
         val handle = alloc<CPointerVar<movies_engine>>()
         throwIfFailed(movies_engine_create(nativeConfig.ptr, handle.ptr))
         NativeTorrentEngine(checkNotNull(handle.value) { "engine created without a handle" })

@@ -33,7 +33,9 @@ sealed interface StreamInfo {
 
 data class TorrentEngineConfig(
     /** Absolute path of a directory the engine may own. */
-    val stateDirectory: String
+    val stateDirectory: String,
+    /** Null keeps the engine's default: 512 MiB cap, 256 MiB ahead (E1). */
+    val budget: TorrentEngineBudget? = null
 )
 
 class TorrentEngineException(
