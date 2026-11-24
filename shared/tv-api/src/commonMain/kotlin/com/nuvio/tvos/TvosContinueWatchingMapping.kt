@@ -2,6 +2,7 @@ package com.nuvio.tvos
 
 import com.nuvio.app.features.home.components.ContinueWatchingProgressBadge
 import com.nuvio.app.features.home.components.continueWatchingProgressBadge
+import com.nuvio.app.features.watching.application.canMarkWatched
 import com.nuvio.app.features.watchprogress.AirDateBadge
 import com.nuvio.app.features.watchprogress.ContinueWatchingItem
 import com.nuvio.app.features.watchprogress.airDateBadge
@@ -59,6 +60,7 @@ private suspend fun ContinueWatchingItem.toTvosContinueWatchingItem(
         progressLabel = progressLabel() ?: statusLabel(airDateLabel(todayIsoDate)),
         isNextUp = isNextUp,
         target = streamTarget(),
+        canMarkWatched = canMarkWatched(todayIsoDate),
     )
 
 private suspend fun ContinueWatchingItem.progressLabel(): String? =

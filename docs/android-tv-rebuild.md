@@ -486,6 +486,10 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | D4 | Cast and Information are reachable by scrolling with the D-pad |
 | D5 | Loading and error states |
 | D6 | While the Play button has focus, the Details backdrop fades into the title's trailer as on Home (H8: wait, sound fade, letterbox crop, sharpest variants). It fades out when focus moves down to the episodes, cast or information, and when Streams opens; it plays again on return. Android gets it with H8 |
+| W1 | A Continue Watching card's context menu (long press Select) offers "Mark as Watched" above Remove, except for a Next Up episode that is not released yet. It marks the episode watched through `WatchingActions.markContinueWatchingWatched`; the card leaves with focus on its neighbour (H5). A series moves on to its next episode as Next Up, and that card takes focus when it arrives within 10 s, so focus never falls back to the hero. tvOS since F2; Android needs the same change |
+| W2 | A released episode card's context menu offers "Mark as Watched" or "Mark as Unwatched". The check mark and its "Watched" value change at once and stay after a relaunch; marking clears the episode's progress. tvOS since F2; Android needs the same change |
+| W3 | A season tab's context menu offers "Mark Season as Watched" until every released episode of the season is watched, then "Mark Season as Unwatched"; it marks or unmarks all released episodes of that season at once (`WatchingActions.toggleSeasonWatched`). Unreleased episodes and seasons with nothing released have no menu. tvOS since F2; Android needs the same change |
+| W4 | When Trakt is signed in, these marks go to Trakt history through `WatchedRepository`, as upstream does. Checked by hand, not by a UI test |
 | S1 | Stream groups appear per addon as they load; the left column shows the source count and "Searching N more addons" |
 | S2 | A row shows resolution, capability badges, size and seeders parsed as on tvOS |
 | S3 | Empty state with Try Again and the missing addon hint |

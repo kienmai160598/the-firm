@@ -18,18 +18,18 @@ final class ContinueWatchingTests: XCTestCase {
     func testWatchingPartOfAnEpisodeOffersResumeOnDetails() {
         tv.launch(route: Self.series)
 
-        playEpisode(from: "Play S1 E1", seconds: 6)
+        tv.playEpisode(from: "Play S1 E1", seconds: 6)
 
         XCTAssertTrue(tv.button(beginningWith: "Resume S1 E1").waitForExistence(timeout: 10))
         tv.screenshot("details-resume")
-        XCTAssertTrue(episodeValue(1).hasSuffix("% watched"), "E1: \(episodeValue(1))")
+        XCTAssertTrue(tv.episodeValue(1).hasSuffix("% watched"), "E1: \(tv.episodeValue(1))")
     }
 
     func testFinishingAnEpisodeOffersTheNextOneOnDetailsAndHome() {
         tv.launch(route: Self.series, extra: Self.nearTheEnd)
-        playEpisode(from: "Play S1 E1", seconds: 10)
+        tv.playEpisode(from: "Play S1 E1", seconds: 10)
         XCTAssertTrue(tv.button(beginningWith: Self.nextUp).waitForExistence(timeout: 10))
-        XCTAssertEqual(episodeValue(1), "Watched")
+        XCTAssertEqual(tv.episodeValue(1), "Watched")
         tv.launch(keepingState: true)
         XCTAssertTrue(tv.waitForValue(seriesCard, Self.nextUp, timeout: 60))
         tv.focusCard(seriesCard)
@@ -45,7 +45,7 @@ final class ContinueWatchingTests: XCTestCase {
 
     func testInProgressCardResumesWithoutAskingWhereToStart() {
         tv.launch(route: Self.series)
-        playEpisode(from: "Play S1 E1", seconds: 6)
+        tv.playEpisode(from: "Play S1 E1", seconds: 6)
         tv.launch(keepingState: true)
         XCTAssertTrue(seriesCard.waitForExistence(timeout: 60))
         XCTAssertTrue((seriesCard.value as? String ?? "").hasSuffix("left"))
@@ -64,9 +64,9 @@ final class ContinueWatchingTests: XCTestCase {
 
     func testRemovingAnInProgressSeriesFallsBackToNextUp() {
         tv.launch(route: Self.series, extra: Self.nearTheEnd)
-        playEpisode(from: "Play S1 E1", seconds: 10)
+        tv.playEpisode(from: "Play S1 E1", seconds: 10)
         tv.launch(route: Self.series, keepingState: true)
-        playEpisode(from: Self.nextUp, seconds: 6)
+        tv.playEpisode(from: Self.nextUp, seconds: 6)
         tv.launch(keepingState: true)
         XCTAssertTrue(seriesCard.waitForExistence(timeout: 60))
         XCTAssertTrue((seriesCard.value as? String ?? "").hasSuffix("left"))
@@ -76,12 +76,12 @@ final class ContinueWatchingTests: XCTestCase {
         XCTAssertTrue(tv.waitForValue(seriesCard, Self.nextUp, timeout: 60))
         tv.launch(route: Self.series, keepingState: true)
         XCTAssertTrue(tv.button(beginningWith: Self.nextUp).waitForExistence(timeout: 60))
-        XCTAssertFalse(episodeValue(2).hasSuffix("% watched"), "E2: \(episodeValue(2))")
+        XCTAssertFalse(tv.episodeValue(2).hasSuffix("% watched"), "E2: \(tv.episodeValue(2))")
     }
 
     func testRemovedCardsStayGoneAfterRelaunch() {
         tv.launch(route: Self.series, extra: Self.nearTheEnd)
-        playEpisode(from: "Play S1 E1", seconds: 10)
+        tv.playEpisode(from: "Play S1 E1", seconds: 10)
         let movie = watchBigBuckBunny()
         tv.launch(keepingState: true)
         XCTAssertTrue(tv.waitForValue(seriesCard, Self.nextUp, timeout: 60))
@@ -100,7 +100,7 @@ final class ContinueWatchingTests: XCTestCase {
 
     func testDownFromHeroFocusesFirstCardAndBackRestoresTheOpenedCard() {
         tv.launch(route: Self.series)
-        playEpisode(from: "Play S1 E1", seconds: 6)
+        tv.playEpisode(from: "Play S1 E1", seconds: 6)
         _ = watchBigBuckBunny()
         tv.launch(keepingState: true)
         XCTAssertTrue(seriesCard.waitForExistence(timeout: 60))
@@ -123,35 +123,6 @@ final class ContinueWatchingTests: XCTestCase {
         tv.continueWatchingCard(titled: Self.seriesTitle)
     }
 
-    private func leavePlayer(from stream: XCUIElement, waitingFor saved: XCUIElement) {
-        XCTAssertTrue(tv.pressMenu(untilFocused: stream))
-        tv.remote.press(.menu)
-        XCTAssertTrue(saved.waitForExistence(timeout: 15), "Progress not saved")
-    }
-
-    private func savedPrimary(replacing playedPrefix: String) -> XCUIElement {
-        let saved = NSPredicate(
-            format: "(label BEGINSWITH %@ OR label BEGINSWITH %@) AND NOT label BEGINSWITH %@",
-            "Resume", Self.nextUp, playedPrefix
-        )
-        return tv.app.buttons.matching(saved).firstMatch
-    }
-
-    private func episodeValue(_ number: Int) -> String {
-        tv.app.buttons["episode-tvostest-series:1:\(number)"].firstMatch.value as? String ?? ""
-    }
-
-    private func playEpisode(from primaryPrefix: String, seconds: TimeInterval) {
-        let primary = tv.button(beginningWith: primaryPrefix)
-        let stream = tv.button(containing: Self.episodeStream)
-        XCTAssertTrue(primary.waitForExistence(timeout: 60), primaryPrefix)
-        tv.select(primary)
-        XCTAssertTrue(stream.waitForExistence(timeout: 30))
-        tv.select(stream)
-        tv.watch(seconds: seconds)
-        leavePlayer(from: stream, waitingFor: savedPrimary(replacing: primaryPrefix))
-    }
-
     private func watchBigBuckBunny() -> XCUIElement {
         tv.launch(route: "details/movie/tt1254207", keepingState: true)
         let stream = tv.button(containing: "Test Pattern MP4")
@@ -159,7 +130,7 @@ final class ContinueWatchingTests: XCTestCase {
         XCTAssertTrue(stream.waitForExistence(timeout: 30))
         tv.select(stream)
         tv.watch(seconds: 6)
-        leavePlayer(from: stream, waitingFor: savedPrimary(replacing: "Play"))
+        tv.leavePlayer(from: stream, waitingFor: tv.savedPrimary(replacing: "Play"))
         return tv.app.buttons.matching(identifier: TvApp.continueWatchingId)
             .matching(NSPredicate(format: "label != %@", Self.seriesTitle))
             .firstMatch
