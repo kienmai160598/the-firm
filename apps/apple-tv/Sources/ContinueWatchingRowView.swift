@@ -1,11 +1,19 @@
 import SwiftUI
 import NuvioTvShared
 
+/// What the card's context menu asks for. Both take the card off the row.
+enum ContinueWatchingAction {
+    case markWatched
+    case remove
+}
+
 struct ContinueWatchingRowView: View {
     let row: TvosContinueWatchingRow
-    let onRemove: (TvosContinueWatchingItem) -> Void
+    var focusRequest: String?
+    var onFocusRequestHandled: () -> Void = {}
+    let onAction: (TvosContinueWatchingItem, ContinueWatchingAction) -> Void
     @FocusState private var focusedKey: String?
-    @State private var removalAfterMenuCloses: TvosContinueWatchingItem?
+    @State private var pendingAction: (item: TvosContinueWatchingItem, action: ContinueWatchingAction)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -13,7 +21,7 @@ struct ContinueWatchingRowView: View {
             ScrollView(.horizontal) {
                 LazyHStack(alignment: .top, spacing: ShelfMetrics.spacing) {
                     ForEach(row.items, id: \.key) { item in
-                        ContinueWatchingCard(item: item) { removalAfterMenuCloses = $0 }
+                        ContinueWatchingCard(item: item) { pendingAction = ($0, $1) }
                             .focused($focusedKey, equals: item.key)
                     }
                 }
@@ -25,18 +33,26 @@ struct ContinueWatchingRowView: View {
         .focusSection()
         .defaultFocus($focusedKey, row.items.first?.key, priority: .userInitiated)
         .onChange(of: focusedKey) { _, key in
-            if key != nil { removeAfterMenuClosed() }
+            if key != nil { runPendingActionAfterMenuClosed() }
         }
+        .onChange(of: focusRequest, initial: true) { _, key in focus(requested: key) }
     }
 
-    private func removeAfterMenuClosed() {
-        guard let item = removalAfterMenuCloses else { return }
-        removalAfterMenuCloses = nil
+    private func focus(requested key: String?) {
+        guard let key, row.items.contains(where: { $0.key == key }) else { return }
+        focusedKey = key
+        onFocusRequestHandled()
+    }
+
+    /// The card leaves the row, so focus goes to its neighbour first instead of the sidebar.
+    private func runPendingActionAfterMenuClosed() {
+        guard let pending = pendingAction else { return }
+        pendingAction = nil
         let keys = row.items.map(\.key)
-        if let neighbor = RowNeighbor.key(beside: item.key, in: keys) {
+        if let neighbor = RowNeighbor.key(beside: pending.item.key, in: keys) {
             focusedKey = neighbor
         }
-        onRemove(item)
+        onAction(pending.item, pending.action)
     }
 }
 
@@ -51,10 +67,11 @@ enum RowNeighbor {
 
 private struct ContinueWatchingCard: View {
     static let width: CGFloat = 400
+    static let markWatchedTitle = "Mark as Watched"
     static let removeTitle = "Remove from Continue Watching"
 
     let item: TvosContinueWatchingItem
-    let onRemove: (TvosContinueWatchingItem) -> Void
+    let onAction: (TvosContinueWatchingItem, ContinueWatchingAction) -> Void
 
     var body: some View {
         RouteLink(value: AppRoute.streams(item.target, resumesDirectly: true)) {
@@ -64,8 +81,13 @@ private struct ContinueWatchingCard: View {
         .buttonStyle(.borderless)
         .cardButtonShape()
         .contextMenu {
+            if item.canMarkWatched {
+                Button(Self.markWatchedTitle, systemImage: "checkmark.circle") {
+                    onAction(item, .markWatched)
+                }
+            }
             Button(Self.removeTitle, systemImage: "minus.circle", role: .destructive) {
-                onRemove(item)
+                onAction(item, .remove)
             }
         }
         .accessibilityIdentifier("continueWatchingCard")

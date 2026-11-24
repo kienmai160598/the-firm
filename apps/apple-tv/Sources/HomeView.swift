@@ -46,8 +46,11 @@ struct HomeView: View {
                 ForEach(continueWatchingRows, id: \.title) { row in
                     ContinueWatchingRowView(
                         row: row,
-                        onRemove: model.removeFromContinueWatching
-                    )
+                        focusRequest: model.continueWatchingFocus,
+                        onFocusRequestHandled: model.continueWatchingFocusHandled
+                    ) { item, action in
+                        model.perform(action, on: item)
+                    }
                 }
                 ForEach(model.rows, id: \.key) { row in
                     CatalogRowView(row: row)

@@ -62,6 +62,10 @@ object TvosHome {
         TvosContinueWatching.remove(key)
     }
 
+    fun markContinueWatchingWatched(key: String) {
+        TvosContinueWatching.markWatched(key)
+    }
+
     internal fun afterDefaultAddon(block: suspend () -> Unit) {
         startupAddonJobs += mainScope.launch {
             defaultAddonJob?.join()

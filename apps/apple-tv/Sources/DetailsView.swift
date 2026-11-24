@@ -84,6 +84,7 @@ private struct DetailsContentView: View {
                     }
                 if !details.seasons.isEmpty {
                     EpisodesSection(
+                        metaId: details.metaId,
                         seasons: details.seasons,
                         preferredSeasonNumber: preferredSeasonNumber
                     )

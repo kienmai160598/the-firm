@@ -47,7 +47,13 @@ data class TvosSeason(
     val number: Int,
     val title: String,
     val episodes: List<TvosEpisode>,
-)
+) {
+    /** Every released episode is watched, and at least one is released: the menu offers Unwatched. */
+    val isWatched: Boolean
+        get() = episodes.filter(TvosEpisode::isReleased).let { released ->
+            released.isNotEmpty() && released.all(TvosEpisode::isWatched)
+        }
+}
 
 data class TvosMetaDetails(
     val metaId: String,

@@ -30,6 +30,8 @@ data class TvosContinueWatchingItem(
     val progressLabel: String?,
     val isNextUp: Boolean,
     val target: TvosStreamTarget,
+    /** False for a Next Up episode that is not released yet. */
+    val canMarkWatched: Boolean = true,
 )
 
 data class TvosContinueWatchingRow(
