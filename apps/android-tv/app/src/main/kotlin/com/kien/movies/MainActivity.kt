@@ -19,8 +19,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kien.movies.debug.DebugLaunch
 import com.kien.movies.design.MoviesTheme
 import com.kien.movies.design.TvColors
+import com.kien.movies.shell.AppRoute
 import com.kien.movies.shell.PlaceholderScreen
 import com.kien.movies.shell.RootScreen
+import com.kien.movies.shell.RootTab
 import com.kien.movies.shell.ShellViewModel
 import com.kien.movies.shell.WindowBackground
 
@@ -50,7 +52,10 @@ class MainActivity : ComponentActivity() {
     private fun openDebugLaunch() {
         DebugLaunch.onRuntimeReady()
         val route = DebugLaunch.initialRoute ?: return
-        if (shell.router.isAtTabRoot) shell.router.open(route)
+        if (!shell.router.isAtTabRoot) return
+        // A Settings page opens over its tab, so Back lands on the Settings list as on tvOS.
+        if (route is AppRoute.Settings) shell.router.selectTab(RootTab.Settings)
+        shell.router.open(route)
     }
 }
 

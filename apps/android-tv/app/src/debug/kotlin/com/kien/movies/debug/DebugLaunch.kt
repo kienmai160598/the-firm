@@ -1,6 +1,7 @@
 package com.kien.movies.debug
 
 import android.os.Bundle
+import com.kien.movies.settings.SettingsPage
 import com.kien.movies.shell.AppRoute
 import com.kien.movies.shell.RootTab
 import com.nuvio.tvos.TvosDebugAddon
@@ -18,7 +19,7 @@ import com.nuvio.tvos.TvosMetaDetails
  *
  * | Extra | Type | Effect |
  * |---|---|---|
- * | MoviesDebugRoute | string | `details/<type>/<id>`, `streams/<type>/<id>` (Details, which then opens Streams once), or `tab/<home,search,library,addons,settings>` (Android only) |
+ * | MoviesDebugRoute | string | `details/<type>/<id>`, `streams/<type>/<id>` (Details, which then opens Streams once), `tab/<home,search,library,settings>` or `settings/<account,playback,subtitles,addons,about>` (Android only) |
  * | MoviesDebugAddonUrl | string | installs this manifest after the default addon and removes other loopback addons |
  * | MoviesDebugStreamFixture | boolean | Streams shows the fixture instead of loading |
  * | MoviesDebugOpenFirstStream | boolean | Streams plays its first stream once |
@@ -53,6 +54,9 @@ object DebugLaunch {
             return when {
                 parts.size == 2 && parts[0] == "tab" ->
                     RootTab.entries.firstOrNull { tab -> tab.name.equals(parts[1], ignoreCase = true) }?.let(AppRoute::Tab)
+
+                parts.size == 2 && parts[0] == "settings" ->
+                    SettingsPage.entries.firstOrNull { page -> page.name.equals(parts[1], ignoreCase = true) }?.let(AppRoute::Settings)
 
                 parts.size == 3 && (parts[0] == "details" || parts[0] == "streams") -> AppRoute.Details(type = parts[1], id = parts[2])
 

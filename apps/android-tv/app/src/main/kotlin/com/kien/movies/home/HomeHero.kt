@@ -82,9 +82,9 @@ import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
 import com.kien.movies.design.rememberBakedImage
+import com.kien.movies.settings.SettingsPage
 import com.kien.movies.shell.AppRoute
 import com.kien.movies.shell.LocalNavPillState
-import com.kien.movies.shell.RootTab
 import kotlinx.coroutines.delay
 
 /**
@@ -157,7 +157,7 @@ fun HomeHero(
                     onClick = {
                         when (mode) {
                             HeroMode.Featured -> current?.let { item -> onOpen(item.route) }
-                            HeroMode.Status -> onOpen(AppRoute.Tab(RootTab.Addons))
+                            HeroMode.Status -> onOpen(AppRoute.Settings(SettingsPage.Addons))
                             HeroMode.Loading, HeroMode.None -> Unit
                         }
                     },
