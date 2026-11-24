@@ -182,6 +182,10 @@ Verified (E7a, Debug build driven by a UI test on an Apple TV 4K): Big Buck Bunn
 263 MB, Torrentio, 20 peers) plays in AVPlayer through the gateway, seeks forward by 30 presses
 of the remote to 05:53, and plays on to 06:24 thirty seconds later without "Playback failed".
 Before the media type fix AVPlayer refused the same stream with "Cannot Open".
+Night of the Living Dead 2160p HEVC (.mkv, 4.35 GB, YTS, 45 peers) plays in mpv, seeks to 15:27
+(about 680 MB into the file, past the 512 MiB cap, so eviction ran) and plays on to 16:05 forty
+five seconds later. A 15.77 GB .mkv with 5 peers found no metadata in 90 s (weak swarm; HTTPS
+trackers need D3).
 
 Not verified:
 `os_proc_available_memory()` on an Apple TV 4K; eviction against a real swarm (Sintel is under
