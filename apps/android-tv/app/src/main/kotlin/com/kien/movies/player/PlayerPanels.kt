@@ -72,7 +72,7 @@ private val HeaderFont = TvType.caption1Emphasized
 private const val PRESSED_SCALE = 0.97f
 private val DETAIL_ALPHA = TvColors.textSecondary.alpha
 
-/** Opaque, so a menu over the video is one layer even where it meets the controls' scrim band. */
+/** Opaque, so a menu over the video is one layer and reads over any picture. */
 private val PanelFill = TvColors.sidebarPanel.copy(alpha = 1f)
 
 /**
