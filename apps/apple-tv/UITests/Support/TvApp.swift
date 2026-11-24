@@ -2,7 +2,7 @@ import XCTest
 
 final class TvApp {
     static let addonUrl = "http://127.0.0.1:8765/manifest.json"
-    static let tabTitles = ["Home", "Search", "Library", "Addons", "Settings"]
+    static let tabTitles = ["Home", "Search", "Library", "Settings"]
     static let defaultMoves: [XCUIRemote.Button] = [
         .up, .up, .up, .down, .down, .down, .down, .right, .right,
     ]

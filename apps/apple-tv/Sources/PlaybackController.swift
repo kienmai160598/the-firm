@@ -33,7 +33,12 @@ final class PlaybackController {
         PlaybackAudioSession.activate()
         let item = AVPlayerItem(asset: Self.asset(for: request))
         item.externalMetadata = PlaybackMetadata.items(target: request.target)
-        player = AVPlayer(playerItem: item)
+        player = AVPlayer()
+        PlayerLanguageSelection.apply(
+            TvosSettings.shared.playerLanguages(deviceLanguage: LanguageName.device),
+            to: player
+        )
+        player.replaceCurrentItem(with: item)
         stallWatchdog = StallWatchdog(item: item) { [weak self] error in
             self?.fail(error)
         }

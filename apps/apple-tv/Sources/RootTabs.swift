@@ -4,7 +4,6 @@ enum RootTab: Hashable, CaseIterable {
     case home
     case search
     case library
-    case addons
     case settings
 
     var title: String {
@@ -12,7 +11,6 @@ enum RootTab: Hashable, CaseIterable {
         case .home: "Home"
         case .search: "Search"
         case .library: "Library"
-        case .addons: "Addons"
         case .settings: "Settings"
         }
     }
@@ -22,7 +20,6 @@ enum RootTab: Hashable, CaseIterable {
         case .home: "house"
         case .search: "magnifyingglass"
         case .library: "books.vertical"
-        case .addons: "puzzlepiece.extension"
         case .settings: "gearshape"
         }
     }
@@ -32,8 +29,8 @@ enum RootTab: Hashable, CaseIterable {
         switch self {
         case .home: HomeView()
         case .search: SearchView()
-        case .addons: AddonsView()
-        case .library, .settings: PlaceholderView(title: title)
+        case .settings: SettingsView()
+        case .library: PlaceholderView(title: title)
         }
     }
 }

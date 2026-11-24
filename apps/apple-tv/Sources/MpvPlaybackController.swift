@@ -60,7 +60,10 @@ final class MpvPlaybackController: ObservableObject {
     func start() {
         guard mpv == nil, !isFinished else { return }
         PlaybackAudioSession.activate()
-        let options = MpvOptions.playback(headers: request.stream.requestHeaders)
+        let options = MpvOptions.playback(
+            headers: request.stream.requestHeaders,
+            languages: TvosSettings.shared.playerLanguages(deviceLanguage: LanguageName.device)
+        )
         mpv = MpvHandle(layer: videoLayer, options: options) { [weak self] event in
             self?.handle(event)
         }
