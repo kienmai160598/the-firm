@@ -24,6 +24,17 @@ Settled:
   old or the new one, since both bring their own libtorrent. E7a removed the switch with the old
   engine: `TvosTorrent` keeps its Swift facing API and `TvosTorrentBackend` in `tvosMain` runs the
   new engine.
+- D4: the host may pass a memory budget through `movies_engine_config` (store cap, ahead,
+  behind, eviction threshold; 0 keeps E1's default). The engine checks it at the edge (every value
+  positive, ahead plus behind and the eviction threshold below the cap). tvOS passes none and keeps
+  E1's 512 MiB; `budgetFor` in `shared/torrent` sizes it from free memory for Android (E6).
+- D5: the Android library is built by `engine/scripts/build-android.sh` (`make engine-android`),
+  the same CMake project as the tvOS slices, and not by AGP's `externalNativeBuild`: the Kotlin
+  Multiplatform Android library plugin of AGP 9.2 has no `externalNativeBuild`, and a CMake run per
+  Gradle variant would compile libtorrent again for debug and box. `shared/torrent` packages the
+  result and fails the build when an ABI in `shared/local.properties` is missing, so no APK ships
+  without the engine. One `libmovies_engine.so` per ABI holds the engine, libtorrent, `c++_static`
+  and the JNI shim, and exports only the JNI functions.
 - The gateway url ends in `/video.<ext>` of the played file and answers with its media type
   (`video/mp4`, `video/x-matroska`, ...). AVPlayer refuses an extensionless url served as
   `application/octet-stream`, so the app picks AVPlayer for .mp4 and mpv for .mkv as it does for
@@ -108,9 +119,10 @@ engine/
     storage/      PayloadStore, PayloadDiskIo, memory/ in E1, disk/ in E5
     retention/    E3
     telemetry/    E4
+    android/      JNI shim for shared/torrent (E6): primitives and UTF-8 byte arrays only
   tests/          doctest unit and integration tests, support/ (loopback seeder, HTTP client)
-  scripts/        tools.sh, test.sh, build-xcframework.sh
-shared/torrent/   Kotlin module: commonMain API, tvosMain cinterop, androidMain JNI in E6
+  scripts/        tools.sh, test.sh, build-xcframework.sh, build-android.sh
+shared/torrent/   Kotlin module: commonMain API and budgetFor, tvosMain cinterop, androidMain JNI
 ```
 
 ## 4. Slices
@@ -123,7 +135,7 @@ shared/torrent/   Kotlin module: commonMain API, tvosMain cinterop, androidMain 
 | E3 Retention | Budget from `os_proc_available_memory()` in place of E1's fixed cap, eviction ordered by distance from the playhead | E-AC3 | 20 seeks stay under the cap in a test; on the device the footprint levels off |
 | E4 State to UI | TelemetryService, `StreamSession` state machine in Kotlin, tvOS UI reads it | E-AC4 | Kotlin state machine tests; UI test sees progress on the stream row |
 | E5 Disk store | DiskPayloadStore for the 1.9 GB box | box | The E1 to E3 integration tests pass with the disk store |
-| E6 Android | JNI binding, AAR built from this source, armeabi-v7a | E-AC5 | A torrent plays on the box (with A10) |
+| E6 Android | Memory budget in the C ABI (D4), `budgetFor` in `shared/torrent`, the engine cross built with the NDK for the box ABIs (armeabi-v7a, D5), JNI shim, `shared/torrent` Android target loading `libmovies_engine.so` | E-AC5 | `make engine-test` with a small cap test; `budgetFor` unit tests; a device test (open with a budget, bad budget, bad magnet, close) built into the `:torrent` test APK. A torrent plays on the box with E7 |
 | E7a tvOS cutover | The Apple TV app links only the new engine; the D2 switch, `engine/build.sh`, its patches and the tvOS `nuvio-engine` sources go. Done ahead of E2 to E4 at the owner's request, so tvOS reads 256 MiB ahead from RAM and shows no peers or speed until E4 | E-AC1 | `make shared-test`, `make apple-tv-sim`, a film plays and seeks on the Apple TV |
 | E7 Cutover | Android on the new engine (with E6 and A10), the `nuvio-engine` AAR goes | all | `make check`, a film on the box |
 
@@ -186,6 +198,18 @@ Night of the Living Dead 2160p HEVC (.mkv, 4.35 GB, YTS, 45 peers) plays in mpv,
 (about 680 MB into the file, past the 512 MiB cap, so eviction ran) and plays on to 16:05 forty
 five seconds later. A 15.77 GB .mkv with 5 peers found no metadata in 90 s (weak swarm; HTTPS
 trackers need D3).
+
+Verified (E6, on a Mac; nothing run on a device yet):
+
+- NDK 29.0.14206865 cross builds libtorrent 2.0.12, Boost 1.86 and the engine for armeabi-v7a
+  (API 24, `c++_static`, Release) with `-Werror` and the drop-pieces patch, at the first attempt.
+  `libmovies_engine.so` is a 32-bit ARM ELF of 2.1 MB stripped (the old AAR's armeabi-v7a library
+  is 7.5 MB with OpenSSL), needs only libc, libm and libdl, and exports only the six JNI functions.
+- `make engine-test`: the budget checks, the C ABI refusing a budget that does not fit, and a
+  loopback stream with a cap 16 pieces wide at `budgetFor`'s ratios that reads whole and after
+  three seeks with the store under the cap.
+- The `:torrent` device test APK and AAR carry `lib/armeabi-v7a/libmovies_engine.so`; without the
+  library the Android build stops with "Build it first: make engine-android".
 
 Not verified:
 `os_proc_available_memory()` on an Apple TV 4K; eviction against a real swarm (Sintel is under
