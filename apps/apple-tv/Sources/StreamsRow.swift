@@ -67,7 +67,7 @@ private struct StreamDetailLine: View {
     var body: some View {
         HStack(spacing: 10) {
             ForEach(capabilities, id: \.self) { label in
-                StreamCapabilityBadge(text: label)
+                StreamBadge(text: label)
             }
             if let fileLine {
                 Text(fileLine)
@@ -79,24 +79,6 @@ private struct StreamDetailLine: View {
             }
         }
         .frame(height: 32)
-    }
-}
-
-private struct StreamCapabilityBadge: View {
-    let text: String
-
-    var body: some View {
-        Text(text)
-            .font(.system(size: 19, weight: .bold))
-            .lineLimit(1)
-            .fixedSize()
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .overlay(
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .stroke(lineWidth: 1.5)
-            )
-            .foregroundStyle(.secondary)
     }
 }
 

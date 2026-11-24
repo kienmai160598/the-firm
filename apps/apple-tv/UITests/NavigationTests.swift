@@ -90,7 +90,7 @@ final class NavigationTests: XCTestCase {
             XCTAssertTrue(waitForTab(tab), "Expected \(tab), focused \(tv.focusedTabTitle)")
         }
         tv.remote.press(.select)
-        XCTAssertTrue(tv.app.staticTexts["Coming in a later slice"].waitForExistence(timeout: 5))
+        XCTAssertTrue(tv.libraryStatus.waitForExistence(timeout: 5))
         pressMenuUntilTabBar()
         XCTAssertEqual(tv.focusedTabTitle, "Library")
         tv.remote.press(.down)

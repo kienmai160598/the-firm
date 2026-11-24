@@ -8,9 +8,8 @@ import kotlinx.coroutines.flow.map
 
 /**
  * Android's torrent engine for [TvosTorrent]: the old engine through upstream's
- * P2pStreamingEngine, with the user's P2P settings. tvOS picks its backend at build time
- * (apple-tv-bridge src/tvosLegacyEngine or src/tvosNextEngine); Android keeps the prebuilt AAR's
- * 256 MiB read-ahead until that AAR is rebuilt (AC T2 in docs/android-tv-rebuild.md).
+ * P2pStreamingEngine, with the user's P2P settings. tvOS runs the new engine (E7a); Android
+ * keeps the prebuilt AAR's 256 MiB read-ahead until that AAR is rebuilt (AC T2 in docs/android-tv-rebuild.md).
  */
 internal object TvosTorrentBackend {
     private val log = Logger.withTag("TvosTorrent")

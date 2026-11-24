@@ -4,19 +4,18 @@ import NuvioTvShared
 import os
 import UIKit
 
-/// Turns the focused spotlight backdrop into its trailer, with sound, after a short wait, and back
-/// again when focus moves on, another screen opens or the trailer ends. The link is looked up and
-/// the player buffers during the wait, so the trailer starts when the wait ends. It plays hidden
-/// for a moment first, while its black bars are measured, so it never shows them.
+/// Turns a backdrop (Home's focused spotlight, a Details title) into its trailer, with sound,
+/// after a short wait, and back when focus moves on, the screen goes or the trailer ends. The link
+/// is looked up and the player buffers during the wait. It plays hidden for a moment first, while
+/// its black bars are measured, so it never shows them.
 @MainActor
 final class HeroTrailer: ObservableObject {
     static let startDelay: Duration = .seconds(1)
     static let fadeInDuration = 1.2
     static let fadeOutDuration = 0.6
-    private static let volumeSteps = 24
     private static let log = Logger(subsystem: "com.kien.movies.tvos", category: "HeroTrailer")
 
-    /// The spotlight item the player belongs to.
+    /// The title the player belongs to.
     @Published private(set) var itemId: String?
     @Published private(set) var player: AVPlayer?
     /// True once the trailer plays and its crop is known, so the backdrop never fades to a black
@@ -30,6 +29,7 @@ final class HeroTrailer: ObservableObject {
     private var waitTask: Task<Void, Never>?
     private var fadeInTask: Task<Void, Never>?
     private var resolution: TvosCancellable?
+    private var source: TrailerPlayerItem?
     private var letterbox: HeroLetterbox?
     private var observers: Set<AnyCancellable> = []
 
@@ -47,12 +47,16 @@ final class HeroTrailer: ObservableObject {
     }
 
     func focus(_ item: TvosItem?) {
-        guard item?.metaId != focusedId else { return }
+        item.map { play(type: $0.type, id: $0.metaId) } ?? stop()
+    }
+
+    func play(type: String, id: String) {
+        guard id != focusedId else { return }
         stop()
-        guard let item, UIAccessibility.isVideoAutoplayEnabled else { return }
-        focusedId = item.metaId
-        resolution = TvosTrailers.shared.resolve(type: item.type, id: item.metaId) { [weak self] link in
-            self?.prepare(link, for: item.metaId)
+        guard UIAccessibility.isVideoAutoplayEnabled else { return }
+        focusedId = id
+        resolution = TvosTrailers.shared.resolve(type: type, id: id) { [weak self] link in
+            self?.prepare(link, for: id)
         }
         waitTask = Task { [weak self] in
             try? await Task.sleep(for: Self.startDelay)
@@ -72,15 +76,13 @@ final class HeroTrailer: ObservableObject {
         fadeOut()
     }
 
-    private func prepare(_ link: String?, for id: String) {
-        guard focusedId == id, let link, let url = URL(string: link) else { return }
-        let playerItem = AVPlayerItem(url: url)
-        let player = AVPlayer(playerItem: playerItem)
-        player.volume = 0
-        player.preventsDisplaySleepDuringVideoPlayback = false
-        observe(player, playing: playerItem)
+    private func prepare(_ link: TvosTrailerLink?, for id: String) {
+        guard focusedId == id, let link, let source = TrailerPlayerItem(link: link) else { return }
+        let player = source.makePlayer()
+        observe(player, playing: source.item)
         zoom = 1
         itemId = id
+        self.source = source
         self.player = player
         if isDue { player.play() }
     }
@@ -112,8 +114,10 @@ final class HeroTrailer: ObservableObject {
     }
 
     private func fadeIn(_ player: AVPlayer) {
+        let size = player.currentItem?.presentationSize ?? .zero
+        Self.log.notice("Trailer shows at \(String(describing: size), privacy: .public)")
         isShowing = true
-        fadeInTask = Task { await Self.ramp(player, to: 1, over: Self.fadeInDuration) }
+        fadeInTask = Task { await TrailerVolume.ramp(player, to: 1, over: Self.fadeInDuration) }
     }
 
     private func fail(_ item: AVPlayerItem) {
@@ -132,21 +136,12 @@ final class HeroTrailer: ObservableObject {
         isShowing = false
         guard let fading = player else { return }
         Task { [weak self] in
-            await Self.ramp(fading, to: 0, over: Self.fadeOutDuration)
+            await TrailerVolume.ramp(fading, to: 0, over: Self.fadeOutDuration)
             fading.pause()
             guard let self, player === fading else { return }
             player = nil
+            source = nil
             itemId = nil
-        }
-    }
-
-    private static func ramp(_ player: AVPlayer, to target: Float, over seconds: Double) async {
-        let start = player.volume
-        let step = Duration.seconds(seconds / Double(volumeSteps))
-        for index in 1...volumeSteps {
-            try? await Task.sleep(for: step)
-            guard !Task.isCancelled else { return }
-            player.volume = start + (target - start) * Float(index) / Float(volumeSteps)
         }
     }
 }

@@ -1,4 +1,5 @@
 #include "http/http_gateway.hpp"
+#include "http/media_type.hpp"
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -46,8 +47,10 @@ HttpGateway::HttpGateway(ByteCatalog& catalog) : catalog_(catalog) {
 
 HttpGateway::~HttpGateway() { stop(); }
 
-std::string HttpGateway::url_for(std::uint64_t stream) const {
-    return "http://127.0.0.1:" + std::to_string(port_) + "/stream/" + std::to_string(stream);
+std::string HttpGateway::url_for(std::uint64_t stream, std::string_view file_name) const {
+    const auto extension = extension_of(file_name);
+    const auto name = extension.empty() ? std::string() : "/video." + extension;
+    return "http://127.0.0.1:" + std::to_string(port_) + "/stream/" + std::to_string(stream) + name;
 }
 
 void HttpGateway::stop() {

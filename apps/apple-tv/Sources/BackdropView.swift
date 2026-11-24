@@ -4,10 +4,12 @@ struct BackdropView: View {
     let url: String?
     var dimming: Double = 0
     var isReceded = false
+    var trailer: HeroTrailerPicture?
 
     var body: some View {
         Color.clear
             .overlay { ArtworkImage(url: url) }
+            .trailerOverlay(trailer)
             .clipped()
             .blur(radius: isReceded ? 40 : 0)
             .overlay(Color.black.opacity(isReceded ? 0.45 : dimming))

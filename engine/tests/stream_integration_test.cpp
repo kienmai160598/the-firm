@@ -55,7 +55,9 @@ TEST_CASE("a torrent streams over HTTP with the seeder's bytes, from the start a
     const auto& payload = seeder.payload();
 
     const auto whole = movies::test::http_get(url);
+    CHECK(url.ends_with("/video.mkv"));
     CHECK(whole.status == 200);
+    CHECK(whole.head.find("Content-Type: video/x-matroska\r\n") != std::string::npos);
     CHECK(whole.body == payload);
 
     const auto tail = movies::test::http_get(url, "3000000-");

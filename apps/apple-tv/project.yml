@@ -37,6 +37,8 @@ targets:
           NSAllowsLocalNetworking: true
         NSLocalNetworkUsageDescription: A phone on your home network sends addon links to Movies.
         TopShelfKeychainGroup: $(AppIdentifierPrefix)com.kien.movies.tvos.shared
+        # Films play to the AirPlay speakers picked for long-form audio, like the TV app.
+        AVInitialRouteSharingPolicy: LongFormAudio
         # movies://continue?key=... opens a Continue Watching item from the Top Shelf.
         CFBundleURLTypes:
           - CFBundleURLName: com.kien.movies.tvos

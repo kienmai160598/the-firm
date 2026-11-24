@@ -37,8 +37,6 @@ final class MpvTouchScrubber {
 
     var isSwiping: Bool { touchpad.isSwiping }
 
-    var diagnosticRows: [MpvInfoRow] { touchpad.diagnostics.rows }
-
     func start() {
         touchpad.onMove = { [weak self] move in self?.follow(move) }
         touchpad.onRelease = { [weak self] velocity in self?.release(velocity) }
@@ -82,15 +80,7 @@ final class MpvTouchScrubber {
     }
 
     private func begin() -> MpvScrubSession? {
-        guard let context = panContext() else {
-            touchpad.diagnostics.lastDecision = "no player"
-            return nil
-        }
-        guard MpvPanResponse(context) == .scrub else {
-            touchpad.diagnostics.lastDecision = context.isOnSurface ? "no length" : "menu open"
-            return nil
-        }
-        touchpad.diagnostics.lastDecision = "scrub"
+        guard let context = panContext(), MpvPanResponse(context) == .scrub else { return nil }
         onScrubStart()
         return MpvScrubSession(
             originSeconds: clock.positionSeconds,
