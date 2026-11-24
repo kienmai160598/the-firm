@@ -85,20 +85,20 @@ final class NavigationTests: XCTestCase {
         tv.remote.press(.menu)
         XCTAssertTrue(waitForTabBarFocus())
         XCTAssertEqual(tv.focusedTabTitle, "Home", "Menu on Home did not open the sidebar")
-        for tab in ["Search", "Library", "Addons"] {
+        for tab in ["Search", "Library"] {
             tv.remote.press(.down)
             XCTAssertTrue(waitForTab(tab), "Expected \(tab), focused \(tv.focusedTabTitle)")
         }
         tv.remote.press(.select)
-        XCTAssertTrue(tv.app.textFields["Add Addon"].waitForExistence(timeout: 10))
-        XCTAssertTrue(tv.waitUntil(tv.focused, NSPredicate(format: "exists == true"), timeout: 3))
-        XCTAssertFalse(tv.isTabBarFocused, "Select on Addons kept focus in the sidebar")
+        XCTAssertTrue(tv.app.staticTexts["Coming in a later slice"].waitForExistence(timeout: 5))
         pressMenuUntilTabBar()
-        XCTAssertEqual(tv.focusedTabTitle, "Addons")
+        XCTAssertEqual(tv.focusedTabTitle, "Library")
         tv.remote.press(.down)
         XCTAssertTrue(waitForTab("Settings"))
         tv.remote.press(.select)
-        XCTAssertTrue(tv.app.staticTexts["Coming in a later slice"].waitForExistence(timeout: 5))
+        XCTAssertTrue(tv.app.buttons["settings-playback"].waitForExistence(timeout: 10))
+        XCTAssertTrue(tv.waitUntil(tv.focused, NSPredicate(format: "exists == true"), timeout: 3))
+        XCTAssertFalse(tv.isTabBarFocused, "Select on Settings kept focus in the sidebar")
         pressMenuUntilTabBar()
         XCTAssertEqual(tv.focusedTabTitle, "Settings")
 

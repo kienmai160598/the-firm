@@ -19,11 +19,12 @@ struct AddonsView: View {
     }
 
     var body: some View {
-        SettingsSplit(hasTitle: false) {
+        SettingsSplit {
             preview
         } list: {
             list
         }
+        .navigationTitle(SettingsPage.addons.title)
         .defaultFocus($focus, .add)
         .onChange(of: focus) { _, focus in
             if let focus { previewed = focus }

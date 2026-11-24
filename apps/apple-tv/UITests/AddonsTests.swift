@@ -176,22 +176,8 @@ final class AddonsTests: XCTestCase {
     }
 
     private func openAddonsTab() {
-        XCTAssertTrue(tv.heroButton.waitForExistence(timeout: 60))
-        tv.focusHero()
-        tv.remote.press(.menu)
-        for _ in 0..<5 where tv.focusedTabTitle != "Addons" {
-            tv.remote.press(.down)
-            _ = waitForTab("Addons")
-        }
-        XCTAssertEqual(tv.focusedTabTitle, "Addons")
-        tv.remote.press(.select)
+        tv.openSettings(page: "Addons")
         XCTAssertTrue(tv.app.descendants(matching: .any)[Self.qrId].waitForExistence(timeout: 10))
-    }
-
-    private func waitForTab(_ title: String) -> Bool {
-        let tab = NSPredicate { _, _ in self.tv.focusedTabTitle == title }
-        let expectation = XCTNSPredicateExpectation(predicate: tab, object: nil)
-        return XCTWaiter.wait(for: [expectation], timeout: 1) == .completed
     }
 }
 

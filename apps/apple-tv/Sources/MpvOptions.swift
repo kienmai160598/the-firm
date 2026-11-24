@@ -1,4 +1,5 @@
 import Foundation
+import NuvioTvShared
 
 enum MpvProperty {
     static let timePosition = "time-pos"
@@ -14,9 +15,11 @@ enum MpvProperty {
 
 enum MpvOptions {
     private static let userAgentHeader = "user-agent"
-    private static let subtitleLanguages = "vi,vie,en,eng"
 
-    static func playback(headers: [String: String]) -> [(name: String, value: String)] {
+    static func playback(
+        headers: [String: String],
+        languages: TvosPlayerLanguages
+    ) -> [(name: String, value: String)] {
         var options: [(name: String, value: String)] = [
             ("vo", "gpu-next"),
             ("gpu-api", "vulkan"),
@@ -28,8 +31,6 @@ enum MpvOptions {
             ("video-rotate", "no"),
             ("pause", "yes"),
             ("keep-open", "yes"),
-            ("slang", subtitleLanguages),
-            ("subs-fallback", "yes"),
             ("cache", "yes"),
             // After the cache runs dry, resume only with 5 s buffered (ExoPlayer's rebuffer default).
             // mpv's default of 1 s makes a source slower than the bitrate stop and start every second.
@@ -38,6 +39,7 @@ enum MpvOptions {
             ("demuxer-max-back-bytes", "50MiB"),
             ("network-timeout", "30"),
         ]
+        options += languageOptions(languages)
         for (name, value) in headers {
             if name.lowercased() == userAgentHeader {
                 options.append(("user-agent", value))
@@ -46,5 +48,29 @@ enum MpvOptions {
             }
         }
         return options
+    }
+
+    /// Settings' audio and subtitle languages. Containers tag tracks with two or three letter
+    /// codes ("vi" or "vie"), so each language goes in both forms.
+    private static func languageOptions(_ languages: TvosPlayerLanguages) -> [(name: String, value: String)] {
+        var options: [(name: String, value: String)] = []
+        if !languages.audio.isEmpty {
+            options.append(("alang", codeList(languages.audio)))
+        }
+        if languages.showsSubtitles {
+            options.append(("slang", codeList(languages.subtitles)))
+            options.append(("subs-fallback", "yes"))
+        } else {
+            options.append(("sid", "no"))
+        }
+        return options
+    }
+
+    private static func codeList(_ codes: [String]) -> String {
+        codes.flatMap { code in
+            let alpha3 = Locale.LanguageCode(code).identifier(.alpha3)
+            return [code, alpha3].compactMap { $0 }
+        }
+        .joined(separator: ",")
     }
 }
