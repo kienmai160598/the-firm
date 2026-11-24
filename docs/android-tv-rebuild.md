@@ -473,12 +473,15 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | H4 | A Continue Watching card resumes without asking |
 | H5 | Removing a card moves focus to its neighbour and the card stays gone after relaunch |
 | H6 | Finishing an episode shows Next Up on Home and on Details |
+| H7 | An addon catalog that needs a year as its genre (Cinemeta "New") shows as a row for its newest year, right after the first row of the same addon and type (Popular Movies, New Movies, Popular Series, New Series). The selection and placement live in Kotlin, so Android gets it from the shared API |
+| H8 | The hero artwork fills the screen, behind the peek of the first shelf, and leaves only as Home scrolls down. After 1 s of focus on a hero item, its backdrop fades into the item's YouTube trailer with sound, its volume fading in with the picture; the facts and overview stay as they are. The link is resolved in Kotlin (`TvosTrailers`) ahead of focus for the page showing and the next one, and the player buffers during the wait. A YouTube HLS trailer plays its master playlist cut down to the sharpest H.264 variants (`sharpestTierPlaylist`), so it starts at 1080p instead of the 240p variant YouTube lists first. The trailer plays hidden for under a second while upstream `LetterboxDetector` measures its black bars on small frames (`TvosLetterbox`), then shows already zoomed past them, so no black bars ever show. Picture and sound fade out when the trailer ends, when focus leaves the hero and when another screen opens. Nothing plays when the item has no trailer or the system turns off video autoplay. A lookup made before the addons are ready is tried again. Android needs its own player view and frame sampler for this; measure it on the box before shipping it there |
 | D1 | Details shows logo or title, overview, facts and the play label that Kotlin gives |
 | D2 | A part watched title shows Resume with its bar; the episode shows its percentage |
 | D3 | The season picker focuses the selected season on entry; Back from Streams restores episode and season |
 | D4 | Cast and Information are reachable by scrolling with the D-pad |
 | D5 | Loading and error states |
-| S1 | Stream groups appear per addon as they load, with "Searching N more addons" |
+| D6 | While the Play button has focus, the Details backdrop fades into the title's trailer as on Home (H8: wait, sound fade, letterbox crop, sharpest variants). It fades out when focus moves down to the episodes, cast or information, and when Streams opens; it plays again on return. Android gets it with H8 |
+| S1 | Stream groups appear per addon as they load; the left column shows the source count and "Searching N more addons" |
 | S2 | A row shows resolution, capability badges, size and seeders parsed as on tvOS |
 | S3 | Empty state with Try Again and the missing addon hint |
 | S4 | A stream that cannot play opens the info sheet |
@@ -488,12 +491,13 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | P2 | Skip 10 s, presses add up, controls hide after 5 s |
 | P3 | Progress is saved and playback resumes after a relaunch |
 | P4 | No data for 20 s at start fails and saves nothing; a stall of 20 s mid play fails and keeps progress; both show the notice on Streams |
-| P5 | Audio menu reaches every track; subtitle menu has Off, embedded and online tracks (4 per language at most); Info shows the decoder |
+| P5 | Audio menu reaches every track; subtitle menu has Off, embedded and online tracks (4 per language at most); Info shows the source (stream name, addon, file, then resolution, badges, size and torrent or direct link) and the video, audio, audio output (route and player driver), decoder and buffer; no touch diagnostics |
 | P6 | The rating and genre advisory shows once for 6 s |
 | P7 | Back follows the six step order |
 | P8 | Leaving the app pauses and saves |
 | P9 | When the buffer runs dry mid play, playback resumes only once 5 s are buffered again, so a source slower than the bitrate stalls in long pauses, not every second. tvOS mpv sets `cache-pause-wait=5`; AVPlayer keeps its own rebuffer logic. ExoPlayer's `bufferForPlaybackAfterRebufferMs` defaults to 5,000 ms, so Android needs no change if it keeps that default |
-| T1 | A torrent stream starts through the engine, the row shows step, peers, speed and buffer, then plays; the engine stops on exit |
+| P10 | Sound plays to the AirPlay speakers picked on the Apple TV, like the TV app: the audio session uses the long-form audio route sharing policy and the Info.plist sets `AVInitialRouteSharingPolicy`. Android routes through the system and needs no change |
+| T1 | A torrent stream starts through the engine, the row shows step, peers and speed (no progress bar), then plays; the engine stops on exit |
 | T2 | A torrent reads up to 1 GiB ahead of playback (about 90 s of a 4K remux), so a slow patch in the swarm does not stall it. tvOS: since E7a (`docs/engine-rebuild.md`) the new engine reads 256 MiB ahead from RAM, under its 512 MiB cap, until E2 and E3 size the window from memory; the 1 GiB disk readahead went with the old engine. Android uses the prebuilt `lib-nuvio-engine-android-0.1.6.aar`, so it keeps 256 MiB until that AAR is rebuilt with the patch and the box cache budget has room for it |
 | Q1 | Typing a title shows result rows |
 | Q2 | Opening a result records a recent search; a recent search can be removed |

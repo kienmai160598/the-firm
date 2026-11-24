@@ -69,6 +69,10 @@ final class PlayerTests: XCTestCase {
         tv.remote.press(.select)
 
         XCTAssertTrue(tv.app.staticTexts["Decoder"].waitForExistence(timeout: 3))
+        XCTAssertTrue(tv.app.staticTexts["Audio output"].exists)
+        let facts = tv.app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Direct link"))
+        XCTAssertTrue(facts.firstMatch.exists, "Source facts missing")
+        XCTAssertFalse(tv.app.staticTexts["Swipe events"].exists, "Touch diagnostics still shown")
         tv.screenshot("player-info")
     }
 
