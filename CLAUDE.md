@@ -8,8 +8,11 @@ README.md has the layout and every build command.
 
 - `apps/apple-tv` is the reference app. Its look and behaviour are the spec.
 - `apps/android-tv` is being rebuilt from scratch. The plan, acceptance criteria and slices are in
-  `docs/android-tv-rebuild.md`. Until slice A0 lands, the old app still sits in that folder:
-  read it for reference, never extend it.
+  `docs/android-tv-rebuild.md`. The old app is deleted (slice A0) and kept under the git tag
+  `android-tv-legacy`: read it there for reference, never restore it.
+- The torrent engine is being rewritten in `engine/` (slices E0, E1, ...). Plan, decisions and
+  slices are in `docs/engine-rebuild.md`; read its section 1 and the slice row the same way.
+  Write no line from `nuvio-engine`: it is the old engine, kept only until E7.
 
 ## Working on a slice
 

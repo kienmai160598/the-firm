@@ -22,12 +22,18 @@ enum MpvOptions {
             ("gpu-api", "vulkan"),
             ("gpu-context", "moltenvk"),
             ("hwdec", "videotoolbox"),
+            // AVSampleBufferAudioRenderer, the renderer AVPlayer uses, reaches AirPlay speakers; the
+            // default RemoteIO audio unit opens a mixable real-time session instead.
+            ("ao", "avfoundation,audiounit"),
             ("video-rotate", "no"),
             ("pause", "yes"),
             ("keep-open", "yes"),
             ("slang", subtitleLanguages),
             ("subs-fallback", "yes"),
             ("cache", "yes"),
+            // After the cache runs dry, resume only with 5 s buffered (ExoPlayer's rebuffer default).
+            // mpv's default of 1 s makes a source slower than the bitrate stop and start every second.
+            ("cache-pause-wait", "5"),
             ("demuxer-max-bytes", "200MiB"),
             ("demuxer-max-back-bytes", "50MiB"),
             ("network-timeout", "30"),

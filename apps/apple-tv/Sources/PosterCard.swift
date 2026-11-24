@@ -4,7 +4,6 @@ import SwiftUI
 struct PosterCard: View {
     static let width: CGFloat = 260
     static let height: CGFloat = 390
-    static let cornerRadius: CGFloat = 22
 
     let item: TvosItem
 
@@ -13,6 +12,7 @@ struct PosterCard: View {
             PosterArtwork(item: item)
         }
         .buttonStyle(.borderless)
+        .cardButtonShape()
         .accessibilityLabel(item.name)
     }
 }
@@ -31,8 +31,7 @@ private struct PosterArtwork: View {
                     genreLabel(genre)
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: PosterCard.cornerRadius, style: .continuous))
-            .hoverEffect(.highlight)
+            .cardArtworkShape()
     }
 
     private func genreLabel(_ genre: String) -> some View {

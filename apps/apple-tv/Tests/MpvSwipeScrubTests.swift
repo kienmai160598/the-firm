@@ -29,21 +29,19 @@ final class MpvSwipeScrubTests: XCTestCase {
 
         _ = travel.track(sample(x: 0.1, y: -0.5, at: 0))
         let vertical = travel.track(sample(x: 0.3, y: 0.4, at: 0.05))
-        let lifted = travel.track(sample(x: 0, y: 0, at: 0.1))
+        let lifted = travel.track(sample(x: 0.3, y: 0.4, at: 0.1, isLifted: true))
 
         XCTAssertNil(vertical)
         XCTAssertNil(lifted)
         XCTAssertFalse(travel.isPanning)
     }
 
-    func testPanScrubsOnlyWhilePausedAndOnlyRevealsControlsWhilePlaying() {
-        let paused = MpvPanContext(isPaused: true, isOnSurface: true, durationSeconds: 600)
-        let playing = MpvPanContext(isPaused: false, isOnSurface: true, durationSeconds: 600)
-        let inMenu = MpvPanContext(isPaused: true, isOnSurface: false, durationSeconds: 600)
-        let unknownLength = MpvPanContext(isPaused: true, isOnSurface: true, durationSeconds: 0)
+    func testPanScrubsOnTheVideoOnlyWhenTheLengthIsKnown() {
+        let onVideo = MpvPanContext(isOnSurface: true, durationSeconds: 600)
+        let inMenu = MpvPanContext(isOnSurface: false, durationSeconds: 600)
+        let unknownLength = MpvPanContext(isOnSurface: true, durationSeconds: 0)
 
-        XCTAssertEqual(MpvPanResponse(paused), .scrub)
-        XCTAssertEqual(MpvPanResponse(playing), .revealControls)
+        XCTAssertEqual(MpvPanResponse(onVideo), .scrub)
         XCTAssertEqual(MpvPanResponse(inMenu), .ignore)
         XCTAssertEqual(MpvPanResponse(unknownLength), .ignore)
     }
@@ -94,7 +92,12 @@ final class MpvSwipeScrubTests: XCTestCase {
         return travel
     }
 
-    private func sample(x: Float, y: Float = 0, at time: TimeInterval) -> MpvTouchSample {
-        MpvTouchSample(x: x, y: y, time: time)
+    private func sample(
+        x: Float,
+        y: Float = 0,
+        at time: TimeInterval,
+        isLifted: Bool = false
+    ) -> MpvTouchSample {
+        MpvTouchSample(x: x, y: y, time: time, isLifted: isLifted)
     }
 }

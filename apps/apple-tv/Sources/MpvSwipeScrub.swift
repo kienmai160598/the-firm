@@ -4,8 +4,7 @@ struct MpvTouchSample: Equatable {
     let x: Float
     let y: Float
     let time: TimeInterval
-
-    var isLifted: Bool { x == 0 && y == 0 }
+    var isLifted = false
 }
 
 struct MpvTouchMove: Equatable {
@@ -15,22 +14,16 @@ struct MpvTouchMove: Equatable {
 }
 
 struct MpvPanContext: Equatable {
-    let isPaused: Bool
     let isOnSurface: Bool
     let durationSeconds: Int
 }
 
 enum MpvPanResponse: Equatable {
     case scrub
-    case revealControls
     case ignore
 
     init(_ context: MpvPanContext) {
-        switch (context.isOnSurface, context.isPaused, context.durationSeconds > 0) {
-        case (true, true, true): self = .scrub
-        case (true, false, _): self = .revealControls
-        default: self = .ignore
-        }
+        self = context.isOnSurface && context.durationSeconds > 0 ? .scrub : .ignore
     }
 }
 

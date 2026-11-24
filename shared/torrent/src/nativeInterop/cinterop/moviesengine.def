@@ -1,0 +1,5 @@
+headers = movies_engine/movies_engine.h
+package = com.nuvio.torrent.native
+staticLibraries = libmovies_engine.a
+# libtorrent inside the engine needs these on Apple platforms.
+linkerOpts = -framework CoreFoundation -framework SystemConfiguration
