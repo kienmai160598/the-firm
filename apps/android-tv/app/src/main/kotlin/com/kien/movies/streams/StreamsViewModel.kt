@@ -7,6 +7,8 @@ import com.kien.movies.bridge.BridgeFlows
 import com.kien.movies.debug.DebugLaunch
 import com.kien.movies.player.PlaybackRequest
 import com.kien.movies.player.StreamNotice
+import com.kien.movies.torrent.TorrentSession
+import com.kien.movies.torrent.TorrentStartResult
 import com.nuvio.tvos.TvosResumePoint
 import com.nuvio.tvos.TvosStream
 import com.nuvio.tvos.TvosStreamGroup
@@ -51,14 +53,16 @@ data class StreamsUiState(
 
 /**
  * The streams of one movie or episode and the path from a press to the player (tvOS
- * StreamsModel.swift plus the select logic of StreamsView.swift). ExoPlayer plays everything in
- * v1, so there is no engine preflight: "Checking stream" lasts while the resume point loads.
+ * StreamsModel.swift plus StreamsPlayback.swift). ExoPlayer plays everything in v1, so there is
+ * no engine preflight: "Checking stream" lasts while the resume point loads. A torrent first
+ * starts in the engine, its progress on the row, and then plays from its local URL (AC T1).
  *
  * @param resumesDirectly opened from Continue Watching: the header shows the resume bar and a
  *   press resumes without asking.
  */
 class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly: Boolean) : ViewModel() {
     private val interaction = MutableStateFlow(StreamsUiState())
+    private val torrent = TorrentSession(viewModelScope)
 
     private val content = BridgeFlows.streams(target)
         .map { streams -> streamsContent(streams, debugFixture()) }
@@ -89,6 +93,8 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
                 interaction.update { state -> state.copy(selection = StreamSelection(stream.key, StreamRowProgress.checking)) }
                 chooseStart(press.stream)
             }
+
+            is StreamPress.StartsTorrent -> startTorrent(press.stream)
         }
     }
 
@@ -112,14 +118,46 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
             val stream = state.playback?.stream ?: return@update state
             state.copy(playback = null, selection = null, sheet = StreamSheet(stream, notice))
         }
+        torrent.stop()
         loadDirectResume()
     }
 
     /** The user left the player. */
     fun playbackEnded() {
-        // TODO(A10): stop the torrent engine here (TorrentSession.stop, TvosTorrent.stop).
         interaction.update { state -> state.copy(playback = null, selection = null) }
+        torrent.stop()
         loadDirectResume()
+    }
+
+    override fun onCleared() {
+        torrent.stop()
+    }
+
+    private fun startTorrent(stream: TvosStream) {
+        interaction.update { state -> state.copy(selection = StreamSelection(stream.key, StreamRowProgress.startingTorrent)) }
+        val progressJob = viewModelScope.launch {
+            torrent.status.collect { status -> showProgress(stream.key, torrentProgress(status)) }
+        }
+        torrent.start(stream) { result ->
+            progressJob.cancel()
+            when (result) {
+                is TorrentStartResult.Started -> {
+                    showProgress(stream.key, StreamRowProgress.checking)
+                    chooseStart(stream)
+                }
+
+                is TorrentStartResult.Failed -> interaction.update { state ->
+                    state.copy(selection = null, sheet = StreamSheet(stream, StreamNotice(TORRENT_FAILED_TITLE, result.message)))
+                }
+            }
+        }
+    }
+
+    /** Shows [progress] on the pressed row, if it is still [streamKey]'s. */
+    private fun showProgress(streamKey: String, progress: StreamRowProgress) {
+        interaction.update { state ->
+            if (state.selection?.streamKey == streamKey) state.copy(selection = StreamSelection(streamKey, progress)) else state
+        }
     }
 
     private fun chooseStart(stream: TvosStream) {
@@ -142,8 +180,8 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
     }
 
     private fun start(stream: TvosStream, resumes: Boolean) {
-        // TODO(A10): a started torrent plays from its local URL instead of playableUrl.
-        val request = PlaybackRequest.of(target, stream, resumes)
+        val request = torrent.localUrl(stream)?.let { url -> PlaybackRequest(target, stream, url, resumes) }
+            ?: PlaybackRequest.of(target, stream, resumes)
         interaction.update { state ->
             state.copy(
                 pendingResume = null,
@@ -175,6 +213,7 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
 
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
+        const val TORRENT_FAILED_TITLE = "The torrent did not start"
     }
 }
 
