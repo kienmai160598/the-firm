@@ -57,26 +57,19 @@ class DetailsTextTest {
     }
 
     @Test
-    fun heroMetadataNamesTheKindThenTwoGenres() {
-        val show = details(genres = listOf("Drama", "Crime", "Thriller"))
+    fun summaryFactsAreTwoGenresThenReleaseThenRunTime() {
+        val show = details(genres = listOf("Drama", "Crime", "Thriller"), releaseLine = "2008", runtime = "47 min")
 
-        assertEquals(listOf("TV Show", "Drama", "Crime"), heroMetadata(show))
-        assertEquals(listOf("Movie"), heroMetadata(details(type = "movie")))
-        assertEquals(emptyList<String>(), heroMetadata(details(type = "channel")))
-    }
-
-    @Test
-    fun techFactsAreReleaseThenRunTime() {
-        assertEquals(listOf("2008", "47 min"), techFacts(details(releaseLine = "2008", runtime = "47 min")))
-        assertEquals(listOf("47 min"), techFacts(details(runtime = "47 min")))
+        assertEquals(listOf("Drama, Crime", "2008", "47 min"), summaryFacts(show))
+        assertEquals(listOf("47 min"), summaryFacts(details(runtime = "47 min")))
     }
 
     @Test
     fun starringNamesTheFirstThreeCastMembers() {
         val cast = listOf("A", "B", "C", "D").map { name -> TvosCastMember(name, role = null, photoUrl = null) }
 
-        assertEquals("A, B, C", starringNames(cast))
-        assertNull(starringNames(emptyList()))
+        assertEquals("Starring A, B, C", starringLine(cast))
+        assertNull(starringLine(emptyList()))
     }
 
     @Test

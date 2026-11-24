@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.relocation.BringIntoViewResponder
 import androidx.compose.foundation.relocation.bringIntoViewResponder
@@ -56,6 +58,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -314,7 +317,9 @@ private fun HeroButton(mode: HeroMode, itemName: String?, onClick: () -> Unit, o
     Button(
         onClick = onClick,
         modifier = modifier
-            .size(PRIMARY_SIZE)
+            .height(PRIMARY_HEIGHT)
+            .widthIn(min = PRIMARY_MIN_WIDTH)
+            .width(IntrinsicSize.Max)
             .focusProperties { up = pillFocus }
             .testTag(tag)
             .semantics {
@@ -353,7 +358,7 @@ private fun HeroButton(mode: HeroMode, itemName: String?, onClick: () -> Unit, o
                 )
                 Spacer(Modifier.width(ButtonDefaults.IconSpacing))
             }
-            Text(text = if (mode == HeroMode.Status) OPEN_ADDONS else WATCH_NOW, style = TvType.bodyEmphasized, color = labelColor, maxLines = 1)
+            Text(text = if (mode == HeroMode.Status) OPEN_ADDONS else WATCH_NOW, style = PRIMARY_LABEL_STYLE, color = labelColor, maxLines = 1)
         }
     }
 }
@@ -374,14 +379,20 @@ private const val OVERVIEW_MAX_LINES = 3
 internal val HERO_SLOT_HEIGHT: Dp = 414.5.dp
 
 private const val PRIMARY_FOCUS_SCALE = 1.05f
+private val PRIMARY_LABEL_STYLE = TvType.body.copy(fontWeight = FontWeight.SemiBold)
 
 // Measured, pt / 2: buttons 706 to 774 pt focused (68 pt; rest 64 pt), primary 306 pt wide focused;
 // overview last baseline 669 pt; metadata baseline 614 pt; logo bottom 569 pt; logo up to
 // 420 x 125 pt (spec 420 x 105; `05-up-hero.png` logo is 123 pt tall); overview wraps at about 560 pt.
 private val BUTTONS_TOP = 353.dp
 private val BUTTON_ROW_HEIGHT = 34.dp
-private val PRIMARY_SIZE = DpSize(148.dp, 32.dp)
-private val PLAY_ICON = 14.dp
+
+// Watch Now as the tvOS app draws it (simulator, 2026-11-24): 267 x 66 pt focused, the play glyph
+// 24 pt tall (the vector's glyph fills 14 of its 24 box), label body semibold. At least that wide,
+// wider when the label needs it.
+private val PRIMARY_HEIGHT = 32.dp
+private val PRIMARY_MIN_WIDTH = 127.dp
+private val PLAY_ICON = 20.dp
 private val PRIMARY_PADDING = 12.dp
 private val OVERVIEW_TO_BUTTONS = 18.5.dp
 private val META_TO_OVERVIEW = 27.5.dp

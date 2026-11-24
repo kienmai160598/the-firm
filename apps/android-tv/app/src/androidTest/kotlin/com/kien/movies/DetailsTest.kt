@@ -16,7 +16,6 @@ import com.kien.movies.details.CAST_ROW_TAG
 import com.kien.movies.details.DETAILS_ABOUT_TAG
 import com.kien.movies.details.DETAILS_CONTENT_TAG
 import com.kien.movies.details.DETAILS_ERROR_TAG
-import com.kien.movies.details.DETAILS_INFO_BUTTON_TAG
 import com.kien.movies.details.DETAILS_INFO_TAG
 import com.kien.movies.details.DETAILS_LOADING_TAG
 import com.kien.movies.details.DETAILS_OVERVIEW_TAG
@@ -135,19 +134,6 @@ class DetailsTest {
         tv.down()
 
         tv.assertFocusedTag(DETAILS_INFO_TAG)
-    }
-
-    /** D4: the info circle next to Play moves focus to About. */
-    @Test
-    fun d4_infoButtonFocusesAbout() {
-        tv.launch(DebugLaunch.ROUTE to BREAKING_BAD)
-        tv.awaitFocus(hasTestTag(DETAILS_PLAY_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
-        tv.press(KeyEvent.KEYCODE_DPAD_RIGHT)
-        tv.assertFocusedTag(DETAILS_INFO_BUTTON_TAG)
-
-        tv.select()
-
-        tv.assertFocusedTag(DETAILS_ABOUT_TAG)
     }
 
     /** D5: while the details load, the loading state holds focus. */
