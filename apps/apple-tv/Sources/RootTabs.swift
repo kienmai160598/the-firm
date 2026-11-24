@@ -30,7 +30,7 @@ enum RootTab: Hashable, CaseIterable {
         case .home: HomeView()
         case .search: SearchView()
         case .settings: SettingsView()
-        case .library: PlaceholderView(title: title)
+        case .library: LibraryView()
         }
     }
 }

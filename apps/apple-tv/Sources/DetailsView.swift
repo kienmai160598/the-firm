@@ -5,7 +5,7 @@ struct DetailsView: View {
     @StateObject private var model: DetailsModel
     @StateObject private var trailer = HeroTrailer()
     @EnvironmentObject private var router: Router
-    @FocusState private var isActionFocused: Bool
+    @FocusState private var heroFocus: DetailsHeroFocus?
 
     init(type: String, id: String) {
         _model = StateObject(wrappedValue: DetailsModel(type: type, id: id))
@@ -16,12 +16,12 @@ struct DetailsView: View {
             DetailsBackground()
             BackdropView(
                 url: model.details?.backdropUrl,
-                isReceded: !isActionFocused,
+                isReceded: !isHeroFocused,
                 trailer: trailer.picture(for: model.id)
             )
             content
         }
-        .animation(.smooth(duration: 0.4), value: isActionFocused)
+        .animation(.smooth(duration: 0.4), value: isHeroFocused)
         .onAppear {
             model.observe()
             updateTrailer()
@@ -36,10 +36,14 @@ struct DetailsView: View {
         #endif
     }
 
-    /// The trailer plays behind the title while its Play button has focus, and fades out once the
-    /// viewer scrolls down to the episodes, the cast or the info.
+    /// The trailer plays behind the title while a hero button (Play or Library) has focus, and
+    /// fades out once the viewer scrolls down to the episodes, the cast or the info.
     private var isTrailerDue: Bool {
-        model.details != nil && isActionFocused
+        model.details != nil && isHeroFocused
+    }
+
+    private var isHeroFocused: Bool {
+        heroFocus != nil
     }
 
     private func updateTrailer() {
@@ -49,7 +53,7 @@ struct DetailsView: View {
     @ViewBuilder
     private var content: some View {
         if let details = model.details {
-            DetailsContentView(details: details, isActionFocused: $isActionFocused)
+            DetailsContentView(details: details, heroFocus: $heroFocus)
         } else if model.isLoading {
             ProgressView()
         } else {
@@ -69,12 +73,12 @@ private struct DetailsContentView: View {
     private static let heroScreenFraction: CGFloat = 0.88
 
     let details: TvosMetaDetails
-    let isActionFocused: FocusState<Bool>.Binding
+    let heroFocus: FocusState<DetailsHeroFocus?>.Binding
 
     var body: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 56) {
-                DetailsHeroView(details: details, isActionFocused: isActionFocused)
+                DetailsHeroView(details: details, focus: heroFocus)
                     .containerRelativeFrame(.vertical, alignment: .bottomLeading) { height, _ in
                         height * Self.heroScreenFraction
                     }
