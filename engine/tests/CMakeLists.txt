@@ -17,6 +17,7 @@ add_executable(movies_engine_tests
     media_type_test.cpp
     memory_payload_store_test.cpp
     sequential_window_test.cpp
+    session_settings_test.cpp
     stream_integration_test.cpp
     support/http_client.cpp
     support/loopback_seeder.cpp

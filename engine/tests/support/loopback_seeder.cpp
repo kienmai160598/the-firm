@@ -66,6 +66,9 @@ LoopbackSeeder::LoopbackSeeder(const std::filesystem::path& directory, std::int6
     params.ti = make_torrent(directory, piece_length);
     params.save_path = directory.string();
     params.flags |= lt::torrent_flags::seed_mode;
+    // Started at once: paused and auto managed, it would turn the engine away until libtorrent's
+    // next queue pass, and the engine does not retry its only peer within a test's wait.
+    params.flags &= ~(lt::torrent_flags::paused | lt::torrent_flags::auto_managed);
     session_.add_torrent(params);
     magnet_ = lt::make_magnet_uri(*params.ti) + "&x.pe=127.0.0.1:"
         + std::to_string(wait_for_port(session_));
