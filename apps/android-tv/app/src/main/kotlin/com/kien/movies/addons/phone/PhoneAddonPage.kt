@@ -74,7 +74,7 @@ object PhoneAddonPage {
         else if (answer.status === 'cancelled') { say('Cancelled on the TV. Nothing was added.'); send.disabled = false; }
         else { say('The TV no longer knows this request. Send it again.'); send.disabled = false; }
       })
-      .catch(function () { say('The TV stopped answering. Open Add from phone on the TV again.'); send.disabled = false; });
+      .catch(function () { say('The TV stopped answering. Open Addons on the TV and scan the new code.'); send.disabled = false; });
   }
 
   send.addEventListener('click', function () {

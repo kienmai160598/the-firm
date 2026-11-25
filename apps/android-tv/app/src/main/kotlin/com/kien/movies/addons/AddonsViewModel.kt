@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-/** The install panel's last result (tvOS `AddonInstallStatus`). */
+/** The last install, typed or sent from a phone, for the preview's status line (tvOS `AddonInstallStatus`). */
 sealed interface AddonInstallStatus {
     data object Installing : AddonInstallStatus
 
@@ -31,12 +31,15 @@ enum class AddonMove(val offset: Int) {
 
 data class AddonsUiState(val addons: List<TvosAddon>, val installStatus: AddonInstallStatus? = null) {
     val isInstalling: Boolean get() = installStatus == AddonInstallStatus.Installing
+
+    fun addon(manifestUrl: String?): TvosAddon? = addons.firstOrNull { addon -> addon.manifestUrl == manifestUrl }
 }
 
 /**
- * Installed addons and the install panel (tvOS AddonsModel.swift). Typing a URL and "Add from
- * phone" install through the same call, `TvosAddons.install` via [BridgeFlows.installAddon];
- * core's `normalizeManifestUrl` turns `stremio://` into `https://`.
+ * Installed addons and the last install (tvOS AddonsModel.swift). Typing a URL and a phone's
+ * confirmed proposal install through the same call, `TvosAddons.install` via
+ * [BridgeFlows.installAddon]; core's `normalizeManifestUrl` turns `stremio://` into `https://`.
+ * One install runs at a time, whichever side started it.
  */
 class AddonsViewModel(
     initial: List<TvosAddon> = TvosAddons.current(),
@@ -55,9 +58,27 @@ class AddonsViewModel(
         viewModelScope.launch { installStatus.value = installer(url).toStatus() }
     }
 
-    /** Installs what a phone proposed and the TV confirmed, one URL after the other. */
+    /**
+     * Installs what a phone proposed and the TV confirmed, one URL after the other, and shows the
+     * result in the status line. [onDone] is always called, so the pairing session never stays in
+     * Installing; while another install runs, every URL fails at once.
+     */
     fun installFromPhone(urls: List<String>, onDone: (List<AddonInstallOutcome>) -> Unit) {
-        viewModelScope.launch { onDone(urls.map { url -> installer(url).toOutcome(url) }) }
+        if (installStatus.value == AddonInstallStatus.Installing) {
+            onDone(urls.map { url -> AddonInstallOutcome.Failed(url, BUSY) })
+            return
+        }
+        installStatus.value = AddonInstallStatus.Installing
+        viewModelScope.launch {
+            val outcomes = mutableListOf<AddonInstallOutcome>()
+            try {
+                urls.forEach { url -> outcomes += installer(url).toOutcome(url) }
+            } finally {
+                val all = outcomes + urls.drop(outcomes.size).map { url -> AddonInstallOutcome.Failed(url, CLOSED) }
+                installStatus.value = phoneInstallStatus(all)
+                onDone(all)
+            }
+        }
     }
 
     fun toggle(addon: TvosAddon) = TvosAddons.setEnabled(addon.manifestUrl, !addon.enabled)
@@ -72,6 +93,8 @@ class AddonsViewModel(
 
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
+        const val BUSY = "Another addon is being installed. Try again in a moment."
+        const val CLOSED = "The Addons screen closed."
     }
 }
 
@@ -82,11 +105,23 @@ fun moveDestination(addons: List<TvosAddon>, manifestUrl: String, move: AddonMov
     return (from + move.offset).takeIf { to -> to in addons.indices }
 }
 
-/** The row that takes focus after [removedUrl] leaves: the next one, else the one above. */
-fun neighbourAfterRemoval(addons: List<TvosAddon>, removedUrl: String): String? {
-    val index = addons.indexOfFirst { addon -> addon.manifestUrl == removedUrl }
+/** The row that takes focus after [removedUrl] leaves [order]: the next one, else the one above. */
+fun neighbourAfterRemoval(order: List<String>, removedUrl: String): String? {
+    val index = order.indexOf(removedUrl)
     if (index < 0) return null
-    return (addons.getOrNull(index + 1) ?: addons.getOrNull(index - 1))?.manifestUrl
+    return order.getOrNull(index + 1) ?: order.getOrNull(index - 1)
+}
+
+/** The status line after a phone's URLs: the first failure, else every installed name. */
+fun phoneInstallStatus(outcomes: List<AddonInstallOutcome>): AddonInstallStatus? {
+    val failure = outcomes.filterIsInstance<AddonInstallOutcome.Failed>().firstOrNull()
+    val names = outcomes.filterIsInstance<AddonInstallOutcome.Installed>().map(AddonInstallOutcome.Installed::name)
+    return when {
+        outcomes.isEmpty() -> null
+        failure == null -> AddonInstallStatus.Installed(names.joinToString(", "))
+        outcomes.size == 1 -> AddonInstallStatus.Failed(failure.message)
+        else -> AddonInstallStatus.Failed("${failure.url}: ${failure.message}")
+    }
 }
 
 private fun TvosAddonInstallResult.toStatus(): AddonInstallStatus = when (this) {

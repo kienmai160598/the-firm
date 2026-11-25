@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.DrawerValue
 import androidx.tv.material3.rememberDrawerState
+import com.kien.movies.addons.AddonDetailScreen
 import com.kien.movies.design.Palette
 import com.kien.movies.design.TvColors
 import com.kien.movies.details.DetailsScreen
@@ -111,7 +112,7 @@ fun RootScreen(router: Router, stores: RouteViewModelStores, onExit: () -> Unit)
 private fun windowBackground(route: AppRoute): Color = when {
     route is AppRoute.Tab && route.tab == RootTab.Home -> TvColors.homeRows
     route is AppRoute.Tab && route.tab == RootTab.Settings -> TvColors.settingsBackground
-    route is AppRoute.Settings -> TvColors.settingsBackground
+    route is AppRoute.Settings || route is AppRoute.Addon -> TvColors.settingsBackground
     route is AppRoute.Tab -> TvColors.searchLibrary
     else -> Palette.detailsBackground
 }
@@ -131,7 +132,8 @@ private fun PushedScreen(route: AppRoute, router: Router) {
     when (route) {
         is AppRoute.Details -> DetailsScreen(route, router)
         is AppRoute.Streams -> StreamsScreen(route, router)
-        is AppRoute.Settings -> SettingsPageScreen(route.page)
+        is AppRoute.Settings -> SettingsPageScreen(route.page, router)
+        is AppRoute.Addon -> AddonDetailScreen(route.manifestUrl, router)
         is AppRoute.Tab -> error("A tab root is never pushed")
     }
 }
