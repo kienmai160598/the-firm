@@ -41,7 +41,7 @@ follows from the column count, which is why it reads as tidy. Measured on `19-de
 |---|---|---|---|
 | 3 | 560 pt | Search result cards (560 x 170) | 275 dp |
 | 4 | 410 pt | Episodes, trailers, bonus content (16:9, 410 x 230) | 201 dp |
-| 5 | 320 pt | Continue Watching (16:9 picture 320 x 180, band below inside the card) | 157 dp |
+| 5 | 320 pt | Apple's Continue Watching (16:9 picture 320 x 180, band below inside the card). Ours is a fixed 400 x 225 pt picture (200 x 112.5 dp), see Cards | 157 dp |
 | 6 | 260 pt | Posters (2:3, 260 x 390), Top 10, cast circles (260), Browse genres | 127 dp |
 
 Rule for both platforms: the code holds the column count and the aspect ratio. The width is
@@ -96,7 +96,7 @@ Bold). Android uses `sp = pt / 2`.
 
 | Token | tvOS | Android TV |
 |---|---|---|
-| Card corner (poster, 16:9 cards, Continue Watching) | 16 pt, continuous | 8 dp |
+| Card corner (poster, 16:9 cards, Continue Watching, addon logo) | 24 pt, continuous (`CardShape.cornerRadius`; Apple's TV app measures 16 pt) | 12 dp (`CardSize.cornerRadius`) |
 | Panel corner (result card, description panel) | 24 pt | 12 dp |
 | Sidebar panel corner | 32 pt | 16 dp |
 | Pills (buttons, nav pill, season tab, suggestion) | capsule | `RoundedCornerShape(50)` |
@@ -104,10 +104,12 @@ Bold). Android uses `sp = pt / 2`.
 | Dialog panel ending in a capsule (stream info sheet) | system sheet, measured about 60 pt corner, 1200 pt wide, 64 pt padding | `TvSheet`: 600 dp wide, 32 dp padding, corner 16 + 32 = 48 dp (concentric with the Close capsule); the resume dialog 16 + 24 = 40 dp |
 | Stream row button | resolution badge 14 pt + its 35 pt inset = 49 pt (`StreamRow.buttonCornerRadius`) | badge 7 dp + 17.5 dp inset = 24.5 dp (`STREAM_ROW_SHAPE`) |
 | Player menu panel (audio, subtitles, info) | half the one line capsule row (16 + line + 16) plus the 14 pt padding, about 45.5 pt | 16 dp row radius + 7 dp padding = 23 dp |
-| Other dialogs with capsule buttons (addon, remove recent search, Continue Watching card menu) | system dialogs | 32 dp capsules, corner 16 + 24 = 40 dp (`TvSheet.shapeFor(24)`) |
-| Addon list row with its logo | not on tvOS (no logo) | logo corner 8 dp + the ListItem's 16 dp side padding = 24 dp |
+| Other dialogs with capsule buttons (addon, remove recent search) | system dialogs | 32 dp capsules, corner 16 + 24 = 40 dp (`TvSheet.shapeFor(24)`) |
+| Continue Watching card menu | system context menu beside the focused card (12 pt from its edge, tops level, Home not dimmed): glyph and label rows, no platter until focused, Remove in red | a `Popup` anchored 6 dp beside the scaled card, on the left when the right has no room (`BesideTheCard`); dark panel with the glass rim, 32 dp capsule rows, corner 16 + 8 = 24 dp (`ContinueWatchingMenu.kt`) |
+| Addon list row with its logo | not on tvOS (no logo) | logo corner 12 dp (the card corner) + the ListItem's 16 dp side padding = 28 dp |
 | Text inside a wrapper (capsule, platter, field, list row) | Apple's alignment: the text inside starts on the edge of the plain text in its column, the wrapper hangs out past it by its own padding. Exception, the hero actions on Home and Details: the button's edge, not its glyph, is flush with the logo, title and overview edge (the user's call), and logos are trimmed to their ink (`TitleLogoImage.swift`) so the ink, not the canvas, starts on that edge. Stream rows sit under headings that start at the badge (38 pt), track menu headers start at the row labels. Season tabs, Recent Searches and the stream sheet's Close hang 30 pt, the `.glass` and `.bordered` side padding measured on the tvOS 27.2 simulator (`SystemButtonInset` in `GlassStyle.swift`) | Hero buttons flush with the text, logos trimmed by `TrimTransparentEdges` on Home and Details. `hangOutside` in `design/Hang.kt` (add-addon field 14 dp and buttons 16 dp, phone panel buttons, search suggestions); headings move in where hanging would hit a neighbour: stream headings 19 dp, Settings list headers 10 dp, Installed addons 16 dp, track menu header after the check column. Season tabs hang 15 dp. |
 | Focus scale of a card | system lift; measured 1.09 to 1.10 on posters and 16:9 cards | 1.10 in `graphicsLayer` |
+| Focus rim of a card | `.highlight` hover effect: a thin light edge, about 100 levels brighter than the art on the top edge and 20 on the sides (measured on the simulator) | `focusedCardRim` in `design/GlassEdge.kt`: 1 dp stroke, white 60% at the top fading to 12% a third of the way down and 8% at the bottom, drawn inside the card's scale (`CardFocus.border`) |
 | Focus shadow | system | one soft shadow, 12 dp blur equivalent, black 40% |
 | Focused control | system: white fill, dark content | white fill, `#141414` content, scale 1.05, no edge |
 
@@ -189,7 +191,8 @@ Reference: `01-home.png`, `05-up-hero.png`, `13-details-top.png`.
 
 | Card | Size | Inside the card | Below the card |
 |---|---|---|---|
-| Continue Watching | 320 x 226 to 228: picture 180 plus a 46 to 48 pt band (re-measured) | band: play glyph, progress bar, "S1, E1 · 17m", provider badge | nothing |
+| Continue Watching (Apple's TV app) | 320 x 226 to 228: picture 180 plus a 46 to 48 pt band (re-measured) | band: play glyph, progress bar, "S1, E1 · 17m", provider badge | nothing |
+| Continue Watching (ours, both apps) | 400 x 225 pt picture (200 x 112.5 dp); only the picture takes focus | progress bar 8 pt high, 20 pt from the edges, black 55% track (hidden for Next Up) | 24 pt down: title 26 pt semibold, then 14 pt down "S1 E1 • Pilot \| 17m left" 22 pt at white 55% with thin dividers |
 | Featured 16:9 (trailers, bonus) | 410 x 230 | bottom band over a soft shade: title (Body), "▶ 3m" (Caption 2) | nothing |
 | Episode | 410 x 230 | duration bottom left ("57m", Caption 2) | overline "EPISODE 2", title (Caption 1 bold), description (Caption 2, up to 5 lines), date and rating badge |
 | Poster | 260 x 390 | provider badge top right | focused only: genre caption ("TV Show · Sci-Fi") inside a dark bottom band |

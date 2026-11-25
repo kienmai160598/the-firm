@@ -170,8 +170,8 @@ object TvType {
 
 /** Corners of spec section 2. */
 object TvShapes {
-    /** Poster, 16:9 card, Continue Watching (tvOS 16 pt continuous). */
-    val cardRadius: Dp = 8.dp
+    /** Poster, 16:9 card, Continue Watching: [CardSize.cornerRadius], tvOS `CardShape` 24 pt. */
+    val cardRadius: Dp = CardSize.cornerRadius
     val card = RoundedCornerShape(cardRadius)
 
     /** Result card, description panel (tvOS 24 pt). */

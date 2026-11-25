@@ -1,23 +1,16 @@
 package com.kien.movies.home
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,60 +18,36 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.tv.material3.Button
 import androidx.tv.material3.Card
-import androidx.tv.material3.Icon
+import androidx.tv.material3.ProvideTextStyle
 import androidx.tv.material3.Text
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.transformations
-import com.kien.movies.R
 import com.kien.movies.design.ArtworkImage
 import com.kien.movies.design.CardFocus
-import com.kien.movies.design.Palette
-import com.kien.movies.design.Spacing
-import com.kien.movies.design.TextStyles
+import com.kien.movies.design.CardSize
+import com.kien.movies.design.FactLine
 import com.kien.movies.design.TvColors
-import com.kien.movies.design.TvControls
-import com.kien.movies.design.TvGlass
-import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvType
-import com.kien.movies.design.containerRadius
-import com.kien.movies.design.darkGlassPanel
+import com.kien.movies.details.WatchProgressBar
 import com.kien.movies.shell.AppRoute
 
 /**
- * Continue Watching or Upcoming on 5 columns (spec section 3). Select resumes without
- * asking (AC H4). A long press of select opens a small dialog, the stand-in for the tvOS context
- * menu: "Go to Show" or "Go to Movie" opens the title's Details (AC W5), and "Remove from Continue
- * Watching" takes the card off; after removing, focus moves to the card's neighbour (next, else
- * previous: [RowNeighbor]) before the card leaves the row (AC H5).
+ * Continue Watching or Upcoming (tvOS ContinueWatchingRowView.swift). Select resumes without
+ * asking (AC H4). A long press of select opens the card's menu ([ContinueWatchingMenu]): "Go to
+ * Show" or "Go to Movie" opens the title's Details (AC W5), and "Remove from Continue Watching"
+ * takes the card off; after removing, focus moves to the card's neighbour (next, else previous:
+ * [RowNeighbor]) before the card leaves the row (AC H5).
  */
 @Composable
 fun ContinueWatchingRow(
@@ -103,30 +72,33 @@ fun ContinueWatchingRow(
                     onClick = { onOpen(card.route) },
                     onLongClick = { menuFor = card },
                     modifier = Modifier.rememberedFocus(focusMemory, cardFocusKey(row.key, card.key), row.key)
-                )
+                ) {
+                    if (menuFor?.key == card.key) {
+                        ContinueWatchingMenu(
+                            card = card,
+                            onGoToDetails = {
+                                menuFor = null
+                                detailsAfterMenuCloses = card
+                            },
+                            onRemove = {
+                                menuFor = null
+                                removalAfterMenuCloses = card
+                            },
+                            onDismiss = { menuFor = null }
+                        )
+                    }
+                }
             }
         }
     }
 
-    menuFor?.let { card ->
-        CardMenuDialog(
-            card = card,
-            onGoToDetails = {
-                menuFor = null
-                detailsAfterMenuCloses = card
-            },
-            onRemove = {
-                menuFor = null
-                removalAfterMenuCloses = card
-            },
-            onDismiss = { menuFor = null }
-        )
-    }
-
     // As tvOS: Details opens once the menu has closed and focus is back on the card, so Back
-    // returns to it (AC N4). The card stays in the row.
+    // returns to it (AC N4). The card stays in the row. The menu's popup window held focus, so
+    // the card is focused again explicitly before Home is left.
     detailsAfterMenuCloses?.let { card ->
         LaunchedEffect(card.key) {
+            withFrameNanos {}
+            focusMemory.focus(cardFocusKey(row.key, card.key))
             withFrameNanos {}
             detailsAfterMenuCloses = null
             onOpen(card.detailsRoute)
@@ -151,14 +123,30 @@ fun ContinueWatchingRow(
 }
 
 /**
- * A Continue Watching card (spec section 3, "Cards"): 16:9 art with the show's logo, over a band
- * inside the card with the play glyph, the progress bar and "S1, E1 · 17m". Nothing below the
- * card. The band's text brightens on focus through a layer alpha, so a focus move recomposes
- * nothing.
+ * A Continue Watching card, as tvOS ContinueWatchingCard: 16:9 art with the progress bar inside
+ * its bottom edge, then the title and "S1 E1 • Pilot | 17m left" below it. Only the art is the
+ * focusable card, so focus scales and lights the art while the captions stay put, as the tvOS
+ * `.highlight` hover effect does. [menu] is drawn anchored to the art.
  */
 @Composable
-private fun ContinueWatchingCard(card: WatchingCard, onClick: () -> Unit, onLongClick: () -> Unit, modifier: Modifier) {
-    val interaction = remember { MutableInteractionSource() }
+private fun ContinueWatchingCard(
+    card: WatchingCard,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    modifier: Modifier,
+    menu: @Composable () -> Unit
+) {
+    Column(modifier = Modifier.width(WatchingArtSize.width), verticalArrangement = Arrangement.spacedBy(ART_TO_TITLE)) {
+        Box {
+            CardArt(card, onClick, onLongClick, modifier)
+            menu()
+        }
+        CardCaptions(card)
+    }
+}
+
+@Composable
+private fun CardArt(card: WatchingCard, onClick: () -> Unit, onLongClick: () -> Unit, modifier: Modifier) {
     Card(
         onClick = onClick,
         onLongClick = onLongClick,
@@ -172,184 +160,39 @@ private fun ContinueWatchingCard(card: WatchingCard, onClick: () -> Unit, onLong
         colors = CardFocus.colors(),
         scale = CardFocus.scale(),
         border = CardFocus.border(),
-        glow = CardFocus.glow(),
-        interactionSource = interaction
+        glow = CardFocus.glow()
     ) {
-        Box(modifier = Modifier.size(WatchingCardSize)) {
-            ArtworkImage(
-                model = rememberBandArt(card.imageUrl),
-                modifier = Modifier.fillMaxSize()
-            )
-            CardTitle(card, Modifier.align(Alignment.TopStart).size(WatchingCardSize.width, WatchingArtHeight))
-            CardBand(card, interaction.collectIsFocusedAsState(), Modifier.align(Alignment.BottomStart))
-        }
-    }
-}
-
-/** The show's logo on the art, as the TV app's art carries it; the title in text without a logo. */
-@Composable
-private fun CardTitle(card: WatchingCard, modifier: Modifier) {
-    var showsLogo by remember(card.target.logoUrl) { mutableStateOf(false) }
-    Box(modifier = modifier.padding(horizontal = LOGO_INSET), contentAlignment = Alignment.CenterStart) {
-        if (!showsLogo) {
-            Text(
-                text = card.title,
-                style = TvType.caption1.copy(fontWeight = FontWeight.Bold, shadow = TITLE_SHADOW),
-                color = TvColors.textPrimary,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        card.target.logoUrl?.let { logo ->
-            AsyncImage(
-                model = rememberSizedImage(logo, LOGO_MAX),
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                alignment = Alignment.CenterStart,
-                onSuccess = { showsLogo = true },
-                onError = { showsLogo = false },
-                modifier = Modifier.sizeIn(maxWidth = LOGO_MAX.width, maxHeight = LOGO_MAX.height)
-            )
-        }
-    }
-}
-
-@Composable
-private fun CardBand(card: WatchingCard, isFocused: State<Boolean>, modifier: Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(BAND_HEIGHT)
-            .graphicsLayer {
-                alpha = if (isFocused.value) 1f else BAND_REST_ALPHA
-                compositingStrategy = CompositingStrategy.ModulateAlpha
+        Box(modifier = Modifier.size(WatchingArtSize)) {
+            ArtworkImage(model = rememberSizedImage(card.imageUrl, WatchingArtSize), modifier = Modifier.fillMaxSize())
+            if (!card.isNextUp) {
+                WatchProgressBar(
+                    fraction = card.progressFraction,
+                    modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(CardSize.contentInset)
+                )
             }
-            .padding(start = BAND_START, end = BAND_START),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(painter = painterResource(R.drawable.ic_home_play), contentDescription = null, tint = TvColors.textPrimary, modifier = Modifier.size(PLAY_GLYPH))
-        Spacer(Modifier.width(GLYPH_GAP))
-        if (!card.isNextUp) {
-            WatchProgressBar(fraction = card.progressFraction, modifier = Modifier.width(BAR_WIDTH))
-            Spacer(Modifier.width(BAR_GAP))
-        }
-        Text(
-            text = card.details.joinToString(DETAIL_SEPARATOR),
-            style = TvType.caption2,
-            color = TvColors.textPrimary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
-/** A capsule track with the watched part in white, one draw call each. */
-@Composable
-fun WatchProgressBar(fraction: Float, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .height(PROGRESS_HEIGHT)
-            .drawBehind {
-                val radius = CornerRadius(size.height / 2, size.height / 2)
-                drawRoundRect(color = PROGRESS_TRACK, cornerRadius = radius)
-                val filled = size.width * fraction.coerceIn(0f, 1f)
-                if (filled > 0f) drawRoundRect(color = Color.White, size = Size(filled, size.height), cornerRadius = radius)
-            }
-    )
-}
-
-/** The card's art, decoded at the card's size with the band baked in ([BandExtension]). */
-@Composable
-private fun rememberBandArt(url: String?): ImageRequest? {
-    val context = LocalContext.current
-    val density = LocalDensity.current
-    return remember(url, density) {
-        url?.let { data ->
-            val widthPx = with(density) { WatchingCardSize.width.roundToPx() }
-            val heightPx = with(density) { WatchingCardSize.height.roundToPx() }
-            ImageRequest.Builder(context).data(data).size(widthPx, heightPx).transformations(bandExtension).build()
         }
     }
 }
 
-/**
- * The tvOS context menu as a small dialog, in its order: "Go to Show" or "Go to Movie" first and
- * focused, then Remove, then Cancel. Back closes it.
- */
 @Composable
-private fun CardMenuDialog(card: WatchingCard, onGoToDetails: () -> Unit, onRemove: () -> Unit, onDismiss: () -> Unit) {
-    val firstFocus = remember { FocusRequester() }
-    Dialog(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .darkGlassPanel(cornerRadius = DIALOG_RADIUS)
-                .padding(DIALOG_PADDING),
-            verticalArrangement = Arrangement.spacedBy(Spacing.textGapLarge)
-        ) {
-            Text(text = card.title, style = TextStyles.body, color = Palette.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-            MenuButton(
-                title = card.goToDetailsTitle,
-                onClick = onGoToDetails,
-                modifier = Modifier.focusRequester(firstFocus).testTag(GO_TO_DETAILS_BUTTON_TAG)
-            )
-            MenuButton(title = REMOVE_TITLE, onClick = onRemove, modifier = Modifier.testTag(REMOVE_BUTTON_TAG))
-            MenuButton(title = CANCEL_TITLE, onClick = onDismiss)
+private fun CardCaptions(card: WatchingCard) {
+    Column(verticalArrangement = Arrangement.spacedBy(TITLE_TO_DETAILS)) {
+        Text(text = card.title, style = CAPTION_TITLE, color = TvColors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        ProvideTextStyle(CAPTION_DETAILS) {
+            FactLine(facts = card.details)
         }
-    }
-    LaunchedEffect(Unit) {
-        withFrameNanos {}
-        firstFocus.requestFocus()
-    }
-}
-
-@Composable
-private fun MenuButton(title: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Button(
-        onClick = onClick,
-        colors = TvGlass.buttonColors(),
-        scale = TvGlass.buttonScale(),
-        shape = TvGlass.pillShape(),
-        contentPadding = TvGlass.pillPadding,
-        modifier = modifier.fillMaxWidth().height(TvControls.pillHeight)
-    ) {
-        Text(text = title)
     }
 }
 
 const val CONTINUE_WATCHING_CARD_TAG = "continue-watching-card"
-const val GO_TO_DETAILS_BUTTON_TAG = "continue-watching-go-to-details"
-const val REMOVE_BUTTON_TAG = "continue-watching-remove"
-const val REMOVE_TITLE = "Remove from Continue Watching"
-private const val CANCEL_TITLE = "Cancel"
 private const val WATCHING_CONTENT_TYPE = "watching"
 
-private const val DETAIL_SEPARATOR = " · "
-private const val BAND_REST_ALPHA = 0.75f
-private const val WATCHING_COLUMNS = 5
+/** tvOS ContinueWatchingCard: 400 pt wide, 16:9. */
+internal val WatchingArtSize = DpSize(200.dp, 112.5.dp)
 
-/**
- * 5 columns on the grid. Measured on `03-sidebar-down.png`: the card is 320 x 226 pt (the spec
- * says 320 x 180, which is only its 16:9 art); the band below the art is 46 pt.
- */
-internal val WatchingCardSize: DpSize = TvGrid.itemWidth(WATCHING_COLUMNS).let { width -> DpSize(width, width * 226 / 320) }
-private val WatchingArtHeight = WatchingCardSize.width * 9 / 16
-
-// Band measured on `03-sidebar-down.png`, pt / 2: text line centred 27 pt above the card's bottom;
-// play glyph 14 pt at x 14; progress bar 34 x 6 pt at x 36; label at x 79; label and glyph white
-// about 75% at rest, white on focus.
-private val BAND_HEIGHT = 27.dp
-private val BAND_START = 7.dp
-private val PLAY_GLYPH = 7.dp
-private val GLYPH_GAP = 4.25.dp
-private val BAR_WIDTH = 17.dp
-private val BAR_GAP = 4.5.dp
-private val PROGRESS_HEIGHT = 3.dp
-private val PROGRESS_TRACK = Color.White.copy(alpha = 0.35f)
-private val LOGO_INSET = 10.dp
-private val LOGO_MAX = DpSize(80.dp, 36.dp)
-private val TITLE_SHADOW = Shadow(color = Color.Black.copy(alpha = 0.6f), blurRadius = 4f)
-private val bandExtension = BandExtension(artAspect = 16f / 9f, shade = Color.Black.copy(alpha = 0.45f), underlay = TvColors.artworkPlaceholder)
-private val DIALOG_PADDING = 24.dp
-
-// Concentric with the capsule buttons: 16 dp pill radius + 24 dp padding.
-private val DIALOG_RADIUS = containerRadius(inner = TvControls.pillRadius, padding = DIALOG_PADDING)
+// tvOS pt / 2: the title starts 24 pt below the art (measured on the simulator), title 26 pt
+// semibold, details 22 pt regular at white 55%, 14 pt below the title.
+private val ART_TO_TITLE = 12.dp
+private val TITLE_TO_DETAILS = 7.dp
+private val CAPTION_TITLE = TvType.caption1.copy(fontWeight = FontWeight.SemiBold)
+private val CAPTION_DETAILS = TvType.overline.copy(fontWeight = FontWeight.Normal, color = Color.White.copy(alpha = 0.55f))

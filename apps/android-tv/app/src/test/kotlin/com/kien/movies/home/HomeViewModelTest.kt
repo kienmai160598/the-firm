@@ -102,12 +102,12 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun anEpisodeCardBandShowsTheEpisodeCodeAndTheTimeLeft() {
+    fun anEpisodeCardCaptionShowsTheSharedSubtitleAndTheTimeLeft() {
         val home = homeState(continueWatching = TvosContinueWatchingRow("Continue Watching", listOf(watching("k1"))))
 
         val details = homeUiState(home).watchingRows.single().cards.single().details
 
-        assertEquals(listOf("S1, E2", "20 min left"), details)
+        assertEquals(listOf("S1 E2", "20 min left"), details)
     }
 
     @Test
