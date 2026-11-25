@@ -50,6 +50,7 @@ import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
 import com.kien.movies.design.glassEdge
+import com.kien.movies.design.hangOutside
 import com.kien.movies.shell.upToNavPill
 
 /**
@@ -88,7 +89,7 @@ fun AddonInstallPanel(
             shape = TvGlass.pillShape(),
             border = TvGlass.buttonBorder(),
             contentPadding = TvGlass.pillPadding,
-            modifier = Modifier.height(TvControls.pillHeight).testTag(INSTALL_BUTTON_TAG)
+            modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight).testTag(INSTALL_BUTTON_TAG)
         ) {
             if (state.isInstalling) {
                 Text(text = "Installing", style = TvType.bodyEmphasized)
@@ -105,7 +106,7 @@ fun AddonInstallPanel(
             shape = TvGlass.pillShape(),
             border = TvGlass.buttonBorder(),
             contentPadding = TvGlass.pillPadding,
-            modifier = Modifier.height(TvControls.pillHeight).focusRequester(phoneButtonFocus).testTag(PHONE_BUTTON_TAG)
+            modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight).focusRequester(phoneButtonFocus).testTag(PHONE_BUTTON_TAG)
         ) {
             Icon(painter = painterResource(R.drawable.ic_addons_phone), contentDescription = null, modifier = Modifier.size(TvControls.glyph))
             Spacer(Modifier.size(GLYPH_GAP))
@@ -172,7 +173,7 @@ private fun ManifestUrlField(value: String, onValueChange: (String) -> Unit, onS
                 scale = TvGlass.surfaceScale(),
                 shape = TvGlass.surfaceShape(TvShapes.pill),
                 border = TvGlass.surfaceBorder(TvShapes.pill),
-                modifier = Modifier.fillMaxWidth().height(FIELD_HEIGHT).upToNavPill().testTag(URL_SURFACE_TAG)
+                modifier = Modifier.hangOutside(start = FIELD_PADDING, end = FIELD_PADDING).fillMaxWidth().height(FIELD_HEIGHT).upToNavPill().testTag(URL_SURFACE_TAG)
             ) {
                 Text(
                     text = value.ifEmpty { PLACEHOLDER },
@@ -196,6 +197,7 @@ private fun ManifestUrlField(value: String, onValueChange: (String) -> Unit, onS
 private fun FieldFrame(isPlaceholder: Boolean, field: @Composable () -> Unit) {
     Box(
         modifier = Modifier
+            .hangOutside(start = FIELD_PADDING, end = FIELD_PADDING)
             .fillMaxWidth()
             .height(FIELD_HEIGHT)
             .background(TvColors.platter, TvShapes.pill)

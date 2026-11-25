@@ -69,7 +69,10 @@ private fun Trailing(value: String?, @DrawableRes icon: Int?) {
 
 // Measured on an Apple TV 4K screenshot of this list, halved (dp = pt / 2).
 private const val SECONDARY_ALPHA = 0.6f
-private val TITLE_INSET = 10.dp
+
+/** Where a row's title starts inside its platter; plain text above or below the rows starts here too. */
+internal val SETTINGS_ROW_TITLE_INSET = 10.dp
+private val TITLE_INSET = SETTINGS_ROW_TITLE_INSET
 private val GLYPH_INSET = 4.dp
 private val VALUE_GAP = 8.dp
 private val GLYPH = 22.dp

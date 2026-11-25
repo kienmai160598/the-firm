@@ -60,12 +60,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import coil3.request.ImageRequest
+import coil3.request.transformations
 import coil3.size.Precision
 import com.kien.movies.R
 import com.kien.movies.debug.DebugLaunch
 import com.kien.movies.design.ArtworkImage
 import com.kien.movies.design.BakedScrim
 import com.kien.movies.design.NoScrollSpec
+import com.kien.movies.design.TrimTransparentEdges
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvType
@@ -308,15 +310,19 @@ private fun Modifier.onSectionFocus(onFocused: () -> Unit): Modifier = onFocusCh
 
 private fun Modifier.sectionSpacing(): Modifier = padding(top = SECTION_GAP)
 
-/** One logo decode for the hero. */
+/**
+ * One logo decode for the hero, its transparent margin trimmed so the logo's ink starts on the
+ * Play button's edge, as on Home. Decoded at twice the logo box so the trimmed ink stays sharp
+ * once fitted to the box.
+ */
 @Composable
 private fun rememberLogoRequest(url: String?): ImageRequest? {
     val context = LocalContext.current
     val density = LocalDensity.current
     return remember(url, density) {
         url?.let { data ->
-            val (width, height) = with(density) { LOGO_DECODE.width.roundToPx() to LOGO_DECODE.height.roundToPx() }
-            ImageRequest.Builder(context).data(data).size(width, height).precision(Precision.EXACT).build()
+            val (width, height) = with(density) { (LOGO_DECODE.width * LOGO_DECODE_FACTOR).roundToPx() to (LOGO_DECODE.height * LOGO_DECODE_FACTOR).roundToPx() }
+            ImageRequest.Builder(context).data(data).size(width, height).precision(Precision.EXACT).transformations(TrimTransparentEdges).build()
         }
     }
 }
@@ -390,6 +396,7 @@ private val SCREEN_SIZE = DpSize(960.dp, 540.dp)
 // The hero's logo box (tvOS 720 x 220 pt). Decoded at exact precision, so a small logo is scaled up
 // to fit the box as tvOS `resizable().scaledToFit()` does, not left at its source size.
 private val LOGO_DECODE = DpSize(360.dp, 110.dp)
+private const val LOGO_DECODE_FACTOR = 2
 
 // tvOS: 56 pt between the sections, 8 pt between the tabs and the shelf, 80 pt under the last
 // plus the 60 pt bottom safe area the scroll view keeps;

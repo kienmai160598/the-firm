@@ -36,16 +36,10 @@ private struct HeroTitle: View {
     let logoUrl: String?
 
     var body: some View {
-        AsyncImage(url: logoUrl.flatMap(URL.init(string:))) { phase in
-            if let image = phase.image {
-                image.resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: 620, maxHeight: 200, alignment: .bottomLeading)
-            } else {
-                Text(name)
-                    .font(.system(size: 76, weight: .bold))
-                    .lineLimit(2)
-            }
+        TitleLogoImage(url: logoUrl, maxSize: CGSize(width: 620, height: 200)) {
+            Text(name)
+                .font(.system(size: 76, weight: .bold))
+                .lineLimit(2)
         }
         .accessibilityLabel(name)
     }

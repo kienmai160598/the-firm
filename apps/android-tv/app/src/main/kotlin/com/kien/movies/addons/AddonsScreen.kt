@@ -160,7 +160,7 @@ private fun InstalledList(
         verticalArrangement = Arrangement.spacedBy(ROW_GAP)
     ) {
         item(key = "header", contentType = "header") {
-            SectionTitle("Installed", spacingAfter = ROW_GAP)
+            SectionTitle("Installed", spacingAfter = ROW_GAP, modifier = Modifier.padding(start = LIST_ITEM_SIDE_PADDING))
         }
         items(addons, key = TvosAddon::manifestUrl, contentType = { "addon" }) { addon ->
             val requester = rowFocus.getOrPut(addon.manifestUrl) { FocusRequester() }
@@ -172,7 +172,7 @@ private fun InstalledList(
             )
         }
         item(key = "footer", contentType = "footer") {
-            Text(text = FOOTER, style = TvType.caption2, color = TvColors.textSecondary, modifier = Modifier.padding(top = FOOTER_TOP))
+            Text(text = FOOTER, style = TvType.caption2, color = TvColors.textSecondary, modifier = Modifier.padding(start = LIST_ITEM_SIDE_PADDING, top = FOOTER_TOP))
         }
     }
 }

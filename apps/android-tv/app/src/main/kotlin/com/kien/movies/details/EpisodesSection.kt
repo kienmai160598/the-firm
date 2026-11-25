@@ -91,7 +91,7 @@ internal fun SeasonPicker(seasons: List<TvosSeason>, selectedNumber: Int?, onSel
             .focusGroup()
             .testTag(SEASON_PICKER_TAG)
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = TvGrid.sideMargin, vertical = SEASON_ROW_PADDING_V),
+            .padding(start = TvGrid.sideMargin - SEASON_TAB_PADDING_H, end = TvGrid.sideMargin, top = SEASON_ROW_PADDING_V, bottom = SEASON_ROW_PADDING_V),
         horizontalArrangement = Arrangement.spacedBy(SEASON_TAB_GAP)
     ) {
         seasons.forEach { season ->

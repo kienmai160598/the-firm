@@ -47,7 +47,8 @@ import com.kien.movies.design.glassEdgeBorder
 internal fun SearchSuggestions(suggestions: List<SearchSuggestion>, onPick: (String) -> Unit, modifier: Modifier = Modifier) {
     LazyRow(
         modifier = modifier.focusRestorer().testTag(SEARCH_SUGGESTIONS_TAG),
-        contentPadding = PaddingValues(horizontal = TvGrid.sideMargin),
+        // The first capsule hangs out by its padding, so its glyph starts on the margin.
+        contentPadding = PaddingValues(start = TvGrid.sideMargin - CAPSULE_START, end = TvGrid.sideMargin),
         horizontalArrangement = Arrangement.spacedBy(CAPSULE_GAP)
     ) {
         items(suggestions, key = SearchSuggestion::text, contentType = { "suggestion" }) { suggestion ->

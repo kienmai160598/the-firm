@@ -50,8 +50,11 @@ import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvControls
+import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvSheet
 import com.kien.movies.design.TvType
 import com.kien.movies.design.glassEdge
 import com.kien.movies.design.glassEdgeBorder
@@ -264,8 +267,8 @@ private fun RemoveRecentSearchDialog(query: String, onRemove: () -> Unit, onDism
         val removeFocus = remember { FocusRequester() }
         Column(
             modifier = Modifier
-                .background(TvColors.dialogPanel, TvShapes.panel)
-                .glassEdge(TvShapes.panel, visible = true)
+                .background(TvColors.dialogPanel, DIALOG_SHAPE)
+                .glassEdge(DIALOG_SHAPE, visible = true)
                 .padding(DIALOG_PADDING),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(DIALOG_GAP)
@@ -283,8 +286,9 @@ private fun RemoveRecentSearchDialog(query: String, onRemove: () -> Unit, onDism
 private fun DialogButton(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Button(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.height(TvControls.pillHeight),
         shape = ButtonDefaults.shape(shape = TvShapes.pill),
+        contentPadding = TvGlass.pillPadding,
         colors = ButtonDefaults.colors(
             containerColor = TvColors.platter,
             contentColor = TvColors.textPrimary,
@@ -359,4 +363,7 @@ private val RESULT_ROW_GAP = 20.dp
 private val LIST_BOTTOM = 30.dp
 private val STATUS_MIN_HEIGHT = 150.dp
 private val DIALOG_PADDING = 24.dp
+
+// Concentric with the capsule buttons: 16 dp pill radius + 24 dp padding.
+private val DIALOG_SHAPE = TvSheet.shapeFor(DIALOG_PADDING)
 private val DIALOG_GAP = 12.dp

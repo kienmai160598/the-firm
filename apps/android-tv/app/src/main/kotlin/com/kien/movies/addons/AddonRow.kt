@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,13 +35,14 @@ import com.kien.movies.design.Focus
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
+import com.kien.movies.design.containerRadius
 import com.kien.movies.settings.SettingsRowColors
 import com.nuvio.tvos.TvosAddon
 
 /**
  * One installed addon (tvOS AddonRow.swift): logo, name and version, summary or error, capability
- * badges, and On, Off or Refreshing. A tv-material ListItem in [SettingsRowColors] with the panel
- * corner, so every secondary text takes its colour from the content colour.
+ * badges, and On, Off or Refreshing. A tv-material ListItem in [SettingsRowColors], so every
+ * secondary text takes its colour from the content colour. Its corner is concentric with the logo's.
  */
 @Composable
 fun AddonRow(addon: TvosAddon, onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -49,7 +51,7 @@ fun AddonRow(addon: TvosAddon, onClick: () -> Unit, modifier: Modifier = Modifie
         onClick = onClick,
         modifier = modifier.testTag(ADDON_ROW_TAG),
         colors = SettingsRowColors.listItem(),
-        shape = ListItemDefaults.shape(shape = TvShapes.panel),
+        shape = ListItemDefaults.shape(shape = ROW_SHAPE),
         scale = ListItemDefaults.scale(focusedScale = Focus.wideRowScale),
         leadingContent = { AddonLogo(url = addon.logoUrl, enabled = addon.enabled) },
         headlineContent = { TitleLine(addon) },
@@ -156,6 +158,12 @@ internal val ERROR_RED = Color(0xFFFF453A)
 private val SECONDARY_ALPHA = TvColors.textSecondary.alpha
 private const val DISABLED_ALPHA = 0.4f
 private val LOGO_SIZE = 48.dp
+
+// Concentric corners (design/Concentric.kt): the logo's card corner plus its inset from the row's
+// edge. The side inset is tv-material's ListItem content padding, 16 dp, and stays fixed; the top
+// inset grows with the summary lines, so the side one sets the corner: 8 + 16 = 24 dp.
+internal val LIST_ITEM_SIDE_PADDING = 16.dp
+private val ROW_SHAPE = RoundedCornerShape(containerRadius(inner = TvShapes.cardRadius, padding = LIST_ITEM_SIDE_PADDING))
 private val LOGO_SYMBOL = 20.dp
 private val SMALL_ICON = 14.dp
 private val DETAIL_GAP = 5.dp

@@ -31,6 +31,7 @@ struct StreamDetailSheet: View {
             }
             Button("Close", action: { dismiss() })
                 .padding(.top, 8)
+                .padding(.leading, -SystemButtonInset.horizontal)
         }
         .frame(maxWidth: 1300, alignment: .leading)
         .padding(64)

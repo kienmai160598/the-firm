@@ -45,6 +45,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -64,9 +65,11 @@ import com.kien.movies.design.Palette
 import com.kien.movies.design.Spacing
 import com.kien.movies.design.TextStyles
 import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvControls
 import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvType
+import com.kien.movies.design.containerRadius
 import com.kien.movies.design.darkGlassPanel
 import com.kien.movies.shell.AppRoute
 
@@ -279,11 +282,11 @@ private fun CardMenuDialog(card: WatchingCard, onGoToDetails: () -> Unit, onRemo
     Dialog(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
-                .darkGlassPanel()
+                .darkGlassPanel(cornerRadius = DIALOG_RADIUS)
                 .padding(DIALOG_PADDING),
             verticalArrangement = Arrangement.spacedBy(Spacing.textGapLarge)
         ) {
-            Text(text = card.title, style = TextStyles.body, color = Palette.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(text = card.title, style = TextStyles.body, color = Palette.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             MenuButton(
                 title = card.goToDetailsTitle,
                 onClick = onGoToDetails,
@@ -306,7 +309,8 @@ private fun MenuButton(title: String, onClick: () -> Unit, modifier: Modifier = 
         colors = TvGlass.buttonColors(),
         scale = TvGlass.buttonScale(),
         shape = TvGlass.pillShape(),
-        modifier = modifier.fillMaxWidth()
+        contentPadding = TvGlass.pillPadding,
+        modifier = modifier.fillMaxWidth().height(TvControls.pillHeight)
     ) {
         Text(text = title)
     }
@@ -346,3 +350,6 @@ private val LOGO_MAX = DpSize(80.dp, 36.dp)
 private val TITLE_SHADOW = Shadow(color = Color.Black.copy(alpha = 0.6f), blurRadius = 4f)
 private val bandExtension = BandExtension(artAspect = 16f / 9f, shade = Color.Black.copy(alpha = 0.45f), underlay = TvColors.artworkPlaceholder)
 private val DIALOG_PADDING = 24.dp
+
+// Concentric with the capsule buttons: 16 dp pill radius + 24 dp padding.
+private val DIALOG_RADIUS = containerRadius(inner = TvControls.pillRadius, padding = DIALOG_PADDING)

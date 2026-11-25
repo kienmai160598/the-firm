@@ -27,6 +27,7 @@ import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvControls
 import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvSheet
 import com.kien.movies.design.TvType
 import com.kien.movies.design.glassEdge
 
@@ -49,8 +50,8 @@ fun AddonDialog(
         Column(
             modifier = modifier
                 .width(width)
-                .background(TvColors.dialogPanel, TvShapes.panel)
-                .glassEdge(TvShapes.panel)
+                .background(TvColors.dialogPanel, DIALOG_SHAPE)
+                .glassEdge(DIALOG_SHAPE)
                 .padding(DIALOG_PADDING),
             verticalArrangement = Arrangement.spacedBy(DIALOG_GAP),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -96,4 +97,7 @@ fun dialogButtonTag(label: String): String = "addon-dialog-$label"
 
 private val DIALOG_WIDTH = 300.dp
 private val DIALOG_PADDING = 24.dp
+
+// Concentric with the capsule buttons: 16 dp pill radius + 24 dp padding.
+private val DIALOG_SHAPE = TvSheet.shapeFor(DIALOG_PADDING)
 private val DIALOG_GAP = 12.dp

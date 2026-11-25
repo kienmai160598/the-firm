@@ -58,7 +58,7 @@ private struct StreamAddonHeading: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.leading, 8)
+        .padding(.leading, StreamRow.contentLeading)
         .padding(.bottom, 4)
     }
 }
@@ -80,7 +80,7 @@ private struct StreamButton: View, Equatable {
             StreamRow(row: row, isChecking: isChecking, torrent: torrent)
         }
         .buttonStyle(.bordered)
-        .buttonBorderShape(.roundedRectangle(radius: 24))
+        .buttonBorderShape(.roundedRectangle(radius: StreamRow.buttonCornerRadius))
         .opacity(isDimmed ? Self.dimmedOpacity : 1)
         .animation(StreamsMotion.animation(reducesMotion: reducesMotion), value: isChecking)
         .animation(StreamsMotion.animation(reducesMotion: reducesMotion), value: isDimmed)

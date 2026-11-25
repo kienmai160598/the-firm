@@ -33,9 +33,8 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.design.TextStyles
 import com.kien.movies.design.TvColors
-import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
-import com.kien.movies.design.concentricRadius
+import com.kien.movies.design.containerRadius
 
 /**
  * The content of one stream button (tvOS StreamsRow.swift): resolution badge, name, up to four
@@ -187,9 +186,6 @@ private fun StreamRowProgressView(progress: StreamRowProgress) {
     }
 }
 
-/** The row button's corner (tvOS `.roundedRectangle(radius: 24)`), the outer radius of the row. */
-internal val STREAM_ROW_SHAPE = TvShapes.panel
-
 private const val MAX_CAPABILITIES = 4
 private val SECONDARY_ALPHA = TvColors.textSecondary.alpha
 private const val BADGE_FILL_ALPHA = 0.1f
@@ -200,6 +196,9 @@ private val RESOLUTION_TEXT = TvType.body.copy(fontSize = 14.sp, fontWeight = Fo
 private val ROW_HEIGHT = 52.dp // frame(height: 104)
 private val RESOLUTION_BADGE = DpSize(62.dp, 32.dp) // 124 x 64
 private val ROW_PADDING_H = 19.dp // padding(.horizontal, 8) plus the bordered button's 30
+
+/** Where a row's content (its resolution badge) starts inside the row button. */
+internal val STREAM_ROW_CONTENT_INSET = ROW_PADDING_H
 private val ROW_PADDING_V = 7.5.dp // the bordered button's 15
 private val ROW_GAP = 14.dp // HStack spacing 28
 private val TEXT_GAP = 4.dp // spacing 8 to 12
@@ -218,13 +217,15 @@ private val PROGRESS_GAP = 8.dp // HStack spacing 16
 private val PROGRESS_SPINNER = 14.dp
 private val PROGRESS_BAR_WIDTH = 130.dp // frame(width: 260)
 
-// Concentric corners (design/Concentric.kt). The badge sits 17.5 dp inside the row's edge (7.5 dp
-// padding plus (52 - 32) / 2), more than the row's 12 dp corner: the rule gives 12 - 17.5 < 0, so
-// the badge takes the tvOS radius, 14 pt, as its floor.
+// Concentric corners (design/Concentric.kt): outer radius = inner radius + padding. The badge keeps
+// the tvOS 14 pt corner and sits 17.5 dp inside the row's edge (7.5 dp padding plus (52 - 32) / 2),
+// so the row button's corner is 7 + 17.5 = 24.5 dp. The 19 dp side inset is within 1.5 dp of it.
+private val RESOLUTION_BADGE_RADIUS = 7.dp // cornerRadius 14
 private val RESOLUTION_BADGE_INSET = ROW_PADDING_V + (ROW_HEIGHT - RESOLUTION_BADGE.height) / 2
-private val RESOLUTION_BADGE_SHAPE = RoundedCornerShape(
-    concentricRadius(outer = TvShapes.panelRadius, inset = RESOLUTION_BADGE_INSET, minimum = 7.dp)
-)
+private val RESOLUTION_BADGE_SHAPE = RoundedCornerShape(RESOLUTION_BADGE_RADIUS)
+
+/** The row button's corner, the outer radius around the resolution badge. */
+internal val STREAM_ROW_SHAPE = RoundedCornerShape(containerRadius(inner = RESOLUTION_BADGE_RADIUS, padding = RESOLUTION_BADGE_INSET))
 
 // The tags sit in the text column, not nested in a corner, so the rule has nothing to derive
 // them from: they keep the tvOS 6 pt.

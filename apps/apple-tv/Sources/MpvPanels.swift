@@ -12,17 +12,18 @@ struct MpvTrackMenu: View {
 
     var body: some View {
         MpvMenuPanel(width: 560) {
-            MpvMenuHeader(title: kind.menuTitle)
+            MpvMenuHeader(title: kind.menuTitle, leading: MpvMenuMetrics.trackLabelLeading)
             if options.isEmpty {
                 Text("No \(kind.title.lowercased()) tracks")
                     .font(MpvMenuFont.row)
-                    .padding(.horizontal, MpvMenuMetrics.rowInset)
+                    .padding(.leading, MpvMenuMetrics.trackLabelLeading)
+                    .padding(.trailing, MpvMenuMetrics.rowInset)
                     .padding(.vertical, 18)
             }
             ScrollView {
                 rows
                     .padding(.vertical, 6)
-                    .padding(.horizontal, 4)
+                    .padding(.horizontal, MpvMenuMetrics.rowsInset)
                     .onGeometryChange(for: CGFloat.self) { proxy in
                         proxy.size.height
                     } action: { height in
@@ -97,11 +98,24 @@ private struct MpvSourceSummary: View {
 
 private enum MpvMenuMetrics {
     static let rowInset: CGFloat = 24
-    static let cornerRadius: CGFloat = 44
+    static let rowsInset: CGFloat = 4
+    static let rowLeading: CGFloat = 14
+    static let checkWidth: CGFloat = 30
+    static let checkGap: CGFloat = 16
+    /// Where a track row's label starts. The header and the empty line start there too, so plain
+    /// text and the text inside the rows share one edge and the focused capsule hangs out past it.
+    static let trackLabelLeading = rowsInset + rowLeading + checkWidth + checkGap
+    static let rowVertical: CGFloat = 16
+    static let panelPadding: CGFloat = 14
+    /// Concentric rule, outer radius = inner radius + padding: a one line row is a capsule, so the
+    /// panel's corner is half its height plus the panel's padding (about 45.5 pt).
+    static let cornerRadius = (rowVertical * 2 + MpvMenuFont.rowLineHeight) / 2 + panelPadding
 }
 
 private enum MpvMenuFont {
-    static let row = Font.system(size: 26, weight: .medium)
+    private static let rowSize: CGFloat = 26
+    static let row = Font.system(size: rowSize, weight: .medium)
+    static let rowLineHeight = UIFont.systemFont(ofSize: rowSize, weight: .medium).lineHeight
     static let detail = Font.system(size: 20, weight: .regular)
     static let header = Font.system(size: 23, weight: .medium)
 }
@@ -115,7 +129,7 @@ private struct MpvMenuPanel<Content: View>: View {
             content
         }
         .foregroundStyle(.primary)
-        .padding(14)
+        .padding(MpvMenuMetrics.panelPadding)
         .frame(width: width, alignment: .leading)
         .darkGlassPanel(cornerRadius: MpvMenuMetrics.cornerRadius)
         .focusSection()
@@ -124,12 +138,14 @@ private struct MpvMenuPanel<Content: View>: View {
 
 private struct MpvMenuHeader: View {
     let title: String
+    var leading = MpvMenuMetrics.rowInset
 
     var body: some View {
         Text(title)
             .font(MpvMenuFont.header)
             .foregroundStyle(.secondary)
-            .padding(.horizontal, MpvMenuMetrics.rowInset)
+            .padding(.leading, leading)
+            .padding(.trailing, MpvMenuMetrics.rowInset)
             .padding(.top, 10)
             .padding(.bottom, 6)
     }
@@ -149,10 +165,10 @@ private struct MpvTrackRow: View {
     let option: MpvTrackOption
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: MpvMenuMetrics.checkGap) {
             Image(systemName: "checkmark")
                 .font(.system(size: 24, weight: .semibold))
-                .frame(width: 30)
+                .frame(width: MpvMenuMetrics.checkWidth)
                 .opacity(option.isSelected ? 1 : 0)
             VStack(alignment: .leading, spacing: 2) {
                 Text(option.label)
@@ -184,9 +200,9 @@ private struct MpvMenuRowBody: View {
     var body: some View {
         configuration.label
             .foregroundStyle(isFocused ? AnyShapeStyle(Color.black) : AnyShapeStyle(.primary))
-            .padding(.leading, 14)
+            .padding(.leading, MpvMenuMetrics.rowLeading)
             .padding(.trailing, MpvMenuMetrics.rowInset)
-            .padding(.vertical, 16)
+            .padding(.vertical, MpvMenuMetrics.rowVertical)
             .background(Capsule().fill(.white.opacity(isFocused ? 1 : 0)))
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isFocused)

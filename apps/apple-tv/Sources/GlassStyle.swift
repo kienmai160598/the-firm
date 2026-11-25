@@ -1,5 +1,12 @@
 import SwiftUI
 
+/// The side padding the system puts between a `.bordered` or `.glass` button's edge and its
+/// label, measured at rest on the tvOS 27.2 simulator (edge to text 30 pt, 32 pt to the ink). A
+/// wrapper in a column of plain text hangs out by it, so its label starts on the column's edge.
+enum SystemButtonInset {
+    static let horizontal: CGFloat = 30
+}
+
 extension View {
     @ViewBuilder
     func glassPanel(cornerRadius: CGFloat) -> some View {

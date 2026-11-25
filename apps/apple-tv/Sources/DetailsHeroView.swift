@@ -93,18 +93,12 @@ private struct TitleArtwork: View {
     let logoUrl: String?
 
     var body: some View {
-        AsyncImage(url: logoUrl.flatMap(URL.init(string:))) { phase in
-            if let image = phase.image {
-                image.resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: 720, maxHeight: 220, alignment: .bottomLeading)
-            } else {
-                Text(name)
-                    .font(.system(size: 80, weight: .bold))
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.6)
-                    .frame(maxWidth: 1100, alignment: .leading)
-            }
+        TitleLogoImage(url: logoUrl, maxSize: CGSize(width: 720, height: 220)) {
+            Text(name)
+                .font(.system(size: 80, weight: .bold))
+                .lineLimit(2)
+                .minimumScaleFactor(0.6)
+                .frame(maxWidth: 1100, alignment: .leading)
         }
         .accessibilityLabel(name)
     }

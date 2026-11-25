@@ -2,6 +2,18 @@ import SwiftUI
 
 struct StreamRow: View {
     private static let height: CGFloat = 104
+    /// Vertical inset of the `.bordered` button around its label, measured on the capture (134 pt
+    /// button around the 104 pt row).
+    private static let buttonInset: CGFloat = 15
+    /// The `.bordered` button's side inset plus the row's own 8 pt: where the row's badge starts.
+    /// The addon heading above the rows starts there too, so the button hangs out past it.
+    static let contentLeading: CGFloat = SystemButtonInset.horizontal + horizontalPadding
+    private static let horizontalPadding: CGFloat = 8
+
+    /// The stream button's corner by the concentric rule, outer radius = inner radius + padding:
+    /// the badge's 14 pt plus its inset from the button's edge, 15 + (104 - 64) / 2 = 35 pt.
+    static let buttonCornerRadius = StreamResolutionBadge.cornerRadius
+        + buttonInset + (height - StreamResolutionBadge.size.height) / 2
 
     let row: StreamRowData
     let isChecking: Bool
@@ -19,7 +31,7 @@ struct StreamRow: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             trailing
         }
-        .padding(.horizontal, 8)
+        .padding(.horizontal, Self.horizontalPadding)
         .frame(height: Self.height)
     }
 
@@ -36,6 +48,9 @@ struct StreamRow: View {
 }
 
 private struct StreamResolutionBadge: View {
+    static let size = CGSize(width: 124, height: 64)
+    static let cornerRadius: CGFloat = 14
+
     let resolution: String?
 
     var body: some View {
@@ -52,9 +67,9 @@ private struct StreamResolutionBadge: View {
             }
         }
         .lineLimit(1)
-        .frame(width: 124, height: 64)
+        .frame(width: Self.size.width, height: Self.size.height)
         .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
                 .fill(Color.primary.opacity(0.1))
         )
     }
