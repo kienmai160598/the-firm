@@ -7,13 +7,14 @@ README.md has the layout and every build command.
 ## Status
 
 - `apps/apple-tv` is the reference app. Its look and behaviour are the spec.
-- `apps/android-tv` is being rebuilt from scratch. The plan, acceptance criteria and slices are in
-  `docs/android-tv-rebuild.md`. The old app is deleted (slice A0) and kept under the git tag
-  `android-tv-legacy`: read it there for reference, never restore it.
-- The torrent engine is being rewritten in `engine/` (slices E0, E1, ...). Plan, decisions and
-  slices are in `docs/engine-rebuild.md`; read its section 1 and the slice row the same way.
-  Both apps run only this engine (E7a for tvOS, E7 for Android). Write no line from
-  `nuvio-engine`.
+- `apps/android-tv` mirrors it on Compose for TV. Home, Details, Streams, player, torrents,
+  Search, Addons and Settings are ported; next are box hardening (A13), cutover (A14) and owning
+  the core (A15). Plan, acceptance criteria and slices are in `docs/android-tv-rebuild.md`. The
+  previous Android app is kept under the git tag `android-tv-legacy`: read it there for
+  reference, never restore it.
+- The torrent engine in `engine/` (C++20 on libtorrent, payload in RAM) is ours, and both apps
+  run only it. Plan, decisions and the open slices (E2 planner, E3 retention, E4 state to UI)
+  are in `docs/engine-rebuild.md`; read its section 1 and the slice row the same way.
 
 ## Working on a slice
 
@@ -30,8 +31,8 @@ README.md has the layout and every build command.
 
 - Not pixels, not a platform API: it goes to Kotlin in `shared/`, once, for both apps
   (`shared/tv-api` after slice A1, `shared/apple-tv-bridge/src/tvosMain` until then).
-- `shared/core` is upstream NuvioMobile code. Do not edit it for a TV feature; split a UI file
-  with a patch in the style of `shared/apple-tv-bridge/upstream-prs/`.
+- `shared/core` is the forked core logic. Until slice A15 lands, do not edit it for a TV feature;
+  split a UI file with a patch in the style of `shared/apple-tv-bridge/upstream-prs/`.
 - Android files mirror the Swift file names (`HomeHero.swift` becomes `HomeHero.kt`,
   `*Model.swift` becomes `*ViewModel.kt`), so the same feature is easy to find on both sides.
   The full tree and the name mapping table are in section 3 of `docs/android-tv-rebuild.md`.
