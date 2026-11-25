@@ -31,6 +31,7 @@ final class HeroTrailer: ObservableObject {
     private var resolution: TvosCancellable?
     private var source: TrailerPlayerItem?
     private var letterbox: HeroLetterbox?
+    private var nowPlaying: TrailerNowPlaying?
     private var observers: Set<AnyCancellable> = []
 
     func picture(for itemId: String) -> HeroTrailerPicture? {
@@ -117,6 +118,7 @@ final class HeroTrailer: ObservableObject {
         let size = player.currentItem?.presentationSize ?? .zero
         Self.log.notice("Trailer shows at \(String(describing: size), privacy: .public)")
         isShowing = true
+        nowPlaying = TrailerNowPlaying(player: player)
         fadeInTask = Task { await TrailerVolume.ramp(player, to: 1, over: Self.fadeInDuration) }
     }
 
@@ -133,6 +135,7 @@ final class HeroTrailer: ObservableObject {
         fadeInTask = nil
         letterbox?.stop()
         letterbox = nil
+        nowPlaying = nil
         isShowing = false
         guard let fading = player else { return }
         Task { [weak self] in
