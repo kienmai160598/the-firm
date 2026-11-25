@@ -24,7 +24,8 @@ struct StreamsView: View {
                 target: model.target,
                 resume: playback.directResume,
                 sourceCount: model.sourceCount,
-                searchingAddonCount: model.searchingAddonCount
+                searchingAddonCount: model.searchingAddonCount,
+                isResumingLastLink: playback.checkingStreamKey == TvosLastLink.shared.RECALLED_KEY
             )
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -56,6 +57,7 @@ struct StreamsView: View {
         .onAppear {
             model.observe()
             playback.loadDirectResume()
+            playback.playLastLink()
         }
         .onDisappear {
             model.stop()

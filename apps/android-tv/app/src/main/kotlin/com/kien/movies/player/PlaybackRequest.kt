@@ -25,4 +25,9 @@ data class PlaybackRequest(
 }
 
 /** Why playback ended early; Streams shows it in the stream's info sheet (AC P4, S4). */
-data class StreamNotice(val title: String, val message: String)
+data class StreamNotice(val title: String, val message: String) {
+    companion object {
+        /** A Continue Watching card's last link did not play (AC H4): the list is the way on. */
+        fun lastLinkFailed(reason: StreamNotice?): StreamNotice = StreamNotice("The last link no longer plays", listOfNotNull("Pick a source from the list.", reason?.message).joinToString(" "))
+    }
+}

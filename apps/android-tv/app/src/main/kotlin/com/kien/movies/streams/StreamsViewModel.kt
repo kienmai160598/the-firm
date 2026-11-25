@@ -9,6 +9,8 @@ import com.kien.movies.player.PlaybackRequest
 import com.kien.movies.player.StreamNotice
 import com.kien.movies.torrent.TorrentSession
 import com.kien.movies.torrent.TorrentStartResult
+import com.nuvio.tvos.TvosLastLink
+import com.nuvio.tvos.TvosLastLinkAttempt
 import com.nuvio.tvos.TvosResumePoint
 import com.nuvio.tvos.TvosStream
 import com.nuvio.tvos.TvosStreamGroup
@@ -52,7 +54,10 @@ data class StreamsUiState(
     val sheet: StreamSheet? = null,
     val pendingResume: PendingResume? = null,
     val playback: PlaybackRequest? = null
-)
+) {
+    /** A Continue Watching card's last link is starting, before the player covers the list. */
+    val isResumingLastLink: Boolean get() = selection?.streamKey == TvosLastLink.RECALLED_KEY
+}
 
 /**
  * The streams of one movie or episode and the path from a press to the player (tvOS
@@ -60,12 +65,13 @@ data class StreamsUiState(
  * no engine preflight: "Checking stream" lasts while the resume point loads. A torrent first
  * starts in the engine, its progress on the row, and then plays from its local URL (AC T1).
  *
- * @param resumesDirectly opened from Continue Watching: the header shows the resume bar and a
- *   press resumes without asking.
+ * @param resumesDirectly opened from Continue Watching: the header shows the resume bar, a
+ *   press resumes without asking, and the link the title last played from plays at once (AC H4).
  */
 class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly: Boolean) : ViewModel() {
     private val interaction = MutableStateFlow(StreamsUiState())
     private val torrent = TorrentSession(viewModelScope)
+    private val lastLink = if (resumesDirectly) TvosLastLinkAttempt(target) else null
 
     private val content = BridgeFlows.streams(target)
         .map { streams -> streamsContent(streams, debugFixture()) }
@@ -78,6 +84,7 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
 
     init {
         loadDirectResume()
+        lastLink?.take()?.let(::select)
     }
 
     fun reload() {
@@ -119,7 +126,7 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
     fun playbackFailed(notice: StreamNotice) {
         interaction.update { state ->
             val stream = state.playback?.stream ?: return@update state
-            state.copy(playback = null, selection = null, sheet = StreamSheet(stream, notice))
+            state.copy(playback = null, selection = null, sheet = StreamSheet(stream, notice(stream, notice)))
         }
         torrent.stop()
         loadDirectResume()
@@ -150,7 +157,7 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
                 }
 
                 is TorrentStartResult.Failed -> interaction.update { state ->
-                    state.copy(selection = null, sheet = StreamSheet(stream, StreamNotice(TORRENT_FAILED_TITLE, result.message)))
+                    state.copy(selection = null, sheet = StreamSheet(stream, notice(stream, StreamNotice(TORRENT_FAILED_TITLE, result.message))))
                 }
             }
         }
@@ -190,10 +197,13 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
                 pendingResume = null,
                 selection = null,
                 playback = request,
-                sheet = if (request == null) StreamSheet(stream) else state.sheet
+                sheet = if (request == null) StreamSheet(stream, notice(stream, null)) else state.sheet
             )
         }
     }
+
+    /** [notice], or the last link's notice when [stream] was the last link (now forgotten). */
+    private fun notice(stream: TvosStream, notice: StreamNotice?): StreamNotice? = if (lastLink?.failed(stream.key) == true) StreamNotice.lastLinkFailed(notice) else notice
 
     private fun loadDirectResume() {
         if (!resumesDirectly) return

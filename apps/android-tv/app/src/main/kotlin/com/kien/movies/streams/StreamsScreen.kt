@@ -126,6 +126,7 @@ private fun StreamsPage(
             resume = state.directResume,
             sourceCount = groups?.sourceCount ?: 0,
             searchingAddonCount = groups?.searchingAddonCount ?: 0,
+            isResumingLastLink = state.isResumingLastLink,
             modifier = Modifier.padding(start = TvGrid.sideMargin, top = PAGE_TOP, bottom = TvInsets.verticalMargin)
         )
         // The body runs to the screen edges, its margins go inside it: the list scrolls under the

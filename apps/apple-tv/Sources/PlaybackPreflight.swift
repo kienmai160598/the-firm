@@ -4,6 +4,12 @@ import os
 struct StreamNotice: Equatable {
     let title: String
     let message: String
+
+    /// A Continue Watching card's last link did not play (AC H4): the list is the way on.
+    static func lastLinkFailed(_ reason: StreamNotice?) -> StreamNotice {
+        let message = ["Pick a source from the list.", reason?.message].compactMap { $0 }.joined(separator: " ")
+        return StreamNotice(title: "The last link no longer plays", message: message)
+    }
 }
 
 enum PlaybackPreflight {
