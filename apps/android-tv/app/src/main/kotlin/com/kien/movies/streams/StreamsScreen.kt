@@ -72,7 +72,9 @@ fun StreamsScreen(route: AppRoute.Streams, router: Router) {
     val playback = state.playback
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (playback == null) {
+        if (playback == null && state.isResumingLastLink) {
+            StreamsOpeningCover()
+        } else if (playback == null) {
             StreamsBackground(backdropUrl = viewModel.target.backdropUrl)
             StreamsPage(
                 viewModel = viewModel,
@@ -126,7 +128,6 @@ private fun StreamsPage(
             resume = state.directResume,
             sourceCount = groups?.sourceCount ?: 0,
             searchingAddonCount = groups?.searchingAddonCount ?: 0,
-            isResumingLastLink = state.isResumingLastLink,
             modifier = Modifier.padding(start = TvGrid.sideMargin, top = PAGE_TOP, bottom = TvInsets.verticalMargin)
         )
         // The body runs to the screen edges, its margins go inside it: the list scrolls under the

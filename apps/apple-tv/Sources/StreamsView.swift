@@ -24,14 +24,17 @@ struct StreamsView: View {
                 target: model.target,
                 resume: playback.directResume,
                 sourceCount: model.sourceCount,
-                searchingAddonCount: model.searchingAddonCount,
-                isResumingLastLink: playback.checkingStreamKey == TvosLastLink.shared.RECALLED_KEY
+                searchingAddonCount: model.searchingAddonCount
             )
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .animation(StreamsMotion.animation(reducesMotion: reducesMotion), value: model.phase)
+                .disabled(playback.isOpeningLastLink)
         }
         .background { StreamsBackground(backdropUrl: model.target.backdropUrl) }
+        .overlay {
+            if playback.isOpeningLastLink { StreamsOpeningCover() }
+        }
         .sheet(item: $playback.sheet) { sheet in
             StreamDetailSheet(stream: sheet.stream, notice: sheet.notice)
         }

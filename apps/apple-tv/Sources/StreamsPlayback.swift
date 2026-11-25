@@ -1,13 +1,6 @@
 import Foundation
 import NuvioTvShared
 
-struct StreamSheet: Identifiable {
-    let stream: TvosStream
-    let notice: StreamNotice?
-
-    var id: String { stream.key + (notice?.title ?? "") }
-}
-
 /// From a pressed row to the player: checks or starts the stream, asks where to start, and
 /// brings back the info sheet when playback fails.
 @MainActor
@@ -17,7 +10,12 @@ final class StreamsPlayback: ObservableObject {
     @Published var sheet: StreamSheet?
     @Published var pendingResume: PendingResume?
     @Published var playback: PlaybackRequest?
-    @Published private(set) var checkingStreamKey: String?
+    @Published private(set) var checkingStreamKey: String? {
+        didSet { if checkingStreamKey == nil { isOpeningLastLink = false } }
+    }
+    /// From Continue Watching with a last link: the screen shows the player's opening cover until
+    /// the player covers it or the link fails, so the list never shows on the way (AC H4).
+    @Published private(set) var isOpeningLastLink: Bool
     @Published private(set) var directResume: TvosResumePoint?
 
     let torrent = TorrentSession()
@@ -25,17 +23,21 @@ final class StreamsPlayback: ObservableObject {
     private let target: TvosStreamTarget
     private let resumesDirectly: Bool
     private let lastLink: TvosLastLinkAttempt?
+    private let lastLinkStream: TvosStream?
 
     init(target: TvosStreamTarget, resumesDirectly: Bool) {
         self.target = target
         self.resumesDirectly = resumesDirectly
         lastLink = resumesDirectly ? TvosLastLinkAttempt(target: target) : nil
+        lastLinkStream = lastLink?.take()
+        isOpeningLastLink = lastLinkStream != nil
     }
 
     /// From Continue Watching: plays the link the title last played from, if any.
     func playLastLink() {
-        guard let stream = lastLink?.take() else { return }
+        guard isOpeningLastLink, let stream = lastLinkStream else { return }
         select(stream)
+        if checkingStreamKey == nil { isOpeningLastLink = false }
     }
 
     func loadDirectResume() {

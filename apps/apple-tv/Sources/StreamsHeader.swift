@@ -17,8 +17,6 @@ struct StreamsHeader: View {
     let resume: TvosResumePoint?
     let sourceCount: Int
     let searchingAddonCount: Int
-    /// True while a Continue Watching card's last link loads, before the player covers the list.
-    let isResumingLastLink: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -37,14 +35,8 @@ struct StreamsHeader: View {
                 StreamsResumeView(resume: resume)
                     .padding(.top, 8)
             }
-            if isResumingLastLink {
-                Label { Text("Resuming the last source") } icon: { ProgressView() }
-                    .font(.system(size: 25, weight: .medium))
-                    .padding(.top, 24)
-            } else {
-                StreamsSourceSummary(sourceCount: sourceCount, searchingAddonCount: searchingAddonCount)
-                    .padding(.top, 24)
-            }
+            StreamsSourceSummary(sourceCount: sourceCount, searchingAddonCount: searchingAddonCount)
+                .padding(.top, 24)
         }
         .padding(Self.textInset)
         .frame(width: Self.width, alignment: .leading)

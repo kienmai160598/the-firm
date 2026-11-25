@@ -43,23 +43,22 @@ final class ContinueWatchingTests: XCTestCase {
         XCTAssertTrue(tv.waitForFocus(seriesCard, timeout: 10), "Focused: \(tv.focusedLabel)")
     }
 
-    func testInProgressCardResumesWithoutAskingWhereToStart() {
+    func testH4_anInProgressCardOpensThePlayerBehindTheOpeningCoverWithoutTheList() {
         tv.launch(route: Self.series)
         tv.playEpisode(from: "Play S1 E1", seconds: 6)
         tv.launch(keepingState: true)
         XCTAssertTrue(seriesCard.waitForExistence(timeout: 60))
-        XCTAssertTrue((seriesCard.value as? String ?? "").hasSuffix("left"))
         tv.focusCard(seriesCard)
-        tv.screenshot("home-cw-card")
+
         tv.remote.press(.select)
-        let stream = tv.button(containing: Self.episodeStream)
-        XCTAssertTrue(stream.waitForExistence(timeout: 30))
-        XCTAssertTrue(tv.text(beginningWith: "Resume from").waitForExistence(timeout: 10))
-        tv.screenshot("cw-streams-resume")
 
-        tv.select(stream)
-
-        XCTAssertFalse(tv.app.buttons["Start from beginning"].waitForExistence(timeout: 4))
+        let cover = tv.app.descendants(matching: .any)["streams-opening-cover"]
+        XCTAssertTrue(cover.waitForExistence(timeout: 5), "No opening cover")
+        XCTAssertFalse(tv.button(containing: Self.episodeStream).isHittable, "The list shows")
+        tv.screenshot("cw-opening-cover")
+        XCTAssertTrue(cover.waitForNonExistence(timeout: 30), "The player did not open")
+        XCTAssertFalse(tv.text(beginningWith: "The last link no longer plays").exists)
+        XCTAssertFalse(tv.app.buttons["Start from beginning"].exists)
     }
 
     func testRemovingAnInProgressSeriesFallsBackToNextUp() {

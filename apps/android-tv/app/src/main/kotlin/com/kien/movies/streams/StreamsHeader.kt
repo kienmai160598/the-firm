@@ -48,7 +48,6 @@ fun StreamsHeader(
     resume: TvosResumePoint?,
     sourceCount: Int,
     searchingAddonCount: Int,
-    isResumingLastLink: Boolean,
     modifier: Modifier = Modifier
 ) {
     BoxWithConstraints(modifier = modifier.width(STREAMS_HEADER_WIDTH).fillMaxHeight().clip(CardShape.shape)) {
@@ -69,15 +68,11 @@ fun StreamsHeader(
                 Text(text = subtitle, style = TvType.body, color = SUBTITLE_COLOR, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             resume?.let { point -> StreamsResume(point, Modifier.padding(top = RESUME_TOP)) }
-            if (isResumingLastLink) {
-                SpinnerLine(text = RESUMING_LAST_LINK, modifier = Modifier.padding(top = SUMMARY_TOP))
-            } else {
-                StreamsSourceSummary(
-                    sourceCount = sourceCount,
-                    searchingAddonCount = searchingAddonCount,
-                    modifier = Modifier.padding(top = SUMMARY_TOP)
-                )
-            }
+            StreamsSourceSummary(
+                sourceCount = sourceCount,
+                searchingAddonCount = searchingAddonCount,
+                modifier = Modifier.padding(top = SUMMARY_TOP)
+            )
         }
     }
 }
@@ -127,7 +122,6 @@ fun sourceCountText(sourceCount: Int): String = if (sourceCount == 1) "1 source"
 fun searchingText(addonCount: Int): String = if (addonCount == 1) "Searching 1 more addon" else "Searching $addonCount more addons"
 
 const val STREAMS_TITLE_TAG = "Streams"
-private const val RESUMING_LAST_LINK = "Resuming the last source"
 
 // tvOS literals, pt / 2.
 val STREAMS_HEADER_WIDTH = 320.dp // width 640
