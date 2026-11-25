@@ -17,9 +17,12 @@ struct HeroPage: View {
     let artExtension: CGFloat
 
     var body: some View {
-        HeroBackdrop(url: item.backdropUrl, trailer: trailer)
-            .padding(.bottom, -artExtension)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        Color.clear
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(alignment: .top) {
+                HeroBackdrop(url: item.backdropUrl, trailer: trailer)
+                    .padding(.bottom, -artExtension)
+            }
     }
 }
 
