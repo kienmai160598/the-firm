@@ -117,7 +117,9 @@ private fun MenuRow(title: String, icon: Int, onClick: () -> Unit, modifier: Mod
             pressedContainerColor = TvColors.focusedFill,
             pressedContentColor = tint.takeOrElse { TvColors.focusedContent }
         ),
-        scale = TvGlass.buttonScale(),
+        // No focus scale: a lifted row would reach into the panel's padding, so the gap around
+        // the focused row would differ from side to side (tvOS menu rows do not lift either).
+        scale = ButtonDefaults.scale(focusedScale = 1f),
         shape = TvGlass.pillShape(),
         contentPadding = TvGlass.pillPadding,
         modifier = modifier.fillMaxWidth().height(TvControls.pillHeight)
