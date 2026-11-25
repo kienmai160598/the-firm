@@ -9,6 +9,7 @@ struct PlaybackScreen: View {
         case .system:
             PlayerView(request: request, onFailure: onFailure)
                 .ignoresSafeArea()
+                .accessibilityIdentifier("system-player")
                 .overlay {
                     if let advisory = request.advisory {
                         PlaybackAdvisoryBanner(advisory: advisory, hasPlaybackStarted: true)

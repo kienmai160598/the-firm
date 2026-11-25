@@ -37,6 +37,15 @@ extension TvApp {
         XCTAssertTrue(saved.waitForExistence(timeout: 15), "Progress not saved")
     }
 
+    /// Presses Menu until the player has closed: AVPlayer takes the first press for its controls.
+    func leavePlayer() {
+        for _ in 0..<4 where player.exists {
+            remote.press(.menu)
+            _ = player.waitForNonExistence(timeout: 3)
+        }
+        XCTAssertFalse(player.exists, "The player is still open")
+    }
+
     func savedPrimary(replacing playedPrefix: String) -> XCUIElement {
         let saved = NSPredicate(
             format: "(label BEGINSWITH %@ OR label BEGINSWITH %@) AND NOT label BEGINSWITH %@",

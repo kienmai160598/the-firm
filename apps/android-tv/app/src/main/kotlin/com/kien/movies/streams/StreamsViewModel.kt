@@ -9,7 +9,6 @@ import com.kien.movies.player.PlaybackRequest
 import com.kien.movies.player.StreamNotice
 import com.kien.movies.torrent.TorrentSession
 import com.kien.movies.torrent.TorrentStartResult
-import com.nuvio.tvos.TvosLastLink
 import com.nuvio.tvos.TvosLastLinkAttempt
 import com.nuvio.tvos.TvosResumePoint
 import com.nuvio.tvos.TvosStream
@@ -53,11 +52,13 @@ data class StreamsUiState(
     val directResume: TvosResumePoint? = null,
     val sheet: StreamSheet? = null,
     val pendingResume: PendingResume? = null,
-    val playback: PlaybackRequest? = null
-) {
-    /** A Continue Watching card's last link is starting: the opening cover hides the list (AC H4). */
-    val isResumingLastLink: Boolean get() = selection?.streamKey == TvosLastLink.RECALLED_KEY
-}
+    val playback: PlaybackRequest? = null,
+    /**
+     * A Continue Watching card's last link starts or plays: the opening cover hides the list on
+     * the way in and out, until the link fails (AC H4).
+     */
+    val isOpeningLastLink: Boolean = false
+)
 
 /**
  * The streams of one movie or episode and the path from a press to the player (tvOS
@@ -84,7 +85,10 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
 
     init {
         loadDirectResume()
-        lastLink?.take()?.let(::select)
+        lastLink?.take()?.let { stream ->
+            interaction.update { state -> state.copy(isOpeningLastLink = true) }
+            select(stream)
+        }
     }
 
     fun reload() {
@@ -97,7 +101,7 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
         when (val press = streamPress(stream, isBusy)) {
             StreamPress.Ignored -> Unit
 
-            is StreamPress.OpensSheet -> interaction.update { state -> state.copy(sheet = press.sheet) }
+            is StreamPress.OpensSheet -> interaction.update { state -> state.copy(sheet = press.sheet, isOpeningLastLink = false) }
 
             is StreamPress.Checks -> {
                 interaction.update { state -> state.copy(selection = StreamSelection(stream.key, StreamRowProgress.checking)) }
@@ -126,17 +130,22 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
     fun playbackFailed(notice: StreamNotice) {
         interaction.update { state ->
             val stream = state.playback?.stream ?: return@update state
-            state.copy(playback = null, selection = null, sheet = StreamSheet(stream, notice(stream, notice)))
+            state.copy(playback = null, selection = null, isOpeningLastLink = false, sheet = StreamSheet(stream, notice(stream, notice)))
         }
         torrent.stop()
         loadDirectResume()
     }
 
-    /** The user left the player. */
-    fun playbackEnded() {
+    /**
+     * The user left the player. Returns true when Streams closes with it: it played the last link
+     * (AC H4), whose opening cover is still up, so the list never shows.
+     */
+    fun playbackEnded(): Boolean {
         interaction.update { state -> state.copy(playback = null, selection = null) }
         torrent.stop()
+        if (interaction.value.isOpeningLastLink) return true
         loadDirectResume()
+        return false
     }
 
     override fun onCleared() {
@@ -157,7 +166,11 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
                 }
 
                 is TorrentStartResult.Failed -> interaction.update { state ->
-                    state.copy(selection = null, sheet = StreamSheet(stream, notice(stream, StreamNotice(TORRENT_FAILED_TITLE, result.message))))
+                    state.copy(
+                        selection = null,
+                        isOpeningLastLink = false,
+                        sheet = StreamSheet(stream, notice(stream, StreamNotice(TORRENT_FAILED_TITLE, result.message)))
+                    )
                 }
             }
         }
@@ -186,7 +199,7 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
             start(pending.stream, resumes)
             return
         }
-        interaction.update { state -> state.copy(selection = null, pendingResume = pending) }
+        interaction.update { state -> state.copy(selection = null, isOpeningLastLink = false, pendingResume = pending) }
     }
 
     private fun start(stream: TvosStream, resumes: Boolean) {
@@ -197,7 +210,8 @@ class StreamsViewModel(val target: TvosStreamTarget, private val resumesDirectly
                 pendingResume = null,
                 selection = null,
                 playback = request,
-                sheet = if (request == null) StreamSheet(stream, notice(stream, null)) else state.sheet
+                sheet = if (request == null) StreamSheet(stream, notice(stream, null)) else state.sheet,
+                isOpeningLastLink = state.isOpeningLastLink && request != null
             )
         }
     }
