@@ -264,7 +264,7 @@ private fun RemoveRecentSearchDialog(query: String, onRemove: () -> Unit, onDism
         val removeFocus = remember { FocusRequester() }
         Column(
             modifier = Modifier
-                .background(DIALOG_PANEL, TvShapes.panel)
+                .background(TvColors.dialogPanel, TvShapes.panel)
                 .glassEdge(TvShapes.panel, visible = true)
                 .padding(DIALOG_PADDING),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -358,6 +358,5 @@ private val SECTION_TOP = 37.5.dp
 private val RESULT_ROW_GAP = 20.dp
 private val LIST_BOTTOM = 30.dp
 private val STATUS_MIN_HEIGHT = 150.dp
-private val DIALOG_PANEL = Color(0xFF1A1A1A)
 private val DIALOG_PADDING = 24.dp
 private val DIALOG_GAP = 12.dp

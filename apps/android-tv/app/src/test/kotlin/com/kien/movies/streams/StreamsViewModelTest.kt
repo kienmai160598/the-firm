@@ -20,6 +20,7 @@ class StreamsViewModelTest {
         val content = streamsContent(streams) as StreamsContent.Groups
 
         assertEquals(listOf("a"), content.groups.map(StreamGroupItem::addonId))
+        assertEquals(1, content.sourceCount)
         assertEquals(2, content.searchingAddonCount)
     }
 

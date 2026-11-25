@@ -2,7 +2,6 @@ import SwiftUI
 
 /// The pages of the Settings tab, in the order the list shows them.
 enum SettingsPage: String, CaseIterable, Hashable {
-    case account
     case playback
     case subtitles
     case addons
@@ -10,7 +9,6 @@ enum SettingsPage: String, CaseIterable, Hashable {
 
     var title: String {
         switch self {
-        case .account: "Account"
         case .playback: "Playback"
         case .subtitles: "Subtitles"
         case .addons: "Addons"
@@ -20,7 +18,6 @@ enum SettingsPage: String, CaseIterable, Hashable {
 
     var symbol: String {
         switch self {
-        case .account: "person.crop.circle"
         case .playback: "play.rectangle"
         case .subtitles: "captions.bubble"
         case .addons: "puzzlepiece.extension"
@@ -30,7 +27,6 @@ enum SettingsPage: String, CaseIterable, Hashable {
 
     var caption: String {
         switch self {
-        case .account: "Sign in to Trakt to sync what you watch, your watchlist and your progress."
         case .playback: "The audio language a film starts in."
         case .subtitles: "The subtitles a film starts with, or none."
         case .addons: "Install, order and turn off the addons that bring catalogs, streams and subtitles."
@@ -41,7 +37,6 @@ enum SettingsPage: String, CaseIterable, Hashable {
     @ViewBuilder
     var screen: some View {
         switch self {
-        case .account: AccountView()
         case .playback: LanguageSettingsView(kind: .audio)
         case .subtitles: LanguageSettingsView(kind: .subtitles)
         case .addons: AddonsView()

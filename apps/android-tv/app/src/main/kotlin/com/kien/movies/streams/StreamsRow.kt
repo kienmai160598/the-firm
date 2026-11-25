@@ -22,26 +22,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.design.TextStyles
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
+import com.kien.movies.design.concentricRadius
 
 /**
  * The content of one stream button (tvOS StreamsRow.swift): resolution badge, name, up to four
  * capability badges and the file line, then size, seeders and delivery, or the pressed row's
  * progress. Colours follow the button's content colour, so a focused row reads black on white.
+ *
+ * The padding is the bordered button's own (30 x 15 pt) plus the row's 8 pt, so the button is
+ * 134 pt tall around a 104 pt row, as measured on the tvOS capture.
  */
 @Composable
 fun StreamsRow(row: StreamRowItem, progress: StreamRowProgress?, modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier.fillMaxWidth().height(ROW_HEIGHT).padding(horizontal = ROW_PADDING),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = ROW_PADDING_H, vertical = ROW_PADDING_V)
+            .height(ROW_HEIGHT),
         horizontalArrangement = Arrangement.spacedBy(ROW_GAP),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -49,7 +59,7 @@ fun StreamsRow(row: StreamRowItem, progress: StreamRowProgress?, modifier: Modif
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(TEXT_GAP)) {
             Text(
                 text = row.oneLineName,
-                style = TvType.bodyEmphasized,
+                style = ROW_TITLE,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -75,11 +85,11 @@ private fun StreamResolutionBadge(resolution: String?) {
     Box(
         modifier = Modifier
             .size(RESOLUTION_BADGE)
-            .background(content.copy(alpha = BADGE_FILL_ALPHA), TvShapes.card),
+            .background(content.copy(alpha = BADGE_FILL_ALPHA), RESOLUTION_BADGE_SHAPE),
         contentAlignment = Alignment.Center
     ) {
         if (resolution != null) {
-            Text(text = resolution, style = TvType.bodyEmphasized, maxLines = 1)
+            Text(text = resolution, style = RESOLUTION_TEXT, maxLines = 1)
         } else {
             Icon(
                 painter = painterResource(R.drawable.ic_streams_no_resolution),
@@ -117,7 +127,7 @@ private fun StreamCapabilityBadge(text: String) {
     val color = LocalContentColor.current.copy(alpha = SECONDARY_ALPHA)
     Text(
         text = text,
-        style = TvType.overline,
+        style = TextStyles.badge,
         color = color,
         maxLines = 1,
         softWrap = false,
@@ -132,7 +142,7 @@ private fun StreamFacts(size: String?, seeders: Int?, isTorrent: Boolean) {
     val secondary = LocalContentColor.current.copy(alpha = SECONDARY_ALPHA)
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(TEXT_GAP)) {
         if (size != null) {
-            Text(text = size, style = TvType.caption1, maxLines = 1, softWrap = false)
+            Text(text = size, style = TvType.caption1.copy(fontWeight = FontWeight.SemiBold), maxLines = 1, softWrap = false)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(FACT_GAP), verticalAlignment = Alignment.CenterVertically) {
             if (seeders != null) StreamFact(R.drawable.ic_streams_seeders, seeders.toString(), secondary)
@@ -162,7 +172,7 @@ private fun StreamRowProgressView(progress: StreamRowProgress) {
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(PROGRESS_GAP), verticalAlignment = Alignment.CenterVertically) {
             StreamsSpinner(size = PROGRESS_SPINNER)
-            Text(text = progress.title, style = TvType.caption1, maxLines = 1)
+            Text(text = progress.title, style = TvType.caption1.copy(fontWeight = FontWeight.SemiBold), maxLines = 1)
         }
         progress.fraction?.let { fraction -> StreamsProgressBar(fraction = fraction, modifier = Modifier.width(PROGRESS_BAR_WIDTH)) }
         progress.detail?.let { detail ->
@@ -177,14 +187,20 @@ private fun StreamRowProgressView(progress: StreamRowProgress) {
     }
 }
 
+/** The row button's corner (tvOS `.roundedRectangle(radius: 24)`), the outer radius of the row. */
+internal val STREAM_ROW_SHAPE = TvShapes.panel
+
 private const val MAX_CAPABILITIES = 4
 private val SECONDARY_ALPHA = TvColors.textSecondary.alpha
 private const val BADGE_FILL_ALPHA = 0.1f
+private val ROW_TITLE = TvType.body.copy(fontWeight = FontWeight.SemiBold) // 29 pt semibold
+private val RESOLUTION_TEXT = TvType.body.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold) // 28 pt bold
 
 // tvOS literals, pt / 2.
-private val ROW_HEIGHT = 52.dp
-private val RESOLUTION_BADGE = DpSize(62.dp, 32.dp)
-private val ROW_PADDING = 10.dp // padding(.horizontal, 8) plus the bordered button's own inset
+private val ROW_HEIGHT = 52.dp // frame(height: 104)
+private val RESOLUTION_BADGE = DpSize(62.dp, 32.dp) // 124 x 64
+private val ROW_PADDING_H = 19.dp // padding(.horizontal, 8) plus the bordered button's 30
+private val ROW_PADDING_V = 7.5.dp // the bordered button's 15
 private val ROW_GAP = 14.dp // HStack spacing 28
 private val TEXT_GAP = 4.dp // spacing 8 to 12
 private val RESOLUTION_SYMBOL = 15.dp // 30 pt symbol
@@ -192,7 +208,6 @@ private val DETAIL_LINE_HEIGHT = 16.dp // frame(height: 32)
 private val BADGE_GAP = 5.dp // HStack spacing 10
 private val FILE_LINE_GAP = 3.dp // padding(.leading, 6)
 private val CAPABILITY_STROKE = 1.dp // lineWidth 1.5
-private val CAPABILITY_SHAPE = RoundedCornerShape(3.dp) // cornerRadius 6, like the Details tech badges
 private val CAPABILITY_PADDING_H = 5.dp // padding(.horizontal, 10)
 private val CAPABILITY_PADDING_V = 1.dp // padding(.vertical, 4), less so the badge fits the 16 dp line
 private val FACT_GAP = 9.dp // HStack spacing 18
@@ -202,3 +217,15 @@ private val PROGRESS_MAX_WIDTH = 210.dp // frame(maxWidth: 420)
 private val PROGRESS_GAP = 8.dp // HStack spacing 16
 private val PROGRESS_SPINNER = 14.dp
 private val PROGRESS_BAR_WIDTH = 130.dp // frame(width: 260)
+
+// Concentric corners (design/Concentric.kt). The badge sits 17.5 dp inside the row's edge (7.5 dp
+// padding plus (52 - 32) / 2), more than the row's 12 dp corner: the rule gives 12 - 17.5 < 0, so
+// the badge takes the tvOS radius, 14 pt, as its floor.
+private val RESOLUTION_BADGE_INSET = ROW_PADDING_V + (ROW_HEIGHT - RESOLUTION_BADGE.height) / 2
+private val RESOLUTION_BADGE_SHAPE = RoundedCornerShape(
+    concentricRadius(outer = TvShapes.panelRadius, inset = RESOLUTION_BADGE_INSET, minimum = 7.dp)
+)
+
+// The tags sit in the text column, not nested in a corner, so the rule has nothing to derive
+// them from: they keep the tvOS 6 pt.
+private val CAPABILITY_SHAPE = RoundedCornerShape(3.dp)
