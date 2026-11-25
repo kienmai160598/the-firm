@@ -95,7 +95,7 @@ fun StreamsScreen(route: AppRoute.Streams, router: Router) {
     }
     state.sheet?.let { sheet -> StreamDetailSheet(sheet = sheet, onClose = viewModel::closeSheet) }
     state.pendingResume?.let { pending ->
-        StreamsResumeDialog(title = viewModel.target.title, pending = pending, onAnswer = viewModel::answerResume)
+        StreamsResumeDialog(pending = pending, onAnswer = viewModel::answerResume)
     }
 }
 
@@ -124,7 +124,7 @@ private fun StreamsPage(
             resume = state.directResume,
             sourceCount = groups?.sourceCount ?: 0,
             searchingAddonCount = groups?.searchingAddonCount ?: 0,
-            modifier = Modifier.padding(start = TvGrid.sideMargin, top = PAGE_TOP)
+            modifier = Modifier.padding(start = TvGrid.sideMargin, top = PAGE_TOP, bottom = TvInsets.verticalMargin)
         )
         // The body runs to the screen edges, its margins go inside it: the list scrolls under the
         // top edge and a focused row's scale is not clipped. No cross fade between the bodies
@@ -169,11 +169,11 @@ private fun PlayerCover(request: PlaybackRequest, onFailure: (StreamNotice) -> U
 }
 
 /**
- * Resume or Start Over (tvOS confirmationDialog titled with the title, S5). The labels come from
+ * Resume or Start Over (tvOS confirmationDialog with its title hidden, S5). The labels come from
  * Kotlin. Back closes it without playing; there is no Cancel button, as Android TV asks.
  */
 @Composable
-private fun StreamsResumeDialog(title: String, pending: PendingResume, onAnswer: (Boolean?) -> Unit) {
+private fun StreamsResumeDialog(pending: PendingResume, onAnswer: (Boolean?) -> Unit) {
     val resumeFocus = remember { FocusRequester() }
     Dialog(onDismissRequest = { onAnswer(null) }) {
         LaunchedEffect(pending) {
@@ -190,14 +190,6 @@ private fun StreamsResumeDialog(title: String, pending: PendingResume, onAnswer:
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(DIALOG_GAP)
         ) {
-            Text(
-                text = title,
-                style = TvType.headline,
-                color = TvColors.textPrimary,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
             DialogButton(
                 text = pending.point.label,
                 onClick = { onAnswer(true) },
