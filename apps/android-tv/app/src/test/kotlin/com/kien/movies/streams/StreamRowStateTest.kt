@@ -61,26 +61,19 @@ class StreamRowStateTest {
     }
 
     @Test
-    fun s2_aRowReadsItsNameOnOneLineAndTheFirstOtherLineAsTheFile() {
+    fun s2_aRowReadsItsNameOnOneLineAndEndsItsTagsWithTheFileFormat() {
         val row = streamRowItem(
             stream(
                 "a#0",
                 name = "Torrentio\n4k DV | HDR",
-                detail = "Movie.2024.2160p.REMUX.HEVC-GRP\n👤 154 💾 58.3 GB"
+                detail = "Movie.2024.2160p.REMUX.HEVC-GRP.mkv\n👤 154 💾 58.3 GB"
             )
         )
 
         assertEquals("Torrentio   4k DV | HDR", row.oneLineName)
-        assertEquals("Movie.2024.2160p.REMUX.HEVC-GRP", row.fileLine)
+        assertEquals(listOf("Dolby Vision", "HDR", "HEVC", "REMUX", "MKV"), row.tags)
         assertEquals("4K", row.features.resolution)
         assertEquals(154, row.features.seeders)
-    }
-
-    @Test
-    fun theAddonFileNameWinsAsTheFileLine() {
-        val row = streamRowItem(stream("a#0", detail = "Some detail", filename = "Movie.mkv"))
-
-        assertEquals("Movie.mkv", row.fileLine)
     }
 
     private fun torrentStatus(step: String?, peers: Int, seeds: Int, speed: String, buffer: Float) = TvosTorrentStatus(

@@ -6,6 +6,7 @@ import com.nuvio.tvos.TvosResumePoint
 import com.nuvio.tvos.TvosStream
 import com.nuvio.tvos.TvosTorrentStatus
 import com.nuvio.tvos.rules.StreamFeatures
+import com.nuvio.tvos.rules.StreamFileFormat
 
 // The rows' state and the rule for a press (tvOS StreamsRow.swift, StreamGroupList.swift and the
 // select path of StreamsView.swift). Row states, docs/android-tv-rebuild.md section 3:
@@ -44,7 +45,8 @@ data class StreamRowItem(
     val stream: TvosStream,
     val features: StreamFeatures,
     val oneLineName: String,
-    val fileLine: String?
+    /** Up to four capabilities, then the file format (MKV, MP4, HLS), as the tag line shows them. */
+    val tags: List<String>
 ) {
     val key: String get() = stream.key
     val isTorrent: Boolean get() = stream.infoHash != null
@@ -90,16 +92,19 @@ fun streamPress(stream: TvosStream, isBusy: Boolean): StreamPress = when {
 }
 
 /** The row for [stream], with the addon text read once. */
-fun streamRowItem(stream: TvosStream): StreamRowItem = StreamRowItem(
-    stream = stream,
-    features = StreamFeatures.parse(
+fun streamRowItem(stream: TvosStream): StreamRowItem {
+    val features = StreamFeatures.parse(
         texts = listOfNotNull(stream.name, stream.title, stream.detail, stream.filename),
         providedBadges = stream.badges,
         providedSize = stream.sizeLabel
-    ),
-    oneLineName = oneLineName(stream.name),
-    fileLine = fileLine(stream)
-)
+    )
+    return StreamRowItem(
+        stream = stream,
+        features = features,
+        oneLineName = oneLineName(stream.name),
+        tags = features.capabilities.take(MAX_CAPABILITIES) + listOfNotNull(StreamFileFormat.of(stream))
+    )
+}
 
 /**
  * An addon's multi line name ("Torrentio\n4k") on one line, its parts three spaces apart, as the
@@ -107,10 +112,4 @@ fun streamRowItem(stream: TvosStream): StreamRowItem = StreamRowItem(
  */
 fun oneLineName(name: String): String = name.lines().map(String::trim).filter(String::isNotEmpty).joinToString("   ")
 
-private fun fileLine(stream: TvosStream): String? {
-    stream.filename?.takeIf(String::isNotEmpty)?.let { return it }
-    return listOfNotNull(stream.title, stream.detail)
-        .flatMap(String::lines)
-        .map(String::trim)
-        .firstOrNull { line -> line.isNotEmpty() && line != stream.name }
-}
+private const val MAX_CAPABILITIES = 4
