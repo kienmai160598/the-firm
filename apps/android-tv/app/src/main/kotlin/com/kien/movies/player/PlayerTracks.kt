@@ -51,6 +51,11 @@ internal object PlayerTracks {
         return listOf(off) + embedded + notLoaded
     }
 
+    /** The language codes of the file's subtitle tracks, before any online subtitle is loaded. */
+    fun embeddedSubtitleLanguages(tracks: Tracks): List<String> = tracks.groups
+        .filter { group -> group.type == C.TRACK_TYPE_TEXT }
+        .flatMap { group -> (0 until group.length).mapNotNull { index -> group.getTrackFormat(index).language } }
+
     /** Parameters that select [optionId] of [kind]; null when the id is not an embedded track. */
     fun selecting(kind: TrackKind, optionId: String, tracks: Tracks, current: TrackSelectionParameters): TrackSelectionParameters? {
         if (optionId == OFF_ID) {
