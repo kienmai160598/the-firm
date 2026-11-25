@@ -1,10 +1,25 @@
 import SwiftUI
 import NuvioTvShared
 
-/// What the card's context menu asks for. Both take the card off the row.
+/// What the card's context menu asks for. Mark as Watched and Remove take the card off the row;
+/// Go to Details opens the title's Details and leaves the card where it is (W5).
 enum ContinueWatchingAction {
+    case goToDetails
     case markWatched
     case remove
+}
+
+extension TvosContinueWatchingItem {
+    /// The show's Details for an episode card, the movie's for a movie card. Details opens on the
+    /// season of its play action, which is this card's episode.
+    var detailsRoute: AppRoute {
+        .details(type: target.type, id: target.parentMetaId)
+    }
+
+    /// "Go to Show" or "Go to Movie", with the kind rule of `HomeHeroInfo`.
+    var goToDetailsTitle: String {
+        target.type == "series" ? "Go to Show" : "Go to Movie"
+    }
 }
 
 struct ContinueWatchingRowView: View {
@@ -12,6 +27,7 @@ struct ContinueWatchingRowView: View {
     var focusRequest: String?
     var onFocusRequestHandled: () -> Void = {}
     let onAction: (TvosContinueWatchingItem, ContinueWatchingAction) -> Void
+    @EnvironmentObject private var router: Router
     @FocusState private var focusedKey: String?
     @State private var pendingAction: (item: TvosContinueWatchingItem, action: ContinueWatchingAction)?
 
@@ -44,10 +60,15 @@ struct ContinueWatchingRowView: View {
         onFocusRequestHandled()
     }
 
-    /// The card leaves the row, so focus goes to its neighbour first instead of the sidebar.
+    /// Details opens once focus is back on the card, so Back returns to it (N4). A card that
+    /// leaves the row moves focus to its neighbour first instead of the sidebar.
     private func runPendingActionAfterMenuClosed() {
         guard let pending = pendingAction else { return }
         pendingAction = nil
+        if case .goToDetails = pending.action {
+            router.open(pending.item.detailsRoute)
+            return
+        }
         let keys = row.items.map(\.key)
         if let neighbor = RowNeighbor.key(beside: pending.item.key, in: keys) {
             focusedKey = neighbor
@@ -81,6 +102,9 @@ private struct ContinueWatchingCard: View {
         .buttonStyle(.borderless)
         .cardButtonShape()
         .contextMenu {
+            Button(item.goToDetailsTitle, systemImage: "info.circle") {
+                onAction(item, .goToDetails)
+            }
             if item.canMarkWatched {
                 Button(Self.markWatchedTitle, systemImage: "checkmark.circle") {
                     onAction(item, .markWatched)

@@ -128,6 +128,15 @@ data class WatchingCard(
 ) {
     /** Resumes without asking, as tvOS does (AC H4). */
     val route: AppRoute.Streams get() = AppRoute.Streams(target = target, resumesDirectly = true)
+
+    /**
+     * The show's Details for an episode card, the movie's for a movie card (AC W5). Details opens on
+     * the season of its play action, which is this card's episode.
+     */
+    val detailsRoute: AppRoute.Details get() = AppRoute.Details(type = target.type, id = target.parentMetaId)
+
+    /** "Go to Show" or "Go to Movie", with the kind rule of [kindLabel] (tvOS `goToDetailsTitle`). */
+    val goToDetailsTitle: String get() = if (target.type == "series") "Go to Show" else "Go to Movie"
 }
 
 internal const val HERO_MAX_ITEMS = 6
