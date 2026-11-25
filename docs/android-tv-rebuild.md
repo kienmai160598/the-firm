@@ -504,8 +504,8 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | S5 | With a resume point, a dialog offers Resume or Start Over; it shows no title |
 | S6 | The pressed row shows "Checking stream", the other rows dim |
 | P1 | Direct MP4, MKV and HLS streams play |
-| P2 | Skip 10 s, presses add up, controls hide after 5 s |
-| P3 | Progress is saved and playback resumes after a relaunch |
+| P2 | Skip 10 s, presses add up, controls hide after 5 s. A skip lands on the keyframe past the 10 s mark in the direction of travel, so it can overshoot by up to one group of pictures and shows a frame at once, where an exact seek decodes the whole group first (2 to 3 s on a 4K file with 10 s groups). tvOS mpv does this with `seek relative`; ExoPlayer takes `NEXT_SYNC` forward and `PREVIOUS_SYNC` back for the skip only. A scrub commit stays exact on both |
+| P3 | Progress is saved and playback resumes after a relaunch. On Android the engine opens the stream at the saved position when the progress holds a position and its length (`ResumeStart`), so it buffers once and never loads the start of the file to throw it away; progress with a percent only still seeks once the length is known. tvOS needs no change: mpv seeks when the file is loaded, before it buffers |
 | P4 | No data for 20 s at start fails and saves nothing; a stall of 20 s mid play fails and keeps progress; both show the notice on Streams |
 | P5 | Audio menu reaches every track; subtitle menu has Off, embedded and online tracks (4 per language at most); Info shows the source (stream name, the Streams row's tags such as resolution, HDR and audio, then addon, size and torrent or direct) and the video, audio, audio output (route and player driver), decoder and buffer; no touch diagnostics |
 | P6 | The rating and genre advisory shows once for 6 s |
