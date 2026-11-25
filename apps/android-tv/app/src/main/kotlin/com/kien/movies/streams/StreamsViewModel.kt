@@ -55,7 +55,7 @@ data class StreamsUiState(
     val pendingResume: PendingResume? = null,
     val playback: PlaybackRequest? = null
 ) {
-    /** A Continue Watching card's last link is starting, before the player covers the list. */
+    /** A Continue Watching card's last link is starting: the opening cover hides the list (AC H4). */
     val isResumingLastLink: Boolean get() = selection?.streamKey == TvosLastLink.RECALLED_KEY
 }
 

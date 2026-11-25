@@ -1,6 +1,13 @@
 import SwiftUI
 import NuvioTvShared
 
+struct StreamSheet: Identifiable {
+    let stream: TvosStream
+    let notice: StreamNotice?
+
+    var id: String { stream.key + (notice?.title ?? "") }
+}
+
 struct StreamDetailSheet: View {
     private static let torrentNote =
         "This is a torrent. Movies on Apple TV streams it with its built-in torrent engine " +
