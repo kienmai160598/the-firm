@@ -14,6 +14,8 @@ final class MpvPlaybackController: ObservableObject {
     private static let seekStepSeconds = 10
     private static let minimumTickAdvanceMs: Int64 = 1000
     private static let endToleranceMs: Int64 = 5000
+    /// A position change larger than this between two time updates is a seek, not playback.
+    private static let positionJumpMs: Int64 = 2000
     private static let log = Logger(subsystem: "com.kien.movies.tvos", category: "Mpv")
     private static let notStarted = "The stream did not start within 60 seconds."
     private static let cannotCreate = "The video player could not be created."
@@ -37,6 +39,7 @@ final class MpvPlaybackController: ObservableObject {
     private var subtitleSearch: TvosCancellable?
     private var subtitleDownloads: [MpvSubtitleDownload] = []
     private let displayMatcher = MpvDisplayMatcher()
+    private var nowPlaying: MpvNowPlaying?
     private var lifecycleObservers: [NSObjectProtocol] = []
     private var currentMs: Int64 = 0
     private var durationMs: Int64 = 0
@@ -91,6 +94,8 @@ final class MpvPlaybackController: ObservableObject {
         [tickTask, startupTask, startTask].forEach { $0?.cancel() }
         subtitleSearch?.cancel()
         displayMatcher.reset()
+        nowPlaying?.clear()
+        nowPlaying = nil
         scrubber.stop()
         lifecycleObservers.forEach(NotificationCenter.default.removeObserver)
         lifecycleObservers = []
@@ -235,6 +240,23 @@ final class MpvPlaybackController: ObservableObject {
         guard !isFinished else { return }
         hasRequestedPlay = true
         mpv?.setFlag(MpvProperty.pause, false)
+        nowPlaying = MpvNowPlaying(
+            target: request.target,
+            commands: .init(
+                play: { [weak self] in self?.setPaused(false) },
+                pause: { [weak self] in self?.setPaused(true) },
+                togglePause: { [weak self] in self?.togglePause() }
+            )
+        )
+        publishNowPlaying()
+    }
+
+    private func publishNowPlaying() {
+        nowPlaying?.update(
+            positionSeconds: Double(currentMs) / 1000,
+            durationSeconds: Double(durationMs) / 1000,
+            isMoving: !isPaused && !isBuffering
+        )
     }
 
     /// mpv's audio output makes the shared audio session mixable with the default route sharing
@@ -261,12 +283,15 @@ final class MpvPlaybackController: ObservableObject {
     private func updateNumber(_ name: String, _ value: Double) {
         switch name {
         case MpvProperty.timePosition:
+            let previousMs = currentMs
             currentMs = Self.milliseconds(value)
             clock.setPosition(Int(currentMs / 1000))
             markPlayedIfMoving()
+            if abs(currentMs - previousMs) > Self.positionJumpMs { publishNowPlaying() }
         case MpvProperty.duration:
             durationMs = Self.milliseconds(value)
             clock.setDuration(Int(durationMs / 1000))
+            publishNowPlaying()
         case MpvProperty.cacheTime:
             clock.setBuffered(Int(value.isFinite ? max(value, 0) : 0))
         default:
@@ -280,9 +305,11 @@ final class MpvPlaybackController: ObservableObject {
             publish(\.isPaused, value)
             publish(\.isPausedByViewer, value && hasRequestedPlay)
             if value { save(syncRemote: true, reason: "pause") }
+            publishNowPlaying()
         case MpvProperty.pausedForCache:
             publish(\.isBuffering, value)
             markPlayedIfMoving()
+            publishNowPlaying()
         case MpvProperty.endReached:
             updateEnd(value)
         default:
