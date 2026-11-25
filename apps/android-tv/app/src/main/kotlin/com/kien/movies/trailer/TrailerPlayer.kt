@@ -9,6 +9,8 @@ import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.DecoderReuseEvaluation
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
@@ -25,7 +27,9 @@ import com.nuvio.tvos.TvosTrailerLink
  *   playlist down to its sharpest tier: ExoPlayer would otherwise start on the lowest one. The
  *   track selector limits it to the display's mode (its default viewport), so a 4K TV gets
  *   YouTube's 2160p VP9 when its decoder plays it and a 1080p box stays at 1080p.
- * - YouTube links go through [YoutubeChunkedDataSourceFactory], which YouTube does not throttle.
+ * - A direct YouTube file goes through [YoutubeChunkedDataSourceFactory], which YouTube does not
+ *   throttle. An HLS link does not: the factory adds a `range` query to every googlevideo.com
+ *   request, and YouTube answers an HLS segment that carries one with 400.
  * - A short buffer, for the box's 1.9 GB of RAM, and no audio focus: a trailer never pauses the
  *   music of another app.
  */
@@ -42,7 +46,7 @@ internal object TrailerPlayer {
         val player = ExoPlayer.Builder(context)
             .setTrackSelector(selector)
             .setLoadControl(buffer)
-            .setMediaSourceFactory(DefaultMediaSourceFactory(YoutubeChunkedDataSourceFactory()))
+            .setMediaSourceFactory(DefaultMediaSourceFactory(dataSource(link)))
             .setAudioAttributes(audio, false)
             .build()
         val item = MediaItem.Builder().setUri(link.url)
@@ -53,6 +57,8 @@ internal object TrailerPlayer {
         player.prepare()
         return player
     }
+
+    private fun dataSource(link: TvosTrailerLink): DataSource.Factory = if (link.isHls) DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true) else YoutubeChunkedDataSourceFactory()
 
     /** The variant the selector took, as tvOS logs "Trailer shows at". */
     private object LogsVideoFormat : AnalyticsListener {
