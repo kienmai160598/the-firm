@@ -21,20 +21,26 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Text
+import com.kien.movies.design.ShelfTitleLift
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvType
+import com.kien.movies.design.liftedBy
+import com.kien.movies.design.liftsShelfTitle
 import com.kien.movies.design.rememberInsetBringIntoViewSpec
+import com.kien.movies.design.rememberShelfTitleLift
 import com.kien.movies.shell.AppRoute
 
 /** A catalog shelf of posters on 6 columns (spec sections 1 and 3, "Shelf row"). */
 @Composable
 fun CatalogRow(row: CatalogRowState, focusMemory: HomeFocusMemory, onOpen: (AppRoute) -> Unit, modifier: Modifier = Modifier, titleTop: Dp = ShelfMetrics.titleTop) {
+    val lift = rememberShelfTitleLift(height = PosterSize.height)
     Column(modifier = modifier) {
-        ShelfHeader(row.title, titleTop = titleTop)
+        ShelfHeader(row.title, titleTop = titleTop, lift = lift)
         ShelfRow(rowKey = row.key, focusMemory = focusMemory) {
             items(row.items, key = PosterItem::metaId, contentType = { POSTER_CONTENT_TYPE }) { item ->
-                PosterCard(item = item, onOpen = onOpen, modifier = Modifier.rememberedFocus(focusMemory, cardFocusKey(row.key, item.metaId), row.key))
+                val cardModifier = Modifier.rememberedFocus(focusMemory, cardFocusKey(row.key, item.metaId), row.key).liftsShelfTitle(lift)
+                PosterCard(item = item, onOpen = onOpen, modifier = cardModifier)
             }
         }
     }
@@ -43,10 +49,10 @@ fun CatalogRow(row: CatalogRowState, focusMemory: HomeFocusMemory, onOpen: (AppR
 /**
  * A shelf title: Callout bold, secondary, at the side margin. Placed by its baseline:
  * [titleTop] below the end of the row above (or the hero), [ShelfMetrics.titleToCards] above the
- * cards.
+ * cards. [lift] moves it up while the card under it has focus.
  */
 @Composable
-fun ShelfHeader(title: String, modifier: Modifier = Modifier, titleTop: Dp = ShelfMetrics.titleTop) {
+fun ShelfHeader(title: String, modifier: Modifier = Modifier, titleTop: Dp = ShelfMetrics.titleTop, lift: ShelfTitleLift? = null) {
     Text(
         text = title,
         style = TvType.rowTitle,
@@ -55,6 +61,7 @@ fun ShelfHeader(title: String, modifier: Modifier = Modifier, titleTop: Dp = She
         overflow = TextOverflow.Ellipsis,
         modifier = modifier
             .padding(start = TvGrid.sideMargin, end = TvGrid.sideMargin)
+            .liftedBy(lift)
             .paddingFromBaseline(top = titleTop, bottom = ShelfMetrics.titleToCards)
     )
 }

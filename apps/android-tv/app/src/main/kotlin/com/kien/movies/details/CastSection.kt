@@ -44,9 +44,13 @@ import androidx.tv.material3.Text
 import coil3.request.ImageRequest
 import com.kien.movies.design.ArtworkImage
 import com.kien.movies.design.Focus
+import com.kien.movies.design.ShelfTitleLift
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvType
+import com.kien.movies.design.liftedBy
+import com.kien.movies.design.liftsShelfTitle
+import com.kien.movies.design.rememberShelfTitleLift
 import com.kien.movies.design.rememberStartAlignedRowSpec
 import com.nuvio.tvos.TvosCastMember
 
@@ -57,8 +61,9 @@ import com.nuvio.tvos.TvosCastMember
  */
 @Composable
 internal fun CastSection(cast: List<TvosCastMember>, modifier: Modifier = Modifier) {
+    val lift = rememberShelfTitleLift(height = CAST_SIDE, scale = CAST_FOCUS_SCALE)
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(CAST_TITLE_GAP)) {
-        ShelfHeader(title = CAST_TITLE)
+        ShelfHeader(title = CAST_TITLE, lift = lift)
         CompositionLocalProvider(LocalBringIntoViewSpec provides rememberStartAlignedRowSpec()) {
             LazyRow(
                 modifier = Modifier.focusRestorer().focusGroup().testTag(CAST_ROW_TAG),
@@ -67,17 +72,20 @@ internal fun CastSection(cast: List<TvosCastMember>, modifier: Modifier = Modifi
             ) {
                 // tvOS keys cast by position too: names repeat (one person, two roles).
                 itemsIndexed(cast, key = { index, _ -> index }, contentType = { _, _ -> CAST_CONTENT_TYPE }) { index, member ->
-                    CastCard(member = member, modifier = Modifier.testTag(castTag(index)))
+                    CastCard(member = member, modifier = Modifier.testTag(castTag(index)).liftsShelfTitle(lift))
                 }
             }
         }
     }
 }
 
-/** A section title as tvOS `ShelfHeader`: 31 pt semibold, white 60%, at the side margin. */
+/**
+ * A section title as tvOS `ShelfHeader`: 31 pt semibold, white 60%, at the side margin. [lift]
+ * moves it up while the card under it has focus.
+ */
 @Composable
-internal fun ShelfHeader(title: String, modifier: Modifier = Modifier) {
-    Text(text = title, style = SHELF_TITLE_STYLE, color = SHELF_TITLE_COLOR, maxLines = 1, modifier = modifier.padding(horizontal = TvGrid.sideMargin))
+internal fun ShelfHeader(title: String, modifier: Modifier = Modifier, lift: ShelfTitleLift? = null) {
+    Text(text = title, style = SHELF_TITLE_STYLE, color = SHELF_TITLE_COLOR, maxLines = 1, modifier = modifier.padding(horizontal = TvGrid.sideMargin).liftedBy(lift))
 }
 
 @Composable
