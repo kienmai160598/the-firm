@@ -63,6 +63,7 @@ private struct SeasonPicker: View {
             .padding(.vertical, 12)
         }
         .scrollClipDisabled()
+        .padding(.leading, -SystemButtonInset.horizontal)
         .focusSection()
         .onChange(of: focusedNumber, focusSelectedSeasonOnEntry)
     }

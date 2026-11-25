@@ -100,6 +100,7 @@ private struct RecentSearchesRow: View {
                 .padding(.vertical, 30)
             }
             .scrollClipDisabled()
+            .padding(.leading, -SystemButtonInset.horizontal)
         }
     }
 }

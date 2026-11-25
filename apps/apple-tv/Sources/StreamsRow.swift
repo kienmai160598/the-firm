@@ -5,10 +5,9 @@ struct StreamRow: View {
     /// Vertical inset of the `.bordered` button around its label, measured on the capture (134 pt
     /// button around the 104 pt row).
     private static let buttonInset: CGFloat = 15
-    /// The `.bordered` button's side inset (30 pt, measured like `buttonInset`) plus the row's own 8 pt: where the row's badge
-    /// starts. The addon heading above the rows starts there too, so the button hangs out past it.
-    static let contentLeading: CGFloat = borderedSideInset + horizontalPadding
-    private static let borderedSideInset: CGFloat = 30
+    /// The `.bordered` button's side inset plus the row's own 8 pt: where the row's badge starts.
+    /// The addon heading above the rows starts there too, so the button hangs out past it.
+    static let contentLeading: CGFloat = SystemButtonInset.horizontal + horizontalPadding
     private static let horizontalPadding: CGFloat = 8
 
     /// The stream button's corner by the concentric rule, outer radius = inner radius + padding:
