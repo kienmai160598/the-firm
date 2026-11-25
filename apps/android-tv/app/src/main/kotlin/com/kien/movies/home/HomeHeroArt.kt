@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +27,10 @@ import com.kien.movies.design.BakedScrim
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.rememberBakedImage
+import com.kien.movies.trailer.HeroTrailer
+import com.kien.movies.trailer.PlayTrailerWhile
+import com.kien.movies.trailer.TrailerBackdrop
+import com.nuvio.tvos.TvosTrailers
 
 /**
  * The hero's art, drawn behind Home's list as tvOS draws `HeroBackdrop` behind its shelves
@@ -33,32 +38,31 @@ import com.kien.movies.design.rememberBakedImage
  * shelf, with the tvOS shades and the bottom fade into the Home colour baked into the bitmap
  * ([BakedScrim.homeHero]). It moves with the list ([heroScroll], read in the draw phase), so the
  * rows slide over its faded end and no edge shows. Behind the list, it outlives the hero item,
- * which a lazy list drops once the slot has scrolled away while the art's end still shows.
+ * which a lazy list drops once the slot has scrolled away while the art's end still shows. The
+ * art fades into the focused item's [trailer] (AC H8).
  */
 @Composable
-fun HomeHeroArt(mode: HeroMode, items: List<HeroItem>, index: Int, listState: LazyListState) {
+fun HomeHeroArt(mode: HeroMode, items: List<HeroItem>, index: Int, listState: LazyListState, trailer: HeroTrailer) {
     val shown = shownHeroIndex(index, items.size)
     val item = items.getOrNull(shown)?.takeIf { mode == HeroMode.Featured } ?: return
     val heroHeight = with(LocalDensity.current) { HERO_SLOT_HEIGHT.toPx() }
-    HeroArt(item = item, dots = items.size, shownIndex = shown) {
+    HeroArt(item = item, dots = items.size, shownIndex = shown, trailer = trailer) {
         heroScroll(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset, heroHeight)
     }
 }
 
 @Composable
-private fun HeroArt(item: HeroItem, dots: Int, shownIndex: Int, heroScroll: () -> Float?) {
+private fun HeroArt(item: HeroItem, dots: Int, shownIndex: Int, trailer: HeroTrailer, heroScroll: () -> Float?) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(ART_HEIGHT)
             .graphicsLayer { translationY = -(heroScroll() ?: ART_HEIGHT.toPx()) }
     ) {
-        AsyncImage(
-            model = rememberBakedImage(item.backdropUrl, DpSize(ART_WIDTH, ART_HEIGHT), heroScrim),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
+        val model = rememberBakedImage(item.backdropUrl, DpSize(ART_WIDTH, ART_HEIGHT), heroScrim)
+        TrailerBackdrop(trailer = trailer, itemId = item.metaId, scrim = heroScrim, modifier = Modifier.fillMaxSize()) { imageModifier ->
+            AsyncImage(model = model, contentDescription = null, contentScale = ContentScale.Crop, modifier = imageModifier)
+        }
         if (dots > 1) {
             PageDots(
                 count = dots,
@@ -68,6 +72,20 @@ private fun HeroArt(item: HeroItem, dots: Int, shownIndex: Int, heroScroll: () -
                     .padding(top = DOTS_CENTRE_Y - DOTS_PLATTER_HEIGHT / 2)
             )
         }
+    }
+}
+
+/**
+ * The focused spotlight item's trailer plays after a second of focus on the hero (AC H8); the links
+ * of the item showing and the next one are looked up ahead.
+ */
+@Composable
+fun HeroTrailerFollowsFocus(trailer: HeroTrailer, mode: HeroMode, items: List<HeroItem>, index: Int, heroHasFocus: Boolean) {
+    val shown = shownHeroIndex(index, items.size)
+    val item = items.getOrNull(shown)?.takeIf { mode == HeroMode.Featured }
+    PlayTrailerWhile(trailer, item?.type, item?.metaId, isDue = heroHasFocus)
+    LaunchedEffect(item?.metaId) {
+        listOfNotNull(item, items.getOrNull(shown + 1)).forEach { next -> TvosTrailers.prefetch(next.type, next.metaId) }
     }
 }
 

@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +41,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
@@ -74,6 +74,10 @@ import com.kien.movies.design.TvType
 import com.kien.movies.design.rememberBakedImage
 import com.kien.movies.shell.AppRoute
 import com.kien.movies.shell.Router
+import com.kien.movies.trailer.HeroTrailer
+import com.kien.movies.trailer.PlayTrailerWhile
+import com.kien.movies.trailer.TrailerBackdrop
+import com.kien.movies.trailer.rememberHeroTrailer
 import com.nuvio.tvos.TvosMetaDetails
 import com.nuvio.tvos.TvosStreamTarget
 import kotlinx.coroutines.launch
@@ -101,9 +105,12 @@ fun DetailsScreen(route: AppRoute.Details, router: Router) {
     // entry comes back from Streams, the shell restores the focused element instead (AC D3).
     var placeholderHadFocus by remember { mutableStateOf(false) }
     val details = (state as? DetailsScreenState.Loaded)?.details
+    val trailer = rememberHeroTrailer()
+    // While Play or Library has focus, as tvOS (AC D6); it stops below the hero and when Streams opens.
+    PlayTrailerWhile(trailer, route.type, route.id, isDue = heroHasFocus && details != null)
 
     Box(modifier = Modifier.fillMaxSize()) {
-        details?.backdropUrl?.let { url -> DetailsBackdrop(url = url, isVisible = heroHasFocus) }
+        details?.backdropUrl?.let { url -> DetailsBackdrop(url = url, isVisible = heroHasFocus, trailer = trailer, itemId = route.id) }
         when (val current = state) {
             // One call site for both, so the one focusable node survives Loading to Error and back.
             DetailsScreenState.Loading, is DetailsScreenState.Error -> DetailsStatus(
@@ -130,22 +137,19 @@ fun DetailsScreen(route: AppRoute.Details, router: Router) {
     }
 }
 
-/** The full screen art with the leading and bottom shades baked in; fades out below the hero. */
+/**
+ * The full screen art with the leading and bottom shades baked in, faded into the title's
+ * [trailer] while the hero has focus; fades out below the hero.
+ */
 @Composable
-private fun DetailsBackdrop(url: String, isVisible: Boolean) {
-    val alpha by animateFloatAsState(if (isVisible) 1f else 0f, tween(BACKDROP_FADE_MILLIS), label = "backdrop")
-    if (alpha == 0f) return
+private fun DetailsBackdrop(url: String, isVisible: Boolean, trailer: HeroTrailer, itemId: String) {
+    val alpha = animateFloatAsState(if (isVisible) 1f else 0f, tween(BACKDROP_FADE_MILLIS), label = "backdrop")
+    val isGone by remember { derivedStateOf { alpha.value == 0f } }
+    if (isGone) return
     val request = rememberBakedImage(url, SCREEN_SIZE, BACKDROP_SCRIM)
-    ArtworkImage(
-        model = request,
-        modifier = Modifier
-            .fillMaxSize()
-            .graphicsLayer {
-                this.alpha = alpha
-                // One image: alpha on its draw, no offscreen buffer while it fades.
-                compositingStrategy = CompositingStrategy.ModulateAlpha
-            }
-    )
+    TrailerBackdrop(trailer = trailer, itemId = itemId, scrim = BACKDROP_SCRIM, modifier = Modifier.fillMaxSize(), opacity = { alpha.value }) { imageModifier ->
+        ArtworkImage(model = request, modifier = imageModifier)
+    }
 }
 
 @Composable

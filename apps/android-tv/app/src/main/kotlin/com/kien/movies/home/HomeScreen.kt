@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -33,6 +34,7 @@ import com.kien.movies.design.rememberInsetBringIntoViewSpec
 import com.kien.movies.shell.AppRoute
 import com.kien.movies.shell.ReportScrollToNavPill
 import com.kien.movies.shell.Router
+import com.kien.movies.trailer.rememberHeroTrailer
 
 /**
  * Home tab root (docs/tv-look-spec.md, section 4, "Home"): the hero, then Continue Watching and
@@ -68,6 +70,9 @@ private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove
     val homeFocus = remember { FocusRequester() }
     val mode = state.heroMode
     var heroIndex by rememberSaveable { mutableIntStateOf(0) }
+    var heroHasFocus by remember { mutableStateOf(false) }
+    val trailer = rememberHeroTrailer()
+    HeroTrailerFollowsFocus(trailer, mode, state.hero, heroIndex, heroHasFocus)
 
     LoseNoFocusWhenTheHeroGoes(mode, homeFocus)
 
@@ -79,7 +84,7 @@ private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove
             .focusProperties { onEnter = { focusMemory.restore() } }
             .focusGroup()
     ) {
-        HomeHeroArt(mode = mode, items = state.hero, index = heroIndex, listState = listState)
+        HomeHeroArt(mode = mode, items = state.hero, index = heroIndex, listState = listState, trailer = trailer)
         CompositionLocalProvider(LocalBringIntoViewSpec provides rememberInsetBringIntoViewSpec(leading = ROW_INSET)) {
             LazyColumn(
                 state = listState,
@@ -96,7 +101,8 @@ private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove
                             focusMemory = focusMemory,
                             onOpen = onOpen,
                             index = heroIndex,
-                            onIndexChange = { next -> heroIndex = next }
+                            onIndexChange = { next -> heroIndex = next },
+                            onFocusChange = { focused -> heroHasFocus = focused }
                         )
                     }
                 }

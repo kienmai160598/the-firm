@@ -178,7 +178,8 @@ Reference: `01-home.png`, `05-up-hero.png`, `13-details-top.png`.
   tvOS shows a blurred, dimmed backdrop under the sections; Android fades the backdrop out there
   (window colour), as a baked blurred copy cost too much on the box (see the Details KDoc).
 - Box: the scrim is baked into the backdrop bitmap once (`BakedScrim` Coil transformation, commit
-  `3b64836ac0`), never drawn per frame. Trailer autoplay stays off on the box (decode and fill cost).
+  `3b64836ac0`), never drawn per frame. Trailers play on a `SurfaceView` under the baked image (A16), so the
+  display composes the video and only the fading image and one scrim bitmap are drawn.
 
 ### Shelf row
 
@@ -298,5 +299,5 @@ caption band), a uniform 1.1 scale leaves top and bottom about 16 pt short.
 
 - Motion of the TV app itself: needs a capture card or a slow motion phone video (section 5).
 - Player chrome, Store, and a Library with content: not captured.
-- Trailer autoplay on the Home hero: the TV app does it; on the box it costs decode and fill. Off on
-  the box unless measured as affordable with `box/perf/measure.sh`.
+- Trailer autoplay on the Home hero and Details (A16): built on a `SurfaceView`; its decode and fill
+  cost on the box is still to be measured with `box/perf/measure.sh`.
