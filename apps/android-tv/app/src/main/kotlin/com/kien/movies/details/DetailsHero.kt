@@ -34,6 +34,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Button
@@ -47,6 +48,7 @@ import coil3.request.ImageRequest
 import com.kien.movies.R
 import com.kien.movies.design.Focus
 import com.kien.movies.design.MetadataLine
+import com.kien.movies.design.TitleLogo
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
@@ -71,46 +73,10 @@ internal fun DetailsHero(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(LOGO_GAP)) {
-        TitleArtwork(name = details.name, logo = logo)
+        TitleLogo(name = details.name, logo = logo, box = LOGO_BOX, textStyle = TITLE_STYLE, textMaxWidth = TITLE_MAX_WIDTH)
         Row(horizontalArrangement = Arrangement.spacedBy(ACTIONS_GAP), verticalAlignment = Alignment.Top) {
             details.primaryAction?.let { action -> PlayAction(action, playFocus, onOpen) }
             Summary(details)
-        }
-    }
-}
-
-/** The logo, or the title while the logo loads and when there is none (tvOS TitleArtwork). */
-@Composable
-internal fun TitleArtwork(
-    name: String,
-    logo: ImageRequest?,
-    modifier: Modifier = Modifier,
-    maxWidth: Dp = LOGO_MAX_WIDTH,
-    maxHeight: Dp = LOGO_MAX_HEIGHT,
-    alignment: Alignment = Alignment.BottomStart
-) {
-    var showsLogo by remember(logo) { mutableStateOf(false) }
-    Box(modifier = modifier.semantics { contentDescription = name }, contentAlignment = alignment) {
-        if (!showsLogo) {
-            Text(
-                text = name,
-                style = TITLE_STYLE,
-                color = TvColors.textPrimary,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.widthIn(max = TITLE_MAX_WIDTH)
-            )
-        }
-        if (logo != null) {
-            AsyncImage(
-                model = logo,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                alignment = alignment,
-                modifier = Modifier.sizeIn(maxWidth = maxWidth, maxHeight = maxHeight),
-                onSuccess = { showsLogo = true },
-                onError = { showsLogo = false }
-            )
         }
     }
 }
@@ -208,8 +174,7 @@ const val DETAILS_OVERVIEW_TAG = "details-overview"
 
 // tvOS app literals (DetailsHeroView.swift), pt / 2: logo up to 720 x 220, 40 between the logo and
 // the row, 64 between the actions and the summary, summary 820 wide with 16 between its lines.
-private val LOGO_MAX_WIDTH = 360.dp
-private val LOGO_MAX_HEIGHT = 110.dp
+internal val LOGO_BOX = DpSize(360.dp, 110.dp)
 private val TITLE_MAX_WIDTH = 550.dp
 private val LOGO_GAP = 20.dp
 private val ACTIONS_GAP = 32.dp

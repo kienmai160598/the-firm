@@ -67,11 +67,11 @@ import com.kien.movies.debug.DebugLaunch
 import com.kien.movies.design.ArtworkImage
 import com.kien.movies.design.BakedScrim
 import com.kien.movies.design.NoScrollSpec
-import com.kien.movies.design.TrimTransparentEdges
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvType
 import com.kien.movies.design.rememberBakedImage
+import com.kien.movies.design.rememberLogoRequest
 import com.kien.movies.shell.AppRoute
 import com.kien.movies.shell.Router
 import com.kien.movies.trailer.HeroTrailer
@@ -169,7 +169,7 @@ private fun DetailsContent(
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val entries = remember(details) { infoEntries(details) }
-    val logo = rememberLogoRequest(details.logoUrl)
+    val logo = rememberLogoRequest(details.logoUrl, LOGO_BOX)
     val hasSeasons = details.seasons.isNotEmpty()
     val sections = remember(details) { detailsSections(details, entries.isNotEmpty()) }
     // Saved with the entry: focus entering the page from outside, as when it comes back from
@@ -315,23 +315,6 @@ private fun Modifier.onSectionFocus(onFocused: () -> Unit): Modifier = onFocusCh
 private fun Modifier.sectionSpacing(): Modifier = padding(top = SECTION_GAP)
 
 /**
- * One logo decode for the hero, its transparent margin trimmed so the logo's ink starts on the
- * Play button's edge, as on Home. Decoded at twice the logo box so the trimmed ink stays sharp
- * once fitted to the box.
- */
-@Composable
-private fun rememberLogoRequest(url: String?): ImageRequest? {
-    val context = LocalContext.current
-    val density = LocalDensity.current
-    return remember(url, density) {
-        url?.let { data ->
-            val (width, height) = with(density) { (LOGO_DECODE.width * LOGO_DECODE_FACTOR).roundToPx() to (LOGO_DECODE.height * LOGO_DECODE_FACTOR).roundToPx() }
-            ImageRequest.Builder(context).data(data).size(width, height).precision(Precision.EXACT).transformations(TrimTransparentEdges).build()
-        }
-    }
-}
-
-/**
  * Loading (tvOS ProgressView) or error (tvOS DetailsErrorView) as one focusable element, so the
  * remote is never stranded and focus stays put when loading turns into an error (AC D5).
  */
@@ -396,11 +379,6 @@ private const val BACKDROP_FADE_MILLIS = 300
 
 private val BACKDROP_SCRIM = BakedScrim.backdrop(TvColors.details)
 private val SCREEN_SIZE = DpSize(960.dp, 540.dp)
-
-// The hero's logo box (tvOS 720 x 220 pt). Decoded at exact precision, so a small logo is scaled up
-// to fit the box as tvOS `resizable().scaledToFit()` does, not left at its source size.
-private val LOGO_DECODE = DpSize(360.dp, 110.dp)
-private const val LOGO_DECODE_FACTOR = 2
 
 // tvOS: 56 pt between the sections, 8 pt between the tabs and the shelf, 80 pt under the last
 // plus the 60 pt bottom safe area the scroll view keeps;

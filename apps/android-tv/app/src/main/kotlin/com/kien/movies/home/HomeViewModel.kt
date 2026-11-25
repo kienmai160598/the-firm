@@ -114,12 +114,12 @@ private const val FACT_SEPARATOR = " · "
 @Immutable
 data class WatchingRowState(val key: String, val title: String, val cards: List<WatchingCard>)
 
-/** A Continue Watching or Upcoming card; [details] are the subtitle and the progress label. */
+/** A Continue Watching or Upcoming card; [caption] is the line on its art, "S1, E1 · 17m" (AC H11). */
 @Immutable
 data class WatchingCard(
     val key: String,
     val title: String,
-    val details: List<String>,
+    val caption: String,
     val progressLabel: String?,
     val imageUrl: String?,
     val progressFraction: Float,
@@ -208,7 +208,7 @@ private fun watchingRow(key: String, row: TvosContinueWatchingRow) = WatchingRow
 private fun watchingCard(item: TvosContinueWatchingItem) = WatchingCard(
     key = item.key,
     title = item.title,
-    details = listOfNotNull(item.subtitle, item.progressLabel).filter(String::isNotEmpty),
+    caption = item.caption,
     progressLabel = item.progressLabel,
     imageUrl = item.imageUrl,
     progressFraction = item.progressFraction,
