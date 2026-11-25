@@ -75,8 +75,11 @@ object TvColors {
     /** Unfocused pill, platter or circular button: one flat layer, plus [glassEdge]. */
     val platter = Color.White.copy(alpha = 0.22f)
 
-    /** The open sidebar panel: one layer, no blur, plus [glassEdge]. */
-    val sidebarPanel = Color(0xFF1A1A1A).copy(alpha = 0.96f)
+    /**
+     * The open sidebar panel: one layer, no blur, plus the liquid glass rim. Light enough that the
+     * screen behind still shows through, as tvOS glass does.
+     */
+    val sidebarPanel = Color(0xFF1A1A1A).copy(alpha = 0.78f)
 
     /** The light 1 dp rim drawn where tvOS shows Liquid Glass. */
     val glassEdge = Color.White.copy(alpha = 0.16f)
@@ -92,6 +95,14 @@ object TvColors {
 
     /** Card focus shadow: black 40%. */
     val focusShadow = Color.Black.copy(alpha = 0.4f)
+
+    /**
+     * Player glass over video, measured on the tvOS player in the simulator: an unfocused circle
+     * button darkens the video under it by about 26% (no white tint), and the track is grey
+     * `#8F8F8F` at 63%. Both are one flat layer; the rim is [liquidGlassRim].
+     */
+    val playerGlass = Color.Black.copy(alpha = 0.26f)
+    val playerTrack = Color(0xFF8F8F8F).copy(alpha = 0.63f)
 
     /** Behind artwork that has not loaded yet. */
     val artworkPlaceholder = Color(0xFF3F4446)

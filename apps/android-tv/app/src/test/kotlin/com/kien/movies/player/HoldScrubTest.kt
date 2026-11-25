@@ -42,7 +42,7 @@ class HoldScrubTest {
 
         val back = twoForward.adding(isForward = false)
 
-        assertEquals(20, twoForward.seconds)
+        assertEquals(2, twoForward.presses)
         assertEquals(SkipBadge(isForward = false, presses = 1), back)
     }
 }

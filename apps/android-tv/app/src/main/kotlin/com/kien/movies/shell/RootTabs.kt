@@ -66,6 +66,7 @@ import androidx.tv.material3.Text
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
+import com.kien.movies.design.liquidGlassRim
 import java.util.Date
 import kotlinx.coroutines.delay
 
@@ -331,7 +332,7 @@ private fun DrawScope.drawGlassEdge(radius: CornerRadius) {
     val stroke = EDGE_WIDTH.toPx()
     val inset = stroke / 2
     drawRoundRect(
-        color = TvColors.glassEdge,
+        brush = liquidGlassRim,
         topLeft = Offset(inset, inset),
         size = Size(size.width - stroke, size.height - stroke),
         cornerRadius = CornerRadius(radius.x - inset, radius.y - inset),
