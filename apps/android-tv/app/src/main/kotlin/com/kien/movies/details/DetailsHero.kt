@@ -61,8 +61,8 @@ import com.nuvio.tvos.TvosStreamTarget
 /**
  * The hero of Details, as tvOS draws it (DetailsHeroView.swift): the logo or title, then a row
  * with the play button (and, for a part watched title, the resume bar and label under it) on the
- * left and the summary on the right: overview, facts line, "Starring". Bottom aligned; the caller
- * places it.
+ * left and the summary on the right: overview and facts line. Bottom aligned; the caller places
+ * it. The cast is in Cast & Crew below, so the summary names nobody.
  */
 @Composable
 internal fun DetailsHero(
@@ -81,7 +81,7 @@ internal fun DetailsHero(
     }
 }
 
-/** Overview, facts line and "Starring", at most 410 dp wide (tvOS `summary`). */
+/** Overview and facts line, at most 410 dp wide (tvOS `summary`). */
 @Composable
 private fun Summary(details: TvosMetaDetails) {
     Column(modifier = Modifier.widthIn(max = SUMMARY_WIDTH), verticalArrangement = Arrangement.spacedBy(SUMMARY_GAP)) {
@@ -99,9 +99,6 @@ private fun Summary(details: TvosMetaDetails) {
             ProvideTextStyle(FACTS_STYLE) {
                 MetadataLine(facts = summaryFacts(details), ageRating = details.ageRating, imdbRating = details.imdbRating)
             }
-        }
-        starringLine(details.cast)?.let { starring ->
-            Text(text = starring, style = STARRING_STYLE, color = STARRING_COLOR, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
@@ -195,13 +192,11 @@ private val RESUME_BAR_HEIGHT = 5.dp
 private val RESUME_TRACK = Color.White.copy(alpha = 0.28f)
 private val PLAY_LABEL_STYLE = TvType.body.copy(fontSize = 15.sp, lineHeight = 18.sp, fontWeight = FontWeight.SemiBold)
 
-// Summary: overview 27 pt at 90% white, facts 23 pt medium at 60%, starring 23 pt at 55%.
+// Summary: overview 27 pt at 90% white, facts 23 pt medium at 60%.
 private val OVERVIEW_STYLE = TvType.body.copy(fontSize = 13.5.sp, lineHeight = 16.5.sp, fontWeight = FontWeight.Normal)
 private val OVERVIEW_COLOR = Color.White.copy(alpha = 0.9f)
 private val FACTS_STYLE = TvType.body.copy(fontSize = 11.5.sp, lineHeight = 14.sp, fontWeight = FontWeight.Medium)
 private val FACTS_COLOR = Color.White.copy(alpha = 0.6f)
-private val STARRING_STYLE = FACTS_STYLE.copy(fontWeight = FontWeight.Normal)
-private val STARRING_COLOR = Color.White.copy(alpha = 0.55f)
 
 // Title 1 (80 pt bold) when there is no logo.
 private val TITLE_STYLE = TvType.body.copy(fontSize = 40.sp, lineHeight = 46.sp, fontWeight = FontWeight.Bold)
