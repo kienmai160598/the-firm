@@ -105,12 +105,14 @@ fun RootScreen(router: Router, stores: RouteViewModelStores, onExit: () -> Unit)
 }
 
 /**
- * Window colour (spec section 2): Home's rows, the grey slate of Search, Library and Settings with
- * its pages, and the Details colour behind Details and Streams.
+ * Window colour (spec section 2): Home's rows, the grey slate of Search and Library, the dark system
+ * background of Settings with its pages, and the Details colour behind Details and Streams.
  */
 private fun windowBackground(route: AppRoute): Color = when {
     route is AppRoute.Tab && route.tab == RootTab.Home -> TvColors.homeRows
-    route is AppRoute.Tab || route is AppRoute.Settings -> TvColors.searchLibrary
+    route is AppRoute.Tab && route.tab == RootTab.Settings -> TvColors.settingsBackground
+    route is AppRoute.Settings -> TvColors.settingsBackground
+    route is AppRoute.Tab -> TvColors.searchLibrary
     else -> Palette.detailsBackground
 }
 

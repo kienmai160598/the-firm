@@ -24,8 +24,6 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.ClickableSurfaceShape
 import androidx.tv.material3.IconButtonDefaults
-import androidx.tv.material3.ListItemBorder
-import androidx.tv.material3.ListItemDefaults
 
 // Flat stand-ins for the tvOS glass (GlassStyle.swift, spec section 2): an unfocused control is one
 // [TvColors.platter] fill with the glass edge, a focused one is [TvColors.focusedFill] with dark
@@ -88,14 +86,6 @@ object TvGlass {
     @Composable
     @ReadOnlyComposable
     fun surfaceBorder(shape: Shape): ClickableSurfaceBorder = ClickableSurfaceDefaults.border(
-        border = edge.withShape(shape),
-        focusedBorder = Border.None,
-        pressedBorder = Border.None
-    )
-
-    @Composable
-    @ReadOnlyComposable
-    fun listItemBorder(shape: Shape): ListItemBorder = ListItemDefaults.border(
         border = edge.withShape(shape),
         focusedBorder = Border.None,
         pressedBorder = Border.None

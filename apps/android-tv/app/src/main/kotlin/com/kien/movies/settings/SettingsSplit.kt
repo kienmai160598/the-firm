@@ -81,7 +81,7 @@ fun SettingsSymbolArt(@DrawableRes icon: Int) {
 @Composable
 fun ArtPlatter(content: @Composable ColumnScope.() -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize().background(TvColors.artworkPlaceholder, RoundedCornerShape(SettingsMetrics.artRadius)),
+        modifier = Modifier.fillMaxSize().background(TvColors.settingsArt, RoundedCornerShape(SettingsMetrics.artRadius)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         content = content
