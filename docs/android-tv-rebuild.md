@@ -199,8 +199,8 @@ the-firm/
                                 StreamsRow, StreamDetailSheet, StreamsEmpty, StreamRowState
             search/             SearchScreen, SearchViewModel
             addons/             AddonsScreen, AddonsViewModel, AddonRow, AddonInstallPanel,
-                                AddonPreview, AddonDetailScreen
-              phone/            PhoneAddonPanel, PhoneAddonDialog, PhoneAddonServer,
+                                AddonPreview, AddonDetailScreen, AddonUrlField, AddonDialog
+              phone/            AddonQrServer, PhoneAddonDialog, PhoneAddonServer,
                                 PhoneAddonPage (HTML), LanAddress, QrCode
             player/             PlaybackScreen, PlaybackRequest, PlaybackMetadata, PlayerFactory,
                                 PlayerController, PlayerState, PlayerScreen, PlayerSurface,
@@ -404,15 +404,20 @@ own values:
 
 ## 5b. Add addons from a phone (QR)
 
-Not in the tvOS app: an Android TV addition, asked for on 2026-11-23. Typing a manifest URL with
-a remote is slow, so the TV shows a QR code, the phone opens a small page from it and sends the
-URL to the TV.
+Asked for on 2026-11-23. Typing a manifest URL with a remote is slow, so the TV shows a QR code,
+the phone opens a small page from it and sends the URL to the TV. tvOS has a simpler version
+(`AddonQrServer.swift`): one URL per send, installed at once with no confirmation on the TV, and
+the server runs while Addons is on screen. Android keeps the protocol and access model below.
 
 How it works:
 
-1. On Addons, the install panel has "Add from phone". Selecting it starts a local HTTP server on
-   the first free port from 8080 to 8089 and shows a QR code for
-   `http://<tv-lan-ip>:<port>/?t=<token>`, the same address as text, and "Waiting for your phone".
+1. The server lives with the Addons screen: opening Addons (and coming back to the app while it
+   is open) starts a local HTTP server on the first free port from 8080 to 8089. The QR code for
+   `http://<tv-lan-ip>:<port>/?t=<token>` is the preview while Add Addon has focus, where tvOS
+   shows its QR code, with the caption "Scan with your phone's camera, then paste the manifest
+   URL on the page that opens. Or select Add Addon to type it." The address is the code's
+   accessibility value, as on tvOS, not a text line. tvOS needs no change: its preview already
+   holds a QR code in the same place.
 2. The phone opens the page: one field (several URLs allowed, one per line, at most 10) and a
    Send button. `stremio://` links are fine: `normalizeManifestUrl` in core turns them into
    `https://`.
@@ -420,9 +425,11 @@ How it works:
    each URL and Install or Cancel, focus on Install.
 4. Install runs each URL through `TvosAddons.install`, the same path as typing it. The page polls
    `GET /api/status/<id>?t=<token>` and shows the result per URL (installed with its name, or the
-   error from Kotlin).
-5. The server stops when the panel closes, when the app goes to the background, or after
-   10 minutes without a request.
+   error from Kotlin). The preview's status line under the code says how it went, as for a typed
+   URL: "Installed" with the names, or "Couldn't add this addon" with the first error.
+5. The server stops when Addons is left (Back to Settings), when the app goes to the background
+   (`ON_STOP`), or after 10 minutes without a request. After the idle stop the preview says the
+   code stopped and to open Addons again; opening an addon's page also leaves Addons.
 
 Session state: `Off -> Waiting -> Proposed(urls) -> Installing -> Done(results) -> Waiting`, any
 state `-> Off`. A new proposal while one is `Proposed` or `Installing` gets HTTP 409.
@@ -444,8 +451,7 @@ Access model:
 Placement:
 
 - `shared/tv-api`: the session state machine, token check, request parsing and URL limits, as
-  plain Kotlin with unit tests, so tvOS can add the same feature later with its own listener
-  (Network.framework).
+  plain Kotlin with unit tests, so tvOS can move its own listener onto the same protocol later.
 - Android app (`addons/phone/`): the HTTP server (`org.nanohttpd:nanohttpd:2.3.1`, what the old
   app ran on the box), the LAN address from `ConnectivityManager.getLinkProperties` (the old
   `WifiManager.connectionInfo` path is deprecated and misses Ethernet first), the QR from
@@ -456,8 +462,11 @@ Placement:
   propose, confirm and poll flow and `core/qr/QrCodeGenerator.kt` plus its test for the module
   grid. Do not port `AddonWebPage.kt` (3,695 lines).
 
-States to lay out: no network ("Connect the TV to Wi-Fi or Ethernet"), no free port, waiting,
-proposal dialog, installing, results. Each holds focus.
+States to lay out, all in the preview while Add Addon has focus: no network (a QR glyph on the
+art and "Connect the TV to your home network to add from a phone, or select Add Addon to type a
+manifest URL."), no free port, stopped after 10 idle minutes, waiting (the code), proposal dialog,
+installing, results. None of them takes focus from Add Addon except the proposal dialog, which
+gives it back when it closes.
 
 ## 6. Acceptance criteria (assumed: parity with the tvOS app on the box, plus 5b)
 
@@ -521,21 +530,21 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | Q1 | Typing a title shows result rows |
 | Q2 | Opening a result records a recent search; a recent search can be removed |
 | Q3 | An empty query shows recent searches and the discover row |
-| A1 | Add Addon, focused when the screen opens, takes a manifest URL through the system keyboard; a failure shows why under the QR code |
-| A2 | On an addon's page, Enabled turns it off and on in place, and the list row then says Off or On |
-| A3 | Move Up and Move Down on an addon's page change its order |
-| A4 | Remove Addon on the page asks first, then returns to the list; with no addons only Add Addon is left and the preview says "No addons" |
-| A5 | Laid out like the system Settings app, with its sizes measured on an Apple TV: a grouped list 780 pt wide against the right safe edge (Add Addon, then the Installed section), every row on its own platter, and on the left a 540 pt preview of the focused row centred in the space that is left (the addon's logo with up to five lines of summary or its error, or the QR code while Add Addon has focus). The list and its page put the first row and the art at the same height, so nothing moves on the way in. An addon's row shows On, Off or Error and opens the addon's page with the same layout, where the full description sits under About. tvOS uses `List` rows and opens the page through `AppRoute.addon`, because a `NavigationLink` in a `List` inside the sidebar `TabView` does not push. Android builds the same skeleton from Compose for TV list items. Addons is reached from Settings (ST1), not from a tab |
+| A1 | Add Addon, focused when the screen opens, takes a manifest URL through the system keyboard and installs it on submit; a failure shows "Couldn't add this addon" and why under the QR code, and focus stays on Add Addon. Android: at rest Add Addon is a row, selecting it opens the system keyboard, Back closes it and focus returns to the row |
+| A2 | On an addon's page, Enabled (first focus) turns it off and on in place, and Back lands on its row, which then says Off or On |
+| A3 | Move Up and Move Down on an addon's page change its order; each shows only when the addon can move that way, and focus stays on the page when one goes away |
+| A4 | Remove Addon on the page asks "Remove <name>?" first (focus on Cancel), then returns to the list; with no addons only Add Addon is left and the preview says "No addons". Android: focus lands on the next addon, the one before it, or Add Addon (tvOS leaves it to the focus engine) |
+| A5 | Laid out like the system Settings app, with its sizes measured on an Apple TV: a grouped list 780 pt wide against the right safe edge (Add Addon, then the Installed section), every row on its own platter, and on the left a 540 pt preview of the focused row centred in the space that is left (the addon's logo with up to five lines of summary or its error, or the QR code while Add Addon has focus). The list and its page put the first row and the art at the same height, so nothing moves on the way in. An addon's row shows On, Off or Error and opens the addon's page with the same layout, where the full description sits under About. tvOS uses `List` rows and opens the page through `AppRoute.addon`, because a `NavigationLink` in a `List` inside the sidebar `TabView` does not push. Android builds the same skeleton: `SettingsSplit` with the same metrics as Settings, every row a `SettingsRow` capsule (Add Addon, each addon with On, Off, a red Error or a spinner while it refreshes, then a chevron), the Installed and About section headers, the QR code as the preview of Add Addon (5b), and the page opened through `AppRoute.Addon(manifestUrl)` as its own back stack entry, so Back pops it like a pushed Settings page. Addons is reached from Settings (ST1), not from a tab |
 | ST1 | Settings lists Playback, Subtitles, Addons and About in the A5 layout: the list on the right, and on the left the focused page's symbol and what it holds. Playback has first focus. Playback and Subtitles show the chosen language as their value. About shows the name, version, build and licence |
 | ST2 | Subtitles lists Off, Automatic (the device language), then every language by name, with a checkmark on the choice; it opens focused on the choice. The choice is saved in core's player settings through `TvosSettings`, so both apps and a relaunch see it. Until a first choice it is Vietnamese, then English, the languages the player picked before Settings existed |
 | ST3 | Playback picks the audio language the same way: Automatic or a language |
 | ST4 | The player starts with the chosen audio and subtitle language, falling back to the second choice, and with no subtitles when Off is chosen. tvOS mpv gets `alang`, `slang` and `subs-fallback` (or `sid=no`); AVPlayer gets media selection criteria. Android gives ExoPlayer the same through its track selection parameters. When the file has no track in a chosen language, the first online subtitle in it is loaded and selected as playback starts (`OnlineSubtitleChoice.startingChoice`: the languages are tried in order, and one an embedded track has keeps that track); never after the viewer picked a subtitle. Both apps run it through shared `StartingSubtitle`, once the file's tracks and the online list are both known; Android loads it as a sideloaded subtitle. Seen on the TCL: The Odyssey, English tracks only, started with Vietnamese (OpenSubtitles) |
 | ST5 | Removed on 2026-11-24: Settings has no Account page on either app, so nothing signs in to Trakt. `TvosTrakt` (the device code flow) stays in `shared/tv-api` with its unit tests, unused by the apps. LB4, W4 and F3 need a sign in and wait until one comes back |
-| AQ1 | "Add from phone" shows a QR code and the address as text within 1 s; with no network it says so and keeps focus |
+| AQ1 | While Add Addon has focus the preview shows the QR code within 1 s of opening Addons, its address as the code's accessibility value; with no network it says so and focus stays on Add Addon |
 | AQ2 | Scanning the code with a phone on the same network opens the page; sending a manifest URL shows the confirmation dialog on the TV |
 | AQ3 | Install adds the addon (it appears in the list and its catalogs on Home); the phone page shows the result per URL; Cancel adds nothing and the page says so |
 | AQ4 | A request with a wrong or missing token gets 403 and changes nothing; a second proposal while one is open gets 409 |
-| AQ5 | The server stops when the panel closes, when the app goes to the background and after 10 idle minutes: the address no longer answers |
+| AQ5 | The server stops when Addons is left, when the app goes to the background and after 10 idle minutes: the address no longer answers |
 | X1 | `box` build: R8, armeabi-v7a, baseline profile applied (check the compile state of the package) |
 | X2 | Jank and PSS are not worse than the old app (numbers in section 4) |
 | X3 | No text cut at any edge, every label readable at a quarter size screenshot |

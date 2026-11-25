@@ -56,15 +56,27 @@ fun SettingsSplit(title: String?, preview: @Composable () -> Unit, list: @Compos
 /** The preview's art and caption, stacked and centred like Settings. */
 @Composable
 fun SettingsPreview(caption: String, art: @Composable () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(SettingsMetrics.artToCaption)) {
-        Box(modifier = Modifier.size(SettingsMetrics.artSide)) { art() }
+    SettingsPreview(art = art) {
         Text(
             text = caption,
             style = TvType.caption1,
             color = TvColors.textSecondary,
             textAlign = TextAlign.Center,
-            maxLines = SettingsMetrics.captionLines,
-            modifier = Modifier.width(SettingsMetrics.captionWidth)
+            maxLines = SettingsMetrics.captionLines
+        )
+    }
+}
+
+/** [SettingsPreview] with any caption lines, stacked like the tvOS caption `VStack`. */
+@Composable
+fun SettingsPreview(art: @Composable () -> Unit, caption: @Composable ColumnScope.() -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(SettingsMetrics.artToCaption)) {
+        Box(modifier = Modifier.size(SettingsMetrics.artSide)) { art() }
+        Column(
+            modifier = Modifier.width(SettingsMetrics.captionWidth),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(SettingsMetrics.captionGap),
+            content = caption
         )
     }
 }
@@ -102,6 +114,7 @@ object SettingsMetrics {
     val artRadius = 60.dp
     val artToCaption = 20.dp
     val captionWidth = 360.dp
+    val captionGap = 8.dp // tvOS 16 pt between caption lines
     const val captionLines = 5
     val symbol = 130.dp
     val rowHeight = 33.dp

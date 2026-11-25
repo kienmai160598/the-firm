@@ -4,15 +4,30 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Text
 import com.kien.movies.addons.AddonDialog
 import com.kien.movies.addons.AddonDialogButton
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvType
+import com.nuvio.tvos.phone.AddonPairingPhase
 import com.nuvio.tvos.phone.AddonProposal
+
+/** The confirmation dialog of [server]'s open proposal, whichever row of Addons has focus. */
+@Composable
+fun PhoneAddonProposal(server: PhoneAddonServer) {
+    val session by server.session.collectAsStateWithLifecycle()
+    val proposal = (session.phase as? AddonPairingPhase.Proposed)?.proposal ?: return
+    PhoneAddonDialog(
+        proposal = proposal,
+        onInstall = { server.confirm(proposal.id) },
+        onCancel = { server.cancel(proposal.id) }
+    )
+}
 
 /**
  * The TV's answer to a phone's proposal (docs/android-tv-rebuild.md, 5b, step 3): each URL, then

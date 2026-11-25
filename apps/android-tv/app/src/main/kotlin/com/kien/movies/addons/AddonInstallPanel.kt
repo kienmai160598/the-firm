@@ -1,249 +1,108 @@
 package com.kien.movies.addons
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
 import androidx.tv.material3.Icon
-import androidx.tv.material3.LocalContentColor
-import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.design.Focus
+import com.kien.movies.addons.phone.AddonQrSetup
+import com.kien.movies.addons.phone.QrCodeImage
 import com.kien.movies.design.TvColors
-import com.kien.movies.design.TvControls
-import com.kien.movies.design.TvGlass
-import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
-import com.kien.movies.design.focusLift
-import com.kien.movies.design.glassEdge
-import com.kien.movies.design.hangOutside
-import com.kien.movies.shell.upToNavPill
+import com.kien.movies.settings.ArtPlatter
+import com.kien.movies.settings.SettingsMetrics
+import com.kien.movies.settings.SettingsPreview
+import com.kien.movies.streams.StreamsSpinner
+import com.nuvio.tvos.phone.AddonPairingLimits
 
 /**
- * The left column of Addons (tvOS AddonInstallPanel.swift): what addons are, a manifest URL field,
- * Install with its result, and "Add from phone" (Android only, docs/android-tv-rebuild.md, 5b).
- * Scrolls with focus when the result needs more room than the column has.
+ * The preview while Add Addon has focus (tvOS AddonInstallPanel.swift): the QR code a phone
+ * scans to send a manifest URL, what to do, "No addons" when the list is empty, and how the last
+ * install went.
  */
 @Composable
-fun AddonInstallPanel(
-    state: AddonsUiState,
-    onInstall: (String) -> Unit,
-    onAddFromPhone: () -> Unit,
-    fieldFocus: FocusRequester,
-    phoneButtonFocus: FocusRequester,
-    modifier: Modifier = Modifier
-) {
-    var manifestUrl by rememberSaveable { mutableStateOf("") }
-    LaunchedEffect(state.installStatus) {
-        if (state.installStatus is AddonInstallStatus.Installed) manifestUrl = ""
-    }
-    val install = { onInstall(manifestUrl) }
-
-    Column(
-        modifier = modifier.verticalScroll(rememberScrollState()).focusGroup(),
-        verticalArrangement = Arrangement.spacedBy(PANEL_SPACING)
-    ) {
-        // The collapsed nav pill names the tab, so the column starts with its section title.
-        SectionTitle("Add an addon", spacingAfter = PANEL_SPACING)
-        Text(text = EXPLANATION, style = TvType.caption2, color = TvColors.textSecondary)
-        ManifestUrlField(value = manifestUrl, onValueChange = { manifestUrl = it }, onSubmit = install, focusRequester = fieldFocus)
-        Button(
-            onClick = install,
-            enabled = !state.isInstalling && manifestUrl.isNotBlank(),
-            colors = TvGlass.buttonColors(),
-            scale = TvGlass.noButtonScale(),
-            shape = TvGlass.pillShape(),
-            border = TvGlass.buttonBorder(),
-            contentPadding = TvGlass.pillPadding,
-            modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight).testTag(INSTALL_BUTTON_TAG).focusLift(Focus.buttonScale)
-        ) {
-            if (state.isInstalling) {
-                Text(text = "Installing", style = TvType.bodyEmphasized)
-            } else {
-                Icon(painter = painterResource(R.drawable.ic_addons_plus), contentDescription = null, modifier = Modifier.size(TvControls.glyph))
-                Spacer(Modifier.size(GLYPH_GAP))
-                Text(text = "Install", style = TvType.bodyEmphasized)
-            }
-        }
-        Button(
-            onClick = onAddFromPhone,
-            colors = TvGlass.buttonColors(),
-            scale = TvGlass.noButtonScale(),
-            shape = TvGlass.pillShape(),
-            border = TvGlass.buttonBorder(),
-            contentPadding = TvGlass.pillPadding,
-            modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight).focusRequester(phoneButtonFocus).testTag(PHONE_BUTTON_TAG).focusLift(Focus.buttonScale)
-        ) {
-            Icon(painter = painterResource(R.drawable.ic_addons_phone), contentDescription = null, modifier = Modifier.size(TvControls.glyph))
-            Spacer(Modifier.size(GLYPH_GAP))
-            Text(text = "Add from phone", style = TvType.bodyEmphasized)
-        }
-        StatusLine(state.installStatus)
-    }
-}
-
-/**
- * The manifest URL field. A text field that takes D-pad focus opens the keyboard at once and
- * keeps the arrows, so the field rests as a focusable surface; Select starts editing (system
- * keyboard), Done installs, Back leaves editing. Either way focus returns to the surface.
- */
-@Composable
-private fun ManifestUrlField(value: String, onValueChange: (String) -> Unit, onSubmit: () -> Unit, focusRequester: FocusRequester) {
-    var isEditing by remember { mutableStateOf(false) }
-    var refocusTick by remember { mutableIntStateOf(0) }
-    var textHadFocus by remember { mutableStateOf(false) }
-    val textFocus = remember { FocusRequester() }
-    val stopEditing: () -> Unit = {
-        isEditing = false
-        refocusTick++
-    }
-
-    Box(modifier = Modifier.fillMaxWidth().focusRequester(focusRequester).focusGroup()) {
-        if (isEditing) {
-            BackHandler(onBack = stopEditing)
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                singleLine = true,
-                textStyle = TvType.caption1.copy(color = TvColors.textPrimary),
-                cursorBrush = SolidColor(TvColors.textPrimary),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done, autoCorrectEnabled = false),
-                keyboardActions = KeyboardActions(onDone = {
-                    stopEditing()
-                    onSubmit()
-                }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(FIELD_HEIGHT)
-                    .focusRequester(textFocus)
-                    .onFocusChanged { focus ->
-                        // Called once unfocused on attach: only a real focus loss ends editing.
-                        if (focus.hasFocus) {
-                            textHadFocus = true
-                        } else if (textHadFocus) {
-                            textHadFocus = false
-                            isEditing = false
-                        }
-                    }
-                    .testTag(URL_FIELD_TAG),
-                decorationBox = { field -> FieldFrame(isPlaceholder = value.isEmpty()) { field() } }
-            )
-            LaunchedEffect(Unit) {
-                withFrameNanos {}
-                textFocus.requestFocus()
-            }
-        } else {
-            Surface(
-                onClick = { isEditing = true },
-                colors = TvGlass.surfaceColors(),
-                scale = TvGlass.noSurfaceScale(),
-                shape = TvGlass.surfaceShape(TvShapes.pill),
-                border = TvGlass.surfaceBorder(TvShapes.pill),
-                modifier = Modifier.hangOutside(start = FIELD_PADDING, end = FIELD_PADDING).fillMaxWidth().height(FIELD_HEIGHT).upToNavPill().testTag(URL_SURFACE_TAG).focusLift(Focus.buttonScale)
-            ) {
-                Text(
-                    text = value.ifEmpty { PLACEHOLDER },
-                    style = TvType.caption1,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = LocalContentColor.current.copy(alpha = if (value.isEmpty()) PLACEHOLDER_ALPHA else 1f),
-                    modifier = Modifier.align(Alignment.CenterStart).padding(horizontal = FIELD_PADDING)
-                )
-            }
-        }
-    }
-    LaunchedEffect(refocusTick) {
-        if (refocusTick == 0) return@LaunchedEffect
-        withFrameNanos {}
-        focusRequester.requestFocus()
+fun AddonInstallPanel(setup: AddonQrSetup, status: AddonInstallStatus?, hasAddons: Boolean) {
+    SettingsPreview(art = { QrArt(setup) }) {
+        if (!hasAddons) Text(text = EMPTY_TITLE, style = TvType.headline, color = TvColors.textPrimary)
+        Text(text = caption(setup), style = TvType.caption1, color = TvColors.textSecondary, textAlign = TextAlign.Center)
+        StatusLine(status)
     }
 }
 
 @Composable
-private fun FieldFrame(isPlaceholder: Boolean, field: @Composable () -> Unit) {
-    Box(
-        modifier = Modifier
-            .hangOutside(start = FIELD_PADDING, end = FIELD_PADDING)
-            .fillMaxWidth()
-            .height(FIELD_HEIGHT)
-            .background(TvColors.platter, TvShapes.pill)
-            .glassEdge(TvShapes.pill)
-            .padding(horizontal = FIELD_PADDING),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        if (isPlaceholder) Text(text = PLACEHOLDER, style = TvType.caption1, color = TvColors.textTertiary)
-        field()
+private fun QrArt(setup: AddonQrSetup) {
+    if (setup is AddonQrSetup.Running) {
+        Box(modifier = Modifier.fillMaxSize().background(Color.White, ART_SHAPE), contentAlignment = Alignment.Center) {
+            QrCodeImage(content = setup.server.address, maxSide = SettingsMetrics.artSide - QR_INSET * 2, modifier = Modifier.testTag(QR_TAG))
+        }
+    } else {
+        ArtPlatter {
+            Icon(painter = painterResource(R.drawable.ic_addons_qr), contentDescription = null, tint = TvColors.textSecondary, modifier = Modifier.size(ADDON_ART_SYMBOL))
+        }
     }
+}
+
+private fun caption(setup: AddonQrSetup): String = when (setup) {
+    AddonQrSetup.Starting, is AddonQrSetup.Running -> SCAN
+    AddonQrSetup.NoNetwork -> NO_NETWORK
+    AddonQrSetup.NoFreePort -> NO_FREE_PORT
+    AddonQrSetup.Expired -> EXPIRED
 }
 
 @Composable
 private fun StatusLine(status: AddonInstallStatus?) {
     when (status) {
-        is AddonInstallStatus.Installed -> Row(horizontalArrangement = Arrangement.spacedBy(GLYPH_GAP), verticalAlignment = Alignment.CenterVertically) {
-            Icon(painter = painterResource(R.drawable.ic_addons_check), contentDescription = null, tint = TvColors.textSecondary, modifier = Modifier.size(STATUS_ICON))
-            Text(text = "Installed ${status.name}", style = TvType.caption1, color = TvColors.textSecondary)
+        AddonInstallStatus.Installing -> Row(horizontalArrangement = Arrangement.spacedBy(STATUS_GAP), verticalAlignment = Alignment.CenterVertically) {
+            StreamsSpinner(size = STATUS_ICON)
+            Text(text = "Installing", style = TvType.caption1, color = TvColors.textPrimary)
         }
 
-        is AddonInstallStatus.Failed -> Column(verticalArrangement = Arrangement.spacedBy(STATUS_GAP)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(GLYPH_GAP), verticalAlignment = Alignment.CenterVertically) {
-                Icon(painter = painterResource(R.drawable.ic_addons_warning), contentDescription = null, tint = ERROR_RED, modifier = Modifier.size(STATUS_ICON))
-                Text(text = INSTALL_FAILED, style = TvType.caption1, color = ERROR_RED)
-            }
-            Text(text = status.message, style = TvType.caption2, color = TvColors.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        is AddonInstallStatus.Installed -> StatusLabel(R.drawable.ic_addons_check, "Installed ${status.name}", TvColors.textSecondary)
+
+        is AddonInstallStatus.Failed -> {
+            StatusLabel(R.drawable.ic_addons_warning, INSTALL_FAILED, ERROR_RED)
+            Text(text = status.message, style = TvType.caption2, color = TvColors.textSecondary, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
 
-        AddonInstallStatus.Installing, null -> Unit
+        null -> Unit
     }
 }
 
-const val URL_SURFACE_TAG = "addon-url"
-const val URL_FIELD_TAG = "addon-url-field"
-const val INSTALL_BUTTON_TAG = "addon-install"
-const val PHONE_BUTTON_TAG = "addon-add-from-phone"
-const val INSTALL_FAILED = "Couldn't add this addon"
+@Composable
+private fun StatusLabel(icon: Int, text: String, color: Color) {
+    Row(horizontalArrangement = Arrangement.spacedBy(STATUS_GAP), verticalAlignment = Alignment.CenterVertically) {
+        Icon(painter = painterResource(icon), contentDescription = null, tint = color, modifier = Modifier.size(STATUS_ICON))
+        Text(text = text, style = TvType.caption1, color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+}
 
-private const val EXPLANATION = "Addons bring the catalogs, streams and subtitles you see in the app."
-private const val PLACEHOLDER = "Manifest URL"
-private val PLACEHOLDER_ALPHA = TvColors.textTertiary.alpha
-private val PANEL_SPACING = 12.dp
-private val GLYPH_GAP = 8.dp
-private val STATUS_GAP = 4.dp
-private val STATUS_ICON = 16.dp
-private val FIELD_HEIGHT = TvControls.pillHeight
-private val FIELD_PADDING = 14.dp
+const val EMPTY_TITLE = "No addons"
+const val INSTALL_FAILED = "Couldn't add this addon"
+const val QR_TAG = "addon-qr"
+
+private const val SCAN = "Scan with your phone's camera, then paste the manifest URL on the page that opens. Or select Add Addon to type it."
+const val NO_NETWORK = "Connect the TV to your home network to add from a phone, or select Add Addon to type a manifest URL."
+private val NO_FREE_PORT = "Ports ${AddonPairingLimits.FIRST_PORT} to ${AddonPairingLimits.LAST_PORT} are all in use, so a phone cannot reach the TV. Select Add Addon to type a manifest URL."
+private const val EXPIRED = "The code stopped after 10 minutes without a phone. Open Addons again for a new one, or select Add Addon to type a manifest URL."
+
+private val ART_SHAPE = RoundedCornerShape(SettingsMetrics.artRadius)
+
+// tvOS pads the code 56 pt in its white square; the code's own 4 module quiet zone is white too,
+// so 14 dp here leaves the same white margin.
+private val QR_INSET = 14.dp
+private val STATUS_ICON = 16.dp // tvOS Label symbol at the caption size
+private val STATUS_GAP = 8.dp // tvOS HStack spacing 16 pt

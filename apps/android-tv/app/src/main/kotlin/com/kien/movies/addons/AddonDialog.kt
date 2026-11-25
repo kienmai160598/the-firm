@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,6 +33,7 @@ import com.kien.movies.design.TvSheet
 import com.kien.movies.design.TvType
 import com.kien.movies.design.focusLift
 import com.kien.movies.design.glassEdge
+import com.nuvio.tvos.TvosAddon
 
 /**
  * The confirmation dialogs of Addons (tvOS `confirmationDialog` and `alert`): a title, an optional
@@ -95,9 +97,24 @@ fun AddonDialogButton(label: String, onClick: () -> Unit, modifier: Modifier = M
     }
 }
 
-/** Test tag of a dialog action, e.g. `addon-dialog-Move Up`. */
+/** Test tag of a dialog action, e.g. `addon-dialog-Remove`. */
 fun dialogButtonTag(label: String): String = "addon-dialog-$label"
 
+/** tvOS `alert` of the addon page: Remove or Cancel; focus starts on Cancel, the safe answer. */
+@Composable
+fun RemoveAddonDialog(addon: TvosAddon, onRemove: () -> Unit, onDismiss: () -> Unit) {
+    AddonDialog(title = "Remove ${addon.name}?", message = REMOVAL_MESSAGE, onDismiss = onDismiss, width = REMOVE_DIALOG_WIDTH) {
+        Row(horizontalArrangement = Arrangement.spacedBy(DIALOG_GAP)) {
+            AddonDialogButton(label = "Cancel", onClick = onDismiss, focusFirst = true, modifier = Modifier.weight(1f))
+            AddonDialogButton(label = "Remove", onClick = onRemove, modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+private const val REMOVAL_MESSAGE = "Its catalogs, streams and subtitles leave the app."
+
+// tvOS shows a system alert with no sizes of ours: wide enough for its two buttons side by side.
+private val REMOVE_DIALOG_WIDTH = 360.dp
 private val DIALOG_WIDTH = 300.dp
 private val DIALOG_PADDING = 24.dp
 

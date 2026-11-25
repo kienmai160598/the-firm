@@ -75,6 +75,15 @@ class TvRobot(private val compose: ComposeTestRule) {
         }
     }
 
+    /** Presses [keyCode] until a node matching [matcher] has focus, at most [maxPresses] times. */
+    fun pressUntilFocused(keyCode: Int, matcher: SemanticsMatcher, maxPresses: Int = MAX_PRESSES) {
+        repeat(maxPresses) {
+            if (compose.onAllNodes(isFocused() and matcher).fetchSemanticsNodes().isNotEmpty()) return
+            press(keyCode)
+        }
+        awaitFocus(matcher)
+    }
+
     fun assertFocusedTag(tag: String) {
         awaitFocus(hasTestTag(tag))
         compose.onNodeWithTag(tag).assertIsFocused()
@@ -100,5 +109,6 @@ class TvRobot(private val compose: ComposeTestRule) {
         const val DEFAULT_TIMEOUT_MS = 60_000L
         const val FOCUS_TIMEOUT_MS = 5_000L
         private const val POLL_MS = 100L
+        private const val MAX_PRESSES = 8
     }
 }

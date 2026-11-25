@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import com.kien.movies.R
 import com.kien.movies.addons.AddonsScreen
+import com.kien.movies.shell.Router
 
 /** The pages of the Settings tab, in the order the list shows them (tvOS SettingsPage.swift). */
 enum class SettingsPage(val title: String, @param:DrawableRes val icon: Int, val caption: String) {
@@ -18,11 +19,11 @@ fun settingsRowTag(page: SettingsPage): String = "settings-${page.name.lowercase
 
 /** The screen a Settings page opens (tvOS `SettingsPage.screen`). */
 @Composable
-fun SettingsPageScreen(page: SettingsPage) {
+fun SettingsPageScreen(page: SettingsPage, router: Router) {
     when (page) {
         SettingsPage.Playback -> LanguageSettingsScreen(LanguageKind.Audio)
         SettingsPage.Subtitles -> LanguageSettingsScreen(LanguageKind.Subtitles)
-        SettingsPage.Addons -> AddonsScreen()
+        SettingsPage.Addons -> AddonsScreen(router)
         SettingsPage.About -> AboutScreen()
     }
 }

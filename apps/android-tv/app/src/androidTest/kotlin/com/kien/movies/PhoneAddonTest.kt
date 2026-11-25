@@ -1,22 +1,16 @@
 package com.kien.movies
 
-import android.view.KeyEvent
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
-import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.kien.movies.addons.ADDON_ROW_TAG
-import com.kien.movies.addons.PHONE_BUTTON_TAG
+import com.kien.movies.addons.NO_NETWORK
+import com.kien.movies.addons.QR_TAG
 import com.kien.movies.addons.URL_SURFACE_TAG
 import com.kien.movies.addons.dialogButtonTag
-import com.kien.movies.addons.phone.PHONE_ADDRESS_TAG
-import com.kien.movies.addons.phone.PHONE_CLOSE_TAG
-import com.kien.movies.addons.phone.PHONE_PROBLEM_TAG
-import com.kien.movies.addons.phone.PHONE_QR_TAG
 import com.kien.movies.debug.DebugLaunch
 import com.kien.movies.support.TvRobot
 import java.io.IOException
@@ -31,11 +25,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * "Add from phone" ACs AQ1 to AQ5 (docs/android-tv-rebuild.md, 5b and section 6). The test plays
- * the phone: it reads the address the TV shows and sends the page's requests from the device
- * itself. The scan with a real phone stays a manual check. AQ4's 403 and 409 are covered on the
- * JVM by PhoneAddonServerTest. Needs a network; the install cases also need the test addon on
- * 127.0.0.1:8765 (adb reverse).
+ * Add from a phone, ACs AQ1 to AQ5 (docs/android-tv-rebuild.md, 5b). The test plays the phone: it
+ * reads the address from the QR code's state description and sends the page's requests itself; a
+ * real phone's scan stays manual, AQ4 is PhoneAddonServerTest on the JVM. Needs a network, and the
+ * install cases the test addon on 127.0.0.1:8765 (adb reverse).
  */
 @RunWith(AndroidJUnit4::class)
 class PhoneAddonTest {
@@ -48,20 +41,18 @@ class PhoneAddonTest {
     fun closeApp() = tv.close()
 
     @Test
-    fun aq1_addFromPhoneShowsTheCodeAndTheAddressWithinASecond() {
+    fun aq1_theCodeShowsWithinASecondWhileAddAddonHasFocus() {
         openAddons()
-        focusPhoneButton()
 
-        tv.select()
+        tv.await(hasTestTag(QR_TAG) or hasText(NO_NETWORK), QR_TIMEOUT_MS)
 
-        tv.await(hasTestTag(PHONE_QR_TAG) or hasTestTag(PHONE_PROBLEM_TAG), QR_TIMEOUT_MS)
-        tv.assertFocusedTag(PHONE_CLOSE_TAG)
+        tv.assertFocusedTag(URL_SURFACE_TAG)
         assertTrue(shownAddress()?.startsWith("http://") ?: true)
     }
 
     @Test
     fun aq2_aq3_aProposalShowsTheDialogAndInstallAddsTheAddon() {
-        val address = openPhonePanel()
+        val address = openAddonsWithCode()
         val id = propose(address, TEST_ADDON_URL)
         tv.awaitFocus(hasTestTag(dialogButtonTag("Install")))
 
@@ -70,22 +61,25 @@ class PhoneAddonTest {
         compose.waitUntil(INSTALL_TIMEOUT_MS) { pollStatus(address, id).contains("\"done\"") }
         assertTrue(pollStatus(address, id).contains("\"ok\":true"))
         tv.await(hasTestTag(ADDON_ROW_TAG) and hasText(TEST_ADDON_NAME, substring = true))
+        tv.await(hasText("Installed $TEST_ADDON_NAME"))
+        tv.assertFocusedTag(URL_SURFACE_TAG)
     }
 
     @Test
     fun aq3_cancelAddsNothingAndThePageIsTold() {
-        val address = openPhonePanel()
+        val address = openAddonsWithCode()
         val id = propose(address, TEST_ADDON_URL)
         tv.awaitFocus(hasTestTag(dialogButtonTag("Install")))
 
         tv.back()
 
         assertEquals("""{"status":"cancelled"}""", pollStatus(address, id))
+        tv.assertFocusedTag(URL_SURFACE_TAG)
     }
 
     @Test
-    fun aq5_closingThePanelStopsTheServer() {
-        val address = openPhonePanel()
+    fun aq5_leavingAddonsStopsTheServer() {
+        val address = openAddonsWithCode()
 
         tv.back()
 
@@ -94,40 +88,20 @@ class PhoneAddonTest {
 
     private fun openAddons() {
         tv.launch(DebugLaunch.ROUTE to "settings/addons")
-        tv.await(hasTestTag(PHONE_BUTTON_TAG))
-        tv.awaitFocus(hasTestTag(ADDON_ROW_TAG) or hasTestTag(URL_SURFACE_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
+        tv.awaitFocus(hasTestTag(URL_SURFACE_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
     }
 
-    /** D-pad only: from a row Left into the panel, Up to the URL field, then Down to the button. */
-    private fun focusPhoneButton() {
-        if (compose.onAllNodes(isFocused() and hasTestTag(ADDON_ROW_TAG)).fetchSemanticsNodes().isNotEmpty()) {
-            tv.press(KeyEvent.KEYCODE_DPAD_LEFT)
-        }
-        pressUntilFocused(KeyEvent.KEYCODE_DPAD_UP, hasTestTag(URL_SURFACE_TAG))
-        pressUntilFocused(KeyEvent.KEYCODE_DPAD_DOWN, hasTestTag(PHONE_BUTTON_TAG))
-    }
-
-    private fun pressUntilFocused(keyCode: Int, matcher: SemanticsMatcher) {
-        repeat(MAX_PRESSES) {
-            if (compose.onAllNodes(isFocused() and matcher).fetchSemanticsNodes().isNotEmpty()) return
-            tv.press(keyCode)
-        }
-        tv.awaitFocus(matcher)
-    }
-
-    /** Opens the panel and returns the address it shows; skipped when the TV has no network. */
-    private fun openPhonePanel(): String {
+    /** Opens Addons and returns the address its code holds; skipped when the TV has no network. */
+    private fun openAddonsWithCode(): String {
         openAddons()
-        focusPhoneButton()
-        tv.select()
-        tv.await(hasTestTag(PHONE_QR_TAG) or hasTestTag(PHONE_PROBLEM_TAG), QR_TIMEOUT_MS)
+        tv.await(hasTestTag(QR_TAG) or hasText(NO_NETWORK), QR_TIMEOUT_MS)
         val address = shownAddress()
         assumeTrue("No network on the device", address != null)
         return checkNotNull(address)
     }
 
-    private fun shownAddress(): String? = compose.onAllNodes(hasTestTag(PHONE_ADDRESS_TAG)).fetchSemanticsNodes().firstOrNull()
-        ?.config?.getOrNull(SemanticsProperties.Text)?.joinToString { text -> text.text }
+    private fun shownAddress(): String? = compose.onAllNodes(hasTestTag(QR_TAG)).fetchSemanticsNodes().firstOrNull()
+        ?.config?.getOrNull(SemanticsProperties.StateDescription)
 
     private fun propose(address: String, manifestUrl: String): Long {
         val (status, body) = request(address.replace("/?t=", "/api/addons?t="), """{"urls": ["$manifestUrl"]}""")
@@ -172,6 +146,5 @@ class PhoneAddonTest {
         const val INSTALL_TIMEOUT_MS = 30_000L
         const val STOP_TIMEOUT_MS = 3_000L
         const val HTTP_TIMEOUT_MS = 2_000
-        const val MAX_PRESSES = 6
     }
 }

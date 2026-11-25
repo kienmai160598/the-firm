@@ -28,4 +28,7 @@ sealed interface AppRoute {
 
     /** A page of the Settings tab (tvOS `AppRoute.settings`). */
     data class Settings(val page: SettingsPage) : AppRoute
+
+    /** One addon's page under Settings, Addons (tvOS `AppRoute.addon(manifestUrl:)`). */
+    data class Addon(val manifestUrl: String) : AppRoute
 }
