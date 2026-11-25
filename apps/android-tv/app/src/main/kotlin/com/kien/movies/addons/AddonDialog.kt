@@ -23,12 +23,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.tv.material3.Button
 import androidx.tv.material3.Text
+import com.kien.movies.design.Focus
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvControls
 import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvSheet
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.kien.movies.design.glassEdge
 
 /**
@@ -72,7 +74,7 @@ fun AddonDialogButton(label: String, onClick: () -> Unit, modifier: Modifier = M
     Button(
         onClick = onClick,
         colors = TvGlass.buttonColors(),
-        scale = TvGlass.buttonScale(),
+        scale = TvGlass.noButtonScale(),
         shape = TvGlass.pillShape(),
         border = TvGlass.buttonBorder(),
         contentPadding = TvGlass.pillPadding,
@@ -81,6 +83,7 @@ fun AddonDialogButton(label: String, onClick: () -> Unit, modifier: Modifier = M
             .height(TvControls.pillHeight)
             .focusRequester(requester)
             .testTag(dialogButtonTag(label))
+            .focusLift(Focus.buttonScale)
     ) {
         Text(text = label, style = TvType.bodyEmphasized, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
     }

@@ -37,8 +37,10 @@ import com.kien.movies.design.ArtworkImage
 import com.kien.movies.design.CardFocus
 import com.kien.movies.design.CardSize
 import com.kien.movies.design.FactLine
+import com.kien.movies.design.Focus
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.kien.movies.design.liftsShelfTitle
 import com.kien.movies.design.rememberShelfTitleLift
 import com.kien.movies.details.WatchProgressBar
@@ -158,10 +160,11 @@ private fun CardArt(card: WatchingCard, onClick: () -> Unit, onLongClick: () -> 
                 contentDescription = card.title
                 stateDescription = card.progressLabel.orEmpty()
             }
-            .testTag(CONTINUE_WATCHING_CARD_TAG),
+            .testTag(CONTINUE_WATCHING_CARD_TAG)
+            .focusLift(Focus.cardScale),
         shape = CardFocus.shape(),
         colors = CardFocus.colors(),
-        scale = CardFocus.scale(),
+        scale = CardFocus.noScale(),
         border = CardFocus.border(),
         glow = CardFocus.glow()
     ) {

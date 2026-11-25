@@ -44,11 +44,13 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.design.Focus
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvControls
 import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.kien.movies.design.glassEdge
 import com.kien.movies.design.hangOutside
 import com.kien.movies.shell.upToNavPill
@@ -85,11 +87,11 @@ fun AddonInstallPanel(
             onClick = install,
             enabled = !state.isInstalling && manifestUrl.isNotBlank(),
             colors = TvGlass.buttonColors(),
-            scale = TvGlass.buttonScale(),
+            scale = TvGlass.noButtonScale(),
             shape = TvGlass.pillShape(),
             border = TvGlass.buttonBorder(),
             contentPadding = TvGlass.pillPadding,
-            modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight).testTag(INSTALL_BUTTON_TAG)
+            modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight).testTag(INSTALL_BUTTON_TAG).focusLift(Focus.buttonScale)
         ) {
             if (state.isInstalling) {
                 Text(text = "Installing", style = TvType.bodyEmphasized)
@@ -102,11 +104,11 @@ fun AddonInstallPanel(
         Button(
             onClick = onAddFromPhone,
             colors = TvGlass.buttonColors(),
-            scale = TvGlass.buttonScale(),
+            scale = TvGlass.noButtonScale(),
             shape = TvGlass.pillShape(),
             border = TvGlass.buttonBorder(),
             contentPadding = TvGlass.pillPadding,
-            modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight).focusRequester(phoneButtonFocus).testTag(PHONE_BUTTON_TAG)
+            modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight).focusRequester(phoneButtonFocus).testTag(PHONE_BUTTON_TAG).focusLift(Focus.buttonScale)
         ) {
             Icon(painter = painterResource(R.drawable.ic_addons_phone), contentDescription = null, modifier = Modifier.size(TvControls.glyph))
             Spacer(Modifier.size(GLYPH_GAP))
@@ -170,10 +172,10 @@ private fun ManifestUrlField(value: String, onValueChange: (String) -> Unit, onS
             Surface(
                 onClick = { isEditing = true },
                 colors = TvGlass.surfaceColors(),
-                scale = TvGlass.surfaceScale(),
+                scale = TvGlass.noSurfaceScale(),
                 shape = TvGlass.surfaceShape(TvShapes.pill),
                 border = TvGlass.surfaceBorder(TvShapes.pill),
-                modifier = Modifier.hangOutside(start = FIELD_PADDING, end = FIELD_PADDING).fillMaxWidth().height(FIELD_HEIGHT).upToNavPill().testTag(URL_SURFACE_TAG)
+                modifier = Modifier.hangOutside(start = FIELD_PADDING, end = FIELD_PADDING).fillMaxWidth().height(FIELD_HEIGHT).upToNavPill().testTag(URL_SURFACE_TAG).focusLift(Focus.buttonScale)
             ) {
                 Text(
                     text = value.ifEmpty { PLACEHOLDER },

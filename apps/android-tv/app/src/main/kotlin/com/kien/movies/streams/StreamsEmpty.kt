@@ -33,10 +33,12 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.design.Focus
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvControls
 import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.nuvio.tvos.TvosStreamsEmptyState
 
 /**
@@ -79,11 +81,11 @@ fun StreamsRetryButton(onRetry: () -> Unit, modifier: Modifier = Modifier) {
     Button(
         onClick = onRetry,
         colors = TvGlass.buttonColors(),
-        scale = TvGlass.buttonScale(),
+        scale = TvGlass.noButtonScale(),
         shape = TvGlass.pillShape(),
         border = TvGlass.buttonBorder(),
         contentPadding = TvGlass.pillPadding,
-        modifier = modifier.height(TvControls.pillHeight)
+        modifier = modifier.height(TvControls.pillHeight).focusLift(Focus.buttonScale)
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(GLYPH_GAP), verticalAlignment = Alignment.CenterVertically) {
             Icon(painter = painterResource(R.drawable.ic_streams_retry), contentDescription = null, modifier = Modifier.size(TvControls.glyph))

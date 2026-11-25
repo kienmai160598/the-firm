@@ -40,6 +40,7 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
+import com.kien.movies.design.focusLift
 import com.kien.movies.shell.upToNavPill
 
 /** Focus handles of the keyboard: the row as a whole (restores the last key), "a", and "123". */
@@ -101,7 +102,7 @@ private fun KeyCell(id: String, onClick: () -> Unit, modifier: Modifier = Modifi
     val interactionSource = remember { MutableInteractionSource() }
     Surface(
         onClick = onClick,
-        modifier = modifier.size(letterCell).raisedWhenFocused(interactionSource).testTag(searchKeyTag(id)),
+        modifier = modifier.size(letterCell).raisedWhenFocused(interactionSource).testTag(searchKeyTag(id)).focusLift(KEY_FOCUS_SCALE),
         shape = ClickableSurfaceDefaults.shape(shape = keyShape),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = Color.Transparent,
@@ -111,7 +112,7 @@ private fun KeyCell(id: String, onClick: () -> Unit, modifier: Modifier = Modifi
             pressedContainerColor = TvColors.focusedFill,
             pressedContentColor = TvColors.focusedContent
         ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = KEY_FOCUS_SCALE),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
         interactionSource = interactionSource
     ) {
         Box(modifier = Modifier.align(Alignment.Center), content = content)
@@ -124,7 +125,7 @@ private fun Keycap(label: String, id: String, width: Dp, onClick: () -> Unit, mo
     val interactionSource = remember { MutableInteractionSource() }
     Surface(
         onClick = onClick,
-        modifier = modifier.size(width, KEYCAP_HEIGHT).raisedWhenFocused(interactionSource).testTag(searchKeyTag(id)),
+        modifier = modifier.size(width, KEYCAP_HEIGHT).raisedWhenFocused(interactionSource).testTag(searchKeyTag(id)).focusLift(KEY_FOCUS_SCALE),
         shape = ClickableSurfaceDefaults.shape(shape = keycapShape),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = KEYCAP_FILL,
@@ -134,7 +135,7 @@ private fun Keycap(label: String, id: String, width: Dp, onClick: () -> Unit, mo
             pressedContainerColor = TvColors.focusedFill,
             pressedContentColor = TvColors.focusedContent
         ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = KEY_FOCUS_SCALE),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
         interactionSource = interactionSource
     ) {
         Text(text = label, style = keycapStyle, modifier = Modifier.align(Alignment.Center))

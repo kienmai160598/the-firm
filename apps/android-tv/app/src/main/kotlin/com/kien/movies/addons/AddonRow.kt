@@ -36,6 +36,7 @@ import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
 import com.kien.movies.design.containerRadius
+import com.kien.movies.design.focusLift
 import com.kien.movies.settings.SettingsRowColors
 import com.nuvio.tvos.TvosAddon
 
@@ -49,10 +50,10 @@ fun AddonRow(addon: TvosAddon, onClick: () -> Unit, modifier: Modifier = Modifie
     ListItem(
         selected = false,
         onClick = onClick,
-        modifier = modifier.testTag(ADDON_ROW_TAG),
+        modifier = modifier.testTag(ADDON_ROW_TAG).focusLift(Focus.wideRowScale),
         colors = SettingsRowColors.listItem(),
         shape = ListItemDefaults.shape(shape = ROW_SHAPE),
-        scale = ListItemDefaults.scale(focusedScale = Focus.wideRowScale),
+        scale = ListItemDefaults.scale(focusedScale = 1f),
         leadingContent = { AddonLogo(url = addon.logoUrl, enabled = addon.enabled) },
         headlineContent = { TitleLine(addon) },
         supportingContent = { Details(addon) },

@@ -24,6 +24,7 @@ import com.kien.movies.design.Focus
 import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 
 /**
  * A Settings row (tvOS SettingsLinkLabel.swift): the title, its value where Settings shows one, and
@@ -44,10 +45,11 @@ fun SettingsLinkLabel(
         modifier = modifier
             .fillMaxWidth()
             .height(SettingsMetrics.rowHeight)
-            .semantics(mergeDescendants = true) { contentDescription = listOfNotNull(title, value).joinToString(", ") },
+            .semantics(mergeDescendants = true) { contentDescription = listOfNotNull(title, value).joinToString(", ") }
+            .focusLift(Focus.wideRowScale),
         colors = SettingsRowColors.surface(),
         shape = TvGlass.surfaceShape(TvShapes.pill),
-        scale = TvGlass.surfaceScale(Focus.wideRowScale)
+        scale = TvGlass.noSurfaceScale()
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().height(SettingsMetrics.rowHeight).padding(start = TITLE_INSET, end = GLYPH_INSET),

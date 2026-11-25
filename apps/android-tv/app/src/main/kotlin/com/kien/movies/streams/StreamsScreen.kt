@@ -34,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.Button
 import androidx.tv.material3.Text
+import com.kien.movies.design.Focus
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvControls
 import com.kien.movies.design.TvGlass
@@ -41,6 +42,7 @@ import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvInsets
 import com.kien.movies.design.TvSheet
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.kien.movies.design.glassEdge
 import com.kien.movies.player.PlaybackRequest
 import com.kien.movies.player.PlaybackScreen
@@ -217,11 +219,11 @@ private fun DialogButton(text: String, onClick: () -> Unit, modifier: Modifier =
     Button(
         onClick = onClick,
         colors = TvGlass.buttonColors(),
-        scale = TvGlass.buttonScale(),
+        scale = TvGlass.noButtonScale(),
         shape = TvGlass.pillShape(),
         border = TvGlass.buttonBorder(),
         contentPadding = TvGlass.pillPadding,
-        modifier = modifier.fillMaxWidth().height(TvControls.pillHeight)
+        modifier = modifier.fillMaxWidth().height(TvControls.pillHeight).focusLift(Focus.buttonScale)
     ) {
         Text(
             text = text,

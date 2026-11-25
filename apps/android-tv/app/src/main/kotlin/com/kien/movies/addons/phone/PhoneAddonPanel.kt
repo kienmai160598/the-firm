@@ -31,10 +31,12 @@ import androidx.tv.material3.Button
 import androidx.tv.material3.Text
 import com.kien.movies.addons.ERROR_RED
 import com.kien.movies.addons.SectionTitle
+import com.kien.movies.design.Focus
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvControls
 import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.kien.movies.design.hangOutside
 import com.nuvio.tvos.phone.AddonInstallOutcome
 import com.nuvio.tvos.phone.AddonPairingLimits
@@ -125,11 +127,11 @@ fun PhoneAddonPanel(
         Button(
             onClick = onClose,
             colors = TvGlass.buttonColors(),
-            scale = TvGlass.buttonScale(),
+            scale = TvGlass.noButtonScale(),
             shape = TvGlass.pillShape(),
             border = TvGlass.buttonBorder(),
             contentPadding = TvGlass.pillPadding,
-            modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight).focusRequester(closeFocus).testTag(PHONE_CLOSE_TAG)
+            modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight).focusRequester(closeFocus).testTag(PHONE_CLOSE_TAG).focusLift(Focus.buttonScale)
         ) {
             Text(text = "Close", style = TvType.bodyEmphasized)
         }
@@ -187,11 +189,11 @@ private fun Problem(message: String, onRetry: () -> Unit) {
     Button(
         onClick = onRetry,
         colors = TvGlass.buttonColors(),
-        scale = TvGlass.buttonScale(),
+        scale = TvGlass.noButtonScale(),
         shape = TvGlass.pillShape(),
         border = TvGlass.buttonBorder(),
         contentPadding = TvGlass.pillPadding,
-        modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight)
+        modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight).focusLift(Focus.buttonScale)
     ) {
         Text(text = "Try Again", style = TvType.bodyEmphasized)
     }

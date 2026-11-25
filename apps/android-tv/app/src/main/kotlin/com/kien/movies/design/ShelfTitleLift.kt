@@ -1,7 +1,6 @@
 package com.kien.movies.design
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -45,7 +44,7 @@ class ShelfTitleLift internal constructor(private val scope: CoroutineScope, pri
             focusedCard = null
         }
         val target = if (isUnderTitle(focusedCard)) 1f else 0f
-        scope.launch { progress.animateTo(target, tween(Focus.animationMillis)) }
+        scope.launch { progress.animateTo(target, Motion.focusSpring) }
     }
 
     /**

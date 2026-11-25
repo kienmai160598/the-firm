@@ -31,6 +31,7 @@ import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.kien.movies.design.glassEdgeBorder
 import com.nuvio.tvos.TvosItem
 
@@ -86,7 +87,7 @@ private fun ResultPlatter(
     Surface(
         onClick = onClick,
         onLongClick = onLongClick,
-        modifier = modifier.size(resultCardSize()),
+        modifier = modifier.size(resultCardSize()).focusLift(RESULT_FOCUS_SCALE),
         shape = ClickableSurfaceDefaults.shape(shape = TvShapes.panel),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = TvColors.platter,
@@ -96,7 +97,7 @@ private fun ResultPlatter(
             pressedContainerColor = FOCUSED_PLATTER,
             pressedContentColor = TvColors.textPrimary
         ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = RESULT_FOCUS_SCALE),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
         border = ClickableSurfaceDefaults.border(border = glassEdgeBorder(TvShapes.panel), focusedBorder = glassEdgeBorder(TvShapes.panel)),
         glow = ClickableSurfaceDefaults.glow(focusedGlow = focusShadow)
     ) {

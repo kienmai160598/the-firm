@@ -57,7 +57,8 @@ object TvGlass {
     /** Horizontal only: a pill is [TvControls.pillHeight] tall, the label centres in it. */
     val pillPadding = PaddingValues(horizontal = pillPaddingHorizontal)
 
-    fun buttonScale(): ButtonScale = ButtonDefaults.scale(focusedScale = Focus.buttonScale)
+    /** No tv-material scale: the lift is [focusLift] with [Focus.buttonScale], on the tvOS curve. */
+    fun noButtonScale(): ButtonScale = ButtonDefaults.scale(focusedScale = 1f)
 
     @Composable
     @ReadOnlyComposable
@@ -84,7 +85,8 @@ object TvGlass {
     @ReadOnlyComposable
     fun surfaceShape(shape: Shape): ClickableSurfaceShape = ClickableSurfaceDefaults.shape(shape = shape)
 
-    fun surfaceScale(focusedScale: Float = Focus.buttonScale): ClickableSurfaceScale = ClickableSurfaceDefaults.scale(focusedScale = focusedScale)
+    /** No tv-material scale: the lift is [focusLift], on the tvOS curve. */
+    fun noSurfaceScale(): ClickableSurfaceScale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
 
     @Composable
     @ReadOnlyComposable
@@ -124,7 +126,8 @@ object TvGlass {
 
     fun circleShape(): ButtonShape = IconButtonDefaults.shape(shape = CircleShape)
 
-    fun circleScale(): ButtonScale = IconButtonDefaults.scale(focusedScale = Focus.buttonScale)
+    /** No tv-material scale: the lift is [focusLift] with [Focus.buttonScale], on the tvOS curve. */
+    fun noCircleScale(): ButtonScale = IconButtonDefaults.scale(focusedScale = 1f)
 
     private fun Border.withShape(shape: Shape): Border = copy(shape = shape)
 }

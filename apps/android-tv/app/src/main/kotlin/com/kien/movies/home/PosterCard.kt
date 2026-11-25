@@ -32,9 +32,11 @@ import androidx.tv.material3.Text
 import coil3.request.ImageRequest
 import com.kien.movies.design.ArtworkImage
 import com.kien.movies.design.CardFocus
+import com.kien.movies.design.Focus
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.kien.movies.shell.AppRoute
 
 /**
@@ -50,10 +52,11 @@ fun PosterCard(item: PosterItem, onOpen: (AppRoute) -> Unit, modifier: Modifier 
         onClick = { onOpen(item.route) },
         modifier = modifier
             .semantics { contentDescription = item.name }
-            .testTag(POSTER_CARD_TAG),
+            .testTag(POSTER_CARD_TAG)
+            .focusLift(Focus.cardScale),
         shape = CardFocus.shape(),
         colors = CardFocus.colors(),
-        scale = CardFocus.scale(),
+        scale = CardFocus.noScale(),
         border = CardFocus.border(),
         glow = CardFocus.glow(),
         interactionSource = interaction
