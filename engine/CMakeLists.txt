@@ -28,6 +28,7 @@ add_library(movies_engine STATIC
     src/storage/payload_disk_io_jobs.cpp
     src/storage/payload_store.cpp
     src/storage/piece_hashing.cpp
+    src/storage/written_ranges.cpp
     src/stream/sequential_window.cpp
     src/stream/stream_reader.cpp
     src/stream/stream_reading.cpp

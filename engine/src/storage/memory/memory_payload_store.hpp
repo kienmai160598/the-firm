@@ -6,6 +6,7 @@
 #include <mutex>
 
 #include "storage/payload_store.hpp"
+#include "storage/written_ranges.hpp"
 
 namespace movies::storage {
 
@@ -20,6 +21,7 @@ public:
     WriteResult write(const TorrentKey& key, int piece, int offset,
                       std::span<const char> data) override;
     bool read(const TorrentKey& key, int piece, int offset, std::span<char> out) const override;
+    int read_written(const TorrentKey& key, int piece, int offset, std::span<char> out) const override;
     [[nodiscard]] std::shared_ptr<const PieceBuffer> piece(const TorrentKey& key,
                                                            int piece) const override;
     void clear(const TorrentKey& key, int piece) override;
@@ -30,6 +32,7 @@ private:
     struct Torrent {
         PieceLayout layout;
         std::map<int, std::shared_ptr<PieceBuffer>> pieces;
+        std::map<int, WrittenRanges> written;  // pieces[piece]'s bytes that have arrived
     };
 
     std::shared_ptr<PieceBuffer> find(const TorrentKey& key, int piece) const;

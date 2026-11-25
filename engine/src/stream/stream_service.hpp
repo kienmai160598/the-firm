@@ -49,8 +49,7 @@ private:
     void move_reader(Stream& stream, std::uint64_t reader, std::int64_t offset);
     void replan(Stream& stream);
     void evict_if_needed(Stream& stream);
-    bool wait_for_piece(std::unique_lock<std::mutex>& lock, Stream& stream, int piece,
-                        std::chrono::steady_clock::time_point deadline);
+    bool is_gone(const Stream& stream) const;
 
     torrent::TorrentService& torrents_;
     const std::shared_ptr<storage::PayloadStore> store_;
