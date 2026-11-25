@@ -119,6 +119,24 @@ final class ContinueWatchingTests: XCTestCase {
         XCTAssertTrue(tv.waitForFocus(cards[1], timeout: 10), "Focused: \(tv.focusedLabel)")
     }
 
+    func testW5_goToShowOpensTheShowsDetailsAndBackReturnsToTheCard() {
+        tv.launch(route: Self.series)
+        tv.playEpisode(from: "Play S1 E1", seconds: 6)
+        let movie = tv.watchTestMovie()
+        tv.launch(keepingState: true)
+        XCTAssertTrue(seriesCard.waitForExistence(timeout: 60))
+        tv.focusCard(seriesCard)
+
+        tv.chooseFromContextMenu("Go to Show")
+
+        XCTAssertTrue(tv.button(beginningWith: "Resume S1 E1").waitForExistence(timeout: 30))
+        XCTAssertTrue(tv.seasonTab.exists, "Not the show's Details")
+        tv.screenshot("cw-go-to-show")
+        tv.remote.press(.menu)
+        XCTAssertTrue(tv.waitForFocus(seriesCard, timeout: 10), "Focused: \(tv.focusedLabel)")
+        XCTAssertTrue(movie.exists, "The neighbour card left the row")
+    }
+
     private var seriesCard: XCUIElement {
         tv.continueWatchingCard(titled: Self.seriesTitle)
     }

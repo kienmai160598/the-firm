@@ -32,16 +32,15 @@ import coil3.compose.AsyncImage
 import com.kien.movies.R
 import com.kien.movies.design.Focus
 import com.kien.movies.design.TvColors
-import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
+import com.kien.movies.settings.SettingsRowColors
 import com.nuvio.tvos.TvosAddon
 
 /**
  * One installed addon (tvOS AddonRow.swift): logo, name and version, summary or error, capability
- * badges, and On, Off or Refreshing. A tv-material ListItem as a platter (white 22% plus the glass
- * edge, panel corner), solid white with dark content when focused, so every secondary text takes
- * its colour from the content colour.
+ * badges, and On, Off or Refreshing. A tv-material ListItem in [SettingsRowColors] with the panel
+ * corner, so every secondary text takes its colour from the content colour.
  */
 @Composable
 fun AddonRow(addon: TvosAddon, onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -49,17 +48,9 @@ fun AddonRow(addon: TvosAddon, onClick: () -> Unit, modifier: Modifier = Modifie
         selected = false,
         onClick = onClick,
         modifier = modifier.testTag(ADDON_ROW_TAG),
-        colors = ListItemDefaults.colors(
-            containerColor = TvColors.platter,
-            contentColor = TvColors.textPrimary,
-            focusedContainerColor = TvColors.focusedFill,
-            focusedContentColor = TvColors.focusedContent,
-            pressedContainerColor = TvColors.focusedFill,
-            pressedContentColor = TvColors.focusedContent
-        ),
+        colors = SettingsRowColors.listItem(),
         shape = ListItemDefaults.shape(shape = TvShapes.panel),
         scale = ListItemDefaults.scale(focusedScale = Focus.wideRowScale),
-        border = TvGlass.listItemBorder(TvShapes.panel),
         leadingContent = { AddonLogo(url = addon.logoUrl, enabled = addon.enabled) },
         headlineContent = { TitleLine(addon) },
         supportingContent = { Details(addon) },

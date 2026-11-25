@@ -75,8 +75,24 @@ object TvColors {
     /** Unfocused pill, platter or circular button: one flat layer, plus [glassEdge]. */
     val platter = Color.White.copy(alpha = 0.22f)
 
-    /** The open sidebar panel: one layer, no blur, plus [glassEdge]. */
-    val sidebarPanel = Color(0xFF1A1A1A).copy(alpha = 0.96f)
+    /**
+     * A stream row over the receded backdrop of Streams: white 13%, as measured on tvOS where the
+     * glass row lifts the backdrop by 12 to 13% (2026-11-24).
+     */
+    val streamRow = Color.White.copy(alpha = 0.13f)
+
+    /**
+     * The panel of a popup (dialogs and sheets): near black glass at 85%, so the dimmed screen
+     * behind lifts through it a little as through tvOS's glass sheet. One layer over the dialog
+     * window's dim, no blur.
+     */
+    val dialogPanel = Color(0xFF1A1A1A).copy(alpha = 0.85f)
+
+    /**
+     * The open sidebar panel: one layer, no blur, plus the liquid glass rim. Light enough that the
+     * screen behind still shows through, as tvOS glass does.
+     */
+    val sidebarPanel = Color(0xFF1A1A1A).copy(alpha = 0.78f)
 
     /** The light 1 dp rim drawn where tvOS shows Liquid Glass. */
     val glassEdge = Color.White.copy(alpha = 0.16f)
@@ -93,8 +109,27 @@ object TvColors {
     /** Card focus shadow: black 40%. */
     val focusShadow = Color.Black.copy(alpha = 0.4f)
 
+    /**
+     * Player glass over video, measured on the tvOS player in the simulator: an unfocused circle
+     * button darkens the video under it by about 26% (no white tint), and the track is grey
+     * `#8F8F8F` at 63%. Both are one flat layer; the rim is [liquidGlassRim].
+     */
+    val playerGlass = Color.Black.copy(alpha = 0.26f)
+    val playerTrack = Color(0xFF8F8F8F).copy(alpha = 0.63f)
+
     /** Behind artwork that has not loaded yet. */
     val artworkPlaceholder = Color(0xFF3F4446)
+
+    /**
+     * Settings and its pages, the tvOS system `List` on the dark system background, measured on the
+     * Apple TV simulator: the window, a row, the art platter (`.quaternary`), and a focused row.
+     * Row and platter are glass, white over the window: 9% lands on the measured `#333232` and 20%
+     * on `#4B4B4B`, and whatever is behind them still shows through.
+     */
+    val settingsBackground = Color(0xFF1E1E1E)
+    val settingsRow = Color.White.copy(alpha = 0.09f)
+    val settingsArt = Color.White.copy(alpha = 0.2f)
+    val settingsFocusedRow = Color.White
 }
 
 /**
@@ -138,8 +173,9 @@ object TvShapes {
     /** Poster, 16:9 card, Continue Watching (tvOS 16 pt continuous). */
     val card = RoundedCornerShape(8.dp)
 
-    /** Result card, description panel (tvOS 24 pt). */
-    val panel = RoundedCornerShape(12.dp)
+    /** Result card, description panel, stream row (tvOS 24 pt). */
+    val panelRadius: Dp = 12.dp
+    val panel = RoundedCornerShape(panelRadius)
 
     /** Open sidebar panel (tvOS 32 pt). */
     val sidebar = RoundedCornerShape(16.dp)
@@ -148,10 +184,29 @@ object TvShapes {
     val pill = RoundedCornerShape(50)
 }
 
+/**
+ * A centred dialog panel that ends in a capsule button (stream info sheet, resume dialog). Its
+ * corner follows the concentric rule: the capsule's radius plus the panel's padding.
+ */
+object TvSheet {
+    /** Stream info sheet width and padding (tvOS StreamDetailSheet, 1200 x 64 pt). */
+    val width: Dp = 600.dp
+    val padding: Dp = 32.dp
+
+    /** 16 dp capsule radius + 32 dp padding = 48 dp. */
+    val shape: RoundedCornerShape = shapeFor(padding)
+
+    /** A panel with [padding] around its capsule buttons, such as the resume dialog (24 dp: 40 dp). */
+    fun shapeFor(padding: Dp): RoundedCornerShape = RoundedCornerShape(containerRadius(inner = TvControls.pillRadius, padding = padding))
+}
+
 /** Control sizes (spec section 3, Buttons and pills). Focus scales are in [Focus]. */
 object TvControls {
     /** Primary capsule on Details and in panels and dialogs, 64 pt. */
     val pillHeight: Dp = 32.dp
+
+    /** Corner radius of that capsule, the inner radius for the concentric rule. */
+    val pillRadius: Dp = pillHeight / 2
 
     /**
      * Circular control of the player's transport row, 64 pt. The player is not captured (spec

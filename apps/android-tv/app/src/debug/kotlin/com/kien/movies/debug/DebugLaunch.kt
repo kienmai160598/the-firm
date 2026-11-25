@@ -19,7 +19,7 @@ import com.nuvio.tvos.TvosMetaDetails
  *
  * | Extra | Type | Effect |
  * |---|---|---|
- * | MoviesDebugRoute | string | `details/<type>/<id>`, `streams/<type>/<id>` (Details, which then opens Streams once), `tab/<home,search,library,settings>` or `settings/<account,playback,subtitles,addons,about>` (Android only) |
+ * | MoviesDebugRoute | string | `details/<type>/<id>`, `streams/<type>/<id>` (Details, which then opens Streams once), `tab/<home,search,library,settings>` or `settings/<playback,subtitles,addons,about>` (Android only) |
  * | MoviesDebugAddonUrl | string | installs this manifest after the default addon and removes other loopback addons |
  * | MoviesDebugStreamFixture | boolean | Streams shows the fixture instead of loading |
  * | MoviesDebugOpenFirstStream | boolean | Streams plays its first stream once |

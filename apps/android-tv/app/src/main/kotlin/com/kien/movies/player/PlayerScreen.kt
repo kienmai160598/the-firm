@@ -44,15 +44,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
@@ -79,7 +76,6 @@ import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.design.Motion
-import com.kien.movies.design.PlatterOverBlack
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvControls
 import com.kien.movies.design.TvGlass
@@ -132,19 +128,8 @@ private val PanelGap = 12.dp // 24 pt
 private val ButtonGap = 13.dp // spec: 26 pt between the hero's buttons
 private val TitleGap = 4.dp
 
-// The one scrim band under the controls: the Backdrop's leading shade stops turned upright (black
-// 0.9 at the bottom, 0.55 at 45%, clear at 80%), tall enough that the title sits in the dark part.
-private val ScrimBandHeight = 180.dp
-private val ScrimBand = Brush.verticalGradient(
-    0f to Color.Transparent,
-    0.2f to Color.Transparent,
-    0.55f to Color.Black.copy(alpha = 0.55f),
-    1f to Color.Black.copy(alpha = 0.9f)
-)
-
-// Circle buttons sit on the band: opaque fills (the platter and the tertiary white composited over
-// black), so the band stays the only translucent layer over the video.
-private val OpenControlFill = TvColors.textTertiary.compositeOver(Color.Black)
+// tvOS mpvCircleButtonStyle tints an open control white at 40%.
+private val OpenControlFill = Color.White.copy(alpha = 0.4f)
 private val InfoRowGap = 20.dp // 40 pt
 private val ControlsRise = 14.dp // 28 pt
 private val SpinnerSize = 24.dp // ProgressView scaled 1.6
@@ -152,8 +137,8 @@ private val SpinnerStroke = 3.dp
 
 /**
  * The player (tvOS MpvPlayerScreen.swift): video, spinner, the controls (title, three round
- * buttons, transport bar) on one scrim band at the bottom, AVKit style, menus above the buttons
- * as opaque platters, and the advisory banner. Owns the remote: see [PlayerContent].
+ * buttons, transport bar) straight over the video at the bottom with no scrim behind them, menus
+ * above the buttons as opaque platters, and the advisory banner. Owns the remote: see [PlayerContent].
  */
 @Composable
 fun PlayerScreen(request: PlaybackRequest, onFailure: (StreamNotice) -> Unit, onExit: () -> Unit) {
@@ -398,13 +383,6 @@ private fun PlayerContent(controller: PlayerController, state: PlayerState, targ
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .height(ScrimBandHeight)
-                        .drawBehind { drawRect(ScrimBand) }
-                )
                 Column(
                     horizontalAlignment = Alignment.End,
                     modifier = Modifier
@@ -490,17 +468,8 @@ private fun InfoRow(
                     enabled = !isTrackMenuOpen || isOpen,
                     shape = TvGlass.circleShape(),
                     scale = TvGlass.circleScale(),
-                    border = TvGlass.circleBorder(),
-                    colors = IconButtonDefaults.colors(
-                        containerColor = if (isOpen) OpenControlFill else PlatterOverBlack,
-                        contentColor = TvColors.textPrimary,
-                        focusedContainerColor = TvColors.focusedFill,
-                        focusedContentColor = TvColors.focusedContent,
-                        pressedContainerColor = TvColors.focusedFill,
-                        pressedContentColor = TvColors.focusedContent,
-                        disabledContainerColor = PlatterOverBlack,
-                        disabledContentColor = TvColors.textTertiary
-                    ),
+                    border = TvGlass.liquidCircleBorder(),
+                    colors = TvGlass.circleColors(containerColor = if (isOpen) OpenControlFill else TvColors.playerGlass),
                     modifier = Modifier
                         .size(TvControls.circle)
                         .focusRequester(controlFocus.getValue(control))

@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
@@ -25,8 +24,6 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.ClickableSurfaceShape
 import androidx.tv.material3.IconButtonDefaults
-import androidx.tv.material3.ListItemBorder
-import androidx.tv.material3.ListItemDefaults
 
 // Flat stand-ins for the tvOS glass (GlassStyle.swift, spec section 2): an unfocused control is one
 // [TvColors.platter] fill with the glass edge, a focused one is [TvColors.focusedFill] with dark
@@ -71,8 +68,8 @@ object TvGlass {
 
     @Composable
     @ReadOnlyComposable
-    fun surfaceColors(): ClickableSurfaceColors = ClickableSurfaceDefaults.colors(
-        containerColor = TvColors.platter,
+    fun surfaceColors(containerColor: Color = TvColors.platter): ClickableSurfaceColors = ClickableSurfaceDefaults.colors(
+        containerColor = containerColor,
         contentColor = TvColors.textPrimary,
         focusedContainerColor = TvColors.focusedFill,
         focusedContentColor = TvColors.focusedContent,
@@ -94,23 +91,32 @@ object TvGlass {
         pressedBorder = Border.None
     )
 
+    /** The rim of a circular tv-material `IconButton` over video: [liquidGlassRim]. */
     @Composable
     @ReadOnlyComposable
-    fun listItemBorder(shape: Shape): ListItemBorder = ListItemDefaults.border(
-        border = edge.withShape(shape),
-        focusedBorder = Border.None,
-        pressedBorder = Border.None
-    )
-
-    /** The glass edge of a circular tv-material `IconButton`. */
-    @Composable
-    @ReadOnlyComposable
-    fun circleBorder(): ButtonBorder = IconButtonDefaults.border(
-        border = edge.withShape(CircleShape),
+    fun liquidCircleBorder(): ButtonBorder = IconButtonDefaults.border(
+        border = liquidGlassBorder(CircleShape),
         focusedBorder = Border.None,
         pressedBorder = Border.None,
-        disabledBorder = edge.withShape(CircleShape),
-        focusedDisabledBorder = edge.withShape(CircleShape)
+        disabledBorder = liquidGlassBorder(CircleShape),
+        focusedDisabledBorder = liquidGlassBorder(CircleShape)
+    )
+
+    /**
+     * A circular tv-material `IconButton` as glass: [containerColor] at rest (the platter, or a
+     * brighter fill for a control whose menu is open), white with dark content when focused.
+     */
+    @Composable
+    @ReadOnlyComposable
+    fun circleColors(containerColor: Color = TvColors.platter): ButtonColors = IconButtonDefaults.colors(
+        containerColor = containerColor,
+        contentColor = TvColors.textPrimary,
+        focusedContainerColor = TvColors.focusedFill,
+        focusedContentColor = TvColors.focusedContent,
+        pressedContainerColor = TvColors.focusedFill,
+        pressedContentColor = TvColors.focusedContent,
+        disabledContainerColor = TvColors.platter,
+        disabledContentColor = TvColors.textTertiary
     )
 
     fun circleShape(): ButtonShape = IconButtonDefaults.shape(shape = CircleShape)
@@ -119,9 +125,6 @@ object TvGlass {
 
     private fun Border.withShape(shape: Shape): Border = copy(shape = shape)
 }
-
-/** White 22% composited over black once: the platter as an opaque colour, for use over video. */
-val PlatterOverBlack: Color = TvColors.platter.compositeOver(Color.Black)
 
 /** Dark panel fill over video or art (`darkGlassPanel` on tvOS): one translucent layer. */
 fun Modifier.darkGlassPanel(cornerRadius: Dp = PANEL_CORNER): Modifier = background(DARK_PANEL, RoundedCornerShape(cornerRadius))

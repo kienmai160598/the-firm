@@ -29,9 +29,9 @@ extension TvApp {
         }
         XCTAssertEqual(focusedTabTitle, "Settings", file: file, line: line)
         remote.press(.select)
-        let firstRow = app.buttons["settings-account"]
+        let firstRow = app.buttons["settings-playback"]
         XCTAssertTrue(firstRow.waitForExistence(timeout: 10), file: file, line: line)
-        _ = waitUntil(focused, NSPredicate(format: "label BEGINSWITH 'Account'"), timeout: 3)
+        _ = waitUntil(focused, NSPredicate(format: "label BEGINSWITH 'Playback'"), timeout: 3)
     }
 
     private func waitUntilTab(_ title: String) -> Bool {

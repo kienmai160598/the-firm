@@ -23,6 +23,9 @@ final class HomeModel: ObservableObject {
 
     func perform(_ action: ContinueWatchingAction, on item: TvosContinueWatchingItem) {
         switch action {
+        case .goToDetails:
+            // A navigation that leaves the rows as they are: ContinueWatchingRowView opens Details.
+            return
         case .markWatched:
             markedSeries = isAlone(item) ? MarkedSeries(item: item) : nil
             TvosHome.shared.markContinueWatchingWatched(key: item.key)

@@ -37,6 +37,9 @@ sealed interface StreamsContent {
     /** [searchingAddonCount] addons have not answered yet ("Searching N more addons", S1). */
     data class Groups(val groups: List<StreamGroupItem>, val searchingAddonCount: Int) : StreamsContent {
         val hasRows: Boolean get() = groups.any { group -> group.rows.isNotEmpty() }
+
+        /** Every row of every addon: the header's "N sources" (tvOS StreamsModel.sourceCount). */
+        val sourceCount: Int get() = groups.sumOf { group -> group.rows.size }
     }
 }
 

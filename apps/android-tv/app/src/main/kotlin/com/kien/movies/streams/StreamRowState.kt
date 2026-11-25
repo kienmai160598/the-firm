@@ -97,9 +97,15 @@ fun streamRowItem(stream: TvosStream): StreamRowItem = StreamRowItem(
         providedBadges = stream.badges,
         providedSize = stream.sizeLabel
     ),
-    oneLineName = stream.name.lines().map(String::trim).filter(String::isNotEmpty).joinToString("   "),
+    oneLineName = oneLineName(stream.name),
     fileLine = fileLine(stream)
 )
+
+/**
+ * An addon's multi line name ("Torrentio\n4k") on one line, its parts three spaces apart, as the
+ * row and the info sheet show it.
+ */
+fun oneLineName(name: String): String = name.lines().map(String::trim).filter(String::isNotEmpty).joinToString("   ")
 
 private fun fileLine(stream: TvosStream): String? {
     stream.filename?.takeIf(String::isNotEmpty)?.let { return it }
