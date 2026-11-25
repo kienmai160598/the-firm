@@ -40,7 +40,7 @@ enum MpvMediaInfo {
 
     /// Where the sound goes and through which mpv driver, so an AirPlay problem shows here.
     private static func audioOutput(using mpv: MpvHandle) -> String {
-        joined([PlaybackAudioSession.outputDescription, mpv.string("current-ao")])
+        joined([PlaybackAudioSession.outputDescription, mpv.string(MpvProperty.audioOutput)])
     }
 
     private static func decoder(using mpv: MpvHandle) -> String {

@@ -6,6 +6,7 @@ import com.nuvio.app.features.watching.domain.isShortPlaceholderDuration
 import com.nuvio.app.features.watchprogress.WatchProgressEntry
 import com.nuvio.app.features.watchprogress.WatchProgressPlaybackSession
 import com.nuvio.app.features.watchprogress.WatchProgressRepository
+import com.nuvio.tvos.rules.ResumeStart
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -17,12 +18,24 @@ object TvosPlayback {
     }
 
     fun resumePositionMs(target: TvosStreamTarget, actualDurationMs: Long): Long {
-        val entry = savedProgress(target)?.takeUnless(WatchProgressEntry::isCompleted) ?: return 0L
+        val entry = resumableProgress(target) ?: return 0L
         return entry.resolveResumePosition(actualDurationMs)
+    }
+
+    /**
+     * The resume position when the saved progress gives it without the stream's length, so a
+     * player can open the stream there; null when [resumePositionMs] has to wait for the length.
+     */
+    fun resumePositionBeforeLoadMs(target: TvosStreamTarget): Long? {
+        val entry = resumableProgress(target) ?: return null
+        return ResumeStart.positionBeforeLoadMs(entry.lastPositionMs, entry.durationMs)
     }
 
     fun startSession(target: TvosStreamTarget, stream: TvosStream): TvosPlaybackSession =
         TvosPlaybackSession(watchProgressSession(target, stream))
+
+    private fun resumableProgress(target: TvosStreamTarget): WatchProgressEntry? =
+        savedProgress(target)?.takeUnless(WatchProgressEntry::isCompleted)
 
     private fun savedProgress(target: TvosStreamTarget): WatchProgressEntry? =
         WatchProgressRepository.progressForVideo(

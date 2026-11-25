@@ -3,39 +3,13 @@ import AVKit
 import CoreMedia
 import UIKit
 
-enum MpvDynamicRange: Equatable {
-    case standard
-    case perceptualQuantizer
-    case hybridLogGamma
-
-    init(mpvGamma: String?) {
-        switch mpvGamma {
-        case "pq": self = .perceptualQuantizer
-        case "hlg": self = .hybridLogGamma
-        default: self = .standard
-        }
-    }
-
-    var isHighDynamicRange: Bool {
-        self != .standard
-    }
-
-    fileprivate var transferFunction: CFString? {
-        switch self {
-        case .standard: nil
-        case .perceptualQuantizer: kCMFormatDescriptionTransferFunction_SMPTE_ST_2084_PQ
-        case .hybridLogGamma: kCMFormatDescriptionTransferFunction_ITU_R_2100_HLG
-        }
-    }
-}
-
 struct MpvVideoFormat: Equatable {
     let width: Int32
     let height: Int32
     let framesPerSecond: Double
     let dynamicRange: MpvDynamicRange
 
-    static func read(from mpv: MpvHandle) -> MpvVideoFormat? {
+    static func read(from mpv: MpvHandle, dynamicRange: MpvDynamicRange) -> MpvVideoFormat? {
         guard let width = mpv.string("video-params/w").flatMap(Int32.init),
               let height = mpv.string("video-params/h").flatMap(Int32.init)
         else { return nil }
@@ -46,7 +20,7 @@ struct MpvVideoFormat: Equatable {
             width: width,
             height: height,
             framesPerSecond: framesPerSecond,
-            dynamicRange: MpvDynamicRange(mpvGamma: mpv.string("video-params/gamma"))
+            dynamicRange: dynamicRange
         )
     }
 

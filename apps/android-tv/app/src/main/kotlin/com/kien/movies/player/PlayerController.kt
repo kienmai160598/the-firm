@@ -15,6 +15,7 @@ import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.TransferListener
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.SeekParameters
 import androidx.media3.exoplayer.analytics.AnalyticsListener
 import com.kien.movies.bridge.BridgeFlows
 import com.kien.movies.debug.DebugLaunch
@@ -81,6 +82,7 @@ class PlayerController(private val context: Context, private val request: Playba
     private var pendingAudioFormatId: String? = null
     private var decoders = DecoderNames()
     private var lastTickPositionMs: Long? = null
+    private var positionAtLoadMs: Long? = null
     private var isStarted = false
     private var isFinished = false
     private var isInBackground = false
@@ -98,7 +100,8 @@ class PlayerController(private val context: Context, private val request: Playba
         exo.trackSelectionParameters = PlayerLanguageSelection.applied(exo.trackSelectionParameters, TvosSettings.playerLanguages(LanguageName.device))
         exo.addListener(engineListener)
         exo.addAnalyticsListener(decoderListener)
-        exo.setMediaItem(mediaItem())
+        positionAtLoadMs = resumePositionAtLoadMs()
+        exo.setMediaItem(mediaItem(), positionAtLoadMs ?: C.TIME_UNSET)
         exo.playWhenReady = false
         exo.prepare()
         mutablePlayer.value = exo
@@ -133,7 +136,7 @@ class PlayerController(private val context: Context, private val request: Playba
         val exo = mutablePlayer.value ?: return
         if (!canCommand) return
         val target = (exo.currentPosition + steps * HoldScrub.TAP_STEP_SECONDS * MILLIS_PER_SECOND).coerceAtLeast(0)
-        exo.seekTo(durationMs(exo).takeIf { it > 0 }?.let { target.coerceAtMost(it) } ?: target)
+        seekToKeyframe(exo, durationMs(exo).takeIf { it > 0 }?.let { target.coerceAtMost(it) } ?: target, isForward = steps > 0)
         publishClock(exo)
     }
 
@@ -211,6 +214,17 @@ class PlayerController(private val context: Context, private val request: Playba
             publishClock(exo)
         }
         if (resume) setPaused(false)
+    }
+
+    /**
+     * Lands on the keyframe beyond [positionMs] in the direction of travel (tvOS mpv `seek relative`),
+     * so a skip does not decode a whole group of pictures before the first frame shows. Every other
+     * seek stays exact.
+     */
+    private fun seekToKeyframe(exo: ExoPlayer, positionMs: Long, isForward: Boolean) {
+        exo.setSeekParameters(if (isForward) SeekParameters.NEXT_SYNC else SeekParameters.PREVIOUS_SYNC)
+        exo.seekTo(positionMs)
+        exo.setSeekParameters(SeekParameters.EXACT)
     }
 
     private fun mediaItem(): MediaItem = MediaItem.Builder()
@@ -291,12 +305,18 @@ class PlayerController(private val context: Context, private val request: Playba
     }
 
     private fun startOnce(exo: ExoPlayer) {
-        val startMs = startPositionMs(durationMs(exo))
-        if (startMs > 0) exo.seekTo(startMs)
+        if (positionAtLoadMs == null) startPositionMs(durationMs(exo)).takeIf { it > 0 }?.let(exo::seekTo)
         update(PlayerEvent.Started)
         if (!isInBackground) exo.playWhenReady = true
     }
 
+    /** The saved position when it does not depend on the stream's length: the engine opens the stream there. */
+    private fun resumePositionAtLoadMs(): Long? {
+        if (DebugLaunch.startSecondsBeforeEnd != null || !request.resumes) return null
+        return TvosPlayback.resumePositionBeforeLoadMs(request.target)
+    }
+
+    /** The start position that needs the stream's length, sought once the engine is ready. */
     private fun startPositionMs(durationMs: Long): Long {
         DebugLaunch.startSecondsBeforeEnd?.let { seconds -> return (durationMs - seconds * MILLIS_PER_SECOND).coerceAtLeast(0) }
         if (!request.resumes || durationMs <= 0) return 0

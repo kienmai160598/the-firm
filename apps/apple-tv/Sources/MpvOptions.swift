@@ -11,6 +11,9 @@ enum MpvProperty {
     static let cacheTime = "demuxer-cache-time"
     static let subtitlePosition = "sub-pos"
     static let colorspaceHint = "target-colorspace-hint"
+    static let audioOutput = "current-ao"
+    static let decodedGamma = "video-dec-params/gamma"
+    static let dolbyVisionProfile = "current-tracks/video/dolby-vision-profile"
 }
 
 enum MpvOptions {
@@ -25,9 +28,11 @@ enum MpvOptions {
             ("gpu-api", "vulkan"),
             ("gpu-context", "moltenvk"),
             ("hwdec", "videotoolbox"),
-            // AVSampleBufferAudioRenderer, the renderer AVPlayer uses, reaches AirPlay speakers; the
-            // default RemoteIO audio unit opens a mixable real-time session instead.
-            ("ao", "avfoundation,audiounit"),
+            // The RemoteIO audio unit pulls audio in step with the clock. mpv's avfoundation output
+            // (AVSampleBufferAudioRenderer) takes all it is offered, about 110 s ahead on an AirPlay
+            // route: the video packets queued behind that audio fill demuxer-max-bytes, the audio
+            // track starves, and the film stutters for good.
+            ("ao", "audiounit"),
             ("video-rotate", "no"),
             ("pause", "yes"),
             ("keep-open", "yes"),

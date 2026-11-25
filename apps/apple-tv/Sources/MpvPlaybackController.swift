@@ -7,11 +7,15 @@ import os
 final class MpvPlaybackController: ObservableObject {
     private static let tickInterval: Duration = .seconds(10)
     private static let startupLimit: Duration = .seconds(60)
-    private static let videoFormatLimit: Duration = .seconds(2)
+    /// The dynamic range needs the first decoded frame, which a torrent can take seconds to deliver
+    /// at a resume position.
+    private static let videoFormatLimit: Duration = .seconds(5)
     private static let videoFormatPoll: Duration = .milliseconds(100)
     private static let seekStepSeconds = 10
     private static let minimumTickAdvanceMs: Int64 = 1000
     private static let endToleranceMs: Int64 = 5000
+    /// A position change larger than this between two time updates is a seek, not playback.
+    private static let positionJumpMs: Int64 = 2000
     private static let log = Logger(subsystem: "com.kien.movies.tvos", category: "Mpv")
     private static let notStarted = "The stream did not start within 60 seconds."
     private static let cannotCreate = "The video player could not be created."
@@ -35,6 +39,7 @@ final class MpvPlaybackController: ObservableObject {
     private var subtitleSearch: TvosCancellable?
     private var subtitleDownloads: [MpvSubtitleDownload] = []
     private let displayMatcher = MpvDisplayMatcher()
+    private var nowPlaying: MpvNowPlaying?
     private var lifecycleObservers: [NSObjectProtocol] = []
     private var currentMs: Int64 = 0
     private var durationMs: Int64 = 0
@@ -89,6 +94,8 @@ final class MpvPlaybackController: ObservableObject {
         [tickTask, startupTask, startTask].forEach { $0?.cancel() }
         subtitleSearch?.cancel()
         displayMatcher.reset()
+        nowPlaying?.clear()
+        nowPlaying = nil
         scrubber.stop()
         lifecycleObservers.forEach(NotificationCenter.default.removeObserver)
         lifecycleObservers = []
@@ -173,6 +180,8 @@ final class MpvPlaybackController: ObservableObject {
         switch event {
         case .fileLoaded:
             startOnce()
+        case .audioReconfigured:
+            reclaimAudioSession()
         case .endOfFile:
             updateEnd(true)
         case let .failed(reason):
@@ -212,22 +221,50 @@ final class MpvPlaybackController: ObservableObject {
         play()
     }
 
+    /// The size, frame rate and dynamic range to match the display to. A source too slow to give
+    /// its first frame before the limit is still matched for size and frame rate, as SDR.
     private func firstVideoFormat() async -> MpvVideoFormat? {
         let deadline = ContinuousClock.now + Self.videoFormatLimit
         while !isFinished, ContinuousClock.now < deadline {
-            if let mpv, let format = MpvVideoFormat.read(from: mpv) { return format }
+            if let mpv, let dynamicRange = MpvDynamicRange.read(from: mpv),
+               let format = MpvVideoFormat.read(from: mpv, dynamicRange: dynamicRange) {
+                return format
+            }
             try? await Task.sleep(for: Self.videoFormatPoll)
         }
-        return nil
+        guard !isFinished, let mpv else { return nil }
+        return MpvVideoFormat.read(from: mpv, dynamicRange: .standard)
     }
 
     private func play() {
         guard !isFinished else { return }
         hasRequestedPlay = true
-        // The audio output set its own session up while the file loaded; make it non-mixable again.
-        PlaybackAudioSession.activate()
-        Self.log.notice("Audio output \(self.mpv?.string("current-ao") ?? "none", privacy: .public)")
         mpv?.setFlag(MpvProperty.pause, false)
+        nowPlaying = MpvNowPlaying(
+            target: request.target,
+            commands: .init(
+                play: { [weak self] in self?.setPaused(false) },
+                pause: { [weak self] in self?.setPaused(true) },
+                togglePause: { [weak self] in self?.togglePause() }
+            )
+        )
+        publishNowPlaying()
+    }
+
+    private func publishNowPlaying() {
+        nowPlaying?.update(
+            positionSeconds: Double(currentMs) / 1000,
+            durationSeconds: Double(durationMs) / 1000,
+            isMoving: !isPaused && !isBuffering
+        )
+    }
+
+    /// mpv's audio output makes the shared audio session mixable with the default route sharing
+    /// policy every time it opens, which can be before or after play is requested.
+    private func reclaimAudioSession() {
+        guard let output = mpv?.string(MpvProperty.audioOutput) else { return }
+        PlaybackAudioSession.activate()
+        Self.log.notice("Audio output \(output, privacy: .public)")
     }
 
     private func startPositionMs() -> Int64 {
@@ -246,12 +283,15 @@ final class MpvPlaybackController: ObservableObject {
     private func updateNumber(_ name: String, _ value: Double) {
         switch name {
         case MpvProperty.timePosition:
+            let previousMs = currentMs
             currentMs = Self.milliseconds(value)
             clock.setPosition(Int(currentMs / 1000))
             markPlayedIfMoving()
+            if abs(currentMs - previousMs) > Self.positionJumpMs { publishNowPlaying() }
         case MpvProperty.duration:
             durationMs = Self.milliseconds(value)
             clock.setDuration(Int(durationMs / 1000))
+            publishNowPlaying()
         case MpvProperty.cacheTime:
             clock.setBuffered(Int(value.isFinite ? max(value, 0) : 0))
         default:
@@ -265,9 +305,11 @@ final class MpvPlaybackController: ObservableObject {
             publish(\.isPaused, value)
             publish(\.isPausedByViewer, value && hasRequestedPlay)
             if value { save(syncRemote: true, reason: "pause") }
+            publishNowPlaying()
         case MpvProperty.pausedForCache:
             publish(\.isBuffering, value)
             markPlayedIfMoving()
+            publishNowPlaying()
         case MpvProperty.endReached:
             updateEnd(value)
         default:
