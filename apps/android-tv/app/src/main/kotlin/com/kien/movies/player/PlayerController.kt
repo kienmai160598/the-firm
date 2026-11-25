@@ -278,10 +278,11 @@ class PlayerController(private val context: Context, private val request: Playba
     private val engineListener = object : Player.Listener {
         override fun onEvents(player: Player, events: Player.Events) {
             val exo = mutablePlayer.value ?: return
+            // Tracks first: a starting subtitle found here loads again before the ready state starts the film.
+            if (events.contains(Player.EVENT_TRACKS_CHANGED)) handleTracks(exo)
             if (events.containsAny(Player.EVENT_PLAYBACK_STATE_CHANGED, Player.EVENT_PLAY_WHEN_READY_CHANGED, Player.EVENT_IS_PLAYING_CHANGED)) {
                 handleEngine(exo)
             }
-            if (events.contains(Player.EVENT_TRACKS_CHANGED)) applyPendingSelections(exo)
         }
 
         override fun onPlayerError(error: PlaybackException) = fail(PlaybackErrorMessages.reason(error))
@@ -314,13 +315,23 @@ class PlayerController(private val context: Context, private val request: Playba
         if (positionAtLoadMs == null) startPositionMs(durationMs(exo)).takeIf { it > 0 }?.let(exo::seekTo)
         update(PlayerEvent.Started)
         if (!isInBackground) exo.playWhenReady = true
-        loadStartingSubtitle(startingSubtitle.tracks(PlayerTracks.embeddedSubtitleLanguages(exo.currentTracks)))
+    }
+
+    /**
+     * The file's tracks are known before the engine is ready, so the starting subtitle is decided
+     * here: loading it sets the item again, which after the start would stop the film and start it
+     * a second time.
+     */
+    private fun handleTracks(exo: ExoPlayer) {
+        applyPendingSelections(exo)
+        val tracks = exo.currentTracks
+        if (!tracks.isEmpty) loadStartingSubtitle(startingSubtitle.tracks(PlayerTracks.embeddedSubtitleLanguages(tracks)))
     }
 
     /** The Settings language's online subtitle, when the file has no track in it (AC ST4). */
     private fun loadStartingSubtitle(subtitle: OnlineSubtitle?) {
         val exo = mutablePlayer.value ?: return
-        if (subtitle != null && canCommand) loadOnline(exo, subtitle)
+        if (subtitle != null && !isFinished && !mutableState.value.isFinal) loadOnline(exo, subtitle)
     }
 
     /** The saved position when it does not depend on the stream's length: the engine opens the stream there. */
