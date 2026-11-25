@@ -24,12 +24,12 @@ final class StreamsPlayback: ObservableObject {
     private var playbackFailure: StreamSheet?
     private let target: TvosStreamTarget
     private let resumesDirectly: Bool
-    private var lastLink: StreamsLastLink?
+    private let lastLink: TvosLastLinkAttempt?
 
     init(target: TvosStreamTarget, resumesDirectly: Bool) {
         self.target = target
         self.resumesDirectly = resumesDirectly
-        lastLink = resumesDirectly ? StreamsLastLink(target: target) : nil
+        lastLink = resumesDirectly ? TvosLastLinkAttempt(target: target) : nil
     }
 
     /// From Continue Watching: plays the link the title last played from, if any.
@@ -110,7 +110,7 @@ final class StreamsPlayback: ObservableObject {
     }
 
     private func notice(for stream: TvosStream, _ notice: StreamNotice?) -> StreamNotice? {
-        lastLink?.notice(for: stream, notice) ?? notice
+        lastLink?.failed(streamKey: stream.key) == true ? .lastLinkFailed(notice) : notice
     }
 
     private func preflight(_ probe: PlaybackRequest) {

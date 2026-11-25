@@ -48,6 +48,7 @@ fun StreamsHeader(
     resume: TvosResumePoint?,
     sourceCount: Int,
     searchingAddonCount: Int,
+    isResumingLastLink: Boolean,
     modifier: Modifier = Modifier
 ) {
     BoxWithConstraints(modifier = modifier.width(STREAMS_HEADER_WIDTH).fillMaxHeight().clip(CardShape.shape)) {
@@ -68,11 +69,15 @@ fun StreamsHeader(
                 Text(text = subtitle, style = TvType.body, color = SUBTITLE_COLOR, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             resume?.let { point -> StreamsResume(point, Modifier.padding(top = RESUME_TOP)) }
-            StreamsSourceSummary(
-                sourceCount = sourceCount,
-                searchingAddonCount = searchingAddonCount,
-                modifier = Modifier.padding(top = SUMMARY_TOP)
-            )
+            if (isResumingLastLink) {
+                SpinnerLine(text = RESUMING_LAST_LINK, modifier = Modifier.padding(top = SUMMARY_TOP))
+            } else {
+                StreamsSourceSummary(
+                    sourceCount = sourceCount,
+                    searchingAddonCount = searchingAddonCount,
+                    modifier = Modifier.padding(top = SUMMARY_TOP)
+                )
+            }
         }
     }
 }
@@ -103,12 +108,15 @@ private fun StreamsSourceSummary(sourceCount: Int, searchingAddonCount: Int, mod
         if (sourceCount > 0) {
             Text(text = sourceCountText(sourceCount), style = TvType.caption1, color = TvColors.textSecondary)
         }
-        if (searchingAddonCount > 0) {
-            Row(horizontalArrangement = Arrangement.spacedBy(SEARCHING_GAP), verticalAlignment = Alignment.CenterVertically) {
-                StreamsSpinner(size = SEARCHING_SPINNER)
-                Text(text = searchingText(searchingAddonCount), style = TvType.caption1, color = TvColors.textSecondary)
-            }
-        }
+        if (searchingAddonCount > 0) SpinnerLine(text = searchingText(searchingAddonCount))
+    }
+}
+
+@Composable
+private fun SpinnerLine(text: String, modifier: Modifier = Modifier) {
+    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(SEARCHING_GAP), verticalAlignment = Alignment.CenterVertically) {
+        StreamsSpinner(size = SEARCHING_SPINNER)
+        Text(text = text, style = TvType.caption1, color = TvColors.textSecondary)
     }
 }
 
@@ -119,6 +127,7 @@ fun sourceCountText(sourceCount: Int): String = if (sourceCount == 1) "1 source"
 fun searchingText(addonCount: Int): String = if (addonCount == 1) "Searching 1 more addon" else "Searching $addonCount more addons"
 
 const val STREAMS_TITLE_TAG = "Streams"
+private const val RESUMING_LAST_LINK = "Resuming the last source"
 
 // tvOS literals, pt / 2.
 val STREAMS_HEADER_WIDTH = 320.dp // width 640
