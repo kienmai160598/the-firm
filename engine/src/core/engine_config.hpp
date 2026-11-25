@@ -15,7 +15,8 @@ inline constexpr std::int64_t mebibyte = 1024 * 1024;
 struct EngineTuning {
     std::int64_t store_cap_bytes = 512 * mebibyte;
     stream::StreamLimits limits{
-        .window = {.ahead_bytes = 256 * mebibyte, .behind_bytes = 32 * mebibyte, .urgent_pieces = 4},
+        .window = {.ahead_bytes = 256 * mebibyte, .behind_bytes = 32 * mebibyte, .urgent_pieces = 4,
+                   .tail_bytes = 8 * mebibyte},
         .eviction_threshold_bytes = 384 * mebibyte,
         .read_timeout = std::chrono::seconds(60),
     };
