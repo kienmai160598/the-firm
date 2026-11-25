@@ -37,10 +37,10 @@ import com.kien.movies.design.TvType
 import com.kien.movies.design.containerRadius
 
 /**
- * The content of one stream button (tvOS StreamsRow.swift): resolution badge, name, up to four
- * capability badges and the file line, then size, seeders and delivery. The pressed row shows its
- * progress and only the tags that fit beside it, with no file line. Colours follow the button's
- * content colour, so a focused row reads black on white.
+ * The content of one stream button (tvOS StreamsRow.swift): resolution badge, name, the tags (up
+ * to four capabilities and the file format) that fit, then size, seeders and delivery, or the
+ * pressed row's progress. Colours follow the button's content colour, so a focused row reads
+ * black on white.
  *
  * The padding is the bordered button's own (30 x 15 pt) plus the row's 8 pt, so the button is
  * 134 pt tall around a 104 pt row, as measured on the tvOS capture.
@@ -63,13 +63,8 @@ fun StreamsRow(row: StreamRowItem, progress: StreamRowProgress?, modifier: Modif
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            val capabilities = row.features.capabilities.take(MAX_CAPABILITIES)
-            if (progress != null) {
-                StreamTagsThatFit(gap = BADGE_GAP, modifier = Modifier.height(DETAIL_LINE_HEIGHT)) {
-                    capabilities.forEach { label -> StreamCapabilityBadge(label) }
-                }
-            } else {
-                StreamDetailLine(capabilities = capabilities, fileLine = row.fileLine)
+            StreamTagsThatFit(gap = BADGE_GAP, modifier = Modifier.height(DETAIL_LINE_HEIGHT)) {
+                row.tags.forEach { label -> StreamCapabilityBadge(label) }
             }
         }
         AnimatedContent(
@@ -103,27 +98,6 @@ private fun StreamResolutionBadge(resolution: String?) {
                 contentDescription = null,
                 tint = content.copy(alpha = SECONDARY_ALPHA),
                 modifier = Modifier.size(RESOLUTION_SYMBOL)
-            )
-        }
-    }
-}
-
-@Composable
-private fun StreamDetailLine(capabilities: List<String>, fileLine: String?) {
-    Row(
-        modifier = Modifier.height(DETAIL_LINE_HEIGHT),
-        horizontalArrangement = Arrangement.spacedBy(BADGE_GAP),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        capabilities.forEach { label -> StreamCapabilityBadge(label) }
-        if (fileLine != null) {
-            Text(
-                text = fileLine,
-                style = TvType.caption2,
-                color = LocalContentColor.current.copy(alpha = SECONDARY_ALPHA),
-                maxLines = 1,
-                overflow = TextOverflow.MiddleEllipsis,
-                modifier = Modifier.padding(start = if (capabilities.isEmpty()) 0.dp else FILE_LINE_GAP)
             )
         }
     }
@@ -199,7 +173,6 @@ private fun StreamRowProgressView(progress: StreamRowProgress) {
     }
 }
 
-private const val MAX_CAPABILITIES = 4
 private val SECONDARY_ALPHA = TvColors.textSecondary.alpha
 private const val BADGE_FILL_ALPHA = 0.1f
 private val ROW_TITLE = TvType.body.copy(fontWeight = FontWeight.SemiBold) // 29 pt semibold
@@ -218,7 +191,6 @@ private val TEXT_GAP = 4.dp // spacing 8 to 12
 private val RESOLUTION_SYMBOL = 15.dp // 30 pt symbol
 private val DETAIL_LINE_HEIGHT = 16.dp // frame(height: 32)
 private val BADGE_GAP = 5.dp // HStack spacing 10
-private val FILE_LINE_GAP = 3.dp // padding(.leading, 6)
 private val CAPABILITY_STROKE = 1.dp // lineWidth 1.5
 private val CAPABILITY_PADDING_H = 5.dp // padding(.horizontal, 10)
 private val CAPABILITY_PADDING_V = 1.dp // padding(.vertical, 4), less so the badge fits the 16 dp line

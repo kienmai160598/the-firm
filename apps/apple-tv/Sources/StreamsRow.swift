@@ -26,11 +26,7 @@ struct StreamRow: View {
                 Text(row.title)
                     .font(.system(size: 29, weight: .semibold))
                     .lineLimit(1)
-                if isChecking {
-                    StreamTagsThatFit(tags: row.capabilities)
-                } else {
-                    StreamDetailLine(capabilities: row.capabilities, fileLine: row.fileLine)
-                }
+                StreamTagsThatFit(tags: row.tags)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             trailing
@@ -79,30 +75,8 @@ private struct StreamResolutionBadge: View {
     }
 }
 
-private struct StreamDetailLine: View {
-    let capabilities: [String]
-    let fileLine: String?
-
-    var body: some View {
-        HStack(spacing: 10) {
-            ForEach(capabilities, id: \.self) { label in
-                StreamBadge(text: label)
-            }
-            if let fileLine {
-                Text(fileLine)
-                    .font(.system(size: 22))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .padding(.leading, capabilities.isEmpty ? 0 : 6)
-            }
-        }
-        .frame(height: 32)
-    }
-}
-
-/// The checked row's tag line: as many tags as fit beside the status column, the rest left out,
-/// so a long status never pushes the tags out of the row.
+/// The row's tag line: as many tags as fit beside the trailing column, the rest left out, so a
+/// long status never pushes the tags out of the row.
 private struct StreamTagsThatFit: View {
     let tags: [String]
 

@@ -10,9 +10,10 @@ struct StreamRowData: Identifiable, Equatable {
 
     let stream: TvosStream
     let title: String
-    let fileLine: String?
     let resolution: String?
     let capabilities: [String]
+    /// The capabilities, then the file format (MKV, MP4, HLS), as the row's tag line shows them.
+    let tags: [String]
     let size: String?
     let seeders: Int?
 
@@ -27,9 +28,9 @@ struct StreamRowData: Identifiable, Equatable {
         )
         self.stream = stream
         title = Self.oneLine(stream.name)
-        fileLine = Self.fileLine(of: stream)
         resolution = features.resolution
         capabilities = Array(features.capabilities.prefix(Self.maxCapabilities))
+        tags = capabilities + [StreamFileFormat.shared.of(stream: stream)].compactMap { $0 }
         size = features.size
         seeders = features.seeders
     }
@@ -44,14 +45,6 @@ struct StreamRowData: Identifiable, Equatable {
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
             .joined(separator: "   ")
-    }
-
-    private static func fileLine(of stream: TvosStream) -> String? {
-        if let filename = stream.filename, !filename.isEmpty { return filename }
-        return [stream.title, stream.detail].compactMap { $0 }
-            .flatMap { $0.split(whereSeparator: \.isNewline) }
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-            .first { !$0.isEmpty && $0 != stream.name }
     }
 }
 
