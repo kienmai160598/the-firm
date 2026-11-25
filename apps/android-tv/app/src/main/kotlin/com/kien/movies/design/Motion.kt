@@ -10,6 +10,9 @@ import androidx.compose.animation.core.spring
  */
 object Motion {
     const val heroAdvanceMillis = 8_000L
+
+    /** The spotlight text changing to the next item: tvOS `HeroStage.infoChange`, ease in and out. */
+    const val heroInfoChangeMillis = 600
     const val controlsHideMillis = 5_000L
 
     /**

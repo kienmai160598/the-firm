@@ -78,6 +78,21 @@ final class NavigationTests: XCTestCase {
         XCTAssertFalse(tv.isTabBarFocused, "Down from hero: \(tv.focusedLabel)")
     }
 
+    /// The pages slide under one button that stays put; with a button on each page, they all slid.
+    func testH1OneHeroButtonStaysWhileTheItemChanges() {
+        tv.launch(withTestAddon: false)
+        XCTAssertTrue(tv.heroButton.waitForExistence(timeout: 60))
+        tv.focusHero()
+        let firstTitle = heroTitle
+        let firstFrame = tv.heroButton.frame
+
+        tv.remote.press(.right)
+
+        XCTAssertTrue(waitForHeroTitle("value != %@", firstTitle), "Right kept the item")
+        XCTAssertEqual(tv.app.buttons.matching(identifier: TvApp.heroId).count, 1)
+        XCTAssertEqual(tv.heroButton.frame.origin.x, firstFrame.origin.x, accuracy: 1)
+    }
+
     func testSidebarReachesEveryTabAndMenuThereLeavesTheApp() {
         tv.launch(withTestAddon: false)
         XCTAssertTrue(tv.heroButton.waitForExistence(timeout: 60))
