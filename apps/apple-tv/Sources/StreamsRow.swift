@@ -26,7 +26,11 @@ struct StreamRow: View {
                 Text(row.title)
                     .font(.system(size: 29, weight: .semibold))
                     .lineLimit(1)
-                StreamDetailLine(capabilities: row.capabilities, fileLine: row.fileLine)
+                if isChecking {
+                    StreamTagsThatFit(tags: row.capabilities)
+                } else {
+                    StreamDetailLine(capabilities: row.capabilities, fileLine: row.fileLine)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             trailing
@@ -91,6 +95,23 @@ private struct StreamDetailLine: View {
                     .lineLimit(1)
                     .truncationMode(.middle)
                     .padding(.leading, capabilities.isEmpty ? 0 : 6)
+            }
+        }
+        .frame(height: 32)
+    }
+}
+
+/// The checked row's tag line: as many tags as fit beside the status column, the rest left out,
+/// so a long status never pushes the tags out of the row.
+private struct StreamTagsThatFit: View {
+    let tags: [String]
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            ForEach(Array((0...tags.count).reversed()), id: \.self) { count in
+                HStack(spacing: 10) {
+                    ForEach(tags.prefix(count), id: \.self) { StreamBadge(text: $0) }
+                }
             }
         }
         .frame(height: 32)

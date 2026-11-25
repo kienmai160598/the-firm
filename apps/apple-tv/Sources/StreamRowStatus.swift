@@ -23,13 +23,13 @@ struct StreamCheckingStatus: View {
         guard let status = torrent.status else { return .startingTorrent }
         return StreamRowProgress(
             title: status.step ?? StreamRowProgress.startingTorrent.title,
-            detail: "\(status.peers) peers, \(status.seeds) seeds, \(status.downloadSpeedLabel)"
+            detail: "\(status.peers) peers · \(status.seeds) seeds · \(status.downloadSpeedLabel)"
         )
     }
 }
 
 private struct StreamRowProgressView: View {
-    private static let maxWidth: CGFloat = 420
+    private static let maxWidth: CGFloat = 300
 
     let progress: StreamRowProgress
 
@@ -40,6 +40,7 @@ private struct StreamRowProgressView: View {
                 Text(progress.title)
                     .font(.system(size: 25, weight: .semibold))
                     .lineLimit(1)
+                    .truncationMode(.tail)
             }
             if let detail = progress.detail {
                 Text(detail)
