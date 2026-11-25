@@ -4,8 +4,7 @@ import SwiftUI
 /// focused page's symbol and what it holds.
 struct SettingsView: View {
     @StateObject private var languages = LanguageSettingsModel()
-    @StateObject private var account = TraktAccountModel()
-    @State private var previewed: SettingsPage = .account
+    @State private var previewed: SettingsPage = .playback
     @FocusState private var focus: SettingsPage?
 
     var body: some View {
@@ -30,23 +29,20 @@ struct SettingsView: View {
                 }
             }
         }
-        .defaultFocus($focus, .account)
+        .defaultFocus($focus, .playback)
         .onChange(of: focus) { _, focus in
             if let focus { previewed = focus }
         }
         .onAppear {
             languages.observe()
-            account.observe()
         }
         .onDisappear {
             languages.stop()
-            account.stop()
         }
     }
 
     private func value(of page: SettingsPage) -> String? {
         switch page {
-        case .account: account.summary
         case .playback: LanguageName.of(languages.choice.audio)
         case .subtitles: LanguageName.of(languages.choice.subtitles)
         case .addons, .about: nil

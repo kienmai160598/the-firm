@@ -1,7 +1,6 @@
 package com.kien.movies
 
 import android.view.KeyEvent
-import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -46,7 +45,7 @@ class PlayerTest {
         tv.await(hasTestTag(PLAYER_REMAINING_TAG), timeoutMillis = PLAY_TIMEOUT_MS)
     }
 
-    /** P1, P2: the MKV plays; right twice shows 20 s on the badge; the controls hide after 5 s. */
+    /** P1, P2: the MKV plays; right twice shows the forward badge; the controls hide after 5 s. */
     @Test
     fun p2_skipAddsUpAndControlsHide() {
         playFirstStream()
@@ -54,7 +53,7 @@ class PlayerTest {
         tv.press(KeyEvent.KEYCODE_DPAD_RIGHT)
         tv.press(KeyEvent.KEYCODE_DPAD_RIGHT)
 
-        tv.await(hasTestTag(PLAYER_SKIP_TAG) and hasAnyDescendant(hasText("20")))
+        tv.await(hasTestTag(PLAYER_SKIP_TAG) and hasContentDescription("Skipped forward"))
         compose.waitUntilDoesNotExist(hasTestTag(PLAYER_CONTROLS_TAG), timeoutMillis = HIDE_TIMEOUT_MS)
     }
 

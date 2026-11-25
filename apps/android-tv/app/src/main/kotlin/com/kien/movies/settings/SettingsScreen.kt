@@ -21,20 +21,17 @@ import com.kien.movies.shell.AppRoute
 import com.kien.movies.shell.Router
 import com.kien.movies.shell.upToNavPill
 import com.nuvio.tvos.TvosLanguageChoice
-import com.nuvio.tvos.TvosTraktState
 
 /**
  * The Settings tab root (tvOS SettingsView.swift), laid out like the Settings app: the pages on
- * the right, and on the left the focused page's icon and what it holds. First focus is Account,
+ * the right, and on the left the focused page's icon and what it holds. First focus is Playback,
  * and Back from a page lands on that page's row.
  */
 @Composable
 fun SettingsScreen(router: Router) {
     val languages = viewModel { LanguageSettingsViewModel() }
-    val account = viewModel { TraktAccountViewModel() }
     val choice by languages.choice.collectAsStateWithLifecycle()
-    val trakt by account.state.collectAsStateWithLifecycle()
-    var previewedName by rememberSaveable { mutableStateOf(SettingsPage.Account.name) }
+    var previewedName by rememberSaveable { mutableStateOf(SettingsPage.entries.first().name) }
     val previewed = SettingsPage.valueOf(previewedName)
     val rowFocus = remember { SettingsPage.entries.associateWith { FocusRequester() } }
 
@@ -54,7 +51,7 @@ fun SettingsScreen(router: Router) {
                     val first = if (page == SettingsPage.entries.first()) row.upToNavPill() else row
                     SettingsLinkLabel(
                         title = page.title,
-                        value = value(page, choice, trakt),
+                        value = value(page, choice),
                         onClick = { router.open(AppRoute.Settings(page)) },
                         modifier = first
                             .testTag(settingsRowTag(page))
@@ -66,8 +63,7 @@ fun SettingsScreen(router: Router) {
     )
 }
 
-private fun value(page: SettingsPage, choice: TvosLanguageChoice, trakt: TvosTraktState): String? = when (page) {
-    SettingsPage.Account -> trakt.summary
+private fun value(page: SettingsPage, choice: TvosLanguageChoice): String? = when (page) {
     SettingsPage.Playback -> LanguageName.of(choice.audio)
     SettingsPage.Subtitles -> LanguageName.of(choice.subtitles)
     SettingsPage.Addons, SettingsPage.About -> null

@@ -68,7 +68,7 @@ class NavigationTest {
         tv.awaitFocus(hasTestTag(PLACEHOLDER_TAG))
         tv.close()
         tv.launch(DebugLaunch.ROUTE to "tab/settings")
-        tv.awaitFocus(hasTestTag(settingsRowTag(SettingsPage.Account)), TvRobot.DEFAULT_TIMEOUT_MS)
+        tv.awaitFocus(hasTestTag(settingsRowTag(SettingsPage.entries.first())), TvRobot.DEFAULT_TIMEOUT_MS)
 
         tv.back()
         tv.assertFocusedTag(tabTag(RootTab.Settings))

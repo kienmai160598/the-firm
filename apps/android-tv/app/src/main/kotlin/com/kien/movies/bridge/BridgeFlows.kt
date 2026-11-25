@@ -23,8 +23,6 @@ import com.nuvio.tvos.TvosSubtitles
 import com.nuvio.tvos.TvosTorrent
 import com.nuvio.tvos.TvosTorrentStart
 import com.nuvio.tvos.TvosTorrentStatus
-import com.nuvio.tvos.TvosTrakt
-import com.nuvio.tvos.TvosTraktState
 import kotlin.coroutines.resume
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -60,8 +58,6 @@ object BridgeFlows {
     fun torrentStatus(): Flow<TvosTorrentStatus> = observe { onChange -> TvosTorrent.observe(onChange) }
 
     fun languageChoice(): Flow<TvosLanguageChoice> = observe { onChange -> TvosSettings.observe(onChange) }
-
-    fun trakt(): Flow<TvosTraktState> = observe { onChange -> TvosTrakt.observe(onChange) }
 
     /** Installs the addon at [rawUrl] (trimmed by the bridge) and returns why it failed, if it did. */
     suspend fun installAddon(rawUrl: String): TvosAddonInstallResult = suspendCancellableCoroutine { continuation ->

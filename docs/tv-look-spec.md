@@ -66,10 +66,12 @@ colour the box can afford (decided in `android-tv-rebuild.md`, box performance r
 | Focused control fill | `#EAEAE8` | system | `#EBEBEA` |
 | Focused control content | near black | system | `#141414` |
 | Unfocused pill or card platter (result card, season pill) | white at 22 to 30% over the background: `#5C5F60` on search, `#58656E` on details | system material | white 22% (one flat layer) plus the glass edge |
+| Player glass over video (circle buttons, track, menus) | not in the TV app captures; measured on our tvOS player in the simulator (2026-11-24): an unfocused circle button darkens the video by about 26% with no white tint, its rim brighter at the top; the track is grey `#8F8F8F` at 63% | `.glass` circle buttons, glass track | button black 26%, track `#8F8F8F` at 63%, one flat layer each; rim is a 1 dp vertical gradient, white 38% at the top, 6% at the middle, 18% at the bottom (`liquidGlassRim`); menus keep their opaque panel with that rim |
+| Player skip glyph | the "10" arrow floats above the playhead | `MpvSkipBadge` | in the row under the playhead, beside the pause icon (or the playhead when playing): the glyph then the time, on the right for forward, on the left for back. Android only for now; tvOS keeps the floating badge |
 | Streams background | the film's backdrop receded: blurred, darkened, rows tinted by it | `StreamsBackground`: backdrop, blur 40 pt, black 45%, leading and bottom shades | the backdrop decoded at 48 x 27 dp and scaled up (bilinear reads as the blur), black 45% and both shades baked into the bitmap: one opaque image |
 | Stream row | glass lifting the receded backdrop by 12 to 13% (measured 2026-11-24) | system material | white 13% (`TvColors.streamRow`) plus the glass edge |
 | Popup panel (dialogs, info sheet) | dark glass `#171717` over a dimmed screen, the content behind faintly visible through it | system sheet | `#1A1A1A` at 85% (`TvColors.dialogPanel`) over the dialog window's 60% dim, plus the glass edge |
-| Sidebar panel | near black glass `#161616` with blur | system | `#1A1A1A` at 96%, no blur, plus the glass edge |
+| Sidebar panel | near black glass `#161616` with blur | system | `#1A1A1A` at 78%, no blur, plus the liquid glass rim (white 38% top, 6% middle, 18% bottom) |
 | Glass edge (Android only) | the bright rim of Liquid Glass | not drawn: the system glass has it | 1 dp inside stroke, white 16% unfocused; on every surface that is glass on tvOS: sidebar panel, nav pill, circular buttons, unfocused pills, platters, description panel. Same idea as the YouTube TV app's light outlines. Dropped when the control turns solid white on focus |
 
 ### Type
