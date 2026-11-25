@@ -476,7 +476,7 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | LB2 | An empty Library says so and holds focus, so the sidebar closes |
 | LB3 | Details shows a round Library button right of Play (plus when not saved, check when saved, labelled "Add to Library" and "In Library"); pressing it saves or removes the title, Library follows at once and after a relaunch. Focus on it keeps the backdrop forward and the trailer playing (D6) |
 | LB4 | When Trakt is signed in and is the library source (the upstream default), the button adds to and removes from the Trakt watchlist through `LibraryRepository.toggleSaved`; a removal the tracker asks to confirm shows a confirmation first, and a failure shows an alert |
-| H1 | Hero shows up to 6 items of the first row that have a backdrop; arrows change the item; it advances every 8 s only while unfocused |
+| H1 | Hero shows up to 6 items of the first row that have a backdrop; arrows change the item; it advances every 8 s only while unfocused. Only the backdrops slide: the title, facts, overview and Watch Now button stay in place, and the text crossfades to the new item's (tvOS `HeroForeground` over the pages, `HeroFocusRow` catchers for left and right). Android needs the same change |
 | H2 | Catalog rows scroll sideways with the next card partly visible |
 | H3 | Loading, empty and error states are laid out and focusable. Android: the empty and error status holds an "Open Addons" button so focus has a target; tvOS has no button there and could get the same |
 | H4 | A Continue Watching card resumes without asking |
