@@ -79,13 +79,13 @@ import com.kien.movies.design.ImdbBadge
 import com.kien.movies.design.Motion
 import com.kien.movies.design.ScrimLayer
 import com.kien.movies.design.TextStyles
-import com.kien.movies.design.TrimTransparentEdges
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
 import com.kien.movies.design.focusLift
 import com.kien.movies.design.rememberBakedImage
+import com.kien.movies.design.rememberLogoRequest
 import com.kien.movies.settings.SettingsPage
 import com.kien.movies.shell.AppRoute
 import com.kien.movies.shell.LocalNavPillState
@@ -267,7 +267,7 @@ private fun HeroTitle(name: String, logoUrl: String?) {
         }
         if (logoUrl != null) {
             AsyncImage(
-                model = rememberLogoRequest(logoUrl),
+                model = rememberLogoRequest(logoUrl, LOGO_MAX),
                 contentDescription = name,
                 contentScale = ContentScale.Fit,
                 alignment = Alignment.BottomStart,
@@ -276,21 +276,6 @@ private fun HeroTitle(name: String, logoUrl: String?) {
                 modifier = Modifier.size(LOGO_MAX)
             )
         }
-    }
-}
-
-/**
- * The logo with its transparent margin trimmed, decoded at twice the logo box so a logo whose ink
- * is small on its canvas stays sharp once the trimmed ink is fitted to the box.
- */
-@Composable
-private fun rememberLogoRequest(url: String): ImageRequest {
-    val context = LocalContext.current
-    val density = LocalDensity.current
-    return remember(url, density) {
-        val widthPx = with(density) { (LOGO_MAX.width * LOGO_DECODE_FACTOR).roundToPx() }
-        val heightPx = with(density) { (LOGO_MAX.height * LOGO_DECODE_FACTOR).roundToPx() }
-        ImageRequest.Builder(context).data(url).size(widthPx, heightPx).transformations(TrimTransparentEdges).build()
     }
 }
 
@@ -405,7 +390,6 @@ private val OVERVIEW_TO_BUTTONS = 18.5.dp
 private val META_TO_OVERVIEW = 27.5.dp
 private val LOGO_TO_META = 22.5.dp
 private val LOGO_MAX = DpSize(210.dp, 62.dp)
-private const val LOGO_DECODE_FACTOR = 2
 private val OVERVIEW_WIDTH = 280.dp
 private val META_GAP = 8.dp
 
