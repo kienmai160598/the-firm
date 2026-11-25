@@ -1,6 +1,5 @@
 package com.kien.movies.details
 
-import com.nuvio.tvos.TvosCastMember
 import com.nuvio.tvos.TvosEpisode
 import com.nuvio.tvos.TvosMetaDetails
 import com.nuvio.tvos.TvosPlayAction
@@ -17,12 +16,6 @@ internal fun kindLabel(type: String): String? = when (type) {
     "series" -> "TV Show"
     "movie" -> "Movie"
     else -> null
-}
-
-/** "Starring" and the first three cast names; null without cast (tvOS DetailsHeroView `starring`). */
-internal fun starringLine(cast: List<TvosCastMember>): String? {
-    val names = cast.take(STARRING_NAMES).map(TvosCastMember::name)
-    return if (names.isEmpty()) null else "Starring " + names.joinToString(", ")
 }
 
 /** The bar and label under the play button (tvOS ResumeProgressView). */
@@ -77,5 +70,4 @@ internal fun infoEntries(details: TvosMetaDetails): List<InfoEntry> = listOf(
 private fun joinedOrNull(values: List<String>): String? = if (values.isEmpty()) null else values.joinToString(", ")
 
 private const val HERO_GENRES = 2
-private const val STARRING_NAMES = 3
 private const val INITIALS = 2

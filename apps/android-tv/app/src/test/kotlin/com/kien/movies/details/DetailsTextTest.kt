@@ -1,6 +1,5 @@
 package com.kien.movies.details
 
-import com.nuvio.tvos.TvosCastMember
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -63,14 +62,6 @@ class DetailsTextTest {
 
         assertEquals(listOf("Drama, Crime", "2008", "47 min"), summaryFacts(show))
         assertEquals(listOf("47 min"), summaryFacts(details(runtime = "47 min")))
-    }
-
-    @Test
-    fun starringNamesTheFirstThreeCastMembers() {
-        val cast = listOf("A", "B", "C", "D").map { name -> TvosCastMember(name, role = null, photoUrl = null) }
-
-        assertEquals("Starring A, B, C", starringLine(cast))
-        assertNull(starringLine(emptyList()))
     }
 
     @Test

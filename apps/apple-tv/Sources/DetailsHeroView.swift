@@ -65,12 +65,6 @@ struct DetailsHeroView: View {
             )
             .font(.system(size: 23, weight: .medium))
             .foregroundStyle(.white.opacity(0.6))
-            if let starring {
-                Text(starring)
-                    .font(.system(size: 23))
-                    .foregroundStyle(.white.opacity(0.55))
-                    .lineLimit(1)
-            }
         }
         .frame(maxWidth: Self.descriptionWidth, alignment: .leading)
     }
@@ -79,12 +73,6 @@ struct DetailsHeroView: View {
         let genres = details.genres.prefix(2).joined(separator: ", ")
         return [genres.isEmpty ? nil : genres, details.releaseLine, details.runtime]
             .compactMap { $0 }
-    }
-
-    private var starring: String? {
-        let names = details.cast.prefix(3).map(\.name)
-        guard !names.isEmpty else { return nil }
-        return "Starring " + names.joined(separator: ", ")
     }
 }
 
