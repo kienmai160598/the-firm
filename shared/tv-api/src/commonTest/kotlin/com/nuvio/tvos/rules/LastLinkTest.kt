@@ -16,16 +16,26 @@ class LastLinkTest {
     }
 
     @Test
-    fun aLinkOlderThanADayIsNotReused() {
+    fun aTorrentOlderThanADayIsStillReused() {
         val payload = LastLink.encode(torrent, savedAtMs = 1_000)
 
-        val recalled = LastLink.decode(payload, nowMs = 1_000 + 24 * HOUR_MS + 1)
+        val recalled = LastLink.decode(payload, nowMs = 1_000 + 30 * DAY_MS)
+
+        assertEquals(torrent, recalled)
+    }
+
+    @Test
+    fun aDirectLinkOlderThanADayIsNotReused() {
+        val payload = LastLink.encode(directLink, savedAtMs = 1_000)
+
+        val recalled = LastLink.decode(payload, nowMs = 1_000 + DAY_MS + 1)
 
         assertNull(recalled)
     }
 
     private companion object {
         const val HOUR_MS = 60L * 60 * 1000
+        const val DAY_MS = 24 * HOUR_MS
 
         val torrent = TvosStream(
             key = "torrentio#3",
@@ -45,6 +55,13 @@ class LastLinkTest {
             addonName = "Torrentio",
             playableUrl = null,
             requestHeaders = emptyMap(),
+        )
+
+        val directLink = torrent.copy(
+            key = "debrid#1",
+            kind = "Direct",
+            infoHash = null,
+            playableUrl = "https://debrid.test/film.mkv",
         )
     }
 }

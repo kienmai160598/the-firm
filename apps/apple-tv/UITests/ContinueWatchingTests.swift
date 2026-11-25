@@ -56,9 +56,25 @@ final class ContinueWatchingTests: XCTestCase {
         XCTAssertTrue(cover.waitForExistence(timeout: 5), "No opening cover")
         XCTAssertFalse(tv.button(containing: Self.episodeStream).isHittable, "The list shows")
         tv.screenshot("cw-opening-cover")
-        XCTAssertTrue(cover.waitForNonExistence(timeout: 30), "The player did not open")
+        XCTAssertTrue(tv.player.waitForExistence(timeout: 30), "The player did not open")
         XCTAssertFalse(tv.text(beginningWith: "The last link no longer plays").exists)
         XCTAssertFalse(tv.app.buttons["Start from beginning"].exists)
+    }
+
+    func testH4_backFromTheLastLinksPlayerReturnsToTheCardWithoutTheList() {
+        tv.launch(route: Self.series)
+        tv.playEpisode(from: "Play S1 E1", seconds: 6)
+        tv.launch(keepingState: true)
+        XCTAssertTrue(seriesCard.waitForExistence(timeout: 60))
+        tv.focusCard(seriesCard)
+        tv.remote.press(.select)
+        XCTAssertTrue(tv.player.waitForExistence(timeout: 30), "No player")
+        tv.watch(seconds: 3)
+
+        tv.leavePlayer()
+
+        XCTAssertTrue(tv.waitForFocus(seriesCard, timeout: 10), "Focused: \(tv.focusedLabel)")
+        XCTAssertFalse(tv.button(containing: Self.episodeStream).exists, "The list shows")
     }
 
     func testRemovingAnInProgressSeriesFallsBackToNextUp() {
@@ -113,8 +129,8 @@ final class ContinueWatchingTests: XCTestCase {
 
         tv.remote.press(.select)
 
-        XCTAssertTrue(tv.app.staticTexts["Streams"].waitForExistence(timeout: 30))
-        tv.remote.press(.menu)
+        XCTAssertTrue(tv.player.waitForExistence(timeout: 30), "No player")
+        tv.leavePlayer()
         XCTAssertTrue(tv.waitForFocus(cards[1], timeout: 10), "Focused: \(tv.focusedLabel)")
     }
 

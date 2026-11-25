@@ -7,8 +7,8 @@ import kotlinx.serialization.json.Json
 /**
  * How the link a title last played from is kept (TvosLastLink): the whole stream as JSON with the
  * time it was saved, so a Continue Watching card can play it again exactly as it was picked, a
- * torrent by its info hash and a direct link by its URL. A link older than [MAX_AGE_MS] is not
- * used: debrid and addon links expire.
+ * torrent by its info hash and a direct link by its URL. A direct link older than [MAX_AGE_MS] is
+ * not used: debrid and addon links expire. A torrent has no age limit, its info hash does not.
  */
 object LastLink {
     const val MAX_AGE_MS: Long = 24L * 60 * 60 * 1000
@@ -18,12 +18,12 @@ object LastLink {
     fun encode(stream: TvosStream, savedAtMs: Long): String =
         json.encodeToString(SavedLink.serializer(), SavedLink(savedAtMs, stream.toSaved()))
 
-    /** The saved stream, or null when the payload is unreadable or older than [MAX_AGE_MS]. */
+    /** The saved stream, or null when the payload is unreadable or the direct link has expired. */
     fun decode(payload: String, nowMs: Long): TvosStream? {
         val saved = runCatching { json.decodeFromString(SavedLink.serializer(), payload) }.getOrNull()
             ?: return null
         val age = nowMs - saved.savedAtMs
-        if (age < 0 || age > MAX_AGE_MS) return null
+        if (age < 0 || (saved.stream.expires && age > MAX_AGE_MS)) return null
         return saved.stream.toStream()
     }
 }
@@ -51,6 +51,9 @@ private data class SavedStream(
     val playableUrl: String? = null,
     val requestHeaders: Map<String, String> = emptyMap(),
 )
+
+/** A torrent plays by its info hash; anything with a URL to play is a link that can expire. */
+private val SavedStream.expires: Boolean get() = infoHash == null || playableUrl != null
 
 private fun TvosStream.toSaved() = SavedStream(
     key, name, title, detail, badges, sizeLabel, kind, url, externalUrl, infoHash, fileIndex,

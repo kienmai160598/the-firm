@@ -57,12 +57,13 @@ import com.kien.movies.shell.Router
  * there is one (S5), and presents the player as a full screen cover in this entry, as tvOS does
  * with fullScreenCover. A stream that cannot play opens the info sheet (S4).
  *
+ * Leaving the player of a Continue Watching card's last link leaves Streams too (AC H4).
+ *
  * Focus inside this screen is owned here, the shell only focuses the entry on a route change:
  * the first control when the body changes (loading, empty, list), the player cover when it opens,
  * and the pressed row when the cover closes. While the cover is up the list is not composed, so
  * nothing under the player can take focus or draw.
  */
-@Suppress("UNUSED_PARAMETER") // router: frozen entry signature; Streams opens no route in v1.
 @Composable
 fun StreamsScreen(route: AppRoute.Streams, router: Router) {
     val viewModel = viewModel { StreamsViewModel(route.target, route.resumesDirectly) }
@@ -72,7 +73,7 @@ fun StreamsScreen(route: AppRoute.Streams, router: Router) {
     val playback = state.playback
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (playback == null && state.isResumingLastLink) {
+        if (playback == null && state.isOpeningLastLink) {
             StreamsOpeningCover()
         } else if (playback == null) {
             StreamsBackground(backdropUrl = viewModel.target.backdropUrl)
@@ -92,7 +93,7 @@ fun StreamsScreen(route: AppRoute.Streams, router: Router) {
                 },
                 onExit = {
                     restoreKey = playback.stream.key
-                    viewModel.playbackEnded()
+                    if (viewModel.playbackEnded()) router.back()
                 }
             )
         }

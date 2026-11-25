@@ -50,6 +50,13 @@ final class TvApp {
         return current.exists ? current.identifier : ""
     }
 
+    /// The player of either engine, AVPlayer or mpv.
+    var player: XCUIElement {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier IN %@", ["system-player", "mpv-player"]))
+            .firstMatch
+    }
+
     func button(beginningWith prefix: String) -> XCUIElement {
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", prefix)).firstMatch
     }

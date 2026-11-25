@@ -9,6 +9,7 @@ struct StreamsView: View {
     @StateObject private var model: StreamsModel
     @StateObject private var playback: StreamsPlayback
     @Environment(\.accessibilityReduceMotion) private var reducesMotion
+    @Environment(\.dismiss) private var dismiss
 
     init(target: TvosStreamTarget, resumesDirectly: Bool = false) {
         _model = StateObject(wrappedValue: StreamsModel(target: target))
@@ -51,7 +52,7 @@ struct StreamsView: View {
                 playback.start(pending.stream, resumes: false, engine: pending.engine)
             }
         }
-        .fullScreenCover(item: $playback.playback, onDismiss: playback.afterPlayback) { request in
+        .fullScreenCover(item: $playback.playback, onDismiss: closePlayer) { request in
             PlaybackScreen(request: request) { notice in
                 playback.fail(request, notice: notice)
             }
@@ -91,6 +92,10 @@ struct StreamsView: View {
             )
             .transition(.opacity)
         }
+    }
+
+    private func closePlayer() {
+        if playback.afterPlayback() { dismiss() }
     }
 
     private var isResumeChoiceShown: Binding<Bool> {

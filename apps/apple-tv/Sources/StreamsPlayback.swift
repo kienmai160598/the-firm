@@ -10,11 +10,10 @@ final class StreamsPlayback: ObservableObject {
     @Published var sheet: StreamSheet?
     @Published var pendingResume: PendingResume?
     @Published var playback: PlaybackRequest?
-    @Published private(set) var checkingStreamKey: String? {
-        didSet { if checkingStreamKey == nil { isOpeningLastLink = false } }
-    }
-    /// From Continue Watching with a last link: the screen shows the player's opening cover until
-    /// the player covers it or the link fails, so the list never shows on the way (AC H4).
+    @Published private(set) var checkingStreamKey: String?
+    /// From Continue Watching with a last link: the screen shows the player's opening cover while
+    /// the link starts and plays, until it fails, so the list never shows on the way in or out
+    /// (AC H4).
     @Published private(set) var isOpeningLastLink: Bool
     @Published private(set) var directResume: TvosResumePoint?
 
@@ -67,9 +66,7 @@ final class StreamsPlayback: ObservableObject {
         playback = url.map {
             PlaybackRequest(target: target, stream: stream, url: $0, resumes: resumes, engine: engine)
         } ?? PlaybackRequest(target: target, stream: stream, resumes: resumes, engine: engine)
-        if playback == nil {
-            checkingStreamKey = nil
-        }
+        if playback == nil { endChecking() }
     }
 
     func clearSelectionOncePlayerCovers() async {
@@ -78,18 +75,23 @@ final class StreamsPlayback: ObservableObject {
     }
 
     func fail(_ request: PlaybackRequest, notice: StreamNotice) {
-        checkingStreamKey = nil
+        endChecking()
         playbackFailure = StreamSheet(stream: request.stream, notice: self.notice(for: request.stream, notice))
         playback = nil
     }
 
-    func afterPlayback() {
-        checkingStreamKey = nil
+    /// Returns true when Streams closes with the player: it played the last link (AC H4), whose
+    /// opening cover is still up, so the list never shows.
+    func afterPlayback() -> Bool {
         torrent.stop()
+        if isOpeningLastLink { return true }
+        endChecking()
         loadDirectResume()
-        guard let failure = playbackFailure else { return }
-        playbackFailure = nil
-        sheet = failure
+        if let failure = playbackFailure {
+            playbackFailure = nil
+            sheet = failure
+        }
+        return false
     }
 
     func stop() {
@@ -104,7 +106,7 @@ final class StreamsPlayback: ObservableObject {
             case let .success(url):
                 preflight(PlaybackRequest(target: target, stream: stream, url: url, resumes: false))
             case let .failure(error):
-                checkingStreamKey = nil
+                endChecking()
                 let notice = StreamNotice(title: "The torrent did not start", message: error.message)
                 sheet = StreamSheet(stream: stream, notice: self.notice(for: stream, notice))
             }
@@ -123,28 +125,20 @@ final class StreamsPlayback: ObservableObject {
     }
 
     private func chooseStart(_ stream: TvosStream, engine: PlayerEngine) {
-        guard !resumesDirectly else {
-            start(stream, resumes: true, engine: engine)
-            return
-        }
-        TvosPlayback.shared.resumePoint(target: target) { [weak self] point in
+        StreamsStartChoice.choose(target: target, resumesDirectly: resumesDirectly) { [weak self] choice in
             guard let self else { return }
-            if let point {
-                offerResume(PendingResume(stream: stream, point: point, engine: engine))
-            } else {
-                start(stream, resumes: false, engine: engine)
+            switch choice {
+            case let .start(resumes):
+                start(stream, resumes: resumes, engine: engine)
+            case let .ask(point):
+                endChecking()
+                pendingResume = PendingResume(stream: stream, point: point, engine: engine)
             }
         }
     }
 
-    private func offerResume(_ pending: PendingResume) {
-        #if DEBUG
-        if let resumes = DebugLaunch.resumeChoice {
-            start(pending.stream, resumes: resumes, engine: pending.engine)
-            return
-        }
-        #endif
+    private func endChecking() {
         checkingStreamKey = nil
-        pendingResume = pending
+        isOpeningLastLink = false
     }
 }
