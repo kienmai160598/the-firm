@@ -115,6 +115,21 @@ class ContinueWatchingTest {
         tv.await(card(MOVIE.title))
     }
 
+    /** W5: holding select opens the menu and leaves it open on its first item; the held press picks nothing. */
+    @Test
+    fun w5_holdingSelectOpensTheMenuWithoutPickingAnItem() {
+        saveProgress(MOVIE)
+        launchHome()
+        focusCard(MOVIE.title)
+
+        longPressSelect()
+
+        tv.awaitFocus(hasTestTag(GO_TO_DETAILS_BUTTON_TAG))
+        compose.waitForIdle()
+        assertTrue("The held press opened Details", compose.onAllNodes(hasTestTag(DETAILS_PLAY_TAG)).fetchSemanticsNodes().isEmpty())
+        assertTrue("The menu closed", compose.onAllNodes(hasTestTag(REMOVE_BUTTON_TAG)).fetchSemanticsNodes().isNotEmpty())
+    }
+
     private fun card(title: String) = hasTestTag(CONTINUE_WATCHING_CARD_TAG) and hasContentDescription(title)
 
     private fun launchHome() {
@@ -134,14 +149,22 @@ class ContinueWatchingTest {
         tv.awaitFocus(card(title))
     }
 
-    /** A held select: the down event, a long press repeat, then the up event. */
+    /**
+     * A select held as on a real remote: the down event, the long press repeat, more repeats once
+     * the menu is open (the remote keeps repeating while the button is held), then the up event.
+     */
     private fun longPressSelect() {
         val downTime = SystemClock.uptimeMillis()
         val down = KeyEvent(downTime, downTime, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_CENTER, 0)
         instrumentation.sendKeySync(down)
         val held = SystemClock.uptimeMillis() + LONG_PRESS_MS
         instrumentation.sendKeySync(KeyEvent.changeTimeRepeat(down, held, 1, KeyEvent.FLAG_LONG_PRESS))
-        instrumentation.sendKeySync(KeyEvent(downTime, held, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_CENTER, 0))
+        compose.waitForIdle()
+        for (count in 2..HELD_REPEATS) {
+            instrumentation.sendKeySync(KeyEvent.changeTimeRepeat(down, held + count * REPEAT_MS, count))
+        }
+        val up = held + (HELD_REPEATS + 1) * REPEAT_MS
+        instrumentation.sendKeySync(KeyEvent(downTime, up, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_CENTER, 0))
         compose.waitForIdle()
     }
 
@@ -163,6 +186,8 @@ class ContinueWatchingTest {
         const val TIMEOUT_SECONDS = 60L
         const val POLL_MS = 100L
         const val LONG_PRESS_MS = 600L
+        const val REPEAT_MS = 50L
+        const val HELD_REPEATS = 10
         const val MAX_KEYS = 8
         const val POSITION_MS = 120_000L
         const val DURATION_MS = 600_000L

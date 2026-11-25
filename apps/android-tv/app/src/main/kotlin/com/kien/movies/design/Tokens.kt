@@ -46,8 +46,8 @@ object CardSize {
     val wide = DpSize(200.dp, 112.dp)
     val castPortrait = 90.dp
 
-    /** Card corner (spec: tvOS 16 pt, Android 8 dp); [TvShapes.card]. */
-    val cornerRadius = 8.dp
+    /** Card corner: tvOS `CardShape.cornerRadius` 24 pt. */
+    val cornerRadius = 12.dp
     val contentInset = 10.dp
 }
 

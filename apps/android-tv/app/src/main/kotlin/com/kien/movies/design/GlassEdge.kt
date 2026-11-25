@@ -42,4 +42,16 @@ fun Modifier.liquidGlassEdge(shape: Shape): Modifier = border(BorderStroke(GLASS
 /** [liquidGlassRim] as a tv-material [Border]. Pair it with `focusedBorder = Border.None`. */
 fun liquidGlassBorder(shape: Shape): Border = Border(border = BorderStroke(GLASS_EDGE_WIDTH, liquidGlassRim), shape = shape)
 
+/**
+ * The rim of a focused card, the stand-in for the tvOS `.highlight` hover effect: the light lands
+ * on the top edge and fades down the sides. Measured on the focused Continue Watching card in the
+ * Apple TV simulator: the top edge about 100 levels brighter than the art under it, the sides
+ * about 20.
+ */
+val focusedCardRim: Brush = Brush.verticalGradient(
+    0f to Color.White.copy(alpha = 0.6f),
+    0.35f to Color.White.copy(alpha = 0.12f),
+    1f to Color.White.copy(alpha = 0.08f)
+)
+
 internal val GLASS_EDGE_WIDTH = 1.dp

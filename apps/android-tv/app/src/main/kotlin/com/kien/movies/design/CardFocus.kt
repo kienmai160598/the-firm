@@ -1,5 +1,6 @@
 package com.kien.movies.design
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
@@ -14,8 +15,8 @@ import androidx.tv.material3.Glow
 
 /**
  * The focus look of every card, as parameters for tv-material's `Card`: scale 1.1 drawn by the
- * card's surface in a graphics layer (the card never changes layout size), one soft shadow, no
- * ring. Use all five together:
+ * card's surface in a graphics layer (the card never changes layout size), one soft shadow and a
+ * thin light rim ([focusedCardRim]), no ring. Use all five together:
  *
  * ```
  * Card(
@@ -47,7 +48,10 @@ object CardFocus {
 
     @Composable
     @ReadOnlyComposable
-    fun border(): CardBorder = CardDefaults.border(border = Border.None, focusedBorder = Border.None)
+    fun border(): CardBorder = CardDefaults.border(
+        border = Border.None,
+        focusedBorder = Border(border = BorderStroke(GLASS_EDGE_WIDTH, focusedCardRim), shape = CardShape.shape)
+    )
 
     fun glow(): CardGlow = CardDefaults.glow(
         focusedGlow = Glow(elevationColor = TvColors.focusShadow, elevation = Focus.shadowElevation)

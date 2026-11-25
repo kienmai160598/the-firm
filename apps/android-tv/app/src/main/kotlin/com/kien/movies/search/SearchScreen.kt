@@ -58,6 +58,7 @@ import com.kien.movies.design.TvSheet
 import com.kien.movies.design.TvType
 import com.kien.movies.design.glassEdge
 import com.kien.movies.design.glassEdgeBorder
+import com.kien.movies.design.ignoringTheHeldSelect
 import com.kien.movies.design.rememberInsetBringIntoViewSpec
 import com.kien.movies.shell.AppRoute
 import com.kien.movies.shell.ReportScrollToNavPill
@@ -267,6 +268,7 @@ private fun RemoveRecentSearchDialog(query: String, onRemove: () -> Unit, onDism
         val removeFocus = remember { FocusRequester() }
         Column(
             modifier = Modifier
+                .ignoringTheHeldSelect()
                 .background(TvColors.dialogPanel, DIALOG_SHAPE)
                 .glassEdge(DIALOG_SHAPE, visible = true)
                 .padding(DIALOG_PADDING),
