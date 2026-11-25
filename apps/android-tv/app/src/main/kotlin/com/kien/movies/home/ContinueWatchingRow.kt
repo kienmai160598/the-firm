@@ -72,30 +72,33 @@ fun ContinueWatchingRow(
                     onClick = { onOpen(card.route) },
                     onLongClick = { menuFor = card },
                     modifier = Modifier.rememberedFocus(focusMemory, cardFocusKey(row.key, card.key), row.key)
-                )
+                ) {
+                    if (menuFor?.key == card.key) {
+                        ContinueWatchingMenu(
+                            card = card,
+                            onGoToDetails = {
+                                menuFor = null
+                                detailsAfterMenuCloses = card
+                            },
+                            onRemove = {
+                                menuFor = null
+                                removalAfterMenuCloses = card
+                            },
+                            onDismiss = { menuFor = null }
+                        )
+                    }
+                }
             }
         }
     }
 
-    menuFor?.let { card ->
-        ContinueWatchingMenu(
-            card = card,
-            onGoToDetails = {
-                menuFor = null
-                detailsAfterMenuCloses = card
-            },
-            onRemove = {
-                menuFor = null
-                removalAfterMenuCloses = card
-            },
-            onDismiss = { menuFor = null }
-        )
-    }
-
     // As tvOS: Details opens once the menu has closed and focus is back on the card, so Back
-    // returns to it (AC N4). The card stays in the row.
+    // returns to it (AC N4). The card stays in the row. The menu's popup window held focus, so
+    // the card is focused again explicitly before Home is left.
     detailsAfterMenuCloses?.let { card ->
         LaunchedEffect(card.key) {
+            withFrameNanos {}
+            focusMemory.focus(cardFocusKey(row.key, card.key))
             withFrameNanos {}
             detailsAfterMenuCloses = null
             onOpen(card.detailsRoute)
@@ -123,37 +126,51 @@ fun ContinueWatchingRow(
  * A Continue Watching card, as tvOS ContinueWatchingCard: 16:9 art with the progress bar inside
  * its bottom edge, then the title and "S1 E1 • Pilot | 17m left" below it. Only the art is the
  * focusable card, so focus scales and lights the art while the captions stay put, as the tvOS
- * `.highlight` hover effect does.
+ * `.highlight` hover effect does. [menu] is drawn anchored to the art.
  */
 @Composable
-private fun ContinueWatchingCard(card: WatchingCard, onClick: () -> Unit, onLongClick: () -> Unit, modifier: Modifier) {
+private fun ContinueWatchingCard(
+    card: WatchingCard,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    modifier: Modifier,
+    menu: @Composable () -> Unit
+) {
     Column(modifier = Modifier.width(WatchingArtSize.width), verticalArrangement = Arrangement.spacedBy(ART_TO_TITLE)) {
-        Card(
-            onClick = onClick,
-            onLongClick = onLongClick,
-            modifier = modifier
-                .semantics {
-                    contentDescription = card.title
-                    stateDescription = card.progressLabel.orEmpty()
-                }
-                .testTag(CONTINUE_WATCHING_CARD_TAG),
-            shape = CardFocus.shape(),
-            colors = CardFocus.colors(),
-            scale = CardFocus.scale(),
-            border = CardFocus.border(),
-            glow = CardFocus.glow()
-        ) {
-            Box(modifier = Modifier.size(WatchingArtSize)) {
-                ArtworkImage(model = rememberSizedImage(card.imageUrl, WatchingArtSize), modifier = Modifier.fillMaxSize())
-                if (!card.isNextUp) {
-                    WatchProgressBar(
-                        fraction = card.progressFraction,
-                        modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(CardSize.contentInset)
-                    )
-                }
-            }
+        Box {
+            CardArt(card, onClick, onLongClick, modifier)
+            menu()
         }
         CardCaptions(card)
+    }
+}
+
+@Composable
+private fun CardArt(card: WatchingCard, onClick: () -> Unit, onLongClick: () -> Unit, modifier: Modifier) {
+    Card(
+        onClick = onClick,
+        onLongClick = onLongClick,
+        modifier = modifier
+            .semantics {
+                contentDescription = card.title
+                stateDescription = card.progressLabel.orEmpty()
+            }
+            .testTag(CONTINUE_WATCHING_CARD_TAG),
+        shape = CardFocus.shape(),
+        colors = CardFocus.colors(),
+        scale = CardFocus.scale(),
+        border = CardFocus.border(),
+        glow = CardFocus.glow()
+    ) {
+        Box(modifier = Modifier.size(WatchingArtSize)) {
+            ArtworkImage(model = rememberSizedImage(card.imageUrl, WatchingArtSize), modifier = Modifier.fillMaxSize())
+            if (!card.isNextUp) {
+                WatchProgressBar(
+                    fraction = card.progressFraction,
+                    modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(CardSize.contentInset)
+                )
+            }
+        }
     }
 }
 

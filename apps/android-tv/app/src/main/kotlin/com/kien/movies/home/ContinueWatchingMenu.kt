@@ -1,5 +1,6 @@
 package com.kien.movies.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,40 +20,51 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.design.Focus
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvControls
 import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvType
 import com.kien.movies.design.containerRadius
-import com.kien.movies.design.darkGlassPanel
 import com.kien.movies.design.ignoringTheHeldSelect
 import com.kien.movies.design.liquidGlassEdge
+import kotlin.math.roundToInt
 
 /**
- * The tvOS context menu of a Continue Watching card, as a dialog in its order: "Go to Show" or
- * "Go to Movie" first and focused, then "Remove from Continue Watching" in red. Each row is a glyph
- * and a label with no platter until focused, as the tvOS menu draws them, on a dark panel with the
- * light glass rim. Back closes it. The held select that opened it cannot press an item.
+ * The tvOS context menu of a Continue Watching card, in its order: "Go to Show" or "Go to Movie"
+ * first and focused, then "Remove from Continue Watching" in red. Each row is a glyph and a label
+ * with no platter until focused, as the tvOS menu draws them. Like tvOS, it opens beside the card
+ * ([BesideTheCard]) over an undimmed Home. Back closes it. The held select that opened it cannot
+ * press an item. Call it inside a box the size of the card's art, which it is anchored to.
  */
 @Composable
 internal fun ContinueWatchingMenu(card: WatchingCard, onGoToDetails: () -> Unit, onRemove: () -> Unit, onDismiss: () -> Unit) {
     val firstFocus = remember { FocusRequester() }
-    Dialog(onDismissRequest = onDismiss) {
+    val density = LocalDensity.current
+    val position = remember(density) { BesideTheCard(gapPx = with(density) { MENU_GAP.roundToPx() }, scale = Focus.cardScale) }
+    Popup(popupPositionProvider = position, onDismissRequest = onDismiss, properties = PopupProperties(focusable = true)) {
         Column(
             modifier = Modifier
                 .ignoringTheHeldSelect()
                 .width(MENU_WIDTH)
-                .darkGlassPanel(cornerRadius = MENU_RADIUS)
-                .liquidGlassEdge(RoundedCornerShape(MENU_RADIUS))
+                .background(TvColors.dialogPanel, MENU_SHAPE)
+                .liquidGlassEdge(MENU_SHAPE)
                 .padding(MENU_PADDING),
             verticalArrangement = Arrangement.spacedBy(ROW_GAP)
         ) {
@@ -74,6 +86,22 @@ internal fun ContinueWatchingMenu(card: WatchingCard, onGoToDetails: () -> Unit,
     LaunchedEffect(Unit) {
         withFrameNanos {}
         firstFocus.requestFocus()
+    }
+}
+
+/**
+ * Places the menu [gapPx] to the right of the focused card, its top on the card's top, as tvOS
+ * does; on the left when the right has no room. The anchor is the card's layout size, so the
+ * focus [scale] is added back to reach the edge the viewer sees.
+ */
+internal class BesideTheCard(private val gapPx: Int, private val scale: Float) : PopupPositionProvider {
+    override fun calculatePosition(anchorBounds: IntRect, windowSize: IntSize, layoutDirection: LayoutDirection, popupContentSize: IntSize): IntOffset {
+        val overhangX = (anchorBounds.width * (scale - 1f) / 2f).roundToInt()
+        val overhangY = (anchorBounds.height * (scale - 1f) / 2f).roundToInt()
+        val right = anchorBounds.right + overhangX + gapPx
+        val x = if (right + popupContentSize.width <= windowSize.width) right else anchorBounds.left - overhangX - gapPx - popupContentSize.width
+        val y = (anchorBounds.top - overhangY).coerceIn(0, (windowSize.height - popupContentSize.height).coerceAtLeast(0))
+        return IntOffset(x.coerceAtLeast(0), y)
     }
 }
 
@@ -108,8 +136,10 @@ const val REMOVE_TITLE = "Remove from Continue Watching"
 /** tvOS systemRed in dark mode, the destructive menu item. */
 private val DESTRUCTIVE = Color(0xFFFF453A)
 
-// tvOS menu, pt / 2 from the simulator capture: glyphs about 28 pt, 18 pt from the label. The
-// menu is wider than tvOS's 446 pt so Remove fits on one line in the 32 dp capsule.
+// tvOS menu, pt / 2 from the simulator capture: 12 pt from the focused card, glyphs about 28 pt,
+// 18 pt from the label. The menu is wider than tvOS's 446 pt so Remove fits on one line in the
+// 32 dp capsule.
+private val MENU_GAP = 6.dp
 private val MENU_WIDTH = 280.dp
 private val MENU_PADDING = 8.dp
 private val ROW_GAP = 4.dp
@@ -118,3 +148,4 @@ private val ICON_GAP = 9.dp
 
 // Concentric with the capsule rows: 16 dp pill radius + 8 dp padding.
 private val MENU_RADIUS = containerRadius(inner = TvControls.pillRadius, padding = MENU_PADDING)
+private val MENU_SHAPE = RoundedCornerShape(MENU_RADIUS)
