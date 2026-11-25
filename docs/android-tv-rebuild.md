@@ -479,7 +479,7 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | H1 | Hero shows up to 6 items of the first row that have a backdrop; arrows change the item; it advances every 8 s only while unfocused |
 | H2 | Catalog rows scroll sideways with the next card partly visible |
 | H3 | Loading, empty and error states are laid out and focusable. Android: the empty and error status holds an "Open Addons" button so focus has a target; tvOS has no button there and could get the same |
-| H4 | A Continue Watching card resumes without asking |
+| H4 | A Continue Watching card resumes without asking, and from the link the title last played from when it played in the last 24 h (`TvosLastLink`, kept at a playback's first saved progress), so the Streams list is skipped; the header says "Resuming the last source" while it loads. A last link that no longer plays is forgotten and the list stays, with the notice "The last link no longer plays". Without one, the list shows as before. tvOS since this change; Android needs the same change |
 | H5 | Removing a card moves focus to its neighbour and the card stays gone after relaunch |
 | H6 | Finishing an episode shows Next Up on Home and on Details |
 | H7 | An addon catalog that needs a year as its genre (Cinemeta "New") shows as a row for its newest year, right after the first row of the same addon and type (Popular Movies, New Movies, Popular Series, New Series). The selection and placement live in Kotlin, so Android gets it from the shared API |
