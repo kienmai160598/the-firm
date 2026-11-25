@@ -102,6 +102,10 @@ Bold). Android uses `sp = pt / 2`.
 | Pills (buttons, nav pill, season tab, suggestion) | capsule | `RoundedCornerShape(50)` |
 | Nested corners | Apple's concentric rule: outer radius = inner radius + padding | `concentricRadius` and `containerRadius` in `design/Concentric.kt`; an inset larger than the outer radius falls back to a floor, like `.concentric(minimum:)` |
 | Dialog panel ending in a capsule (stream info sheet) | system sheet, measured about 60 pt corner, 1200 pt wide, 64 pt padding | `TvSheet`: 600 dp wide, 32 dp padding, corner 16 + 32 = 48 dp (concentric with the Close capsule); the resume dialog 16 + 24 = 40 dp |
+| Stream row button | resolution badge 14 pt + its 35 pt inset = 49 pt (`StreamRow.buttonCornerRadius`) | badge 7 dp + 17.5 dp inset = 24.5 dp (`STREAM_ROW_SHAPE`) |
+| Player menu panel (audio, subtitles, info) | half the one line capsule row (16 + line + 16) plus the 14 pt padding, about 45.5 pt | 16 dp row radius + 7 dp padding = 23 dp |
+| Other dialogs with capsule buttons (addon, remove recent search, Continue Watching card menu) | system dialogs | 32 dp capsules, corner 16 + 24 = 40 dp (`TvSheet.shapeFor(24)`) |
+| Addon list row with its logo | not on tvOS (no logo) | logo corner 8 dp + the ListItem's 16 dp side padding = 24 dp |
 | Focus scale of a card | system lift; measured 1.09 to 1.10 on posters and 16:9 cards | 1.10 in `graphicsLayer` |
 | Focus shadow | system | one soft shadow, 12 dp blur equivalent, black 40% |
 | Focused control | system: white fill, dark content | white fill, `#141414` content, scale 1.05, no edge |

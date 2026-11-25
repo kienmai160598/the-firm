@@ -174,7 +174,7 @@ object TvShapes {
     val cardRadius: Dp = 8.dp
     val card = RoundedCornerShape(cardRadius)
 
-    /** Result card, description panel, stream row (tvOS 24 pt). */
+    /** Result card, description panel (tvOS 24 pt). */
     val panelRadius: Dp = 12.dp
     val panel = RoundedCornerShape(panelRadius)
 
