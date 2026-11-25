@@ -8,8 +8,10 @@ import com.nuvio.app.features.player.addonSubtitleRequests
 import com.nuvio.app.features.player.buildSubtitleRequestUrl
 import com.nuvio.app.features.player.getLanguageLabelForCode
 import com.nuvio.app.features.player.loadAddonSubtitles
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val OPEN_SUBTITLES_MANIFEST_URL = "https://opensubtitles-v3.strem.io/manifest.json"
 private const val OPEN_SUBTITLES_ID = "org.stremio.opensubtitlesv3"
@@ -20,12 +22,16 @@ object TvosSubtitles {
     private val mainScope = MainScope()
     private val log = Logger.withTag("TvosSubtitles")
 
+    /**
+     * [onResult] runs on the main thread. The search does not: parsing an addon's answer and naming
+     * the language of every subtitle would hold the main thread for seconds while the film opens.
+     */
     fun load(
         target: TvosStreamTarget,
         stream: TvosStream,
         onResult: (List<TvosSubtitle>) -> Unit,
     ): TvosCancellable = TvosCancellable(
-        mainScope.launch { onResult(fetch(target, stream)) },
+        mainScope.launch { onResult(withContext(Dispatchers.Default) { fetch(target, stream) }) },
     )
 
     private suspend fun fetch(target: TvosStreamTarget, stream: TvosStream): List<TvosSubtitle> {
