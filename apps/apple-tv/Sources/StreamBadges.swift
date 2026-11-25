@@ -2,6 +2,10 @@ import SwiftUI
 
 /// One outlined tag (HDR10, Dolby Atmos, HEVC), as the Streams rows and the player's Info show it.
 struct StreamBadge: View {
+    /// Space between the outline and the text. A tag line under plain text is pulled left by this
+    /// much, so the tag's text starts on the text's edge and its outline hangs out past it.
+    static let textInset: CGFloat = 10
+
     let text: String
 
     var body: some View {
@@ -9,7 +13,7 @@ struct StreamBadge: View {
             .font(.system(size: 19, weight: .bold))
             .lineLimit(1)
             .fixedSize()
-            .padding(.horizontal, 10)
+            .padding(.horizontal, Self.textInset)
             .padding(.vertical, 4)
             .overlay(
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
