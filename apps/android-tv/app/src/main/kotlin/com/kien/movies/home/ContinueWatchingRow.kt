@@ -39,6 +39,8 @@ import com.kien.movies.design.CardSize
 import com.kien.movies.design.FactLine
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvType
+import com.kien.movies.design.liftsShelfTitle
+import com.kien.movies.design.rememberShelfTitleLift
 import com.kien.movies.details.WatchProgressBar
 import com.kien.movies.shell.AppRoute
 
@@ -63,15 +65,16 @@ fun ContinueWatchingRow(
     var detailsAfterMenuCloses by remember { mutableStateOf<WatchingCard?>(null) }
     val focusManager = LocalFocusManager.current
 
+    val lift = rememberShelfTitleLift(height = WatchingArtSize.height)
     Column(modifier = modifier) {
-        ShelfHeader(row.title, titleTop = titleTop)
+        ShelfHeader(row.title, titleTop = titleTop, lift = lift)
         ShelfRow(rowKey = row.key, focusMemory = focusMemory) {
             items(row.cards, key = WatchingCard::key, contentType = { WATCHING_CONTENT_TYPE }) { card ->
                 ContinueWatchingCard(
                     card = card,
                     onClick = { onOpen(card.route) },
                     onLongClick = { menuFor = card },
-                    modifier = Modifier.rememberedFocus(focusMemory, cardFocusKey(row.key, card.key), row.key)
+                    modifier = Modifier.rememberedFocus(focusMemory, cardFocusKey(row.key, card.key), row.key).liftsShelfTitle(lift)
                 ) {
                     if (menuFor?.key == card.key) {
                         ContinueWatchingMenu(
