@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,6 +59,7 @@ private val InfoMenuWidth = 320.dp // 640 pt
 private val MaxListHeight = 260.dp // 520 pt
 private val PanelPadding = 7.dp // 14 pt
 private val RowInset = 12.dp // 24 pt
+private val RowsInset = 2.dp // 4 pt
 private val RowLeading = 7.dp // 14 pt
 private val RowVertical = 8.dp // 16 pt
 private val InfoRowVertical = 5.dp // 10 pt
@@ -65,8 +67,9 @@ private val CheckSize = 15.dp // 30 pt
 private val CheckGap = 8.dp // 16 pt
 private val RowGap = 1.dp // 2 pt
 
-// The header and the empty line start where a row's label does, after the check column.
-private val RowTextStart = RowLeading + CheckSize + CheckGap
+// A track menu's header and empty line start where a row's label does, after the check column, so
+// plain text and the text inside the rows share one edge and the focused capsule hangs out past it.
+private val RowTextStart = RowsInset + RowLeading + CheckSize + CheckGap
 private val HeaderTop = 5.dp // 10 pt
 private val HeaderBottom = 3.dp // 6 pt
 private val SeparatorVertical = 5.dp // 10 pt
@@ -82,8 +85,7 @@ private val DETAIL_ALPHA = TvColors.textSecondary.alpha
 private val OneLineRowHeight = 32.dp
 private val PanelShape = RoundedCornerShape(containerRadius(inner = OneLineRowHeight / 2, padding = PanelPadding))
 
-/** Opaque, so a menu over the video is one layer and reads over any picture. */
-private val PanelFill = TvColors.sidebarPanel.copy(alpha = 1f)
+private val PanelFill = TvColors.playerPanel
 
 /**
  * The audio or subtitle menu (tvOS MpvTrackMenu). Opens with the selected row focused; focus stays
@@ -96,7 +98,7 @@ fun TrackMenu(kind: TrackKind, options: List<TrackOption>, onSelect: (TrackOptio
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = selectedIndex)
     val selectedFocus = remember { FocusRequester() }
     MenuPanel(width = TrackMenuWidth, modifier = modifier.testTag(PLAYER_TRACK_MENU_TAG)) {
-        MenuHeader(kind.menuTitle)
+        MenuHeader(kind.menuTitle, start = RowTextStart)
         if (options.isEmpty()) {
             Text(
                 text = "No ${kind.name.lowercase()} tracks",
@@ -108,6 +110,7 @@ fun TrackMenu(kind: TrackKind, options: List<TrackOption>, onSelect: (TrackOptio
         LazyColumn(
             state = listState,
             verticalArrangement = Arrangement.spacedBy(RowGap),
+            contentPadding = PaddingValues(horizontal = RowsInset),
             modifier = Modifier
                 .heightIn(max = MaxListHeight)
                 .focusProperties { onExit = { cancelFocusChange() } }
@@ -197,7 +200,10 @@ private fun TrackRow(option: TrackOption, onClick: () -> Unit, modifier: Modifie
     }
 }
 
-/** A platter over the video: opaque near black panel, panel corner and the liquid glass rim. */
+/**
+ * A platter over the video (tvOS darkGlassPanel): one translucent dark layer, so the picture shows
+ * through, with the panel corner and the liquid glass rim. No blur, as on every box surface.
+ */
 @Composable
 private fun MenuPanel(width: Dp, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Column(
@@ -211,11 +217,11 @@ private fun MenuPanel(width: Dp, modifier: Modifier = Modifier, content: @Compos
 }
 
 @Composable
-private fun MenuHeader(title: String) {
+private fun MenuHeader(title: String, start: Dp = RowInset) {
     Text(
         text = title,
         style = HeaderFont,
         color = TvColors.textSecondary,
-        modifier = Modifier.padding(start = RowTextStart, end = RowInset, top = HeaderTop, bottom = HeaderBottom)
+        modifier = Modifier.padding(start = start, end = RowInset, top = HeaderTop, bottom = HeaderBottom)
     )
 }

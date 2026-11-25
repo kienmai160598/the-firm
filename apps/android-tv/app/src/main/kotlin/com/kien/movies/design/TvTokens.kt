@@ -117,6 +117,13 @@ object TvColors {
     val playerGlass = Color.Black.copy(alpha = 0.26f)
     val playerTrack = Color(0xFF8F8F8F).copy(alpha = 0.63f)
 
+    /**
+     * The player's Audio, Subtitles and Info menus over the video, standing in for tvOS dark glass:
+     * one flat layer the picture shows through (there is no scrim under the controls), dark enough
+     * for caption text to read without the blur the box cannot afford.
+     */
+    val playerPanel = Color(0xFF141414).copy(alpha = 0.66f)
+
     /** Behind artwork that has not loaded yet. */
     val artworkPlaceholder = Color(0xFF3F4446)
 

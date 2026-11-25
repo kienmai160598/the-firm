@@ -138,7 +138,7 @@ private val SpinnerStroke = 3.dp
 /**
  * The player (tvOS MpvPlayerScreen.swift): video, spinner, the controls (title, three round
  * buttons, transport bar) straight over the video at the bottom with no scrim behind them, menus
- * above the buttons as opaque platters, and the advisory banner. Owns the remote: see [PlayerContent].
+ * above the buttons as translucent platters, and the advisory banner. Owns the remote: see [PlayerContent].
  */
 @Composable
 fun PlayerScreen(request: PlaybackRequest, onFailure: (StreamNotice) -> Unit, onExit: () -> Unit) {
