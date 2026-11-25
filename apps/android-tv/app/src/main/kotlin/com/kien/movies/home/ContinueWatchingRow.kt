@@ -45,6 +45,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -285,7 +286,7 @@ private fun CardMenuDialog(card: WatchingCard, onGoToDetails: () -> Unit, onRemo
                 .padding(DIALOG_PADDING),
             verticalArrangement = Arrangement.spacedBy(Spacing.textGapLarge)
         ) {
-            Text(text = card.title, style = TextStyles.body, color = Palette.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(text = card.title, style = TextStyles.body, color = Palette.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             MenuButton(
                 title = card.goToDetailsTitle,
                 onClick = onGoToDetails,

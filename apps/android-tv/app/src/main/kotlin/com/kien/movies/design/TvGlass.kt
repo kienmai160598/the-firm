@@ -51,8 +51,11 @@ object TvGlass {
 
     fun pillShape(): ButtonShape = ButtonDefaults.shape(shape = TvShapes.pill)
 
+    /** A pill's side padding: where its label starts, and how far the pill hangs past its column. */
+    val pillPaddingHorizontal = 16.dp
+
     /** Horizontal only: a pill is [TvControls.pillHeight] tall, the label centres in it. */
-    val pillPadding = PaddingValues(horizontal = 16.dp)
+    val pillPadding = PaddingValues(horizontal = pillPaddingHorizontal)
 
     fun buttonScale(): ButtonScale = ButtonDefaults.scale(focusedScale = Focus.buttonScale)
 

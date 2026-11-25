@@ -196,6 +196,9 @@ private val RESOLUTION_TEXT = TvType.body.copy(fontSize = 14.sp, fontWeight = Fo
 private val ROW_HEIGHT = 52.dp // frame(height: 104)
 private val RESOLUTION_BADGE = DpSize(62.dp, 32.dp) // 124 x 64
 private val ROW_PADDING_H = 19.dp // padding(.horizontal, 8) plus the bordered button's 30
+
+/** Where a row's content (its resolution badge) starts inside the row button. */
+internal val STREAM_ROW_CONTENT_INSET = ROW_PADDING_H
 private val ROW_PADDING_V = 7.5.dp // the bordered button's 15
 private val ROW_GAP = 14.dp // HStack spacing 28
 private val TEXT_GAP = 4.dp // spacing 8 to 12

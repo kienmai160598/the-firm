@@ -19,6 +19,7 @@ struct HeroPage: View {
             HeroInfo(item: item)
             button
                 .padding(.top, 6)
+                .padding(.leading, -Self.buttonContentInset)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
         .padding(.horizontal, HomeHero.contentInset)
@@ -28,6 +29,11 @@ struct HeroPage: View {
                 .padding(.bottom, -artExtension)
         }
     }
+
+    /// How far the play glyph sits inside the capsule: the system glass padding plus the label's own
+    /// 8 pt, measured on the simulator (2026-11-25, unfocused 40 pt to the glyph's ink). The button
+    /// hangs out by this much, so the glyph starts on the text's edge as Apple aligns them.
+    private static let buttonContentInset: CGFloat = 40
 
     private var button: some View {
         RouteLink(value: AppRoute.details(type: item.type, id: item.metaId)) {

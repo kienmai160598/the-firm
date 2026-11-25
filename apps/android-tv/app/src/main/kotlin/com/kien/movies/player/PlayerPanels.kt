@@ -64,6 +64,9 @@ private val InfoRowVertical = 5.dp // 10 pt
 private val CheckSize = 15.dp // 30 pt
 private val CheckGap = 8.dp // 16 pt
 private val RowGap = 1.dp // 2 pt
+
+// The header and the empty line start where a row's label does, after the check column.
+private val RowTextStart = RowLeading + CheckSize + CheckGap
 private val HeaderTop = 5.dp // 10 pt
 private val HeaderBottom = 3.dp // 6 pt
 private val SeparatorVertical = 5.dp // 10 pt
@@ -98,7 +101,7 @@ fun TrackMenu(kind: TrackKind, options: List<TrackOption>, onSelect: (TrackOptio
             Text(
                 text = "No ${kind.name.lowercase()} tracks",
                 style = RowFont,
-                modifier = Modifier.padding(horizontal = RowInset, vertical = RowVertical)
+                modifier = Modifier.padding(start = RowTextStart, end = RowInset, top = RowVertical, bottom = RowVertical)
             )
             return@MenuPanel
         }
@@ -213,6 +216,6 @@ private fun MenuHeader(title: String) {
         text = title,
         style = HeaderFont,
         color = TvColors.textSecondary,
-        modifier = Modifier.padding(start = RowInset, end = RowInset, top = HeaderTop, bottom = HeaderBottom)
+        modifier = Modifier.padding(start = RowTextStart, end = RowInset, top = HeaderTop, bottom = HeaderBottom)
     )
 }

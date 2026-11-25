@@ -84,6 +84,7 @@ import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
+import com.kien.movies.design.hangOutside
 import com.kien.movies.design.rememberBakedImage
 import com.kien.movies.settings.SettingsPage
 import com.kien.movies.shell.AppRoute
@@ -317,6 +318,7 @@ private fun HeroButton(mode: HeroMode, itemName: String?, onClick: () -> Unit, o
     Button(
         onClick = onClick,
         modifier = modifier
+            .hangOutside(start = if (mode == HeroMode.Status) PRIMARY_PADDING else PRIMARY_PADDING + PLAY_GLYPH_BEARING)
             .height(PRIMARY_HEIGHT)
             .widthIn(min = PRIMARY_MIN_WIDTH)
             .width(IntrinsicSize.Max)
@@ -394,6 +396,10 @@ private val PRIMARY_HEIGHT = 32.dp
 private val PRIMARY_MIN_WIDTH = 127.dp
 private val PLAY_ICON = 20.dp
 private val PRIMARY_PADDING = 12.dp
+
+// The button hangs out so the play glyph's ink, not its box, starts on the text's edge: the
+// triangle starts 8 of the vector's 24 units in.
+private val PLAY_GLYPH_BEARING = PLAY_ICON * 8 / 24
 private val OVERVIEW_TO_BUTTONS = 18.5.dp
 private val META_TO_OVERVIEW = 27.5.dp
 private val LOGO_TO_META = 22.5.dp

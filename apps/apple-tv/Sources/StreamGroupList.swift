@@ -58,7 +58,7 @@ private struct StreamAddonHeading: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.leading, 8)
+        .padding(.leading, StreamRow.contentLeading)
         .padding(.bottom, 4)
     }
 }

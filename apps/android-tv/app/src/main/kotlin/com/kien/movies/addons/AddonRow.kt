@@ -162,7 +162,7 @@ private val LOGO_SIZE = 48.dp
 // Concentric corners (design/Concentric.kt): the logo's card corner plus its inset from the row's
 // edge. The side inset is tv-material's ListItem content padding, 16 dp, and stays fixed; the top
 // inset grows with the summary lines, so the side one sets the corner: 8 + 16 = 24 dp.
-private val LIST_ITEM_SIDE_PADDING = 16.dp
+internal val LIST_ITEM_SIDE_PADDING = 16.dp
 private val ROW_SHAPE = RoundedCornerShape(containerRadius(inner = TvShapes.cardRadius, padding = LIST_ITEM_SIDE_PADDING))
 private val LOGO_SYMBOL = 20.dp
 private val SMALL_ICON = 14.dp

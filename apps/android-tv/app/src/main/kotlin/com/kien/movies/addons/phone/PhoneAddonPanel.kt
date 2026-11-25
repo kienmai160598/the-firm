@@ -35,6 +35,7 @@ import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvControls
 import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvType
+import com.kien.movies.design.hangOutside
 import com.nuvio.tvos.phone.AddonInstallOutcome
 import com.nuvio.tvos.phone.AddonPairingLimits
 import com.nuvio.tvos.phone.AddonPairingPhase
@@ -128,7 +129,7 @@ fun PhoneAddonPanel(
             shape = TvGlass.pillShape(),
             border = TvGlass.buttonBorder(),
             contentPadding = TvGlass.pillPadding,
-            modifier = Modifier.height(TvControls.pillHeight).focusRequester(closeFocus).testTag(PHONE_CLOSE_TAG)
+            modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight).focusRequester(closeFocus).testTag(PHONE_CLOSE_TAG)
         ) {
             Text(text = "Close", style = TvType.bodyEmphasized)
         }
@@ -190,7 +191,7 @@ private fun Problem(message: String, onRetry: () -> Unit) {
         shape = TvGlass.pillShape(),
         border = TvGlass.buttonBorder(),
         contentPadding = TvGlass.pillPadding,
-        modifier = Modifier.height(TvControls.pillHeight)
+        modifier = Modifier.hangOutside(start = TvGlass.pillPaddingHorizontal).height(TvControls.pillHeight)
     ) {
         Text(text = "Try Again", style = TvType.bodyEmphasized)
     }

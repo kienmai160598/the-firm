@@ -12,17 +12,18 @@ struct MpvTrackMenu: View {
 
     var body: some View {
         MpvMenuPanel(width: 560) {
-            MpvMenuHeader(title: kind.menuTitle)
+            MpvMenuHeader(title: kind.menuTitle, leading: MpvMenuMetrics.trackLabelLeading)
             if options.isEmpty {
                 Text("No \(kind.title.lowercased()) tracks")
                     .font(MpvMenuFont.row)
-                    .padding(.horizontal, MpvMenuMetrics.rowInset)
+                    .padding(.leading, MpvMenuMetrics.trackLabelLeading)
+                    .padding(.trailing, MpvMenuMetrics.rowInset)
                     .padding(.vertical, 18)
             }
             ScrollView {
                 rows
                     .padding(.vertical, 6)
-                    .padding(.horizontal, 4)
+                    .padding(.horizontal, MpvMenuMetrics.rowsInset)
                     .onGeometryChange(for: CGFloat.self) { proxy in
                         proxy.size.height
                     } action: { height in
@@ -97,6 +98,13 @@ private struct MpvSourceSummary: View {
 
 private enum MpvMenuMetrics {
     static let rowInset: CGFloat = 24
+    static let rowsInset: CGFloat = 4
+    static let rowLeading: CGFloat = 14
+    static let checkWidth: CGFloat = 30
+    static let checkGap: CGFloat = 16
+    /// Where a track row's label starts. The header and the empty line start there too, so plain
+    /// text and the text inside the rows share one edge and the focused capsule hangs out past it.
+    static let trackLabelLeading = rowsInset + rowLeading + checkWidth + checkGap
     static let rowVertical: CGFloat = 16
     static let panelPadding: CGFloat = 14
     /// Concentric rule, outer radius = inner radius + padding: a one line row is a capsule, so the
@@ -130,12 +138,14 @@ private struct MpvMenuPanel<Content: View>: View {
 
 private struct MpvMenuHeader: View {
     let title: String
+    var leading = MpvMenuMetrics.rowInset
 
     var body: some View {
         Text(title)
             .font(MpvMenuFont.header)
             .foregroundStyle(.secondary)
-            .padding(.horizontal, MpvMenuMetrics.rowInset)
+            .padding(.leading, leading)
+            .padding(.trailing, MpvMenuMetrics.rowInset)
             .padding(.top, 10)
             .padding(.bottom, 6)
     }
@@ -155,10 +165,10 @@ private struct MpvTrackRow: View {
     let option: MpvTrackOption
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: MpvMenuMetrics.checkGap) {
             Image(systemName: "checkmark")
                 .font(.system(size: 24, weight: .semibold))
-                .frame(width: 30)
+                .frame(width: MpvMenuMetrics.checkWidth)
                 .opacity(option.isSelected ? 1 : 0)
             VStack(alignment: .leading, spacing: 2) {
                 Text(option.label)
@@ -190,7 +200,7 @@ private struct MpvMenuRowBody: View {
     var body: some View {
         configuration.label
             .foregroundStyle(isFocused ? AnyShapeStyle(Color.black) : AnyShapeStyle(.primary))
-            .padding(.leading, 14)
+            .padding(.leading, MpvMenuMetrics.rowLeading)
             .padding(.trailing, MpvMenuMetrics.rowInset)
             .padding(.vertical, MpvMenuMetrics.rowVertical)
             .background(Capsule().fill(.white.opacity(isFocused ? 1 : 0)))

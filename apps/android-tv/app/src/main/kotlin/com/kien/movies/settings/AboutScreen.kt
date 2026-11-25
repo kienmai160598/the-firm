@@ -49,4 +49,4 @@ private fun appFacts(context: Context): List<Pair<String, String>> {
 
 private const val LICENCE = "GPL-3.0"
 private const val CREDIT = "Built on NuvioMobile and NuvioTV by NuvioMedia. Torrents play through the Nuvio engine until the Movies engine reaches Android."
-private val CREDIT_INSET = 16.dp
+private val CREDIT_INSET = SETTINGS_ROW_TITLE_INSET

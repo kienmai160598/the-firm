@@ -235,7 +235,10 @@ private val ADDON_HEADING = TvType.body.copy(fontSize = 14.sp, lineHeight = 17.s
 // tvOS literals, pt / 2.
 private val ROW_SPACING = 7.dp // LazyVStack spacing 14
 private val ADDON_SPACING = 15.dp // padding(.top, 30) above every addon but the first
-private val HEADING_START = 4.dp // padding(.leading, 8)
+
+// Text in a row and plain text share one edge: the heading starts where the row's badge does, so
+// the row platter hangs out by its own padding.
+private val HEADING_START = STREAM_ROW_CONTENT_INSET
 private val HEADING_BOTTOM = 2.dp // padding(.bottom, 4)
 private val ICON_GAP = 6.dp
 private val ERROR_SYMBOL = 14.dp

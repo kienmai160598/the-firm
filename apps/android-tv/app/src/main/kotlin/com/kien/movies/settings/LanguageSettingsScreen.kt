@@ -70,5 +70,5 @@ const val LANGUAGE_LIST_TAG = "language-list"
 
 private const val ROWS_ABOVE_CHOSEN = 3
 private const val HEADER_ITEMS = 1
-private val HEADER_INSET = 16.dp
+private val HEADER_INSET = SETTINGS_ROW_TITLE_INSET
 private val BOTTOM_ROOM = 27.dp
