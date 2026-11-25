@@ -7,6 +7,7 @@ import com.nuvio.app.features.watchprogress.AirDateBadge
 import com.nuvio.app.features.watchprogress.ContinueWatchingItem
 import com.nuvio.app.features.watchprogress.airDateBadge
 import com.nuvio.app.features.watchprogress.continueWatchingItemKey
+import com.nuvio.tvos.rules.ContinueWatchingCaption
 import nuvio.composeapp.generated.resources.Res
 import nuvio.composeapp.generated.resources.compose_settings_page_continue_watching
 import nuvio.composeapp.generated.resources.cw_airs_date
@@ -50,18 +51,31 @@ private suspend fun List<ContinueWatchingItem>.toRow(
 
 private suspend fun ContinueWatchingItem.toTvosContinueWatchingItem(
     todayIsoDate: String,
-): TvosContinueWatchingItem =
-    TvosContinueWatchingItem(
+): TvosContinueWatchingItem {
+    val status = statusLabel(airDateLabel(todayIsoDate))
+    return TvosContinueWatchingItem(
         key = continueWatchingItemKey(this),
         title = title,
         subtitle = subtitle.ifBlank { getString(Res.string.media_movie) },
         imageUrl = imageUrl,
         progressFraction = progressFraction,
-        progressLabel = progressLabel() ?: statusLabel(airDateLabel(todayIsoDate)),
+        progressLabel = progressLabel() ?: status,
         isNextUp = isNextUp,
         target = streamTarget(),
         canMarkWatched = canMarkWatched(todayIsoDate),
+        caption = ContinueWatchingCaption.of(seasonNumber, episodeNumber, timeLeft() ?: status),
     )
+}
+
+/** What is left to watch, without the "left" the line below a card used to carry. */
+private suspend fun ContinueWatchingItem.timeLeft(): String? =
+    when (val badge = continueWatchingProgressBadge()) {
+        is ContinueWatchingProgressBadge.WatchedPercent ->
+            getString(Res.string.home_continue_watching_watched, "${badge.percent}%")
+        is ContinueWatchingProgressBadge.HoursMinutesLeft -> ContinueWatchingCaption.timeLeft(badge.hours, badge.minutes)
+        is ContinueWatchingProgressBadge.MinutesLeft -> ContinueWatchingCaption.timeLeft(0, badge.minutes)
+        null -> null
+    }
 
 private suspend fun ContinueWatchingItem.progressLabel(): String? =
     when (val badge = continueWatchingProgressBadge()) {

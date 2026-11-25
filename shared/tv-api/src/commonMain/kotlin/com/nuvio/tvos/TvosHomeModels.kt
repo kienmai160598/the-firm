@@ -32,6 +32,8 @@ data class TvosContinueWatchingItem(
     val target: TvosStreamTarget,
     /** False for a Next Up episode that is not released yet. */
     val canMarkWatched: Boolean = true,
+    /** The line on the card's artwork, "S1, E1 · 17m" (`ContinueWatchingCaption`); [progressLabel] stays the spoken value. */
+    val caption: String = "",
 )
 
 data class TvosContinueWatchingRow(
