@@ -16,7 +16,7 @@ public:
     EngineFixture() {
         directory_ = std::filesystem::temp_directory_path() / "movies-engine-c-api-stream-test";
         const auto path = directory_.string();
-        const movies_engine_config config{path.c_str()};
+        const movies_engine_config config{.state_directory = path.c_str()};
         REQUIRE(movies_engine_create(&config, &engine_) == MOVIES_ENGINE_OK);
     }
     ~EngineFixture() {

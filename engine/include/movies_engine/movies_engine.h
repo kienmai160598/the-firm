@@ -28,6 +28,14 @@ typedef struct movies_engine movies_engine;
 typedef struct movies_engine_config {
     /* Absolute path of a directory the engine may own. Must not be NULL or empty. */
     const char* state_directory;
+    /* Memory budget in bytes. 0 keeps the engine's default (512 MiB cap, 256 MiB ahead, 32 MiB
+     * behind, eviction past 384 MiB). After defaults are applied every value must be positive,
+     * ahead + behind must be below the cap and the eviction threshold below the cap; otherwise
+     * movies_engine_create fails with INVALID_ARGUMENT. */
+    int64_t store_cap_bytes;          /* the store never holds more payload than this */
+    int64_t ahead_bytes;              /* downloaded ahead of each reader */
+    int64_t behind_bytes;             /* kept behind each reader for small seeks back */
+    int64_t eviction_threshold_bytes; /* pieces no reader needs are dropped past this */
 } movies_engine_config;
 
 /* Semantic version of the engine, a static string. */
