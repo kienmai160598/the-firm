@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -42,6 +43,7 @@ import com.kien.movies.R
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
+import com.kien.movies.design.containerRadius
 import com.kien.movies.design.liquidGlassEdge
 
 const val PLAYER_TRACK_MENU_TAG = "player-track-menu"
@@ -71,6 +73,11 @@ private val DetailFont = TvType.caption2
 private val HeaderFont = TvType.caption1Emphasized
 private const val PRESSED_SCALE = 0.97f
 private val DETAIL_ALPHA = TvColors.textSecondary.alpha
+
+// Concentric corners (design/Concentric.kt): a one line row is a capsule 8 + 16 + 8 = 32 dp tall
+// (the caption1 line is 16 sp), radius 16, so the panel's corner is 16 + 7 = 23 dp (tvOS 44 pt).
+private val OneLineRowHeight = 32.dp
+private val PanelShape = RoundedCornerShape(containerRadius(inner = OneLineRowHeight / 2, padding = PanelPadding))
 
 /** Opaque, so a menu over the video is one layer and reads over any picture. */
 private val PanelFill = TvColors.sidebarPanel.copy(alpha = 1f)
@@ -193,8 +200,8 @@ private fun MenuPanel(width: Dp, modifier: Modifier = Modifier, content: @Compos
     Column(
         modifier = modifier
             .width(width)
-            .background(PanelFill, TvShapes.panel)
-            .liquidGlassEdge(TvShapes.panel)
+            .background(PanelFill, PanelShape)
+            .liquidGlassEdge(PanelShape)
             .padding(PanelPadding),
         content = content
     )

@@ -97,11 +97,17 @@ private struct MpvSourceSummary: View {
 
 private enum MpvMenuMetrics {
     static let rowInset: CGFloat = 24
-    static let cornerRadius: CGFloat = 44
+    static let rowVertical: CGFloat = 16
+    static let panelPadding: CGFloat = 14
+    /// Concentric rule, outer radius = inner radius + padding: a one line row is a capsule, so the
+    /// panel's corner is half its height plus the panel's padding (about 45.5 pt).
+    static let cornerRadius = (rowVertical * 2 + MpvMenuFont.rowLineHeight) / 2 + panelPadding
 }
 
 private enum MpvMenuFont {
-    static let row = Font.system(size: 26, weight: .medium)
+    private static let rowSize: CGFloat = 26
+    static let row = Font.system(size: rowSize, weight: .medium)
+    static let rowLineHeight = UIFont.systemFont(ofSize: rowSize, weight: .medium).lineHeight
     static let detail = Font.system(size: 20, weight: .regular)
     static let header = Font.system(size: 23, weight: .medium)
 }
@@ -115,7 +121,7 @@ private struct MpvMenuPanel<Content: View>: View {
             content
         }
         .foregroundStyle(.primary)
-        .padding(14)
+        .padding(MpvMenuMetrics.panelPadding)
         .frame(width: width, alignment: .leading)
         .darkGlassPanel(cornerRadius: MpvMenuMetrics.cornerRadius)
         .focusSection()
@@ -186,7 +192,7 @@ private struct MpvMenuRowBody: View {
             .foregroundStyle(isFocused ? AnyShapeStyle(Color.black) : AnyShapeStyle(.primary))
             .padding(.leading, 14)
             .padding(.trailing, MpvMenuMetrics.rowInset)
-            .padding(.vertical, 16)
+            .padding(.vertical, MpvMenuMetrics.rowVertical)
             .background(Capsule().fill(.white.opacity(isFocused ? 1 : 0)))
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isFocused)

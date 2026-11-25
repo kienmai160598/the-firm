@@ -148,8 +148,8 @@ private fun StreamGroupError(message: String) {
 }
 
 /**
- * The `.bordered` button of tvOS with its 24 pt corner: a platter (white 22% plus the glass edge),
- * solid white when focused. [STREAM_ROW_SHAPE] is the outer radius the row's badges nest in.
+ * The `.bordered` button of tvOS with its concentric corner: a platter (white 22% plus the glass edge),
+ * solid white when focused. [STREAM_ROW_SHAPE] is the resolution badge radius plus its inset.
  */
 @Composable
 private fun StreamButton(
