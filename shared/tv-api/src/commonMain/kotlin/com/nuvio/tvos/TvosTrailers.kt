@@ -4,8 +4,6 @@ import co.touchlab.kermit.Logger
 import com.nuvio.app.features.details.MetaDetailsRepository
 import com.nuvio.app.features.details.selectHeroTrailer
 import com.nuvio.app.features.details.youtubePlaybackUrl
-import com.nuvio.app.features.trailer.TRAILER_REQUEST_TIMEOUT_MS
-import com.nuvio.app.features.trailer.TrailerExtractionPlatform
 import com.nuvio.app.features.trailer.TrailerPlaybackResolver
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -21,13 +19,16 @@ import kotlin.time.TimeSource
 private val TRAILER_LINK_LIFETIME = 1.hours
 
 /**
- * A trailer AVPlayer can play: its link, and for an HLS link the master playlist cut down to its
+ * A trailer the player can play: its link, and for an HLS link the master playlist cut down to its
  * sharpest variants (see [sharpestTierPlaylist]), which the app plays in place of the link.
  */
 class TvosTrailerLink(
     val url: String,
     val playlist: String?,
-)
+) {
+    /** True for an HLS master playlist link, which a player cannot tell from its extension. */
+    val isHls: Boolean get() = isHlsMasterLink(url)
+}
 
 /**
  * A playable trailer link for a Home spotlight item, resolved from its YouTube trailer. Only
@@ -46,7 +47,7 @@ object TvosTrailers {
     private val resolved = mutableMapOf<String, Resolved>()
     private val inFlight = mutableMapOf<String, Deferred<TvosTrailerLink?>>()
 
-    /** Calls [onResult] with a trailer AVPlayer can play, or null when the item has no trailer. */
+    /** Calls [onResult] with a trailer the player can play, or null when the item has no trailer. */
     fun resolve(
         type: String,
         id: String,
@@ -100,14 +101,7 @@ object TvosTrailers {
     private suspend fun sharpestPlaylist(url: String): String? {
         if (!isHlsMasterLink(url)) return null
         return try {
-            val response = TrailerExtractionPlatform.performRequest(
-                url = url,
-                method = "GET",
-                headers = TrailerExtractionPlatform.defaultHeaders,
-                body = null,
-                timeoutMillis = TRAILER_REQUEST_TIMEOUT_MS,
-            )
-            if (response.ok) sharpestTierPlaylist(response.body) else null
+            readTrailerPlaylist(url)?.let(::sharpestTierPlaylist)
         } catch (error: Throwable) {
             if (error is CancellationException) throw error
             log.w(error) { "Trailer playlist $url could not be read; playing the original" }

@@ -77,6 +77,21 @@ val syncUpstreamSources = upstreamSourceSets.associateWith { set ->
 
 fun upstreamSources(set: String) = syncUpstreamSources.getValue(set).map { task -> task.destinationDir }
 
+// The full Android build's YouTube trailer extractor and its chunked data source, without the rest
+// of fullCommonMain (plugins, JS), as the tvOS bridge does. The Play Store stub that resolves no
+// trailer is excluded in excluded-android.txt.
+val trailerExtractorSources = listOf(
+    "fullCommonMain/kotlin/com/nuvio/app/features/trailer/InAppYouTubeExtractor.kt",
+    "fullCommonMain/kotlin/com/nuvio/app/features/trailer/TrailerPlaybackResolver.kt",
+    "androidFull/kotlin/com/nuvio/app/features/trailer/TrailerExtractionPlatform.android.kt",
+    "androidFull/kotlin/com/nuvio/app/features/trailer/YoutubeChunkedDataSourceFactory.kt"
+).map(upstreamSrc::resolve)
+val trailerExtractorDir = layout.buildDirectory.dir("generated/android-tv-trailer/kotlin")
+val syncTrailerExtractor = tasks.register<Sync>("syncTrailerExtractor") {
+    from(trailerExtractorSources)
+    into(trailerExtractorDir.map { dir -> dir.dir("com/nuvio/app/features/trailer") })
+}
+
 abstract class GenerateEnglishResShim : DefaultTask() {
     @get:InputDirectory
     abstract val valuesDir: DirectoryProperty
@@ -186,6 +201,7 @@ kotlin {
         androidMain {
             kotlin.srcDir(upstreamSources("androidMain"))
             kotlin.srcDir(upstreamSources("androidPlaystore"))
+            kotlin.srcDir(syncTrailerExtractor.map { trailerExtractorDir })
             dependencies {
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.ktor.client.okhttp)

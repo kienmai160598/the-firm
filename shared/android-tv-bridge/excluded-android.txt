@@ -47,3 +47,4 @@ androidPlaystore/kotlin/com/nuvio/app/features/player/PlatformPlaybackDataSource
 androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.android.kt	downloads: needs AndroidDownloadScheduler (WorkManager); bridge stub in src/androidMain
 androidMain/kotlin/com/nuvio/app/features/player/PlaybackErrorMessages.kt	needs MpvNonHttpExplanationKind from the excluded MpvErrorLog.kt (mpv)
 androidMain/kotlin/com/nuvio/app/features/p2p/P2pStreamingEngine.android.kt	old torrent engine (nuvio-engine AAR, not linked since E7); bridge stub in src/androidMain, torrents run through TvosTorrent
+androidPlaystore/kotlin/com/nuvio/app/features/trailer/TrailerPlaybackResolver.android.kt	Play Store stub; the full YouTube extractor is synced in (syncTrailerExtractor)
