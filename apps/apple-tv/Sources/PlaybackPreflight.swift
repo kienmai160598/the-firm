@@ -14,32 +14,48 @@ struct StreamNotice: Equatable {
 
 enum PlaybackPreflight {
     private static let probeTimeout: Duration = .seconds(6)
+    /// Streams and audio AVPlayer always plays.
     private static let systemExtensions: Set<String> = [
-        "mp4", "m4v", "mov", "m3u8", "m3u", "mp3", "m4a", "aac",
+        "m3u8", "m3u", "mp3", "m4a", "aac",
     ]
+    /// Containers AVPlayer opens even when it cannot decode their video (HEVC tagged `hev1`, VP9,
+    /// AV1): it then plays the sound over a black picture, so these are probed like an unknown link.
+    private static let probedExtensions: Set<String> = ["mp4", "m4v", "mov"]
     private static let mpvExtensions: Set<String> = [
         "mkv", "avi", "webm", "flv", "wmv", "ogv", "rmvb", "divx", "mpd", "ts", "m2ts",
     ]
     private static let log = Logger(subsystem: "com.kien.movies.tvos", category: "Preflight")
 
+    /// How a link picks its player before anything is loaded.
+    enum Route: Equatable {
+        case system
+        case mpv
+        case probe
+    }
+
     static func engine(for request: PlaybackRequest) async -> PlayerEngine {
-        switch knownExtension(of: request) {
-        case let .some(fileExtension) where mpvExtensions.contains(fileExtension):
-            log.notice("Chose mpv for .\(fileExtension, privacy: .public)")
+        let filenameExtension = request.stream.filename.map { ($0 as NSString).pathExtension }
+        switch route(extensions: [request.url.pathExtension, filenameExtension].compactMap { $0 }) {
+        case .mpv:
+            log.notice("Chose mpv for \(request.url.pathExtension, privacy: .public)")
             return .mpv
-        case .some:
+        case .system:
             return .system
-        case .none:
+        case .probe:
             return await probe(PlaybackController.asset(for: request))
         }
     }
 
-    private static func knownExtension(of request: PlaybackRequest) -> String? {
-        let filenameExtension = request.stream.filename.map { ($0 as NSString).pathExtension }
-        return [request.url.pathExtension, filenameExtension]
-            .compactMap { $0?.lowercased() }
-            .first { systemExtensions.contains($0) || mpvExtensions.contains($0) }
+    /// The first extension the app knows decides; an unknown link, MP4 and MOV are probed.
+    static func route(extensions: [String]) -> Route {
+        let known = extensions.map { $0.lowercased() }.first { extensionRoutes[$0] != nil }
+        return known.flatMap { extensionRoutes[$0] } ?? .probe
     }
+
+    private static let extensionRoutes: [String: Route] =
+        Dictionary(uniqueKeysWithValues: systemExtensions.map { ($0, Route.system) }
+            + probedExtensions.map { ($0, Route.probe) }
+            + mpvExtensions.map { ($0, Route.mpv) })
 
     private static func probe(_ asset: AVURLAsset) async -> PlayerEngine {
         let engine = await withCheckedContinuation { continuation in
