@@ -3,6 +3,7 @@ package com.nuvio.tvos.rules
 import com.nuvio.tvos.TvosSubtitle
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 // Ported from apps/apple-tv/Tests/MpvSubtitleDownloadTests.swift.
 class OnlineSubtitleChoiceTest {
@@ -30,6 +31,26 @@ class OnlineSubtitleChoiceTest {
         val choices = OnlineSubtitleChoice.inSourceOrder(subtitles)
 
         assertEquals(4, choices.size)
+    }
+
+    @Test
+    fun startsWithTheFirstOnlineSubtitleInTheFirstPreferredLanguageNoTrackHas() {
+        val online = OnlineSubtitleChoice.inSourceOrder(
+            listOf(subtitle("eng", "English", 1), subtitle("vie", "Vietnamese", 1), subtitle("vie", "Vietnamese", 2)),
+        )
+
+        val choice = OnlineSubtitleChoice.startingChoice(online, preferred = listOf("vi", "en"), embeddedLanguages = listOf("eng"))
+
+        assertEquals("https://subs.test/vie/1.srt", choice?.url)
+    }
+
+    @Test
+    fun startsWithTheEmbeddedTrackWhenItHasThePreferredLanguage() {
+        val online = OnlineSubtitleChoice.inSourceOrder(listOf(subtitle("vi", "Vietnamese", 1)))
+
+        val choice = OnlineSubtitleChoice.startingChoice(online, preferred = listOf("vi"), embeddedLanguages = listOf("vie"))
+
+        assertNull(choice)
     }
 
     private fun subtitle(language: String, label: String, number: Int) = TvosSubtitle(

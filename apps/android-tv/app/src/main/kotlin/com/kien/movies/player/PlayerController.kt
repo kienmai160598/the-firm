@@ -27,6 +27,7 @@ import com.nuvio.tvos.rules.OnlineSubtitle
 import com.nuvio.tvos.rules.OnlineSubtitleChoice
 import com.nuvio.tvos.rules.ProgressSavePolicy
 import com.nuvio.tvos.rules.ProgressSavePolicy.Moment
+import com.nuvio.tvos.rules.StartingSubtitle
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +78,7 @@ class PlayerController(private val context: Context, private val request: Playba
     val source: String = listOf(request.stream.addonName, request.stream.filename ?: request.stream.name).joinToString(", ")
 
     private var onlineSubtitles: List<OnlineSubtitle> = emptyList()
+    private val startingSubtitle = StartingSubtitle(TvosSettings.playerLanguages(LanguageName.device).subtitles)
     private val loadedOnline = linkedMapOf<String, MediaItem.SubtitleConfiguration>()
     private var pendingOnlineId: String? = null
     private var pendingAudioFormatId: String? = null
@@ -107,7 +109,10 @@ class PlayerController(private val context: Context, private val request: Playba
         mutablePlayer.value = exo
         scope.launch { tickEvery(CLOCK_TICK_MS, ::tick) }
         scope.launch { tickEvery(ProgressSavePolicy.TICK_INTERVAL_MS) { save(Moment.Tick) } }
-        scope.launch { onlineSubtitles = OnlineSubtitleChoice.inSourceOrder(BridgeFlows.subtitles(request.target, request.stream)) }
+        scope.launch {
+            onlineSubtitles = OnlineSubtitleChoice.inSourceOrder(BridgeFlows.subtitles(request.target, request.stream))
+            loadStartingSubtitle(startingSubtitle.online(onlineSubtitles))
+        }
     }
 
     /** Saves with a remote sync and releases the engine. Safe to call more than once. */
@@ -179,6 +184,7 @@ class PlayerController(private val context: Context, private val request: Playba
     fun select(kind: TrackKind, option: TrackOption) {
         val exo = mutablePlayer.value ?: return
         if (!canCommand) return
+        if (kind == TrackKind.Subtitles) startingSubtitle.viewerChose()
         option.online?.let { subtitle -> return loadOnline(exo, subtitle) }
         PlayerTracks.selecting(kind, option.id, exo.currentTracks, exo.trackSelectionParameters)?.let { exo.trackSelectionParameters = it }
     }
@@ -308,6 +314,13 @@ class PlayerController(private val context: Context, private val request: Playba
         if (positionAtLoadMs == null) startPositionMs(durationMs(exo)).takeIf { it > 0 }?.let(exo::seekTo)
         update(PlayerEvent.Started)
         if (!isInBackground) exo.playWhenReady = true
+        loadStartingSubtitle(startingSubtitle.tracks(PlayerTracks.embeddedSubtitleLanguages(exo.currentTracks)))
+    }
+
+    /** The Settings language's online subtitle, when the file has no track in it (AC ST4). */
+    private fun loadStartingSubtitle(subtitle: OnlineSubtitle?) {
+        val exo = mutablePlayer.value ?: return
+        if (subtitle != null && canCommand) loadOnline(exo, subtitle)
     }
 
     /** The saved position when it does not depend on the stream's length: the engine opens the stream there. */

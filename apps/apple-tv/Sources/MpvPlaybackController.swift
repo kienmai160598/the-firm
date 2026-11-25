@@ -38,6 +38,7 @@ final class MpvPlaybackController: ObservableObject {
     private var startTask: Task<Void, Never>?
     private var subtitleSearch: TvosCancellable?
     private var subtitleDownloads: [MpvSubtitleDownload] = []
+    private var startingSubtitle: StartingSubtitle?
     private let displayMatcher = MpvDisplayMatcher()
     private var nowPlaying: MpvNowPlaying?
     private var lifecycleObservers: [NSObjectProtocol] = []
@@ -65,10 +66,9 @@ final class MpvPlaybackController: ObservableObject {
     func start() {
         guard mpv == nil, !isFinished else { return }
         PlaybackAudioSession.activate()
-        let options = MpvOptions.playback(
-            headers: request.stream.requestHeaders,
-            languages: TvosSettings.shared.playerLanguages(deviceLanguage: LanguageName.device)
-        )
+        let languages = TvosSettings.shared.playerLanguages(deviceLanguage: LanguageName.device)
+        startingSubtitle = StartingSubtitle(preferred: languages.subtitles)
+        let options = MpvOptions.playback(headers: request.stream.requestHeaders, languages: languages)
         mpv = MpvHandle(layer: videoLayer, options: options) { [weak self] event in
             self?.handle(event)
         }
@@ -134,6 +134,7 @@ final class MpvPlaybackController: ObservableObject {
 
     func select(_ option: MpvTrackOption, of kind: MpvTrackKind) {
         guard hasStarted else { return }
+        if kind == .subtitles { startingSubtitle?.viewerChose() }
         if let download = option.download {
             load(download)
         } else {
@@ -157,8 +158,15 @@ final class MpvPlaybackController: ObservableObject {
             target: request.target,
             stream: request.stream
         ) { [weak self] subtitles in
-            self?.subtitleDownloads = MpvSubtitleDownload.inSourceOrder(subtitles)
+            guard let self else { return }
+            subtitleDownloads = MpvSubtitleDownload.inSourceOrder(subtitles)
+            loadStartingSubtitle(startingSubtitle?.online(subtitles: OnlineSubtitleChoice.shared.inSourceOrder(subtitles: subtitles)))
         }
+    }
+
+    private func loadStartingSubtitle(_ subtitle: OnlineSubtitle?) {
+        guard let url = subtitle?.url, let download = subtitleDownloads.first(where: { $0.url == url }) else { return }
+        load(download)
     }
 
     func mediaInfo() -> [MpvInfoRow] {
@@ -196,6 +204,7 @@ final class MpvPlaybackController: ObservableObject {
     private func startOnce() {
         guard !hasStarted, let mpv else { return }
         hasStarted = true
+        loadStartingSubtitle(startingSubtitle?.tracks(embeddedLanguages: MpvTrackKind.embeddedSubtitleLanguages(using: mpv)))
         durationMs = Self.milliseconds(mpv.number(MpvProperty.duration) ?? 0)
         let startMs = startPositionMs()
         Self.log.notice("Start position \(startMs, privacy: .public) ms of \(self.durationMs)")

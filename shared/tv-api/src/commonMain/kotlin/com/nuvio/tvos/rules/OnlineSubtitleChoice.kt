@@ -1,5 +1,6 @@
 package com.nuvio.tvos.rules
 
+import com.nuvio.app.features.player.SubtitleLanguageMatching
 import com.nuvio.tvos.TvosSubtitle
 
 /**
@@ -44,6 +45,19 @@ object OnlineSubtitleChoice {
                 number = number,
             )
         }
+    }
+
+    /**
+     * The online subtitle to load as playback starts, or null to keep the player's own pick. It
+     * walks [preferred], Settings' subtitle languages in order: a language one of the file's
+     * [embeddedLanguages] has keeps that track, else the first online subtitle in it is loaded.
+     */
+    fun startingChoice(online: List<OnlineSubtitle>, preferred: List<String>, embeddedLanguages: List<String>): OnlineSubtitle? {
+        for (language in preferred) {
+            if (embeddedLanguages.any { SubtitleLanguageMatching.matchesLanguageCode(it, language) }) return null
+            online.firstOrNull { SubtitleLanguageMatching.matchesLanguageCode(it.language, language) }?.let { return it }
+        }
+        return null
     }
 
     /** The letters before the first non letter: "pt-BR" and "pt" count as one language. */
