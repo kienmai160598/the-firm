@@ -32,7 +32,7 @@ object TvosPlayback {
     }
 
     fun startSession(target: TvosStreamTarget, stream: TvosStream): TvosPlaybackSession =
-        TvosPlaybackSession(watchProgressSession(target, stream))
+        TvosPlaybackSession(watchProgressSession(target, stream)) { TvosLastLink.remember(target, stream) }
 
     private fun resumableProgress(target: TvosStreamTarget): WatchProgressEntry? =
         savedProgress(target)?.takeUnless(WatchProgressEntry::isCompleted)
@@ -48,8 +48,11 @@ object TvosPlayback {
 
 class TvosPlaybackSession internal constructor(
     private val session: WatchProgressPlaybackSession,
+    /** Runs at the first saved progress: the link played, so Continue Watching may reuse it. */
+    private val onPlayed: () -> Unit,
 ) {
     private val log = Logger.withTag("TvosPlayback")
+    private var hasPlayed = false
 
     fun save(
         positionMs: Long,
@@ -68,6 +71,10 @@ class TvosPlaybackSession internal constructor(
         )
         WatchProgressRepository.upsertPlaybackProgress(session, snapshot, syncRemote = syncRemote)
         log.i { "Saved ${session.videoId} at $positionMs of $durationMs ended=$isEnded" }
+        if (!hasPlayed) {
+            hasPlayed = true
+            onPlayed()
+        }
         return true
     }
 }

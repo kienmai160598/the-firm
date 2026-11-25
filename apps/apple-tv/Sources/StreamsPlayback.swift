@@ -24,10 +24,18 @@ final class StreamsPlayback: ObservableObject {
     private var playbackFailure: StreamSheet?
     private let target: TvosStreamTarget
     private let resumesDirectly: Bool
+    private var lastLink: StreamsLastLink?
 
     init(target: TvosStreamTarget, resumesDirectly: Bool) {
         self.target = target
         self.resumesDirectly = resumesDirectly
+        lastLink = resumesDirectly ? StreamsLastLink(target: target) : nil
+    }
+
+    /// From Continue Watching: plays the link the title last played from, if any.
+    func playLastLink() {
+        guard let stream = lastLink?.take() else { return }
+        select(stream)
     }
 
     func loadDirectResume() {
@@ -44,7 +52,7 @@ final class StreamsPlayback: ObservableObject {
             return
         }
         guard let probe = PlaybackRequest(target: target, stream: stream, resumes: false) else {
-            sheet = StreamSheet(stream: stream, notice: nil)
+            sheet = StreamSheet(stream: stream, notice: notice(for: stream, nil))
             return
         }
         checkingStreamKey = stream.key
@@ -69,7 +77,7 @@ final class StreamsPlayback: ObservableObject {
 
     func fail(_ request: PlaybackRequest, notice: StreamNotice) {
         checkingStreamKey = nil
-        playbackFailure = StreamSheet(stream: request.stream, notice: notice)
+        playbackFailure = StreamSheet(stream: request.stream, notice: self.notice(for: request.stream, notice))
         playback = nil
     }
 
@@ -96,9 +104,13 @@ final class StreamsPlayback: ObservableObject {
             case let .failure(error):
                 checkingStreamKey = nil
                 let notice = StreamNotice(title: "The torrent did not start", message: error.message)
-                sheet = StreamSheet(stream: stream, notice: notice)
+                sheet = StreamSheet(stream: stream, notice: self.notice(for: stream, notice))
             }
         }
+    }
+
+    private func notice(for stream: TvosStream, _ notice: StreamNotice?) -> StreamNotice? {
+        lastLink?.notice(for: stream, notice) ?? notice
     }
 
     private func preflight(_ probe: PlaybackRequest) {
