@@ -85,6 +85,7 @@ private struct MpvSourceSummary: View {
                 .lineLimit(2)
             if !source.badges.isEmpty {
                 StreamBadgeFlow(badges: source.badges)
+                    .padding(.leading, -StreamBadge.textInset)
             }
             Text(source.detail)
                 .foregroundStyle(.secondary)
