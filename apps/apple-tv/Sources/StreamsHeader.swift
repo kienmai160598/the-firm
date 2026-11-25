@@ -7,9 +7,11 @@ enum StreamsMotion {
     }
 }
 
-/// The left column of the Streams screen. It stays put while the list beside it scrolls.
+/// The left column of the Streams screen, as tall as the page: the art fills it, and the title,
+/// resume bar and source count sit on its shaded bottom. It stays put while the list scrolls.
 struct StreamsHeader: View {
-    static let width: CGFloat = 560
+    static let width: CGFloat = 640
+    private static let textInset: CGFloat = 40
 
     let target: TvosStreamTarget
     let resume: TvosResumePoint?
@@ -18,8 +20,6 @@ struct StreamsHeader: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            StreamsArtwork(target: target)
-                .padding(.bottom, 26)
             Text(target.title)
                 .font(.system(size: 52, weight: .bold))
                 .lineLimit(3)
@@ -38,29 +38,31 @@ struct StreamsHeader: View {
             StreamsSourceSummary(sourceCount: sourceCount, searchingAddonCount: searchingAddonCount)
                 .padding(.top, 24)
         }
-        .frame(width: Self.width, alignment: .topLeading)
+        .padding(Self.textInset)
+        .frame(width: Self.width, alignment: .leading)
+        .frame(maxHeight: .infinity, alignment: .bottom)
+        .background { StreamsArtwork(target: target) }
+        .clipShape(CardShape.shape)
     }
 }
 
-/// The episode still for an episode, otherwise the poster; nothing when neither exists.
+/// The poster, else the episode still, else the backdrop, filling the column; its lower part is
+/// shaded so the text on it reads. A plain platter when there is no art.
 private struct StreamsArtwork: View {
-    private static let posterSize = CGSize(width: 300, height: 450)
-    private static let stillHeight = StreamsHeader.width * 9 / 16
+    private static let shade = LinearGradient(
+        stops: [
+            .init(color: .black.opacity(0), location: 0.35),
+            .init(color: .black.opacity(0.85), location: 1),
+        ],
+        startPoint: .top,
+        endPoint: .bottom
+    )
 
     let target: TvosStreamTarget
 
     var body: some View {
-        if let still = target.episodeThumbnailUrl {
-            artwork(still, width: StreamsHeader.width, height: Self.stillHeight)
-        } else if let poster = target.posterUrl {
-            artwork(poster, width: Self.posterSize.width, height: Self.posterSize.height)
-        }
-    }
-
-    private func artwork(_ url: String, width: CGFloat, height: CGFloat) -> some View {
-        ArtworkImage(url: url, fallbackTitle: target.title)
-            .frame(width: width, height: height)
-            .clipShape(CardShape.shape)
+        ArtworkImage(url: target.posterUrl ?? target.episodeThumbnailUrl ?? target.backdropUrl)
+            .overlay { Self.shade }
             .accessibilityHidden(true)
     }
 }

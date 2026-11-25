@@ -495,11 +495,11 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | W3 | A season tab's context menu offers "Mark Season as Watched" until every released episode of the season is watched, then "Mark Season as Unwatched"; it selects that season and marks or unmarks all its released episodes at once (`WatchingActions.toggleSeasonWatched`), so focus stays on the tab after the menu closes. Cancelling the menu on a season that is not selected moves focus to the selected one (D3). Unreleased episodes and seasons with nothing released have no menu. tvOS since F2; Android needs the same change |
 | W4 | When Trakt is signed in, these marks go to Trakt history through `WatchedRepository`, as upstream does. Checked by hand, not by a UI test |
 | W5 | A Continue Watching or Upcoming card's context menu (long press Select) starts with "Go to Show" for a series card or "Go to Movie" for a movie card, above "Mark as Watched" and Remove. It opens the Details of the show (not the episode) or the movie, `AppRoute.Details(type, parentMetaId)`, once the menu has closed. The route carries no season: Details opens on the season of its own play action (`seriesPrimaryAction`), which is usually the card's episode but is worked out apart from the card, so an Upcoming card for an unreleased episode can open on another season. The card stays in the row, and Back returns focus to it (N4). tvOS since this change, seen on the simulator; Android seen on the TCL, long press on the real remote opens it (its menu opens beside the card as on tvOS, with Go to and a red Remove and their glyphs, Back closes it; Mark as Watched is still W1's gap) |
-| S1 | Stream groups appear per addon as they load; the left column shows the source count and "Searching N more addons" |
+| S1 | Stream groups appear per addon as they load. The left column is 640 pt (320 dp) wide and as tall as the page: the poster (else the episode still, else the backdrop) fills it, and the title, subtitle, resume bar, source count and "Searching N more addons" sit on its shaded bottom |
 | S2 | A row shows resolution, capability badges, size and seeders parsed as on tvOS |
 | S3 | Empty state with Try Again and the missing addon hint |
 | S4 | A stream that cannot play opens the info sheet |
-| S5 | With a resume point, a dialog offers Resume or Start Over |
+| S5 | With a resume point, a dialog offers Resume or Start Over; it shows no title |
 | S6 | The pressed row shows "Checking stream", the other rows dim |
 | P1 | Direct MP4, MKV and HLS streams play |
 | P2 | Skip 10 s, presses add up, controls hide after 5 s |

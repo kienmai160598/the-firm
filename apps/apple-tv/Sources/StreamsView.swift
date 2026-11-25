@@ -37,7 +37,7 @@ struct StreamsView: View {
         .confirmationDialog(
             model.target.title,
             isPresented: isResumeChoiceShown,
-            titleVisibility: .visible,
+            titleVisibility: .hidden,
             presenting: playback.pendingResume
         ) { pending in
             Button(pending.point.label) {
