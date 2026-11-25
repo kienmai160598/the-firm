@@ -40,6 +40,11 @@ struct HomeHero: View {
     var body: some View {
         if !items.isEmpty {
             pages
+                .overlay {
+                    // From the screen edge, not the safe area, like the pages.
+                    HeroForeground(items: items, currentIndex: currentIndex, focusedId: $focusedId)
+                        .ignoresSafeArea(edges: .horizontal)
+                }
                 .overlay(alignment: .bottom) {
                     PageIndicator(count: items.count, index: currentIndex)
                         .padding(.bottom, 36)
@@ -70,12 +75,7 @@ struct HomeHero: View {
         ScrollView(.horizontal) {
             HStack(spacing: 0) {
                 ForEach(items, id: \.metaId) { item in
-                    HeroPage(
-                        item: item,
-                        trailer: trailer.picture(for: item.metaId),
-                        artExtension: artExtension,
-                        focusedId: $focusedId
-                    )
+                    HeroPage(item: item, trailer: trailer.picture(for: item.metaId), artExtension: artExtension)
                         .containerRelativeFrame(.horizontal)
                         .id(item.metaId)
                 }
