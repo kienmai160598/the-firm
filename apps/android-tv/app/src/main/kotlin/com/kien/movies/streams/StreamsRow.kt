@@ -38,8 +38,9 @@ import com.kien.movies.design.containerRadius
 
 /**
  * The content of one stream button (tvOS StreamsRow.swift): resolution badge, name, up to four
- * capability badges and the file line, then size, seeders and delivery, or the pressed row's
- * progress. Colours follow the button's content colour, so a focused row reads black on white.
+ * capability badges and the file line, then size, seeders and delivery. The pressed row shows its
+ * progress and only the tags that fit beside it, with no file line. Colours follow the button's
+ * content colour, so a focused row reads black on white.
  *
  * The padding is the bordered button's own (30 x 15 pt) plus the row's 8 pt, so the button is
  * 134 pt tall around a 104 pt row, as measured on the tvOS capture.
@@ -62,7 +63,14 @@ fun StreamsRow(row: StreamRowItem, progress: StreamRowProgress?, modifier: Modif
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            StreamDetailLine(capabilities = row.features.capabilities.take(MAX_CAPABILITIES), fileLine = row.fileLine)
+            val capabilities = row.features.capabilities.take(MAX_CAPABILITIES)
+            if (progress != null) {
+                StreamTagsThatFit(gap = BADGE_GAP, modifier = Modifier.height(DETAIL_LINE_HEIGHT)) {
+                    capabilities.forEach { label -> StreamCapabilityBadge(label) }
+                }
+            } else {
+                StreamDetailLine(capabilities = capabilities, fileLine = row.fileLine)
+            }
         }
         AnimatedContent(
             targetState = progress,
@@ -171,7 +179,12 @@ private fun StreamRowProgressView(progress: StreamRowProgress) {
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(PROGRESS_GAP), verticalAlignment = Alignment.CenterVertically) {
             StreamsSpinner(size = PROGRESS_SPINNER)
-            Text(text = progress.title, style = TvType.caption1.copy(fontWeight = FontWeight.SemiBold), maxLines = 1)
+            Text(
+                text = progress.title,
+                style = TvType.caption1.copy(fontWeight = FontWeight.SemiBold),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
         progress.fraction?.let { fraction -> StreamsProgressBar(fraction = fraction, modifier = Modifier.width(PROGRESS_BAR_WIDTH)) }
         progress.detail?.let { detail ->
@@ -212,7 +225,7 @@ private val CAPABILITY_PADDING_V = 1.dp // padding(.vertical, 4), less so the ba
 private val FACT_GAP = 9.dp // HStack spacing 18
 private val FACT_ICON_GAP = 3.dp
 private val FACT_SYMBOL = 12.dp
-private val PROGRESS_MAX_WIDTH = 210.dp // frame(maxWidth: 420)
+private val PROGRESS_MAX_WIDTH = 150.dp // frame(maxWidth: 300)
 private val PROGRESS_GAP = 8.dp // HStack spacing 16
 private val PROGRESS_SPINNER = 14.dp
 private val PROGRESS_BAR_WIDTH = 130.dp // frame(width: 260)
