@@ -5,6 +5,7 @@ import os
 
 enum MpvEvent {
     case fileLoaded
+    case audioReconfigured
     case endOfFile
     case failed(String)
     case number(name: String, value: Double)
@@ -145,6 +146,8 @@ final class MpvHandle {
         switch event.event_id {
         case MPV_EVENT_FILE_LOADED:
             return .fileLoaded
+        case MPV_EVENT_AUDIO_RECONFIG:
+            return .audioReconfigured
         case MPV_EVENT_END_FILE:
             return endFile(event)
         case MPV_EVENT_PROPERTY_CHANGE:

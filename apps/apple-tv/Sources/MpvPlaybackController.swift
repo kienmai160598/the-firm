@@ -7,7 +7,9 @@ import os
 final class MpvPlaybackController: ObservableObject {
     private static let tickInterval: Duration = .seconds(10)
     private static let startupLimit: Duration = .seconds(60)
-    private static let videoFormatLimit: Duration = .seconds(2)
+    /// The dynamic range needs the first decoded frame, which a torrent can take seconds to deliver
+    /// at a resume position.
+    private static let videoFormatLimit: Duration = .seconds(5)
     private static let videoFormatPoll: Duration = .milliseconds(100)
     private static let seekStepSeconds = 10
     private static let minimumTickAdvanceMs: Int64 = 1000
@@ -173,6 +175,8 @@ final class MpvPlaybackController: ObservableObject {
         switch event {
         case .fileLoaded:
             startOnce()
+        case .audioReconfigured:
+            reclaimAudioSession()
         case .endOfFile:
             updateEnd(true)
         case let .failed(reason):
@@ -212,22 +216,33 @@ final class MpvPlaybackController: ObservableObject {
         play()
     }
 
+    /// The size, frame rate and dynamic range to match the display to. A source too slow to give
+    /// its first frame before the limit is still matched for size and frame rate, as SDR.
     private func firstVideoFormat() async -> MpvVideoFormat? {
         let deadline = ContinuousClock.now + Self.videoFormatLimit
         while !isFinished, ContinuousClock.now < deadline {
-            if let mpv, let format = MpvVideoFormat.read(from: mpv) { return format }
+            if let mpv, let dynamicRange = MpvDynamicRange.read(from: mpv),
+               let format = MpvVideoFormat.read(from: mpv, dynamicRange: dynamicRange) {
+                return format
+            }
             try? await Task.sleep(for: Self.videoFormatPoll)
         }
-        return nil
+        guard !isFinished, let mpv else { return nil }
+        return MpvVideoFormat.read(from: mpv, dynamicRange: .standard)
     }
 
     private func play() {
         guard !isFinished else { return }
         hasRequestedPlay = true
-        // The audio output set its own session up while the file loaded; make it non-mixable again.
-        PlaybackAudioSession.activate()
-        Self.log.notice("Audio output \(self.mpv?.string("current-ao") ?? "none", privacy: .public)")
         mpv?.setFlag(MpvProperty.pause, false)
+    }
+
+    /// mpv's audio output makes the shared audio session mixable with the default route sharing
+    /// policy every time it opens, which can be before or after play is requested.
+    private func reclaimAudioSession() {
+        guard let output = mpv?.string(MpvProperty.audioOutput) else { return }
+        PlaybackAudioSession.activate()
+        Self.log.notice("Audio output \(output, privacy: .public)")
     }
 
     private func startPositionMs() -> Int64 {
