@@ -8,7 +8,9 @@ struct MpvTransportBar: View {
     private static let labelRowHeight: CGFloat = 44
     private static let playheadRise: CGFloat = 10
     private static let playheadWidth: CGFloat = 4
-    private static let skipRise: CGFloat = 40
+    private static let pauseIconSize: CGFloat = 30
+    private static let skipGap: CGFloat = 16
+    private static let skipGlyphGap: CGFloat = 8
     private static let progressAnimation: Animation = .smooth(duration: 0.3)
     private static let settleAnimation: Animation = .interactiveSpring(response: 0.25)
 
@@ -18,7 +20,7 @@ struct MpvTransportBar: View {
     let isScrubbing: Bool
     let skip: MpvSkip?
     @Environment(\.accessibilityReduceMotion) private var reducesMotion
-    @State private var elapsedWidth: CGFloat = 0
+    @State private var elapsedRowWidth: CGFloat = 0
 
     var body: some View {
         GeometryReader { geometry in
@@ -28,9 +30,6 @@ struct MpvTransportBar: View {
                 track
                     .overlay(alignment: .leading) {
                         if isScrubbing || preview.seconds != nil { playhead(at: playheadX) }
-                    }
-                    .overlay {
-                        if let skip { skipBadge(skip, at: playheadX, width: width) }
                     }
                 if clock.durationSeconds > 0 {
                     labels(width: width, playheadX: playheadX)
@@ -51,13 +50,6 @@ struct MpvTransportBar: View {
 
     private var shownSeconds: Int {
         preview.seconds ?? clock.positionSeconds
-    }
-
-    private func skipBadge(_ skip: MpvSkip, at x: CGFloat, width: CGFloat) -> some View {
-        let margin = MpvSkipBadge.size / 2
-        return MpvSkipBadge(skip: skip)
-            .position(x: min(max(x, margin), width - margin), y: -Self.skipRise)
-            .transition(.opacity.combined(with: .scale(scale: 0.7)))
     }
 
     private var track: some View {
@@ -89,14 +81,14 @@ struct MpvTransportBar: View {
 
     private func labels(width: CGFloat, playheadX: CGFloat) -> some View {
         ZStack(alignment: .leading) {
-            elapsed
+            elapsedRow
                 .fixedSize()
                 .onGeometryChange(for: CGFloat.self) { proxy in
                     proxy.size.width
                 } action: { measured in
-                    elapsedWidth = measured
+                    elapsedRowWidth = measured
                 }
-                .offset(x: elapsedOrigin(playheadX, width: width))
+                .offset(x: elapsedRowOrigin(playheadX, width: width))
             Text("-" + MpvClock.label(max(clock.durationSeconds - shownSeconds, 0)))
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }
@@ -106,21 +98,44 @@ struct MpvTransportBar: View {
         .frame(height: Self.labelRowHeight)
     }
 
-    @ViewBuilder
-    private var elapsed: some View {
-        if isPausedByViewer, preview.seconds == nil {
-            Image(systemName: "pause.circle")
-                .font(.system(size: 30, weight: .regular))
-                .accessibilityLabel("Paused")
-        } else {
-            Text(MpvClock.label(shownSeconds))
+    private var showsPause: Bool {
+        isPausedByViewer && preview.seconds == nil
+    }
+
+    /// The row under the playhead. At rest: the elapsed time, or the pause icon while paused,
+    /// centred on the playhead. After a skip: the skip glyph and the time beside that anchor, on
+    /// the right for forward and on the left for back, so nothing sits on top of anything else.
+    private var elapsedRow: some View {
+        HStack(spacing: Self.skipGap) {
+            if let skip, !skip.isForward { skipped(skip) }
+            if showsPause {
+                Image(systemName: "pause.circle")
+                    .font(.system(size: Self.pauseIconSize, weight: .regular))
+                    .accessibilityLabel("Paused")
+            }
+            if skip == nil, !showsPause { Text(MpvClock.label(shownSeconds)) }
+            if let skip, skip.isForward { skipped(skip) }
         }
     }
 
-    private func elapsedOrigin(_ playheadX: CGFloat, width: CGFloat) -> CGFloat {
-        let centered = playheadX - elapsedWidth / 2
-        let lastOrigin = width - Self.remainingReserve - elapsedWidth
-        return min(max(centered, 0), max(lastOrigin, 0))
+    private func skipped(_ skip: MpvSkip) -> some View {
+        HStack(spacing: Self.skipGlyphGap) {
+            MpvSkipBadge(skip: skip)
+            Text(MpvClock.label(shownSeconds))
+        }
+        .transition(.opacity)
+    }
+
+    private func elapsedRowOrigin(_ playheadX: CGFloat, width: CGFloat) -> CGFloat {
+        let anchorHalf = showsPause ? Self.pauseIconSize / 2 : 0
+        let start: CGFloat
+        switch skip?.isForward {
+        case nil: start = playheadX - elapsedRowWidth / 2
+        case true?: start = playheadX - anchorHalf
+        case false?: start = playheadX + anchorHalf - elapsedRowWidth
+        }
+        let lastOrigin = width - Self.remainingReserve - elapsedRowWidth
+        return min(max(start, 0), max(lastOrigin, 0))
     }
 }
 
@@ -133,18 +148,15 @@ struct MpvSkip: Equatable {
     }
 }
 
+/// The "10" arrow of the direction, its number part of the glyph, bouncing on every press while
+/// presses add up.
 private struct MpvSkipBadge: View {
-    static let size: CGFloat = 64
-
     let skip: MpvSkip
 
     var body: some View {
         Image(systemName: skip.isForward ? "goforward.10" : "gobackward.10")
-            .font(.system(size: 44, weight: .semibold))
-            .foregroundStyle(.white)
-            .shadow(color: .black.opacity(0.4), radius: 8)
+            .font(.system(size: 30, weight: .semibold))
             .symbolEffect(.bounce, value: skip.presses)
-            .frame(width: Self.size, height: Self.size)
             .accessibilityLabel(skip.isForward ? "Skipped forward" : "Skipped back")
     }
 }

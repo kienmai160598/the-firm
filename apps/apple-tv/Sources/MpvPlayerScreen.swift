@@ -87,8 +87,6 @@ struct MpvPlayerScreen: View {
                     .allowsHitTesting(false)
             }
             if isControlsShown {
-                scrim
-                    .transition(.opacity)
                 controls
                     .transition(rise(Self.controlsRise))
             }
@@ -131,15 +129,6 @@ struct MpvPlayerScreen: View {
         .disabled(isTrackMenuOpen)
         .onMoveCommand(perform: moveOnSurface)
         .accessibilityIdentifier("mpv-player")
-    }
-
-    private var scrim: some View {
-        LinearGradient(
-            colors: [.clear, .black.opacity(0.55)],
-            startPoint: UnitPoint(x: 0.5, y: 0.55),
-            endPoint: .bottom
-        )
-        .allowsHitTesting(false)
     }
 
     private var controls: some View {
