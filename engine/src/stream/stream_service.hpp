@@ -47,6 +47,7 @@ private:
     void on_piece(const lt::torrent_handle& torrent, int piece);
     void on_failure(const lt::torrent_handle& torrent, const std::string& message);
     void move_reader(Stream& stream, std::uint64_t reader, std::int64_t offset);
+    [[nodiscard]] std::vector<std::int64_t> reader_positions(const Stream& stream) const;
     void replan(Stream& stream);
     void evict_if_needed(Stream& stream);
     bool is_gone(const Stream& stream) const;

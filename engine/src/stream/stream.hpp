@@ -42,6 +42,9 @@ struct Stream {
     std::vector<bool> have;                       // verified pieces, per torrent piece
     std::map<std::uint64_t, std::int64_t> readers;  // reader id to its byte position in the file
     bool ever_read = false;
+    // A reader has read the file's tail (WindowBudget::tail_bytes), or played past the first window
+    // and so has the index it needed: the tail is no longer planned.
+    bool tail_done = false;
     bool closed = false;
 };
 

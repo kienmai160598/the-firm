@@ -38,6 +38,10 @@ http::ReadResult StreamService::read(Stream& stream, std::uint64_t reader, std::
                                      std::span<char> out) {
     std::unique_lock lock(mutex_);
     if (offset < 0 || offset >= stream.file.size || out.empty()) return {http::ReadStatus::closed, 0};
+    const auto& window = limits_.window;
+    if (offset >= stream.file.size - window.tail_bytes || offset >= window.ahead_bytes) {
+        stream.tail_done = true;
+    }
     move_reader(stream, reader, offset);
     const int piece = stream.file.piece_at(offset);
     const std::int64_t position = stream.file.offset + offset;
@@ -73,15 +77,17 @@ void StreamService::move_reader(Stream& stream, std::uint64_t reader, std::int64
     evict_if_needed(stream);
 }
 
-void StreamService::replan(Stream& stream) {
+std::vector<std::int64_t> StreamService::reader_positions(const Stream& stream) const {
     std::vector<std::int64_t> positions;
     for (const auto& [reader, position] : stream.readers) positions.push_back(position);
-    // Before the player connects, fetch the start of the file. Between two connections keep the
-    // last plan: the player reconnects at once after a seek.
-    if (positions.empty()) {
-        if (stream.ever_read) return;
-        positions.push_back(0);
-    }
+    return positions;
+}
+
+void StreamService::replan(Stream& stream) {
+    // Between two connections keep the last plan: the player reconnects at once after a seek.
+    if (stream.readers.empty() && stream.ever_read) return;
+    const auto positions =
+        window_positions(stream.file, reader_positions(stream), limits_.window, stream.tail_done);
     const auto plan = plan_window(stream.file, positions, limits_.window);
     std::vector<lt::download_priority_t> priorities(plan.priorities.begin(), plan.priorities.end());
     stream.torrent.prioritize_pieces(priorities);
@@ -96,9 +102,9 @@ void StreamService::replan(Stream& stream) {
 
 void StreamService::evict_if_needed(Stream& stream) {
     if (stream.readers.empty() || store_->bytes_used() <= limits_.eviction_threshold_bytes) return;
-    std::vector<std::int64_t> positions;
-    for (const auto& [reader, position] : stream.readers) positions.push_back(position);
-    const auto evict = pieces_to_evict(stream.file, positions, limits_.window,
+    // The tail is not kept from eviction: a box store is small, and a player that needs it reads it
+    // within seconds of connecting.
+    const auto evict = pieces_to_evict(stream.file, reader_positions(stream), limits_.window,
                                        store_->resident_pieces(stream.key));
     if (evict.empty()) return;
     std::vector<lt::piece_index_t> pieces;

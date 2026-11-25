@@ -166,7 +166,13 @@ shared/torrent/   Kotlin module: commonMain API and budgetFor, tvosMain cinterop
    file chosen) and plays its `http://127.0.0.1:<port>/stream/<id>` url.
 2. Until the player connects, the first 256 MiB of the file download. Each HTTP response is a
    reader: the 256 MiB ahead of every reader get priority, the first 4 pieces get deadlines, and
-   everything else stays at 0.
+   everything else stays at 0. The file's last 8 MiB are planned with them, urgently, from
+   `READY` until a reader has read them or has read past the first 256 MiB: Matroska keeps its
+   index (Cues) there and an MP4 may keep its moov, and the player reads it before its first
+   frame. Left to that read, a 4K MKV waited 4 s for its last piece on the tvOS simulator. The
+   tail is not kept from eviction. Measured on the tvOS simulator, The Odyssey (4K HDR MKV,
+   28.65 GB, Torrentio), five starts each, interleaved, from `loadfile` to playing: median 15.6 s
+   before, 6.5 s after (4 of 5 pairs faster; the swarm varies a lot between runs).
 3. A reader waits up to 60 s for the block at its offset and returns the written bytes after it
    without a gap, before the piece is whole (E8, D7). Until E8 it waited for the whole piece.
 4. Past 384 MiB in the store, pieces outside every reader's range (32 MiB behind to 256 MiB ahead)

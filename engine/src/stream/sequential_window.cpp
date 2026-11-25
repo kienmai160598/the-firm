@@ -33,6 +33,17 @@ WindowPlan plan_window(const FileSpan& file, const std::vector<std::int64_t>& re
     return plan;
 }
 
+std::vector<std::int64_t> window_positions(const FileSpan& file,
+                                           const std::vector<std::int64_t>& readers,
+                                           const WindowBudget& budget, bool tail_done) {
+    std::vector<std::int64_t> positions = readers;
+    if (positions.empty()) positions.push_back(0);
+    if (!tail_done && budget.tail_bytes > 0) {
+        positions.push_back(std::max<std::int64_t>(file.size - budget.tail_bytes, 0));
+    }
+    return positions;
+}
+
 std::vector<int> pieces_to_evict(const FileSpan& file, const std::vector<std::int64_t>& readers,
                                  const WindowBudget& budget, const std::vector<int>& resident) {
     std::set<int> needed;

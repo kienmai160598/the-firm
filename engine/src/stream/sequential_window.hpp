@@ -23,6 +23,7 @@ struct WindowBudget {
     std::int64_t ahead_bytes = 0;   // downloaded ahead of each reader
     std::int64_t behind_bytes = 0;  // kept behind each reader for small seeks back
     int urgent_pieces = 0;          // first pieces ahead of each reader, fetched with deadlines
+    std::int64_t tail_bytes = 0;    // the end of the file, planned until the readers are done with it
 };
 
 inline constexpr std::uint8_t skip_priority = 0;
@@ -38,6 +39,14 @@ struct WindowPlan {
 // it, the first few urgently; everything else is skipped.
 WindowPlan plan_window(const FileSpan& file, const std::vector<std::int64_t>& readers,
                        const WindowBudget& budget);
+
+// The positions the window is planned from: every reader, the start of the file while there is
+// none, and the file's last `tail_bytes` until the readers are done with them (`tail_done`).
+// Matroska keeps its index (Cues) there and many MP4 files their moov, and a player reads it before
+// the first frame: left to that read, a 4K film waited 4 s for its last piece.
+std::vector<std::int64_t> window_positions(const FileSpan& file,
+                                           const std::vector<std::int64_t>& readers,
+                                           const WindowBudget& budget, bool tail_done);
 
 // Resident pieces no reader needs: outside every reader's [behind, ahead] range.
 std::vector<int> pieces_to_evict(const FileSpan& file, const std::vector<std::int64_t>& readers,

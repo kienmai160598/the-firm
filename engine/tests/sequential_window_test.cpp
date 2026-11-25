@@ -42,3 +42,11 @@ TEST_CASE("eviction keeps what is behind and ahead of a reader and drops the res
 
     CHECK(evict == std::vector<int>{0, 1, 2, 3, 9});
 }
+
+TEST_CASE("the file's tail is planned with its start until a reader has reached it") {
+    const WindowBudget with_tail{.ahead_bytes = 300, .behind_bytes = 100, .urgent_pieces = 1, .tail_bytes = 150};
+
+    CHECK(window_positions(file, {}, with_tail, false) == std::vector<std::int64_t>{0, 650});
+    CHECK(window_positions(file, {250}, with_tail, false) == std::vector<std::int64_t>{250, 650});
+    CHECK(window_positions(file, {250}, with_tail, true) == std::vector<std::int64_t>{250});
+}
