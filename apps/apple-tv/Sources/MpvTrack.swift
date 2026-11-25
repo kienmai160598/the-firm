@@ -53,6 +53,18 @@ enum MpvTrackKind {
         return [off] + tracks + online
     }
 
+    /// The language codes of the file's own subtitle tracks, not the ones added from online.
+    static func embeddedSubtitleLanguages(using mpv: MpvHandle) -> [String] {
+        let count = mpv.string("track-list/count").flatMap(Int.init) ?? 0
+        return (0..<count).compactMap { index in
+            let prefix = "track-list/\(index)/"
+            guard mpv.string(prefix + "type") == MpvTrackKind.subtitles.trackType,
+                  mpv.string(prefix + "external") != "yes"
+            else { return nil }
+            return mpv.string(prefix + "lang")
+        }
+    }
+
     private func option(at index: Int, using mpv: MpvHandle) -> MpvTrackOption? {
         let prefix = "track-list/\(index)/"
         guard mpv.string(prefix + "type") == trackType,
