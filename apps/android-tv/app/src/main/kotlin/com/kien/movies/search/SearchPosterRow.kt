@@ -38,6 +38,7 @@ import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.nuvio.tvos.TvosItem
 import com.nuvio.tvos.TvosRow
 
@@ -85,10 +86,10 @@ private fun SearchPosterCard(item: TvosItem, onClick: () -> Unit) {
     val isFocused by interactionSource.collectIsFocusedAsState()
     Card(
         onClick = onClick,
-        modifier = Modifier.size(posterSize()).semantics { contentDescription = item.name },
+        modifier = Modifier.size(posterSize()).semantics { contentDescription = item.name }.focusLift(CARD_FOCUS_SCALE),
         shape = CardDefaults.shape(shape = TvShapes.card),
         colors = CardDefaults.colors(containerColor = Color.Transparent, focusedContainerColor = Color.Transparent),
-        scale = CardDefaults.scale(focusedScale = CARD_FOCUS_SCALE),
+        scale = CardDefaults.scale(focusedScale = 1f),
         border = CardDefaults.border(border = Border.None, focusedBorder = Border.None),
         glow = CardDefaults.glow(focusedGlow = focusShadow),
         interactionSource = interactionSource

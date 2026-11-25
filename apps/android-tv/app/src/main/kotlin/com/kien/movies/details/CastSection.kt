@@ -1,7 +1,6 @@
 package com.kien.movies.details
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -44,10 +43,12 @@ import androidx.tv.material3.Text
 import coil3.request.ImageRequest
 import com.kien.movies.design.ArtworkImage
 import com.kien.movies.design.Focus
+import com.kien.movies.design.Motion
 import com.kien.movies.design.ShelfTitleLift
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.kien.movies.design.liftedBy
 import com.kien.movies.design.liftsShelfTitle
 import com.kien.movies.design.rememberShelfTitleLift
@@ -92,20 +93,21 @@ internal fun ShelfHeader(title: String, modifier: Modifier = Modifier, lift: She
 private fun CastCard(member: TvosCastMember, modifier: Modifier = Modifier) {
     val interaction = remember { MutableInteractionSource() }
     val isFocused by interaction.collectIsFocusedAsState()
-    val focus by animateFloatAsState(if (isFocused) 1f else 0f, tween(Focus.animationMillis), label = "cast-focus")
+    val focus by animateFloatAsState(if (isFocused) 1f else 0f, Motion.focusSpring, label = "cast-focus")
     Column(modifier = Modifier.width(CAPTION_WIDTH), horizontalAlignment = Alignment.CenterHorizontally) {
         // Select does nothing, as on tvOS: the card is focusable so the row can be browsed.
         Card(
             onClick = {},
             shape = CardDefaults.shape(shape = CircleShape),
             colors = CardDefaults.colors(containerColor = Color.Transparent, focusedContainerColor = Color.Transparent),
-            scale = CardDefaults.scale(focusedScale = CAST_FOCUS_SCALE),
+            scale = CardDefaults.scale(focusedScale = 1f),
             border = CardDefaults.border(border = Border.None, focusedBorder = Border.None, pressedBorder = Border.None),
             glow = CardDefaults.glow(focusedGlow = Glow(elevationColor = TvColors.focusShadow, elevation = Focus.shadowElevation)),
             interactionSource = interaction,
             modifier = modifier
                 .size(CAST_SIDE)
                 .semantics { contentDescription = member.name }
+                .focusLift(CAST_FOCUS_SCALE)
         ) {
             CastPortrait(member)
         }

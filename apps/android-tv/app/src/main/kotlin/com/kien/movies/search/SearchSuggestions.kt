@@ -36,6 +36,7 @@ import com.kien.movies.R
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvShapes
+import com.kien.movies.design.focusLift
 import com.kien.movies.design.glassEdgeBorder
 
 /**
@@ -64,7 +65,7 @@ private fun SuggestionCapsule(suggestion: SearchSuggestion, onClick: () -> Unit)
     val isFocused by interactionSource.collectIsFocusedAsState()
     Surface(
         onClick = onClick,
-        modifier = Modifier.height(CAPSULE_HEIGHT),
+        modifier = Modifier.height(CAPSULE_HEIGHT).focusLift(CONTROL_FOCUS_SCALE),
         shape = ClickableSurfaceDefaults.shape(shape = TvShapes.pill),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = CAPSULE_FILL,
@@ -74,7 +75,7 @@ private fun SuggestionCapsule(suggestion: SearchSuggestion, onClick: () -> Unit)
             pressedContainerColor = TvColors.focusedFill,
             pressedContentColor = TvColors.focusedContent
         ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = CONTROL_FOCUS_SCALE),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
         border = ClickableSurfaceDefaults.border(border = glassEdgeBorder(TvShapes.pill), focusedBorder = Border.None),
         interactionSource = interactionSource
     ) {

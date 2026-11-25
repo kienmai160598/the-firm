@@ -75,12 +75,14 @@ import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.design.Focus
 import com.kien.movies.design.Motion
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvControls
 import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.nuvio.tvos.TvosStreamTarget
 import com.nuvio.tvos.rules.PlaybackAdvisory
 import kotlinx.coroutines.delay
@@ -467,7 +469,7 @@ private fun InfoRow(
                     onClick = { onOpen(control) },
                     enabled = !isTrackMenuOpen || isOpen,
                     shape = TvGlass.circleShape(),
-                    scale = TvGlass.circleScale(),
+                    scale = TvGlass.noCircleScale(),
                     border = TvGlass.liquidCircleBorder(),
                     colors = TvGlass.circleColors(containerColor = if (isOpen) OpenControlFill else TvColors.playerGlass),
                     modifier = Modifier
@@ -475,6 +477,7 @@ private fun InfoRow(
                         .focusRequester(controlFocus.getValue(control))
                         .onFocusChanged { if (it.isFocused) onControlFocused(control) }
                         .testTag(playerControlTag(control))
+                        .focusLift(Focus.buttonScale)
                 ) {
                     Icon(painter = painterResource(control.icon), contentDescription = control.label, modifier = Modifier.size(TvControls.glyph))
                 }

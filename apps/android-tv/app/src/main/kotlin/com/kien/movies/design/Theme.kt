@@ -1,5 +1,7 @@
 package com.kien.movies.design
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
@@ -16,12 +18,18 @@ import androidx.tv.material3.darkColorScheme
  * [ColorScheme.inverseOnSurface] for buttons, [ColorScheme.inverseSurface] for drawer items).
  *
  * No Surface at the root: the screen colour is the window background (shell/WindowBackground),
- * so a full screen fill is drawn once per frame, not twice. Text defaults to white.
+ * so a full screen fill is drawn once per frame, not twice. Text defaults to white, and lists
+ * scroll on the focus curve ([rememberFocusPacedPlatformSpec]).
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MoviesTheme(content: @Composable () -> Unit) {
     MaterialTheme(colorScheme = moviesColorScheme, typography = moviesTypography) {
-        CompositionLocalProvider(LocalContentColor provides Palette.textPrimary, content = content)
+        CompositionLocalProvider(
+            LocalContentColor provides Palette.textPrimary,
+            LocalBringIntoViewSpec provides rememberFocusPacedPlatformSpec(),
+            content = content
+        )
     }
 }
 

@@ -38,6 +38,7 @@ import com.kien.movies.design.Focus
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.kien.movies.design.rememberInsetBringIntoViewSpec
 
 /**
@@ -174,10 +175,11 @@ private fun StreamButton(
             .fillMaxWidth()
             .focusRequester(focus)
             .alpha(if (isDimmed) DIMMED_ALPHA else 1f)
-            .testTag(streamRowTag(row.key)),
+            .testTag(streamRowTag(row.key))
+            .focusLift(Focus.wideRowScale),
         shape = TvGlass.surfaceShape(STREAM_ROW_SHAPE),
         colors = TvGlass.surfaceColors(containerColor = TvColors.streamRow),
-        scale = TvGlass.surfaceScale(Focus.wideRowScale),
+        scale = TvGlass.noSurfaceScale(),
         border = TvGlass.surfaceBorder(STREAM_ROW_SHAPE)
     ) {
         StreamsRow(row = row, progress = progress)

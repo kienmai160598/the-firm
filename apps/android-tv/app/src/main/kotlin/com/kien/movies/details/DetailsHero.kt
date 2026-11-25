@@ -50,6 +50,7 @@ import com.kien.movies.design.MetadataLine
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.kien.movies.design.glassEdge
 import com.nuvio.tvos.TvosMetaDetails
 import com.nuvio.tvos.TvosPlayAction
@@ -148,7 +149,7 @@ private fun PlayAction(action: TvosPlayAction, playFocus: FocusRequester, onOpen
         Button(
             onClick = { onOpen(action.target) },
             colors = controlColors(),
-            scale = ButtonDefaults.scale(focusedScale = Focus.buttonScale),
+            scale = ButtonDefaults.scale(focusedScale = 1f),
             shape = ButtonDefaults.shape(shape = TvShapes.pill),
             contentPadding = PaddingValues(horizontal = PLAY_PADDING_H),
             interactionSource = interaction,
@@ -158,6 +159,7 @@ private fun PlayAction(action: TvosPlayAction, playFocus: FocusRequester, onOpen
                 .glassEdge(TvShapes.pill, visible = !isFocused)
                 .focusRequester(playFocus)
                 .testTag(DETAILS_PLAY_TAG)
+                .focusLift(Focus.buttonScale)
         ) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                 Icon(painter = painterResource(R.drawable.ic_details_play), contentDescription = null, modifier = Modifier.size(PLAY_ICON))

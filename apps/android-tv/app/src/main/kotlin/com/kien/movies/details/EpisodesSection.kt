@@ -1,7 +1,6 @@
 package com.kien.movies.details
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
@@ -65,10 +64,12 @@ import com.kien.movies.R
 import com.kien.movies.design.ArtworkImage
 import com.kien.movies.design.FactLine
 import com.kien.movies.design.Focus
+import com.kien.movies.design.Motion
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.kien.movies.design.glassEdge
 import com.kien.movies.design.rememberStartAlignedRowSpec
 import com.nuvio.tvos.TvosEpisode
@@ -118,7 +119,7 @@ private fun SeasonTab(title: String, isSelected: Boolean, onClick: () -> Unit, m
     Button(
         onClick = onClick,
         colors = controlColors(),
-        scale = ButtonDefaults.scale(focusedScale = Focus.buttonScale),
+        scale = ButtonDefaults.scale(focusedScale = 1f),
         shape = ButtonDefaults.shape(shape = TvShapes.pill),
         contentPadding = PaddingValues(horizontal = SEASON_TAB_PADDING_H),
         interactionSource = interaction,
@@ -126,6 +127,7 @@ private fun SeasonTab(title: String, isSelected: Boolean, onClick: () -> Unit, m
             .height(SEASON_TAB_HEIGHT)
             .glassEdge(TvShapes.pill, visible = !isFocused)
             .semantics { if (isSelected) stateDescription = SELECTED_SEASON_STATE }
+            .focusLift(Focus.buttonScale)
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(SEASON_CHECK_GAP), verticalAlignment = Alignment.CenterVertically) {
             if (isSelected) {
@@ -163,13 +165,13 @@ private fun EpisodeCard(episode: TvosEpisode, onOpen: (TvosStreamTarget) -> Unit
     val watchState = episodeWatchState(episode)
     val interaction = remember { MutableInteractionSource() }
     val isFocused by interaction.collectIsFocusedAsState()
-    val focus by animateFloatAsState(if (isFocused) 1f else 0f, tween(Focus.animationMillis), label = "episode-focus")
+    val focus by animateFloatAsState(if (isFocused) 1f else 0f, Motion.focusSpring, label = "episode-focus")
     Column(modifier = Modifier.width(EPISODE_SIZE.width)) {
         Card(
             onClick = { onOpen(episode.streamTarget) },
             shape = CardDefaults.shape(shape = EPISODE_SHAPE),
             colors = CardDefaults.colors(containerColor = Color.Transparent, focusedContainerColor = Color.Transparent),
-            scale = CardDefaults.scale(focusedScale = Focus.cardScale),
+            scale = CardDefaults.scale(focusedScale = 1f),
             border = CardDefaults.border(border = Border.None, focusedBorder = Border.None, pressedBorder = Border.None),
             glow = CardDefaults.glow(focusedGlow = Glow(elevationColor = TvColors.focusShadow, elevation = Focus.shadowElevation)),
             interactionSource = interaction,
@@ -180,6 +182,7 @@ private fun EpisodeCard(episode: TvosEpisode, onOpen: (TvosStreamTarget) -> Unit
                     contentDescription = heading
                     if (watchState.isNotEmpty()) stateDescription = watchState
                 }
+                .focusLift(Focus.cardScale)
         ) {
             EpisodeThumbnail(episode)
         }

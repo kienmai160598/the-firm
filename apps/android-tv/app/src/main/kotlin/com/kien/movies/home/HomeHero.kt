@@ -84,6 +84,7 @@ import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.kien.movies.design.rememberBakedImage
 import com.kien.movies.settings.SettingsPage
 import com.kien.movies.shell.AppRoute
@@ -338,7 +339,8 @@ private fun HeroButton(mode: HeroMode, itemName: String?, onClick: () -> Unit, o
                     Key.DirectionRight -> onStep(1)
                     else -> false
                 }
-            },
+            }
+            .focusLift(PRIMARY_FOCUS_SCALE),
         colors = ButtonDefaults.colors(
             containerColor = TvColors.platter,
             contentColor = TvColors.textPrimary,
@@ -347,7 +349,7 @@ private fun HeroButton(mode: HeroMode, itemName: String?, onClick: () -> Unit, o
             pressedContainerColor = TvColors.focusedFill,
             pressedContentColor = TvColors.focusedContent
         ),
-        scale = ButtonDefaults.scale(focusedScale = PRIMARY_FOCUS_SCALE),
+        scale = ButtonDefaults.scale(focusedScale = 1f),
         shape = ButtonDefaults.shape(shape = TvShapes.pill),
         border = ButtonDefaults.border(border = glassBorder, focusedBorder = Border.None, pressedBorder = Border.None),
         contentPadding = PaddingValues(horizontal = PRIMARY_PADDING)

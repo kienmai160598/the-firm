@@ -14,16 +14,17 @@ import androidx.tv.material3.CardShape as TvCardShape
 import androidx.tv.material3.Glow
 
 /**
- * The focus look of every card, as parameters for tv-material's `Card`: scale 1.1 drawn by the
- * card's surface in a graphics layer (the card never changes layout size), one soft shadow and a
- * thin light rim ([focusedCardRim]), no ring. Use all five together:
+ * The focus look of every card, as parameters for tv-material's `Card`: a 1.1 lift by [focusLift]
+ * on the tvOS curve (the card never changes layout size), one soft shadow and a thin light rim
+ * ([focusedCardRim]), no ring. Use all of them together:
  *
  * ```
  * Card(
  *     onClick = ...,
+ *     modifier = Modifier.focusLift(Focus.cardScale),
  *     shape = CardFocus.shape(),
  *     colors = CardFocus.colors(),
- *     scale = CardFocus.scale(),
+ *     scale = CardFocus.noScale(),
  *     border = CardFocus.border(),
  *     glow = CardFocus.glow(),
  * ) { ArtworkImage(...) }
@@ -44,7 +45,8 @@ object CardFocus {
         focusedContentColor = Palette.textPrimary
     )
 
-    fun scale(): CardScale = CardDefaults.scale(focusedScale = Focus.cardScale)
+    /** No tv-material scale: the lift is [focusLift] with [Focus.cardScale]. */
+    fun noScale(): CardScale = CardDefaults.scale(focusedScale = 1f)
 
     @Composable
     @ReadOnlyComposable

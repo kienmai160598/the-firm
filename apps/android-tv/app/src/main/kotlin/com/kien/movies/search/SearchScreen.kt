@@ -56,6 +56,7 @@ import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvSheet
 import com.kien.movies.design.TvType
+import com.kien.movies.design.focusLift
 import com.kien.movies.design.glassEdge
 import com.kien.movies.design.glassEdgeBorder
 import com.kien.movies.design.ignoringTheHeldSelect
@@ -288,7 +289,7 @@ private fun RemoveRecentSearchDialog(query: String, onRemove: () -> Unit, onDism
 private fun DialogButton(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Button(
         onClick = onClick,
-        modifier = modifier.height(TvControls.pillHeight),
+        modifier = modifier.height(TvControls.pillHeight).focusLift(CONTROL_FOCUS_SCALE),
         shape = ButtonDefaults.shape(shape = TvShapes.pill),
         contentPadding = TvGlass.pillPadding,
         colors = ButtonDefaults.colors(
@@ -299,7 +300,7 @@ private fun DialogButton(label: String, onClick: () -> Unit, modifier: Modifier 
             pressedContainerColor = TvColors.focusedFill,
             pressedContentColor = TvColors.focusedContent
         ),
-        scale = ButtonDefaults.scale(focusedScale = CONTROL_FOCUS_SCALE),
+        scale = ButtonDefaults.scale(focusedScale = 1f),
         border = ButtonDefaults.border(border = glassEdgeBorder(TvShapes.pill), focusedBorder = Border.None)
     ) {
         Text(text = label, style = TvType.bodyEmphasized)

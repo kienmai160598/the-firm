@@ -67,7 +67,6 @@ object Focus {
      * 48 dp side margin into the overscan band and eat the 20 dp gutter, so they grow 2%.
      */
     const val wideRowScale = 1.02f
-    const val animationMillis = 150
 
     /** One soft shadow, 12 dp blur equivalent, in [TvColors.focusShadow]. */
     val shadowElevation = 12.dp
@@ -102,19 +101,6 @@ object Palette {
 
     val imdbYellow = Color(0xFFF5C518)
     val shadow = Color.Black
-}
-
-/** Durations copied from tvOS as they are. */
-object Motion {
-    const val heroAdvanceMillis = 8_000L
-    const val controlsHideMillis = 5_000L
-
-    /**
-     * Push and pop cross fade, timed on a simulator recording of the tvOS app: Settings to About
-     * about 300 ms, Back about 200 ms, ease in and out.
-     */
-    const val pushMillis = 300
-    const val popMillis = 220
 }
 
 /** Text roles. tvOS point sizes in the comments. */
