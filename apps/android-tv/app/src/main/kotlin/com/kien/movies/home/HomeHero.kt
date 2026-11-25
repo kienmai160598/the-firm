@@ -103,7 +103,8 @@ import kotlinx.coroutines.delay
  * - [HeroMode.Status]: [HomeStatus].
  *
  * One button serves all three, called from one place, so the focused node survives the change
- * from loading to loaded and launch focus stays on it (AC N1). Trailer autoplay is off on the box.
+ * from loading to loaded and launch focus stays on it (AC N1). [onFocusChange] tells Home when the
+ * hero holds focus, which plays the item's trailer (AC H8).
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -115,6 +116,7 @@ fun HomeHero(
     onOpen: (AppRoute) -> Unit,
     index: Int,
     onIndexChange: (Int) -> Unit,
+    onFocusChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val shown = shownHeroIndex(index, items.size)
@@ -126,7 +128,10 @@ fun HomeHero(
             .fillMaxWidth()
             .height(HERO_SLOT_HEIGHT)
             .bringIntoViewResponder(rememberWholeSlotResponder())
-            .onFocusChanged { state -> isFocused = state.hasFocus }
+            .onFocusChanged { state ->
+                isFocused = state.hasFocus
+                onFocusChange(state.hasFocus)
+            }
     ) {
         when (mode) {
             HeroMode.Status -> HomeStatus(statusMessage, Modifier.align(Alignment.Center).padding(bottom = STATUS_TEXT_LIFT))
