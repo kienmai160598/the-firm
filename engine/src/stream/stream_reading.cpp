@@ -9,8 +9,11 @@ namespace {
 
 // libtorrent tries to meet each deadline; the first urgent piece is due now.
 constexpr int deadline_step_ms = 100;
-// How often a waiting reader asks libtorrent directly, in case a piece event was missed.
-constexpr auto have_check_interval = std::chrono::seconds(1);
+// How often a waiting reader looks for new blocks. A reader takes the bytes after its offset as
+// soon as their blocks are written, without waiting for the whole piece and its hash check: with
+// 16 MiB pieces and a slow swarm a whole piece can take longer than the player waits for its
+// first byte. A block from a piece that then fails its check has already gone to the player.
+constexpr auto written_check_interval = std::chrono::milliseconds(50);
 
 }
 
@@ -37,42 +40,28 @@ http::ReadResult StreamService::read(Stream& stream, std::uint64_t reader, std::
     if (offset < 0 || offset >= stream.file.size || out.empty()) return {http::ReadStatus::closed, 0};
     move_reader(stream, reader, offset);
     const int piece = stream.file.piece_at(offset);
+    const std::int64_t position = stream.file.offset + offset;
+    const std::int64_t piece_start = std::int64_t(piece) * stream.file.piece_length;
+    const std::int64_t length = std::min({std::int64_t(out.size()),
+                                          piece_start + stream.file.piece_length - position,
+                                          stream.file.size - offset});
+    const auto target = out.first(std::size_t(length));
+    const auto key = stream.key;
     const auto deadline = std::chrono::steady_clock::now() + limits_.read_timeout;
-    while (wait_for_piece(lock, stream, piece, deadline)) {
-        const std::int64_t position = stream.file.offset + offset;
-        const std::int64_t piece_start = std::int64_t(piece) * stream.file.piece_length;
-        const std::int64_t length = std::min({std::int64_t(out.size()),
-                                              piece_start + stream.file.piece_length - position,
-                                              stream.file.size - offset});
-        const auto key = stream.key;
+    while (!is_gone(stream)) {
         lock.unlock();
-        const auto target = out.first(std::size_t(length));
-        if (store_->read(key, piece, int(position - piece_start), target)) {
-            return {http::ReadStatus::ok, target.size()};
-        }
+        const int copied = store_->read_written(key, piece, int(position - piece_start), target);
         lock.lock();
-        stream.have[std::size_t(piece)] = false;  // evicted since the piece arrived
+        if (copied > 0) return {http::ReadStatus::ok, std::size_t(copied)};
+        const auto now = std::chrono::steady_clock::now();
+        if (now >= deadline) return {http::ReadStatus::timed_out, 0};
+        piece_arrived_.wait_until(lock, std::min(deadline, now + written_check_interval));
     }
-    const bool gone = stopping_ || stream.closed || stream.snapshot.state == StreamState::failed;
-    return {gone ? http::ReadStatus::closed : http::ReadStatus::timed_out, 0};
+    return {http::ReadStatus::closed, 0};
 }
 
-bool StreamService::wait_for_piece(std::unique_lock<std::mutex>& lock, Stream& stream, int piece,
-                                   std::chrono::steady_clock::time_point deadline) {
-    const auto slot = std::size_t(piece);
-    while (true) {
-        if (stopping_ || stream.closed || stream.snapshot.state == StreamState::failed) return false;
-        if (stream.have[slot]) return true;
-        const auto now = std::chrono::steady_clock::now();
-        if (now >= deadline) return false;
-        piece_arrived_.wait_until(lock, std::min(deadline, now + have_check_interval));
-        if (stream.have[slot]) continue;
-        const auto torrent = stream.torrent;
-        lock.unlock();
-        const bool held = torrent.have_piece(lt::piece_index_t(piece));
-        lock.lock();
-        if (held) stream.have[slot] = true;
-    }
+bool StreamService::is_gone(const Stream& stream) const {
+    return stopping_ || stream.closed || stream.snapshot.state == StreamState::failed;
 }
 
 void StreamService::move_reader(Stream& stream, std::uint64_t reader, std::int64_t offset) {

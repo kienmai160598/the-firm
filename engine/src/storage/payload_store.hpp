@@ -42,6 +42,10 @@ public:
                               std::span<const char> data) = 0;
     // Copies exactly out.size() bytes, or returns false when the piece is not held.
     virtual bool read(const TorrentKey& key, int piece, int offset, std::span<char> out) const = 0;
+    // Copies the bytes written from offset on without a gap, at most out.size(), and returns how
+    // many: 0 when the byte at offset has not arrived. The piece need not be whole, so these bytes
+    // may not be hash checked yet.
+    virtual int read_written(const TorrentKey& key, int piece, int offset, std::span<char> out) const = 0;
     // The whole piece, kept alive by the pointer even if the piece is cleared meanwhile.
     [[nodiscard]] virtual std::shared_ptr<const PieceBuffer> piece(const TorrentKey& key,
                                                                    int piece) const = 0;

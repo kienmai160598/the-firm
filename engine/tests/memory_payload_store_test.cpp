@@ -88,3 +88,63 @@ TEST_CASE("writes and reads outside a piece are refused") {
     std::string out(30, '\0');
     CHECK_FALSE(store.read(key, 2, 0, {out.data(), out.size()}));
 }
+
+TEST_CASE("a reader gets the written bytes after its offset up to the first gap") {
+    MemoryPayloadStore store(1024);
+    store.open(key, {150, piece_length});
+    store.write(key, 0, 0, bytes("abcd"));
+    store.write(key, 0, 8, bytes("ijkl"));
+    std::string out(16, '\0');
+
+    const int copied = store.read_written(key, 0, 1, {out.data(), out.size()});
+
+    CHECK(copied == 3);
+    CHECK(out.substr(0, 3) == "bcd");
+}
+
+TEST_CASE("a block arriving in the gap joins the runs on both sides") {
+    MemoryPayloadStore store(1024);
+    store.open(key, {150, piece_length});
+    store.write(key, 0, 0, bytes("abcd"));
+    store.write(key, 0, 8, bytes("ijkl"));
+    store.write(key, 0, 4, bytes("efgh"));
+    std::string out(16, '\0');
+
+    const int copied = store.read_written(key, 0, 2, {out.data(), out.size()});
+
+    CHECK(copied == 10);
+    CHECK(out.substr(0, 10) == "cdefghijkl");
+}
+
+TEST_CASE("nothing is read where the byte at the offset has not arrived") {
+    MemoryPayloadStore store(1024);
+    store.open(key, {150, piece_length});
+    store.write(key, 0, 8, bytes("ijkl"));
+    char out[4] = {};
+
+    CHECK(store.read_written(key, 0, 0, {out, 4}) == 0);
+    CHECK(store.read_written(key, 0, 12, {out, 4}) == 0);
+    CHECK(store.read_written(key, 1, 0, {out, 4}) == 0);
+}
+
+TEST_CASE("a read of written bytes stops at the size asked for") {
+    MemoryPayloadStore store(1024);
+    store.open(key, {150, piece_length});
+    store.write(key, 0, 0, bytes("abcdefgh"));
+    char out[3] = {};
+
+    CHECK(store.read_written(key, 0, 2, {out, 3}) == 3);
+    CHECK(std::string(out, 3) == "cde");
+}
+
+TEST_CASE("a cleared piece forgets which of its bytes were written") {
+    MemoryPayloadStore store(1024);
+    store.open(key, {150, piece_length});
+    store.write(key, 0, 0, bytes("abcd"));
+
+    store.clear(key, 0);
+    store.write(key, 0, 8, bytes("ijkl"));
+
+    char out[4] = {};
+    CHECK(store.read_written(key, 0, 0, {out, 4}) == 0);
+}

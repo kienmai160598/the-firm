@@ -42,6 +42,10 @@ Settled:
   (`video/mp4`, `video/x-matroska`, ...). AVPlayer refuses an extensionless url served as
   `application/octet-stream`, so the app picks AVPlayer for .mp4 and mpv for .mkv as it does for
   any other url.
+- D7: a reader takes the bytes after its offset as soon as their blocks are written, before the
+  piece is whole and hash checked (E8, chosen by the owner on 2026-11-25). With 16 MiB pieces and
+  a slow swarm a whole piece often took longer than the player's 20 s start deadline. The cost: a
+  block from a piece that then fails its hash check has already reached the player.
 
 Open (the default is what the plan assumes):
 
@@ -141,6 +145,7 @@ shared/torrent/   Kotlin module: commonMain API and budgetFor, tvosMain cinterop
 | E5 Disk store | Dropped for the box by the owner (D6): Android runs from RAM within `budgetFor`'s cap. Was: DiskPayloadStore for the 1.9 GB box | box | none |
 | E6 Android | Memory budget in the C ABI (D4), `budgetFor` in `shared/torrent`, the engine cross built with the NDK for the box ABIs (armeabi-v7a, D5), JNI shim, `shared/torrent` Android target loading `libmovies_engine.so` | E-AC5 | `make engine-test` with a small cap test; `budgetFor` unit tests; a device test (open with a budget, bad budget, bad magnet, close) built into the `:torrent` test APK. A torrent plays on the box with E7 |
 | E7a tvOS cutover | The Apple TV app links only the new engine; the D2 switch, `engine/build.sh`, its patches and the tvOS `nuvio-engine` sources go. Done ahead of E2 to E4 at the owner's request, so tvOS reads 256 MiB ahead from RAM and shows no peers or speed until E4 | E-AC1 | `make shared-test`, `make apple-tv-sim`, a film plays and seeks on the Apple TV |
+| E8 Block reads | A reader returns the gapless written bytes after its offset (`WrittenRanges` per piece in `MemoryPayloadStore`, `read_written`), polling every 50 ms, instead of waiting for the whole piece (D7) | E-AC2 | `make engine-test` (written ranges, gap, cap, cleared piece, and the loopback streams); time to the first KiB on the box against real swarms |
 | E7 Cutover | Android on the new engine (with E6 and A10) through `EngineTorrentBackend`, shared with tvOS; the `nuvio-engine` AAR, its Gradle and R8 wiring and core's Android `P2pStreamingEngine` (excluded, stubbed in the bridge) go; the row shows the step only until E4 | E-AC5, E-AC6 | `make check`, `make apple-tv-sim`, a film on the box |
 
 ## 5. Risks
@@ -148,6 +153,7 @@ shared/torrent/   Kotlin module: commonMain API and budgetFor, tvosMain cinterop
 | Risk | Handling |
 |---|---|
 | Streaming tuning of the old engine is lost | Happened: on the box E7 first ran with libtorrent's defaults and no stream reached the player's 20 s start deadline. The session now connects the way section 6 item 6 says; measure time to the first piece against a real swarm after any session change |
+| A block of a piece that fails its hash check reaches the player (D7) | Accepted by the owner: libtorrent clears the piece and downloads it again, the player may show a glitch or fail on that range. Nothing checks it before the player |
 | Weeks of work | The old engine kept playing until E7 |
 | The box has 1.9 GB of RAM and a 32-bit address space | RAM only within `budgetFor`'s cap, at most 192 MiB (D6); the disk store was dropped |
 | Native threads calling into Kotlin deadlock or crash | The ABI never calls back; hosts poll |
@@ -161,21 +167,32 @@ shared/torrent/   Kotlin module: commonMain API and budgetFor, tvosMain cinterop
 2. Until the player connects, the first 256 MiB of the file download. Each HTTP response is a
    reader: the 256 MiB ahead of every reader get priority, the first 4 pieces get deadlines, and
    everything else stays at 0.
-3. A reader waits up to 60 s for its piece, then reads it straight from the memory store.
+3. A reader waits up to 60 s for the block at its offset and returns the written bytes after it
+   without a gap, before the piece is whole (E8, D7). Until E8 it waited for the whole piece.
 4. Past 384 MiB in the store, pieces outside every reader's range (32 MiB behind to 256 MiB ahead)
    are dropped through the `drop_pieces` patch: libtorrent forgets them, tells peers, and the
    store frees them, partial pieces included. No write may take the store past 512 MiB; one that
    would is refused and libtorrent drops that one peer.
 5. `close_redundant_connections` is off: a stream often counts as finished (all wanted pieces
    held), and libtorrent would otherwise drop every seed at that moment.
-6. The session reaches the swarm fast, because a reader gets nothing until its first piece is
-   whole and a 4K film has 16 MiB pieces: outgoing connections are TCP only (outgoing uTP waits
+6. The session reaches the swarm fast, because the player gives up after 20 s without a byte
+   (until E8 a reader also waited for its whole first piece, 16 MiB in a 4K film): outgoing connections are TCP only (outgoing uTP waits
    out its timeout on unreachable peers), 200 connection attempts a second, a 3 s connect
    timeout, a 5 s request timeout (a slow peer cannot hold blocks of the first piece for
    libtorrent's 60 s), and every tracker of the magnet link is announced to. Both apps get this
    since E7.
 
 ## 7. Verified and not verified
+
+Seen on the TCL box (E8, release `box` build, 2026-11-25, Hunger Games: Ballad of Songbirds &
+Snakes, Torrentio, fresh app per link, time to the first KiB from the gateway while the player
+starts): before E8 three of the 4K links timed out at 60 s or took 22 s; after E8 the links
+e558, 2414, 4bb5 started in 0.7 to 1.2 s and a824 in 0.3 s (47 s before). Two still fail, not on
+the read: a824 is a Blu-ray `.m2ts` (192 byte packets) that ExoPlayer has no extractor for
+(`UnrecognizedInputFormatException`, its first bytes are a valid BDAV header), and 7cec (file 4 of
+a 64 GB collection, 8 MiB pieces, the file starts 32 KiB before the end of a piece shared with the
+file before it) had no block written at all in 45 s, so its swarm sent nothing. One link did not
+reach `READY` in 60 s.
 
 Verified (E0): the toolchain builds tvOS device and simulator slices (`LC_BUILD_VERSION` platform
 3 and 8, minimum tvOS 17.0); Kotlin/Native links the C++ library and its runtime.

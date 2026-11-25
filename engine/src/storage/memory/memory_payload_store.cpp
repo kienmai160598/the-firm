@@ -1,5 +1,6 @@
 #include "storage/memory/memory_payload_store.hpp"
 
+#include <algorithm>
 #include <cstring>
 
 namespace movies::storage {
@@ -8,7 +9,7 @@ MemoryPayloadStore::MemoryPayloadStore(std::int64_t byte_cap) : byte_cap_(byte_c
 
 void MemoryPayloadStore::open(const TorrentKey& key, PieceLayout layout) {
     std::scoped_lock lock(mutex_);
-    torrents_.try_emplace(key, Torrent{layout, {}});
+    torrents_.try_emplace(key, Torrent{layout, {}, {}});
 }
 
 void MemoryPayloadStore::close(const TorrentKey& key) {
@@ -37,6 +38,7 @@ WriteResult MemoryPayloadStore::write(const TorrentKey& key, int piece, int offs
         bytes_used_ += size;
     }
     std::memcpy(buffer->bytes.get() + offset, data.data(), data.size());
+    torrent->second.written[piece].add(offset, offset + int(data.size()));
     return WriteResult::written;
 }
 
@@ -46,6 +48,20 @@ bool MemoryPayloadStore::read(const TorrentKey& key, int piece, int offset,
     if (!buffer || offset < 0 || offset + std::int64_t(out.size()) > buffer->size) return false;
     std::memcpy(out.data(), buffer->bytes.get() + offset, out.size());
     return true;
+}
+
+int MemoryPayloadStore::read_written(const TorrentKey& key, int piece, int offset,
+                                     std::span<char> out) const {
+    std::scoped_lock lock(mutex_);
+    const auto torrent = torrents_.find(key);
+    if (torrent == torrents_.end() || offset < 0) return 0;
+    const auto buffer = torrent->second.pieces.find(piece);
+    const auto written = torrent->second.written.find(piece);
+    if (buffer == torrent->second.pieces.end() || written == torrent->second.written.end()) return 0;
+    const int available = written->second.written_end(offset) - offset;
+    const int length = int(std::min<std::size_t>(out.size(), std::size_t(available)));
+    std::memcpy(out.data(), buffer->second->bytes.get() + offset, std::size_t(length));
+    return length;
 }
 
 std::shared_ptr<const PieceBuffer> MemoryPayloadStore::piece(const TorrentKey& key,
@@ -61,6 +77,7 @@ void MemoryPayloadStore::clear(const TorrentKey& key, int piece) {
     if (buffer == torrent->second.pieces.end()) return;
     bytes_used_ -= buffer->second->size;
     torrent->second.pieces.erase(buffer);
+    torrent->second.written.erase(piece);
 }
 
 std::vector<int> MemoryPayloadStore::resident_pieces(const TorrentKey& key) const {
