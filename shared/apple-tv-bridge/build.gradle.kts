@@ -136,6 +136,8 @@ kotlin {
                 implementation(libs.supabase.functions)
                 implementation(libs.supabase.storage)
                 implementation(libs.supabase.realtime)
+                // The torrent engine (engine/ through cinterop), for tv-api's EngineTorrentBackend.
+                implementation(project(":torrent"))
             }
         }
         tvosMain {
@@ -145,7 +147,6 @@ kotlin {
             kotlin.exclude(isExcluded)
             dependencies {
                 implementation(libs.ktor.client.darwin)
-                implementation(project(":torrent"))
             }
         }
         commonTest {

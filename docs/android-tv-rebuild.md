@@ -129,7 +129,7 @@ the-firm/
     ktlint
     check-tv-runtime-init (new) fails when an initialize() object is missing from TvRuntime.init
                                 (check-layering and toolchain-check are deleted in A0)
-  engine/  nuvio-engine/        torrent engine for tvOS, unchanged
+  engine/                       the torrent engine of both apps (docs/engine-rebuild.md)
 
   shared/                       the one Gradle build for everything Kotlin
     settings.gradle.kts         + :androidTvShared, :androidTvApp, :androidTvBaselineProfile
@@ -169,7 +169,8 @@ the-firm/
       app/                      :androidTvApp
         build.gradle.kts        debug and box build types, armeabi-v7a, applicationId
                                 com.kien.movies.next until A14
-        proguard-rules.pro (moved)  only the keeps for com.nuvio.engine, the media3 fork and JNI
+        proguard-rules.pro (moved)  keeps for the media3 fork and JNI (the torrent engine's come
+                                from shared/torrent since E7)
         libs/          (moved)  only AARs the bridge does not already link:
                                 lib-decoder-ffmpeg-release.aar (downmix build)
         src/main/
@@ -396,10 +397,10 @@ own values:
 - Back order, as on tvOS: close panel, cancel pending scrub, leave scrubbing, focus the video
   surface, hide controls, exit.
 - Leaving the app pauses and saves. Bars around the video are black.
-- Torrents: `TvosTorrent` on top of the `P2pStreamingEngine` Android actual already in
-  `shared/core/src/androidMain` (uses `lib-nuvio-engine-android-0.1.6.aar`). Port the box cache
-  budget from the old `core/torrent/TorrentCacheBudget.kt` and `core/streams/P2pStreamDeviceFit.kt`
-  if the shared actual lacks them.
+- Torrents: `TvosTorrent` on the new engine in `engine/`, through `shared/torrent` and JNI
+  (`docs/engine-rebuild.md`, E6 and E7), payload in RAM only. Its memory budget comes from
+  `budgetFor` with the memory free when the engine opens. The `P2pStreamingEngine` Android actual
+  and `lib-nuvio-engine-android-0.1.6.aar` are no longer linked (E7).
 
 ## 5b. Add addons from a phone (QR)
 
@@ -510,8 +511,8 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | P8 | Leaving the app pauses and saves |
 | P9 | When the buffer runs dry mid play, playback resumes only once 5 s are buffered again, so a source slower than the bitrate stalls in long pauses, not every second. tvOS mpv sets `cache-pause-wait=5`; AVPlayer keeps its own rebuffer logic. ExoPlayer's `bufferForPlaybackAfterRebufferMs` defaults to 5,000 ms, so Android needs no change if it keeps that default |
 | P10 | Sound plays to the AirPlay speakers picked on the Apple TV, like the TV app: the audio session uses the long-form audio route sharing policy and the Info.plist sets `AVInitialRouteSharingPolicy`. The picture stays on the TV: AVPlayer (films and trailers) has external playback off, which otherwise sent the video to an AirPlay receiver and left the TV black. Android routes through the system and needs no change |
-| T1 | A torrent stream starts through the engine, the row shows step, peers and speed (no progress bar), then plays; the engine stops on exit |
-| T2 | A torrent reads up to 1 GiB ahead of playback (about 90 s of a 4K remux), so a slow patch in the swarm does not stall it. tvOS: since E7a (`docs/engine-rebuild.md`) the new engine reads 256 MiB ahead from RAM, under its 512 MiB cap, until E2 and E3 size the window from memory; the 1 GiB disk readahead went with the old engine. Android uses the prebuilt `lib-nuvio-engine-android-0.1.6.aar`, so it keeps 256 MiB until that AAR is rebuilt with the patch and the box cache budget has room for it |
+| T1 | A torrent stream starts through the engine, the row shows step, peers and speed (no progress bar), then plays; the engine stops on exit. Until E4 (`docs/engine-rebuild.md`) the engine reports no peers, speed or buffer: Android shows the step only ("Starting torrent", then the engine's "resolving"), with no detail line; tvOS still draws its detail line, with zeros, since E7a |
+| T2 | A torrent reads up to 1 GiB ahead of playback (about 90 s of a 4K remux), so a slow patch in the swarm does not stall it. tvOS: since E7a (`docs/engine-rebuild.md`) the new engine reads 256 MiB ahead from RAM, under its 512 MiB cap, until E2 and E3 size the window from memory; the 1 GiB disk readahead went with the old engine. Android (E7) runs the same engine from RAM only, with `budgetFor`: a store cap of a quarter of the memory free when the engine opens, between 64 and 192 MiB, and half of it ahead, so the box reads at most 96 MiB ahead. The disk store (E5) was dropped for the box by the owner |
 | Q1 | Typing a title shows result rows |
 | Q2 | Opening a result records a recent search; a recent search can be removed |
 | Q3 | An empty query shows recent searches and the discover row |
@@ -548,7 +549,7 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | A7 Streams | `StreamsViewModel`, header, group list, rows, `StreamFeatures`, empty and loading views, info sheet, resume dialog. Streams owns focus around the player cover (into it on open, back to the pressed row on exit or failure) and builds the S6 "Checking stream" row and dimming; with no preflight on Android it lasts only while the resume point loads, too short for a UI test to see. Until A10 a torrent press opened the info sheet with a notice; A10 starts the torrent instead. Android only: a list where every addon failed ends with Try Again, so it holds focus (tvOS may have the same gap; not checked, not changed here) | N4, S1 to S5 | Port `StreamFeaturesTests`; UI test for Back restoring the card |
 | A8 Player core | `PlaybackRequest`, ExoPlayer engine, player state machine, transport bar, skip and hold scrub, startup deadline, stall watchdog, progress saver, failure notice | S6, P1 to P4, P7, P8, H4, H6 | Unit tests for the state machine, save rule and scrub steps; UI tests from `PlayerTests` and `PlaybackFailureTests` against the test addon |
 | A9 Player panels | Audio and subtitle menus, online subtitles (`TvosSubtitles`), info panel, advisory banner | P5, P6 | Port `MpvSubtitleDownloadTests` and `PlaybackAdvisoryTests`; UI test for the menus |
-| A10 Torrents | `TorrentSession`, row progress, box cache budget. Done in the first PR: `TorrentSession` on `TvosTorrent` (the old engine AAR), the row shows step, peers, seeds, speed and buffer, the player plays the local URL, the engine stops when the player closes or Streams goes; tvOS needs no change. The box cache budget is still open: the engine takes the 2 GB cache setting, and the box had 1.3 GB free on 2026-11-24 | T1 | `t1_aTorrentStartsShowsItsProgressAndPlays` with the test addon's Sintel torrent; cache budget unit tests ported from the old app |
+| A10 Torrents | `TorrentSession`, row progress, box memory budget. `TorrentSession` on `TvosTorrent`, the player plays the local URL, the engine stops when the player closes or Streams goes; tvOS needs no change. Since E7 `TvosTorrent` runs the new engine from RAM: the row shows the step only until E4 (T1), and the budget is `budgetFor` in `shared/torrent` (T2) in place of the old app's disk cache budget, so no cache setting is read | T1 | `t1_aTorrentStartsShowsItsProgressAndPlays` with the test addon's Sintel torrent; `budgetFor` unit tests in `shared/torrent` |
 | A11 Search | `SearchViewModel` (350 ms debounce), recent searches, discover row. Android: a one row keyboard drawn in Compose takes first focus on "a" (tvOS focuses its keyboard on entry; no tvOS change needed), "123" opens the system IME for digits and symbols, Down from the keyboard reaches suggestions and Top Results; a recent search is removed by long press and a Remove dialog | Q1 to Q3 | UI tests from `NavigationTests` (search cases), plus a keyboard test (letters, space, delete) |
 | A12 Addons | `AddonsViewModel`, Settings style list and preview, install panel, addon page, remove confirmation | A1 to A5 | UI tests from `AddonsTests` |
 | A12b Add addons from phone | Session logic in `shared/tv-api/.../phone` (`AddonPairingSession`, `AddonPairingRequest`, `AddonPairingToken`, `AddonPairingReply`), server, QR, phone page, confirm dialog (section 5b). Wire format, every request with `?t=<token>`: `GET /` the page, `POST /api/addons` with `{"urls": [...]}` (answers `{"id": n}`, 403, 409, 411, 413, 400), `GET /api/status/<id>` (`pending`, `installing`, `done` with per URL results, `cancelled`, `unknown`). The server binds to the LAN address only. `Done` takes a new proposal like `Waiting` | AQ1 to AQ5 | Unit tests: state machine, token check, request limits. Server test on the JVM: 403, 409, propose then confirm. Manual: a real phone on the home network installs an addon on the box |

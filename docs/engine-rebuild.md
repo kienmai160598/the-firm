@@ -2,9 +2,9 @@
 
 A new torrent streaming engine, written from scratch in `engine/`, replaces the NuvioMedia
 `nuvio-engine`. Both TV apps reach it only through the Kotlin module `shared/torrent`. Since E7a
-the Apple TV app links only the new engine and `engine/build.sh` with its patches is gone. Android
-still plays torrents through the prebuilt `nuvio-engine` AAR (upstream's `P2pStreamingEngine`
-in `android-tv-bridge`) and gets the new engine with E6.
+the Apple TV app links only the new engine and `engine/build.sh` with its patches is gone. Since E7
+Android runs it too, through JNI (E6), and the prebuilt `nuvio-engine` AAR is deleted. Both apps
+share one backend, `EngineTorrentBackend` in `shared/tv-api`.
 
 ## 1. Decisions
 
@@ -35,6 +35,9 @@ Settled:
   result and fails the build when an ABI in `shared/local.properties` is missing, so no APK ships
   without the engine. One `libmovies_engine.so` per ABI holds the engine, libtorrent, `c++_static`
   and the JNI shim, and exports only the JNI functions.
+- D6: Android runs the engine from RAM only, with `budgetFor` (D4) measured from
+  `ActivityManager.MemoryInfo.availMem` when the engine opens: on the box a cap of at most
+  192 MiB. The owner dropped the disk store (E5) for the box on 2026-11-24.
 - The gateway url ends in `/video.<ext>` of the played file and answers with its media type
   (`video/mp4`, `video/x-matroska`, ...). AVPlayer refuses an extensionless url served as
   `application/octet-stream`, so the app picks AVPlayer for .mp4 and mpv for .mkv as it does for
@@ -54,12 +57,13 @@ Open (the default is what the plan assumes):
 | E-AC2 | A 4K remux of 80 to 90 GB plays without a stall when the swarm delivers more than its bitrate |
 | E-AC3 | Seeking lands on the right bytes, and engine memory stays under a fixed cap through 20 seeks |
 | E-AC4 | The UI reads stream state (resolving, buffering with percent, playing, stalled, failed) through `shared/torrent` |
-| E-AC5 | Android TV plays a torrent with the same engine |
-| E-AC6 | Until E7 a build can still use the old engine (D2). Retired on tvOS by E7a |
+| E-AC5 | Android TV plays a torrent with the same engine, from RAM within `budgetFor`'s cap (D6) |
+| E-AC6 | Until E7 a build can still use the old engine (D2). Retired on tvOS by E7a, on Android by E7 |
 
 T2 in `docs/android-tv-rebuild.md` reads 256 MiB ahead on tvOS since E7a (E1's window); E2 and
 E3 size the window from memory.
-A10 (Android torrents) builds on E6.
+On Android T2 reads half of `budgetFor`'s cap ahead, at most 96 MiB (E7). A10 (Android torrents)
+runs on E6 since E7.
 
 ## 3. Architecture
 
@@ -134,18 +138,18 @@ shared/torrent/   Kotlin module: commonMain API and budgetFor, tvosMain cinterop
 | E2 Planner | Critical, playback and readahead windows, deadlines, seek | E-AC2, E-AC3 (seek) | Planner unit tests; integration test reads the right bytes after seeks |
 | E3 Retention | Budget from `os_proc_available_memory()` in place of E1's fixed cap, eviction ordered by distance from the playhead | E-AC3 | 20 seeks stay under the cap in a test; on the device the footprint levels off |
 | E4 State to UI | TelemetryService, `StreamSession` state machine in Kotlin, tvOS UI reads it | E-AC4 | Kotlin state machine tests; UI test sees progress on the stream row |
-| E5 Disk store | DiskPayloadStore for the 1.9 GB box | box | The E1 to E3 integration tests pass with the disk store |
+| E5 Disk store | Dropped for the box by the owner (D6): Android runs from RAM within `budgetFor`'s cap. Was: DiskPayloadStore for the 1.9 GB box | box | none |
 | E6 Android | Memory budget in the C ABI (D4), `budgetFor` in `shared/torrent`, the engine cross built with the NDK for the box ABIs (armeabi-v7a, D5), JNI shim, `shared/torrent` Android target loading `libmovies_engine.so` | E-AC5 | `make engine-test` with a small cap test; `budgetFor` unit tests; a device test (open with a budget, bad budget, bad magnet, close) built into the `:torrent` test APK. A torrent plays on the box with E7 |
 | E7a tvOS cutover | The Apple TV app links only the new engine; the D2 switch, `engine/build.sh`, its patches and the tvOS `nuvio-engine` sources go. Done ahead of E2 to E4 at the owner's request, so tvOS reads 256 MiB ahead from RAM and shows no peers or speed until E4 | E-AC1 | `make shared-test`, `make apple-tv-sim`, a film plays and seeks on the Apple TV |
-| E7 Cutover | Android on the new engine (with E6 and A10), the `nuvio-engine` AAR goes | all | `make check`, a film on the box |
+| E7 Cutover | Android on the new engine (with E6 and A10) through `EngineTorrentBackend`, shared with tvOS; the `nuvio-engine` AAR, its Gradle and R8 wiring and core's Android `P2pStreamingEngine` (excluded, stubbed in the bridge) go; the row shows the step only until E4 | E-AC5, E-AC6 | `make check`, `make apple-tv-sim`, a film on the box |
 
 ## 5. Risks
 
 | Risk | Handling |
 |---|---|
-| Streaming tuning of the old engine is lost | Compare both engines on the same film before E7 (D2 switch) |
-| Weeks of work | The old engine keeps playing until E7 |
-| The box has 1.9 GB of RAM and a 32-bit address space | E5 disk store; RAM mode only where the budget allows |
+| Streaming tuning of the old engine is lost | Happened: on the box E7 first ran with libtorrent's defaults and no stream reached the player's 20 s start deadline. The session now connects the way section 6 item 6 says; measure time to the first piece against a real swarm after any session change |
+| Weeks of work | The old engine kept playing until E7 |
+| The box has 1.9 GB of RAM and a 32-bit address space | RAM only within `budgetFor`'s cap, at most 192 MiB (D6); the disk store was dropped |
 | Native threads calling into Kotlin deadlock or crash | The ABI never calls back; hosts poll |
 | Exceptions crossing `extern "C"` abort the app | Every ABI call runs inside one guard that maps exceptions to a status; tested |
 
@@ -164,6 +168,12 @@ shared/torrent/   Kotlin module: commonMain API and budgetFor, tvosMain cinterop
    would is refused and libtorrent drops that one peer.
 5. `close_redundant_connections` is off: a stream often counts as finished (all wanted pieces
    held), and libtorrent would otherwise drop every seed at that moment.
+6. The session reaches the swarm fast, because a reader gets nothing until its first piece is
+   whole and a 4K film has 16 MiB pieces: outgoing connections are TCP only (outgoing uTP waits
+   out its timeout on unreachable peers), 200 connection attempts a second, a 3 s connect
+   timeout, a 5 s request timeout (a slow peer cannot hold blocks of the first piece for
+   libtorrent's 60 s), and every tracker of the magnet link is announced to. Both apps get this
+   since E7.
 
 ## 7. Verified and not verified
 
@@ -211,7 +221,26 @@ Verified (E6, on a Mac; nothing run on a device yet):
 - The `:torrent` device test APK and AAR carry `lib/armeabi-v7a/libmovies_engine.so`; without the
   library the Android build stops with "Build it first: make engine-android".
 
+Verified (E7, on a Mac; built, not seen on a device):
+
+- `make check` and `make apple-tv-sim` pass with both apps on `EngineTorrentBackend`.
+- The release `box` APK carries `lib/armeabi-v7a/libmovies_engine.so`, and R8 keeps
+  `MoviesEngineJni` and its native methods under their names.
+
+Seen on the Mi Box (E7, release `box` build, 2026-11-25): with libtorrent's default session
+settings every stream reached `READY` in 2 to 10 s and then failed with "sent no data for 20
+seconds". The gateway answered `206` at once but the first 16 MiB piece took up to 59 s (4 runs on
+the box: 1 s, 25 s, 30 s, 59 s). Measured from a Mac (Guarding Stars 2160p, 15.9 GB, 951 pieces of
+16 MiB, time from `READY` to the first piece): defaults 45 s, 70 s and over 90 s twice; with
+section 6 item 6 8 to 30 s, median 14 s, 9 of 11 runs under 20 s; the same with outgoing uTP kept
+on 25 to 65 s in 4 runs; a deadline on the first piece only instead of the first 4, 11 to 34 s
+in 4 runs.
+
 Not verified:
+Android on the Mi Box: open to first frame, the PSS during playback against `budgetFor`'s cap,
+and seeks. The box was in use while E7 was built. The `:torrent` device test and the A10 UI test
+are built but not run on a device.
+
 `os_proc_available_memory()` on an Apple TV 4K; eviction against a real swarm (Sintel is under
 the cap; the loopback test covers it); a long film and seeks in mpv through the gateway (one
 connection per seek, `Connection: close`). Memory on the device: the store holds up to 512 MiB

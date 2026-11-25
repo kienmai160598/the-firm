@@ -31,10 +31,10 @@ class StreamRowStateTest {
     }
 
     @Test
-    fun t1_theRowShowsTheEngineStepPeersSpeedAndBuffer() {
-        val progress = torrentProgress(torrentStatus(step = "Finding peers", peers = 12, seeds = 3, speed = "1.2 MB/s", buffer = 0.4f))
+    fun t1_theRowShowsTheEngineStepWithoutPeersSpeedOrBufferUntilE4() {
+        val progress = torrentProgress(torrentStatus(step = "resolving", peers = 12, seeds = 3, speed = "1.2 MB/s", buffer = 0.4f))
 
-        assertEquals(StreamRowProgress("Finding peers", "12 peers, 3 seeds, 1.2 MB/s", 0.4f), progress)
+        assertEquals(StreamRowProgress("resolving"), progress)
     }
 
     @Test
