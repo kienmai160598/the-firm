@@ -4,6 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,7 +39,7 @@ import com.kien.movies.design.TvControls
 import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvInsets
-import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvSheet
 import com.kien.movies.design.TvType
 import com.kien.movies.design.glassEdge
 import com.kien.movies.player.PlaybackRequest
@@ -46,8 +49,9 @@ import com.kien.movies.shell.AppRoute
 import com.kien.movies.shell.Router
 
 /**
- * Streams (tvOS StreamsView.swift): header, then loading, empty or the groups as addons answer,
- * on the flat Details background (docs/tv-look-spec.md, section 2 Colour; no backdrop). A press checks the resume point, asks Resume or Start Over when
+ * Streams (tvOS StreamsView.swift): the title column on the left stays in view, and loading, empty
+ * or the groups as addons answer fill the column on the right, 20 dp from it, over the receded
+ * backdrop of [StreamsBackground]. A press checks the resume point, asks Resume or Start Over when
  * there is one (S5), and presents the player as a full screen cover in this entry, as tvOS does
  * with fullScreenCover. A stream that cannot play opens the info sheet (S4).
  *
@@ -67,6 +71,7 @@ fun StreamsScreen(route: AppRoute.Streams, router: Router) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (playback == null) {
+            StreamsBackground(backdropUrl = viewModel.target.backdropUrl)
             StreamsPage(
                 viewModel = viewModel,
                 state = state,
@@ -112,19 +117,28 @@ private fun StreamsPage(
         withFrameNanos {}
         bodyFocus.requestFocus()
     }
-    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(PAGE_GAP)) {
+    val groups = content as? StreamsContent.Groups
+    Row(modifier = Modifier.fillMaxSize()) {
         StreamsHeader(
             target = viewModel.target,
             resume = state.directResume,
-            modifier = Modifier.padding(start = TvGrid.sideMargin, end = TvGrid.sideMargin, top = TvInsets.verticalMargin)
+            sourceCount = groups?.sourceCount ?: 0,
+            searchingAddonCount = groups?.searchingAddonCount ?: 0,
+            modifier = Modifier.padding(start = TvGrid.sideMargin, top = PAGE_TOP)
         )
-        // No cross fade between the bodies (tvOS fades 0.35 s): during a fade both bodies are
-        // composed, and the focus request below could land in the one that is leaving.
-        Box(modifier = Modifier.weight(1f).fillMaxWidth().focusRequester(bodyFocus)) {
+        // The body runs to the screen edges, its margins go inside it: the list scrolls under the
+        // top edge and a focused row's scale is not clipped. No cross fade between the bodies
+        // (tvOS fades 0.35 s): during a fade both are composed, and the focus request above could
+        // land in the one that is leaving.
+        Box(modifier = Modifier.weight(1f).fillMaxHeight().focusRequester(bodyFocus)) {
             when (content) {
-                StreamsContent.Loading -> StreamsLoading()
+                StreamsContent.Loading -> StreamsLoading(modifier = Modifier.padding(BodyMargins))
 
-                is StreamsContent.Empty -> StreamsEmpty(emptyState = content.emptyState, onRetry = viewModel::reload)
+                is StreamsContent.Empty -> StreamsEmpty(
+                    emptyState = content.emptyState,
+                    onRetry = viewModel::reload,
+                    modifier = Modifier.padding(BodyMargins)
+                )
 
                 is StreamsContent.Groups -> StreamGroupList(
                     content = content,
@@ -133,7 +147,8 @@ private fun StreamsPage(
                     restoreKey = restoreKey,
                     onRestored = onRestored,
                     onSelect = { row -> viewModel.select(row.stream) },
-                    onRetry = viewModel::reload
+                    onRetry = viewModel::reload,
+                    contentPadding = BodyMargins
                 )
             }
         }
@@ -168,8 +183,8 @@ private fun StreamsResumeDialog(title: String, pending: PendingResume, onAnswer:
         Column(
             modifier = Modifier
                 .width(DIALOG_WIDTH)
-                .background(DialogPanelFill, TvShapes.panel)
-                .glassEdge(TvShapes.panel)
+                .background(TvColors.dialogPanel, ResumeDialogShape)
+                .glassEdge(ResumeDialogShape)
                 .padding(DIALOG_PADDING)
                 .testTag(STREAMS_RESUME_DIALOG_TAG),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -223,11 +238,15 @@ const val STREAMS_RESUME_DIALOG_TAG = "streams-resume-dialog"
 const val STREAMS_RESUME_TAG = "streams-resume"
 const val STREAMS_START_OVER_TAG = "streams-start-over"
 
-/** Dialog panels are opaque: the dialog window already dims what is behind them once. */
-internal val DialogPanelFill = TvColors.sidebarPanel.copy(alpha = 1f)
-
 // tvOS literals, pt / 2.
-private val PAGE_GAP = 18.dp // VStack spacing 36
+private val PAGE_TOP = 30.dp // the header and the first addon start 60 pt down
+private val COLUMN_GAP = 20.dp // HStack spacing 40
 private val DIALOG_WIDTH = 320.dp
 private val DIALOG_PADDING = 24.dp
 private val DIALOG_GAP = 12.dp
+
+/** The right column's margins: 20 dp from the header, the 48 dp side margin, overscan at the bottom. */
+private val BodyMargins = PaddingValues(start = COLUMN_GAP, end = TvGrid.sideMargin, top = PAGE_TOP, bottom = TvInsets.verticalMargin)
+
+/** Concentric with its capsule buttons: 16 dp radius + 24 dp padding = 40 dp. */
+private val ResumeDialogShape = TvSheet.shapeFor(DIALOG_PADDING)

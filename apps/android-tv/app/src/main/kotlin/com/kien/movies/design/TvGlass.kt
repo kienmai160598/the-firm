@@ -70,8 +70,8 @@ object TvGlass {
 
     @Composable
     @ReadOnlyComposable
-    fun surfaceColors(): ClickableSurfaceColors = ClickableSurfaceDefaults.colors(
-        containerColor = TvColors.platter,
+    fun surfaceColors(containerColor: Color = TvColors.platter): ClickableSurfaceColors = ClickableSurfaceDefaults.colors(
+        containerColor = containerColor,
         contentColor = TvColors.textPrimary,
         focusedContainerColor = TvColors.focusedFill,
         focusedContentColor = TvColors.focusedContent,

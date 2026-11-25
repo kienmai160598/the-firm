@@ -76,6 +76,19 @@ object TvColors {
     val platter = Color.White.copy(alpha = 0.22f)
 
     /**
+     * A stream row over the receded backdrop of Streams: white 13%, as measured on tvOS where the
+     * glass row lifts the backdrop by 12 to 13% (2026-11-24).
+     */
+    val streamRow = Color.White.copy(alpha = 0.13f)
+
+    /**
+     * The panel of a popup (dialogs and sheets): near black glass at 85%, so the dimmed screen
+     * behind lifts through it a little as through tvOS's glass sheet. One layer over the dialog
+     * window's dim, no blur.
+     */
+    val dialogPanel = Color(0xFF1A1A1A).copy(alpha = 0.85f)
+
+    /**
      * The open sidebar panel: one layer, no blur, plus the liquid glass rim. Light enough that the
      * screen behind still shows through, as tvOS glass does.
      */
@@ -149,8 +162,9 @@ object TvShapes {
     /** Poster, 16:9 card, Continue Watching (tvOS 16 pt continuous). */
     val card = RoundedCornerShape(8.dp)
 
-    /** Result card, description panel (tvOS 24 pt). */
-    val panel = RoundedCornerShape(12.dp)
+    /** Result card, description panel, stream row (tvOS 24 pt). */
+    val panelRadius: Dp = 12.dp
+    val panel = RoundedCornerShape(panelRadius)
 
     /** Open sidebar panel (tvOS 32 pt). */
     val sidebar = RoundedCornerShape(16.dp)
@@ -159,10 +173,29 @@ object TvShapes {
     val pill = RoundedCornerShape(50)
 }
 
+/**
+ * A centred dialog panel that ends in a capsule button (stream info sheet, resume dialog). Its
+ * corner follows the concentric rule: the capsule's radius plus the panel's padding.
+ */
+object TvSheet {
+    /** Stream info sheet width and padding (tvOS StreamDetailSheet, 1200 x 64 pt). */
+    val width: Dp = 600.dp
+    val padding: Dp = 32.dp
+
+    /** 16 dp capsule radius + 32 dp padding = 48 dp. */
+    val shape: RoundedCornerShape = shapeFor(padding)
+
+    /** A panel with [padding] around its capsule buttons, such as the resume dialog (24 dp: 40 dp). */
+    fun shapeFor(padding: Dp): RoundedCornerShape = RoundedCornerShape(containerRadius(inner = TvControls.pillRadius, padding = padding))
+}
+
 /** Control sizes (spec section 3, Buttons and pills). Focus scales are in [Focus]. */
 object TvControls {
     /** Primary capsule on Details and in panels and dialogs, 64 pt. */
     val pillHeight: Dp = 32.dp
+
+    /** Corner radius of that capsule, the inner radius for the concentric rule. */
+    val pillRadius: Dp = pillHeight / 2
 
     /**
      * Circular control of the player's transport row, 64 pt. The player is not captured (spec

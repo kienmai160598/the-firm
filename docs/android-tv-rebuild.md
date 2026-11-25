@@ -305,7 +305,8 @@ own values:
 
 | Token | tvOS | Android TV |
 |---|---|---|
-| Stream row, resolution badge | 104, 124x64 pt | 52, 62x32 dp |
+| Stream row, resolution badge | 104, 124x64 pt (134 pt with the bordered button's padding) | 52, 62x32 dp (67 dp with the button's padding) |
+| Streams title column | 560 pt, 40 pt from the list | 280 dp, 20 dp from the list |
 | Titles (player, streams) | 54, 52 pt | 27, 26 sp |
 | Small text floor | 19 pt | 12 sp; 11 sp only inside badges |
 
