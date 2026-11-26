@@ -49,6 +49,17 @@ README.md has the layout and every build command.
 4. The PR body lists which of these ran and on what. "Built, not seen on a device" is a valid
    report.
 
+## Build output
+
+- A worktree goes in `.claude/worktrees/<topic>`, never in `/tmp` or beside the repo.
+- Build and test the Apple TV app through make (`apple-tv`, `apple-tv-sim`,
+  `apple-tv-test ONLY=NuvioTvUITests/<class>`). They build into `apps/apple-tv/build/` of the
+  checkout, and every later build there reuses it. When calling `xcodebuild` directly, pass
+  `-derivedDataPath apps/apple-tv/build/DerivedData-sim`. Never a new folder per task: each one
+  is 2 to 3 GB and a full rebuild, and nothing deletes it.
+- Screenshots, recordings, traces and result bundles go in `apps/apple-tv/build/scratch/`.
+  Delete them before the PR is done, except the ones the PR body shows.
+
 ## Android TV box
 
 Weak GPU (fill rate bound), 32-bit armeabi-v7a, 1.9 GB RAM, 59.94 Hz. No full screen gradients,

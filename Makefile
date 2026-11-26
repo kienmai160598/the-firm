@@ -13,12 +13,13 @@ GRADLE := cd shared && ./gradlew -Pnuvio.android.distribution=full
 KOTLIN_SOURCES := "apps/android-tv/app/src/**/*.kt" "apps/android-tv/app/*.kts" \
 	"shared/android-tv-bridge/src/**/*.kt" "shared/android-tv-bridge/*.kts" \
 	"shared/torrent/**/*.kt" "shared/torrent/*.kts"
-APPLE_TV_DERIVED := /tmp/the-firm-apple-tv
+# Inside the checkout, so every build of one checkout reuses it and it goes with its worktree.
+APPLE_TV_DERIVED := $(CURDIR)/$(APPLE_TV)/build/DerivedData
 APPLE_TV_APP := $(APPLE_TV_DERIVED)/Build/Products/Release-appletvos/NuvioTv.app
 APPLE_TV_SIM := 'platform=tvOS Simulator,name=Apple TV 4K (4th generation)'
 
 .PHONY: help check lint format tv-runtime-init-check android-tv android-tv-test box-install \
-	box-roundtrip apple-tv-project apple-tv apple-tv-sim apple-tv-install shared-test \
+	box-roundtrip apple-tv-project apple-tv apple-tv-sim apple-tv-test apple-tv-install shared-test \
 	engine-next engine-test engine-android
 
 help:
@@ -31,6 +32,7 @@ help:
 	@echo "box-roundtrip     persistence round trip on the box (test addon on 127.0.0.1:8765)"
 	@echo "apple-tv          Release build for a device (APPLE_TEAM=<team id>)"
 	@echo "apple-tv-sim      Debug build for the tvOS simulator"
+	@echo "apple-tv-test     Apple TV unit and UI tests on the simulator (ONLY=<target>[/<class>[/<test>]])"
 	@echo "apple-tv-install  install the Release build (APPLE_TV_DEVICE=<devicectl id>)"
 	@echo "shared-test       Apple TV bridge and torrent module tests on the tvOS simulator"
 	@echo "engine-next       build the torrent engine xcframework (engine/build)"
@@ -73,6 +75,11 @@ apple-tv: apple-tv-project
 apple-tv-sim: apple-tv-project
 	xcodebuild -project $(APPLE_TV)/NuvioTv.xcodeproj -scheme NuvioTv -configuration Debug \
 		-destination $(APPLE_TV_SIM) -derivedDataPath $(APPLE_TV_DERIVED)-sim build
+
+apple-tv-test: apple-tv-project
+	xcodebuild -project $(APPLE_TV)/NuvioTv.xcodeproj -scheme NuvioTv -configuration Debug \
+		-destination $(APPLE_TV_SIM) -derivedDataPath $(APPLE_TV_DERIVED)-sim \
+		$(if $(ONLY),-only-testing:$(ONLY)) test
 
 apple-tv-install: apple-tv
 	xcrun devicectl device install app --device "$${APPLE_TV_DEVICE:?set APPLE_TV_DEVICE}" \
